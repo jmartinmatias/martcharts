@@ -714,6 +714,34 @@ describe("time axis labels", () => {
   });
 });
 
+describe("category labels that wrap", () => {
+  const names = ["Revenue", "New customers", "Gross margin (%)", "Net promoter score", "Tickets resolved", "Renewal rate", "Average deal size", "Pipeline coverage", "Days to close", "Win rate"];
+
+  test("a few long names wrap onto short lines under their bar instead of being skipped, each line inside its band", async () => {
+    await draw({ rows: names.map((kpi, i) => ({ kpi, v: 100 - i * 5 })), view: { type: "bar", x: "kpi", y: "v", mark: "lollipop" } });
+    const labels = all(".fft-tick-x");
+    expect(labels.map((label) => label.getAttribute("aria-label"))).toEqual(names);
+    const lines = labels.map((label) => [...label.querySelectorAll("tspan")].map((t) => t.textContent));
+    expect(lines[3]).toEqual(["Net", "promoter", "score"]);
+    // The band each label sits in is a tenth of the plot; no line may be wider than it.
+    const band = (Number(all("svg")[0]?.getAttribute("width")) - 40) / names.length;
+    expect(lines.flat().every((line) => (line?.length ?? 0) * 6 <= band)).toBe(true);
+  });
+
+  test("wrapped months name their year once, then again only where it changes", async () => {
+    const months = ["2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06", "2026-07", "2026-08", "2026-09"];
+    await draw({ rows: months.map((m, i) => ({ m, v: 100 + i })), fields: { m: { format: { type: "date", style: "month" } } }, view: { type: "bar", x: "m", y: "v" } });
+    const lines = all(".fft-tick-x").map((label) => [...label.querySelectorAll("tspan")].map((t) => t.textContent).join(" "));
+    expect(lines.slice(0, 5)).toEqual(["Oct 2025", "Nov", "Dec", "Jan 2026", "Feb"]);
+    expect(all(".fft-tick-x")[1]?.getAttribute("aria-label")).toBe("Nov 2025");
+  });
+
+  test("names that cannot wrap into three short lines are thinned as before", async () => {
+    await draw({ rows: names.map((kpi, i) => ({ kpi: kpi.replace(/ /g, "_"), v: 100 - i * 5 })), view: { type: "bar", x: "kpi", y: "v" } });
+    expect([all(".fft-tick-x").length < names.length, all(".fft-tick-x tspan").length]).toEqual([true, 0]);
+  });
+});
+
 describe("value axis ticks", () => {
   test("tick labels are exact, never rounded: a quarter step reads 1.25M, not 1.3M", async () => {
     await draw({ rows: [{ m: "Jan", v: 820000 }, { m: "Feb", v: 1823000 }], view: { type: "line", x: "m", y: "v" } });

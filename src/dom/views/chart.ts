@@ -71,6 +71,30 @@ const missFill = (color: string) => `color-mix(in srgb, ${color} 34%, var(--fft-
 /** Its outline, the miss's only edge: leaning toward the text color keeps it at 3:1 on any page, light or dark. */
 const missEdge = (color: string) => `color-mix(in srgb, ${color} 85%, var(--fft-text))`;
 
+/** One line of a wrapped category label, and the most lines a label may take. */
+const LINE_HEIGHT = 13;
+const MAX_LINES = 3;
+
+/**
+ * Category labels broken at spaces onto at most three lines no wider than `room`, so a few long names ("Net promoter
+ * score") can all be read under their bars. Undefined when any one will not fit: the axis then thins its labels.
+ */
+function wrapLabels(labels: string[], room: number): string[][] | undefined {
+  const max = Math.floor(room / CHAR_WIDTH);
+  const wrapped: string[][] = [];
+  for (const label of labels) {
+    const lines: string[] = [];
+    for (const word of label.split(/\s+/).filter(Boolean)) {
+      const line = lines.at(-1);
+      if (line !== undefined && `${line} ${word}`.length <= max) lines[lines.length - 1] = `${line} ${word}`;
+      else lines.push(word);
+    }
+    if (lines.length > MAX_LINES || lines.some((line) => line.length > max)) return undefined;
+    wrapped.push(lines);
+  }
+  return wrapped;
+}
+
 /** A legend key: a series, a line, or a mark state such as a bar that missed its target. */
 interface LegendEntry {
   field: string;
@@ -202,6 +226,18 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
   const left = stream ? 13 : Math.max(28, Math.max(...labelTicks.map((t) => tickText(t).length)) * CHAR_WIDTH + 12);
   const margin = { top: 8, right: kind === "bar" ? 5 : Math.max(13, endRoom), bottom: 26, left };
   const width = Math.max(ctx.width, left + margin.right + 40);
+  // A few bars whose names would be thinned out wrap them onto short lines instead, every name read under its bar.
+  const widest = Math.max(...xLabels.map((label) => label.length)) * CHAR_WIDTH + 8;
+  const room = width - margin.left - margin.right;
+  const wrapped = kind === "bar" && rows.length <= 12 && rows.length * widest > room ? wrapLabels(xLabels, room / rows.length - 4) : undefined;
+  if (wrapped) margin.bottom += (Math.max(...wrapped.map((lines) => lines.length)) - 1) * LINE_HEIGHT;
+  // Dates name their year once, then again only where it changes: "Oct 2025", "Nov", "Dec", "Jan 2026".
+  if (wrapped && rows.every((row) => /^\d{4}-\d{2}/.test(String(row[view.x])))) {
+    for (let i = wrapped.length - 1; i > 0; i--) {
+      const [lines, before] = [wrapped[i] as string[], wrapped[i - 1] as string[]];
+      if (lines.length > 1 && lines.at(-1) === before.at(-1)) wrapped[i] = lines.slice(0, -1);
+    }
+  }
   const height = ctx.height;
   const plot = { x: margin.left, y: margin.top, w: width - margin.left - margin.right, h: height - margin.top - margin.bottom };
   const y = linearScale(present, [plot.y + plot.h, plot.y], { includeZero: fromZero, nice: !stream });
@@ -222,19 +258,28 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
     label.textContent = tickText(tick);
     axis.append(label);
   }
-  // Category labels, thinned to every nth, then any that would still come within 8px of the last one drawn are skipped.
-  const widest = Math.max(...xLabels.map((label) => label.length)) * CHAR_WIDTH + 8;
-  const every = Math.max(1, Math.ceil((rows.length * widest) / plot.w));
+  // Category labels, wrapped as above, or else thinned to every nth, then any that would still come within 8px of the
+  // last one drawn are skipped.
+  const every = wrapped ? 1 : Math.max(1, Math.ceil((rows.length * widest) / plot.w));
   // Edge-to-edge series align their first and last labels inward, so they never spill out of the chart.
   const anchorOf = (i: number) => (kind === "bar" || rows.length < 2 ? "middle" : i === 0 ? "start" : i === rows.length - 1 ? "end" : "middle");
   // A thinned axis still names its last category or period, giving up the label before it if the two would touch.
   const last = rows.length - 1;
   const candidates = slots.map((_, i) => i).filter((i) => i % every === 0 || i === last);
   const boxes: LabelBox[] = candidates.map((i) => ({ x: slots[i]?.center ?? 0, width: (xLabels[i] ?? "").length * CHAR_WIDTH, anchor: anchorOf(i) }));
-  for (const k of fitLabels(boxes, { keepLast: true })) {
+  for (const k of wrapped ? candidates.map((_, k) => k) : fitLabels(boxes, { keepLast: true })) {
     const i = candidates[k] as number;
     const label = svg(doc, "text", { class: "fft-tick fft-tick-x", x: slots[i]?.center ?? 0, y: plot.y + plot.h + 18, "text-anchor": anchorOf(i) });
-    label.textContent = xLabels[i] ?? "";
+    const lines = wrapped?.[i];
+    if (lines) {
+      // One tspan per line; the label keeps its whole name for screen readers, which would run the lines together.
+      label.setAttribute("aria-label", xLabels[i] ?? "");
+      for (const [n, line] of lines.entries()) {
+        const span = svg(doc, "tspan", { x: slots[i]?.center ?? 0, dy: n === 0 ? 0 : LINE_HEIGHT });
+        span.textContent = line;
+        label.append(span);
+      }
+    } else label.textContent = xLabels[i] ?? "";
     axis.append(label);
   }
   chart.append(axis);
