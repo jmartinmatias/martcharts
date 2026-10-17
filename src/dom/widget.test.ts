@@ -4,10 +4,13 @@ import { registerView } from "../core/registry.ts";
 import type { ViewContext } from "../core/view-context.ts";
 import type { Row, WidgetSpec } from "../core/types.ts";
 import { widgetRef } from "../core/ref.ts";
+import { explainChart } from "../core/explain.ts";
 import { getPreset } from "../core/presets.ts";
 import type { StylePreset } from "../core/presets.ts";
 import { presetCss } from "./styles.ts";
 import { createWidget } from "./widget.ts";
+// The built-in renderers, for the tests that draw real charts (How to read it).
+import "./views/index.ts";
 
 /** A promise you resolve by hand, for controlling when a data source answers. */
 function deferred<T>() {
@@ -685,3 +688,37 @@ describe("ghost ref", () => {
     expect([target.querySelector(".fft-widget-ref")?.hasAttribute("hidden"), root()?.dataset.fftRef, target.querySelector(".fft-base")?.hasAttribute("hidden")]).toEqual([true, undefined, true]);
   });
 });
+
+describe("how to read it", () => {
+  const sales = [
+    { region: "North", revenue: 1200 },
+    { region: "East", revenue: 2000 },
+  ];
+  const bar: WidgetSpec = { locale: "en-US", data: { type: "inline", rows: sales }, view: { type: "bar", x: "region", y: "revenue" } };
+  const guide = () => target.querySelector<HTMLElement>(".fft-guide");
+  const button = () => target.querySelector<HTMLButtonElement>('.fft-action[data-action="explain"]');
+
+  test("the toolbar button shows the chart's plain guide under it, with an example from its rows, and hides it again", async () => {
+    await createWidget(target, bar, { actions: ["explain"] }).ready;
+    expect([guide()?.hidden, button()?.getAttribute("aria-expanded"), button()?.getAttribute("aria-label")]).toEqual([true, "false", "How to read it"]);
+    button()?.click();
+    expect([guide()?.hidden, button()?.getAttribute("aria-expanded"), guide()?.textContent]).toEqual([false, "true", `How to read it${explainChart(bar, sales)}`]);
+    expect(guide()?.textContent).toContain("Here, East is the tallest");
+    button()?.click();
+    expect(guide()?.hidden).toBe(true);
+  });
+
+  test("guide: true shows it from the start, as the expanded view does", async () => {
+    await createWidget(target, bar, { guide: true }).ready;
+    expect([guide()?.hidden, guide()?.textContent?.startsWith("How to read it")]).toEqual([false, true]);
+  });
+
+  test("an open guide follows the chart when its spec changes", async () => {
+    const widget = createWidget(target, bar, { actions: ["explain"] });
+    await widget.ready;
+    button()?.click();
+    await widget.update({ view: { type: "hbar", label: "region", value: "revenue", x: null, y: null } });
+    expect(guide()?.textContent).toContain("Each row is one region.");
+  });
+});
+

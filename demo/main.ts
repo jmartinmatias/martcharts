@@ -28,7 +28,7 @@ const button = (label: string, title?: string) => {
 
 const boardOptions: Parameters<typeof createDashboard>[2] = {
   widgets: byId,
-  actions: ["expand", "csv", "image", "copy"],
+  actions: ["expand", "explain", "csv", "image", "copy"],
   // The filter row (period, region, sections) stays pinned while the long gallery scrolls.
   sticky: true,
   // The chosen section lives in the address, so a link opens the gallery on it.

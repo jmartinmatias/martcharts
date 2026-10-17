@@ -7,6 +7,7 @@ import { fieldLabel, formatNode, formatValue } from "../core/display.ts";
 import { fork } from "../core/fork.ts";
 import type { Override } from "../core/fork.ts";
 import { runPipeline } from "../core/pipeline.ts";
+import { explainChart } from "../core/explain.ts";
 import { widgetRef } from "../core/ref.ts";
 import { getBlock } from "../core/registry.ts";
 import type { Issue, Row, WidgetSpec } from "../core/types.ts";
@@ -29,10 +30,13 @@ export interface WidgetOptions {
   /**
    * Buttons offered in the widget's corner: `csv` downloads the rows, `image`
    * downloads the chart as a PNG (shown only when the view draws a chart),
-   * `copy` copies the rows as tab-separated text for spreadsheets. None by
-   * default: whether people may take the data out is the host's decision.
+   * `copy` copies the rows as tab-separated text for spreadsheets, `explain`
+   * shows a plain "How to read it" guide under the chart. None by default:
+   * whether people may take the data out is the host's decision.
    */
   actions?: WidgetAction[];
+  /** Shows the "How to read it" guide from the start, as the expanded view does. */
+  guide?: boolean;
   /**
    * The widgets on either side of a given one, for stepping through them in
    * the expanded view (a dashboard passes its own order). Without it, the
@@ -126,7 +130,12 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
   tip.hidden = true;
   headlineEl.hidden = true;
   header.append(title, subtitle);
-  root.append(header, headlineEl, body, message, base, tip);
+  // How to read it: a plain guide under the chart, in the chart's own field names, with one example from its rows.
+  const guide = make("p", "fft-guide");
+  guide.id = `${id}-guide`;
+  guide.setAttribute("aria-live", "polite");
+  guide.hidden = !options.guide;
+  root.append(header, headlineEl, body, guide, message, base, tip);
   const actionButtons = new Map<WidgetAction, HTMLButtonElement>();
   let bar: HTMLElement | undefined;
   /** A toolbar button: an icon of 2px strokes on a 24px grid, named for tooltips and screen readers. */
@@ -157,6 +166,10 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
   for (const action of options.actions ?? []) {
     const button = actionButton(ACTION_LABELS[action], ACTION_ICONS[action]);
     button.dataset.action = action;
+    if (action === "explain") {
+      button.setAttribute("aria-expanded", String(!guide.hidden));
+      button.setAttribute("aria-controls", guide.id);
+    }
     button.addEventListener("click", () => void runAction(action, button));
     actionButtons.set(action, button);
   }
@@ -395,6 +408,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
         cleanup = typeof result === "function" ? result : undefined;
       }
       drawn = true;
+      paintGuide();
       const imageButton = actionButtons.get("image");
       if (imageButton) imageButton.hidden = !chartSvg();
       if (!entered) {
@@ -512,6 +526,8 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       big = createWidget(slot, fork(target.spec, { style: { height: tall } }), {
         fetch: options.fetch,
         actions: (options.actions ?? []).filter((action) => action !== "expand"),
+        // With room to spare, the expanded chart says how to read it from the start.
+        guide: true,
       });
       const around = options.neighbors?.(target);
       if (nav && around) {
@@ -569,9 +585,22 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     shut.focus();
   }
 
+  /** Writes the guide for what is drawn now, when it is open. */
+  function paintGuide() {
+    if (guide.hidden) return;
+    guide.replaceChildren(make("strong", "fft-guide-label"), explainChart(current, rows));
+    (guide.firstChild as HTMLElement).textContent = "How to read it";
+  }
+
   async function runAction(action: WidgetAction, button: HTMLButtonElement) {
     if (action === "expand") {
       expand(button);
+      return;
+    }
+    if (action === "explain") {
+      guide.hidden = !guide.hidden;
+      button.setAttribute("aria-expanded", String(!guide.hidden));
+      paintGuide();
       return;
     }
     const name = slug(current.id ?? current.title);

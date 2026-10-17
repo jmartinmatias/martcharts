@@ -295,6 +295,10 @@ export const BASE_CSS = `
 .fft-action[data-failed] { color: var(--fft-negative); }
 .fft-title { margin: 0; font-size: 13px; line-height: 21px; font-weight: 600; letter-spacing: -0.005em; }
 .fft-subtitle { margin: 0; font-size: 13px; line-height: 21px; color: var(--fft-text-secondary); }
+/* How to read it: a quiet note under the chart, a thin accent rule, a small label over plain sentences. */
+.fft-guide { margin: 0; max-width: 68ch; padding: 2px 0 2px 13px; border-left: 2px solid var(--fft-accent); font-size: 13px; line-height: 21px; color: var(--fft-text-secondary); }
+.fft-guide[hidden] { display: none; }
+.fft-guide-label { display: block; margin-bottom: 2px; font-size: 11px; line-height: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
 .fft-footer { margin: 0; font-size: 11px; line-height: 13px; color: var(--fft-muted); }
 /* The bottom row: footer at the left, the ghost ref at the right. */
 .fft-base { display: flex; align-items: baseline; gap: 13px; min-width: 0; }
