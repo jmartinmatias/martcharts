@@ -504,7 +504,8 @@ function guide(spec: WidgetSpec): string {
     case "icicle":
       return `The first column is the total. Each column to the right splits the boxes into smaller parts: the taller the box, the more ${name(one(view.value))}.`;
     case "list":
-      return `Each line is one ${name(one(view.label))}${one(view.value) ? `, with its ${name(one(view.value))} on the right` : ""}.`;
+      // A field called name, title or label says nothing about what the lines are: they are entries.
+      return `Each line is one ${/^(name|title|label)$/i.test(one(view.label) ?? "") ? "entry" : name(one(view.label))}${one(view.value) ? `, with its ${name(one(view.value))} on the right` : ""}.`;
     case "table":
       return "Each row is one record and each column one detail. Click a column heading to sort by it, when sorting is on.";
     default:

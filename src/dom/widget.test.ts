@@ -713,6 +713,15 @@ describe("how to read it", () => {
     expect([guide()?.hidden, guide()?.textContent?.startsWith("How to read it")]).toEqual([false, true]);
   });
 
+  test("showGuide opens and closes the guide from code, keeping the button in step", async () => {
+    const widget = createWidget(target, bar, { actions: ["explain"] });
+    await widget.ready;
+    widget.showGuide(true);
+    const open = [guide()?.hidden, button()?.getAttribute("aria-expanded"), guide()?.textContent?.includes("Here, East is the tallest")];
+    widget.showGuide(false);
+    expect([open, [guide()?.hidden, button()?.getAttribute("aria-expanded")]]).toEqual([[false, "true", true], [true, "false"]]);
+  });
+
   test("an open guide follows the chart when its spec changes", async () => {
     const widget = createWidget(target, bar, { actions: ["explain"] });
     await widget.ready;

@@ -180,6 +180,27 @@ describe("sections", () => {
   });
 });
 
+describe("how to read every chart", () => {
+  const spec = { widgets: [{ widget: "by-region" }, { widget: "monthly" }] };
+  const open = () => [...target.querySelectorAll<HTMLElement>(".fft-guide")].map((g) => !g.hidden);
+
+  test("setGuides opens every widget's guide at once, and closes them again", async () => {
+    const board = createDashboard(target, spec, { widgets });
+    await board.ready;
+    const before = open();
+    board.setGuides(true);
+    const during = open();
+    board.setGuides(false);
+    expect([before, during, open()]).toEqual([[false, false], [true, true], [false, false]]);
+  });
+
+  test("the guides option opens them from the start", async () => {
+    const board = createDashboard(target, spec, { widgets, guides: true });
+    await board.ready;
+    expect(open()).toEqual([true, true]);
+  });
+});
+
 describe("section filter", () => {
   const spec = { id: "g", widgets: [{ section: "Revenue and profit" }, { widget: "by-region" }, { section: "Trends" }, { widget: "monthly" }] };
   const buttons = () => [...target.querySelectorAll<HTMLButtonElement>(".fft-board-nav button")];

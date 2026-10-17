@@ -106,6 +106,7 @@ describe("explainChart", () => {
     expect(at({ type: "timeline", label: "task", start: "s", end: "e", progress: "p" }, [{ task: "Build", s: "2026-08-01", e: "2026-10-01", p: 0.5 }, { task: "Launch", s: "2026-11-01", e: "2026-11-02", p: 0 }])).toContain("Here, the longest task is Build.");
     expect(at({ type: "kpi", value: "v" }, [{ v: 10 }, { v: 12 }])).toContain("Here, it is 12, up from 10.");
     expect(at({ type: "list", label: "name", value: "v" }, [{ name: "Aurora", v: 9 }, { name: "Bell", v: 7 }])).toContain("Here, Aurora is at the top, with 9.");
+    expect(at({ type: "list", label: "name", value: "revenue" }, [])).toContain("Each line is one entry, with its revenue on the right.");
   });
 
   test("tables, percent stacks, ridgelines and lines with several series get an example too", () => {

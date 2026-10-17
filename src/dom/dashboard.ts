@@ -42,6 +42,8 @@ export interface DashboardOptions {
    * left alone.
    */
   hash?: boolean;
+  /** Opens every widget's "How to read it" guide from the start. */
+  guides?: boolean;
 }
 
 /** A live dashboard. */
@@ -57,6 +59,8 @@ export interface Dashboard {
   setRange(option: string): Promise<void>;
   /** Shows one section (by title or id) with its heading and cards, or every section again with `null`. Throws for an unknown section. */
   setSection(section: string | null): void;
+  /** Opens or closes the "How to read it" guide on every widget at once. */
+  setGuides(open: boolean): void;
   /** Merges a patch into every widget's spec (merge patch rules), for example a style preset. Survives filtering. */
   setOverride(patch: Record<string, unknown>): Promise<void>;
   destroy(): void;
@@ -181,7 +185,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     const rows = runPipeline({ data: found.data }, { fetch: options.fetch }).catch(() => [] as Row[]);
     rawRows.set(id, rows);
     rawFields.set(id, rows.then((list) => new Set(list.flatMap((row) => Object.keys(row)))));
-    const widget = createWidget(mount, found, { actions: options.actions, fetch: options.fetch, neighbors });
+    const widget = createWidget(mount, found, { actions: options.actions, fetch: options.fetch, neighbors, guide: options.guides });
     widgets.set(id, widget);
     slotOf.set(widget, slot);
     options.decorate?.(mount, id, widget);
@@ -364,6 +368,9 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     ready,
     setFilter,
     setRange,
+    setGuides(open) {
+      for (const widget of widgets.values()) widget.showGuide(open);
+    },
     setSection(section) {
       if (section === null) return choose(null);
       const match = sections.find(({ node, title }) => title === section || node.id === section);

@@ -66,7 +66,7 @@ for (const spec of boardSpecs) {
   b.addEventListener("click", () => {
     for (const other of boardGroup.querySelectorAll("button")) other.setAttribute("aria-pressed", String(other === b));
     board.destroy();
-    board = createDashboard($("#gallery"), spec, boardOptions);
+    board = createDashboard($("#gallery"), spec, { ...boardOptions, guides: explainAll });
     if (Object.keys(shared).length) void board.setOverride({ style: shared });
   });
   boardGroup.append(b);
@@ -87,6 +87,13 @@ function segmented(container: HTMLElement, onPick: (value: string) => void) {
     });
   }
 }
+
+// How to read: a plain guide under every chart at once, for reading the board the first time.
+let explainAll = false;
+segmented($("#explain"), (value) => {
+  explainAll = value === "on";
+  board.setGuides(explainAll);
+});
 
 segmented($("#theme"), (theme) => {
   if (theme === "auto") delete document.documentElement.dataset.theme;

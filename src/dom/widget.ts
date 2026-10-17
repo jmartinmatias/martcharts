@@ -61,6 +61,8 @@ export interface Widget {
   update(override: Override<WidgetSpec>): Promise<void>;
   /** Replaces the spec entirely and redraws. */
   setSpec(spec: WidgetSpec): Promise<void>;
+  /** Opens or closes the "How to read it" guide under the chart. */
+  showGuide(open: boolean): void;
   /** Reloads the data and redraws. The previous drawing stays, dimmed, until the new data arrives. */
   refresh(): Promise<void>;
   /**
@@ -585,6 +587,13 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     shut.focus();
   }
 
+  /** Opens or closes the guide, keeping the toolbar button in step. */
+  function setGuide(open: boolean) {
+    guide.hidden = !open;
+    actionButtons.get("explain")?.setAttribute("aria-expanded", String(open));
+    paintGuide();
+  }
+
   /** Writes the guide for what is drawn now, when it is open. */
   function paintGuide() {
     if (guide.hidden) return;
@@ -598,9 +607,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       return;
     }
     if (action === "explain") {
-      guide.hidden = !guide.hidden;
-      button.setAttribute("aria-expanded", String(!guide.hidden));
-      paintGuide();
+      setGuide(Boolean(guide.hidden));
       return;
     }
     const name = slug(current.id ?? current.title);
@@ -675,6 +682,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       return load();
     },
     refresh: () => load(true),
+    showGuide: (open) => setGuide(open),
     addAction(label, icon, onClick) {
       const button = actionButton(label, icon);
       button.addEventListener("click", () => onClick(button));
