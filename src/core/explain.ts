@@ -365,7 +365,20 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const all = [...totals.values()];
       const total = all.reduce((sum, e) => sum + e.sum, 0);
       const biggest = all.reduce<{ row: Row; sum: number } | undefined>((best, e) => (best && best.sum >= e.sum ? best : e), undefined);
-      return biggest && total > 0 ? `Here, ${text(biggest.row, group)} is the biggest group, with ${percent(biggest.sum / total)} of the total.` : "";
+      if (!biggest || total <= 0) return "";
+      const lead = `Here, ${text(biggest.row, group)} is the biggest ${nameOf(group, spec)}, with ${percent(biggest.sum / total)} of the total`;
+      // One level down: inside the biggest group, the part that brings the most.
+      const inner = many(view.levels)[1];
+      if (!inner) return `${lead}.`;
+      const parts = new Map<string, { row: Row; sum: number }>();
+      for (const row of rows) {
+        if (String(row[group]) !== String(biggest.row[group])) continue;
+        const entry = parts.get(String(row[inner])) ?? { row, sum: 0 };
+        entry.sum += Math.max(0, value(row, amount) ?? 0);
+        parts.set(String(row[inner]), entry);
+      }
+      const part = [...parts.values()].reduce<{ row: Row; sum: number } | undefined>((best, e) => (best && best.sum >= e.sum ? best : e), undefined);
+      return part && biggest.sum > 0 ? `${lead}; inside it, ${text(part.row, inner)} brings the most, ${percent(part.sum / biggest.sum)} of ${text(biggest.row, group)}.` : `${lead}.`;
     }
     case "histogram": {
       const field = one(view.value);

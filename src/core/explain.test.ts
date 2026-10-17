@@ -65,7 +65,7 @@ describe("explainChart", () => {
     expect(at({ type: "likert", label: "q", responses: ["no", "meh", "yes"] }, [{ q: "Pay", no: 6, meh: 2, yes: 2 }, { q: "Team", no: 1, meh: 2, yes: 7 }])).toContain("Here, the most agreed question is “Team”: 70% agree, and the least agreed is “Pay”: 20% agree.");
     expect(at({ type: "likert", label: "q", responses: ["no", "meh", "yes"] }, [{ q: "Team", no: 1, meh: 2, yes: 7 }])).toContain("Here, the most agreed question is “Team”: 70% agree.");
     expect(at({ type: "meter", value: "v", target: "t", label: "name" }, [{ name: "A", v: 12, t: 10 }, { name: "B", v: 5, t: 10 }])).toContain("Here, 1 of 2 has reached its goal.");
-    expect(at({ type: "icicle", levels: ["region", "product"], value: "v" }, [{ region: "East", product: "x", v: 6 }, { region: "West", product: "x", v: 4 }])).toContain("Here, East is the biggest group, with 60% of the total.");
+    expect(at({ type: "icicle", levels: ["region", "product"], value: "v" }, [{ region: "East", product: "x", v: 6 }, { region: "West", product: "x", v: 4 }])).toContain("Here, East is the biggest region, with 60% of the total; inside it, x brings the most, 100% of East.");
     expect(at({ type: "histogram", value: "size" }, [1, 2, 2, 3, 3, 3, 8].map((size) => ({ size })))).toMatch(/Here, the most common range is .+, which happened \d+ times\./);
   });
 
@@ -413,6 +413,19 @@ describe("explainChart", () => {
     expect(explainChart({ ...spec({ type: "heatmap", x: "product", y: "region", value: "sales" }), locale: "en-US" }, grid)).toContain(
       "Here, the biggest product is Core and the biggest region is East; the strongest square is East and Plus, with 9.",
     );
+  });
+
+  test("a hierarchy names the biggest group and, inside it, the part that brings the most", () => {
+    const rows = [
+      { product: "Platform", region: "East", revenue: 35 },
+      { product: "Platform", region: "West", revenue: 25 },
+      { product: "Platform", region: "North", revenue: 40 },
+      { product: "Services", region: "East", revenue: 50 },
+    ];
+    expect(explainChart({ ...spec({ type: "sunburst", levels: ["product", "region"], value: "revenue" }), locale: "en-US" }, rows)).toContain(
+      "Here, Platform is the biggest product, with 67% of the total; inside it, North brings the most, 40% of Platform.",
+    );
+    expect(explainChart({ ...spec({ type: "sunburst", levels: ["product"], value: "revenue" }), locale: "en-US" }, rows)).toContain("Here, Platform is the biggest product, with 67% of the total.");
   });
 
   test("no guide names a hue or a dark shade: presets recolor and dark themes flip, so marks are read by side, shape and fill", () => {
