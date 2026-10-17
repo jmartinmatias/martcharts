@@ -60,6 +60,29 @@
       /* The way to the Taller: one quiet link among the page controls. */
       .page-link { font-size: 13px; color: var(--ink-2); text-decoration: none; border-bottom: 1px solid var(--line); padding: 4px 0; margin-right: 21px; }
       .page-link:hover, .page-link:focus-visible { color: var(--ink); }
+      button.page-link { background: none; border: 0; border-bottom: 1px solid var(--line); font: inherit; font-size: 13px; cursor: pointer; }
+      /* The playground opens as a modal over the gallery: a calm sheet with its title row pinned, full screen on phones. */
+      .playground-dialog {
+        width: min(1200px, calc(100vw - 32px)); max-width: none; max-height: calc(100dvh - 32px); margin: auto; padding: 0;
+        border: 1px solid var(--line); border-radius: 13px; background: var(--page); color: var(--ink);
+        box-shadow: 0 21px 55px -13px rgba(0, 0, 0, 0.45); overflow: auto; overscroll-behavior: contain;
+      }
+      .playground-dialog::backdrop { background: rgba(10, 10, 10, 0.5); backdrop-filter: blur(3px); }
+      .playground-dialog[open] { display: block; }
+      .playground-head {
+        position: sticky; top: 0; z-index: 2; display: flex; align-items: flex-start; justify-content: space-between; gap: 21px;
+        padding: 21px 21px 13px; background: var(--page); border-bottom: 1px solid var(--line);
+      }
+      .playground-head h2 { margin: 0; }
+      .playground-dialog .playground { margin: 0; padding: 21px; }
+      .playground-close { flex: none; font: inherit; font-size: 13px; color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 5px 13px; min-height: 34px; cursor: pointer; }
+      .playground-close:hover { background: color-mix(in srgb, var(--ink) 6%, transparent); }
+      :root:has(.playground-dialog[open]) { overflow: hidden; }
+      @media (max-width: 700px) {
+        .playground-dialog { width: 100vw; max-height: 100dvh; height: 100dvh; border-radius: 0; border: 0; }
+        .playground-head { padding: calc(13px + env(safe-area-inset-top, 0px)) 16px 13px; }
+        .playground-dialog .playground { padding: 16px; }
+      }
       /* A group wider than its row scrolls sideways instead of pushing the page wider. */
       .segmented { display: inline-flex; max-width: 100%; border: 1px solid var(--line); border-radius: 8px; overflow-x: auto; scrollbar-width: none; }
       .segmented::-webkit-scrollbar { display: none; }
@@ -236,6 +259,7 @@
         <div class="controls">
           <a class="page-link" href="./taller.html" title="elBulli's creative method applied to sales charts: new versions of any widget, each answering a sales question">Taller</a>
           <a class="page-link" href="./selected.html" title="New ways to show the same data, picked because they are new and meaningful">Selected</a>
+          <button type="button" class="page-link" id="open-playground" aria-haspopup="dialog" title="Edit any widget's spec, view and style, with a live preview">Playground</button>
           <span class="label" id="preset-label">Style</span>
           <div id="preset" class="segmented" role="group" aria-labelledby="preset-label"></div>
           <span class="label" id="theme-label">Theme</span>
@@ -260,9 +284,14 @@
         <p id="selection" role="status"></p>
       </section>
 
-      <section aria-labelledby="playground-title">
-        <h2 id="playground-title">Playground</h2>
-        <p class="note">Pick a widget, or start from the vanilla block. Switch its view type or style preset, or edit the spec directly. The preview redraws as you go.</p>
+      <dialog id="playground" class="playground-dialog" aria-labelledby="playground-title">
+        <header class="playground-head">
+          <div>
+            <h2 id="playground-title">Playground</h2>
+            <p class="note">Pick a widget, or start from the vanilla block. Switch its view type or style preset, or edit the spec directly. The preview redraws as you go.</p>
+          </div>
+          <button type="button" class="playground-close" id="close-playground" aria-label="Close the playground">Close</button>
+        </header>
         <div class="playground">
           <div class="editor">
             <div class="editor-bar">
@@ -307,7 +336,7 @@
             </section>
           </div>
         </div>
-      </section>
+      </dialog>
     </main>
     <script type="module" src="/demo/main.ts"></script>
   </body>

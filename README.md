@@ -19,7 +19,7 @@ Needs Node 23.6 or later (it runs TypeScript directly, with no build step).
 
 ```bash
 npm install
-npm run dev        # demo gallery and live spec playground at http://localhost:5173
+npm run dev        # demo gallery at http://localhost:5173; its Playground (header button, or Edit in playground on any card) opens as a modal
 npm test           # unit and integration tests
 npm run typecheck
 npm run smoke      # starts the real MCP server and calls it as a client would

@@ -51,10 +51,34 @@ const boardOptions: Parameters<typeof createDashboard>[2] = {
     mcp.title = command;
     widget.addAction("Edit in playground", ["M4 20h4L18.5 9.5a2.1 2.1 0 0 0-4-4L4 16z", "M13.5 6.5l4 4"], () => {
       load(spec);
-      $("#playground-title").scrollIntoView({ behavior: "smooth" });
+      openPlayground();
     });
   },
 };
+// ---- The playground, a modal over the gallery ----
+// Opened from the header, from a card's Edit in playground action, or by a version arriving from the Taller.
+// Escape, the Close button or a click on the backdrop closes it; focus returns to whatever opened it.
+const playground = $<HTMLDialogElement>("#playground");
+const openButton = $<HTMLButtonElement>("#open-playground");
+// Where focus goes back on close: whatever opened it, kept here since Safari does not focus a clicked button.
+let opener: HTMLElement | null = null;
+function openPlayground(from?: HTMLElement) {
+  const active = document.activeElement;
+  opener = from ?? (active instanceof HTMLElement && active !== document.body ? active : openButton);
+  // An item in a card's More menu hides as the menu closes: return to the menu's own button instead.
+  const menu = opener.closest<HTMLElement>('[role="menu"]');
+  if (menu?.id) opener = document.querySelector<HTMLElement>(`[aria-controls="${menu.id}"]`) ?? opener;
+  if (!playground.open) playground.showModal();
+  // The preview was drawn while hidden: redraw it at the width it now has.
+  requestAnimationFrame(() => void apply(current, false));
+}
+openButton.addEventListener("click", () => openPlayground(openButton));
+$("#close-playground").addEventListener("click", () => playground.close());
+playground.addEventListener("click", (event) => {
+  if (event.target === playground) playground.close();
+});
+playground.addEventListener("close", () => (opener?.isConnected ? opener : openButton).focus());
+
 /** The style every chart takes when styling is set to All charts (a merge patch over each widget's own style). */
 let shared: Record<string, unknown> = {};
 let board = createDashboard($("#gallery"), gallerySpec, boardOptions);
@@ -316,7 +340,7 @@ load(vanilla);
 if (location.hash.startsWith("#taller=")) {
   try {
     void apply(JSON.parse(decodeURIComponent(location.hash.slice("#taller=".length))) as WidgetSpec);
-    requestAnimationFrame(() => $("#playground-title").scrollIntoView({ block: "start" }));
+    openPlayground();
   } catch {
     showIssues([{ level: "error", path: "Taller", message: "The chart in the address could not be read." }]);
   }
