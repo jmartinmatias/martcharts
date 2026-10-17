@@ -373,6 +373,21 @@ const periodPair = (d: DataProfile) => d.peers.length > 1 && PERIOD_WORD.test(p1
 const timeByGroup = (d: DataProfile) => d.times.length > 0 && d.categories.length > 0 && d.measures.length > 0 && (d.distinct[t1(d)] ?? 0) < d.rows;
 const twoLevels = (d: DataProfile) => d.categories.length > 1 && d.measures.length > 0 && (d.distinct[c1(d)] ?? 0) < d.rows;
 
+/** Words for how a chart draws, not what it counts: "one dot each", "poor, fair and good bands", "blue above". */
+const FORM_WORDS = /\b(bands?|bars?|lines?|dots?|slices?|tiles?|wedges?|rings?|squares?|needle|shades?|dashed|stacked|columns?|bubbles?|blue|red|green)\b/i;
+
+/**
+ * A version's copy, minus what describes the original's form, which a new form makes untrue. A subtitle or footer
+ * keeps its opening part when only the rest speaks of the form ("Actual against target, with poor, fair and good
+ * bands" keeps "Actual against target") and goes when it opens on the form; a description keeps its other sentences.
+ */
+function formless(text: string | undefined, sentences = false): string | undefined {
+  if (!text || !FORM_WORDS.test(text)) return text;
+  if (sentences) return (text.match(/[^.!?]+[.!?]*/g) ?? []).map((part) => part.trim()).filter((part) => part && !FORM_WORDS.test(part)).join(" ") || undefined;
+  const head = text.split(/[,:;]\s/)[0] ?? "";
+  return head !== text && !FORM_WORDS.test(head) ? head : undefined;
+}
+
 /** The forms that read each row of a scorecard against its own target: its rows are in different units, so never one axis. */
 const SCORECARD_FORMS = new Set(["variance", "attainment", "bullet"]);
 
@@ -1085,9 +1100,11 @@ export function createVariants(spec: WidgetSpec, rows: Row[], options: TallerOpt
     if (look !== "default") style.preset = look;
     if (feel === "sharp" && random() < 0.5) style.density = "compact";
 
-    const { id: _id, facet: _facet, headline: _headline, style: _style, ...rest } = spec;
+    const { id: _id, facet: _facet, headline: _headline, style: _style, subtitle, footer, description, ...rest } = spec;
+    const words = { subtitle: formless(subtitle), footer: formless(footer), description: formless(description, true) };
     const variant: WidgetSpec = {
       ...rest,
+      ...Object.fromEntries(Object.entries(words).filter(([, text]) => text)),
       id: variantId(spec, pattern.id),
       view,
       ...(draft.headline ? { headline: draft.headline } : {}),
