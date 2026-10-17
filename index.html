@@ -51,7 +51,9 @@
       }
       header.page { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
       h1 { margin: 0; font-size: 24px; }
-      h2 { margin: 40px 0 4px; font-size: 18px; }
+      /* Section titles match the dashboard's own title; a grouping above them is a quiet uppercase label. */
+      h2 { margin: 40px 0 4px; font-size: 21px; line-height: 34px; font-weight: 600; letter-spacing: -0.01em; }
+      h2.eyebrow { margin: 40px 0 4px; font-size: 12px; line-height: 21px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); }
       p.lede, p.note { margin: 4px 0 0; color: var(--ink-2); max-width: 70ch; }
       .controls { display: flex; flex-wrap: wrap; gap: 13px; align-items: center; }
       .controls .label { font-size: 13px; color: var(--ink-2); }
@@ -251,7 +253,7 @@
       </header>
 
       <section aria-labelledby="gallery-title">
-        <h2 id="gallery-title">Dashboards</h2>
+        <h2 id="gallery-title" class="eyebrow">Dashboards</h2>
         <p class="note">The gallery is itself a dashboard, <code>dashboards/gallery.json</code>: pick a region and every widget with region data follows. Hover or tab through charts for values; click a row, bar or point to fire an <code>fft-select</code> event.</p>
         <div id="board-pick" class="segmented" role="group" aria-label="Dashboard" style="margin-top: 13px"></div>
         <div id="gallery" style="margin-top: 13px"></div>
