@@ -356,6 +356,21 @@ describe("explainChart", () => {
     );
   });
 
+  test("a dot swarm by group compares the groups first, then names the biggest single dot", () => {
+    const rows = [
+      { deal: "N1", region: "North", value: 40 },
+      { deal: "N2", region: "North", value: 60 },
+      { deal: "S1", region: "South", value: 20 },
+      { deal: "S2", region: "South", value: 180 },
+      { deal: "S3", region: "South", value: 30 },
+      { deal: "E1", region: "East", value: 100 },
+      { deal: "E2", region: "East", value: 120 },
+    ];
+    expect(explainChart({ ...spec({ type: "beeswarm", value: "value", group: "region", label: "deal" }), locale: "en-US" }, rows)).toContain(
+      "Here, East's dots sit furthest right, with a middle value of 110, and the dot furthest right of all is S2, at 180.",
+    );
+  });
+
   test("no guide names a hue or a dark shade: presets recolor and dark themes flip, so marks are read by side, shape and fill", () => {
     const guide = (view: Record<string, unknown>) => explainChart({ ...spec(view), locale: "en-US" });
     expect(guide({ type: "variance", label: "department", value: "actual", target: "budget", goodWhen: "down" })).toBe(

@@ -507,6 +507,25 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const [amount, label] = [one(view.value), one(view.label)];
       const row = amount ? top(amount) : undefined;
       if (!row || !amount) return "";
+      const furthest = label ? `the dot furthest right of all is ${text(row, label)}, at ${text(row, amount)}` : `the dot furthest right of all is at ${text(row, amount)}`;
+      // By group: which group's dots sit furthest right (the highest middle value), then the biggest single dot.
+      const group = one(view.group);
+      if (group) {
+        const byGroup = new Map<string, number[]>();
+        for (const r of rows) {
+          const v = value(r, amount);
+          if (v !== null) byGroup.set(String(r[group]), [...(byGroup.get(String(r[group])) ?? []), v]);
+        }
+        if (byGroup.size >= 2) {
+          const middle = (values: number[]) => {
+            const sorted = [...values].sort((a, b) => a - b);
+            const half = Math.floor(sorted.length / 2);
+            return sorted.length % 2 ? (sorted[half] as number) : ((sorted[half - 1] as number) + (sorted[half] as number)) / 2;
+          };
+          const [lead, values] = [...byGroup.entries()].reduce((b, e) => (middle(e[1]) > middle(b[1]) ? e : b));
+          return `Here, ${lead}'s dots sit furthest right, with a middle value of ${formatValue(middle(values), spec.fields?.[amount]?.format, spec.locale)}, and ${furthest}.`;
+        }
+      }
       return label ? `Here, the dot furthest right is ${text(row, label)}, at ${text(row, amount)}.` : `Here, the dot furthest right is at ${text(row, amount)}.`;
     }
     case "rings": {
