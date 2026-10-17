@@ -59,7 +59,7 @@ describe("explainChart", () => {
 
   test("more charts point at their standout: the darkest square, the biggest drop, the biggest move, the most agreed answer", () => {
     const at = (view: Record<string, unknown>, rows: Record<string, unknown>[]) => explainChart({ ...spec(view), locale: "en-US" }, rows);
-    expect(at({ type: "heatmap", x: "hour", y: "day", value: "n" }, [{ hour: "9", day: "Mon", n: 4 }, { hour: "10", day: "Tue", n: 9 }])).toContain("Here, the strongest square is day Tue and hour 10, at 9.");
+    expect(at({ type: "heatmap", x: "hour", y: "day", value: "n" }, [{ hour: "9", day: "Mon", n: 4 }, { hour: "10", day: "Tue", n: 9 }])).toContain("Here, 10 is the busiest hour and Tue the busiest day; the strongest square is Tue at 10, with 9.");
     expect(at({ type: "funnel", label: "step", value: "n" }, [{ step: "Visit", n: 1000 }, { step: "Signup", n: 200 }, { step: "Paid", n: 150 }])).toContain("Here, the biggest drop is from Visit to Signup: 80% stop there.");
     expect(at({ type: "slope", label: "region", from: "q2", to: "q3" }, [{ region: "North", q2: 10, q3: 12 }, { region: "East", q2: 10, q3: 25 }])).toContain("Here, every region went up, and East moved the most, from 10 to 25.");
     expect(at({ type: "likert", label: "q", responses: ["no", "meh", "yes"] }, [{ q: "Pay", no: 6, meh: 2, yes: 2 }, { q: "Team", no: 1, meh: 2, yes: 7 }])).toContain("Here, the most agreed question is “Team”: 70% agree, and the least agreed is “Pay”: 20% agree.");
@@ -396,6 +396,23 @@ describe("explainChart", () => {
     expect(at(rows)).toContain("Here, our product is ahead of market average on 2 of 3 attributes, most on Support (8.2 against 6.4), and behind on Price (6.1 against 7.4).");
     expect(at(rows.slice(0, 2))).toContain("Here, our product is ahead of market average on every attribute, most on Support (8.2 against 6.4).");
     expect(explainChart({ ...spec({ type: "radar", label: "attribute", y: ["us"] }, fields), locale: "en-US" }, rows)).toContain("Here, the highest score is Speed, at 8.6.");
+  });
+
+  test("a heatmap names its rhythm, the busiest time and day, before its strongest square", () => {
+    const rows = [
+      { slot: "8-10", day: "Mon", tickets: 30 },
+      { slot: "10-12", day: "Mon", tickets: 60 },
+      { slot: "8-10", day: "Thu", tickets: 40 },
+      { slot: "10-12", day: "Thu", tickets: 79 },
+    ];
+    const fields = { slot: { label: "Time" }, day: { label: "Day" } };
+    expect(explainChart({ ...spec({ type: "heatmap", x: "slot", y: "day", value: "tickets" }, fields), locale: "en-US" }, rows)).toContain(
+      "Here, 10-12 is the busiest time and Thu the busiest day; the strongest square is Thu at 10-12, with 79.",
+    );
+    const grid = [{ product: "Core", region: "East", sales: 5 }, { product: "Plus", region: "East", sales: 9 }, { product: "Core", region: "West", sales: 7 }, { product: "Plus", region: "West", sales: 2 }];
+    expect(explainChart({ ...spec({ type: "heatmap", x: "product", y: "region", value: "sales" }), locale: "en-US" }, grid)).toContain(
+      "Here, the biggest product is Core and the biggest region is East; the strongest square is East and Plus, with 9.",
+    );
   });
 
   test("no guide names a hue or a dark shade: presets recolor and dark themes flip, so marks are read by side, shape and fill", () => {

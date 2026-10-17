@@ -259,8 +259,25 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
     case "heatmap": {
       const [x, y, amount] = [one(view.x), one(view.y), one(view.value)];
       const row = x && y && amount ? top(amount) : undefined;
+      if (!row || !x || !y || !amount) return "";
       const named = (field: string) => fieldLabel(field, spec.fields).toLowerCase();
-      return row && x && y && amount ? `Here, the strongest square is ${named(y)} ${text(row, y)} and ${named(x)} ${text(row, x)}, at ${text(row, amount)}.` : "";
+      // The rhythm first: the column and the row with the most in total, then the strongest single square.
+      const totals = (field: string) => {
+        const sums = new Map<string, { row: Row; sum: number }>();
+        for (const r of rows) {
+          const entry = sums.get(String(r[field])) ?? { row: r, sum: 0 };
+          entry.sum += value(r, amount) ?? 0;
+          sums.set(String(r[field]), entry);
+        }
+        return [...sums.values()].reduce((b, e) => (e.sum > b.sum ? e : b)).row;
+      };
+      const [topX, topY] = [totals(x), totals(y)];
+      // Time across and days down is a weekly rhythm: busiest time and busiest day, the peak "Thu at 10-12".
+      const timeAcross = /^(slot|time|hour|hours|period)$/i.test(x) || timeStep(x) === "hour";
+      const peak = `the strongest square is ${text(row, y)} ${timeAcross ? "at" : "and"} ${text(row, x)}, with ${text(row, amount)}`;
+      return timeAcross
+        ? `Here, ${text(topX, x)} is the busiest ${named(x)} and ${text(topY, y)} the busiest ${named(y)}; ${peak}.`
+        : `Here, the biggest ${named(x)} is ${text(topX, x)} and the biggest ${named(y)} is ${text(topY, y)}; ${peak}.`;
     }
     case "funnel": {
       const [label, amount] = [one(view.label), one(view.value)];
