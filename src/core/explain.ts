@@ -23,10 +23,15 @@ const many = (value: unknown): string[] => (Array.isArray(value) ? value.filter(
  * ("Here, East is the tallest, with €2,000."). Unknown views get a short general guide.
  */
 export function explainChart(spec: WidgetSpec, rows: Row[] = []): string {
-  const general = guide(spec);
-  const example = rows.length ? exampleOf(spec, rows) : "";
+  const facet = (spec.facet as { field?: string } | undefined)?.field;
+  // Small multiples: one chart per value, so an example across all rows would mix the panels up.
+  const general = facet ? `${guide(spec)} There is one small chart for each ${nameOf(facet, spec)}, all on the same scale.` : guide(spec);
+  const example = rows.length && !facet ? exampleOf(spec, rows) : "";
   return example ? `${general} ${example}` : general;
 }
+
+/** Field names that read as one measure at two times: q3_2025 and q3_2026, before and after. */
+const PERIOD = /(19|20)\d\d|\bq[1-4]\b|before|after|previous|prior|last|current|start|end/i;
 
 /** One sentence that points at the standout in the data, or empty when there is nothing clear to point at. */
 function exampleOf(spec: WidgetSpec, rows: Row[]): string {
@@ -153,8 +158,8 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const moved = (row: Row) => Math.abs((value(row, to) ?? 0) - (value(row, from) ?? 0));
       const row = rows.filter((r) => value(r, from) !== null && value(r, to) !== null).reduce<Row | undefined>((best, r) => (best && moved(best) >= moved(r) ? best : r), undefined);
       if (!row) return "";
-      // A slope is before and after; a dumbbell can be any two values, so it speaks of a gap.
-      return view.type === "slope"
+      // A slope, or a dumbbell between two periods, is before and after; other dumbbells compare two values, a gap.
+      return view.type === "slope" || (PERIOD.test(from) && PERIOD.test(to))
         ? `Here, ${text(row, label)} moved the most, from ${text(row, from)} to ${text(row, to)}.`
         : `Here, ${text(row, label)} has the biggest gap: ${text(row, from)} against ${text(row, to)}.`;
     }
@@ -403,6 +408,8 @@ function guide(spec: WidgetSpec): string {
     const plain = /^[a-z]/.test(field) && /^[A-Z][a-z]+\b/.test(label);
     return plain ? label[0]?.toLowerCase() + label.slice(1) : label;
   };
+  // A field called name, title or label says nothing about what the marks are: they are entries.
+  const noun = (field: string | undefined, fallback = "item") => (/^(name|title|label)$/i.test(field ?? "") ? "entry" : name(field, fallback));
   const either = (list: string[]) => (list.length < 2 ? list.join("") : `${list.slice(0, -1).join(", ")} or ${list.at(-1)}`);
   const both = (list: string[]) => (list.length < 2 ? list.join("") : `${list.slice(0, -1).join(", ")} and ${list.at(-1)}`);
   // How time passes in words: "month by month" for a month field, "over time" for an unknown date.
@@ -425,8 +432,8 @@ function guide(spec: WidgetSpec): string {
     }
     case "hbar":
       return view.mark === "lollipop"
-        ? `Each row is one ${name(one(view.label))}. The further right the dot, the more ${name(one(view.value))}.`
-        : `Each row is one ${name(one(view.label))}. The longer the bar, the more ${name(one(view.value))}.`;
+        ? `Each row is one ${noun(one(view.label))}. The further right the dot, the more ${name(one(view.value))}.`
+        : `Each row is one ${noun(one(view.label))}. The longer the bar, the more ${name(one(view.value))}.`;
     case "line":
       return `The line shows how ${series.length > 1 ? "each value" : name(series[0])} changes ${over(one(view.x))}: going up means more.${colors}${forecast}`;
     case "area":
@@ -442,9 +449,9 @@ function guide(spec: WidgetSpec): string {
     case "bullet":
       return "The dark bar is the real number and the thin line is the goal. The grey bands behind show poor, fair and good.";
     case "donut":
-      return `The ring is the whole. Each slice is one ${name(one(view.label))}: the bigger the slice, the bigger its share of ${name(one(view.value))}.`;
+      return `The ring is the whole. Each slice is one ${noun(one(view.label))}: the bigger the slice, the bigger its share of ${name(one(view.value))}.`;
     case "treemap":
-      return `Each box is one ${name(one(view.label))}. The bigger the box, the more ${name(one(view.value))}.`;
+      return `Each box is one ${noun(one(view.label))}. The bigger the box, the more ${name(one(view.value))}.`;
     case "funnel":
       return "Each step keeps fewer people than the one before. The number between two steps says how many made it through.";
     case "waterfall":
@@ -456,7 +463,7 @@ function guide(spec: WidgetSpec): string {
       return `Each square is one day, with weeks as columns. The stronger the color, the more ${name(one(view.value))}; the key under the chart shows the scale.`;
     case "scatter": {
       const sized = one(view.size) ? ` Bigger dots mean more ${name(one(view.size))}.` : "";
-      return `Each dot is one ${name(one(view.label), "item")}. Further right means more ${name(one(view.x))}; higher means more ${name(one(view.y))}.${sized}`;
+      return `Each dot is one ${noun(one(view.label))}. Further right means more ${name(one(view.x))}; higher means more ${name(one(view.y))}.${sized}`;
     }
     case "beeswarm":
       return `Each dot is one ${name(one(view.label), "row")}, placed by its ${name(one(view.value))}. Dots pile up where many values are close together.`;
@@ -464,8 +471,11 @@ function guide(spec: WidgetSpec): string {
       return `Each hill shows how ${name(one(view.value))} spreads in one group. Where the hill is tallest is where most values are; a hill further right has bigger values.`;
     case "sankey":
       return "Bands flow from left to right, splitting and joining. The thicker the band, the more goes that way.";
-    case "dumbbell":
-      return `Each row has two dots: ${name(one(view.from), "the first value")} and ${name(one(view.to), "the second")}. The line between them is the gap.`;
+    case "dumbbell": {
+      const [from, to] = [one(view.from), one(view.to)];
+      const change = from && to && PERIOD.test(from) && PERIOD.test(to);
+      return `Each row has two dots: ${name(from, "the first value")} and ${name(to, "the second")}. The line between them is the ${change ? "change" : "gap"}.`;
+    }
     case "slope":
       return `Each line joins the before and the after for one ${name(one(view.label))}. A line going up means it grew; a steeper line means a bigger change.`;
     case "bump":
@@ -508,7 +518,7 @@ function guide(spec: WidgetSpec): string {
       // A field called name, title or label says nothing about what the lines are: they are entries.
       return `Each line is one ${/^(name|title|label)$/i.test(one(view.label) ?? "") ? "entry" : name(one(view.label))}${one(view.value) ? `, with its ${name(one(view.value))} on the right` : ""}.`;
     case "table":
-      return "Each row is one record and each column one detail. Click a column heading to sort by it, when sorting is on.";
+      return `Each row is one record and each column one detail.${view.sortable === false ? "" : " Click a column heading to sort by it."}`;
     default:
       return "Each mark stands for one value. Bigger, longer or stronger marks mean more.";
   }

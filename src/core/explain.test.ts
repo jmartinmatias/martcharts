@@ -131,5 +131,19 @@ describe("explainChart", () => {
     expect(texts.filter((t) => /\bdark(er|est)\b/i.test(t))).toEqual([]);
     expect(texts[0]).toContain("The stronger the color, the more orders; the key under the chart shows the scale. Here, the top day is Sep 15, 2026, with 225.");
   });
+
+  test("proofread: entries not names, small multiples, changes between periods, sorting only when on", () => {
+    const at = (view: Record<string, unknown>, rows: Record<string, unknown>[] = [], extra: Partial<WidgetSpec> = {}) => explainChart({ ...spec(view), locale: "en-US", ...extra }, rows);
+    expect(at({ type: "treemap", label: "name", value: "revenue" })).toContain("Each box is one entry.");
+    const panels = at({ type: "area", x: "month", y: "revenue" }, [{ region: "North", month: "Jan", revenue: 1 }, { region: "West", month: "Feb", revenue: 9 }], { facet: { field: "region" } });
+    expect(panels).toContain("There is one small chart for each region, all on the same scale.");
+    expect(panels).not.toContain("Here,");
+    const years = at({ type: "dumbbell", label: "region", from: "q3_2025", to: "q3_2026" }, [{ region: "East", q3_2025: 291, q3_2026: 338 }]);
+    expect(years).toContain("The line between them is the change.");
+    expect(years).toContain("Here, East moved the most, from 291 to 338.");
+    // Sorting is on unless a table turns it off.
+    expect(at({ type: "table" })).toContain("Click a column heading to sort by it.");
+    expect(at({ type: "table", sortable: false })).not.toContain("sort");
+  });
 });
 
