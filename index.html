@@ -55,6 +55,9 @@
       p.lede, p.note { margin: 4px 0 0; color: var(--ink-2); max-width: 70ch; }
       .controls { display: flex; flex-wrap: wrap; gap: 13px; align-items: center; }
       .controls .label { font-size: 13px; color: var(--ink-2); }
+      /* The way to the Taller: one quiet link among the page controls. */
+      .page-link { font-size: 13px; color: var(--ink-2); text-decoration: none; border-bottom: 1px solid var(--line); padding: 4px 0; margin-right: 21px; }
+      .page-link:hover, .page-link:focus-visible { color: var(--ink); }
       /* A group wider than its row scrolls sideways instead of pushing the page wider. */
       .segmented { display: inline-flex; max-width: 100%; border: 1px solid var(--line); border-radius: 8px; overflow-x: auto; scrollbar-width: none; }
       .segmented::-webkit-scrollbar { display: none; }
@@ -229,6 +232,7 @@
           </p>
         </div>
         <div class="controls">
+          <a class="page-link" href="./taller.html" title="elBulli's creative method applied to charts: a menu of new forms for any widget">Taller</a>
           <span class="label" id="preset-label">Style</span>
           <div id="preset" class="segmented" role="group" aria-labelledby="preset-label"></div>
           <span class="label" id="theme-label">Theme</span>

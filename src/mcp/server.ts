@@ -24,6 +24,8 @@ import { HEADLINE_OPTIONS } from "../core/headline.ts";
 import { FACET_OPTIONS } from "../core/validate.ts";
 import { WIDGET_REF, widgetRef } from "../core/ref.ts";
 import { describeBlocks } from "../core/registry.ts";
+import { createVariants, METHODS } from "../core/taller.ts";
+import type { Method } from "../core/taller.ts";
 import type { BlockKind } from "../core/registry.ts";
 import type { Issue, Row, WidgetSpec } from "../core/types.ts";
 import { hasErrors, validateSpec } from "../core/validate.ts";
@@ -565,6 +567,35 @@ Pass a library palette name (see fft_list_blocks) or a list of hex colors. Use i
         colors = palette;
       }
       return asJson({ colors, ...checkPalette(colors, { mode, surface }) });
+    },
+  );
+
+  server.registerTool(
+    "fft_create_variants",
+    {
+      title: "Create variants (Taller)",
+      description: `Cook a menu of new versions of ${which} with the Taller, elBulli's creative method applied to charts. Nothing is saved.
+
+Each variant keeps the widget's data, transforms and fields (the ingredients) and changes its form (view), technique, tools, temperature (warm or cool palette, or a highlight), texture (soft curves and washes, or crunchy bars, steps and dots) and plating (preset). Every variant is valid, colorblind safe, never the original's shape, scored on five tastes (salty emphasis, acid surprise, bitter honesty, fatty ink, umami depth) and kept only when balanced. Returns each variant's spec (save one with fft_create_widget), menu line, lineage, tastes, balance note, novelty and meaning. The same seed gives the same menu.`,
+      inputSchema: withId({
+        count: z.number().int().min(1).max(24).default(6).describe("How many variants, at most."),
+        seed: z.number().int().min(1).default(1).describe("The same widget and seed give the same menu; change it for another."),
+        temperature: z.number().min(-1).max(1).default(0).describe("-1 cold (cool hues) to 1 hot (warm hues)."),
+        texture: z.number().min(-1).max(1).default(0).describe("-1 soft (curves, washes) to 1 crunchy (bars, steps, dots)."),
+        methods: z
+          .array(z.enum(Object.keys(METHODS) as [Method, ...Method[]]))
+          .optional()
+          .describe("Only these creative methods: association, adaptation, deconstruction, minimalism, change-of-state, technique-concept, sensory."),
+      }),
+      outputSchema: z.object({ dish: z.string(), variants: z.array(JsonObject) }),
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    },
+    async (args, ctx) => {
+      const id = await idOf(args);
+      const spec = await store.get(id);
+      const rows = await runPipeline(spec, loadContext(ctx.mcpReq.signal));
+      const variants = createVariants(spec, rows, { count: args.count, seed: args.seed, temperature: args.temperature, texture: args.texture, methods: args.methods });
+      return asJson({ dish: id, variants: variants as unknown as Record<string, unknown>[] });
     },
   );
 

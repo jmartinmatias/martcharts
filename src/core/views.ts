@@ -75,6 +75,8 @@ export interface AreaView {
   /** As on the line view, for one unstacked area. */
   forecast?: string;
   band?: { low: string; high: string; label?: string };
+  /** How the line and its wash run between points. */
+  curve?: "linear" | "smooth" | "step";
 }
 
 /** `{ type: "meter", value, target, label? }`: one meter per row. */
@@ -395,6 +397,8 @@ export interface LineView {
   forecast?: string;
   /** A shaded range behind the first line, such as a forecast's p10 to p90. */
   band?: { low: string; high: string; label?: string };
+  /** How the lines run between points: straight (default), smooth or in steps. */
+  curve?: "linear" | "smooth" | "step";
 }
 
 /** Whether a forecast flag is set: true, 1, "true" or "yes". */
@@ -505,6 +509,15 @@ const BAND_OPTION = {
     'A shaded range behind the first line, for a forecast fan or any low to high spread: { "low": "p10", "high": "p90", "label": "80% range" }. Give the last actual row low and high equal to its value, so the fan opens from it. The ends are labelled and the tooltip gives the range.',
 } as const;
 
+/** The curve option shared by line and area: the texture of the line between its points. */
+const CURVE_OPTION = {
+  type: "enum",
+  values: ["linear", "smooth", "step"],
+  default: "linear",
+  description:
+    '"smooth" curves through every point without ever swinging past one (a monotone curve), for a soft, calm trend; "step" holds each value until halfway to the next, for amounts that change in jumps such as prices or headcount. Stacked and stream areas keep their own shapes.',
+} as const;
+
 /** The band must name its low and high fields. */
 function checkBand(view: Record<string, unknown>): string[] {
   const band = view.band as Record<string, unknown> | undefined;
@@ -532,6 +545,7 @@ const area: ViewBlock = {
     reference: REFERENCE_OPTION,
     forecast: { ...FORECAST_OPTION, description: `${FORECAST_OPTION.description} On an area the forecast's wash is fainter too. Unstacked areas only.` },
     band: BAND_OPTION,
+    curve: CURVE_OPTION,
   },
   validate(view) {
     const stacked = view.stacked;
@@ -1041,6 +1055,7 @@ const line: ViewBlock = {
     reference: REFERENCE_OPTION,
     forecast: FORECAST_OPTION,
     band: BAND_OPTION,
+    curve: CURVE_OPTION,
   },
   validate(view) {
     return [...checkBand(view), ...checkReference(view)];

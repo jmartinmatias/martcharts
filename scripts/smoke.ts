@@ -45,6 +45,13 @@ for (const { id } of (boards.structuredContent as { dashboards: { id: string }[]
   console.error(`ok  dashboard ${id}`);
 }
 
+const firstId = widgets[0]?.id ?? "";
+const menu = await client.callTool({ name: "fft_create_variants", arguments: { id: firstId, count: 3 } });
+assert.ok(!menu.isError, `variants for ${firstId} failed: ${text(menu)}`);
+const variants = (menu.structuredContent as { variants: { menu: string }[] }).variants;
+assert.ok(variants.length > 0, `the Taller should cook at least one variant of ${firstId}`);
+console.error(`ok  taller ${firstId}: ${variants.map((v) => v.menu).join(" | ")}`);
+
 const invalid = await client.callTool({ name: "fft_get_widget", arguments: { id: "../etc" } });
 assert.equal(invalid.isError, true, "an id with a path in it should be rejected");
 await client.close();

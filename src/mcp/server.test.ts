@@ -72,6 +72,7 @@ describe("tools", () => {
     const { tools } = await client.listTools();
     expect(tools.map((t) => t.name).sort()).toEqual([
       "fft_check_palette",
+      "fft_create_variants",
       "fft_create_widget",
       "fft_delete_widget",
       "fft_get_widget",
@@ -90,6 +91,18 @@ describe("tools", () => {
     expect([(byRef.data?.spec as { id?: string })?.id, (byLower.data?.spec as { id?: string })?.id]).toEqual(["visits", "visits"]);
     const forked = await call("fft_create_widget", { id: "visits-copy", from: ref, spec: { title: "Visits copy" } });
     expect(forked.isError).toBe(false);
+  });
+
+  test("fft_create_variants cooks a seeded menu from a stored widget, without saving anything", async () => {
+    const { call } = await connect();
+    const first = await call("fft_create_variants", { id: "sales-by-region", count: 3, seed: 2 });
+    const again = await call("fft_create_variants", { id: widgetRef("sales-by-region"), count: 3, seed: 2 });
+    const variants = (first.data?.variants ?? []) as { menu: string; spec: { view: { type: string } }; tastes: object; balance: { ok: boolean }; seed: number }[];
+    expect(first.data?.dish).toBe("sales-by-region");
+    expect(variants.length).toBeGreaterThan(0);
+    expect(variants.every((v) => v.menu.length > 0 && v.balance.ok && v.seed === 2 && v.spec.view.type !== "")).toBe(true);
+    expect(again.data?.variants).toEqual(first.data?.variants);
+    expect((await store.list()).map((w) => w.id)).toEqual(["sales-by-region", "visits"]);
   });
 
   test("a ref that matches no widget says how to find one", async () => {
@@ -366,7 +379,7 @@ describe("a server linked to one widget", () => {
   test("offers only that widget's tools, with no id to pass", async () => {
     const { client } = await connect({ widgetId: "visits" });
     const { tools } = await client.listTools();
-    expect(tools.map((t) => t.name).sort()).toEqual(["fft_check_palette", "fft_get_widget", "fft_get_widget_data", "fft_list_blocks", "fft_update_widget", "fft_validate_spec"]);
+    expect(tools.map((t) => t.name).sort()).toEqual(["fft_check_palette", "fft_create_variants", "fft_get_widget", "fft_get_widget_data", "fft_list_blocks", "fft_update_widget", "fft_validate_spec"]);
     const getWidget = tools.find((t) => t.name === "fft_get_widget");
     expect(Object.keys((getWidget?.inputSchema as { properties?: object }).properties ?? {})).not.toContain("id");
   });

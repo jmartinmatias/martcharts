@@ -604,6 +604,33 @@ describe("stacked bars", () => {
   });
 });
 
+describe("curve option (line and area texture)", () => {
+  const rows = [
+    { m: "Jan", v: 10 },
+    { m: "Feb", v: 40 },
+    { m: "Mar", v: 25 },
+    { m: "Apr", v: 30 },
+  ];
+  const corners = (d: string) => [...d.matchAll(/(-?[\d.]+),(-?[\d.]+)/g)].map((m) => [Number(m[1]), Number(m[2])]);
+
+  test("smooth lines and areas curve through the points", async () => {
+    await draw({ rows, view: { type: "area", x: "m", y: "v", curve: "smooth" } });
+    expect([all("path.fft-line")[0]?.getAttribute("d")?.includes("C"), all("path.fft-area")[0]?.getAttribute("d")?.includes("C")]).toEqual([true, true]);
+  });
+
+  test("a stepped line turns only at right angles", async () => {
+    await draw({ rows, view: { type: "line", x: "m", y: "v", curve: "step" } });
+    const points = corners(all("path.fft-line")[0]?.getAttribute("d") ?? "");
+    expect(points.length).toBeGreaterThan(rows.length);
+    expect(points.every(([x, y], i) => i === 0 || x === points[i - 1]?.[0] || y === points[i - 1]?.[1])).toBe(true);
+  });
+
+  test("validation: curve is linear, smooth or step", () => {
+    const issues = validateSpec({ data: { type: "inline", rows: [] }, view: { type: "line", x: "m", y: "v", curve: "wavy" } }).map((i) => i.message);
+    expect(issues.join(" ")).toContain("smooth");
+  });
+});
+
 describe("time axis labels", () => {
   const months = Array.from({ length: 18 }, (_, i) => {
     const index = 2025 * 12 + 9 + i;

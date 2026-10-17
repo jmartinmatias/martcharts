@@ -98,6 +98,8 @@ const asTable = fork(topCustomers, { view: { type: "table", label: null, detail:
 | Export | `createWidget(el, spec, { actions: ["csv", "image", "copy"] })` adds download CSV, download PNG and copy-for-Excel buttons |
 | How to read it | `explainChart(spec)` gives every one of the 40 views a plain reading guide in the chart's own field names, simple enough for a ten-year-old: "Each dot is one account. Further right means more revenue growth; higher means more gross margin. Bigger dots mean more revenue." |
 | Accessibility | Conforms to EN 301 549 v3.2.1 (European Accessibility Act), that is WCAG 2.1 AA, plus WCAG 2.2 target size and focus not obscured: keyboard reach for every mark, a data table behind every chart, 4.5:1 text and 3:1 marks in every theme and preset, color never the only signal, Escape-dismissable tooltips. See [docs/accessibility.md](docs/accessibility.md) |
+| Taller | `createVariants(spec, rows, { seed, temperature, texture, methods })` applies elBulli's creative method to any widget: a seeded menu of new versions with the same data (new form, colors, texture, card), each valid, colorblind safe, never a copy, scored on emphasis, surprise, honesty, ink and insight, with a plain title and how to read it. `rankVariants` sorts them by novelty or meaning. The demo has its own page, `taller.html`; see [docs/taller.md](docs/taller.md) |
+| Line texture | `"curve": "smooth"` (never swings past a point) or `"step"` on line and area charts |
 | Widget refs | Every widget with an id wears a faint ref such as `W-7Q2K` in its bottom corner (`widgetRef(id)`, stable, easy to say). Click to copy it; the MCP tools take it in place of the id, so "fix W-7Q2K" is enough |
 | Small multiples | `"facet": { "field": "region" }` splits any chart into one panel per value, on one shared scale |
 | KPI icons | `"icon": "users"` and 13 more line icons on KPI tiles |
@@ -150,7 +152,7 @@ npm run mcp:config                            # print an .mcp.json with one serv
 npm run mcp:inspect                           # open the MCP Inspector against it
 ```
 
-This folder's `.mcp.json` already registers the all-widgets server, so Claude Code picks it up when opened here. Tools: `fft_list_widgets`, `fft_get_widget`, `fft_get_widget_data`, `fft_create_widget`, `fft_update_widget`, `fft_delete_widget`, `fft_list_blocks`, `fft_validate_spec`. Resources: `fft://widgets/<id>`, `fft://widgets/<id>/data`, `fft://blocks`.
+This folder's `.mcp.json` already registers the all-widgets server, so Claude Code picks it up when opened here. Tools: `fft_list_widgets`, `fft_get_widget`, `fft_get_widget_data`, `fft_create_widget`, `fft_update_widget`, `fft_delete_widget`, `fft_list_blocks`, `fft_validate_spec`, `fft_create_variants` (the Taller). Resources: `fft://widgets/<id>`, `fft://widgets/<id>/data`, `fft://blocks`.
 
 Widgets are stored as `widgets/<id>.json`, the same files the demo page reads. A change made through MCP shows up in the open demo page right away. Details in [docs/mcp.md](docs/mcp.md).
 
@@ -160,6 +162,7 @@ Widgets are stored as `widgets/<id>.json`, the same files the demo page reads. A
 - [docs/blocks.md](docs/blocks.md): every block and option (generated).
 - [docs/mcp.md](docs/mcp.md): MCP tools, resources and setup.
 - [docs/accessibility.md](docs/accessibility.md): conformance with EN 301 549 (the European Accessibility Act) and WCAG 2.1 AA, criterion by criterion, and how to test it.
+- [docs/taller.md](docs/taller.md): the Taller, elBulli's creative method applied to charts: a seeded menu of new, balanced versions of any widget.
 
 ## Project layout
 
