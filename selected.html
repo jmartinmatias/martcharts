@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Selected Variations</title>
     <meta name="description" content="New ways to show the same data, picked because they are new and they help you see something true." />
+    <link rel="stylesheet" href="/demo/site-nav.css" />
     <style>
       :root {
         color-scheme: light;
@@ -34,8 +35,6 @@
           calc(89px + env(safe-area-inset-bottom, 0px)) calc(16px + env(safe-area-inset-left, 0px));
       }
       a { color: inherit; }
-      .back { font-size: 13px; color: var(--ink-2); text-decoration: none; border-bottom: 1px solid var(--line); }
-      .back:hover, .back:focus-visible { color: var(--ink); border-bottom-color: currentColor; }
       header.page { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 21px; margin: 13px 0 55px; }
       h1 { margin: 0; font-size: 34px; line-height: 1.15; letter-spacing: -0.02em; font-weight: 650; }
       .lede { margin: 8px 0 0; max-width: 62ch; color: var(--ink-2); font-size: 17px; line-height: 1.55; }
@@ -86,8 +85,12 @@
   </head>
   <body>
     <main>
-      <a class="back" href="/">Back to the gallery</a>
-      <a class="back" href="/taller.html" style="margin-left: 21px">The Taller, where they were made</a>
+      <nav class="site-nav" aria-label="Pages">
+        <a href="./index.html" title="Every widget in the library, each the same component fed a different spec">Gallery</a>
+        <a href="./taller.html" title="elBulli's creative method applied to sales charts: new versions of any widget, each answering a sales question">Taller</a>
+        <a href="./selected.html" aria-current="page" title="New ways to show the same data, picked because they are new and meaningful">Selected</a>
+        <a href="./index.html#playground" title="Edit any widget's spec, view and style, with a live preview">Playground</a>
+      </nav>
       <header class="page">
         <div>
           <h1>Selected variations</h1>

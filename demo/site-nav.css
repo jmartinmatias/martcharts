@@ -1,0 +1,25 @@
+/*
+ * The demo's pages, the same row at the top of every page: Gallery, Taller, Selected and Playground. The page you
+ * are on is marked twice, in words for screen readers (aria-current) and by a heavier ink and an accent rule.
+ * Uses each page's own tokens: --ink, --ink-2, --line, --accent.
+ */
+.site-nav { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 21px; margin: 0 0 21px; padding-bottom: 13px; border-bottom: 1px solid var(--line); font-size: 13px; }
+.site-nav a, .site-nav button {
+  appearance: none;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 4px 0;
+  color: var(--ink-2);
+  font: inherit;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 233ms ease, border-color 233ms ease;
+}
+.site-nav a:hover, .site-nav button:hover { color: var(--ink); border-bottom-color: var(--line); }
+.site-nav a:focus-visible, .site-nav button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; color: var(--ink); }
+.site-nav [aria-current="page"] { color: var(--ink); font-weight: 600; border-bottom-color: var(--accent); cursor: default; }
+@media (prefers-reduced-motion: reduce) { .site-nav a, .site-nav button { transition: none; } }
+@media (forced-colors: active) { .site-nav [aria-current="page"] { border-bottom-color: CanvasText; } }

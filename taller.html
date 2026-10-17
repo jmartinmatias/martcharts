@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Taller: FFT Widgets</title>
     <meta name="description" content="elBulli's creative method, lifted out of its craft and applied to sales charts: one sales question, seven moves, new versions balanced on five qualities." />
+    <link rel="stylesheet" href="/demo/site-nav.css" />
     <style>
       :root {
         color-scheme: light;
@@ -45,8 +46,6 @@
       }
       a { color: inherit; }
       header.page { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 21px; }
-      .back { display: inline-block; margin-bottom: 8px; font-size: 13px; color: var(--ink-2); text-decoration: none; border-bottom: 1px solid var(--line); }
-      .back:hover, .back:focus-visible { color: var(--ink); }
       h1 { margin: 0; font-size: 34px; line-height: 1.1; font-family: var(--serif); font-weight: 600; letter-spacing: -0.01em; }
       h2 { margin: 55px 0 5px; font-size: 18px; }
       p.lede { margin: 8px 0 0; color: var(--ink-2); max-width: 68ch; }
@@ -147,9 +146,14 @@
   </head>
   <body>
     <main>
+      <nav class="site-nav" aria-label="Pages">
+        <a href="./index.html" title="Every widget in the library, each the same component fed a different spec">Gallery</a>
+        <a href="./taller.html" aria-current="page" title="elBulli's creative method applied to sales charts: new versions of any widget, each answering a sales question">Taller</a>
+        <a href="./selected.html" title="New ways to show the same data, picked because they are new and meaningful">Selected</a>
+        <a href="./index.html#playground" title="Edit any widget's spec, view and style, with a live preview">Playground</a>
+      </nav>
       <header class="page">
         <div>
-          <a class="back" href="./index.html">Back to the gallery</a>
           <h1>Taller</h1>
           <p class="lede">
             elBulli's creative method, lifted out of its craft and applied to sales. Pick a chart: its numbers stay exactly as they are,

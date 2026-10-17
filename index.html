@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>FFT Widgets</title>
+    <link rel="stylesheet" href="/demo/site-nav.css" />
     <style>
       :root {
         color-scheme: light;
@@ -58,9 +59,6 @@
       .controls { display: flex; flex-wrap: wrap; gap: 13px; align-items: center; }
       .controls .label { font-size: 13px; color: var(--ink-2); }
       /* The way to the Taller: one quiet link among the page controls. */
-      .page-link { font-size: 13px; color: var(--ink-2); text-decoration: none; border-bottom: 1px solid var(--line); padding: 4px 0; margin-right: 21px; }
-      .page-link:hover, .page-link:focus-visible { color: var(--ink); }
-      button.page-link { background: none; border: 0; border-bottom: 1px solid var(--line); font: inherit; font-size: 13px; cursor: pointer; }
       /* The playground opens as a modal over the gallery: a calm sheet with its title row pinned, full screen on phones. */
       .playground-dialog {
         width: min(1200px, calc(100vw - 32px)); max-width: none; max-height: calc(100dvh - 32px); margin: auto; padding: 0;
@@ -250,6 +248,12 @@
   </head>
   <body>
     <main>
+      <nav class="site-nav" aria-label="Pages">
+        <a href="./index.html" aria-current="page" title="Every widget in the library, each the same component fed a different spec">Gallery</a>
+        <a href="./taller.html" title="elBulli's creative method applied to sales charts: new versions of any widget, each answering a sales question">Taller</a>
+        <a href="./selected.html" title="New ways to show the same data, picked because they are new and meaningful">Selected</a>
+        <button type="button" id="open-playground" aria-haspopup="dialog" title="Edit any widget's spec, view and style, with a live preview">Playground</button>
+      </nav>
       <header class="page">
         <div>
           <h1>FFT Widgets</h1>
@@ -259,9 +263,6 @@
           </p>
         </div>
         <div class="controls">
-          <a class="page-link" href="./taller.html" title="elBulli's creative method applied to sales charts: new versions of any widget, each answering a sales question">Taller</a>
-          <a class="page-link" href="./selected.html" title="New ways to show the same data, picked because they are new and meaningful">Selected</a>
-          <button type="button" class="page-link" id="open-playground" aria-haspopup="dialog" title="Edit any widget's spec, view and style, with a live preview">Playground</button>
           <span class="label" id="preset-label">Style</span>
           <div id="preset" class="segmented" role="group" aria-labelledby="preset-label"></div>
           <span class="label" id="theme-label">Theme</span>

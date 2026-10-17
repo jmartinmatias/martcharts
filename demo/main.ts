@@ -346,3 +346,9 @@ if (location.hash.startsWith("#taller=")) {
   }
   history.replaceState(null, "", `${location.pathname}${location.search}`);
 }
+
+// The Playground link on the other pages arrives as #playground: open it, focus returning to its button, then tidy the address.
+if (location.hash === "#playground") {
+  openPlayground(openButton);
+  history.replaceState(null, "", `${location.pathname}${location.search}`);
+}
