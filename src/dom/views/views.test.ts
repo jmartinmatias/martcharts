@@ -1320,6 +1320,14 @@ describe("dumbbell view", () => {
     all(".fft-db-hit")[1]?.dispatchEvent(new Event("focus"));
     expect([...texts(".fft-tooltip-title"), ...texts(".fft-tooltip-row")]).toEqual(["South", "240Last", "204Now", "-15.0%Change"]);
   });
+  test("two different measures are not before and after: each dot takes a series color, and the tooltip gives the gap", async () => {
+    await draw({ rows: [{ region: "North", revenue: 278, cost: 190 }], view: { type: "dumbbell", label: "region", from: "revenue", to: "cost" } });
+    const dots = [all("circle.fft-db-from")[0], all("circle.fft-db-to")[0]] as SVGElement[];
+    expect(dots.map((dot) => dot.style.fill)).toEqual(["var(--fft-series-1)", "var(--fft-series-2)"]);
+    expect(all(".fft-legend .fft-swatch").map((s) => (s as HTMLElement).style.background)).toEqual(["var(--fft-series-1)", "var(--fft-series-2)"]);
+    all(".fft-db-hit")[0]?.dispatchEvent(new Event("focus"));
+    expect(texts(".fft-tooltip-row")).toEqual(["278Revenue", "190Cost", "88Gap"]);
+  });
 });
 
 describe("slope view", () => {

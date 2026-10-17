@@ -8,11 +8,15 @@ import { roving } from "./focus.ts";
 
 const CHAR_WIDTH = 6;
 const ROW = 34;
+/** Field names that read as a moment in time (q3_2025, h1, last, before): such a pair is a before and an after. */
+const PERIOD = /(19|20)\d\d|\b[qh][1-4]\b|before|after|previous|prior|last|current|start|end/i;
 
 /**
  * Draws the `dumbbell` view: per row, a muted dot for the before value and an
  * accent dot for the after value, joined by a hairline, all on one shared axis
- * so the direction and size of each change read at a glance.
+ * so the direction and size of each change read at a glance. Two different
+ * measures (revenue and cost) are not a before and an after: each dot then takes
+ * a series color, and the tooltip gives the gap instead of a change.
  */
 export const renderDumbbell: ViewRenderer<DumbbellView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
@@ -28,6 +32,9 @@ export const renderDumbbell: ViewRenderer<DumbbellView> = (ctx) => {
   const height = margin.top + rows.length * ROW + margin.bottom;
   const x = linearScale(values, [margin.left, width - margin.right], { includeZero: false });
   const change = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1, signDisplay: "exceptZero" });
+  const periods = PERIOD.test(from) || PERIOD.test(to);
+  const fromColor = periods ? undefined : ctx.color(0);
+  const toColor = periods ? ctx.color(0) : ctx.color(1);
 
   const wrap = html(doc, "div", "fft-chart");
   const legend = html(doc, "ul", "fft-legend");
@@ -38,7 +45,8 @@ export const renderDumbbell: ViewRenderer<DumbbellView> = (ctx) => {
     const swatch = html(doc, "span", `fft-swatch ${cls}`);
     swatch.dataset.shape = "dot";
     swatch.setAttribute("aria-hidden", "true");
-    if (cls === "fft-db-key-to") swatch.style.background = ctx.color(0);
+    const color = cls === "fft-db-key-to" ? toColor : fromColor;
+    if (color) swatch.style.background = color;
     const item = html(doc, "li");
     item.append(swatch, ctx.label(field));
     legend.append(item);
@@ -65,14 +73,16 @@ export const renderDumbbell: ViewRenderer<DumbbellView> = (ctx) => {
     text.textContent = name;
     chart.append(text);
     chart.append(svg(doc, "line", { class: "fft-db-line", x1: x(a), x2: x(b), y1: cy, y2: cy }));
-    chart.append(svg(doc, "circle", { class: "fft-db-from", cx: x(a), cy, r: 5 }));
+    const before = svg(doc, "circle", { class: "fft-db-from", cx: x(a), cy, r: 5 });
+    if (fromColor) before.style.setProperty("fill", fromColor);
+    chart.append(before);
     const after = svg(doc, "circle", { class: "fft-db-to", cx: x(b), cy, r: 5 });
-    after.style.setProperty("fill", ctx.color(0));
+    after.style.setProperty("fill", toColor);
     chart.append(after);
     const items: TooltipItem[] = [
-      { label: ctx.label(from), value: ctx.format(row[from], from) },
-      { label: ctx.label(to), value: ctx.format(row[to], to), color: ctx.color(0) },
-      ...(a !== 0 ? [{ label: "Change", value: change.format((b - a) / Math.abs(a)) }] : []),
+      { label: ctx.label(from), value: ctx.format(row[from], from), ...(fromColor ? { color: fromColor } : {}) },
+      { label: ctx.label(to), value: ctx.format(row[to], to), color: toColor },
+      ...(periods ? (a !== 0 ? [{ label: "Change", value: change.format((b - a) / Math.abs(a)) }] : []) : [{ label: "Gap", value: ctx.format(Math.abs(a - b), to) }]),
     ];
     const hit = svg(doc, "rect", { class: "fft-db-hit", x: 0, y: cy - ROW / 2, width, height: ROW, tabindex: 0, role: "img" });
     hit.setAttribute("aria-label", `${name}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
