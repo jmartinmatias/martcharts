@@ -30,8 +30,31 @@ export function explainChart(spec: WidgetSpec, rows: Row[] = []): string {
   const lined = goal ? `${guide(spec)} The dashed line is the ${goal.name}.` : guide(spec);
   // Small multiples: one chart per value, so an example across all rows would mix the panels up.
   const general = facet ? `${lined} There is one small chart for each ${nameOf(facet, spec)}, all on the same scale.` : lined;
-  const example = rows.length && !facet ? exampleOf(spec, rows) : "";
+  const example = rows.length ? (facet ? facetExample(spec, rows, facet) : exampleOf(spec, rows)) : "";
   return example ? `${general} ${example}` : general;
+}
+
+/**
+ * Small multiples of a line or area over time compare their panels: how many grew from their first point to their
+ * last, and which grew most. Empty when a panel has fewer than two points or the view is another kind.
+ */
+function facetExample(spec: WidgetSpec, rows: Row[], facet: string): string {
+  const view = (spec.view ?? { type: "table" }) as View;
+  const [x, y] = [one(view.x), many(view.y)];
+  if (!["line", "area"].includes(view.type) || !x || y.length !== 1) return "";
+  const field = y[0] as string;
+  const panels = new Map<string, Row[]>();
+  for (const row of rows) if (readNumber(row[field]) !== null) panels.set(String(row[facet]), [...(panels.get(String(row[facet])) ?? []), row]);
+  const runs = [...panels.entries()].filter(([, list]) => list.length >= 2).map(([name, list]) => ({ name, first: list[0] as Row, last: list.at(-1) as Row }));
+  if (runs.length < 2 || runs.length !== panels.size) return "";
+  const growth = (run: (typeof runs)[number]) => (readNumber(run.last[field]) as number) - (readNumber(run.first[field]) as number);
+  const grew = runs.filter((run) => growth(run) > 0);
+  if (!grew.length) return "";
+  const best = grew.reduce((b, run) => (growth(run) > growth(b) ? run : b));
+  const show = (row: Row, f: string) => formatValue(row[f], spec.fields?.[f]?.format, spec.locale);
+  const entity = nameOf(facet, spec);
+  const count = grew.length === runs.length ? `every ${entity}` : `${grew.length} of ${runs.length} ${plural(entity)}`;
+  return `Here, ${count} grew from ${show(best.first, x)} to ${show(best.last, x)}, and ${best.name} grew the most, from ${show(best.first, field)} to ${show(best.last, field)}.`;
 }
 
 /** A reference line drawn at a fixed target (labelled target, plan, goal, budget or quota), on bars and lines. */

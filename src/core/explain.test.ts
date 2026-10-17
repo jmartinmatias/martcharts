@@ -457,6 +457,19 @@ describe("explainChart", () => {
     expect(at({ type: "rings", label: "product", value: "v", target: "t" }, rings.slice(1))).toContain("Here, none of the 2 has reached its goal yet; Platform is closest, at 92%.");
   });
 
+  test("small multiples compare their panels: how many grew from first to last, and who grew most", () => {
+    const rows = [
+      { region: "East", month: "Apr", revenue: 52 },
+      { region: "East", month: "Sep", revenue: 65 },
+      { region: "North", month: "Apr", revenue: 44 },
+      { region: "North", month: "Sep", revenue: 48 },
+      { region: "South", month: "Apr", revenue: 40 },
+      { region: "South", month: "Sep", revenue: 38 },
+    ];
+    const text = explainChart({ ...spec({ type: "area", x: "month", y: "revenue" }), facet: { field: "region" }, locale: "en-US" }, rows);
+    expect(text).toContain("There is one small chart for each region, all on the same scale. Here, 2 of 3 regions grew from Apr to Sep, and East grew the most, from 52 to 65.");
+  });
+
   test("no guide names a hue or a dark shade: presets recolor and dark themes flip, so marks are read by side, shape and fill", () => {
     const guide = (view: Record<string, unknown>) => explainChart({ ...spec(view), locale: "en-US" });
     expect(guide({ type: "variance", label: "department", value: "actual", target: "budget", goodWhen: "down" })).toBe(
