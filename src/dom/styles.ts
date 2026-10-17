@@ -574,6 +574,7 @@ export const BASE_CSS = `
 .fft-gauge > svg[width="377"] .fft-gauge-value { font-size: 55px; }
 .fft-gauge-caption { fill: var(--fft-text-secondary); font-size: 11px; pointer-events: none; }
 .fft-gauge-scale { fill: var(--fft-muted); font-size: 11px; font-variant-numeric: tabular-nums; pointer-events: none; }
+.fft-gauge-goal { fill: var(--fft-text-secondary); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; }
 .fft-gauge-hit { fill: none; stroke: transparent; stroke-linecap: round; cursor: pointer; outline: none; pointer-events: stroke; }
 .fft-gauge-hit:focus-visible { stroke: color-mix(in srgb, var(--fft-accent) 16%, transparent); }
 .fft-pareto-line { fill: none; stroke: var(--fft-text-secondary); stroke-width: 2; stroke-linejoin: round; pointer-events: none; }

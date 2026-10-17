@@ -1937,6 +1937,16 @@ describe("gauge view", () => {
     expect([texts(".fft-gauge-value"), texts(".fft-gauge-scale")]).toEqual([["42"], ["0", "100"]]);
   });
 
+  test("the target tick says what it is, on the chart: Goal 50, inside the arc and clear of the number", async () => {
+    await draw(spec);
+    const label = target.querySelector(".fft-gauge-goal");
+    expect([label?.textContent, label?.getAttribute("text-anchor")]).toEqual(["Goal 50", "middle"]);
+    // Inside the arc: closer to the center than the track's inner edge, and above the number.
+    const [x, y] = [Number(label?.getAttribute("x")), Number(label?.getAttribute("y"))];
+    const number = target.querySelector(".fft-gauge-value");
+    expect(y < Number(number?.getAttribute("y")) - 30 && Number.isFinite(x)).toBe(true);
+  });
+
   test("a tick marks the target, and the tooltip gives value, target and attainment", async () => {
     await draw(spec);
     expect(target.querySelector(".fft-gauge-target")?.getAttribute("data-ratio")).toBe("0.5");

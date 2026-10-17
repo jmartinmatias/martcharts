@@ -49,6 +49,12 @@ export const renderGauge: ViewRenderer<GaugeView> = (ctx) => {
     const inner = polar(c, c, r - thickness / 2 - 3, angle(ratio(goal)));
     const outer = polar(c, c, r + thickness / 2 + 3, angle(ratio(goal)));
     chart.append(svg(doc, "line", { class: "fft-gauge-target", x1: inner.x, y1: inner.y, x2: outer.x, y2: outer.y, "data-ratio": round2(ratio(goal)) }));
+    // The tick says what it is, just inside the arc, reading toward the center so it stays clear of the number.
+    const at = polar(c, c, r - thickness / 2 - 13, angle(ratio(goal)));
+    const side = ratio(goal) < 0.4 ? "start" : ratio(goal) > 0.6 ? "end" : "middle";
+    const name = svg(doc, "text", { class: "fft-gauge-goal", x: at.x, y: at.y, "text-anchor": side, "dominant-baseline": "middle" });
+    name.textContent = `${target ? ctx.label(target) : "Target"} ${show(goal)}`;
+    chart.append(name);
   }
   const number = svg(doc, "text", { class: "fft-gauge-value", x: c, y: c - 6, "text-anchor": "middle" });
   number.textContent = show(row[field]);
