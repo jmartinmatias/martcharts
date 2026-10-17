@@ -398,6 +398,8 @@ export const BASE_CSS = `
 .fft-tooltip-label { color: var(--fft-text-secondary); }
 
 .fft-table-wrap { max-width: 100%; overflow-x: auto; }
+/* More columns to the right: that edge fades out, a cue to swipe. Only the right edge, so the first column always reads. */
+.fft-table-wrap[data-more] { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 34px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 34px), transparent); }
 .fft-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
 .fft-table th {
   padding: 5px 8px; text-align: left; white-space: nowrap;

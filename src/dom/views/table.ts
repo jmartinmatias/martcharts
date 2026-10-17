@@ -66,4 +66,8 @@ export const renderTable: ViewRenderer<TableView> = (ctx) => {
 
   draw();
   ctx.el.append(wrap);
+  // A table wider than its card scrolls sideways: while more columns wait to the right, that edge fades out as a cue to swipe.
+  const edge = () => wrap.toggleAttribute("data-more", wrap.scrollWidth - wrap.clientWidth > 1 && wrap.scrollLeft < wrap.scrollWidth - wrap.clientWidth - 1);
+  wrap.addEventListener("scroll", edge, { passive: true });
+  edge();
 };

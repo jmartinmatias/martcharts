@@ -34,6 +34,19 @@ const sales = [
 ];
 
 describe("table view", () => {
+  test("a table wider than its card marks that more columns wait to the right, for the stylesheet to fade that edge", async () => {
+    await draw({ rows: [{ region: "East", a: 1, b: 2 }], view: { type: "table" } });
+    const wrap = target.querySelector(".fft-table-wrap") as HTMLElement;
+    let left = 0;
+    Object.defineProperties(wrap, { scrollWidth: { value: 600, configurable: true }, clientWidth: { value: 300, configurable: true }, scrollLeft: { get: () => left, configurable: true } });
+    const at = (x: number) => {
+      left = x;
+      wrap.dispatchEvent(new Event("scroll"));
+      return wrap.hasAttribute("data-more");
+    };
+    expect([at(0), at(150), at(300)]).toEqual([true, true, false]);
+  });
+
   test("headers use field labels and cells use field formats", async () => {
     await draw({ rows: sales, fields: { revenue: { label: "Revenue", format: { type: "currency", currency: "EUR", decimals: 0 } } }, view: { type: "table" } });
     expect(texts("th")).toEqual(["Region", "Revenue", "Cost"]);
