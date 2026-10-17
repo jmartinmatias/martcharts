@@ -74,10 +74,10 @@ function entityOf(field: string, spec: WidgetSpec): string {
 const singular = (noun: string) => (/ies$/.test(noun) ? `${noun.slice(0, -3)}y` : /(ch|sh|x|ss)es$/.test(noun) ? noun.slice(0, -2) : /[^s]s$/.test(noun) ? noun.slice(0, -1) : noun);
 /** The plural of a one-word noun ("region" to "regions"); undefined for several words, which read badly forced into a plural. */
 const plural = (noun: string): string | undefined => (/\s/.test(noun) ? undefined : /[^aeiou]y$/.test(noun) ? `${noun.slice(0, -1)}ies` : /(s|x|ch|sh)$/.test(noun) ? `${noun}es` : `${noun}s`);
-/** Whether a measure reads as plural: "orders", "people", but not "revenue", "NPS" or "days to close". */
+/** Whether a measure reads as plural: "orders", "people", "customers won", but not "revenue", "NPS" or "deal value". */
 const isPlural = (name: string) => {
-  const last = name.split(" ").at(-1) ?? "";
-  return /^people$/i.test(last) || (/[^s]s$/.test(last) && last !== last.toUpperCase());
+  const words = name.split(" ");
+  return [words[0] ?? "", words.at(-1) ?? ""].some((word) => /^people$/i.test(word) || (/[^s]s$/.test(word) && word !== word.toUpperCase()));
 };
 const be = (name: string) => (isPlural(name) ? "are" : "is");
 /** "A", "A and B", "A, B and C". */
@@ -145,7 +145,7 @@ export function questionOf(spec: WidgetSpec, rows: Row[] = []): Question {
     }
     case "kpi": {
       const value = one(view.value);
-      if (value) return ask("number", `what is the latest number for ${name(value)}, and which way is it heading?`);
+      if (value) return ask("number", `${be(name(value))} ${name(value)} going up or down?`);
       break;
     }
     case "kpis": {
@@ -208,7 +208,7 @@ export function questionOf(spec: WidgetSpec, rows: Row[] = []): Question {
     }
     case "scatter": {
       const [x, y] = [one(view.x), one(view.y)];
-      if (x && y) return ask("relation", `does ${name(y)} go up as ${name(x)} goes up?`);
+      if (x && y) return ask("relation", `${isPlural(name(y)) ? "do" : "does"} ${name(y)} go up as ${name(x)} ${isPlural(name(x)) ? "go" : "goes"} up?`);
       break;
     }
     case "funnel": {

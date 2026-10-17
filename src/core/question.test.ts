@@ -38,7 +38,8 @@ describe("questionOf", () => {
     expect(ask("traffic-stream").text).toBe("Which part is growing, week by week?");
     expect(ask("product-mix-trend").text).toBe("How is the share of each of the 6 parts changing, month by month?");
     expect(ask("product-ranking").text).toBe("How does the ranking of products change, month by month?");
-    expect(ask("revenue-kpi")).toEqual({ kind: "number", text: "What is the latest number for monthly revenue, and which way is it heading?" });
+    expect(ask("revenue-kpi")).toEqual({ kind: "number", text: "Is monthly revenue going up or down?" });
+    expect(ask("new-customers-kpi").text).toBe("Are customers won going up or down?");
   });
 
   test("a whole asks what share comes from each part", () => {
@@ -65,6 +66,7 @@ describe("questionOf", () => {
     expect(ask("deal-histogram")).toEqual({ kind: "spread", text: "How spread out is deal value?" });
     expect(ask("deal-boxplot").text).toBe("How spread out is deal value in each region?");
     expect(ask("account-portfolio")).toEqual({ kind: "relation", text: "Does gross margin go up as revenue growth goes up?" });
+    expect(ask("deal-scatter").text).toBe("Does deal value go up as days to close go up?");
     expect(ask("signup-funnel")).toEqual({ kind: "flow", text: "Where do people drop out, step by step?" });
     expect(ask("traffic-sankey").text).toBe("Where do visits flow, and how much goes each way?");
     expect(ask("order-calendar")).toEqual({ kind: "rhythm", text: "Which days have the most orders?" });
