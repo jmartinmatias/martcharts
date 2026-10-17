@@ -67,7 +67,20 @@ export const renderTable: ViewRenderer<TableView> = (ctx) => {
   draw();
   ctx.el.append(wrap);
   // A table wider than its card scrolls sideways: while more columns wait to the right, that edge fades out as a cue to swipe.
-  const edge = () => wrap.toggleAttribute("data-more", wrap.scrollWidth - wrap.clientWidth > 1 && wrap.scrollLeft < wrap.scrollWidth - wrap.clientWidth - 1);
+  // Without sort buttons nothing inside takes focus, so the scrolling box itself becomes a labelled stop (WCAG 2.1.1).
+  const edge = () => {
+    const overflows = wrap.scrollWidth - wrap.clientWidth > 1;
+    wrap.toggleAttribute("data-more", overflows && wrap.scrollLeft < wrap.scrollWidth - wrap.clientWidth - 1);
+    if (overflows && !sortable) {
+      wrap.tabIndex = 0;
+      wrap.setAttribute("role", "region");
+      wrap.setAttribute("aria-label", `${ctx.spec.title ?? "Table"}: scroll sideways for more columns`);
+    } else if (wrap.hasAttribute("role")) {
+      wrap.removeAttribute("tabindex");
+      wrap.removeAttribute("role");
+      wrap.removeAttribute("aria-label");
+    }
+  };
   wrap.addEventListener("scroll", edge, { passive: true });
   edge();
 };

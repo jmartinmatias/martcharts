@@ -34,6 +34,26 @@ const sales = [
 ];
 
 describe("table view", () => {
+  test("a wide table with nothing focusable inside is itself a labelled stop, so the keyboard can scroll it (WCAG 2.1.1)", async () => {
+    await draw({ title: "Revenue by month", rows: [{ region: "East", a: 1, b: 2 }], view: { type: "table", sortable: false } });
+    const wrap = target.querySelector(".fft-table-wrap") as HTMLElement;
+    const narrow = [wrap.tabIndex, wrap.getAttribute("role")];
+    Object.defineProperties(wrap, { scrollWidth: { value: 600, configurable: true }, clientWidth: { value: 300, configurable: true } });
+    wrap.dispatchEvent(new Event("scroll"));
+    expect([narrow, [wrap.tabIndex, wrap.getAttribute("role"), wrap.getAttribute("aria-label")]]).toEqual([
+      [-1, null],
+      [0, "region", "Revenue by month: scroll sideways for more columns"],
+    ]);
+  });
+
+  test("a wide sortable table needs no extra stop: its header buttons already take the keyboard there", async () => {
+    await draw({ rows: [{ region: "East", a: 1, b: 2 }], view: { type: "table" } });
+    const wrap = target.querySelector(".fft-table-wrap") as HTMLElement;
+    Object.defineProperties(wrap, { scrollWidth: { value: 600, configurable: true }, clientWidth: { value: 300, configurable: true } });
+    wrap.dispatchEvent(new Event("scroll"));
+    expect([wrap.tabIndex, wrap.hasAttribute("role")]).toEqual([-1, false]);
+  });
+
   test("a table wider than its card marks that more columns wait to the right, for the stylesheet to fade that edge", async () => {
     await draw({ rows: [{ region: "East", a: 1, b: 2 }], view: { type: "table" } });
     const wrap = target.querySelector(".fft-table-wrap") as HTMLElement;
