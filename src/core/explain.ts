@@ -24,10 +24,23 @@ const many = (value: unknown): string[] => (Array.isArray(value) ? value.filter(
  */
 export function explainChart(spec: WidgetSpec, rows: Row[] = []): string {
   const facet = (spec.facet as { field?: string } | undefined)?.field;
+  // A dashed target line says what it is, so the chart reads against it.
+  const goal = targetLine(spec);
+  const lined = goal ? `${guide(spec)} The dashed line is the ${goal.name}.` : guide(spec);
   // Small multiples: one chart per value, so an example across all rows would mix the panels up.
-  const general = facet ? `${guide(spec)} There is one small chart for each ${nameOf(facet, spec)}, all on the same scale.` : guide(spec);
+  const general = facet ? `${lined} There is one small chart for each ${nameOf(facet, spec)}, all on the same scale.` : lined;
   const example = rows.length && !facet ? exampleOf(spec, rows) : "";
   return example ? `${general} ${example}` : general;
+}
+
+/** A reference line drawn at a fixed target (labelled target, plan, goal, budget or quota), on bars and lines. */
+function targetLine(spec: WidgetSpec): { value: number; name: string } | undefined {
+  const view = (spec.view ?? { type: "table" }) as View;
+  if (!["bar", "hbar", "line", "area"].includes(view.type) || !Array.isArray(view.reference)) return undefined;
+  const found = (view.reference as { value?: unknown; label?: unknown }[]).find((r) => typeof r.value === "number" && /target|plan|goal|budget|quota/i.test(String(r.label ?? "")));
+  if (!found) return undefined;
+  const label = String(found.label);
+  return { value: found.value as number, name: /^[A-Z][a-z]*\b/.test(label) ? label.charAt(0).toLowerCase() + label.slice(1) : label };
 }
 
 /** Field names that read as one measure at two times: q3_2025 and q3_2026, before and after. */
@@ -79,7 +92,16 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
         if (paired.length) return `Here, ${nameOf(single, spec)} beat the ${nameOf(goal, spec)} in ${beat} of ${paired.length} ${plural(each)}.`;
       }
       const row = single ? top(single) : undefined;
-      return row && single ? `Here, ${text(row, x)} ${view.mark === "lollipop" ? "has the highest dot" : "is the tallest"}, with ${text(row, single)}.` : "";
+      const standout = row && single ? `${text(row, x)} ${view.mark === "lollipop" ? "has the highest dot" : "is the tallest"}, with ${text(row, single)}` : "";
+      // Against a dashed target line: how many are above it, said without assuming above is better.
+      const line = targetLine(spec);
+      if (standout && single && line) {
+        const known = rows.filter((r) => value(r, single) !== null);
+        const above = known.filter((r) => (value(r, single) as number) > line.value).length;
+        const each = plural(nameOf(x, spec));
+        return `Here, ${above} of ${known.length} ${each} ${above === 1 ? "is" : "are"} above the ${line.name}, and ${standout}.`;
+      }
+      return standout ? `Here, ${standout}.` : "";
     }
     case "hbar": {
       const [label, amount] = [one(view.label), one(view.value)];
@@ -110,7 +132,11 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const known = rows.filter((row) => value(row, traced) !== null && !(forecast && (row[forecast] === true || row[forecast] === "true" || row[forecast] === 1)));
       const [first, last] = [known[0], known.at(-1)];
       const subject = single ? "it" : nameOf(traced, spec);
-      return first && last && first !== last ? `Here, ${subject} went from ${text(first, traced)} in ${text(first, x)} to ${text(last, traced)} in ${text(last, x)}.` : "";
+      // Against a target line: did the latest actual end past it, or short of it?
+      const goal = targetLine(spec);
+      const lastValue = last ? value(last, traced) : null;
+      const against = goal && lastValue !== null ? `, ${lastValue >= goal.value ? "past" : "short of"} the ${goal.name} of ${formatValue(goal.value, spec.fields?.[traced]?.format, spec.locale)}` : "";
+      return first && last && first !== last ? `Here, ${subject} went from ${text(first, traced)} in ${text(first, x)} to ${text(last, traced)} in ${text(last, x)}${against}.` : "";
     }
     case "donut": {
       const [label, amount] = [one(view.label), one(view.value)];

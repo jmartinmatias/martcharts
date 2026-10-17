@@ -161,6 +161,27 @@ describe("explainChart", () => {
     );
   });
 
+  test("a dashed target line is named, bars are counted against it, and a line says whether it ended past it", () => {
+    const teams = [
+      { team: "Technical", minutes: 95 },
+      { team: "Billing", minutes: 40 },
+      { team: "Sales", minutes: 70 },
+      { team: "Onboarding", minutes: 50 },
+    ];
+    const lollipops = explainChart({ ...spec({ type: "bar", x: "team", y: "minutes", mark: "lollipop", reference: [{ value: 60, label: "1 hour target" }] }), locale: "en-US" }, teams);
+    expect(lollipops).toContain("The dashed line is the 1 hour target.");
+    expect(lollipops).toContain("Here, 2 of 4 teams are above the 1 hour target, and Technical has the highest dot, with 95.");
+    const months = [
+      { month: "Oct", revenue: 820, cost: 600 },
+      { month: "Sep", revenue: 1284, cost: 700 },
+    ];
+    const line = explainChart({ ...spec({ type: "line", x: "month", y: ["revenue", "cost"], reference: [{ value: 1200, label: "Target" }] }), locale: "en-US" }, months);
+    expect(line).toContain("The dashed line is the target.");
+    expect(line).toContain("Here, revenue went from 820 in Oct to 1,284 in Sep, past the target of 1,200.");
+    const average = explainChart({ ...spec({ type: "bar", x: "team", y: "minutes", reference: [{ field: "minutes", agg: "avg", label: "Average" }] }), locale: "en-US" }, teams);
+    expect(average).not.toContain("target");
+  });
+
   test("no guide names a hue or a dark shade: presets recolor and dark themes flip, so marks are read by side, shape and fill", () => {
     const guide = (view: Record<string, unknown>) => explainChart({ ...spec(view), locale: "en-US" });
     expect(guide({ type: "variance", label: "department", value: "actual", target: "budget", goodWhen: "down" })).toBe(
