@@ -1,3 +1,4 @@
+import { timeStep } from "../../core/display.ts";
 import { readNumber } from "../../core/formats.ts";
 import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
@@ -38,7 +39,8 @@ export const renderCandlestick: ViewRenderer<CandlestickView> = (ctx) => {
   const keys: [string, string, string][] = [
     ["Up", "var(--fft-up)", "hollow"],
     ["Down", "var(--fft-down)", "rect"],
-    ...(means.length ? ([[`${average}-period average`, "var(--fft-text-secondary)", "line"]] as [string, string, string][]) : []),
+    // Named in the chart's own time step ("5-day average"), or as an average of the last points.
+    ...(means.length ? ([[`${average}-${timeStep(xField) ?? "point"} average`, "var(--fft-text-secondary)", "line"]] as [string, string, string][]) : []),
   ];
   for (const [name, color, shape] of keys) {
     const swatch = html(doc, "span", "fft-swatch");

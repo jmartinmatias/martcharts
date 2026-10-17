@@ -94,6 +94,17 @@ describe("explainChart", () => {
     expect(at({ type: "candlestick", x: "day", open: "o", high: "h", low: "l", close: "c" }, [{ day: "1", o: 10, h: 12, l: 9, c: 11 }, { day: "2", o: 11, h: 11, l: 9, c: 10 }, { day: "3", o: 10, h: 13, l: 10, c: 12 }])).toContain("Here, 2 of 3 days went up.");
   });
 
+  test("candles are read by their shape, never by color alone, in the chart's own time step, with the average line explained", () => {
+    const guide = (view: Record<string, unknown>) => explainChart({ data: { type: "inline", rows: [] }, view: { type: "candlestick", open: "o", high: "h", low: "l", close: "c", ...view } });
+    expect(guide({ x: "day", average: 5 })).toBe(
+      "Each candle is one day. The thick box goes from the opening price to the closing price and the thin line from the lowest to the highest. Hollow candles went up, filled candles went down. The line is the average of the last 5 closing prices.",
+    );
+    expect(guide({ x: "week" })).toBe("Each candle is one week. The thick box goes from the opening price to the closing price and the thin line from the lowest to the highest. Hollow candles went up, filled candles went down.");
+    expect(guide({ x: "week" })).not.toMatch(/blue|red/i);
+    const weeks = [{ week: "1", o: 10, h: 12, l: 9, c: 11 }, { week: "2", o: 11, h: 11, l: 9, c: 10 }];
+    expect(explainChart({ data: { type: "inline", rows: [] }, view: { type: "candlestick", x: "week", open: "o", high: "h", low: "l", close: "c" } }, weeks)).toContain("Here, 1 of 2 weeks went up.");
+  });
+
   test("the last charts point at their standout too: flows, profiles, dots, goals, tasks, lists and big numbers", () => {
     const at = (view: Record<string, unknown>, rows: Record<string, unknown>[]) => explainChart({ ...spec(view), locale: "en-US" }, rows);
     expect(at({ type: "sankey", source: "from", target: "to", value: "n" }, [{ from: "Search", to: "Pricing", n: 40 }, { from: "Email", to: "Home", n: 10 }])).toContain("Here, the thickest band goes from Search to Pricing, with 40.");

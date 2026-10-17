@@ -6,7 +6,7 @@
  *
  * @module
  */
-import { fieldLabel, formatValue } from "./display.ts";
+import { fieldLabel, formatValue, timeStep } from "./display.ts";
 import { readNumber } from "./formats.ts";
 import { binValues, sturges } from "./scale.ts";
 import type { Row, WidgetSpec } from "./types.ts";
@@ -309,7 +309,8 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       if (!open || !close) return "";
       const days = rows.filter((row) => value(row, open) !== null && value(row, close) !== null);
       const up = days.filter((row) => (value(row, close) as number) > (value(row, open) as number)).length;
-      return days.length ? `Here, ${up} of ${days.length} days went up.` : "";
+      const step = timeStep(one(view.x) ?? "");
+      return days.length ? `Here, ${up} of ${days.length} ${step ? `${step}s` : "candles"} went up.` : "";
     }
     case "sankey":
     case "chord": {
@@ -500,8 +501,13 @@ function guide(spec: WidgetSpec): string {
       return "The box holds the middle half of the values and the line inside is the middle value. The whiskers reach the normal range; dots beyond are unusual values.";
     case "likert":
       return "Each bar splits the answers to one question, from disagree on the left to agree on the right, centered on neutral. The longer the right side, the more people agree.";
-    case "candlestick":
-      return "Each candle is one day. The thick box goes from the opening price to the closing price and the thin line from the lowest to the highest. Blue days went up, red days went down.";
+    case "candlestick": {
+      // Read by shape, never by color alone: up candles are hollow and down candles filled, in every preset.
+      const x = one(view.x);
+      const step = (x && timeStep(x)) ?? "period";
+      const average = typeof view.average === "number" && view.average > 1 ? ` The line is the average of the last ${view.average} closing prices.` : "";
+      return `Each candle is one ${step}. The thick box goes from the opening price to the closing price and the thin line from the lowest to the highest. Hollow candles went up, filled candles went down.${average}`;
+    }
     case "sunburst":
       return "The inner ring shows the biggest groups. Each ring further out splits them into smaller parts; a wider slice means more.";
     case "chord":

@@ -1905,6 +1905,13 @@ describe("candlestick view", () => {
     expect([...texts(".fft-tooltip-title"), ...texts(".fft-tooltip-row")]).toEqual(["Tue", "13Open", "13.5High", "10Low", "11Close", "-15.4%Change"]);
   });
 
+  test("the average is named in the chart's own time step: a 3-day average for days, otherwise an average of the last points", async () => {
+    await draw({ rows: days.map((row) => ({ ...row, day: row.d })), view: { ...spec.view, x: "day", average: 3 } });
+    const daily = texts(".fft-legend li");
+    await draw({ ...spec, view: { ...spec.view, average: 3 } });
+    expect([daily.includes("3-day average"), texts(".fft-legend li").includes("3-point average")]).toEqual([true, true]);
+  });
+
   test("average draws a moving average of the close once enough periods have passed", async () => {
     await draw({ ...spec, view: { ...spec.view, average: 3 } });
     const d = target.querySelector("path.fft-candle-average")?.getAttribute("d") ?? "";

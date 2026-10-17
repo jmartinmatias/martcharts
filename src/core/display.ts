@@ -47,6 +47,12 @@ export function formatNode(value: unknown, format: FormatSpec | undefined, local
  * Turns a field name into a label: `unitPrice` becomes "Unit price",
  * `revenue_eur` becomes "Revenue eur". Names in capitals stay as they are.
  */
+/** The time step a field name stands for: "day" for day, days or date, "week", "month", "quarter", "year", "hour"; undefined otherwise. */
+export function timeStep(field: string): string | undefined {
+  if (/^dates?$/i.test(field)) return "day";
+  return /^(day|week|month|quarter|year|hour)s?$/i.exec(field)?.[1]?.toLowerCase();
+}
+
 export function humanize(field: string): string {
   if (field === field.toUpperCase()) return field;
   const words = field
