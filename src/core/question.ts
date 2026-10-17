@@ -126,6 +126,13 @@ export function questionOf(spec: WidgetSpec, rows: Row[] = []): Question {
       // Stages whose numbers only shrink are a pipeline: the question is where they drop out, not which stage is biggest.
       const known = rows.length ? rows : spec.data?.type === "inline" ? ((spec.data as { rows?: Row[] }).rows ?? []) : [];
       if (STAGE.test(label) && shrinking(known, value)) return ask("flow", `where ${isPlural(name(value)) ? "do" : "does"} ${name(value)} drop out, ${entity} by ${entity}?`);
+      // A named dashed target is the question itself: "Which teams meet the 1 hour target?"
+      const goal = !isTime(label) && Array.isArray(view.reference) ? (view.reference as { label?: unknown }[]).find((r) => TARGET.test(String(r.label ?? "")))?.label : undefined;
+      if (typeof goal === "string") {
+        const named = goal.replace(/^[A-Z][a-z]*\b/, (word) => word.toLowerCase());
+        const plurals = plural(entity);
+        return ask("target", plurals ? `which ${plurals} meet the ${named}?` : `which ${entity} meets the ${named}?`);
+      }
       if (targetLine) return isTime(label) ? ask("target", `is ${name(value)} on target, ${step(label, spec)}?`) : ask("target", `which ${entity} is above or below target on ${name(value)}?`);
       if (isTime(label)) return ask("trend", `how ${be(name(value))} ${name(value)} moving, ${step(label, spec)}?`);
       return ask("rank", isPeriod(value) ? `which ${entity} had the most in ${name(value)}?` : `which ${entity} has the ${most(name(value))}?`);

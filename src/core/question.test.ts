@@ -23,7 +23,10 @@ describe("questionOf", () => {
 
   test("a target, a budget or a goal asks who is above or below it", () => {
     expect(ask("revenue-vs-target")).toEqual({ kind: "target", text: "Is revenue on target, month by month?" });
-    expect(ask("response-time-by-team").text).toBe("Which team is above or below target on median minutes?");
+    // A named target line is the question itself: who meets it.
+    expect(ask("response-time-by-team").text).toBe("Which teams meet the 1 hour target?");
+    const bars = (label: string, x = "region") => questionOf({ data: { type: "inline", rows: [] }, view: { type: "bar", x, y: "revenue", reference: [{ value: 9, label }] } }).text;
+    expect([bars("Target"), bars("Q3 plan"), bars("Target", "sales rep")]).toEqual(["Which regions meet the target?", "Which regions meet the Q3 plan?", "Which sales rep meets the target?"]);
     expect(ask("opex-variance").text).toBe("Which department is above or below budget?");
     expect(ask("region-targets").text).toBe("Which region is above or below target?");
     expect(ask("kpi-scorecard").text).toBe("Which KPI is above or below target?");
