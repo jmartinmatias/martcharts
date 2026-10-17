@@ -63,6 +63,8 @@
       .steer { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 21px 34px; padding: 21px; border: 1px solid var(--line); border-radius: 13px; background: var(--field); }
       .steer label, .steer .field { display: flex; flex-direction: column; gap: 5px; font-size: 13px; color: var(--ink-2); }
       .steer .segmented { align-self: start; }
+      /* Two sliders, each with its scale under it: a clear gap between them, so a scale never reads as the next label. */
+      .steer .sliders { gap: 13px; }
       .steer select { font: inherit; font-size: 15px; color: var(--ink); background: var(--page); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; min-height: 34px; }
       .steer input[type="range"] { width: 100%; accent-color: var(--accent); min-height: 24px; }
       .scale { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-2); }
@@ -177,7 +179,7 @@
           <span id="moves-label">Sales moves</span>
           <div id="moves" class="chips" role="group" aria-labelledby="moves-label"></div>
         </div>
-        <div class="field">
+        <div class="field sliders">
           <label>Color
             <input type="range" id="color" min="-100" max="100" step="5" value="0" aria-describedby="color-scale" />
             <span class="scale" id="color-scale"><span>Calm: cool hues</span><span>Bold: warm hues, one standout</span></span>
