@@ -987,11 +987,15 @@ export function createVariants(spec: WidgetSpec, rows: Row[], options: TallerOpt
 
   // Every pattern the data can take, once per move it carries out, weighed by the requested marks, the audience and a seeded random share.
   const wanted: Marks | null = marks > 0.2 ? "sharp" : marks < -0.2 ? "smooth" : null;
-  const candidates = PATTERNS.filter((pattern) => pattern.fits(data) && (!data.scorecard || SCORECARD_FORMS.has(pattern.id))).flatMap((pattern) =>
-    pattern.moves
+  // The essence is the sales question: when the chart asks about its target, the forms that still ask it lead.
+  const aboutTarget = questionOf(spec, rows).kind === "target";
+  const keepsTarget = (pattern: Pattern) => aboutTarget && questionOf({ ...spec, view: pattern.make(data, spec).view }, rows).kind === "target";
+  const candidates = PATTERNS.filter((pattern) => pattern.fits(data) && (!data.scorecard || SCORECARD_FORMS.has(pattern.id))).flatMap((pattern) => {
+    const essence = keepsTarget(pattern) ? 1 : 0;
+    return pattern.moves
       .filter((move) => allowed.has(move))
-      .map((move) => ({ pattern, move, weight: (wanted && pattern.marks === wanted ? Math.abs(marks) : 0) + (served.has(move) ? 1 : 0) + (RARE.has(pattern.id) ? 0.1 : 0) + random() })),
-  );
+      .map((move) => ({ pattern, move, weight: (wanted && pattern.marks === wanted ? Math.abs(marks) : 0) + (served.has(move) ? 1 : 0) + essence + (RARE.has(pattern.id) ? 0.1 : 0) + random() }));
+  });
   candidates.sort((a, b) => b.weight - a.weight);
 
   const pickColor = (view: ViewSpec): ColorEmphasis => {

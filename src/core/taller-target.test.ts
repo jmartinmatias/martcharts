@@ -115,3 +115,12 @@ describe("versions keep the target", () => {
     expect(variances.every((v) => v.spec.view?.goodWhen === "down" && explainChart(v.spec, costs).includes("Below the budget is better."))).toBe(true);
   });
 });
+
+describe("the essence leads", () => {
+  test("a chart that asks about its target gets a version that still asks it, on every seed and with six versions", () => {
+    for (const seed of [1, 2, 3, 4, 5, 6]) {
+      const questions = createVariants(responseTime, teams, { seed, count: 6 }).map((v) => v.question);
+      expect([seed, questions.includes("Which teams meet the 1 hour target?")]).toEqual([seed, true]);
+    }
+  });
+});
