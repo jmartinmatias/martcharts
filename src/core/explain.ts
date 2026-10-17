@@ -1,6 +1,6 @@
 /**
  * Plain reading guides for charts: one to three short sentences that say what
- * each mark is and what bigger, longer, darker or further right means, in the
+ * each mark is and what bigger, longer, stronger or further right means, in the
  * chart's own field names, simple enough for a ten-year-old. Shown as "How to
  * read it" wherever a chart needs explaining.
  *
@@ -127,13 +127,13 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
     case "calendar": {
       const [date, amount] = [one(view.date), one(view.value)];
       const row = date && amount ? top(amount) : undefined;
-      return row && date && amount ? `Here, the darkest day is ${text(row, date)}, with ${text(row, amount)}.` : "";
+      return row && date && amount ? `Here, the top day is ${text(row, date)}, with ${text(row, amount)}.` : "";
     }
     case "heatmap": {
       const [x, y, amount] = [one(view.x), one(view.y), one(view.value)];
       const row = x && y && amount ? top(amount) : undefined;
       const named = (field: string) => fieldLabel(field, spec.fields).toLowerCase();
-      return row && x && y && amount ? `Here, the darkest square is ${named(y)} ${text(row, y)} and ${named(x)} ${text(row, x)}, at ${text(row, amount)}.` : "";
+      return row && x && y && amount ? `Here, the strongest square is ${named(y)} ${text(row, y)} and ${named(x)} ${text(row, x)}, at ${text(row, amount)}.` : "";
     }
     case "funnel": {
       const [label, amount] = [one(view.label), one(view.value)];
@@ -450,9 +450,10 @@ function guide(spec: WidgetSpec): string {
     case "waterfall":
       return "Start at the first bar. Each bar after it goes up for something that added and down for something that took away, and you land on the final total.";
     case "heatmap":
-      return `Each square is one ${name(one(view.x))} and ${name(one(view.y))} together. The darker the square, the more ${name(one(view.value))}.`;
+      // Color scales flip on a dark card (more is brighter there), so the guide speaks of strength, never of darkness.
+      return `Each square is one ${name(one(view.x))} and ${name(one(view.y))} together. The stronger the color, the more ${name(one(view.value))}.`;
     case "calendar":
-      return `Each square is one day, with weeks as columns. The darker the day, the more ${name(one(view.value))}.`;
+      return `Each square is one day, with weeks as columns. The stronger the color, the more ${name(one(view.value))}; the key under the chart shows the scale.`;
     case "scatter": {
       const sized = one(view.size) ? ` Bigger dots mean more ${name(one(view.size))}.` : "";
       return `Each dot is one ${name(one(view.label), "item")}. Further right means more ${name(one(view.x))}; higher means more ${name(one(view.y))}.${sized}`;
@@ -476,7 +477,7 @@ function guide(spec: WidgetSpec): string {
     case "rings":
       return "Each ring fills up toward its goal. A full circle means the goal is met.";
     case "timeline":
-      return "Each bar is one task, from its start date to its end date; the darker part is how much is done. The vertical line marks today.";
+      return "Each bar is one task, from its start date to its end date; the solid part is how much is done. The vertical line marks today.";
     case "waffle":
       return "There are 100 squares, so each colored square is one percent of the whole.";
     case "variance":
@@ -500,7 +501,7 @@ function guide(spec: WidgetSpec): string {
     case "rose":
       return `Each slice is one ${name(one(view.label))}, going round like a clock. The bigger a slice's area, the more ${series.length > 1 ? `in that ${name(one(view.label))}` : name(series[0])}.${series.length > 1 ? ` The colors are ${both(series.map((f) => name(f)))}, stacked from the center out.` : ""}`;
     case "horizon":
-      return `Each row is one of ${series.length > 1 && series.length <= 8 ? either(series.map((f) => name(f))) : "the series"}, ${over(one(view.x))}. Blue rises from the bottom of its row when above the baseline, and red hangs from the top when below; the darker the shade, the further away it is.`;
+      return `Each row is one of ${series.length > 1 && series.length <= 8 ? either(series.map((f) => name(f))) : "the series"}, ${over(one(view.x))}. Blue rises from the bottom of its row when above the baseline, and red hangs from the top when below; the stronger the shade, the further away it is.`;
     case "icicle":
       return `The first column is the total. Each column to the right splits the boxes into smaller parts: the taller the box, the more ${name(one(view.value))}.`;
     case "list":
@@ -509,6 +510,6 @@ function guide(spec: WidgetSpec): string {
     case "table":
       return "Each row is one record and each column one detail. Click a column heading to sort by it, when sorting is on.";
     default:
-      return "Each mark stands for one value. Bigger, longer or darker marks mean more.";
+      return "Each mark stands for one value. Bigger, longer or stronger marks mean more.";
   }
 }

@@ -59,7 +59,7 @@ describe("explainChart", () => {
 
   test("more charts point at their standout: the darkest square, the biggest drop, the biggest move, the most agreed answer", () => {
     const at = (view: Record<string, unknown>, rows: Record<string, unknown>[]) => explainChart({ ...spec(view), locale: "en-US" }, rows);
-    expect(at({ type: "heatmap", x: "hour", y: "day", value: "n" }, [{ hour: "9", day: "Mon", n: 4 }, { hour: "10", day: "Tue", n: 9 }])).toContain("Here, the darkest square is day Tue and hour 10, at 9.");
+    expect(at({ type: "heatmap", x: "hour", y: "day", value: "n" }, [{ hour: "9", day: "Mon", n: 4 }, { hour: "10", day: "Tue", n: 9 }])).toContain("Here, the strongest square is day Tue and hour 10, at 9.");
     expect(at({ type: "funnel", label: "step", value: "n" }, [{ step: "Visit", n: 1000 }, { step: "Signup", n: 200 }, { step: "Paid", n: 150 }])).toContain("Here, the biggest drop is from Visit to Signup: 80% stop there.");
     expect(at({ type: "slope", label: "region", from: "q2", to: "q3" }, [{ region: "North", q2: 10, q3: 12 }, { region: "East", q2: 10, q3: 25 }])).toContain("Here, East moved the most, from 10 to 25.");
     expect(at({ type: "likert", label: "q", responses: ["no", "meh", "yes"] }, [{ q: "Pay", no: 6, meh: 2, yes: 2 }, { q: "Team", no: 1, meh: 2, yes: 7 }])).toContain("Here, the most agreed question is Team: 70% agree.");
@@ -118,6 +118,18 @@ describe("explainChart", () => {
     expect(at({ type: "table" }, [{ region: "North", revenue: 12, cost: 5 }, { region: "East", revenue: 20, cost: 9 }])).toContain("Here, East is the top row by revenue, at 20.");
     // A table of months points at the latest month.
     expect(at({ type: "table" }, [{ region: "North", "2026-08": 9, "2026-09": 14 }, { region: "East", "2026-08": 12, "2026-09": 11 }])).toContain("Here, North is the top row in 2026-09, at 14.");
+  });
+
+  test("color scales are described the same way in light and dark themes, never as darker, which flips on a dark card", () => {
+    const at = (view: Record<string, unknown>, rows: Record<string, unknown>[] = []) => explainChart({ ...spec(view), locale: "en-US" }, rows);
+    const texts = [
+      explainChart({ ...spec({ type: "calendar", date: "day", value: "orders" }, { day: { format: { type: "date" } } }), locale: "en-US" }, [{ day: "2026-09-15", orders: 225 }, { day: "2026-09-16", orders: 100 }]),
+      at({ type: "heatmap", x: "hour", y: "day", value: "n" }, [{ hour: "9", day: "Mon", n: 4 }]),
+      at({ type: "horizon", x: "day", y: ["a", "b"] }, [{ day: "1", a: 1, b: -1 }]),
+      at({ type: "made-up-view" }),
+    ];
+    expect(texts.filter((t) => /\bdark(er|est)\b/i.test(t))).toEqual([]);
+    expect(texts[0]).toContain("The stronger the color, the more orders; the key under the chart shows the scale. Here, the top day is Sep 15, 2026, with 225.");
   });
 });
 

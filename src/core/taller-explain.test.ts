@@ -12,8 +12,8 @@ describe("explainVariant", () => {
     });
   });
 
-  test("says what darker, bigger or higher means for each form", () => {
-    expect(explainVariant({ ...base, view: { type: "heatmap", x: "product", y: "region", value: "revenue" } }, "Sales").explain).toBe("A darker cell means more revenue.");
+  test("says what a stronger color, bigger or higher means for each form", () => {
+    expect(explainVariant({ ...base, view: { type: "heatmap", x: "product", y: "region", value: "revenue" } }, "Sales").explain).toBe("A stronger color means more revenue.");
     expect(explainVariant({ ...base, view: { type: "donut", label: "region", value: "revenue" } }, "Sales").explain).toBe("A bigger slice is a bigger share of all the revenue.");
     expect(explainVariant({ ...base, view: { type: "scatter", x: "revenue", y: "cost" } }, "Sales").title).toBe("Sales as a scatter: each dot is one item");
   });

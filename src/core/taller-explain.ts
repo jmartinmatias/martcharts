@@ -1,6 +1,6 @@
 /**
  * Plain words for a Taller variant, as if to a ten-year-old: a title that says what the chart is and what each
- * mark stands for, and one or two sentences on how to read it (what bigger, further right, darker or warmer
+ * mark stands for, and one or two sentences on how to read it (what bigger, further right, stronger or warmer
  * means). Chart words only, never kitchen words: those belong to the creating side of the Taller.
  *
  * One function on purpose: a general `explainChart(spec, rows)` can replace it without touching the engine.
@@ -152,7 +152,7 @@ export function explainVariant(spec: WidgetSpec, dishTitle: string): { title: st
     case "heatmap":
       form = "a grid of colored cells";
       mark = `each cell is one ${name(view.y)} and ${name(view.x)}`;
-      read = `A darker cell means more ${name(view.value)}.`;
+      read = `A stronger color means more ${name(view.value)}.`;
       break;
     case "marimekko":
       form = "a size and mix chart";
@@ -162,7 +162,7 @@ export function explainVariant(spec: WidgetSpec, dishTitle: string): { title: st
     case "calendar":
       form = "a calendar";
       mark = "each square is one day";
-      read = `A darker square means more ${name(view.value)} that day.`;
+      read = `A stronger color means more ${name(view.value)} that day.`;
       break;
     case "rose":
       form = "a clock dial";
@@ -172,7 +172,7 @@ export function explainVariant(spec: WidgetSpec, dishTitle: string): { title: st
     case "horizon":
       form = "thin folded rows";
       mark = "each row is one series";
-      read = "Blue means above zero and red below; a darker color means further from zero.";
+      read = "Blue means above zero and red below; a stronger color means further from zero.";
       break;
     case "bump":
       form = "a ranking race";
