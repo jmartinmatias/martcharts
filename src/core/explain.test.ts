@@ -134,7 +134,7 @@ describe("explainChart", () => {
     expect(at({ type: "ridgeline", value: "v", group: "g" }, [1, 2, 3, 10, 11, 12].map((v, i) => ({ g: i < 3 ? "A" : "B", v })))).toContain("Here, B sits furthest right, with a middle value of 11.");
     expect(at({ type: "table" }, [{ region: "North", revenue: 12, cost: 5 }, { region: "East", revenue: 20, cost: 9 }])).toContain("Here, East is the top row by revenue, at 20.");
     // A table of months points at the latest month.
-    expect(at({ type: "table" }, [{ region: "North", "2026-08": 9, "2026-09": 14 }, { region: "East", "2026-08": 12, "2026-09": 11 }])).toContain("Here, North is the top row in 2026-09, at 14.");
+    expect(at({ type: "table" }, [{ region: "North", "2026-08": 9, "2026-09": 14 }, { region: "East", "2026-08": 12, "2026-09": 11 }])).toContain("Here, 1 of 2 regions grew from 2026-08 to 2026-09, and North grew the most, from 9 to 14.");
   });
 
   test("color scales are described the same way in light and dark themes, never as darker, which flips on a dark card", () => {
@@ -291,6 +291,26 @@ describe("explainChart", () => {
     expect(at({ type: "line", x: "day", y: "orders" }, days)).toContain("Here, it went from 10 on Sep 1 to 25 on Sep 15.");
     const mix = [{ m: "Jan", core: 70, plus: 20, add: 10 }, { m: "Sep", core: 55, plus: 20, add: 25 }];
     expect(at({ type: "area", x: "m", y: ["core", "plus", "add"], stacked: "percent" }, mix)).toContain("Here, add grew its share the most, from 10% in Jan to 25% in Sep; core is still the largest share, at 55%.");
+  });
+
+  test("a table of months laid sideways says how many rows grew from the first month to the last, and who grew most", () => {
+    const fields = { "2026-04": { label: "Apr" }, "2026-09": { label: "Sep" } };
+    const rows = [
+      { region: "East", "2026-04": 52, "2026-09": 65 },
+      { region: "North", "2026-04": 44, "2026-09": 48 },
+    ];
+    expect(explainChart({ ...spec({ type: "table" }, fields), locale: "en-US" }, rows)).toContain("Here, every region grew from Apr to Sep, and East grew the most, from 52 to 65.");
+    const falling = rows.map((r) => ({ ...r, "2026-09": (r["2026-04"] as number) - 5 }));
+    expect(explainChart({ ...spec({ type: "table" }, fields), locale: "en-US" }, falling)).toContain("Here, East is the top row in Sep, at 47.");
+  });
+
+  test("a heat table of months says what its rows, columns and shading mean", () => {
+    const heat = { type: "heat" };
+    const view = { type: "table", columns: ["region", "2026-04", "2026-05", "2026-06"] };
+    const fields = { region: { label: "Region" }, "2026-04": { format: heat }, "2026-05": { format: heat }, "2026-06": { format: heat } };
+    expect(explainChart({ ...spec(view, fields), locale: "en-US" })).toBe(
+      "Each row is one region and each column one month. The stronger the shade, the bigger the number. Click a column heading to sort by it.",
+    );
   });
 
   test("no guide names a hue or a dark shade: presets recolor and dark themes flip, so marks are read by side, shape and fill", () => {

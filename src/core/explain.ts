@@ -519,6 +519,19 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const amount = periods.length ? periods.at(-1) : numbers[0];
       const row = label && amount ? top(amount) : undefined;
       if (!row || !label || !amount) return "";
+      // Months laid sideways ask how each row did: how many grew from the first month to the last, and who grew most.
+      if (periods.length >= 2) {
+        const [from, to] = [periods[0] as string, periods.at(-1) as string];
+        const paired = rows.filter((r) => value(r, from) !== null && value(r, to) !== null);
+        const growth = (r: Row) => (value(r, to) as number) - (value(r, from) as number);
+        const grew = paired.filter((r) => growth(r) > 0);
+        if (paired.length > 1 && grew.length) {
+          const best = grew.reduce((b, r) => (growth(r) > growth(b) ? r : b));
+          const entity = nameOf(label, spec);
+          const count = grew.length === paired.length ? `every ${entity}` : `${grew.length} of ${paired.length} ${plural(entity)}`;
+          return `Here, ${count} grew from ${fieldLabel(from, spec.fields)} to ${fieldLabel(to, spec.fields)}, and ${text(best, label)} grew the most, from ${text(best, from)} to ${text(best, to)}.`;
+        }
+      }
       return periods.length
         ? `Here, ${text(row, label)} is the top row in ${fieldLabel(amount, spec.fields)}, at ${text(row, amount)}.`
         : `Here, ${text(row, label)} is the top row by ${nameOf(amount, spec)}, at ${text(row, amount)}.`;
@@ -690,8 +703,17 @@ function guide(spec: WidgetSpec): string {
     case "list":
       // A field called name, title or label says nothing about what the lines are: they are entries.
       return `Each line is one ${/^(name|title|label)$/i.test(one(view.label) ?? "") ? "entry" : name(one(view.label))}${one(view.value) ? `, with its ${name(one(view.value))} on the right` : ""}.`;
-    case "table":
-      return `Each row is one record and each column one detail.${view.sortable === false ? "" : " Click a column heading to sort by it."}`;
+    case "table": {
+      // Months laid sideways and shaded cells say more than "records and details".
+      const columns = many(view.columns);
+      const months = columns.filter((c) => /^\d{4}-\d{2}$/.test(c));
+      const shape = columns[0] && months.length >= 2 && !months.includes(columns[0]) ? `Each row is one ${noun(columns[0])} and each column one month.` : "Each row is one record and each column one detail.";
+      const shaded = columns.some((c) => {
+        const format = spec.fields?.[c]?.format;
+        return (typeof format === "object" ? (format as { type?: string }).type : format) === "heat";
+      });
+      return `${shape}${shaded ? " The stronger the shade, the bigger the number." : ""}${view.sortable === false ? "" : " Click a column heading to sort by it."}`;
+    }
     default:
       return "Each mark stands for one value. Bigger, longer or stronger marks mean more.";
   }
