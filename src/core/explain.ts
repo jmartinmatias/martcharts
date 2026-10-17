@@ -320,7 +320,12 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
         return total > 0 ? agreeing.reduce((sum, f) => sum + Math.max(0, value(row, f) ?? 0), 0) / total : 0;
       };
       const row = rows.reduce<Row | undefined>((best, r) => (best && share(best) >= share(r) ? best : r), undefined);
-      return row && share(row) > 0 ? `Here, the most agreed question is ${text(row, label)}: ${percent(share(row))} agree.` : "";
+      if (!row || share(row) <= 0) return "";
+      // The most agreed and the least agreed: where people stand together, and where to look first. Questions in quotes.
+      const quoted = (r: Row) => `“${text(r, label)}”`;
+      const most = `Here, the most agreed question is ${quoted(row)}: ${percent(share(row))} agree`;
+      const least = rows.reduce((worst, r) => (share(r) < share(worst) ? r : worst), row);
+      return least !== row && share(least) < share(row) ? `${most}, and the least agreed is ${quoted(least)}: ${percent(share(least))} agree.` : `${most}.`;
     }
     case "meter": {
       const [amount, target] = [one(view.value), one(view.target)];

@@ -62,7 +62,8 @@ describe("explainChart", () => {
     expect(at({ type: "heatmap", x: "hour", y: "day", value: "n" }, [{ hour: "9", day: "Mon", n: 4 }, { hour: "10", day: "Tue", n: 9 }])).toContain("Here, the strongest square is day Tue and hour 10, at 9.");
     expect(at({ type: "funnel", label: "step", value: "n" }, [{ step: "Visit", n: 1000 }, { step: "Signup", n: 200 }, { step: "Paid", n: 150 }])).toContain("Here, the biggest drop is from Visit to Signup: 80% stop there.");
     expect(at({ type: "slope", label: "region", from: "q2", to: "q3" }, [{ region: "North", q2: 10, q3: 12 }, { region: "East", q2: 10, q3: 25 }])).toContain("Here, every region went up, and East moved the most, from 10 to 25.");
-    expect(at({ type: "likert", label: "q", responses: ["no", "meh", "yes"] }, [{ q: "Pay", no: 6, meh: 2, yes: 2 }, { q: "Team", no: 1, meh: 2, yes: 7 }])).toContain("Here, the most agreed question is Team: 70% agree.");
+    expect(at({ type: "likert", label: "q", responses: ["no", "meh", "yes"] }, [{ q: "Pay", no: 6, meh: 2, yes: 2 }, { q: "Team", no: 1, meh: 2, yes: 7 }])).toContain("Here, the most agreed question is “Team”: 70% agree, and the least agreed is “Pay”: 20% agree.");
+    expect(at({ type: "likert", label: "q", responses: ["no", "meh", "yes"] }, [{ q: "Team", no: 1, meh: 2, yes: 7 }])).toContain("Here, the most agreed question is “Team”: 70% agree.");
     expect(at({ type: "meter", value: "v", target: "t", label: "name" }, [{ name: "A", v: 12, t: 10 }, { name: "B", v: 5, t: 10 }])).toContain("Here, 1 of 2 has reached its goal.");
     expect(at({ type: "icicle", levels: ["region", "product"], value: "v" }, [{ region: "East", product: "x", v: 6 }, { region: "West", product: "x", v: 4 }])).toContain("Here, East is the biggest group, with 60% of the total.");
     expect(at({ type: "histogram", value: "size" }, [1, 2, 2, 3, 3, 3, 8].map((size) => ({ size })))).toMatch(/Here, the most common range is .+, which happened \d+ times\./);
