@@ -283,6 +283,11 @@ const c2 = (d: DataProfile) => d.categories[1] as string;
 const t1 = (d: DataProfile) => d.times[0] as string;
 /** One row per category: a ranking or a part-to-whole. */
 const perCategory = (d: DataProfile, min: number, max: number) => d.categories.length > 0 && d.measures.length > 0 && d.distinct[c1(d)] === d.rows && d.rows >= min && d.rows <= max;
+/** The field that names each row: a category with one row each, or else a period with one row each. */
+const rowKey = (d: DataProfile): string | undefined =>
+  d.categories.length > 0 && d.distinct[c1(d)] === d.rows ? c1(d) : d.times.length > 0 && d.distinct[t1(d)] === d.rows ? t1(d) : undefined;
+/** One row per category or per period, between min and max rows: what a target form needs. */
+const perRow = (d: DataProfile, min: number, max: number) => d.measures.length > 0 && rowKey(d) !== undefined && d.rows >= min && d.rows <= max;
 /** One row per period: a time series. */
 const perPeriod = (d: DataProfile, min = 3) => d.times.length > 0 && d.measures.length > 0 && d.distinct[t1(d)] === d.rows && d.rows >= min;
 const positive = (d: DataProfile) => !d.negatives;
@@ -394,24 +399,32 @@ const PATTERNS: Pattern[] = [
     form: "bars with their target line",
     moves: ["reframe", "combine"],
     marks: "sharp",
-    fits: (d) => perCategory(d, 2, 24) && d.target !== undefined,
-    make: (d) => ({ view: { type: "bar", x: c1(d), y: m1(d), lines: d.target as string } }),
+    fits: (d) => perRow(d, 2, 24) && d.target !== undefined,
+    make: (d) => ({ view: { type: "bar", x: rowKey(d) as string, y: m1(d), lines: d.target as string } }),
+  },
+  {
+    id: "target-lollipops",
+    form: "lollipops with their target line",
+    moves: ["distill", "combine"],
+    marks: "sharp",
+    fits: (d) => perRow(d, 3, 24) && d.target !== undefined,
+    make: (d) => ({ view: { type: "bar", x: rowKey(d) as string, y: m1(d), mark: "lollipop", lines: d.target as string } }),
   },
   {
     id: "variance",
     form: "a variance against target",
     moves: ["reframe", "contrast"],
     marks: "sharp",
-    fits: (d) => perCategory(d, 2, 24) && d.target !== undefined,
-    make: (d) => ({ view: { type: "variance", label: c1(d), value: m1(d), target: d.target as string } }),
+    fits: (d) => perRow(d, 2, 24) && d.target !== undefined,
+    make: (d) => ({ view: { type: "variance", label: rowKey(d) as string, value: m1(d), target: d.target as string } }),
   },
   {
     id: "bullet",
     form: "bullet bars",
     moves: ["reframe"],
     marks: "sharp",
-    fits: (d) => perCategory(d, 2, 12) && d.target !== undefined,
-    make: (d) => ({ view: { type: "bullet", label: c1(d), value: m1(d), target: d.target as string } }),
+    fits: (d) => perRow(d, 2, 12) && d.target !== undefined,
+    make: (d) => ({ view: { type: "bullet", label: rowKey(d) as string, value: m1(d), target: d.target as string } }),
   },
   {
     id: "dumbbell",

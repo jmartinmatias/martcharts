@@ -407,6 +407,16 @@ describe("one unit per axis", () => {
     expect(mixed).toEqual([]);
   });
 
+  test("a chart that asks about its target keeps the target in some versions, month by month too", () => {
+    const rows = Array.from({ length: 12 }, (_, i) => ({ month: `2026-${String(i + 1).padStart(2, "0")}`, revenue: 800 + i * 40, target: 850 + i * 30 }));
+    const spec: WidgetSpec = { id: "revenue-vs-target", title: "Revenue against target", data: { type: "inline", rows }, view: { type: "bar", x: "month", y: "revenue", lines: "target" } };
+    const versions = [1, 2, 3, 4].flatMap((seed) => createVariants(spec, rows, { seed, count: 8 }));
+    const keep = versions.filter((v) => v.lineage.question === "target");
+    expect(new Set(keep.map((v) => String(v.spec.view?.type))).size).toBeGreaterThanOrEqual(2);
+    expect(keep.every((v) => JSON.stringify(v.spec.view).includes('"target"'))).toBe(true);
+    expect(createVariants(spec, rows, { moves: ["reframe"], count: 6 }).some((v) => v.spec.view?.type === "variance")).toBe(true);
+  });
+
   test("over time, each dot is one period: a month, not a row or an item", () => {
     const dots = [1, 2, 3, 4, 5, 6].flatMap((seed) => createVariants(byMonth, months, { seed, count: 12 })).filter((v) => ["scatter", "beeswarm"].includes(String(v.spec.view?.type)));
     expect(dots.length).toBeGreaterThan(0);
