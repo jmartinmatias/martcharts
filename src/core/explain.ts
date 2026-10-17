@@ -774,7 +774,13 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
     case "list": {
       const [label, amount] = [one(view.label), one(view.value)];
       const row = rows[0];
-      return row && label ? `Here, ${text(row, label)} is at the top${amount && value(row, amount) !== null ? `, with ${text(row, amount)}` : ""}.` : "";
+      if (!row || !label) return "";
+      const lead = amount && value(row, amount) !== null ? `, with ${text(row, amount)}` : "";
+      // How far the first is ahead of the second: honest from the rows shown, even when the list is a top few.
+      const next = rows[1];
+      const gap = amount && next && value(row, amount) !== null && value(next, amount) !== null ? (value(row, amount) as number) - (value(next, amount) as number) : null;
+      const ahead = gap !== null && gap > 0 && amount ? `, ${formatValue(gap, spec.fields?.[amount]?.format, spec.locale)} ahead of ${text(next as Row, label)}` : "";
+      return `Here, ${text(row, label)} is at the top${lead}${ahead}.`;
     }
     default:
       return "";

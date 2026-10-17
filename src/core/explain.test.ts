@@ -124,7 +124,8 @@ describe("explainChart", () => {
     expect(at({ type: "bullet", label: "kpi", value: "v", target: "t" }, [{ kpi: "Leads", v: 12, t: 10 }, { kpi: "Calls", v: 8, t: 10 }, { kpi: "Deals", v: 11, t: 10 }])).toContain("Here, 2 of 3 have passed their goal: Leads and Deals.");
     expect(at({ type: "timeline", label: "task", start: "s", end: "e", progress: "p" }, [{ task: "Build", s: "2026-08-01", e: "2026-10-01", p: 0.5 }, { task: "Launch", s: "2026-11-01", e: "2026-11-02", p: 0 }])).toContain("Here, no task is done yet and 1 is under way; the longest, Build, is 50% done.");
     expect(at({ type: "kpi", value: "v" }, [{ v: 10 }, { v: 12 }])).toContain("Here, it is 12, up from 10.");
-    expect(at({ type: "list", label: "name", value: "v" }, [{ name: "Aurora", v: 9 }, { name: "Bell", v: 7 }])).toContain("Here, Aurora is at the top, with 9.");
+    expect(at({ type: "list", label: "name", value: "v" }, [{ name: "Aurora", v: 9 }, { name: "Bell", v: 7 }])).toContain("Here, Aurora is at the top, with 9, 2 ahead of Bell.");
+    expect(at({ type: "list", label: "name", value: "v" }, [{ name: "Aurora", v: 9 }])).toContain("Here, Aurora is at the top, with 9.");
     expect(at({ type: "list", label: "name", value: "revenue" }, [])).toContain("Each line is one entry, with its revenue on the right.");
   });
 
