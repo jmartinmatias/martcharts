@@ -210,6 +210,17 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     }
     filterRow.append(nav);
   }
+  // When the section links scroll sideways, the edge with more to see fades out: a cue to swipe, and no chip cut hard.
+  const edges = () => {
+    if (!nav) return;
+    const more = nav.scrollWidth - nav.clientWidth;
+    if (more <= 1) delete nav.dataset.scroll;
+    else nav.dataset.scroll = nav.scrollLeft <= 1 ? "start" : nav.scrollLeft >= more - 1 ? "end" : "middle";
+  };
+  nav?.addEventListener("scroll", edges, { passive: true });
+  const navSize = nav && typeof ResizeObserver === "function" ? new ResizeObserver(edges) : undefined;
+  if (nav) navSize?.observe(nav);
+  edges();
 
   /** Shows one section's heading and cards, or everything for null; the board starts again from its top. */
   function choose(section: HTMLElement | null) {
@@ -389,6 +400,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     destroy() {
       doc.defaultView?.removeEventListener("hashchange", onHash);
       barSize?.disconnect();
+      navSize?.disconnect();
       if (barSize) page.style.removeProperty("--fft-filters-height");
       stuckSpy?.disconnect();
       for (const widget of widgets.values()) widget.destroy();

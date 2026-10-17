@@ -1000,6 +1000,11 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
     overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scrollbar-width: none;
   }
   .fft-board-nav::-webkit-scrollbar { display: none; }
+  /* The side with more links to see fades out; a link scrolled into view stops clear of the fade (WCAG 2.4.11). */
+  .fft-board-nav { scroll-padding-inline: 34px; }
+  .fft-board-nav[data-scroll="start"] { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 34px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 34px), transparent); }
+  .fft-board-nav[data-scroll="middle"] { -webkit-mask-image: linear-gradient(to right, transparent, #000 34px, #000 calc(100% - 34px), transparent); mask-image: linear-gradient(to right, transparent, #000 34px, #000 calc(100% - 34px), transparent); }
+  .fft-board-nav[data-scroll="end"] { -webkit-mask-image: linear-gradient(to right, transparent, #000 34px); mask-image: linear-gradient(to right, transparent, #000 34px); }
   .fft-board-nav button { flex: none; scroll-snap-align: start; }
 }
 @media (max-width: 700px) {

@@ -304,6 +304,21 @@ describe("section filter", () => {
     expect(location.hash).toBe("");
   });
 
+  test("a sideways scrolling row of section links marks which edge has more to see, for the stylesheet to fade", async () => {
+    await createDashboard(target, spec, { widgets }).ready;
+    const nav = target.querySelector(".fft-board-nav") as HTMLElement;
+    let left = 0;
+    Object.defineProperties(nav, { scrollWidth: { value: 600, configurable: true }, clientWidth: { value: 300, configurable: true }, scrollLeft: { get: () => left, configurable: true } });
+    const at = (x: number) => {
+      left = x;
+      nav.dispatchEvent(new Event("scroll"));
+      return nav.dataset.scroll ?? "";
+    };
+    expect([at(0), at(150), at(300)]).toEqual(["start", "middle", "end"]);
+    Object.defineProperty(nav, "scrollWidth", { value: 300, configurable: true });
+    expect(at(0)).toBe("");
+  });
+
   test("when the buttons scroll sideways, the chosen one is brought into view", async () => {
     await createDashboard(target, spec, { widgets }).ready;
     const nav = target.querySelector(".fft-board-nav") as HTMLElement;
