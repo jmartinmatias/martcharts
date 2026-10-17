@@ -108,7 +108,7 @@ describe("delta cells", () => {
     await draw({ rows, fields: { change: { format: "delta" } }, view: { type: "table" } });
     expect(all(".fft-delta-cell").map((c) => [c.getAttribute("data-tone"), c.textContent])).toEqual([
       ["good", "\u25B2+12.0%"],
-      ["bad", "\u25BC-4.0%"],
+      ["bad", "\u25BC\u22124.0%"],
       ["even", "0.0%"],
     ]);
   });

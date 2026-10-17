@@ -1,5 +1,6 @@
+// @vitest-environment jsdom
 import { describe, expect, test } from "vitest";
-import { formatValue, humanize } from "./display.ts";
+import { formatNode, formatValue, humanize } from "./display.ts";
 import { registerFormat } from "./registry.ts";
 
 const en = "en-US";
@@ -100,6 +101,11 @@ describe("bar format", () => {
 describe("negative numbers", () => {
   test("print a true minus sign, as wide as the plus it pairs with and read as minus", () => {
     expect([formatValue(-84000, { type: "currency", currency: "EUR", compact: true }, en), formatValue(-12, undefined, en), formatValue(-0.05, "percent", en)]).toEqual(["\u2212€84K", "\u221212", "\u22125%"]);
+  });
+
+  test("a delta cell, drawn as its own element in a table, signs with the true minus too", () => {
+    const cell = formatNode(-0.068, "delta", en, new DOMParser().parseFromString("<p></p>", "text/html"));
+    expect(cell.textContent).toBe("\u25BC\u22126.8%");
   });
 
   test("dates, ranges and text keep their hyphens", () => {

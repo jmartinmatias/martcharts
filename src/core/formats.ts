@@ -246,7 +246,7 @@ const delta: FormatBlock = {
     const { type, ...inner } = typeof spec === "string" ? { type: spec } : spec;
     const block = [number, currency, percent].find((b) => b.type === type) ?? percent;
     const text = block.format(Math.abs(amount), inner, locale);
-    return amount > 0 ? `+${text}` : amount < 0 ? `-${text}` : text;
+    return amount > 0 ? `+${text}` : amount < 0 ? `\u2212${text}` : text;
   },
   element(value, options, locale, doc) {
     const amount = readNumber(value);
