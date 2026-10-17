@@ -66,19 +66,20 @@
 
       /* Backdrops for the gallery style presets. */
       body { transition: background-color 610ms ease; }
+      /* Each preset has a light and a dark backdrop, following the page theme (or the system when the page says auto). */
       body[data-preset="glass"] {
-        color-scheme: dark;
-        --ink: #f4f7f6; --ink-2: rgba(244, 247, 246, 0.66); --line: rgba(255, 255, 255, 0.14); --field: rgba(255, 255, 255, 0.08);
-        background: #121a19;
+        color-scheme: light;
+        --page: #eef3f1; --ink: #10201d; --ink-2: rgba(16, 32, 29, 0.7); --line: rgba(16, 32, 29, 0.12); --field: rgba(255, 255, 255, 0.6);
+        background: #eef3f1;
       }
       /* The gradient rides a fixed layer: iOS Safari ignores background-attachment: fixed and would stretch it down the whole page. */
       body[data-preset="glass"]::before {
         content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
         background:
-          radial-gradient(55% 45% at 12% 8%, rgba(118, 160, 120, 0.55), transparent 70%),
-          radial-gradient(45% 40% at 88% 18%, rgba(70, 120, 125, 0.55), transparent 70%),
-          radial-gradient(60% 50% at 70% 92%, rgba(150, 140, 90, 0.35), transparent 70%),
-          linear-gradient(160deg, #1d2b27 0%, #121a19 55%, #0e1414 100%);
+          radial-gradient(55% 45% at 12% 8%, rgba(160, 205, 165, 0.55), transparent 70%),
+          radial-gradient(45% 40% at 88% 18%, rgba(140, 195, 205, 0.5), transparent 70%),
+          radial-gradient(60% 50% at 70% 92%, rgba(225, 205, 150, 0.45), transparent 70%),
+          linear-gradient(160deg, #f4f8f6 0%, #e7efec 55%, #dfe8e5 100%);
       }
       body[data-preset="airy"] {
         color-scheme: light;
@@ -91,13 +92,62 @@
         --page: #f1ece2; --ink: #1d1d1b; --ink-2: #5e5a52; --line: rgba(29, 29, 27, 0.12); --field: #fbf8f3;
         background: #f1ece2;
       }
+      /* Dark backdrops: smoked glass, a dark editorial page, night paper. */
+      :root[data-theme="dark"] body[data-preset="glass"] {
+        color-scheme: dark;
+        --page: #121a19; --ink: #f4f7f6; --ink-2: rgba(244, 247, 246, 0.66); --line: rgba(255, 255, 255, 0.14); --field: rgba(255, 255, 255, 0.08);
+        background: #121a19;
+      }
+      :root[data-theme="dark"] body[data-preset="glass"]::before {
+        background:
+          radial-gradient(55% 45% at 12% 8%, rgba(118, 160, 120, 0.55), transparent 70%),
+          radial-gradient(45% 40% at 88% 18%, rgba(70, 120, 125, 0.55), transparent 70%),
+          radial-gradient(60% 50% at 70% 92%, rgba(150, 140, 90, 0.35), transparent 70%),
+          linear-gradient(160deg, #1d2b27 0%, #121a19 55%, #0e1414 100%);
+      }
+      :root[data-theme="dark"] body[data-preset="airy"] {
+        color-scheme: dark;
+        --page: #141413; --ink: #f2f2f0; --ink-2: #a8a8a3; --line: rgba(255, 255, 255, 0.08); --field: #1c1c1b;
+        background: #141413;
+      }
+      :root[data-theme="dark"] body[data-preset="paper"] {
+        color-scheme: dark;
+        --page: #161512; --ink: #f1ece2; --ink-2: #b8b0a1; --line: rgba(241, 236, 226, 0.12); --field: #1c1b19;
+        background: #161512;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) body[data-preset="glass"] {
+          color-scheme: dark;
+          --page: #121a19; --ink: #f4f7f6; --ink-2: rgba(244, 247, 246, 0.66); --line: rgba(255, 255, 255, 0.14); --field: rgba(255, 255, 255, 0.08);
+          background: #121a19;
+        }
+        :root:not([data-theme="light"]) body[data-preset="glass"]::before {
+          background:
+            radial-gradient(55% 45% at 12% 8%, rgba(118, 160, 120, 0.55), transparent 70%),
+            radial-gradient(45% 40% at 88% 18%, rgba(70, 120, 125, 0.55), transparent 70%),
+            radial-gradient(60% 50% at 70% 92%, rgba(150, 140, 90, 0.35), transparent 70%),
+            linear-gradient(160deg, #1d2b27 0%, #121a19 55%, #0e1414 100%);
+        }
+        :root:not([data-theme="light"]) body[data-preset="airy"] {
+          color-scheme: dark;
+          --page: #141413; --ink: #f2f2f0; --ink-2: #a8a8a3; --line: rgba(255, 255, 255, 0.08); --field: #1c1c1b;
+          background: #141413;
+        }
+        :root:not([data-theme="light"]) body[data-preset="paper"] {
+          color-scheme: dark;
+          --page: #161512; --ink: #f1ece2; --ink-2: #b8b0a1; --line: rgba(241, 236, 226, 0.12); --field: #1c1b19;
+          background: #161512;
+        }
+      }
       body[data-preset="paper"] :is(h1, h2) { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif; letter-spacing: -0.01em; }
       body[data-preset="paper"] .fft-dashboard-grid { gap: 34px 21px; }
       /* Sticky filter row backdrop: the page behind the dashboard, so cards scroll under it unseen. --page already
          follows light, dark and airy; glass gets a translucent tone of its gradient. The body prefix outranks the
          library's own .fft-dashboard rule, which loads later. */
       body .fft-dashboard { --fft-board-bg: var(--page); }
-      body[data-preset="glass"] .fft-dashboard { --fft-board-bg: rgba(29, 43, 39, 0.89); }
+      body[data-preset="glass"] .fft-dashboard { --fft-board-bg: rgba(238, 243, 241, 0.89); }
+      :root[data-theme="dark"] body[data-preset="glass"] .fft-dashboard { --fft-board-bg: rgba(29, 43, 39, 0.89); }
+      @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) body[data-preset="glass"] .fft-dashboard { --fft-board-bg: rgba(29, 43, 39, 0.89); } }
       .playground button {
         border: 1px solid var(--line); background: var(--field); color: var(--ink-2);
         border-radius: 6px; padding: 4px 10px; font: inherit; font-size: 13px; cursor: pointer;

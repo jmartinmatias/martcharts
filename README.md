@@ -96,12 +96,13 @@ const asTable = fork(topCustomers, { view: { type: "table", label: null, detail:
 | Dashboards | `createDashboard(el, spec, { widgets })` lays out widgets from one JSON file, with a filter row that scopes every widget with that field, a Period control (`"range": { "field": "month" }`: 3M, 6M, 12M, YTD, All) and full-width section headings (`{ "section": "Revenue" }`) with a section filter (All, or one section at a time) |
 | Text templates | Titles, subtitles, footers and headline captions can say `{first:month} to {last:month}`, `{count} deals` or `{sum:revenue}`, filled from the rows the chart draws |
 | Export | `createWidget(el, spec, { actions: ["csv", "image", "copy"] })` adds download CSV, download PNG and copy-for-Excel buttons |
+| How to read it | `explainChart(spec)` gives every one of the 40 views a plain reading guide in the chart's own field names, simple enough for a ten-year-old: "Each dot is one account. Further right means more revenue growth; higher means more gross margin. Bigger dots mean more revenue." |
 | Widget refs | Every widget with an id wears a faint ref such as `W-7Q2K` in its bottom corner (`widgetRef(id)`, stable, easy to say). Click to copy it; the MCP tools take it in place of the id, so "fix W-7Q2K" is enough |
 | Small multiples | `"facet": { "field": "region" }` splits any chart into one panel per value, on one shared scale |
 | KPI icons | `"icon": "users"` and 13 more line icons on KPI tiles |
 | Direct labels | Lines and areas write each series' last value at its end (up to 4 series, hidden when ends collide) |
 | Headline | A big number with its change and a caption above any chart: `"headline": { "value": "revenue", "compare": "previous" }` |
-| Style presets | `default`, `glass` (frosted translucent cards), `airy` (chrome-free editorial), `paper` (print: warm paper, serif titles, a black rule over each card) |
+| Style presets | `default`, `glass` (frosted translucent cards: light frost or dark smoke), `airy` (chrome-free editorial), `paper` (print: warm paper, serif titles, a rule over each card; a night edition on dark). Every preset has a light and a dark look that follow the theme, each with its palette stepped for its surface |
 | Palettes | `default`, `apple`, `credit-agricole`, `bw`, `50-shades`, five acclaimed ones with their exact published colors (`okabe-ito`, `tol-vibrant`, `tableau-10`, `carbon`, `observable-10`), or any list of colors. Every named palette has a light and a dark set: its own where published (Default, Apple, Carbon), otherwise derived with the same hues moved into the dark band (greys flip), and charts switch with the theme; `createPalettePicker` chooses them with an eyedropper and live colorblind checks |
 
 Every option of every block is listed in [docs/blocks.md](docs/blocks.md), generated from the code.

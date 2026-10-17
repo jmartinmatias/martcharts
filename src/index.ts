@@ -29,3 +29,4 @@ export { renderKpis, renderRidgeline } from "./dom/views/index.ts";
 export { renderArea, renderBar, renderBeeswarm, renderBoxplot, renderBullet, renderBump, renderCalendar, renderCandlestick, renderChord, renderDonut, renderDumbbell, renderSankey, renderFunnel, renderGauge, renderTreemap, renderHbar, renderHeatmap, renderHistogram, renderHorizon, renderIcicle, renderKpi, renderLikert, renderLine, renderList, renderMarimekko, renderMeter, renderPareto, renderRadar, renderRings, renderRose, renderScatter, renderSlope, renderSunburst, renderTable, renderTimeline, renderVariance, renderWaffle, renderWaterfall } from "./dom/views/index.ts";
 export { buildTable, html, selectable, svg } from "./dom/views/shared.ts";
 export { WIDGET_REF, widgetRef } from "./core/ref.ts";
+export { explainChart } from "./core/explain.ts";

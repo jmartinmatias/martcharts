@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import type { Mock } from "vitest";
 import { rangeStart, validateDashboard } from "../core/dashboard.ts";
 import type { WidgetSpec } from "../core/types.ts";
+import { registerPreset } from "../core/presets.ts";
 import { createDashboard } from "./dashboard.ts";
 import "./views/index.ts";
 
@@ -73,16 +74,17 @@ describe("createDashboard", () => {
     expect([...target.querySelectorAll<HTMLElement>(".fft-widget")].map((w) => w.dataset.preset)).toEqual(["glass", "glass"]);
   });
 
-  test("a preset with its own color scheme carries it to the dashboard's controls, and default clears it", async () => {
+  test("shipped presets follow the theme, so the controls do too; a preset that declares a scheme carries it, and default clears it", async () => {
+    registerPreset({ name: "test-night", description: "A dark-only look for the suite.", css: "", scheme: "dark" });
     const board = createDashboard(target, spec, { widgets });
     await board.ready;
     const root = target.querySelector<HTMLElement>(".fft-dashboard") as HTMLElement;
     await board.setOverride({ style: { preset: "paper" } });
     const paper = root.dataset.scheme;
-    await board.setOverride({ style: { preset: "glass" } });
-    const glass = root.dataset.scheme;
+    await board.setOverride({ style: { preset: "test-night" } });
+    const night = root.dataset.scheme;
     await board.setOverride({ style: { preset: null } });
-    expect([paper, glass, root.dataset.scheme]).toEqual(["light", "dark", undefined]);
+    expect([paper, night, root.dataset.scheme]).toEqual([undefined, "dark", undefined]);
   });
 
   test("an unknown widget id shows a message in its cell instead of breaking the board", async () => {

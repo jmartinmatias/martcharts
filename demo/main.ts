@@ -175,8 +175,18 @@ const heightPick = $<HTMLInputElement>("#height-pick");
 const heightOut = $<HTMLOutputElement>("#height-out");
 const accentPick = $<HTMLInputElement>("#accent-pick");
 /** Backgrounds the palette checks measure against, per preset. */
-const SURFACES: Record<string, string> = { glass: "#1f2a29", airy: "#f4f4f2" };
+/** Backgrounds the palette checks measure against, per preset and mode: every preset has a light and a dark look. */
+const SURFACES: Record<string, { light: string; dark: string }> = {
+  glass: { light: "#eef3f1", dark: "#1f2a29" },
+  airy: { light: "#f4f4f2", dark: "#141413" },
+  paper: { light: "#fbf8f3", dark: "#1c1b19" },
+};
 const systemDark = () => window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false;
+/** The page's own theme: its switch, or the system when the switch says auto. */
+const pageDark = () => {
+  const theme = document.documentElement.dataset.theme;
+  return theme === "dark" || (theme !== "light" && systemDark());
+};
 
 const picker = createPalettePicker($("#palette-picker"), {
   value: "default",
@@ -207,8 +217,8 @@ function syncStylePanel(spec: WidgetSpec) {
   if (style.height) heightPick.value = String(style.height);
   // Only redraw the picker when the spec asks for different colors, so typing in a hex field keeps focus.
   const preset = style.preset ?? "default";
-  const dark = preset === "glass" || style.theme === "dark" || (style.theme !== "light" && preset !== "airy" && systemDark());
-  picker.setSurface(dark ? "dark" : "light", SURFACES[preset]);
+  const dark = style.theme === "dark" || (style.theme !== "light" && pageDark());
+  picker.setSurface(dark ? "dark" : "light", SURFACES[preset]?.[dark ? "dark" : "light"]);
   const requested = typeof style.palette === "string" ? style.palette : (resolvePalette(style) ?? "default");
   const named = typeof requested === "string" ? getPalette(requested) : undefined;
   const colors = typeof requested === "string" ? ((dark ? named?.darkColors : undefined) ?? named?.colors ?? []) : requested;

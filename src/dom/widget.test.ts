@@ -4,6 +4,9 @@ import { registerView } from "../core/registry.ts";
 import type { ViewContext } from "../core/view-context.ts";
 import type { Row, WidgetSpec } from "../core/types.ts";
 import { widgetRef } from "../core/ref.ts";
+import { getPreset } from "../core/presets.ts";
+import type { StylePreset } from "../core/presets.ts";
+import { presetCss } from "./styles.ts";
 import { createWidget } from "./widget.ts";
 
 /** A promise you resolve by hand, for controlling when a data source answers. */
@@ -392,15 +395,22 @@ describe("style", () => {
     expect([root()?.style.getPropertyValue("--fft-series-1"), root()?.style.getPropertyValue("--fft-series-2")]).toEqual(["#007AFF", "#34C759"]);
   });
 
-  test("a palette with its own dark steps uses them on a dark widget, and on a dark preset", async () => {
+  test("a palette with its own dark steps uses them on a dark widget, its light steps on a light one, and both on a preset that follows the theme", async () => {
     await createWidget(target, echo(rows(1), { style: { palette: "carbon", theme: "dark" } })).ready;
     const dark = root()?.style.getPropertyValue("--fft-series-1");
     target.replaceChildren();
-    await createWidget(target, echo(rows(1), { style: { palette: "carbon", preset: "glass" } })).ready;
-    const glass = root()?.style.getPropertyValue("--fft-series-1");
-    target.replaceChildren();
     await createWidget(target, echo(rows(1), { style: { palette: "carbon", theme: "light" } })).ready;
-    expect([dark, glass, root()?.style.getPropertyValue("--fft-series-1")]).toEqual(["#8a3ffc", "#8a3ffc", "#6929c4"]);
+    const light = root()?.style.getPropertyValue("--fft-series-1");
+    target.replaceChildren();
+    await createWidget(target, echo(rows(1), { style: { palette: "carbon", preset: "glass" } })).ready;
+    expect([dark, light, root()?.hasAttribute("data-palette-steps")]).toEqual(["#8a3ffc", "#6929c4", true]);
+  });
+
+  test("a preset's stylesheet has its light look and its dark look, the dark one for dark widgets, dark pages and dark systems", () => {
+    const css = presetCss(getPreset("glass") as StylePreset);
+    expect(css).toContain('[data-theme="dark"]');
+    expect(css).toContain("prefers-color-scheme: dark");
+    expect([css.includes("--fft-text: #10201d"), css.includes("--fft-text: #f4f7f6")]).toEqual([true, true]);
   });
 
   test("on an auto theme it carries both steps, and the stylesheet picks by the system or page theme", async () => {

@@ -361,7 +361,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     },
     async setOverride(patch) {
       override = fork(override, patch);
-      // A preset built for one color scheme (glass is dark, airy and paper light) takes the filter row and headings with it.
+      // A preset that forces one color scheme takes the filter row and headings with it; shipped presets follow the theme.
       const preset = (override.style as { preset?: unknown } | undefined)?.preset;
       const scheme = typeof preset === "string" ? getPreset(preset)?.scheme : undefined;
       if (scheme) root.dataset.scheme = scheme;

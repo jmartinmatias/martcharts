@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Selected Variations</title>
+    <meta name="description" content="New ways to show the same data, picked because they are new and they help you see something true." />
+    <style>
+      :root {
+        color-scheme: light;
+        --page: #f9f9f7;
+        --ink: #0b0b0b;
+        --ink-2: #52514e;
+        --line: rgba(11, 11, 11, 0.1);
+        --field: #fcfcfb;
+        --accent: #2a78d6;
+        --meter: rgba(11, 11, 11, 0.08);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          color-scheme: dark;
+          --page: #0d0d0d; --ink: #f0efec; --ink-2: #c3c2b7; --line: rgba(255, 255, 255, 0.1); --field: #1a1a19; --accent: #3987e5; --meter: rgba(255, 255, 255, 0.1);
+        }
+      }
+      :root[data-theme="dark"] {
+        color-scheme: dark;
+        --page: #0d0d0d; --ink: #f0efec; --ink-2: #c3c2b7; --line: rgba(255, 255, 255, 0.1); --field: #1a1a19; --accent: #3987e5; --meter: rgba(255, 255, 255, 0.1);
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; overflow-x: clip; }
+      main {
+        max-width: 1200px; margin: 0 auto;
+        padding: calc(34px + env(safe-area-inset-top, 0px)) calc(16px + env(safe-area-inset-right, 0px))
+          calc(89px + env(safe-area-inset-bottom, 0px)) calc(16px + env(safe-area-inset-left, 0px));
+      }
+      a { color: inherit; }
+      .back { font-size: 13px; color: var(--ink-2); text-decoration: none; border-bottom: 1px solid var(--line); }
+      .back:hover, .back:focus-visible { color: var(--ink); border-bottom-color: currentColor; }
+      header.page { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 21px; margin: 13px 0 55px; }
+      h1 { margin: 0; font-size: 34px; line-height: 1.15; letter-spacing: -0.02em; font-weight: 650; }
+      .lede { margin: 8px 0 0; max-width: 62ch; color: var(--ink-2); font-size: 17px; line-height: 1.55; }
+      .segmented { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+      .segmented button { border: 0; background: transparent; color: var(--ink-2); padding: 5px 13px; font: inherit; font-size: 13px; cursor: pointer; min-height: 34px; }
+      .segmented button[aria-pressed="true"] { background: var(--field); color: var(--ink); font-weight: 600; }
+      .segmented button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+      .theme-label { font-size: 13px; color: var(--ink-2); margin-right: 8px; }
+
+      /* One selection: the new chart large, the reading notes beside it, the original small underneath them. */
+      .selection { display: grid; grid-template-columns: minmax(0, 1.618fr) minmax(0, 1fr); gap: 34px; align-items: start; padding: 55px 0; border-top: 1px solid var(--line); }
+      .selection:first-of-type { border-top: 0; padding-top: 0; }
+      .number { font-size: 13px; font-variant-numeric: tabular-nums; color: var(--ink-2); letter-spacing: 0.08em; }
+      .selection h2 { margin: 5px 0 13px; font-size: 21px; line-height: 1.3; letter-spacing: -0.01em; }
+      .notes { display: flex; flex-direction: column; gap: 21px; min-width: 0; }
+      .note > h3 { margin: 0 0 3px; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); }
+      .note > p { margin: 0; line-height: 1.6; }
+      .scores { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px 21px; }
+      .score-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-2); }
+      .score-label strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+      .score-track { height: 5px; margin-top: 5px; border-radius: 3px; background: var(--meter); overflow: hidden; }
+      .score-fill { height: 100%; border-radius: 3px; background: var(--accent); }
+      .original > h3 { margin: 0 0 8px; }
+      .original .slot { opacity: 0.92; }
+      .empty { padding: 55px 21px; border: 1px dashed var(--line); border-radius: 13px; text-align: center; color: var(--ink-2); }
+      /* How the picks were made, and a numbered index to jump to each. */
+      .made { margin: 13px 0 0; font-size: 13px; color: var(--ink-2); }
+      .made strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+      .index { display: grid; grid-template-columns: repeat(auto-fill, minmax(233px, 1fr)); gap: 2px 34px; margin: 0 0 55px; padding: 0; list-style: none; counter-reset: pick; }
+      .index a { display: flex; gap: 13px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--line); text-decoration: none; color: var(--ink); font-size: 14px; line-height: 1.4; }
+      .index a::before { counter-increment: pick; content: counter(pick, decimal-leading-zero); font-size: 11px; letter-spacing: 0.08em; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+      .index a:hover, .index a:focus-visible { color: var(--accent); }
+      .index a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+      .selection { scroll-margin-top: 21px; }
+      /* How the picks were made: three plain rules, side by side. */
+      .rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 21px; margin: 0 0 55px; padding: 21px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+      .rule h2 { margin: 0 0 5px; font-size: 15px; letter-spacing: -0.005em; }
+      .rule p { margin: 0; font-size: 14px; line-height: 1.55; color: var(--ink-2); }
+      @media (max-width: 700px) { .rules { grid-template-columns: minmax(0, 1fr); gap: 13px; } }
+      @media (max-width: 900px) {
+        .selection { grid-template-columns: minmax(0, 1fr); gap: 21px; padding: 34px 0; }
+        h1 { font-size: 28px; }
+      }
+      @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <a class="back" href="/">Back to the gallery</a>
+      <header class="page">
+        <div>
+          <h1>Selected variations</h1>
+          <p class="lede">The same data, shown in new ways. Each one was picked because it is new and because it helps you see something true about the numbers. Every chart says how to read it.</p>
+          <p class="made" id="made" hidden></p>
+        </div>
+        <div>
+          <span class="theme-label" id="theme-label">Theme</span>
+          <div class="segmented" id="theme" role="group" aria-labelledby="theme-label">
+            <button type="button" data-value="auto" aria-pressed="true">Auto</button>
+            <button type="button" data-value="light" aria-pressed="false">Light</button>
+            <button type="button" data-value="dark" aria-pressed="false">Dark</button>
+          </div>
+        </div>
+      </header>
+      <section class="rules" aria-label="How we picked">
+        <div class="rule"><h2>It is new</h2><p>It is a different kind of chart from the one it came from, not the same chart in new colors.</p></div>
+        <div class="rule"><h2>It is true</h2><p>It uses exactly the same numbers. Nothing is added, removed or made up.</p></div>
+        <div class="rule"><h2>It is useful</h2><p>It makes one real thing easier to see than before, and the note beside it says what.</p></div>
+      </section>
+      <nav aria-label="The selection"><ol class="index" id="index"></ol></nav>
+      <div id="selections" aria-live="polite"></div>
+    </main>
+    <script type="module" src="/demo/selected.ts"></script>
+  </body>
+</html>

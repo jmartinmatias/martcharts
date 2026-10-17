@@ -663,10 +663,10 @@ Slot: `style.preset`. A spec's own `style.tokens` and `style.palette` still win 
 
 | Preset | Look |
 | --- | --- |
-| `airy` | Editorial and chrome-free for light pages: no card, generous whitespace, small grey labels over large numbers, warm orange leading the palette, solid value pills. |
+| `airy` | Editorial and chrome-free, on a light or a dark page: no card, generous whitespace, small grey labels over large numbers, warm orange leading the palette, solid value pills. |
 | `default` | The house look: quiet cards with hairline borders, following the light or dark theme. Choosing it resets any other preset. |
-| `glass` | Frosted translucent cards for dark, image or gradient backdrops: soft blur, large radius, pill bars on tracks, blue and gold leading the palette. |
-| `paper` | Editorial print for reports and briefings: a warm paper card under a black rule instead of a border, serif titles and headline numbers, nearly square bars, deep ink blue leading the palette. |
+| `glass` | Frosted translucent cards for image or gradient backdrops: light frost or dark smoke with the theme, soft blur, large radius, pill bars on tracks, blue and gold leading the palette. |
+| `paper` | Editorial print for reports and briefings: a warm paper card under a black rule (a night edition on dark: warm dark paper, cream rule), serif titles and headline numbers, nearly square bars, deep ink blue leading the palette. |
 
 ## Palettes
 

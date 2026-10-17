@@ -1,0 +1,1127 @@
+{
+  "about": "Chart variations picked from the variation engine (the Taller) because they are new and meaningful. Plain words only. Engine run: 55 widgets, seeds 1 to 5, every temperature and texture, 718 unique variants, reviewed by hand. Kept only picks scoring at least 4 out of 10 for how new they are.",
+  "selections": [
+    {
+      "source": "revenue-by-region",
+      "title": "Revenue and cost, side by side: the gap is the profit",
+      "change": "The grouped bars become dumbbells: one dot for revenue and one for cost in each region, joined by a line.",
+      "why": "The length of each line is that region's profit, so profits compare at a glance: East keeps the most (€91K), South and West the least (about €56K each).",
+      "novelty": 0.55,
+      "meaning": 0.63,
+      "spec": {
+        "title": "Revenue by region",
+        "subtitle": "Q3 2026, all products",
+        "description": "Revenue and cost per sales region, largest first, with the leading region highlighted.",
+        "footer": "Source: /data/sales.json",
+        "locale": "en-US",
+        "data": {
+          "type": "url",
+          "url": "/data/sales.json",
+          "path": "data.items"
+        },
+        "transform": [
+          {
+            "type": "aggregate",
+            "groupBy": "region",
+            "measures": [
+              {
+                "op": "sum",
+                "field": "revenue"
+              },
+              {
+                "op": "sum",
+                "field": "cost"
+              }
+            ]
+          },
+          {
+            "type": "sort",
+            "field": "revenue",
+            "order": "desc"
+          }
+        ],
+        "fields": {
+          "revenue": {
+            "label": "Revenue",
+            "format": {
+              "type": "currency",
+              "currency": "EUR",
+              "decimals": 0
+            }
+          },
+          "cost": {
+            "label": "Cost",
+            "format": {
+              "type": "currency",
+              "currency": "EUR",
+              "decimals": 0
+            }
+          }
+        },
+        "view": {
+          "type": "dumbbell",
+          "label": "region",
+          "from": "revenue",
+          "to": "cost"
+        },
+        "style": {
+          "height": 300
+        }
+      }
+    },
+    {
+      "source": "plan-moves",
+      "title": "Where customers go when they change plan",
+      "change": "The circle of ribbons becomes columns: each column is the plan customers left, as wide as the number who left it, split by the plan they moved to.",
+      "why": "Starter loses the most customers (160), and three in four of them move up to Growth. Almost nobody leaves Enterprise.",
+      "novelty": 0.65,
+      "meaning": 0.51,
+      "spec": {
+        "title": "Plan changes",
+        "subtitle": "Q3 2026, customers moving between plans",
+        "description": "Every upgrade and downgrade between plans this quarter. Starter to Growth is the biggest move; downgrades are the thin ribbons running back.",
+        "footer": "Source: billing, {sum:customers} moves",
+        "locale": "en-US",
+        "data": {
+          "type": "inline",
+          "rows": [
+            {
+              "from": "Starter",
+              "to": "Growth",
+              "customers": 120
+            },
+            {
+              "from": "Starter",
+              "to": "Pro",
+              "customers": 40
+            },
+            {
+              "from": "Growth",
+              "to": "Pro",
+              "customers": 85
+            },
+            {
+              "from": "Growth",
+              "to": "Starter",
+              "customers": 30
+            },
+            {
+              "from": "Growth",
+              "to": "Enterprise",
+              "customers": 10
+            },
+            {
+              "from": "Pro",
+              "to": "Enterprise",
+              "customers": 25
+            },
+            {
+              "from": "Pro",
+              "to": "Growth",
+              "customers": 18
+            },
+            {
+              "from": "Enterprise",
+              "to": "Pro",
+              "customers": 6
+            }
+          ]
+        },
+        "fields": {
+          "customers": {
+            "label": "Customers",
+            "format": {
+              "type": "number"
+            }
+          },
+          "from": {
+            "label": "Plan they left"
+          },
+          "to": {
+            "label": "Plan they joined"
+          }
+        },
+        "view": {
+          "type": "marimekko",
+          "x": "from",
+          "series": "to",
+          "value": "customers"
+        },
+        "style": {
+          "height": 300
+        }
+      }
+    },
+    {
+      "source": "order-calendar",
+      "title": "How many orders a day: there are two kinds of day",
+      "change": "The calendar becomes a histogram: days are grouped by how many orders they had, and each bar counts the days in one range.",
+      "why": "The bars form two humps: weekend days get 34 to 96 orders, weekdays 112 to 225. Planning for an average day would be wrong both ways.",
+      "novelty": 0.49,
+      "meaning": 0.57,
+      "spec": {
+        "title": "Daily orders",
+        "subtitle": "{first:day} to {last:day}",
+        "description": "Orders per day, to spot weekly rhythm, quiet weekends and growth.",
+        "footer": "Source: /data/daily-orders.json",
+        "locale": "en-US",
+        "data": {
+          "type": "url",
+          "url": "/data/daily-orders.json"
+        },
+        "fields": {
+          "orders": {
+            "label": "Orders",
+            "format": "number"
+          },
+          "day": {
+            "label": "Day",
+            "format": {
+              "type": "date",
+              "style": "medium"
+            }
+          }
+        },
+        "view": {
+          "type": "histogram",
+          "value": "orders"
+        },
+        "style": {
+          "height": 300
+        }
+      }
+    },
+    {
+      "source": "product-compare",
+      "title": "Us against the market, one attribute at a time",
+      "change": "The radar's two shapes become dumbbells: our score and the market's, joined by a line for each attribute.",
+      "why": "We lead on five of six attributes, most on Support (8.2 against 6.4). Price is the one place we trail (6.1 against 7.4).",
+      "novelty": 0.45,
+      "meaning": 0.63,
+      "spec": {
+        "title": "How we compare",
+        "subtitle": "Customer ratings out of 10, against the market average",
+        "description": "Average customer rating per attribute for our product and for the market. We lead on reliability and ease of use and trail only on price.",
+        "footer": "Source: customer survey and analyst panel",
+        "locale": "en-US",
+        "data": {
+          "type": "inline",
+          "rows": [
+            {
+              "attribute": "Speed",
+              "us": 8.6,
+              "market": 6.9
+            },
+            {
+              "attribute": "Reliability",
+              "us": 9.1,
+              "market": 7.8
+            },
+            {
+              "attribute": "Support",
+              "us": 8.2,
+              "market": 6.4
+            },
+            {
+              "attribute": "Price",
+              "us": 6.1,
+              "market": 7.4
+            },
+            {
+              "attribute": "Integrations",
+              "us": 7.4,
+              "market": 6.8
+            },
+            {
+              "attribute": "Ease of use",
+              "us": 8.8,
+              "market": 7.1
+            }
+          ]
+        },
+        "fields": {
+          "us": {
+            "label": "Our product",
+            "format": {
+              "type": "number",
+              "decimals": 1
+            }
+          },
+          "market": {
+            "label": "Market average",
+            "format": {
+              "type": "number",
+              "decimals": 1
+            }
+          }
+        },
+        "view": {
+          "type": "dumbbell",
+          "label": "attribute",
+          "from": "us",
+          "to": "market"
+        },
+        "style": {
+          "height": 300
+        }
+      }
+    },
+    {
+      "source": "region-targets",
+      "title": "How far each region is from its target",
+      "change": "The progress meters become bars that start at the target and go right when a region beats it and left when it falls short.",
+      "why": "North and Central beat their targets; East, West and South fall short, South by the most (€26K).",
+      "novelty": 0.45,
+      "meaning": 0.68,
+      "spec": {
+        "title": "Target attainment",
+        "subtitle": "Q3 2026 revenue against target",
+        "description": "How close each region is to its quarterly revenue target.",
+        "footer": "Source: /data/sales.json",
+        "locale": "en-US",
+        "data": {
+          "type": "url",
+          "url": "/data/sales.json",
+          "path": "data.items"
+        },
+        "transform": [
+          {
+            "type": "aggregate",
+            "groupBy": "region",
+            "measures": [
+              {
+                "op": "sum",
+                "field": "revenue"
+              },
+              {
+                "op": "sum",
+                "field": "target"
+              }
+            ]
+          },
+          {
+            "type": "sort",
+            "field": "revenue",
+            "order": "desc"
+          }
+        ],
+        "fields": {
+          "revenue": {
+            "format": {
+              "type": "currency",
+              "currency": "EUR",
+              "compact": true
+            }
+          },
+          "target": {
+            "format": {
+              "type": "currency",
+              "currency": "EUR",
+              "compact": true
+            }
+          }
+        },
+        "view": {
+          "type": "variance",
+          "label": "region",
+          "value": "revenue",
+          "target": "target"
+        },
+        "style": {
+          "height": 300
+        }
+      }
+    },
+    {
+      "source": "account-portfolio",
+      "title": "How steady growth is in each customer segment",
+      "change": "The bubble chart becomes box plots: one box per segment, showing how spread out its accounts' growth is.",
+      "why": "Small businesses grow fastest in the middle (32%) but swing the most, from -8% to 41%. Enterprise accounts grow slowly and steadily, between 2% and 18%.",
+      "novelty": 0.45,
+      "meaning": 0.62,
+      "spec": {
+        "title": "Account portfolio",
+        "subtitle": "Growth against margin, sized by revenue",
+        "description": "Each account placed by its revenue growth and gross margin, the bubble sized by its revenue and colored by segment. Top right is where to invest; the big Enterprise accounts grow slowly but earn well.",
+        "footer": "Source: finance ledger, {count} accounts",
+        "locale": "en-US",
+        "data": {
+          "type": "inline",
+          "rows": [
+            {
+              "account": "Aurora Logistics",
+              "segment": "Enterprise",
+              "growth": 0.18,
+              "margin": 0.34,
+              "revenue": 214000
+            },
+            {
+              "account": "Bellwether Foods",
+              "segment": "Enterprise",
+              "growth": 0.06,
+              "margin": 0.29,
+              "revenue": 188500
+            },
+            {
+              "account": "Cobalt Analytics",
+              "segment": "Mid-market",
+              "growth": 0.31,
+              "margin": 0.41,
+              "revenue": 172300
+            },
+            {
+              "account": "Dunmore Retail",
+              "segment": "Mid-market",
+              "growth": -0.04,
+              "margin": 0.22,
+              "revenue": 151900
+            },
+            {
+              "account": "Everline Health",
+              "segment": "Enterprise",
+              "growth": 0.12,
+              "margin": 0.38,
+              "revenue": 139400
+            },
+            {
+              "account": "Fjord Energy",
+              "segment": "Mid-market",
+              "growth": 0.24,
+              "margin": 0.27,
+              "revenue": 122800
+            },
+            {
+              "account": "Granite Bank",
+              "segment": "Enterprise",
+              "growth": 0.02,
+              "margin": 0.31,
+              "revenue": 118200
+            },
+            {
+              "account": "Halcyon Travel",
+              "segment": "Small business",
+              "growth": 0.36,
+              "margin": 0.19,
+              "revenue": 97600
+            },
+            {
+              "account": "Ironwood Labs",
+              "segment": "Small business",
+              "growth": 0.28,
+              "margin": 0.44,
+              "revenue": 64300
+            },
+            {
+              "account": "Juniper Media",
+              "segment": "Small business",
+              "growth": -0.08,
+              "margin": 0.16,
+              "revenue": 52100
+            },
+            {
+              "account": "Kestrel Freight",
+              "segment": "Mid-market",
+              "growth": 0.15,
+              "margin": 0.24,
+              "revenue": 88900
+            },
+            {
+              "account": "Lumen Studio",
+              "segment": "Small business",
+              "growth": 0.41,
+              "margin": 0.33,
+              "revenue": 41200
+            }
+          ]
+        },
+        "fields": {
+          "growth": {
+            "label": "Revenue growth",
+            "format": {
+              "type": "percent",
+              "decimals": 0
+            }
+          },
+          "margin": {
+            "label": "Gross margin",
+            "format": {
+              "type": "percent",
+              "decimals": 0
+            }
+          },
+          "revenue": {
+            "label": "Revenue",
+            "format": {
+              "type": "currency",
+              "currency": "EUR",
+              "compact": true
+            }
+          },
+          "segment": {
+            "label": "Segment"
+          }
+        },
+        "view": {
+          "type": "boxplot",
+          "value": "growth",
+          "group": "segment"
+        },
+        "style": {
+          "height": 300
+        }
+      }
+    },
+    {
+      "source": "traffic-stream",
+      "title": "Each traffic channel in a row of its own",
+      "change": "The stacked stream is pulled apart into one thin row per channel, where darker shades mean more visits that week.",
+      "why": "With nothing stacked on top, each story is clear: Social spikes in mid-July (39.6K visits in the week of Jul 13) while Paid grows more than fivefold, from 3.8K to 20.8K a week.",
+      "novelty": 0.44,
+      "meaning": 0.66,
+      "spec": {
+        "title": "Visits by channel",
+        "subtitle": "Weekly site visits, {first:week} to {last:week}",
+        "description": "How the traffic mix flows week by week. Social peaks the week of Jul 13 at four times its usual level, paid traffic grows fivefold from late July, referrals double from May to July, and email pulses every other week with the newsletter.",
+        "footer": "Source: web analytics",
+        "locale": "en-US",
+        "data": {
+          "type": "inline",
+          "rows": [
+            {
+              "week": "2026-03-30",
+              "Paid": 3840,
+              "Email": 13490,
+              "Search": 41470,
+              "Direct": 29160,
+              "Referral": 6050,
+              "Social": 9300
+            },
+            {
+              "week": "2026-04-06",
+              "Paid": 3510,
+              "Email": 8040,
+              "Search": 41190,
+              "Direct": 30180,
+              "Referral": 5500,
+              "Social": 8070
+            },
+            {
+              "week": "2026-04-13",
+              "Paid": 4540,
+              "Email": 13910,
+              "Search": 42810,
+              "Direct": 31100,
+              "Referral": 6180,
+              "Social": 8250
+            },
+            {
+              "week": "2026-04-20",
+              "Paid": 3750,
+              "Email": 7820,
+              "Search": 43790,
+              "Direct": 30230,
+              "Referral": 6490,
+              "Social": 9950
+            },
+            {
+              "week": "2026-04-27",
+              "Paid": 4100,
+              "Email": 14860,
+              "Search": 43010,
+              "Direct": 29720,
+              "Referral": 5720,
+              "Social": 8620
+            },
+            {
+              "week": "2026-05-04",
+              "Paid": 3650,
+              "Email": 8080,
+              "Search": 45020,
+              "Direct": 30490,
+              "Referral": 5680,
+              "Social": 9100
+            },
+            {
+              "week": "2026-05-11",
+              "Paid": 3760,
+              "Email": 14820,
+              "Search": 45660,
+              "Direct": 30790,
+              "Referral": 6330,
+              "Social": 8630
+            },
+            {
+              "week": "2026-05-18",
+              "Paid": 4460,
+              "Email": 8930,
+              "Search": 46520,
+              "Direct": 31600,
+              "Referral": 6750,
+              "Social": 8490
+            },
+            {
+              "week": "2026-05-25",
+              "Paid": 4320,
+              "Email": 14500,
+              "Search": 46850,
+              "Direct": 30770,
+              "Referral": 7150,
+              "Social": 9980
+            },
+            {
+              "week": "2026-06-01",
+              "Paid": 4110,
+              "Email": 9280,
+              "Search": 45640,
+              "Direct": 31410,
+              "Referral": 8350,
+              "Social": 8220
+            },
+            {
+              "week": "2026-06-08",
+              "Paid": 3980,
+              "Email": 15310,
+              "Search": 48330,
+              "Direct": 31150,
+              "Referral": 9100,
+              "Social": 10130
+            },
+            {
+              "week": "2026-06-15",
+              "Paid": 4310,
+              "Email": 9520,
+              "Search": 48740,
+              "Direct": 32830,
+              "Referral": 9440,
+              "Social": 11760
+            },
+            {
+              "week": "2026-06-22",
+              "Paid": 4320,
+              "Email": 15180,
+              "Search": 48680,
+              "Direct": 33100,
+              "Referral": 10610,
+              "Social": 17570
+            },
+            {
+              "week": "2026-06-29",
+              "Paid": 4550,
+              "Email": 9100,
+              "Search": 47330,
+              "Direct": 31990,
+              "Referral": 10760,
+              "Social": 24940
+            },
+            {
+              "week": "2026-07-06",
+              "Paid": 4350,
+              "Email": 16130,
+              "Search": 48170,
+              "Direct": 31630,
+              "Referral": 11110,
+              "Social": 34660
+            },
+            {
+              "week": "2026-07-13",
+              "Paid": 4660,
+              "Email": 10240,
+              "Search": 49950,
+              "Direct": 33320,
+              "Referral": 11530,
+              "Social": 39640
+            },
+            {
+              "week": "2026-07-20",
+              "Paid": 5040,
+              "Email": 15500,
+              "Search": 49900,
+              "Direct": 33480,
+              "Referral": 11500,
+              "Social": 35790
+            },
+            {
+              "week": "2026-07-27",
+              "Paid": 6300,
+              "Email": 9760,
+              "Search": 50040,
+              "Direct": 32680,
+              "Referral": 11350,
+              "Social": 25780
+            },
+            {
+              "week": "2026-08-03",
+              "Paid": 8150,
+              "Email": 16390,
+              "Search": 50970,
+              "Direct": 33040,
+              "Referral": 11990,
+              "Social": 17830
+            },
+            {
+              "week": "2026-08-10",
+              "Paid": 10630,
+              "Email": 10620,
+              "Search": 52410,
+              "Direct": 31970,
+              "Referral": 12430,
+              "Social": 12610
+            },
+            {
+              "week": "2026-08-17",
+              "Paid": 12480,
+              "Email": 16560,
+              "Search": 52080,
+              "Direct": 32960,
+              "Referral": 11470,
+              "Social": 8950
+            },
+            {
+              "week": "2026-08-24",
+              "Paid": 15310,
+              "Email": 9980,
+              "Search": 52050,
+              "Direct": 32550,
+              "Referral": 11400,
+              "Social": 8830
+            },
+            {
+              "week": "2026-08-31",
+              "Paid": 17570,
+              "Email": 17090,
+              "Search": 52240,
+              "Direct": 33190,
+              "Referral": 12130,
+              "Social": 8070
+            },
+            {
+              "week": "2026-09-07",
+              "Paid": 20200,
+              "Email": 10310,
+              "Search": 53220,
+              "Direct": 33310,
+              "Referral": 12420,
+              "Social": 8730
+            },
+            {
+              "week": "2026-09-14",
+              "Paid": 20350,
+              "Email": 16400,
+              "Search": 54380,
+              "Direct": 33800,
+              "Referral": 11810,
+              "Social": 8170
+            },
+            {
+              "week": "2026-09-21",
+              "Paid": 20820,
+              "Email": 11540,
+              "Search": 55990,
+              "Direct": 33190,
+              "Referral": 12030,
+              "Social": 8050
+            }
+          ]
+        },
+        "fields": {
+          "week": {
+            "label": "Week",
+            "format": {
+              "type": "date",
+              "style": "day"
+            }
+          },
+          "Paid": {
+            "format": {
+              "type": "number",
+              "compact": true
+            }
+          },
+          "Email": {
+            "format": {
+              "type": "number",
+              "compact": true
+            }
+          },
+          "Search": {
+            "format": {
+              "type": "number",
+              "compact": true
+            }
+          },
+          "Direct": {
+            "format": {
+              "type": "number",
+              "compact": true
+            }
+          },
+          "Referral": {
+            "format": {
+              "type": "number",
+              "compact": true
+            }
+          },
+          "Social": {
+            "format": {
+              "type": "number",
+              "compact": true
+            }
+          }
+        },
+        "view": {
+          "type": "horizon",
+          "x": "week",
+          "y": [
+            "Paid",
+            "Email",
+            "Search",
+            "Direct",
+            "Referral",
+            "Social"
+          ]
+        },
+        "style": {
+          "height": 300
+        }
+      }
+    },
+    {
+      "source": "product-region-sunburst",
+      "title": "Product and region, square by square",
+      "change": "The rings become a grid: one square for each product in each region, darker for more revenue.",
+      "why": "East's Platform is the darkest square (€160K). Central is the only region where Services sells best, and West leans on Analytics.",
+      "novelty": 0.45,
+      "meaning": 0.57,
+      "spec": {
+        "title": "Revenue by product, then region",
+        "subtitle": "Q3 2026: inner ring by product, outer ring by region",
+        "description": "Q3 revenue split first by product, then each product by region. Platform leads; East is the largest region for Platform and Analytics, Central for Services.",
+        "footer": "Source: finance ledger",
+        "locale": "en-US",
+        "data": {
+          "type": "inline",
+          "rows": [
+            {
+              "region": "East",
+              "product": "Platform",
+              "revenue": 160000
+            },
+            {
+              "region": "East",
+              "product": "Analytics",
+              "revenue": 120000
+            },
+            {
+              "region": "East",
+              "product": "Services",
+              "revenue": 68000
+            },
+            {
+              "region": "North",
+              "product": "Platform",
+              "revenue": 110000
+            },
+            {
+              "region": "North",
+              "product": "Analytics",
+              "revenue": 98000
+            },
+            {
+              "region": "North",
+              "product": "Services",
+              "revenue": 74000
+            },
+            {
+              "region": "Central",
+              "product": "Platform",
+              "revenue": 90000
+            },
+            {
+              "region": "Central",
+              "product": "Analytics",
+              "revenue": 70000
+            },
+            {
+              "region": "Central",
+              "product": "Services",
+              "revenue": 99000
+            },
+            {
+              "region": "West",
+              "product": "Platform",
+              "revenue": 60000
+            },
+            {
+              "region": "West",
+              "product": "Analytics",
+              "revenue": 95000
+            },
+            {
+              "region": "West",
+              "product": "Services",
+              "revenue": 49000
+            },
+            {
+              "region": "South",
+              "product": "Platform",
+              "revenue": 100000
+            },
+            {
+              "region": "South",
+              "product": "Analytics",
+              "revenue": 40000
+            },
+            {
+              "region": "South",
+              "product": "Services",
+              "revenue": 64000
+            }
+          ]
+        },
+        "fields": {
+          "region": {
+            "label": "Region"
+          },
+          "product": {
+            "label": "Product"
+          },
+          "revenue": {
+            "label": "Revenue",
+            "format": {
+              "type": "currency",
+              "currency": "EUR",
+              "compact": true
+            }
+          }
+        },
+        "view": {
+          "type": "heatmap",
+          "x": "region",
+          "y": "product",
+          "value": "revenue"
+        },
+        "style": {
+          "height": 300
+        }
+      }
+    },
+    {
+      "source": "ticket-heatmap",
+      "title": "Support tickets by time of day, and which weekdays bring them",
+      "change": "The weekday-by-hour table becomes columns: each column is a time of day, as wide as its number of tickets, split by weekday.",
+      "why": "Late morning (10 to 12) is the busiest time, with 361 tickets, and Thursday brings the most of any day. Weekends barely show.",
+      "novelty": 0.65,
+      "meaning": 0.51,
+      "spec": {
+        "title": "Support tickets",
+        "subtitle": "By weekday and time of day",
+        "description": "When customers open support tickets, to plan staffing.",
+        "footer": "Source: helpdesk, last 4 weeks",
+        "locale": "en-US",
+        "data": {
+          "type": "inline",
+          "rows": [
+            {
+              "day": "Mon",
+              "slot": "8-10",
+              "tickets": 34
+            },
+            {
+              "day": "Mon",
+              "slot": "10-12",
+              "tickets": 61
+            },
+            {
+              "day": "Mon",
+              "slot": "12-14",
+              "tickets": 48
+            },
+            {
+              "day": "Mon",
+              "slot": "14-16",
+              "tickets": 55
+            },
+            {
+              "day": "Mon",
+              "slot": "16-18",
+              "tickets": 40
+            },
+            {
+              "day": "Tue",
+              "slot": "8-10",
+              "tickets": 38
+            },
+            {
+              "day": "Tue",
+              "slot": "10-12",
+              "tickets": 72
+            },
+            {
+              "day": "Tue",
+              "slot": "12-14",
+              "tickets": 51
+            },
+            {
+              "day": "Tue",
+              "slot": "14-16",
+              "tickets": 63
+            },
+            {
+              "day": "Tue",
+              "slot": "16-18",
+              "tickets": 44
+            },
+            {
+              "day": "Wed",
+              "slot": "8-10",
+              "tickets": 36
+            },
+            {
+              "day": "Wed",
+              "slot": "10-12",
+              "tickets": 68
+            },
+            {
+              "day": "Wed",
+              "slot": "12-14",
+              "tickets": 57
+            },
+            {
+              "day": "Wed",
+              "slot": "14-16",
+              "tickets": 66
+            },
+            {
+              "day": "Wed",
+              "slot": "16-18",
+              "tickets": 47
+            },
+            {
+              "day": "Thu",
+              "slot": "8-10",
+              "tickets": 41
+            },
+            {
+              "day": "Thu",
+              "slot": "10-12",
+              "tickets": 79
+            },
+            {
+              "day": "Thu",
+              "slot": "12-14",
+              "tickets": 62
+            },
+            {
+              "day": "Thu",
+              "slot": "14-16",
+              "tickets": 71
+            },
+            {
+              "day": "Thu",
+              "slot": "16-18",
+              "tickets": 52
+            },
+            {
+              "day": "Fri",
+              "slot": "8-10",
+              "tickets": 29
+            },
+            {
+              "day": "Fri",
+              "slot": "10-12",
+              "tickets": 58
+            },
+            {
+              "day": "Fri",
+              "slot": "12-14",
+              "tickets": 44
+            },
+            {
+              "day": "Fri",
+              "slot": "14-16",
+              "tickets": 49
+            },
+            {
+              "day": "Fri",
+              "slot": "16-18",
+              "tickets": 31
+            },
+            {
+              "day": "Sat",
+              "slot": "8-10",
+              "tickets": 8
+            },
+            {
+              "day": "Sat",
+              "slot": "10-12",
+              "tickets": 14
+            },
+            {
+              "day": "Sat",
+              "slot": "12-14",
+              "tickets": 12
+            },
+            {
+              "day": "Sat",
+              "slot": "14-16",
+              "tickets": 10
+            },
+            {
+              "day": "Sat",
+              "slot": "16-18",
+              "tickets": 6
+            },
+            {
+              "day": "Sun",
+              "slot": "8-10",
+              "tickets": 5
+            },
+            {
+              "day": "Sun",
+              "slot": "10-12",
+              "tickets": 9
+            },
+            {
+              "day": "Sun",
+              "slot": "12-14",
+              "tickets": 11
+            },
+            {
+              "day": "Sun",
+              "slot": "14-16",
+              "tickets": 8
+            },
+            {
+              "day": "Sun",
+              "slot": "16-18",
+              "tickets": 4
+            }
+          ]
+        },
+        "fields": {
+          "tickets": {
+            "label": "Tickets",
+            "format": "number"
+          },
+          "slot": {
+            "label": "Time of day"
+          },
+          "day": {
+            "label": "Weekday"
+          }
+        },
+        "view": {
+          "type": "marimekko",
+          "x": "slot",
+          "series": "day",
+          "value": "tickets"
+        },
+        "style": {
+          "height": 300
+        }
+      }
+    }
+  ],
+  "made": 718,
+  "charts": 55
+}

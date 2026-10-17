@@ -27,7 +27,12 @@ export interface StylePreset {
    * base theme, and a spec's own `style.tokens` and `style.palette` win over the preset.
    */
   css: string;
-  /** The color scheme the look is built for, when it has one: the host's own controls (a dashboard's filter row) follow it. */
+  /**
+   * The look on dark widgets, dark pages and dark systems: CSS that overrides the colors of `css` (structure stays
+   * shared) and the same series stepped for a dark surface, in the same order so no series changes color.
+   */
+  dark?: { css: string; palette?: string[] };
+  /** A color scheme the look forces, for a look built for only one: the host's own controls (a dashboard's filter row) follow it. Shipped looks follow the theme instead. */
   scheme?: "light" | "dark";
   /** Chart mark geometry. `barRadius: "full"` makes pill bars; `barTrack` draws a soft track behind each bar; `sliceCaps: "round"` rounds donut segment ends. */
   marks?: { barRadius?: number | "full"; barTrack?: boolean; sliceCaps?: "round" | "butt"; areaGradient?: boolean };
@@ -64,12 +69,46 @@ registerPreset({
 
 registerPreset({
   name: "glass",
-  description: "Frosted translucent cards for dark, image or gradient backdrops: soft blur, large radius, pill bars on tracks, blue and gold leading the palette.",
-  // Blue, gold, teal, orange, violet, red, green, magenta: passes adjacent CVD (worst 8.4) and the normal-vision floor on a dark glass surface.
-  palette: ["#3987e5", "#c98500", "#199e70", "#d95926", "#9085e9", "#e66767", "#008300", "#d55181"],
-  scheme: "dark",
+  description: "Frosted translucent cards for image or gradient backdrops: light frost or dark smoke with the theme, soft blur, large radius, pill bars on tracks, blue and gold leading the palette.",
+  // Blue, gold, teal, orange, violet, red, green, magenta: adjacent CVD passes on the dark smoke (worst 8.4); on the light frost red and green sit 7.2 apart, legal with the direct labels and tooltips every chart has.
+  palette: ["#2a78d6", "#eda100", "#1baf7a", "#eb6834", "#6250d6", "#e34948", "#008300", "#e87ba4"],
   marks: { barRadius: "full", barTrack: true, sliceCaps: "round" },
   css: `
+& {
+  color-scheme: light;
+  --fft-surface: rgba(255, 255, 255, 0.55);
+  --fft-ring: #eef3f1;
+  --fft-popover: rgba(255, 255, 255, 0.9);
+  --fft-text: #10201d;
+  --fft-text-secondary: rgba(16, 32, 29, 0.7);
+  --fft-muted: rgba(16, 32, 29, 0.56);
+  --fft-grid: rgba(16, 32, 29, 0.07);
+  --fft-axis: rgba(16, 32, 29, 0.18);
+  --fft-border: rgba(255, 255, 255, 0.72);
+  --fft-accent: #2a78d6;
+  --fft-positive: #006300;
+  --fft-negative: #d03b3b;
+  --fft-radius: 21px;
+  --fft-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 8px 34px rgba(16, 32, 29, 0.1);
+  --fft-deemphasis: rgba(16, 32, 29, 0.16);
+  --fft-up: #2a78d6; --fft-down: #e34948; --fft-total: rgba(16, 32, 29, 0.72);
+  backdrop-filter: blur(21px) saturate(144%);
+  -webkit-backdrop-filter: blur(21px) saturate(144%);
+}
+& .fft-title { font-size: 21px; line-height: 34px; font-weight: 500; letter-spacing: -0.01em; }
+& .fft-tooltip { backdrop-filter: blur(13px); -webkit-backdrop-filter: blur(13px); border-color: rgba(16, 32, 29, 0.1); }
+& .fft-bar-track { fill: rgba(16, 32, 29, 0.06); }
+& .fft-hbar-track { border-radius: 13px; background: rgba(16, 32, 29, 0.06); }
+& .fft-hbar-fill { border-radius: 13px; }
+& .fft-meter-track { background: rgba(16, 32, 29, 0.07); }
+& .fft-table th { border-bottom-color: rgba(16, 32, 29, 0.1); }
+& .fft-table td, & .fft-item { border-bottom-color: rgba(16, 32, 29, 0.06); }
+& .fft-kpi-value { font-weight: 500; }
+& .fft-kpi-icon { border-radius: 50%; background: rgba(16, 32, 29, 0.06); color: var(--fft-text); }
+`,
+  dark: {
+    palette: ["#3987e5", "#c98500", "#199e70", "#d95926", "#9085e9", "#e66767", "#008300", "#d55181"],
+    css: `
 & {
   color-scheme: dark;
   --fft-surface: rgba(255, 255, 255, 0.06);
@@ -84,15 +123,7 @@ registerPreset({
   --fft-accent: #3987e5;
   --fft-positive: #0ca30c;
   --fft-negative: #e66767;
-  --fft-radius: 21px;
   --fft-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 8px 34px rgba(0, 0, 0, 0.21);
-  backdrop-filter: blur(21px) saturate(144%);
-  -webkit-backdrop-filter: blur(21px) saturate(144%);
-}
-& .fft-title { font-size: 21px; line-height: 34px; font-weight: 500; letter-spacing: -0.01em; }
-& .fft-tooltip { backdrop-filter: blur(13px); -webkit-backdrop-filter: blur(13px); border-color: rgba(255, 255, 255, 0.14); }
-& .fft-bar-track { fill: rgba(255, 255, 255, 0.07); }
-& {
   --fft-deemphasis: rgba(255, 255, 255, 0.16);
   --fft-up: #3987e5; --fft-down: #e66767; --fft-total: rgba(244, 247, 246, 0.72);
   --fft-seq-1: #104281;
@@ -110,22 +141,22 @@ registerPreset({
   --fft-seq-7: #cde2fb;
   --fft-seq-text-7: #0b0b0b;
 }
-& .fft-hbar-track { border-radius: 13px; background: rgba(255, 255, 255, 0.07); }
-& .fft-hbar-fill { border-radius: 13px; }
+& .fft-tooltip { border-color: rgba(255, 255, 255, 0.14); }
+& .fft-bar-track { fill: rgba(255, 255, 255, 0.07); }
+& .fft-hbar-track { background: rgba(255, 255, 255, 0.07); }
 & .fft-meter-track { background: rgba(255, 255, 255, 0.08); }
 & .fft-table th { border-bottom-color: rgba(255, 255, 255, 0.1); }
 & .fft-table td, & .fft-item { border-bottom-color: rgba(255, 255, 255, 0.06); }
-& .fft-kpi-value { font-weight: 500; }
-& .fft-kpi-icon { border-radius: 50%; background: rgba(255, 255, 255, 0.08); color: var(--fft-text); }
+& .fft-kpi-icon { background: rgba(255, 255, 255, 0.08); }
 `,
+  },
 });
 
 registerPreset({
   name: "airy",
-  description: "Editorial and chrome-free for light pages: no card, generous whitespace, small grey labels over large numbers, warm orange leading the palette, solid value pills.",
-  // Orange, blue, yellow, teal, green, magenta, violet, red: passes adjacent CVD (worst 9.1) and the normal-vision floor on a light page.
-  palette: ["#eb6834", "#2a78d6", "#eda100", "#1baf7a", "#008300", "#e87ba4", "#6250d6", "#e34948"],
-  scheme: "light",
+  description: "Editorial and chrome-free, on a light or a dark page: no card, generous whitespace, small grey labels over large numbers, warm orange leading the palette, solid value pills.",
+  // Orange, teal, gold, blue, green, magenta, violet, red: passes adjacent CVD and the normal-vision floor on both the light and the dark page.
+  palette: ["#eb6834", "#1baf7a", "#eda100", "#2a78d6", "#008300", "#e87ba4", "#6250d6", "#e34948"],
   marks: { areaGradient: true },
   css: `
 & {
@@ -158,16 +189,35 @@ registerPreset({
 & .fft-tooltip-title, & .fft-tooltip-label { color: rgba(255, 255, 255, 0.82); }
 & .fft-tooltip-key { background: #ffffff !important; }
 `,
+  dark: {
+    palette: ["#d95926", "#199e70", "#c98500", "#3987e5", "#008300", "#d55181", "#9085e9", "#e66767"],
+    css: `
+& {
+  color-scheme: dark;
+  --fft-ring: #141413;
+  --fft-popover: #d95926;
+  --fft-text: #f2f2f0;
+  --fft-text-secondary: #a8a8a3;
+  --fft-muted: #85857f;
+  --fft-grid: #2a2a28;
+  --fft-axis: #3d3d3a;
+  --fft-accent: #d95926;
+  --fft-positive: #0ca30c;
+  --fft-negative: #e66767;
+}
+& .fft-hbar-track { background: repeating-linear-gradient(135deg, #2c2c2a 0 2px, transparent 2px 5px); }
+& .fft-tooltip { box-shadow: 0 5px 13px rgba(0, 0, 0, 0.34); }
+`,
+  },
 });
 
 const SERIF = `"Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif`;
 
 registerPreset({
   name: "paper",
-  description: "Editorial print for reports and briefings: a warm paper card under a black rule instead of a border, serif titles and headline numbers, nearly square bars, deep ink blue leading the palette.",
-  // Ink blue, orange, teal, gold, magenta, green, violet, red: passes adjacent CVD (worst 8.4) and the normal-vision floor (19.3) on the paper surface.
+  description: "Editorial print for reports and briefings: a warm paper card under a black rule (a night edition on dark: warm dark paper, cream rule), serif titles and headline numbers, nearly square bars, deep ink blue leading the palette.",
+  // Ink blue, orange, teal, gold, magenta, green, violet, red: passes adjacent CVD (worst 8.4) and the normal-vision floor (19.3) on the paper surface, and every check on the night paper.
   palette: ["#1c5cab", "#d95926", "#199e70", "#c98500", "#d55181", "#008300", "#6250d6", "#e34948"],
-  scheme: "light",
   marks: { barRadius: 1 },
   css: `
 & {
@@ -197,5 +247,31 @@ registerPreset({
 & .fft-table th { border-bottom: 1px solid #1d1d1b; }
 & .fft-kpi-icon { border-radius: 2px; background: #efe9de; color: #1d1d1b; }
 `,
+  dark: {
+    palette: ["#3987e5", "#d95926", "#199e70", "#c98500", "#d55181", "#008300", "#9085e9", "#e66767"],
+    css: `
+& {
+  color-scheme: dark;
+  --fft-surface: #1c1b19;
+  --fft-ring: #1c1b19;
+  --fft-popover: #f1ece2;
+  --fft-text: #f1ece2;
+  --fft-text-secondary: #b8b0a1;
+  --fft-muted: #8f897d;
+  --fft-grid: #2f2d29;
+  --fft-axis: #4b4740;
+  --fft-accent: #3987e5;
+  --fft-positive: #0ca30c;
+  --fft-negative: #e66767;
+  --fft-deemphasis: #3d3a34;
+  --fft-up: #3987e5; --fft-down: #e66767; --fft-total: #b8b0a1;
+  border-top-color: #f1ece2;
+}
+& .fft-tooltip { color: #1d1d1b; box-shadow: 0 5px 13px rgba(0, 0, 0, 0.34); }
+& .fft-tooltip-title, & .fft-tooltip-label { color: rgba(29, 29, 27, 0.72); }
+& .fft-table th { border-bottom-color: #f1ece2; }
+& .fft-kpi-icon { background: #2a2824; color: #f1ece2; }
+`,
+  },
 });
 

@@ -81,7 +81,7 @@ describe("resolvePalette", () => {
   });
 
   test("without a palette, the preset's palette applies", () => {
-    expect(resolvePalette({ preset: "glass" })?.[0]).toBe("#3987e5");
+    expect(resolvePalette({ preset: "glass" })?.[0]).toBe("#2a78d6");
   });
 
   test("with neither, there is no override", () => {

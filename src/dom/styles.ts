@@ -41,7 +41,7 @@ export function applyStyle(root: HTMLElement, style: StyleSpec = {}): void {
   // The preset's own palette arrives through its stylesheet; only an explicit palette is set inline.
   const named = typeof style.palette === "string" && style.palette !== "default" ? getPalette(style.palette) : undefined;
   const own = Array.isArray(style.palette) ? style.palette : named?.colors;
-  // A palette with its own dark steps: a known scheme (an explicit theme, or a preset built for one) takes its steps
+  // A palette with its own dark steps: a known scheme (an explicit theme, or a preset that forces one) takes its steps
   // directly; an auto theme carries both as variables and the stylesheet picks by the system or page theme.
   const scheme = style.theme === "dark" || style.theme === "light" ? style.theme : getPreset(style.preset)?.scheme;
   if (named?.darkColors && !scheme) {
@@ -81,11 +81,16 @@ export function ensureStyles(doc: Document): void {
  * inline `style.tokens` still win over it.
  */
 export function presetCss(preset: StylePreset): string {
-  const scope = `:root .fft-widget[data-preset="${preset.name}"][data-theme]`;
-  const palette = preset.palette?.length
-    ? `& {\n${preset.palette.map((color, i) => `  --fft-series-${i + 1}: ${color};`).join("\n")}\n}\n`
-    : "";
-  return `${palette}${preset.css}`.replaceAll("&", scope);
+  const widget = `.fft-widget[data-preset="${preset.name}"]`;
+  const series = (palette?: string[]) => (palette?.length ? `& {\n${palette.map((color, i) => `  --fft-series-${i + 1}: ${color};`).join("\n")}\n}\n` : "");
+  const light = `${series(preset.palette)}${preset.css}`.replaceAll("&", `:root ${widget}[data-theme]`);
+  if (!preset.dark) return light;
+  // The dark look, over the light one: on dark widgets, on auto widgets on a dark page, and on auto widgets on a
+  // dark system unless the page asks for light. Its rules only change colors, so structure stays shared.
+  const dark = `${series(preset.dark.palette)}${preset.dark.css}`;
+  const chosen = `:is(:root ${widget}[data-theme="dark"], :root[data-theme="dark"] ${widget}[data-theme="auto"])`;
+  const system = `:root:not([data-theme="light"]) ${widget}[data-theme="auto"]`;
+  return `${light}${dark.replaceAll("&", chosen)}@media screen and (prefers-color-scheme: dark) {\n${dark.replaceAll("&", system)}}\n`;
 }
 
 /** Series variables pointing at a palette's light or dark steps, for palettes of up to 14 colors. */
@@ -217,11 +222,13 @@ export const BASE_CSS = `
 :root[data-theme="dark"] .fft-widget[data-theme="auto"] {${DARK}}
 :root[data-theme="light"] .fft-widget[data-theme="auto"] {${LIGHT}}
 /* A named palette with its own dark steps, on a widget that follows the system or page theme: both steps arrive as variables, these pick. */
-:root:root .fft-widget[data-palette-steps][data-theme] {${steps("pal")}}
+/* (Tripled :root outranks a preset's own light and dark palettes, which an explicit palette replaces.) */
+:root:root:root .fft-widget[data-palette-steps][data-theme] {${steps("pal")}}
 @media (prefers-color-scheme: dark) {
-  :root:root:not([data-theme="light"]) .fft-widget[data-palette-steps][data-theme] {${steps("pal-dark")}}
+  :root:root:root:not([data-theme="light"]) .fft-widget[data-palette-steps][data-theme="auto"] {${steps("pal-dark")}}
 }
-:root:root[data-theme="dark"] .fft-widget[data-palette-steps][data-theme] {${steps("pal-dark")}}
+:root:root:root .fft-widget[data-palette-steps][data-theme="dark"],
+:root:root:root[data-theme="dark"] .fft-widget[data-palette-steps][data-theme="auto"] {${steps("pal-dark")}}
 .fft-widget *, .fft-widget *::before, .fft-widget *::after { box-sizing: border-box; }
 .fft-widget[data-density="compact"] { --fft-pad: 13px; --fft-gap: 8px; --fft-radius: 8px; }
 .fft-widget [hidden] { display: none !important; }
