@@ -548,7 +548,19 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       if (!label || !start || !end) return "";
       const length = (row: Row) => Date.parse(String(row[end])) - Date.parse(String(row[start]));
       const row = rows.filter((r) => Number.isFinite(length(r))).reduce<Row | undefined>((best, r) => (best && length(best) >= length(r) ? best : r), undefined);
-      return row ? `Here, the longest task is ${text(row, label)}.` : "";
+      if (!row) return "";
+      // With progress, a plan says how much is done and under way (milestones without progress are left out), and how far along the longest task is.
+      const progress = one(view.progress);
+      const tracked = progress ? rows.filter((r) => value(r, progress) !== null) : [];
+      if (!progress || tracked.length < 2) return `Here, the longest task is ${text(row, label)}.`;
+      const entity = nameOf(label, spec);
+      const done = tracked.filter((r) => (value(r, progress) as number) >= 1).length;
+      const underway = tracked.filter((r) => (value(r, progress) as number) > 0 && (value(r, progress) as number) < 1).length;
+      const doneText = done === tracked.length ? `every ${entity} is done` : done === 0 ? `no ${entity} is done yet` : `${done} of ${tracked.length} ${plural(entity)} ${done === 1 ? "is" : "are"} done`;
+      const wayText = underway ? ` and ${underway} ${underway === 1 ? "is" : "are"} under way` : "";
+      const along = value(row, progress);
+      const longest = along === null ? "" : along >= 1 ? `; the longest, ${text(row, label)}, is done` : along <= 0 ? `; the longest, ${text(row, label)}, has not started` : `; the longest, ${text(row, label)}, is ${percent(along)} done`;
+      return `Here, ${doneText}${wayText}${longest}.`;
     }
     case "kpi": {
       const amount = one(view.value);

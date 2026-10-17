@@ -120,7 +120,7 @@ describe("explainChart", () => {
     expect(at({ type: "beeswarm", value: "size", label: "deal" }, [])).toContain("Each dot is one deal, placed by its size.");
     expect(at({ type: "rings", label: "p", value: "v", target: "t" }, [{ p: "Core", v: 9, t: 10 }, { p: "Plus", v: 5, t: 10 }])).toContain("Here, Core is closest to its goal, at 90%.");
     expect(at({ type: "bullet", label: "kpi", value: "v", target: "t" }, [{ kpi: "Leads", v: 12, t: 10 }, { kpi: "Calls", v: 8, t: 10 }, { kpi: "Deals", v: 11, t: 10 }])).toContain("Here, 2 of 3 have passed their goal.");
-    expect(at({ type: "timeline", label: "task", start: "s", end: "e", progress: "p" }, [{ task: "Build", s: "2026-08-01", e: "2026-10-01", p: 0.5 }, { task: "Launch", s: "2026-11-01", e: "2026-11-02", p: 0 }])).toContain("Here, the longest task is Build.");
+    expect(at({ type: "timeline", label: "task", start: "s", end: "e", progress: "p" }, [{ task: "Build", s: "2026-08-01", e: "2026-10-01", p: 0.5 }, { task: "Launch", s: "2026-11-01", e: "2026-11-02", p: 0 }])).toContain("Here, no task is done yet and 1 is under way; the longest, Build, is 50% done.");
     expect(at({ type: "kpi", value: "v" }, [{ v: 10 }, { v: 12 }])).toContain("Here, it is 12, up from 10.");
     expect(at({ type: "list", label: "name", value: "v" }, [{ name: "Aurora", v: 9 }, { name: "Bell", v: 7 }])).toContain("Here, Aurora is at the top, with 9.");
     expect(at({ type: "list", label: "name", value: "revenue" }, [])).toContain("Each line is one entry, with its revenue on the right.");
@@ -369,6 +369,19 @@ describe("explainChart", () => {
     expect(explainChart({ ...spec({ type: "beeswarm", value: "value", group: "region", label: "deal" }), locale: "en-US" }, rows)).toContain(
       "Here, East's dots sit furthest right, with a middle value of 110, and the dot furthest right of all is S2, at 180.",
     );
+  });
+
+  test("a plan with progress says how much is done and under way, and how far along the longest task is", () => {
+    const rows = [
+      { task: "Research", start: "2026-08-03", end: "2026-08-28", done: 1 },
+      { task: "Design", start: "2026-08-24", end: "2026-09-25", done: 1 },
+      { task: "Build", start: "2026-09-21", end: "2026-11-13", done: 0.55 },
+      { task: "Beta", start: "2026-11-09", end: "2026-11-27", done: 0 },
+      { task: "Launch day", start: "2026-11-30" },
+    ];
+    const at = (view: Record<string, unknown>) => explainChart({ ...spec({ type: "timeline", label: "task", start: "start", end: "end", ...view }), locale: "en-US" }, rows);
+    expect(at({ progress: "done" })).toContain("Here, 2 of 4 tasks are done and 1 is under way; the longest, Build, is 55% done.");
+    expect(at({})).toContain("Here, the longest task is Build.");
   });
 
   test("no guide names a hue or a dark shade: presets recolor and dark themes flip, so marks are read by side, shape and fill", () => {
