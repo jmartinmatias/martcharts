@@ -139,6 +139,11 @@ export interface DataProfile {
   title: string;
   /** Number fields, those the chart already shows first. Targets and band edges are kept apart. */
   measures: string[];
+  /**
+   * The measures that share the first one's unit (the same format, or for unformatted numbers a similar size): the
+   * only ones that may share its axis, its scale or its sum. Euros go with euros, never with counts or rates.
+   */
+  peers: string[];
   /** Text fields, those the chart already shows first. */
   categories: string[];
   /** Date fields. */
@@ -158,6 +163,26 @@ export interface DataProfile {
   stacked: boolean;
   /** Forecast and band options worth carrying into line and area versions. */
   fan: Record<string, unknown>;
+}
+
+/** A field's unit: its format (unwrapping in-cell bars, heat and deltas), or "plain" without one. */
+function unitOf(field: string, spec: WidgetSpec): string {
+  let format: unknown = spec.fields?.[field]?.format;
+  if (format && typeof format === "object" && ["bar", "heat", "delta"].includes(String((format as { type?: unknown }).type))) format = (format as { format?: unknown }).format;
+  if (!format) return "plain";
+  if (typeof format === "string") return format;
+  const { type, currency } = format as { type?: unknown; currency?: unknown };
+  return `${String(type)}:${String(currency ?? "")}`;
+}
+
+/** The measures that share the first one's unit; unformatted numbers also need a similar size (within 50 times). */
+function sameUnit(measures: string[], spec: WidgetSpec, rows: Row[]): string[] {
+  const lead = measures[0];
+  if (!lead) return [];
+  const size = (field: string) => Math.max(0, ...rows.map((row) => (typeof row[field] === "number" ? Math.abs(row[field] as number) : 0)));
+  const near = (a: number, b: number) => (a === 0 && b === 0) || (Math.min(a, b) > 0 && Math.max(a, b) / Math.min(a, b) <= 50);
+  const unit = unitOf(lead, spec);
+  return measures.filter((m) => unitOf(m, spec) === unit && (unit !== "plain" || near(size(m), size(lead))));
 }
 
 /** The field names a spec's view and headline use, in the order they appear. */
@@ -200,6 +225,7 @@ export function profileData(spec: WidgetSpec, rows: Row[]): DataProfile {
   const numbers = ordered("number").filter((f) => !aside.has(f));
   const target = numbers.find((f) => TARGET_NAME.test(f));
   const measures = numbers.filter((f) => f !== target);
+  const peers = sameUnit(measures, spec, rows);
   const categories = ordered("category");
   const times = ordered("date");
   const distinct: Record<string, number> = {};
@@ -213,6 +239,7 @@ export function profileData(spec: WidgetSpec, rows: Row[]): DataProfile {
   return {
     title: spec.title ?? spec.id ?? "this chart",
     measures,
+    peers,
     categories,
     times,
     ...(target ? { target } : {}),
@@ -248,6 +275,9 @@ interface Pattern {
 
 const m1 = (d: DataProfile) => d.measures[0] as string;
 const m2 = (d: DataProfile) => d.measures[1] as string;
+/** The first two measures that share a unit, for forms that put them on one scale. */
+const p1 = (d: DataProfile) => d.peers[0] as string;
+const p2 = (d: DataProfile) => d.peers[1] as string;
 const c1 = (d: DataProfile) => d.categories[0] as string;
 const c2 = (d: DataProfile) => d.categories[1] as string;
 const t1 = (d: DataProfile) => d.times[0] as string;
@@ -258,7 +288,7 @@ const perPeriod = (d: DataProfile, min = 3) => d.times.length > 0 && d.measures.
 const positive = (d: DataProfile) => !d.negatives;
 const PERIOD_WORD = /(19|20)\d\d|q[1-4]|before|after|previous|prior|last|current|this|start|end|from|to$/i;
 /** The first two measures read as one measure at two times (revenue2025 and revenue2026, before and after). */
-const periodPair = (d: DataProfile) => d.measures.length > 1 && PERIOD_WORD.test(m1(d)) && PERIOD_WORD.test(m2(d));
+const periodPair = (d: DataProfile) => d.peers.length > 1 && PERIOD_WORD.test(p1(d)) && PERIOD_WORD.test(p2(d));
 /** Several periods per category: long data, time by group. */
 const timeByGroup = (d: DataProfile) => d.times.length > 0 && d.categories.length > 0 && d.measures.length > 0 && (d.distinct[t1(d)] ?? 0) < d.rows;
 const twoLevels = (d: DataProfile) => d.categories.length > 1 && d.measures.length > 0 && (d.distinct[c1(d)] ?? 0) < d.rows;
@@ -388,8 +418,8 @@ const PATTERNS: Pattern[] = [
     form: "dumbbells from one measure to the other",
     moves: ["contrast"],
     marks: "sharp",
-    fits: (d) => perCategory(d, 2, 20) && d.measures.length > 1,
-    make: (d) => ({ view: { type: "dumbbell", label: c1(d), from: m1(d), to: m2(d) } }),
+    fits: (d) => perCategory(d, 2, 20) && d.peers.length > 1,
+    make: (d) => ({ view: { type: "dumbbell", label: c1(d), from: p1(d), to: p2(d) } }),
   },
   {
     id: "slope",
@@ -399,8 +429,8 @@ const PATTERNS: Pattern[] = [
     fits: (d) => perCategory(d, 2, 16) && periodPair(d),
     make: (d) => {
       // From the earliest period to the latest, whatever order the chart lists them in: April to September, not April to May.
-      const periods = d.measures.filter((m) => PERIOD_WORD.test(m)).sort();
-      const [from, to] = periods.length > 1 ? [periods[0], periods.at(-1)] : [m1(d), m2(d)].sort();
+      const periods = d.peers.filter((m) => PERIOD_WORD.test(m)).sort();
+      const [from, to] = periods.length > 1 ? [periods[0], periods.at(-1)] : [p1(d), p2(d)].sort();
       return { view: { type: "slope", label: c1(d), from: from as string, to: to as string } };
     },
   },
@@ -410,7 +440,7 @@ const PATTERNS: Pattern[] = [
     moves: ["reform"],
     marks: "smooth",
     fits: (d) => perCategory(d, 3, 10) && positive(d),
-    make: (d) => ({ view: { type: "radar", label: c1(d), y: d.measures.slice(0, 3) } }),
+    make: (d) => ({ view: { type: "radar", label: c1(d), y: d.peers.slice(0, 3) } }),
   },
   {
     id: "line",
@@ -418,15 +448,15 @@ const PATTERNS: Pattern[] = [
     moves: ["reform"],
     marks: "smooth",
     fits: (d) => perPeriod(d),
-    make: (d) => ({ view: { type: "line", x: t1(d), y: d.measures.slice(0, 4), ...d.fan } }),
+    make: (d) => ({ view: { type: "line", x: t1(d), y: d.peers.slice(0, 4), ...d.fan } }),
   },
   {
     id: "washes",
     form: "smooth washes",
     moves: ["reform"],
     marks: "smooth",
-    fits: (d) => perPeriod(d) && d.measures.length <= 2,
-    make: (d) => ({ view: { type: "area", x: t1(d), y: d.measures.slice(0, 2), curve: "smooth", ...d.fan } }),
+    fits: (d) => perPeriod(d) && d.peers.length <= 2,
+    make: (d) => ({ view: { type: "area", x: t1(d), y: d.peers.slice(0, 2), curve: "smooth", ...d.fan } }),
   },
   {
     id: "steps",
@@ -434,7 +464,7 @@ const PATTERNS: Pattern[] = [
     moves: ["reform"],
     marks: "sharp",
     fits: (d) => perPeriod(d, 4),
-    make: (d) => ({ view: { type: "line", x: t1(d), y: d.measures.slice(0, 3), curve: "step", ...d.fan } }),
+    make: (d) => ({ view: { type: "line", x: t1(d), y: d.peers.slice(0, 3), curve: "step", ...d.fan } }),
   },
   {
     id: "time-bars",
@@ -465,24 +495,24 @@ const PATTERNS: Pattern[] = [
     form: "a streamgraph",
     moves: ["decompose", "reveal"],
     marks: "smooth",
-    fits: (d) => perPeriod(d, 6) && d.measures.length >= 3 && positive(d),
-    make: (d) => ({ view: { type: "area", x: t1(d), y: d.measures.slice(0, 8), stacked: "stream" } }),
+    fits: (d) => perPeriod(d, 6) && d.peers.length >= 3 && positive(d),
+    make: (d) => ({ view: { type: "area", x: t1(d), y: d.peers.slice(0, 8), stacked: "stream" } }),
   },
   {
     id: "horizon",
     form: "horizon rows",
     moves: ["decompose", "reveal"],
     marks: "sharp",
-    fits: (d) => perPeriod(d, 8) && d.measures.length >= 2,
-    make: (d) => ({ view: { type: "horizon", x: t1(d), y: d.measures.slice(0, 8) } }),
+    fits: (d) => perPeriod(d, 8) && d.peers.length >= 2,
+    make: (d) => ({ view: { type: "horizon", x: t1(d), y: d.peers.slice(0, 8) } }),
   },
   {
     id: "shares",
     form: "a mix in shares",
     moves: ["reframe", "decompose"],
     marks: "smooth",
-    fits: (d) => perPeriod(d) && d.measures.length >= 2 && positive(d),
-    make: (d) => ({ view: { type: "area", x: t1(d), y: d.measures.slice(0, 6), stacked: "percent" } }),
+    fits: (d) => perPeriod(d) && d.peers.length >= 2 && positive(d),
+    make: (d) => ({ view: { type: "area", x: t1(d), y: d.peers.slice(0, 6), stacked: "percent" } }),
   },
   {
     id: "spark",
@@ -516,7 +546,7 @@ const PATTERNS: Pattern[] = [
     fits: (d) => (perPeriod(d, 6) || perCategory(d, 6, 24)) && d.rows <= 24 && positive(d),
     // Wedges stack only numbers that add up: the parts the chart already stacked. Otherwise one measure, never
     // revenue on top of a customer count or a profit on top of the revenue it comes from.
-    make: (d) => ({ view: { type: "rose", label: d.times[0] ?? c1(d), y: d.stacked ? d.measures.slice(0, 4) : m1(d) } }),
+    make: (d) => ({ view: { type: "rose", label: d.times[0] ?? c1(d), y: d.stacked ? d.peers.slice(0, 4) : m1(d) } }),
   },
   {
     id: "histogram",
@@ -969,8 +999,8 @@ export function createVariants(spec: WidgetSpec, rows: Row[], options: TallerOpt
       qualities,
       balance,
       question: question.text,
-      // The field that names each row (an account, a deal) lets a title say what every row or dot is.
-      ...explainVariant(variant, data.title, data.categories.find((c) => data.distinct[c] === data.rows)),
+      // The field that names each row (an account, a deal, or over time a month) lets a title say what every row or dot is.
+      ...explainVariant(variant, data.title, [...data.categories, ...data.times].find((c) => data.distinct[c] === data.rows)),
       seed: options.seed ?? 1,
       novelty: noveltyOf(variant, spec),
       meaning: meaningOf(qualities, balance),

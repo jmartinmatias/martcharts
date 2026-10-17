@@ -131,7 +131,7 @@ export function explainVariant(spec: WidgetSpec, chartTitle: string, rowName?: s
       break;
     case "beeswarm":
       form = "a dot swarm";
-      mark = `each dot is one ${view.label ? name(view.label) : "row"}`;
+      mark = `each dot is one ${view.label ? name(view.label) : rowName ? name(rowName) : "row"}`;
       read = `Dots further right have more ${name(view.value)}; where they pile up, many values are alike.`;
       break;
     case "boxplot":

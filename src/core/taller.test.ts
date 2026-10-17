@@ -384,6 +384,43 @@ describe("honest forms", () => {
   });
 });
 
+describe("one unit per axis", () => {
+  test("measures share an axis, a sum or a scale only when they share a unit: euros with euros, never with counts or rates", () => {
+    const rows = Array.from({ length: 12 }, (_, i) => ({ month: `2026-${String(i + 1).padStart(2, "0")}`, revenue: 800000 + i * 40000, cost: 600000 + i * 20000, newCustomers: 40 + i, churn: 0.03 + i / 1000, target: 850000 + i * 30000 }));
+    const spec: WidgetSpec = {
+      id: "revenue-vs-target",
+      title: "Revenue against target",
+      data: { type: "inline", rows },
+      fields: { revenue: { format: { type: "currency", currency: "EUR" } }, cost: { format: { type: "currency", currency: "EUR" } }, target: { format: { type: "currency", currency: "EUR" } } },
+      view: { type: "bar", x: "month", y: "revenue", lines: "target" },
+    };
+    const shared = new Set(["line", "area", "horizon", "radar", "dumbbell", "slope", "rose"]);
+    const mixed: string[] = [];
+    for (let seed = 1; seed <= 8; seed++) {
+      for (const v of createVariants(spec, rows, { seed, count: 12 })) {
+        const view = v.spec.view ?? {};
+        if (!shared.has(String(view.type))) continue;
+        const fields = [view.y, view.from, view.to].flat().filter((f): f is string => typeof f === "string");
+        if (fields.some((f) => !["revenue", "cost"].includes(f))) mixed.push(`${view.type}: ${fields.join(", ")}`);
+      }
+    }
+    expect(mixed).toEqual([]);
+  });
+
+  test("over time, each dot is one period: a month, not a row or an item", () => {
+    const dots = [1, 2, 3, 4, 5, 6].flatMap((seed) => createVariants(byMonth, months, { seed, count: 12 })).filter((v) => ["scatter", "beeswarm"].includes(String(v.spec.view?.type)));
+    expect(dots.length).toBeGreaterThan(0);
+    expect(dots.map((v) => v.title.split(": ").at(-1))).toEqual(dots.map(() => "each dot is one month"));
+  });
+
+  test("unformatted measures of very different sizes are not put on one axis either", () => {
+    const rows = Array.from({ length: 12 }, (_, i) => ({ month: `2026-${String(i + 1).padStart(2, "0")}`, orders: 4000 + i * 90, returns: 120 + i, rate: 0.03 }));
+    const spec: WidgetSpec = { id: "orders", title: "Orders", data: { type: "inline", rows }, view: { type: "line", x: "month", y: "orders" } };
+    const lines = [1, 2, 3, 4, 5].flatMap((seed) => createVariants(spec, rows, { seed, count: 12 })).filter((v) => ["line", "area", "horizon"].includes(String(v.spec.view?.type)));
+    expect(lines.every((v) => ![v.spec.view?.y].flat().includes("rate"))).toBe(true);
+  });
+});
+
 describe("plain tags", () => {
   test("a card tag names the look, true in light and dark themes alike", () => {
     const tagsFor = (look: Look) => plainTags({ lineage: { move: "distill", question: "rank", form: "lollipops", color: "standard", marks: "smooth", look }, spec: byRegion });
