@@ -426,8 +426,25 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       };
       const best = [...groups.values()].reduce<{ row: Row; values: number[] } | undefined>((b, g) => (b && middle(b.values) >= middle(g.values) ? b : g), undefined);
       if (!best) return "";
-      const mid = formatValue(middle(best.values), spec.fields?.[amount]?.format, spec.locale);
-      return view.type === "ridgeline" ? `Here, ${text(best.row, group)} sits furthest right, with a middle value of ${mid}.` : `Here, ${text(best.row, group)} has the highest middle value, ${mid}.`;
+      const show = (n: number) => formatValue(n, spec.fields?.[amount]?.format, spec.locale);
+      const mid = show(middle(best.values));
+      const lead = view.type === "ridgeline" ? `Here, ${text(best.row, group)} sits furthest right, with a middle value of ${mid}.` : `Here, ${text(best.row, group)} has the highest middle value, ${mid}.`;
+      // The spread question: which group varies the most, told by its middle half (the box), when the groups differ.
+      const quartile = (values: number[], p: number) => {
+        const sorted = [...values].sort((a, b) => a - b);
+        const at = (sorted.length - 1) * p;
+        const [low, high] = [Math.floor(at), Math.ceil(at)];
+        return (sorted[low] as number) + ((sorted[high] as number) - (sorted[low] as number)) * (at - low);
+      };
+      const width = (values: number[]) => quartile(values, 0.75) - quartile(values, 0.25);
+      const all = [...groups.values()].filter((g) => g.values.length >= 2);
+      if (all.length < 2) return lead;
+      const widest = all.reduce((b, g) => (width(g.values) > width(b.values) ? g : b));
+      const narrowest = all.reduce((b, g) => (width(g.values) < width(b.values) ? g : b));
+      if (width(widest.values) - width(narrowest.values) <= 1e-9) return lead;
+      const half = `its middle half runs from ${show(quartile(widest.values, 0.25))} to ${show(quartile(widest.values, 0.75))}`;
+      // One group leading both reads as one sentence, not its name twice.
+      return widest === best ? `${lead.slice(0, -1)}, and varies the most: ${half}.` : `${lead} ${text(widest.row, group)} varies the most: ${half}.`;
     }
     case "variance": {
       const [label, amount, target] = [one(view.label), one(view.value), one(view.target)];

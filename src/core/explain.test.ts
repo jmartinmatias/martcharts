@@ -339,6 +339,23 @@ describe("explainChart", () => {
     expect(at(rows.slice(0, 10))).toContain("Here, the top day is 2026-09-15, with 225.");
   });
 
+  test("a spread names the group that varies the most, by its middle half, after the highest middle value", () => {
+    const rows = [
+      ...[40, 50, 60, 70, 80].map((v) => ({ region: "North", value: v })),
+      ...[100, 108, 110, 112, 120].map((v) => ({ region: "East", value: v })),
+    ];
+    expect(explainChart({ ...spec({ type: "boxplot", value: "value", group: "region" }), locale: "en-US" }, rows)).toContain(
+      "Here, East has the highest middle value, 110. North varies the most: its middle half runs from 50 to 70.",
+    );
+    expect(explainChart({ ...spec({ type: "ridgeline", value: "value", group: "region" }), locale: "en-US" }, rows)).toContain(
+      "Here, East sits furthest right, with a middle value of 110. North varies the most: its middle half runs from 50 to 70.",
+    );
+    const both = [...[10, 11, 12].map((v) => ({ region: "North", value: v })), ...[60, 100, 140].map((v) => ({ region: "East", value: v }))];
+    expect(explainChart({ ...spec({ type: "boxplot", value: "value", group: "region" }), locale: "en-US" }, both)).toContain(
+      "Here, East has the highest middle value, 100, and varies the most: its middle half runs from 80 to 120.",
+    );
+  });
+
   test("no guide names a hue or a dark shade: presets recolor and dark themes flip, so marks are read by side, shape and fill", () => {
     const guide = (view: Record<string, unknown>) => explainChart({ ...spec(view), locale: "en-US" });
     expect(guide({ type: "variance", label: "department", value: "actual", target: "budget", goodWhen: "down" })).toBe(
