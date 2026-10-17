@@ -8,6 +8,7 @@ import { fork } from "../core/fork.ts";
 import type { Override } from "../core/fork.ts";
 import { runPipeline } from "../core/pipeline.ts";
 import { explainChart } from "../core/explain.ts";
+import { questionOf } from "../core/question.ts";
 import { widgetRef } from "../core/ref.ts";
 import { getBlock } from "../core/registry.ts";
 import type { Issue, Row, WidgetSpec } from "../core/types.ts";
@@ -685,11 +686,14 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     paintGuide();
   }
 
-  /** Writes the guide for what is drawn now, when it is open. */
+  /** Writes the guide for what is drawn now, when it is open: the sales question the chart answers, then how to read it. */
   function paintGuide() {
     if (guide.hidden) return;
-    guide.replaceChildren(make("strong", "fft-guide-label"), explainChart(current, rows));
-    (guide.firstChild as HTMLElement).textContent = "How to read it";
+    const label = make("strong", "fft-guide-label");
+    label.textContent = "How to read it";
+    const question = make("span", "fft-guide-question");
+    question.textContent = questionOf(current, rows).text;
+    guide.replaceChildren(label, question, explainChart(current, rows));
   }
 
   async function runAction(action: WidgetAction, button: HTMLButtonElement) {

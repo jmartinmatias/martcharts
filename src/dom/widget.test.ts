@@ -702,10 +702,17 @@ describe("how to read it", () => {
     await createWidget(target, bar, { actions: ["explain"] }).ready;
     expect([guide()?.hidden, button()?.getAttribute("aria-expanded"), button()?.getAttribute("aria-label")]).toEqual([true, "false", "How to read it"]);
     button()?.click();
-    expect([guide()?.hidden, button()?.getAttribute("aria-expanded"), guide()?.textContent]).toEqual([false, "true", `How to read it${explainChart(bar, sales)}`]);
+    expect([guide()?.hidden, button()?.getAttribute("aria-expanded"), guide()?.textContent]).toEqual([false, "true", `How to read itWhich region has the most revenue?${explainChart(bar, sales)}`]);
     expect(guide()?.textContent).toContain("Here, East is the tallest");
     button()?.click();
     expect(guide()?.hidden).toBe(true);
+  });
+
+  test("the guide opens with the sales question the chart answers, on its own line", async () => {
+    await createWidget(target, bar, { guide: true }).ready;
+    const question = guide()?.querySelector(".fft-guide-question");
+    expect(question?.textContent).toBe("Which region has the most revenue?");
+    expect(question?.previousElementSibling?.className).toBe("fft-guide-label");
   });
 
   test("guide: true shows it from the start, as the expanded view does", async () => {
