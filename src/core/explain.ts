@@ -93,14 +93,32 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
             if (!best || share > best.share) best = { row, field, share };
           }
         }
-        return best && best.share > 0 ? `Here, the largest share is ${nameOf(best.field, spec)} in ${text(best.row, x)}, at ${percent(best.share)}.` : "";
+        if (!best || best.share <= 0) return "";
+        // When one part is the biggest in every bar, say so, with its range from the smallest share to the largest.
+        const shareOf = (row: Row, field: string) => {
+          const total = series.reduce((sum, f) => sum + Math.max(0, value(row, f) ?? 0), 0);
+          return total > 0 ? Math.max(0, value(row, field) ?? 0) / total : 0;
+        };
+        const leader = best.field;
+        const leads = rows.length > 1 && rows.every((row) => series.every((f) => f === leader || shareOf(row, leader) > shareOf(row, f)));
+        if (leads) {
+          const low = rows.reduce((b, r) => (shareOf(r, leader) < shareOf(b, leader) ? r : b));
+          const high = rows.reduce((b, r) => (shareOf(r, leader) > shareOf(b, leader) ? r : b));
+          return `Here, ${nameOf(leader, spec)} is the biggest part in every ${nameOf(x, spec)}, from ${percent(shareOf(low, leader))} in ${text(low, x)} to ${percent(shareOf(high, leader))} in ${text(high, x)}.`;
+        }
+        return `Here, the largest share is ${nameOf(best.field, spec)} in ${text(best.row, x)}, at ${percent(best.share)}.`;
       }
       if (series.length > 1 && view.stacked && view.stacked !== "percent") {
         // A stack's whole height is its total.
         const totals = rows.map((row) => series.reduce((sum, field) => sum + (value(row, field) ?? 0), 0));
         const best = totals.indexOf(Math.max(...totals));
         const row = rows[best];
-        return row ? `Here, ${text(row, x)} has the tallest bar, with ${formatValue(totals[best], spec.fields?.[series[0] as string]?.format, spec.locale)} in all.` : "";
+        if (!row) return "";
+        // And what the tallest bar is made of: its biggest part, as a share of it.
+        const total = totals[best] as number;
+        const part = series.reduce((b, f) => ((value(row, f) ?? 0) > (value(row, b) ?? 0) ? f : b), series[0] as string);
+        const made = total > 0 ? `, ${percent(Math.max(0, value(row, part) ?? 0) / total)} of it ${nameOf(part, spec)}` : "";
+        return `Here, ${text(row, x)} has the tallest bar, with ${formatValue(total, spec.fields?.[series[0] as string]?.format, spec.locale)} in all${made}.`;
       }
       if (series.length === 2 && !view.stacked) {
         // Two measures side by side: for how many is the first higher, and where is the gap biggest?
@@ -602,7 +620,11 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const share = (row: Row) => (value(row, amount) ?? 0) / (value(row, target) || 1);
       const row = rows.filter((r) => (value(r, target) ?? 0) > 0).reduce<Row | undefined>((best, r) => (best && share(best) >= share(r) ? best : r), undefined);
       if (!row) return "";
-      return share(row) >= 1 ? `Here, ${text(row, label)} has reached its goal, at ${percent(share(row))}.` : `Here, ${text(row, label)} is closest to its goal, at ${percent(share(row))}.`;
+      // As other goal charts: who reached it, by name; when no one has, who is closest.
+      const measured = rows.filter((r) => value(r, amount) !== null && (value(r, target) ?? 0) > 0);
+      const reached = measured.filter((r) => share(r) >= 1);
+      if (!reached.length) return `Here, none of the ${measured.length} has reached its goal yet; ${text(row, label)} is closest, at ${percent(share(row))}.`;
+      return goalLine(measured.length, reached, label, "reached");
     }
     case "bullet": {
       const [amount, target] = [one(view.value), one(view.target)];
