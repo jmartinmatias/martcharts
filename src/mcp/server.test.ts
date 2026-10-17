@@ -105,6 +105,14 @@ describe("tools", () => {
     expect((await store.list()).map((w) => w.id)).toEqual(["sales-by-region", "visits"]);
   });
 
+  test("fft_get_widget_data says how to read the chart in plain words, with an example from its rows", async () => {
+    const { call } = await connect();
+    const json = await call("fft_get_widget_data", { id: "sales-by-region", response_format: "json" });
+    const howToRead = String(json.data?.howToRead);
+    const markdown = await call("fft_get_widget_data", { id: "sales-by-region" });
+    expect([howToRead.startsWith("Each bar is one region."), howToRead.includes("Here, East is the tallest"), markdown.text.includes(`How to read it: ${howToRead}`)]).toEqual([true, true, true]);
+  });
+
   test("a ref that matches no widget says how to find one", async () => {
     const { call } = await connect();
     const { isError, text } = await call("fft_get_widget", { id: "W-ZZZZ" });
