@@ -122,5 +122,12 @@
     "y": "value",
     "series": "stage",
     "label": "deal"
+  },
+  "style": {
+    "palette": [
+      "#2a78d6",
+      "#c38300",
+      "#6250d6"
+    ]
   }
 }

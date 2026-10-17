@@ -1,6 +1,11 @@
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, test } from "vitest";
-import { checkPalette, parseHex } from "./color.ts";
+import { createLocalFetch } from "../mcp/store.ts";
+import { checkPalette, oklch, parseHex } from "./color.ts";
 import { describePalettes, getPalette, registerPalette, resolvePalette } from "./palettes.ts";
+import { runPipeline } from "./pipeline.ts";
+import type { WidgetSpec } from "./types.ts";
 
 describe("palette library", () => {
   test("ships the house palettes and five acclaimed ones", () => {
@@ -86,5 +91,29 @@ describe("resolvePalette", () => {
 
   test("with neither, there is no override", () => {
     expect([resolvePalette({}), resolvePalette(undefined), resolvePalette({ palette: "default" })]).toEqual([undefined, undefined, undefined]);
+  });
+});
+
+describe("color meaning in sales", () => {
+  test("no stored widget paints a losing outcome green, since green reads as good news", async () => {
+    const LOSING = /^(lost|churned|missed|declined|failed|cancelled)$/i;
+    const green = (hex: string) => oklch(hex)[2] >= 120 && oklch(hex)[2] < 180 && oklch(hex)[1] > 0.05;
+    const fetch = createLocalFetch("public");
+    const house = getPalette("default");
+    const offenders: string[] = [];
+    for (const name of readdirSync("widgets").filter((n) => n.endsWith(".json"))) {
+      const spec = JSON.parse(readFileSync(join("widgets", name), "utf8")) as WidgetSpec;
+      const field = typeof spec.view?.series === "string" ? spec.view.series : undefined;
+      if (!field) continue;
+      const rows = await runPipeline(spec, { fetch });
+      const order = [...new Set(rows.map((row) => String(row[field])))];
+      for (const palette of [resolvePalette(spec.style) ?? house?.colors ?? [], ...(resolvePalette(spec.style) ? [] : [house?.darkColors ?? []])]) {
+        order.forEach((value, i) => {
+          const color = palette[i % palette.length];
+          if (LOSING.test(value) && color && green(color)) offenders.push(`${spec.id}: ${value} is ${color}`);
+        });
+      }
+    }
+    expect(offenders).toEqual([]);
   });
 });
