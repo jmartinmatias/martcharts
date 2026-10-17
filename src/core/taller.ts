@@ -533,7 +533,8 @@ const PATTERNS: Pattern[] = [
     moves: ["distill"],
     marks: "smooth",
     fits: (d) => perPeriod(d),
-    make: (d) => ({ view: { type: "kpi", value: m1(d), x: t1(d), series: true } }),
+    // The target the chart is about stays with its number: the card then says whether the latest reached it.
+    make: (d) => ({ view: { type: "kpi", value: m1(d), x: t1(d), series: true, ...(d.target ? { target: d.target } : {}) } }),
   },
   {
     id: "numbers",
@@ -541,7 +542,8 @@ const PATTERNS: Pattern[] = [
     moves: ["distill"],
     marks: "smooth",
     fits: (d) => d.measures.length >= 2 && (perPeriod(d, 1) || d.rows === 1),
-    make: (d) => ({ view: { type: "kpis", items: d.measures.slice(0, 3).map((value) => ({ value })) } }),
+    // Over time the tiles read the latest period (and draw a sparkline each), never the first row.
+    make: (d) => ({ view: { type: "kpis", ...(d.times.length ? { series: true } : {}), items: d.measures.slice(0, 3).map((value) => ({ value, ...(d.target && value === m1(d) ? { target: d.target } : {}) })) } }),
   },
   {
     id: "calendar",
