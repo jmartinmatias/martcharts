@@ -8,6 +8,7 @@ import { linePath } from "../layout.ts";
 import { countable } from "../count-up.ts";
 import { deltaElement } from "./delta.ts";
 import { html, svg } from "./shared.ts";
+import { checkMark } from "./target.ts";
 
 /** Sparkline height in pixels: a Fibonacci step. */
 const SPARK_HEIGHT = 34;
@@ -23,7 +24,7 @@ const SPARK_HEIGHT = 34;
  */
 export const renderKpi: ViewRenderer<KpiView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
-  const { value: field, compare, goodWhen = "up", label, series, x } = ctx.view;
+  const { value: field, compare, goodWhen = "up", label, series, x, target } = ctx.view;
   const rows = ctx.rows;
   const row = (series ? rows[rows.length - 1] : rows[0]) ?? {};
   const previous: Row | undefined = series ? rows[rows.length - 2] : undefined;
@@ -56,6 +57,17 @@ export const renderKpi: ViewRenderer<KpiView> = (ctx) => {
         ? `vs ${ctx.format(previous[x], x)}`
         : "vs previous period";
     box.append(deltaElement(doc, (now - before) / Math.abs(before), goodWhen, ctx.view.compareLabel ?? fallbackLabel, ctx.spec.locale));
+  }
+  // With a target, one plain line says where the latest stands: met, or how far it has to go (or, when lower is better, how far above).
+  const goal = target ? readNumber(row[target]) : null;
+  if (now !== null && goal !== null) {
+    const met = goodWhen === "down" ? now <= goal : now >= goal;
+    const line = html(doc, "div", "fft-kpi-target");
+    if (met) {
+      line.dataset.met = "true";
+      line.append(checkMark(doc), `Target met: ${show(goal)}`);
+    } else line.append(goodWhen === "down" ? `${show(now - goal)} above the ${show(goal)} target` : `${show(goal - now)} to go to the ${show(goal)} target`);
+    box.append(line);
   }
   if (series && rows.length > 1) box.append(sparkline(ctx, rows.map((r) => readNumber(r[field]))));
   ctx.el.append(box);

@@ -402,9 +402,16 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const known = rows.filter((row) => value(row, amount) !== null);
       const [before, now] = [known.at(-2), known.at(-1)];
       if (!now) return "";
-      if (!before) return `Here, it is ${text(now, amount)}.`;
-      const [a, b] = [value(before, amount) as number, value(now, amount) as number];
-      return `Here, it is ${text(now, amount)}, ${b > a ? "up from" : b < a ? "down from" : "the same as"} ${text(before, amount)}.`;
+      // Against a target: past or short of it, or for a lower-is-better number, under or above it. In the number's own format.
+      const goalField = one(view.target);
+      const goal = goalField ? value(now, goalField) : null;
+      const latest = value(now, amount) as number;
+      const down = view.goodWhen === "down";
+      const against =
+        goal === null ? "" : `, ${down ? (latest <= goal ? "under" : "above") : latest >= goal ? "past" : "short of"} its target of ${formatValue(goal, spec.fields?.[amount]?.format, spec.locale)}`;
+      if (!before) return `Here, it is ${text(now, amount)}${against}.`;
+      const a = value(before, amount) as number;
+      return `Here, it is ${text(now, amount)}, ${latest > a ? "up from" : latest < a ? "down from" : "the same as"} ${text(before, amount)}${against}.`;
     }
     case "table": {
       // The first text column names the rows; the first number column is what they are compared on.
@@ -490,7 +497,7 @@ function guide(spec: WidgetSpec): string {
       if (view.stacked) return `Colored layers stack on top of each other, ${over(one(view.x))}; the top edge is the total and each layer's thickness is its part.`;
       return `The filled shape shows how ${name(series[0])} changes ${over(one(view.x))}: higher means more.${colors}${forecast}`;
     case "kpi":
-      return `The big number is ${name(one(view.value))}. The small arrow says whether it went up or down since last time.`;
+      return `The big number is ${name(one(view.value))}. The small arrow says whether it went up or down since last time${one(view.target) ? ", and the line under it says whether it reached its target" : ""}.`;
     case "kpis":
       return "Each tile is one key number, with a small arrow that says whether it went up or down since last time.";
     case "meter":

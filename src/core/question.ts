@@ -148,6 +148,7 @@ export function questionOf(spec: WidgetSpec, rows: Row[] = []): Question {
     }
     case "kpi": {
       const value = one(view.value);
+      if (value && one(view.target)) return ask("target", `${be(name(value))} ${name(value)} on target?`);
       if (value) return ask("number", `${be(name(value))} ${name(value)} going up or down?`);
       break;
     }

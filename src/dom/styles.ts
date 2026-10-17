@@ -467,6 +467,9 @@ export const BASE_CSS = `
 .fft-meter-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .fft-meter-gap { font-size: 11px; line-height: 13px; color: var(--fft-text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .fft-meter[data-met] .fft-meter-gap { color: var(--fft-positive); font-weight: 600; }
+/* Where a headline number stands against its target, under its change. */
+.fft-kpi-target { display: flex; align-items: center; gap: 3px; font-size: 11px; line-height: 13px; color: var(--fft-text-secondary); font-variant-numeric: tabular-nums; }
+.fft-kpi-target[data-met] { color: var(--fft-positive); font-weight: 600; }
 /* Where a gauge's number stands against its goal, centered under the arc. */
 .fft-gauge-standing { display: flex; align-items: center; justify-content: center; gap: 3px; margin: 0; font-size: 13px; line-height: 21px; color: var(--fft-text-secondary); font-variant-numeric: tabular-nums; }
 .fft-gauge-standing[data-met] { color: var(--fft-positive); font-weight: 600; }

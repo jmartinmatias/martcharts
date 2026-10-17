@@ -412,6 +412,7 @@ One headline number with its change against a comparison. Reads the first row, o
 | `series` | boolean |  | `false` | Read the rows as a time series: the headline is the last row, the change is against the row before (unless compare is set), and a sparkline shows every row. |
 | `x` | field name (date) |  |  | With series, the field naming each period, used to label the comparison ("vs Aug 2026"). |
 | `icon` | `activity`, `alert`, `bolt`, `cart`, `check`, `clock`, `droplet`, `heart`, `mail`, `pin`, `revenue`, `target`, `trend`, `users` |  |  | A line icon on a soft tile beside the number. |
+| `target` | field name (number) |  |  | Field holding the target. A line under the number says where the latest stands: a check and Target met, or how far it has to go (with goodWhen down, how far above the target it is). |
 
 ### `kpis`
 

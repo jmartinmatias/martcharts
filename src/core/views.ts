@@ -45,6 +45,7 @@ export interface KpiView {
   series?: boolean;
   x?: string;
   icon?: string;
+  target?: string;
 }
 
 /** One tile in a `kpis` row. */
@@ -472,6 +473,11 @@ const kpi: ViewBlock = {
     },
     x: { type: "field", kind: "date", description: 'With series, the field naming each period, used to label the comparison ("vs Aug 2026").' },
     icon: { type: "enum", values: ICON_NAMES, description: "A line icon on a soft tile beside the number." },
+    target: {
+      type: "field",
+      kind: "number",
+      description: "Field holding the target. A line under the number says where the latest stands: a check and Target met, or how far it has to go (with goodWhen down, how far above the target it is).",
+    },
   },
 };
 

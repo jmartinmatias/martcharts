@@ -224,6 +224,23 @@ describe("kpi view in series mode", () => {
     expect([...texts(".fft-kpi-value"), ...texts(".fft-kpi-change"), ...texts(".fft-kpi-compare")]).toEqual(["€1.3M", "▲ +12.4%", "vs Aug 2026"]);
   });
 
+  test("with a target, a line under the number says where the latest stands: met, or how far to go", async () => {
+    const targeted = months.map((row, i) => ({ ...row, target: [1_100_000, 1_150_000, 1_200_000][i] }));
+    await draw({ rows: targeted, fields, view: { type: "kpi", value: "revenue", series: true, x: "month", target: "target" } });
+    const met = [texts(".fft-kpi-target"), Boolean(target.querySelector(".fft-kpi-target .fft-check"))];
+    await draw({ rows: targeted.map((row) => ({ ...row, target: 1_334_000 })), fields, view: { type: "kpi", value: "revenue", series: true, x: "month", target: "target" } });
+    const short = all(".fft-kpi-target").at(-1)?.textContent;
+    expect([met, short]).toEqual([[["Target met: €1.2M"], true], "€50K to go to the €1.3M target"]);
+  });
+
+  test("when lower is better, a target is met at or under it, and a miss says how far above it the number is", async () => {
+    const churn = [{ month: "2026-09", rate: 3.1, cap: 3 }];
+    await draw({ rows: churn, view: { type: "kpi", value: "rate", series: true, x: "month", goodWhen: "down", target: "cap" } });
+    const over = texts(".fft-kpi-target").at(-1);
+    await draw({ rows: [{ month: "2026-09", rate: 2.8, cap: 3 }], view: { type: "kpi", value: "rate", series: true, x: "month", goodWhen: "down", target: "cap" } });
+    expect([over, texts(".fft-kpi-target").at(-1)]).toEqual(["0.1 above the 3 target", "Target met: 3"]);
+  });
+
   test("draws a sparkline through every row with the latest point marked", async () => {
     await draw({ rows: months, fields, view: { type: "kpi", value: "revenue", series: true, x: "month" } });
     const d = target.querySelector("svg.fft-sparkline path.fft-spark-line")?.getAttribute("d") ?? "";

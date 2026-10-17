@@ -38,7 +38,8 @@ describe("questionOf", () => {
     expect(ask("traffic-stream").text).toBe("Which part is growing, week by week?");
     expect(ask("product-mix-trend").text).toBe("How is the share of each of the 6 parts changing, month by month?");
     expect(ask("product-ranking").text).toBe("How does the ranking of products change, month by month?");
-    expect(ask("revenue-kpi")).toEqual({ kind: "number", text: "Is monthly revenue going up or down?" });
+    expect(ask("revenue-kpi")).toEqual({ kind: "target", text: "Is monthly revenue on target?" });
+    expect(ask("churn-kpi")).toEqual({ kind: "number", text: "Is monthly churn going up or down?" });
     expect(ask("new-customers-kpi").text).toBe("Are customers won going up or down?");
   });
 
@@ -115,6 +116,11 @@ describe("questionOf", () => {
     expect(questionOf({ ...base, view: { type: "donut", label: "region", value: "q3_2025" } }).text).toBe("What share of the Q3 2025 total comes from each region?");
     expect(questionOf({ ...base, view: { type: "pareto", label: "region", value: "q3_2025" } }).text).toBe("Which few regions drive most of the Q3 2025 total?");
     expect(questionOf({ ...base, view: { type: "histogram", value: "q3_2025" } }).text).toBe("How spread out are the values in Q3 2025?");
+  });
+
+  test("a headline number with a target asks whether it is on target", () => {
+    const spec: WidgetSpec = { data: { type: "inline", rows: [] }, fields: { revenue: { label: "Monthly revenue" } }, view: { type: "kpi", value: "revenue", target: "target" } };
+    expect(questionOf(spec)).toEqual({ kind: "target", text: "Is monthly revenue on target?" });
   });
 
   test("a row of numbers names them when there are few", () => {

@@ -31,6 +31,7 @@
     "value": "revenue",
     "series": true,
     "x": "month",
-    "icon": "revenue"
+    "icon": "revenue",
+    "target": "target"
   }
 }

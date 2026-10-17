@@ -182,6 +182,18 @@ describe("explainChart", () => {
     expect(average).not.toContain("target");
   });
 
+  test("a headline number with a target says what the line under it means, and where the latest ended", () => {
+    const view = { type: "kpi", value: "revenue", series: true, x: "month", target: "target" };
+    const rows = [
+      { month: "Aug", revenue: 1100, target: 1150 },
+      { month: "Sep", revenue: 1284, target: 1200 },
+    ];
+    expect(explainChart({ ...spec(view), locale: "en-US" }, rows)).toBe(
+      "The big number is revenue. The small arrow says whether it went up or down since last time, and the line under it says whether it reached its target. Here, it is 1,284, up from 1,100, past its target of 1,200.",
+    );
+    expect(explainChart({ ...spec({ ...view, goodWhen: "down" }), locale: "en-US" }, rows)).toContain("Here, it is 1,284, up from 1,100, above its target of 1,200.");
+  });
+
   test("no guide names a hue or a dark shade: presets recolor and dark themes flip, so marks are read by side, shape and fill", () => {
     const guide = (view: Record<string, unknown>) => explainChart({ ...spec(view), locale: "en-US" });
     expect(guide({ type: "variance", label: "department", value: "actual", target: "budget", goodWhen: "down" })).toBe(
