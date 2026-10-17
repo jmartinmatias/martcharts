@@ -117,6 +117,19 @@ export function isNumericColumn(rows: Row[], field: string): boolean {
  * With `interactive`, each body row can be focused and selected.
  */
 /** Column context for cell formats that need it: the largest absolute value for `bar` columns, so bars share one scale, and one min and max across all `heat` columns. */
+/**
+ * One decimal for every short figure in a column when some have one and some do not ("€214K" above "€188.5K"), so
+ * the column lines up; undefined when the column is already even, or its numbers are not short (compact).
+ */
+function sharedPlaces(ctx: ViewContext<{ type: string }>, rows: Row[], field: string): number | undefined {
+  const format = ctx.spec.fields?.[field]?.format;
+  const own = typeof format === "object" ? format : undefined;
+  const inner = own?.type === "bar" && typeof own.format === "object" ? (own.format as Record<string, unknown>) : own;
+  if (!inner?.compact || typeof inner.decimals === "number") return undefined;
+  const shown = rows.filter((row) => readNumber(row[field]) !== null).map((row) => /\d[.,]\d/.test(ctx.format(row[field], field)));
+  return shown.some(Boolean) && !shown.every(Boolean) ? 1 : undefined;
+}
+
 export function columnContext(ctx: ViewContext<{ type: string }>, rows: Row[], columns: string[]): Map<string, Record<string, unknown>> {
   const out = new Map<string, Record<string, unknown>>();
   const typeOf = (field: string) => {
@@ -128,11 +141,17 @@ export function columnContext(ctx: ViewContext<{ type: string }>, rows: Row[], c
   const heatValues = heatFields.flatMap((field) => rows.map((row) => readNumber(row[field])).filter((n): n is number => n !== null));
   for (const field of heatFields) out.set(field, { min: Math.min(...heatValues), max: Math.max(...heatValues) });
   for (const field of columns) {
-    if (typeOf(field) !== "bar") continue;
+    const places = sharedPlaces(ctx, rows, field);
+    if (typeOf(field) !== "bar") {
+      if (places !== undefined) out.set(field, { places });
+      continue;
+    }
     // chars: the longest number in the column, so every cell's number takes that width and the bars line up.
     out.set(field, {
       max: Math.max(0, ...rows.map((row) => Math.abs(readNumber(row[field]) ?? 0))) || 1,
-      chars: Math.max(1, ...rows.map((row) => ctx.format(row[field], field).length)),
+      // With shared places, a whole figure gains its ".0".
+      chars: Math.max(1, ...rows.map((row) => ctx.format(row[field], field)).map((text) => text.length + (places && !/\d[.,]\d/.test(text) ? 2 : 0))),
+      ...(places !== undefined ? { places } : {}),
     });
   }
   return out;

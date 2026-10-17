@@ -98,6 +98,13 @@ describe("bar format", () => {
   });
 });
 
+describe("compact with decimals", () => {
+  test("the decimals asked for win over the compact default of one", () => {
+    const money = (decimals: number) => ({ type: "currency", currency: "EUR", compact: true, decimals });
+    expect([formatValue(188500, money(0), en), formatValue(188500, money(2), en), formatValue(188500, { type: "number", compact: true, decimals: 0 }, en)]).toEqual(["€189K", "€188.50K", "189K"]);
+  });
+});
+
 describe("negative numbers", () => {
   test("print a true minus sign, as wide as the plus it pairs with and read as minus", () => {
     expect([formatValue(-84000, { type: "currency", currency: "EUR", compact: true }, en), formatValue(-12, undefined, en), formatValue(-0.05, "percent", en)]).toEqual(["\u2212€84K", "\u221212", "\u22125%"]);

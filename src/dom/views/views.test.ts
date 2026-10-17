@@ -178,6 +178,17 @@ describe("table sorting and totals", () => {
 });
 
 describe("list view", () => {
+  test("a column of short figures shares one precision, so the figures line up: €214.0K above €188.5K, never €214K", async () => {
+    const money = { type: "bar", format: { type: "currency", currency: "EUR", compact: true } };
+    const customers = [{ name: "Aurora", revenue: 214000 }, { name: "Bellwether", revenue: 188500 }, { name: "Cobalt", revenue: 172300 }];
+    await draw({ rows: customers, fields: { revenue: { format: money } }, view: { type: "list", label: "name", value: "revenue" } });
+    const mixed = texts(".fft-item-value");
+    target.replaceChildren();
+    const round = [{ name: "A", revenue: 214000 }, { name: "B", revenue: 188000 }];
+    await draw({ rows: round, fields: { revenue: { format: money } }, view: { type: "list", label: "name", value: "revenue" } });
+    expect([mixed, texts(".fft-item-value")]).toEqual([["€214.0K", "€188.5K", "€172.3K"], ["€214K", "€188K"]]);
+  });
+
   const customers = [{ name: "Acme", country: "LU", revenue: 1200 }];
 
   test("each row becomes an item with label, detail and formatted value", async () => {

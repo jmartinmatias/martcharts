@@ -18,8 +18,10 @@ function fractionDigits(decimals: unknown): Intl.NumberFormatOptions {
   return typeof decimals === "number" ? { minimumFractionDigits: decimals, maximumFractionDigits: decimals } : {};
 }
 
-function compactOptions(compact: unknown): Intl.NumberFormatOptions {
-  return compact ? { notation: "compact", maximumFractionDigits: 1 } : {};
+function compactOptions(compact: unknown, places?: unknown): Intl.NumberFormatOptions {
+  if (!compact) return {};
+  // A column's shared places (from its column context), so its figures line up: €214.0K above €188.5K, never €214K.
+  return typeof places === "number" ? { notation: "compact", minimumFractionDigits: places, maximumFractionDigits: places } : { notation: "compact", maximumFractionDigits: 1 };
 }
 
 function numeric(value: unknown, locale: string | undefined, options: Intl.NumberFormatOptions): string {
@@ -34,7 +36,8 @@ const number: FormatBlock = {
     decimals: { type: "number", description: "Exact number of decimal places." },
     compact: { type: "boolean", default: false, description: "Shorten large numbers: 1.2K, 3.4M." },
   },
-  format: (value, o, locale) => numeric(value, locale, { ...fractionDigits(o.decimals), ...compactOptions(o.compact) }),
+  // The decimals asked for win over the compact default of one.
+  format: (value, o, locale) => numeric(value, locale, { ...compactOptions(o.compact, o.decimals === undefined ? o.places : undefined), ...fractionDigits(o.decimals) }),
 };
 
 const currency: FormatBlock = {
@@ -49,8 +52,8 @@ const currency: FormatBlock = {
     numeric(value, locale, {
       style: "currency",
       currency: typeof o.currency === "string" ? o.currency : "USD",
+      ...compactOptions(o.compact, o.decimals === undefined ? o.places : undefined),
       ...fractionDigits(o.decimals),
-      ...compactOptions(o.compact),
     }),
 };
 
@@ -207,7 +210,7 @@ const bar: FormatBlock = {
     const spec = (options.format as FormatSpec | undefined) ?? { type: "number", compact: true };
     const { type, ...inner } = typeof spec === "string" ? { type: spec } : spec;
     const block = [number, currency, percent, date, text].find((b) => b.type === type) ?? number;
-    return block.format(value, inner, locale);
+    return block.format(value, typeof options.places === "number" ? { places: options.places, ...inner } : inner, locale);
   },
   element(value, options, locale, doc) {
     const amount = readNumber(value);
