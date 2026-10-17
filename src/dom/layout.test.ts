@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { arcPath, areaPath, bands, barPath, goldenHeight, layoutBars, layoutStacked, layoutWaterfall, linearScale, linePath, niceTicks, PHI, quantize, squarify, swarm, layoutSankey, density, quantile, dodge, binValues, allocate, bandPath, spread, fitLabels, sectorPath, smoothBands } from "./layout.ts";
+import { arcPath, areaPath, bands, barPath, goldenHeight, layoutBars, layoutStacked, layoutWaterfall, linearScale, linePath, niceTicks, PHI, quantize, squarify, swarm, layoutSankey, density, quantile, dodge, binValues, allocate, bandPath, spread, fitLabels, sectorPath, smoothBands, curveLine, curveArea } from "./layout.ts";
 
 describe("niceTicks", () => {
   test.each([
@@ -457,5 +457,45 @@ describe("smoothBands", () => {
   test("a band never folds over the one below, even where a layer drops to nothing beside a spike", () => {
     const [band = ""] = smoothBands([at([100, 100, 100, 100]), at([100, 100, 40, 100])]);
     expect(Math.max(...ys(band))).toBeLessThanOrEqual(100);
+  });
+});
+
+describe("curveLine and curveArea", () => {
+  const pts = [{ x: 0, y: 50 }, { x: 10, y: 10 }, { x: 20, y: 30 }, { x: 30, y: 30 }];
+  const pairs = (d: string) => [...d.matchAll(/(-?[\d.]+),(-?[\d.]+)/g)].map((m) => [Number(m[1]), Number(m[2])] as const);
+
+  test("linear is the plain polyline", () => {
+    expect(curveLine(pts, "linear")).toBe(linePath(pts));
+  });
+
+  test("smooth passes through every point and never overshoots one: each segment stays between its two ends", () => {
+    const d = curveLine(pts, "smooth");
+    expect(d.startsWith("M0,50C")).toBe(true);
+    const segments = d.slice(1).split("C").slice(1);
+    let start = pts[0] as { x: number; y: number };
+    segments.forEach((segment, i) => {
+      const [c1, c2, end] = pairs(segment);
+      const lo = Math.min(start.y, end?.[1] ?? 0);
+      const hi = Math.max(start.y, end?.[1] ?? 0);
+      expect([c1?.[1], c2?.[1]].every((y) => (y ?? 0) >= lo - 1e-6 && (y ?? 0) <= hi + 1e-6)).toBe(true);
+      expect(end).toEqual([pts[i + 1]?.x, pts[i + 1]?.y]);
+      start = pts[i + 1] as { x: number; y: number };
+    });
+  });
+
+  test("step holds each value until halfway to the next, so every turn is a right angle", () => {
+    const corners = pairs(curveLine(pts, "step"));
+    expect(corners.every(([x, y], i) => i === 0 || x === corners[i - 1]?.[0] || y === corners[i - 1]?.[1])).toBe(true);
+    expect(corners.map(([, y]) => y)).toContain(10);
+  });
+
+  test("gaps in the data break every curve", () => {
+    const gappy = [pts[0] ?? null, pts[1] ?? null, null, pts[2] ?? null, pts[3] ?? null];
+    expect(["linear", "smooth", "step"].map((curve) => curveLine(gappy, curve as "linear").match(/M/g)?.length)).toEqual([2, 2, 2]);
+  });
+
+  test("an area closes its curve down to the baseline", () => {
+    const d = curveArea(pts, 60, "smooth");
+    expect([d.includes("C"), d.endsWith("Z"), d.includes("30,60"), d.includes("0,60")]).toEqual([true, true, true, true]);
   });
 });

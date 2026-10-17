@@ -186,6 +186,84 @@ export function areaPath(points: ({ x: number; y: number } | null)[], baseline: 
   return d;
 }
 
+/** How a line runs between its points: straight, smooth without ever swinging past a point, or in steps. */
+export type Curve = "linear" | "smooth" | "step";
+
+type XY = { x: number; y: number };
+
+/** Unbroken runs of points, split at the gaps. */
+function runsOf(points: (XY | null)[]): XY[][] {
+  const out: XY[][] = [[]];
+  for (const point of points) {
+    if (point) (out.at(-1) as XY[]).push(point);
+    else if ((out.at(-1) as XY[]).length) out.push([]);
+  }
+  return out.filter((run) => run.length > 0);
+}
+
+/**
+ * A curve through every point of a run, as "x,y" then cubic segments, with Steffen's monotone tangents: each
+ * segment stays between its two ends, so a smooth line never shows a value the data does not have.
+ */
+function monotone(run: XY[]): string {
+  const n = run.length;
+  const slope = (i: number) => {
+    const a = run[i] as XY;
+    const b = run[i + 1] as XY;
+    return b.x === a.x ? 0 : (b.y - a.y) / (b.x - a.x);
+  };
+  const tangents = run.map((_, i) => {
+    if (i === 0) return slope(0);
+    if (i === n - 1) return slope(n - 2);
+    const [s0, s1] = [slope(i - 1), slope(i)];
+    const h0 = (run[i] as XY).x - (run[i - 1] as XY).x;
+    const h1 = (run[i + 1] as XY).x - (run[i] as XY).x;
+    const p = (s0 * h1 + s1 * h0) / (h0 + h1 || 1);
+    return (Math.sign(s0) + Math.sign(s1)) * Math.min(Math.abs(s0), Math.abs(s1), 0.5 * Math.abs(p));
+  });
+  const at = (p: XY) => `${px(p.x)},${px(p.y)}`;
+  let d = at(run[0] as XY);
+  for (let i = 0; i < n - 1; i++) {
+    const a = run[i] as XY;
+    const b = run[i + 1] as XY;
+    const third = (b.x - a.x) / 3;
+    d += `C${px(a.x + third)},${px(a.y + (tangents[i] ?? 0) * third)} ${px(b.x - third)},${px(b.y - (tangents[i + 1] ?? 0) * third)} ${at(b)}`;
+  }
+  return d;
+}
+
+/** A run as steps: each value held until halfway to the next, so every turn is a right angle. */
+function stepped(run: XY[]): XY[] {
+  return run.flatMap((p, i) => {
+    const next = run[i + 1];
+    if (!next) return [p];
+    const mid = (p.x + next.x) / 2;
+    return [p, { x: mid, y: p.y }, { x: mid, y: next.y }];
+  });
+}
+
+/** SVG path for a line in the given curve, broken at gaps like `linePath`. */
+export function curveLine(points: (XY | null)[], curve: Curve = "linear"): string {
+  if (curve === "linear") return linePath(points);
+  return runsOf(points)
+    .map((run) => (run.length < 2 || curve === "step" ? linePath(curve === "step" ? stepped(run) : run) : `M${monotone(run)}`))
+    .join("");
+}
+
+/** SVG path for the area under a line in the given curve, each run closed down to `baseline`. */
+export function curveArea(points: (XY | null)[], baseline: number, curve: Curve = "linear"): string {
+  if (curve === "linear") return areaPath(points, baseline);
+  return runsOf(points)
+    .filter((run) => run.length > 1)
+    .map((run) => {
+      const first = run[0] as XY;
+      const last = run.at(-1) as XY;
+      const top = curve === "step" ? stepped(run).map((p) => `${px(p.x)},${px(p.y)}`).join("L") : monotone(run);
+      return `M${top}L${px(last.x)},${px(baseline)}L${px(first.x)},${px(baseline)}Z`;
+    })
+    .join("");
+}
+
 /** A point on a circle, with angle 0 at twelve o'clock and angles growing clockwise. */
 export function polar(cx: number, cy: number, r: number, angle: number): { x: number; y: number } {
   return { x: cx + r * Math.sin(angle), y: cy - r * Math.cos(angle) };

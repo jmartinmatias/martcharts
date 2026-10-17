@@ -13,7 +13,7 @@ import type { FormatSpec } from "../../core/types.ts";
 import type { TooltipItem, ViewContext, ViewRenderer } from "../../core/view-context.ts";
 import { isForecast } from "../../core/views.ts";
 import type { AreaView, BarView, LineView } from "../../core/views.ts";
-import { areaPath, bandPath, bands, barPath, fitLabels, layoutBars, layoutStacked, linearScale, linePath, smoothBands, spread } from "../layout.ts";
+import { bandPath, bands, barPath, curveArea, curveLine, fitLabels, layoutBars, layoutStacked, linearScale, linePath, smoothBands, spread } from "../layout.ts";
 import type { LabelBox } from "../layout.ts";
 import { buildTable, fieldList, html, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
@@ -102,6 +102,8 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
   const stream = kind === "area" && stacked === "stream";
   // Forecast fans (lines and unstacked areas): forecast rows draw dashed from the last actual on, over a shaded low to high band.
   const fanView = kind === "line" || (kind === "area" && !stacked) ? (view as LineView | AreaView) : undefined;
+  // The line's texture: straight, smooth or stepped. Stacked bands keep straight edges, so their lines match them.
+  const curve = fanView?.curve ?? "linear";
   const forecastField = fanView?.forecast;
   const forecastAt = forecastField ? rows.findIndex((row) => isForecast(row[forecastField])) : -1;
   const band = fanView?.band;
@@ -300,7 +302,7 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
       } else if (kind === "area") {
         // With a forecast, the wash splits at the last actual: the forecast's part is fainter, a value not yet real.
         const floorY = y(Math.max(y.domain[0], Math.min(0, y.domain[1])));
-        const wash = svg(doc, "path", { class: "fft-area", d: areaPath(forecastAt > 0 ? points.map((p, i) => (i < forecastAt ? p : null)) : points, floorY) });
+        const wash = svg(doc, "path", { class: "fft-area", d: curveArea(forecastAt > 0 ? points.map((p, i) => (i < forecastAt ? p : null)) : points, floorY, curve) });
         if (forecastAt === 0) wash.setAttribute("data-forecast", "");
         if (getPreset(ctx.spec.style?.preset)?.marks?.areaGradient) {
           const id = `fft-gradient-${++gradients}`;
@@ -320,7 +322,7 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
         }
         washes.append(wash);
         if (forecastAt > 0) {
-          const ahead = svg(doc, "path", { class: "fft-area", d: areaPath(points.map((p, i) => (i >= forecastAt - 1 ? p : null)), floorY), "data-forecast": "" });
+          const ahead = svg(doc, "path", { class: "fft-area", d: curveArea(points.map((p, i) => (i >= forecastAt - 1 ? p : null)), floorY, curve), "data-forecast": "" });
           const gradient = wash.getAttribute("fill");
           if (gradient) {
             ahead.setAttribute("fill", gradient);
@@ -335,13 +337,13 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
       const solid = forecastAt < 0 ? points : points.map((p, i) => (i < forecastAt ? p : null));
       const ahead = forecastAt < 0 ? [] : points.map((p, i) => (i >= forecastAt - 1 ? p : null));
       if (solid.some(Boolean)) {
-        const line = svg(doc, "path", { class: "fft-line", d: linePath(solid), pathLength: 1 });
+        const line = svg(doc, "path", { class: "fft-line", d: curveLine(solid, curve), pathLength: 1 });
         line.style.setProperty("stroke", seriesColor(s));
         line.dataset.series = series[s] ?? "";
         chart.append(line);
       }
       if (ahead.some(Boolean)) {
-        const line = svg(doc, "path", { class: "fft-line", d: linePath(ahead), "data-forecast": "" });
+        const line = svg(doc, "path", { class: "fft-line", d: curveLine(ahead, curve), "data-forecast": "" });
         line.style.setProperty("stroke", seriesColor(s));
         line.dataset.series = series[s] ?? "";
         chart.append(line);

@@ -77,8 +77,9 @@ All tools validate input; bad input comes back as a tool error that says how to 
 | `fft_list_blocks` | yes | Every data source, transform, format and view with its options. Filter with `kind`. |
 | `fft_check_palette` | yes | Checks a palette (a library name or hex colors) for colorblind separation, neighbour separation, lightness, colorfulness and contrast, on a light or dark background. |
 | `fft_validate_spec` | yes | Checks a draft spec without saving. With `check_data` (default true) also loads the data and warns about missing fields. |
+| `fft_create_variants` | yes | The Taller: a seeded menu of new versions of a widget (new form, colors, texture, card), each valid, colorblind safe, never a copy, with a plain title, how to read it, five scores and its novelty and meaning. Nothing is saved; keep one with `fft_create_widget`. See [taller.md](taller.md). |
 
-A server linked to one widget offers `fft_get_widget`, `fft_get_widget_data`, `fft_update_widget`, `fft_list_blocks`, `fft_check_palette` and `fft_validate_spec`, without `id` arguments. `fft_list_blocks` and `fft://blocks` also list the style presets and the palette library.
+A server linked to one widget offers `fft_get_widget`, `fft_get_widget_data`, `fft_update_widget`, `fft_create_variants`, `fft_list_blocks`, `fft_check_palette` and `fft_validate_spec`, without `id` arguments. `fft_list_blocks` and `fft://blocks` also list the style presets and the palette library.
 
 Merge patch rules for `changes` and forks: objects merge key by key, lists replace, `null` removes a key.
 
