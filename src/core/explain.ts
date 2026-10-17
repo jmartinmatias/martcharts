@@ -498,8 +498,10 @@ function guide(spec: WidgetSpec): string {
       return `The filled shape shows how ${name(series[0])} changes ${over(one(view.x))}: higher means more.${colors}${forecast}`;
     case "kpi":
       return `The big number is ${name(one(view.value))}. The small arrow says whether it went up or down since last time${one(view.target) ? ", and the line under it says whether it reached its target" : ""}.`;
-    case "kpis":
-      return "Each tile is one key number, with a small arrow that says whether it went up or down since last time.";
+    case "kpis": {
+      const targeted = Array.isArray(view.items) && view.items.some((item) => typeof (item as { target?: unknown }).target === "string");
+      return `Each tile is one key number, with a small arrow that says whether it went up or down since last time.${targeted ? " A line under a tile says whether it reached its target." : ""}`;
+    }
     case "meter":
       return `Each bar fills up toward its target. A full bar means the goal for ${name(one(view.value))} is reached; the percentage says how close it is.`;
     case "bullet":

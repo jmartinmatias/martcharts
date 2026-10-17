@@ -420,7 +420,7 @@ A row of stat tiles in one widget, each with a label, value and change: the calm
 
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `items` | array | yes |  | Tiles, each { value, label?, compare?, compareLabel?, goodWhen? }. compare is a field or "previous" (the row before). Example: [{ "value": "revenue", "compare": "previous" }]. |
+| `items` | array | yes |  | Tiles, each { value, label?, compare?, compareLabel?, goodWhen?, target? }. compare is a field or "previous" (the row before); target is a field, and the tile then says where it stands (Target met, or how far to go). Example: [{ "value": "revenue", "compare": "previous", "target": "target" }]. |
 | `series` | boolean |  | `false` | Read the rows as a time series: values from the last row, compared with the row before, plus a sparkline per tile. |
 
 ### `likert`

@@ -541,4 +541,8 @@ describe("an even grid", () => {
     expect(rule(".fft-board-cell > .fft-widget")).toContain("flex: 1");
     expect(rule(".fft-widget > .fft-base")).toContain("margin-top: auto");
   });
+
+  test("in a row of tiles, every sparkline sits on the tile's floor, so a tile with an extra line keeps its trend level with the rest", () => {
+    expect(rule(".fft-stat > .fft-sparkline")).toContain("margin-top: auto");
+  });
 });

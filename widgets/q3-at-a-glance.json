@@ -59,7 +59,8 @@
     "series": true,
     "items": [
       {
-        "value": "revenue"
+        "value": "revenue",
+        "target": "target"
       },
       {
         "value": "profit"

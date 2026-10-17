@@ -6,6 +6,7 @@ import { countable } from "../count-up.ts";
 import { deltaElement } from "./delta.ts";
 import { sparkline } from "./kpi.ts";
 import { html } from "./shared.ts";
+import { targetLine } from "./target.ts";
 
 /**
  * Draws the `kpis` view: one strip of stat tiles separated by hairlines, each
@@ -36,6 +37,9 @@ export const renderKpis: ViewRenderer<KpisView> = (ctx) => {
     if (now !== null && then !== null && then !== 0) {
       tile.append(deltaElement(doc, (now - then) / Math.abs(then), item.goodWhen ?? "up", item.compareLabel, ctx.spec.locale));
     }
+    // With a target, the same plain line as a single headline number: met, or how far to go.
+    const line = targetLine(doc, "fft-stat-target", now, item.target ? readNumber(row[item.target]) : null, item.goodWhen ?? "up", show);
+    if (line) tile.append(line);
     if (series && rows.length > 1) tile.append(sparkline(ctx, rows.map((r) => readNumber(r[field])), tileWidth));
     strip.append(tile);
   }

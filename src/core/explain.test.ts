@@ -194,6 +194,14 @@ describe("explainChart", () => {
     expect(explainChart({ ...spec({ ...view, goodWhen: "down" }), locale: "en-US" }, rows)).toContain("Here, it is 1,284, up from 1,100, above its target of 1,200.");
   });
 
+  test("a row of tiles says what a tile's target line means, only when a tile has one", () => {
+    const tiles = (items: Record<string, unknown>[]) => explainChart({ ...spec({ type: "kpis", items }), locale: "en-US" });
+    expect(tiles([{ value: "revenue", target: "target" }, { value: "profit" }])).toBe(
+      "Each tile is one key number, with a small arrow that says whether it went up or down since last time. A line under a tile says whether it reached its target.",
+    );
+    expect(tiles([{ value: "revenue" }])).not.toContain("target");
+  });
+
   test("no guide names a hue or a dark shade: presets recolor and dark themes flip, so marks are read by side, shape and fill", () => {
     const guide = (view: Record<string, unknown>) => explainChart({ ...spec(view), locale: "en-US" });
     expect(guide({ type: "variance", label: "department", value: "actual", target: "budget", goodWhen: "down" })).toBe(

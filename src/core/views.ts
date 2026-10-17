@@ -55,6 +55,7 @@ export interface KpisItem {
   compare?: string;
   compareLabel?: string;
   goodWhen?: "up" | "down";
+  target?: string;
 }
 
 /** `{ type: "kpis", items, series? }`: a row of stat tiles in one widget. */
@@ -488,7 +489,7 @@ const kpis: ViewBlock = {
     items: {
       type: "array",
       required: true,
-      description: 'Tiles, each { value, label?, compare?, compareLabel?, goodWhen? }. compare is a field or "previous" (the row before). Example: [{ "value": "revenue", "compare": "previous" }].',
+      description: 'Tiles, each { value, label?, compare?, compareLabel?, goodWhen?, target? }. compare is a field or "previous" (the row before); target is a field, and the tile then says where it stands (Target met, or how far to go). Example: [{ "value": "revenue", "compare": "previous", "target": "target" }].',
     },
     series: { type: "boolean", default: false, description: "Read the rows as a time series: values from the last row, compared with the row before, plus a sparkline per tile." },
   },

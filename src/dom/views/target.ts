@@ -1,5 +1,5 @@
 import type { ViewContext } from "../../core/view-context.ts";
-import { svg } from "./shared.ts";
+import { html, svg } from "./shared.ts";
 
 /**
  * Where a value stands against its target, in target words a ten-year-old can follow: "Target met", or how far
@@ -17,3 +17,19 @@ export function checkMark(doc: Document): SVGElement {
   check.append(svg(doc, "path", { d: "M3.5 8.5l3 3 6-7" }));
   return check;
 }
+
+/**
+ * One plain line for a headline number against its target, in the number's own format: a check and "Target met:
+ * €1.2M", "€50K to go to the €1.3M target", or when lower is better, "0.1 above the 3 target". Null without both.
+ */
+export function targetLine(doc: Document, className: string, now: number | null, goal: number | null, goodWhen: "up" | "down", show: (v: number) => string): HTMLElement | null {
+  if (now === null || goal === null) return null;
+  const met = goodWhen === "down" ? now <= goal : now >= goal;
+  const line = html(doc, "div", className);
+  if (met) {
+    line.dataset.met = "true";
+    line.append(checkMark(doc), `Target met: ${show(goal)}`);
+  } else line.append(goodWhen === "down" ? `${show(now - goal)} above the ${show(goal)} target` : `${show(goal - now)} to go to the ${show(goal)} target`);
+  return line;
+}
+

@@ -2404,6 +2404,13 @@ describe("kpis view (a row of stat tiles)", () => {
   const row = [{ revenue: 1250, lastQuarter: 1000, churn: 0.04, churnBefore: 0.05 }];
   const fields = { revenue: { label: "Revenue", format: { type: "currency", currency: "EUR", decimals: 0 } }, churn: { format: { type: "percent", decimals: 1 } } };
 
+  test("a tile with a target says where it stands under its change, as the single number does", async () => {
+    const goals = [{ revenue: 1250, goal: 1200, churn: 0.04, cap: 0.035 }];
+    await draw({ rows: goals, fields, view: { type: "kpis", items: [{ value: "revenue", target: "goal" }, { value: "churn", goodWhen: "down", target: "cap" }, { value: "revenue", label: "No target" }] } });
+    expect(all(".fft-stat").map((tile) => tile.querySelector(".fft-stat-target")?.textContent ?? "")).toEqual(["Target met: €1,200", "0.5% above the 3.5% target", ""]);
+    expect(Boolean(all(".fft-stat")[0]?.querySelector(".fft-stat-target .fft-check"))).toBe(true);
+  });
+
   test("one tile per item with its label, value and change", async () => {
     await draw({
       rows: row,

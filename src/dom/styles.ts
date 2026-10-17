@@ -446,6 +446,8 @@ export const BASE_CSS = `
 .fft-sparkline { display: block; margin-top: 8px; overflow: visible; }
 .fft-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(144px, 1fr)); }
 .fft-stat { display: flex; flex-direction: column; gap: 3px; min-width: 0; padding: 0 21px; border-left: 1px solid var(--fft-grid); }
+/* Sparklines share one baseline across the row, even when a tile carries an extra line such as its target. */
+.fft-stat > .fft-sparkline { margin-top: auto; padding-top: 5px; }
 .fft-stat:first-child { padding-left: 0; border-left: 0; }
 .fft-stat-label { color: var(--fft-text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .fft-stat-value { font-size: 34px; line-height: 34px; font-weight: 600; letter-spacing: -0.02em; }
@@ -468,8 +470,8 @@ export const BASE_CSS = `
 .fft-meter-gap { font-size: 11px; line-height: 13px; color: var(--fft-text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .fft-meter[data-met] .fft-meter-gap { color: var(--fft-positive); font-weight: 600; }
 /* Where a headline number stands against its target, under its change. */
-.fft-kpi-target { display: flex; align-items: center; gap: 3px; font-size: 11px; line-height: 13px; color: var(--fft-text-secondary); font-variant-numeric: tabular-nums; }
-.fft-kpi-target[data-met] { color: var(--fft-positive); font-weight: 600; }
+.fft-kpi-target, .fft-stat-target { display: flex; align-items: center; gap: 3px; font-size: 11px; line-height: 13px; color: var(--fft-text-secondary); font-variant-numeric: tabular-nums; }
+:is(.fft-kpi-target, .fft-stat-target)[data-met] { color: var(--fft-positive); font-weight: 600; }
 /* Where a gauge's number stands against its goal, centered under the arc. */
 .fft-gauge-standing { display: flex; align-items: center; justify-content: center; gap: 3px; margin: 0; font-size: 13px; line-height: 21px; color: var(--fft-text-secondary); font-variant-numeric: tabular-nums; }
 .fft-gauge-standing[data-met] { color: var(--fft-positive); font-weight: 600; }
