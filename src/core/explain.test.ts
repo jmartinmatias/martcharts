@@ -326,6 +326,19 @@ describe("explainChart", () => {
     expect(at(rows.map((r) => ({ ...r, vsTarget: -Math.abs(r.vsTarget) - 0.01 })))).toContain("Here, every region is below target.");
   });
 
+  test("a calendar names the weekly rhythm first: the busiest and quietest weekdays on average, then the top day", () => {
+    // Four weeks from Monday 2026-09-07: weekdays 150 (Wednesdays 170), weekends 50, and one peak day.
+    const rows = Array.from({ length: 28 }, (_, i) => {
+      const day = new Date(Date.UTC(2026, 8, 7 + i));
+      const weekday = day.getUTCDay();
+      const orders = weekday === 0 || weekday === 6 ? 50 : weekday === 3 ? 170 : 150;
+      return { day: day.toISOString().slice(0, 10), orders: i === 8 ? 225 : orders };
+    });
+    const at = (data: Record<string, unknown>[]) => explainChart({ ...spec({ type: "calendar", date: "day", value: "orders" }), locale: "en-US" }, data);
+    expect(at(rows)).toContain("Here, weekdays are much busier than weekends: Wednesday averages the most, 170, and Saturday the least, 50. The top day was 2026-09-15, with 225.");
+    expect(at(rows.slice(0, 10))).toContain("Here, the top day is 2026-09-15, with 225.");
+  });
+
   test("no guide names a hue or a dark shade: presets recolor and dark themes flip, so marks are read by side, shape and fill", () => {
     const guide = (view: Record<string, unknown>) => explainChart({ ...spec(view), locale: "en-US" });
     expect(guide({ type: "variance", label: "department", value: "actual", target: "budget", goodWhen: "down" })).toBe(

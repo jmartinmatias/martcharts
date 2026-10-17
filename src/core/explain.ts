@@ -232,7 +232,29 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
     case "calendar": {
       const [date, amount] = [one(view.date), one(view.value)];
       const row = date && amount ? top(amount) : undefined;
-      return row && date && amount ? `Here, the top day is ${text(row, date)}, with ${text(row, amount)}.` : "";
+      if (!row || !date || !amount) return "";
+      // With two weeks or more, the weekly rhythm answers "which days": the busiest and quietest weekdays on average.
+      const sums = Array<number>(7).fill(0);
+      const counts = Array<number>(7).fill(0);
+      for (const r of rows) {
+        const when = typeof r[date] === "string" && /^\d{4}-\d{2}-\d{2}/.test(r[date] as string) ? new Date(`${(r[date] as string).slice(0, 10)}T00:00:00Z`) : null;
+        const amountHere = value(r, amount);
+        if (!when || Number.isNaN(when.getTime()) || amountHere === null) continue;
+        const day = when.getUTCDay();
+        sums[day] = (sums[day] ?? 0) + amountHere;
+        counts[day] = (counts[day] ?? 0) + 1;
+      }
+      const topDay = `the top day ${rows.length >= 14 ? "was" : "is"} ${text(row, date)}, with ${text(row, amount)}`;
+      if (counts.reduce((a, b) => a + b, 0) < 14 || counts.some((c) => c === 0)) return `Here, ${topDay}.`;
+      const average = (d: number) => (sums[d] as number) / (counts[d] as number);
+      const week = [1, 2, 3, 4, 5, 6, 0];
+      const names = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      const busiest = week.reduce((b, d) => (average(d) > average(b) ? d : b));
+      const quietest = week.reduce((b, d) => (average(d) < average(b) ? d : b));
+      const [weekdays, weekend] = [[1, 2, 3, 4, 5].reduce((sum, d) => sum + average(d), 0) / 5, (average(6) + average(0)) / 2];
+      const rhythm = weekdays >= 1.5 * weekend ? "weekdays are much busier than weekends: " : weekend >= 1.5 * weekdays ? "weekends are much busier than weekdays: " : "";
+      const show = (n: number) => formatValue(Math.round(n), spec.fields?.[amount]?.format, spec.locale);
+      return `Here, ${rhythm}${names[busiest]} averages the most, ${show(average(busiest))}, and ${names[quietest]} the least, ${show(average(quietest))}. ${topDay.charAt(0).toUpperCase()}${topDay.slice(1)}.`;
     }
     case "heatmap": {
       const [x, y, amount] = [one(view.x), one(view.y), one(view.value)];
