@@ -94,7 +94,8 @@ describe("explainChart", () => {
       "Here, 2 of 3 regions are over their budget, and West is furthest from it: 130 against 100.",
     );
     expect(at({ type: "variance", label: "region", value: "v", target: "budget" }, [{ region: "North", v: 95, budget: 100 }])).toContain("Here, every region is at or under its budget, and North is furthest from it: 95 against 100.");
-    expect(at({ type: "marimekko", x: "region", series: "p", value: "v" }, [{ region: "East", p: "a", v: 5 }, { region: "East", p: "b", v: 5 }, { region: "West", p: "a", v: 3 }])).toContain("Here, East is the widest column, with 10.");
+    expect(at({ type: "marimekko", x: "region", series: "p", value: "v" }, [{ region: "East", p: "a", v: 5 }, { region: "East", p: "b", v: 5 }, { region: "West", p: "a", v: 3 }])).toContain("Here, East is the widest column, with 10; a is its biggest part, 50%.");
+    expect(at({ type: "marimekko", x: "region", series: "p", value: "v" }, [{ region: "East", p: "Core", v: 3 }, { region: "East", p: "Plus", v: 7 }, { region: "West", p: "Core", v: 3 }])).toContain("Here, East is the widest column, with 10; Plus is its biggest part, 70%.");
     expect(at({ type: "gauge", value: "v", target: "t" }, [{ v: 42, t: 50 }])).toContain("Here, the needle is at 42, short of the goal of 50.");
     expect(at({ type: "bar", x: "region", y: ["a", "b"], stacked: true }, [{ region: "East", a: 5, b: 6 }, { region: "West", a: 4, b: 2 }])).toContain("Here, East has the tallest bar, with 11 in all.");
     expect(at({ type: "area", x: "week", y: ["a", "b"], stacked: "stream" }, [{ week: "1", a: 5, b: 1 }, { week: "2", a: 6, b: 2 }])).toContain("Here, a grew the most, from 5 in the week of 1 to 6 in the week of 2, and is the thickest band overall.");

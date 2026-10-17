@@ -505,7 +505,14 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
         columns.set(String(row[x]), entry);
       }
       const best = [...columns.values()].reduce<{ row: Row; sum: number } | undefined>((b, c) => (b && b.sum >= c.sum ? b : c), undefined);
-      return best && best.sum > 0 ? `Here, ${text(best.row, x)} is the widest column, with ${formatValue(best.sum, spec.fields?.[amount]?.format, spec.locale)}.` : "";
+      if (!best || best.sum <= 0) return "";
+      const widest = `Here, ${text(best.row, x)} is the widest column, with ${formatValue(best.sum, spec.fields?.[amount]?.format, spec.locale)}`;
+      // How the widest column splits: its biggest part, as a share of the column.
+      const part = one(view.series);
+      if (!part) return `${widest}.`;
+      const inside = rows.filter((r) => String(r[x]) === String(best.row[x]) && value(r, amount) !== null);
+      const biggest = inside.reduce<Row | undefined>((b, r) => (b && (value(b, amount) as number) >= (value(r, amount) as number) ? b : r), undefined);
+      return biggest ? `${widest}; ${text(biggest, part)} is its biggest part, ${percent(Math.max(0, value(biggest, amount) as number) / best.sum)}.` : `${widest}.`;
     }
     case "gauge": {
       const [amount, target] = [one(view.value), one(view.target)];
