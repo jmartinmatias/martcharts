@@ -308,13 +308,13 @@ $("#reset-all").addEventListener("click", () => load(choices[Number(pick.value)]
 
 load(vanilla);
 
-// A dish from the Taller page arrives in the address (#taller=<spec>): open it in the playground, then tidy the address.
+// A version from the Taller page arrives in the address (#taller=<spec>): open it in the playground, then tidy the address.
 if (location.hash.startsWith("#taller=")) {
   try {
     void apply(JSON.parse(decodeURIComponent(location.hash.slice("#taller=".length))) as WidgetSpec);
     requestAnimationFrame(() => $("#playground-title").scrollIntoView({ block: "start" }));
   } catch {
-    showIssues([{ level: "error", path: "Taller", message: "The dish in the address could not be read." }]);
+    showIssues([{ level: "error", path: "Taller", message: "The chart in the address could not be read." }]);
   }
   history.replaceState(null, "", `${location.pathname}${location.search}`);
 }

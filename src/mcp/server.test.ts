@@ -93,16 +93,28 @@ describe("tools", () => {
     expect(forked.isError).toBe(false);
   });
 
-  test("fft_create_variants cooks a seeded menu from a stored widget, without saving anything", async () => {
+  test("fft_create_variants makes seeded versions of a stored widget, each with the sales question it answers, without saving anything", async () => {
     const { call } = await connect();
     const first = await call("fft_create_variants", { id: "sales-by-region", count: 3, seed: 2 });
     const again = await call("fft_create_variants", { id: widgetRef("sales-by-region"), count: 3, seed: 2 });
-    const variants = (first.data?.variants ?? []) as { menu: string; spec: { view: { type: string } }; tastes: object; balance: { ok: boolean }; seed: number }[];
-    expect(first.data?.dish).toBe("sales-by-region");
+    const variants = (first.data?.variants ?? []) as { question: string; move: string; spec: { view: { type: string } }; qualities: object; balance: { ok: boolean }; seed: number }[];
+    expect(first.data?.widget).toBe("sales-by-region");
+    expect(first.data?.question).toMatch(/\?$/);
     expect(variants.length).toBeGreaterThan(0);
-    expect(variants.every((v) => v.menu.length > 0 && v.balance.ok && v.seed === 2 && v.spec.view.type !== "")).toBe(true);
+    expect(variants.every((v) => v.question.endsWith("?") && v.move.length > 0 && v.balance.ok && v.seed === 2 && v.spec.view.type !== "")).toBe(true);
     expect(again.data?.variants).toEqual(first.data?.variants);
     expect((await store.list()).map((w) => w.id)).toEqual(["sales-by-region", "visits"]);
+  });
+
+  test("fft_create_variants steers by move and audience, and speaks in sales and chart words", async () => {
+    const { client, call } = await connect();
+    const distilled = await call("fft_create_variants", { id: "sales-by-region", count: 4, moves: ["distill"], audience: "rep" });
+    const variants = (distilled.data?.variants ?? []) as { move: string }[];
+    expect(variants.length).toBeGreaterThan(0);
+    expect(variants.every((v) => v.move === "distill")).toBe(true);
+    const tool = (await client.listTools()).tools.find((t) => t.name === "fft_create_variants");
+    const words = JSON.stringify([tool?.description, tool?.inputSchema]);
+    expect(words.match(/\b(salty|umami|plate|spherif\w*|tweezers|crunchy|dish|cook\w*|menu|kitchen|tastes?|ingredients?|temperature|texture)\b/gi) ?? []).toEqual([]);
   });
 
   test("fft_get_widget_data says how to read the chart in plain words, with an example from its rows", async () => {

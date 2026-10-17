@@ -3,7 +3,7 @@
  * engine's runs because they are new and meaningful, each explained in plain
  * words. Reads public/selections.json; every widget is drawn live.
  */
-import { createWidget, explainChart } from "../src/index.ts";
+import { createWidget, explainChart, questionOf } from "../src/index.ts";
 import type { WidgetSpec } from "../src/index.ts";
 
 /** One picked variation, in plain words only. */
@@ -88,13 +88,17 @@ function render(selections: Selection[], made?: { variants?: number; charts?: nu
     const widget = createWidget(slot, pick.spec, { actions: ["expand"] });
 
     const notes = el("div", "notes");
+    const asks = note("The question it answers", questionOf(pick.spec).text);
+    asks.classList.add("asks");
     const reading = note("How to read it", explainChart(pick.spec));
-    // Once the chart has its rows, the guide adds one concrete example from them.
+    // Once the chart has its rows, the guide adds one concrete example from them, and a table names its columns.
     void widget.ready.then(() => {
       const line = reading.querySelector("p");
       if (line) line.textContent = explainChart(pick.spec, widget.rows);
+      const question = asks.querySelector("p");
+      if (question) question.textContent = questionOf(pick.spec, widget.rows).text;
     });
-    notes.append(note("What changed", pick.change), reading, note("Why it matters", pick.why));
+    notes.append(asks, note("What changed", pick.change), reading, note("Why it matters", pick.why));
     const scores = el("div", "scores");
     scores.append(score("How new", pick.novelty), score("How useful", pick.meaning));
     notes.append(scores);

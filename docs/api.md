@@ -275,6 +275,10 @@ A view of `type` with every required field option filled from the rows. Each fie
 
 A plain reading guide for any of the 40 views, in the chart's own field names, simple enough for a ten-year-old: what each mark is, what bigger, longer, stronger or further right means, and what the options add (series colors, stacks, a forecast fan, bubble sizes, small multiples). Given the rows the chart draws, it ends with one concrete example: `"Each bar is one region. The taller the bar, the more revenue. Here, East is the tallest, with €2,000."` Color scales are described as stronger or weaker, never darker, since a scale flips on a dark card. The `explain` action, the dashboard's `setGuides`, the Taller's cards and the MCP tool `fft_get_widget_data` (as `howToRead`) all use it.
 
+
+### `questionOf(spec, rows?) => { kind, text }`
+
+The sales question a chart answers, in one plain sentence built from its own field names: `"Which region has the most revenue?"`, `"Is revenue on target, month by month?"`, `"How did each region change from Q3 2025 to Q3 2026?"`. `kind` names the type of question (rank, target, trend, forecast, mix, compare, change, spread, relation, flow, rhythm, profile, number, detail, opinion, schedule). The rows, when given, name a table's columns when the spec does not list them. The Taller uses it so every new version says which question it answers; the MCP tool `fft_create_variants` returns it for the original too.
 ### `runPipeline(spec, ctx?) => Promise<Row[]>`
 
 Loads the rows and applies the transforms. `ctx.fetch` replaces the global `fetch`; `ctx.signal` cancels. Throws with a readable message when the source is unknown, loading fails, or the source returns something other than a list of objects. `applyTransforms(rows, steps)` runs only the transform half.

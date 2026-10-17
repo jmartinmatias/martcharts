@@ -25,8 +25,9 @@ import { FACET_OPTIONS } from "../core/validate.ts";
 import { WIDGET_REF, widgetRef } from "../core/ref.ts";
 import { explainChart } from "../core/explain.ts";
 import { describeBlocks } from "../core/registry.ts";
-import { createVariants, METHODS } from "../core/taller.ts";
-import type { Method } from "../core/taller.ts";
+import { questionOf } from "../core/question.ts";
+import { AUDIENCES, createVariants, MOVES } from "../core/taller.ts";
+import type { Audience, Move } from "../core/taller.ts";
 import type { BlockKind } from "../core/registry.ts";
 import type { Issue, Row, WidgetSpec } from "../core/types.ts";
 import { hasErrors, validateSpec } from "../core/validate.ts";
@@ -577,28 +578,32 @@ Pass a library palette name (see fft_list_blocks) or a list of hex colors. Use i
     "fft_create_variants",
     {
       title: "Create variants (Taller)",
-      description: `Cook a menu of new versions of ${which} with the Taller, elBulli's creative method applied to charts. Nothing is saved.
+      description: `Make new versions of ${which} with the Taller: elBulli's creative method, abstracted and applied to sales charts. Nothing is saved.
 
-Each variant keeps the widget's data, transforms and fields (the ingredients) and changes its form (view), technique, tools, temperature (warm or cool palette, or a highlight), texture (soft curves and washes, or crunchy bars, steps and dots) and plating (preset). Every variant is valid, colorblind safe, never the original's shape, scored on five tastes (salty emphasis, acid surprise, bitter honesty, fatty ink, umami depth) and kept only when balanced. Returns each variant's spec (save one with fft_create_widget), menu line, lineage, tastes, balance note, novelty and meaning. The same seed gives the same menu.`,
+Every version keeps the widget's numbers (data, transforms and fields), says which sales question it answers ("Which region has the most revenue?"), and gives it a new form through one of seven sales moves: decompose (split the total into its parts), reframe (against a target, the average or a share), distill (keep only what decides), contrast (before and after, plan and actual, one standout), reveal (the spread, outliers, busy days), combine (two views in one) and reform (a shape the dashboard has not used). Each is valid, colorblind safe, never the original's shape, scored on five qualities (emphasis, surprise, honesty, detail, insight) and kept only when balanced. Returns the original's question and each version's spec (save one with fft_create_widget), move, question, title, how to read it, lineage, qualities, balance note, novelty and meaning. The same seed gives the same versions.`,
       inputSchema: withId({
-        count: z.number().int().min(1).max(24).default(6).describe("How many variants, at most."),
-        seed: z.number().int().min(1).default(1).describe("The same widget and seed give the same menu; change it for another."),
-        temperature: z.number().min(-1).max(1).default(0).describe("-1 cold (cool hues) to 1 hot (warm hues)."),
-        texture: z.number().min(-1).max(1).default(0).describe("-1 soft (curves, washes) to 1 crunchy (bars, steps, dots)."),
-        methods: z
-          .array(z.enum(Object.keys(METHODS) as [Method, ...Method[]]))
+        count: z.number().int().min(1).max(24).default(6).describe("How many versions, at most."),
+        seed: z.number().int().min(1).default(1).describe("The same widget and seed give the same versions; change it for others."),
+        color: z.number().min(-1).max(1).default(0).describe("-1 calm (cool hues) to 1 bold (warm hues, one standout)."),
+        marks: z.number().min(-1).max(1).default(0).describe("-1 smooth (curves, washes) to 1 sharp (bars, steps, dots)."),
+        moves: z
+          .array(z.enum(Object.keys(MOVES) as [Move, ...Move[]]))
           .optional()
-          .describe("Only these creative methods: association, adaptation, deconstruction, minimalism, change-of-state, technique-concept, sensory."),
+          .describe("Only these sales moves: decompose, reframe, distill, contrast, reveal, combine, reform."),
+        audience: z
+          .enum(Object.keys(AUDIENCES) as [Audience, ...Audience[]])
+          .optional()
+          .describe("Who reads it: rep (a quick look between calls), manager (the weekly review) or leadership (the quarterly review). Leans on the moves that serve them."),
       }),
-      outputSchema: z.object({ dish: z.string(), variants: z.array(JsonObject) }),
+      outputSchema: z.object({ widget: z.string(), question: z.string(), variants: z.array(JsonObject) }),
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     },
     async (args, ctx) => {
       const id = await idOf(args);
       const spec = await store.get(id);
       const rows = await runPipeline(spec, loadContext(ctx.mcpReq.signal));
-      const variants = createVariants(spec, rows, { count: args.count, seed: args.seed, temperature: args.temperature, texture: args.texture, methods: args.methods });
-      return asJson({ dish: id, variants: variants as unknown as Record<string, unknown>[] });
+      const variants = createVariants(spec, rows, { count: args.count, seed: args.seed, color: args.color, marks: args.marks, moves: args.moves, audience: args.audience });
+      return asJson({ widget: id, question: questionOf(spec, rows).text, variants: variants as unknown as Record<string, unknown>[] });
     },
   );
 

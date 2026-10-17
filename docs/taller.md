@@ -1,93 +1,104 @@
 # The Taller
 
-elBulli's creative method, applied to charts. *Crear es no copiar*: to create is not to copy.
+elBulli's creative method, abstracted and applied to sales charts. *Crear es no copiar*: to create is not to copy.
 
-Ferran Adrià's kitchen invented by method rather than by luck: an audit of what a dish is made of, then a systematic variation of its techniques, tools, temperatures, textures and plating, always guarded by taste. The Taller does the same with a widget. The dish is a spec. Its ingredients are the fields of the rows it draws, and they are never altered or invented. `createVariants` cooks a menu of new versions from them, scores each on five tastes, and keeps only the balanced, valid and new ones.
+Ferran Adrià's workshop invented by method rather than by luck. The Taller does not translate that craft word for word into charts. It takes the method one level up, to principles that hold in any field, and then applies them to sales data:
 
-The demo has its own page, `taller.html`, linked from the gallery header: pick a chart, steer temperature and texture, choose methods, then Create or Surprise.
+1. **The method, without its craft.** Know what exists before creating. Keep the essence and change the form. Change the context. Set opposites against each other. Play with what people expect. Strip to the essential. Combine what does not usually meet. Judge every result twice: is it new, is it good.
+2. **The method, deployed in sales.** The essence of a chart is the **sales question** it answers about its own numbers: "Which region has the most revenue?", "Is revenue on target, month by month?". Seven **sales moves** give that question a new form. Every version keeps the numbers, says which question it answers, and is scored on five **qualities**.
 
-## Two vocabularies
+The demo has its own page, `taller.html`, linked from the gallery header: pick a starting chart, say who reads it, choose sales moves, steer color and marks, then Create or Surprise. The page ends with the method itself (`PRINCIPLES`): each principle and what the Taller does with it.
 
-The kitchen words belong to the creating side only: the methods, the temperature and texture controls, the motto and the Diccionario. Once charts are on the page as results, everything is said in chart words a ten-year-old can follow:
+## The sales question
 
-| On the creating side | On a result |
+`questionOf(spec, rows?)` words the question any chart answers, from its own field names. Its `kind` is one of rank, target, trend, forecast, mix, compare, change, spread, relation, flow, rhythm, profile, number, detail, opinion or schedule.
+
+| Chart | Question |
 | --- | --- |
-| Salty, acid, bitter, fatty, umami | Emphasis, surprise, honesty, detail, insight (`TASTE_MEANINGS`) |
-| The menu line ("Spherified revenue by region: lollipops, hot on cold, crunchy, on the house plate") | A plain title ("Revenue by region as lollipops: each dot is one region") and how to read it ("A dot further right means more revenue.") |
-| Spherification, tweezers, hot, crunchy, white plate | Dots, shows one standout, warm colors, sharp marks, paper card (`plainTags`) |
+| Bars of revenue by region | Which region has the most revenue? |
+| Bars of revenue with a target line, by month | Is revenue on target, month by month? |
+| Variance of actual against budget | Which department is above or below budget? |
+| A donut of revenue by segment | What share of revenue comes from each segment? |
+| Dumbbells from Q3 2025 to Q3 2026 | How did each region change from Q3 2025 to Q3 2026? |
+| A histogram of deal value | How spread out is deal value? |
+| A funnel of people | Where do people drop out, step by step? |
+| A calendar of orders | Which days have the most orders? |
 
-## The equivalents
+## The seven sales moves
 
-The full list is `DICTIONARY` (shown on the page as the Diccionario). In short:
+| Move | What it does to the question | The principle it comes from |
+| --- | --- | --- |
+| Decompose | Split the total into its parts: regions, products, segments, or one small chart each. | Take the whole apart, keep it recognisable |
+| Reframe | Measure the number against something else: a target, the average, the last period, its share. | Change the context |
+| Distill | Keep only what decides: the top few, the few that make most of the total, one number and its trend. | Strip to the essential |
+| Contrast | Set two states against each other: before and after, plan and actual, one standout against the rest. | Opposites sharpen each other |
+| Reveal | Show what the total hides: the spread behind an average, the outliers, the busiest days and hours. | Play with what people expect |
+| Combine | Join two views that rarely meet: bars with their target line, a headline number over a chart. | Combine what does not usually meet |
+| Reform | Ask the same question in a shape the dashboard has not used yet. | One new form opens a family |
 
-| Kitchen | Chart |
-| --- | --- |
-| Products (ingredients) | The fields in the rows: measures, categories, time, hierarchy levels. Never altered or invented. |
-| Deconstruction | Take a whole apart: small multiples, a waffle, an icicle, horizon rows. |
-| Spherification | Values become dots: lollipops, a beeswarm, a scatter, dumbbells. |
-| Foam | Light, airy washes: a smooth area, a streamgraph. |
-| Reduction | Concentrate: a Pareto, boxes and whiskers, the top five. |
-| Infusion | A headline or a reference line soaked into a chart. |
-| Tweezers, squeeze bottle, knife, spoon | Precise labels and highlights; fine 2px lines and stems; bars, bins and cells; fills. |
-| Soups and sauces | Washes, streams, bands, heat cells. A plate takes at most one. |
-| Hot, cold, hot on cold | Warm hues, cool hues, one item lit in a warm color with the rest grey. Built from the palette library, checked for colorblind readers. |
-| Soft, crunchy | Smooth curves and washes; bars, steps, dots, compact spacing. |
-| Plating | The preset: paper is the white plate, airy the empty plate, glass the cold plate, default the house plate. A headline is the first bite. |
+## Who reads it
 
-## The five tastes
+A chart serves a moment. `audience` leans the Taller on the moves that serve it:
 
-Each variant is scored from 0 to 1 on:
+| Audience | The moment | Moves |
+| --- | --- | --- |
+| `rep` | A quick look between calls: one clear answer, the standout first. | distill, contrast, combine |
+| `manager` | The weekly pipeline review: who is ahead, who is behind target, and why. | reframe, contrast, decompose, reveal |
+| `leadership` | The quarterly business review: the big picture, the mix, and where it is heading. | reframe, decompose, distill, reform |
 
-- **Salty, emphasis**: a headline, a highlight, bold values. Too salty and everything shouts.
-- **Acid, surprise**: an unexpected but fitting form, or a precise annotation.
-- **Bitter, honesty**: negatives, variance, missed targets, uncertainty.
-- **Fatty, detail**: fills, stacks, many marks. It carries flavor and gets heavy fast.
-- **Umami, insight**: comparison, reference, forecast, the story that completes the chart.
+## The five qualities
 
-A plate is balanced when no taste dominates, none is missing, and there is at most one sauce. `balanceOf` explains it in one line ("balanced: mostly insight and emphasis", "too much detail: two filled layers").
+Each version is scored from 0 to 1 on:
+
+- **Emphasis**: a headline, a highlight, bold values. Too much and everything shouts.
+- **Surprise**: an unexpected but fitting form, or a precise annotation.
+- **Honesty**: negatives, variance, missed targets, uncertainty.
+- **Detail**: fills, stacks, many marks. Useful, and heavy fast.
+- **Insight**: comparison, reference, forecast, the story that completes the chart.
+
+A chart is balanced when no quality dominates, none it needs is missing, and it carries at most one filled layer. `balanceOf` says it in one line ("balanced: mostly insight and emphasis", "too much detail: two filled layers").
 
 ## Hygiene
 
-Every variant served:
+Every version:
 
-- keeps the data, the transforms and the fields of the dish (a reduction may add a sort and a limit, and says so);
-- passes `validateSpec` with no errors and actually renders (a test draws every variant of every widget);
+- keeps the data, the transforms and the fields of the original (distilling to the top five may add a sort and a limit, and says so);
+- passes `validateSpec` with no errors and actually renders (a test draws every version of every widget);
 - brings a colorblind-safe palette when it brings its own (`checkPalette`);
-- is new: never the original's shape, never another variant's shape, and in the dish's own view it needs a new technique (mark, curve, stacking) or two new elements. Taking garnish away is not creating.
-
-## Methods
-
-`association` (bars with their target line, a headline over a chart), `adaptation` (a classic in a new form), `deconstruction`, `minimalism` (lollipops, one number with its sparkline, a list), `change-of-state` (chart to table, time to distribution), `technique-concept` (spherification, foam, reduction, infusion as the idea), `sensory` (a dial, a flowing stream, always keyboard friendly and calm under reduced motion).
+- is new: never the original's shape, never another version's shape, and in the original's own view it needs a new form (mark, curve, stacking) or two new elements. Taking extras away is not creating.
 
 ## API
 
 ```ts
-import { createVariants, rankVariants, runPipeline } from "fft-widgets";
+import { createVariants, questionOf, rankVariants, runPipeline } from "fft-widgets";
 
 const rows = await runPipeline(spec);
-const menu = createVariants(spec, rows, {
-  count: 6,           // at most; simple dishes may give fewer
-  seed: 1,            // the same dish and seed give the same menu
-  temperature: 0.5,   // -1 cold to 1 hot
-  texture: -0.5,      // -1 soft to 1 crunchy
-  methods: ["deconstruction", "minimalism"], // default: all
+questionOf(spec, rows).text; // "Which region has the most revenue?"
+const versions = createVariants(spec, rows, {
+  count: 6,                       // at most; simple charts may give fewer
+  seed: 1,                        // the same chart and seed give the same versions
+  moves: ["reframe", "contrast"], // default: all seven
+  audience: "manager",            // default: no lean
+  color: 0.5,                     // -1 calm (cool hues) to 1 bold (warm hues, one standout)
+  marks: -0.5,                    // -1 smooth to 1 sharp
 });
-const best = rankVariants(menu, "both"); // or "novelty", "meaning"
+const best = rankVariants(versions, "both"); // or "novelty", "meaning"
 ```
 
-Each variant is plain JSON, ready to be saved as a collection:
+Each version is plain JSON, ready to be saved as a collection:
 
 | Field | What it holds |
 | --- | --- |
 | `spec` | The new widget spec, with its own id (so its own ghost ref). |
+| `question` | The sales question it answers, in plain words. |
+| `move` | The sales move that made it. |
 | `title`, `explain` | The chart in plain words, and how to read it. From `explainVariant`, one small function a general explainer can replace. |
-| `menu` | The kitchen's description, for the creating side. |
-| `method`, `lineage` | The method, technique, tools, temperature, texture and plating that made it. `plainTags(variant)` says them in chart words. |
-| `tastes`, `balance` | The five scores and the one-line balance note. |
-| `novelty` | How far the form departs from the source, 0 to 1 (another family of view, a new technique, rare forms). |
-| `meaning` | How much the plate says, 0 to 1 (balance, insight, honesty, evenness). |
-| `seed` | The seed that cooked it. |
+| `lineage` | The move, the question's kind, the form, the color emphasis, the marks and the look. `plainTags(variant)` says them in plain words. |
+| `qualities`, `balance` | The five scores and the one-line balance note. |
+| `novelty` | How far the form departs from the original, 0 to 1 (another family of view, new elements, rare forms). |
+| `meaning` | How much the chart says, 0 to 1 (balance, insight, honesty, evenness). |
+| `seed` | The seed that made it. |
 
-Also exported: `profileDish`, `tasteOf`, `balanceOf`, `saucesOf`, `noveltyOf`, `meaningOf`, `temperaturePalette`, `DICTIONARY`, `METHODS`, `TASTE_MEANINGS`.
+Also exported: `MOVES`, `PRINCIPLES`, `AUDIENCES`, `QUALITIES`, `profileData`, `qualitiesOf`, `balanceOf`, `fillsOf`, `noveltyOf`, `meaningOf`, `huePalette`.
 
-The MCP server offers the same kitchen as `fft_create_variants` (read-only): agents get the menu and can save a variant with `fft_create_widget`.
+The MCP server offers the same engine as `fft_create_variants` (read-only, with `moves` and `audience`): agents get the original's question and the versions, and can save one with `fft_create_widget`.

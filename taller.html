@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Taller: FFT Widgets</title>
-    <meta name="description" content="elBulli's creative method applied to charts: one dish, a menu of new forms, balanced on five tastes." />
+    <meta name="description" content="elBulli's creative method, lifted out of its craft and applied to sales charts: one sales question, seven moves, new versions balanced on five qualities." />
     <style>
       :root {
         color-scheme: light;
@@ -59,11 +59,12 @@
       .controls { display: flex; flex-wrap: wrap; gap: 13px; align-items: center; }
       .label { font-size: 13px; color: var(--ink-2); }
 
-      /* The pass: the dish, the steering and the buttons, on one calm panel. */
-      .pass { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 21px 34px; padding: 21px; border: 1px solid var(--line); border-radius: 13px; background: var(--field); }
-      .pass label, .pass .field { display: flex; flex-direction: column; gap: 5px; font-size: 13px; color: var(--ink-2); }
-      .pass select { font: inherit; font-size: 15px; color: var(--ink); background: var(--page); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; min-height: 34px; }
-      .pass input[type="range"] { width: 100%; accent-color: var(--accent); min-height: 24px; }
+      /* Steering: the chart, who reads it, the moves, color and marks, on one calm panel. */
+      .steer { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 21px 34px; padding: 21px; border: 1px solid var(--line); border-radius: 13px; background: var(--field); }
+      .steer label, .steer .field { display: flex; flex-direction: column; gap: 5px; font-size: 13px; color: var(--ink-2); }
+      .steer .segmented { align-self: start; }
+      .steer select { font: inherit; font-size: 15px; color: var(--ink); background: var(--page); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; min-height: 34px; }
+      .steer input[type="range"] { width: 100%; accent-color: var(--accent); min-height: 24px; }
       .scale { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-2); }
       .chips { display: flex; flex-wrap: wrap; gap: 5px; }
       .chips button { border: 1px solid var(--line); background: transparent; color: var(--ink-2); border-radius: 21px; padding: 4px 12px; font: inherit; font-size: 13px; cursor: pointer; min-height: 32px; }
@@ -74,60 +75,67 @@
       .status { margin: 0; font-size: 13px; color: var(--ink-2); }
       :is(button, select, input, a):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-      /* The dish as it arrives, and its tastes. */
+      /* The chart as it arrives: its question and its qualities. */
       .original { display: grid; grid-template-columns: minmax(0, 1.618fr) minmax(0, 1fr); gap: 21px; margin-top: 21px; align-items: start; }
       .card-note { margin: 0 0 8px; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2); }
 
-      /* The menu: live plates, each with its menu line, lineage, tastes and balance. */
-      .menu { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 21px; margin-top: 13px; align-items: start; }
-      .plate { display: flex; flex-direction: column; gap: 13px; min-width: 0; }
-      .plate h3 { margin: 0; font-family: var(--serif); font-weight: 600; font-size: 17px; line-height: 1.3; }
+      /* The new versions: live charts, each with its question, move, qualities and balance. */
+      .versions { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 21px; margin-top: 13px; align-items: start; }
+      .version { display: flex; flex-direction: column; gap: 13px; min-width: 0; }
+      .version h3 { margin: 0; font-family: var(--serif); font-weight: 600; font-size: 17px; line-height: 1.3; }
       .tags { display: flex; flex-wrap: wrap; gap: 5px; margin: 0; padding: 0; list-style: none; }
       .tags li { font-size: 12px; color: var(--ink-2); border: 1px solid var(--line); border-radius: 13px; padding: 1px 8px; }
-      .tags li[data-kind="method"] { color: var(--ink); font-weight: 600; }
+      .tags li[data-kind="move"] { color: var(--ink); font-weight: 600; }
       .balance { margin: 0; font-size: 13px; color: var(--ink-2); }
       .scores { margin: -8px 0 0; font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: pre; }
       /* How to read it: one or two plain sentences under the chart. */
       .taller-explain { margin: 0; font-size: 14px; line-height: 1.5; color: var(--ink); max-width: 60ch; }
-      .plate-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-      .plate-actions :is(a, button) { font: inherit; font-size: 13px; color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 5px 13px; text-decoration: none; cursor: pointer; min-height: 32px; display: inline-flex; align-items: center; }
-      .plate-actions [data-done]::after { content: " (copied)"; color: var(--ink-2); }
+      .version-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+      .version-actions :is(a, button) { font: inherit; font-size: 13px; color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 5px 13px; text-decoration: none; cursor: pointer; min-height: 32px; display: inline-flex; align-items: center; }
+      .version-actions [data-done]::after { content: " (copied)"; color: var(--ink-2); }
       /* A glass card is frosted, so it sits on a tinted backdrop: light frost on a light page, smoked slate on a dark one, as the gallery does. */
-      .plate-chart[data-plate="cold"] {
+      .version-chart[data-look="glass"] {
         padding: 13px; border-radius: 21px;
         background:
           radial-gradient(60% 50% at 15% 10%, rgba(160, 205, 165, 0.55), transparent 70%),
           radial-gradient(50% 45% at 90% 20%, rgba(140, 195, 205, 0.5), transparent 70%),
           linear-gradient(160deg, #f4f8f6 0%, #e7efec 60%, #dfe8e5 100%);
       }
-      :root[data-theme="dark"] .plate-chart[data-plate="cold"] {
+      :root[data-theme="dark"] .version-chart[data-look="glass"] {
         background:
           radial-gradient(60% 50% at 15% 10%, rgba(118, 160, 120, 0.5), transparent 70%),
           radial-gradient(50% 45% at 90% 20%, rgba(70, 120, 125, 0.5), transparent 70%),
           linear-gradient(160deg, #1d2b27 0%, #121a19 60%, #0e1414 100%);
       }
       @media (prefers-color-scheme: dark) {
-        :root:not([data-theme="light"]) .plate-chart[data-plate="cold"] {
+        :root:not([data-theme="light"]) .version-chart[data-look="glass"] {
           background:
             radial-gradient(60% 50% at 15% 10%, rgba(118, 160, 120, 0.5), transparent 70%),
             radial-gradient(50% 45% at 90% 20%, rgba(70, 120, 125, 0.5), transparent 70%),
             linear-gradient(160deg, #1d2b27 0%, #121a19 60%, #0e1414 100%);
         }
       }
-      /* The taste bars sit inside a plate: the library's list, without a second card around it. */
-      .tastes .fft-widget { border: 0; box-shadow: none; padding: 0; background: transparent; }
+      /* The quality bars sit inside a version: the library's list, without a second card around it. */
+      .qualities .fft-widget { border: 0; box-shadow: none; padding: 0; background: transparent; }
 
-      /* The Diccionario: kitchen term and chart equivalent, side by side. */
-      .dictionary { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 21px 34px; margin-top: 13px; }
-      .dictionary section { border-top: 1px solid var(--line); padding-top: 13px; }
-      .dictionary h3 { margin: 0 0 8px; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2); font-weight: 600; }
-      .dictionary dl { display: grid; grid-template-columns: minmax(110px, 0.38fr) minmax(0, 1fr); gap: 8px 13px; margin: 0; }
-      .dictionary dt { font-family: var(--serif); font-weight: 600; }
-      .dictionary dd { margin: 0; color: var(--ink-2); font-size: 14px; }
+      /* The sales question a chart answers: the part every version keeps. */
+      .question { margin: 0; padding-left: 13px; border-left: 2px solid var(--accent); font-family: var(--serif); font-size: 16px; line-height: 1.4; color: var(--ink); }
+      .question small { display: block; font-family: system-ui, sans-serif; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2); }
+      .moment { margin: 0; font-size: 12px; color: var(--ink-2); min-height: 1.5em; }
+
+      /* The method: each principle, and what the Taller does with it on sales data. */
+      .method { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 21px 34px; margin-top: 13px; }
+      .method section { border-top: 1px solid var(--line); padding-top: 13px; }
+      .method h3 { margin: 0 0 8px; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2); font-weight: 600; }
+      .method dl { display: grid; grid-template-columns: minmax(130px, 0.42fr) minmax(0, 1fr); gap: 8px 13px; margin: 0; }
+      .method dt { font-family: var(--serif); font-weight: 600; }
+      .method dd { margin: 0; color: var(--ink-2); font-size: 14px; }
 
       @media (max-width: 760px) {
-        .pass, .original { grid-template-columns: minmax(0, 1fr); }
-        .menu, .dictionary { grid-template-columns: minmax(0, 1fr); }
+        .steer, .original { grid-template-columns: minmax(0, 1fr); }
+        .versions, .method { grid-template-columns: minmax(0, 1fr); }
+        .method dl { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+        .method dd { margin-bottom: 8px; }
         h1 { font-size: 28px; }
       }
       @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
@@ -140,9 +148,9 @@
           <a class="back" href="./index.html">Back to the gallery</a>
           <h1>Taller</h1>
           <p class="lede">
-            elBulli's creative method, applied to charts. Pick a dish: its ingredients (the data and its fields) stay exactly as they are,
-            while the kitchen varies the technique, the tools, the temperature, the texture and the plating. Every plate is scored on five
-            tastes and served only when it is balanced, valid and new.
+            elBulli's creative method, lifted out of its craft and applied to sales. Pick a chart: its numbers stay exactly as they are,
+            and so does the sales question they answer. Seven sales moves give that question a new form, and every version is scored on
+            five qualities and kept only when it is balanced, valid and new.
           </p>
           <p class="motto">"Crear es no copiar"<small>Ferran Adrià, elBulli: to create is not to copy</small></p>
         </div>
@@ -156,20 +164,27 @@
         </div>
       </header>
 
-      <section class="pass" aria-label="Steer the kitchen">
-        <label>Dish <select id="dish"></select></label>
+      <section class="steer" aria-label="Steer the Taller">
+        <label>Starting chart <select id="chart"></select></label>
         <div class="field">
-          <span id="methods-label">Methods</span>
-          <div id="methods" class="chips" role="group" aria-labelledby="methods-label"></div>
+          <span id="audience-label">Who reads it</span>
+          <div id="audience" class="segmented" role="group" aria-labelledby="audience-label" aria-describedby="moment"></div>
+          <p class="moment" id="moment"></p>
         </div>
-        <label>Temperature
-          <input type="range" id="temperature" min="-100" max="100" step="5" value="0" aria-describedby="temperature-scale" />
-          <span class="scale" id="temperature-scale"><span>Cold: cool hues, quiet</span><span>Hot: warm hues, one item lit</span></span>
-        </label>
-        <label>Texture
-          <input type="range" id="texture" min="-100" max="100" step="5" value="0" aria-describedby="texture-scale" />
-          <span class="scale" id="texture-scale"><span>Soft: curves, washes</span><span>Crunchy: bars, steps, dots</span></span>
-        </label>
+        <div class="field">
+          <span id="moves-label">Sales moves</span>
+          <div id="moves" class="chips" role="group" aria-labelledby="moves-label"></div>
+        </div>
+        <div class="field">
+          <label>Color
+            <input type="range" id="color" min="-100" max="100" step="5" value="0" aria-describedby="color-scale" />
+            <span class="scale" id="color-scale"><span>Calm: cool hues</span><span>Bold: warm hues, one standout</span></span>
+          </label>
+          <label>Marks
+            <input type="range" id="marks" min="-100" max="100" step="5" value="0" aria-describedby="marks-scale" />
+            <span class="scale" id="marks-scale"><span>Smooth: curves, washes</span><span>Sharp: bars, steps, dots</span></span>
+          </label>
+        </div>
         <div class="actions">
           <button type="button" class="primary" id="create">Create</button>
           <button type="button" id="surprise">Surprise</button>
@@ -177,23 +192,24 @@
         </div>
       </section>
 
-      <h2 id="dish-title">The starting chart</h2>
+      <h2 id="chart-title">The starting chart</h2>
+      <p class="question" id="original-question"></p>
       <div class="original">
         <div id="original"></div>
         <div>
           <p class="card-note">How it reads</p>
-          <div class="tastes" id="original-tastes"></div>
+          <div class="qualities" id="original-qualities"></div>
           <p class="balance" id="original-balance"></p>
         </div>
       </div>
 
-      <h2 id="menu-title">New versions</h2>
-      <p class="lede">Each card shows the same data in a new way. Under each chart: how to read it, and how strong it is on emphasis, surprise, honesty, detail and insight.</p>
-      <div class="menu" id="menu" aria-labelledby="menu-title"></div>
+      <h2 id="versions-title">New versions</h2>
+      <p class="lede">Each card keeps the same numbers and says which sales question it answers. Under each chart: how to read it, and how strong it is on emphasis, surprise, honesty, detail and insight.</p>
+      <div class="versions" id="versions" aria-labelledby="versions-title"></div>
 
-      <h2 id="dictionary-title">Diccionario</h2>
-      <p class="lede">Every kitchen term the Taller cooks with, and what it means for a chart.</p>
-      <div class="dictionary" id="dictionary"></div>
+      <h2 id="method-title">The method</h2>
+      <p class="lede">elBulli's principles, one level above their craft, and what the Taller does with each one on sales data.</p>
+      <div class="method" id="method"></div>
     </main>
     <script type="module" src="/demo/taller.ts"></script>
   </body>

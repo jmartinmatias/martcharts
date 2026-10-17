@@ -1,5 +1,5 @@
 {
-  "about": "Chart variations picked from the variation engine (the Taller) because they are new and meaningful. Plain words only. Engine run: 55 widgets, seeds 1 to 5, every temperature and texture, 718 unique variants, reviewed by hand. Kept only picks scoring at least 4 out of 10 for how new they are.",
+  "about": "Chart variations picked from the variation engine (the Taller) because they are new and meaningful. Plain words only. Engine run: 55 widgets, seeds 1 to 5, every color and marks setting, 718 unique variants, reviewed by hand. Kept only picks scoring at least 4 out of 10 for how new they are.",
   "selections": [
     {
       "source": "revenue-by-region",

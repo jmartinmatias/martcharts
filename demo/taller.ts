@@ -1,13 +1,13 @@
 /**
- * The Taller page: elBulli's creative method applied to charts. Pick a dish (any widget in widgets/), steer the
- * kitchen with temperature, texture and methods, and cook a menu of live variants, each with its menu line,
- * lineage, five tastes and balance note.
+ * The Taller page: elBulli's creative method, abstracted and applied to sales charts. Pick a starting chart (any
+ * widget in widgets/), say who reads it, choose sales moves, steer color and marks, and make live versions, each
+ * with the sales question it answers, its move, five qualities and balance note.
  */
-import { balanceOf, createVariants, createWidget, DICTIONARY, explainChart, METHODS, plainTags, runPipeline, saucesOf, TASTE_MEANINGS, tasteOf } from "../src/index.ts";
-import type { Method, Row, Taste, Tastes, Variant, Widget, WidgetSpec } from "../src/index.ts";
+import { AUDIENCES, balanceOf, createVariants, createWidget, explainChart, fillsOf, MOVES, plainTags, PRINCIPLES, qualitiesOf, QUALITIES, questionOf, runPipeline } from "../src/index.ts";
+import type { Audience, Move, Qualities, Row, Variant, Widget, WidgetSpec } from "../src/index.ts";
 
 const stored = import.meta.glob<WidgetSpec>("../widgets/*.json", { eager: true, import: "default" });
-const dishes = Object.values(stored)
+const charts = Object.values(stored)
   .filter((spec) => spec.id)
   .sort((a, b) => String(a.title ?? a.id).localeCompare(String(b.title ?? b.id)));
 
@@ -18,6 +18,7 @@ const el = <K extends keyof HTMLElementTagNameMap>(tag: K, className?: string, t
   if (text !== undefined) node.textContent = text;
   return node;
 };
+const sentence = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
 // ---- Theme ----
 
@@ -30,46 +31,67 @@ for (const b of themeGroup.querySelectorAll<HTMLButtonElement>("button")) {
   });
 }
 
-// ---- The pass: dish, methods, temperature, texture ----
+// ---- Steering: chart, audience, moves, color, marks ----
 
-const dishPick = $<HTMLSelectElement>("#dish");
-dishes.forEach((spec, i) => dishPick.add(new Option(spec.title ?? spec.id ?? `Dish ${i + 1}`, String(i))));
-const first = new URLSearchParams(location.search).get("dish");
-dishPick.value = String(Math.max(0, dishes.findIndex((spec) => spec.id === first)));
+const chartPick = $<HTMLSelectElement>("#chart");
+charts.forEach((spec, i) => chartPick.add(new Option(spec.title ?? spec.id ?? `Chart ${i + 1}`, String(i))));
+const first = new URLSearchParams(location.search).get("chart");
+chartPick.value = String(Math.max(0, charts.findIndex((spec) => spec.id === first)));
 
-const methodGroup = $("#methods");
-const chosen = new Set<Method>();
-for (const [method, { label }] of Object.entries(METHODS) as [Method, { label: string }][]) {
+let audience: Audience | undefined;
+const audienceGroup = $("#audience");
+const moment = $("#moment");
+const audienceChoices: [Audience | undefined, string][] = [[undefined, "Anyone"], ...(Object.entries(AUDIENCES) as [Audience, { label: string }][]).map(([key, { label }]) => [key, label] as [Audience, string])];
+for (const [key, label] of audienceChoices) {
+  const b = el("button", undefined, label);
+  b.type = "button";
+  b.setAttribute("aria-pressed", String(key === audience));
+  b.addEventListener("click", () => {
+    audience = key;
+    for (const other of audienceGroup.querySelectorAll("button")) other.setAttribute("aria-pressed", String(other === b));
+    moment.textContent = key ? AUDIENCES[key].moment : "";
+    void make();
+  });
+  audienceGroup.append(b);
+}
+
+const moveGroup = $("#moves");
+const chosen = new Set<Move>();
+for (const [move, { label, does }] of Object.entries(MOVES) as [Move, { label: string; does: string }][]) {
   const b = el("button", undefined, label);
   b.type = "button";
   b.setAttribute("aria-pressed", "false");
-  b.title = `Only ${label.toLowerCase()}. With none chosen, every method cooks.`;
+  b.title = `${does} With none chosen, every move is used.`;
   b.addEventListener("click", () => {
-    if (chosen.has(method)) chosen.delete(method);
-    else chosen.add(method);
-    b.setAttribute("aria-pressed", String(chosen.has(method)));
-    void cook();
+    if (chosen.has(move)) chosen.delete(move);
+    else chosen.add(move);
+    b.setAttribute("aria-pressed", String(chosen.has(move)));
+    void make();
   });
-  methodGroup.append(b);
+  moveGroup.append(b);
 }
-const temperature = $<HTMLInputElement>("#temperature");
-const texture = $<HTMLInputElement>("#texture");
+const color = $<HTMLInputElement>("#color");
+const marks = $<HTMLInputElement>("#marks");
 let seed = 1;
 
-// ---- Reading a result: the five qualities (the kitchen's five tastes) as the library's own list, in-cell bars out of 100% ----
+// ---- The five qualities, as the library's own list, with in-cell bars out of 100% ----
 
-const QUALITIES: Taste[] = ["salty", "acid", "bitter", "fatty", "umami"];
-function tasteSpec(tastes: Tastes): WidgetSpec {
+function qualitySpec(qualities: Qualities): WidgetSpec {
   return {
     locale: "en-US",
-    data: { type: "inline", rows: QUALITIES.map((taste) => ({ quality: TASTE_MEANINGS[taste], score: tastes[taste] })) },
+    data: { type: "inline", rows: QUALITIES.map((quality) => ({ quality: sentence(quality), score: qualities[quality] })) },
     fields: { quality: { label: "Quality" }, score: { label: "Score", format: { type: "bar", max: 1, format: { type: "percent" } } } },
     view: { type: "list", label: "quality", value: "score" },
     style: { density: "compact" },
   };
 }
 
-// ---- Cooking ----
+/** The sales question a chart answers, with its small label. */
+function questionLine(target: HTMLElement, text: string) {
+  target.replaceChildren(el("small", undefined, "Answers"), document.createTextNode(text));
+}
+
+// ---- Making versions ----
 
 let live: Widget[] = [];
 const rowsCache = new Map<string, Promise<Row[]>>();
@@ -85,32 +107,32 @@ function mount(target: HTMLElement, spec: WidgetSpec, actions: ("expand" | "csv"
   return widget;
 }
 
-const sentence = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
-
-/**
- * A result card. From here on, chart words only: a plain title, how to read it, plain tags, the five qualities
- * and the balance. The kitchen words stay on the creating side (the controls and the Diccionario).
- */
-function plate(variant: Variant): HTMLElement {
-  const card = el("article", "plate");
+/** A version card: its title, the sales question it answers, the move and plain tags, the chart, how to read it, its qualities and balance. */
+function card(variant: Variant): HTMLElement {
+  const node = el("article", "version");
   const heading = el("h3", undefined, variant.title);
-  card.setAttribute("aria-label", variant.title);
+  node.setAttribute("aria-label", variant.title);
+  const question = el("p", "question");
+  questionLine(question, variant.question);
   const scores = el("p", "scores", `New: ${Math.round(variant.novelty * 100)}%  ·  Says: ${Math.round(variant.meaning * 100)}%`);
   scores.title = "New: how different the chart is from the starting one. Says: how balanced and insightful it is.";
   const tags = el("ul", "tags");
-  tags.setAttribute("aria-label", "What makes this chart");
+  tags.setAttribute("aria-label", "How this version was made");
   plainTags(variant).forEach((text, i) => {
     const li = el("li", undefined, text);
-    if (i === 0) li.dataset.kind = "method";
+    if (i === 0) {
+      li.dataset.kind = "move";
+      li.title = MOVES[variant.move].does;
+    }
     tags.append(li);
   });
   // A glass card is see-through, so it sits on a tinted backdrop that follows the theme, as the gallery does.
-  const chart = el("div", "plate-chart");
-  chart.dataset.plate = variant.lineage.plating;
+  const chart = el("div", "version-chart");
+  chart.dataset.look = variant.lineage.look;
   const explain = el("p", "taller-explain", variant.explain);
-  const tastes = el("div", "tastes");
+  const qualities = el("div", "qualities");
   const balance = el("p", "balance", sentence(variant.balance.note));
-  const actions = el("div", "plate-actions");
+  const actions = el("div", "version-actions");
   const open = el("a", undefined, "Open in playground");
   open.href = `./index.html#taller=${encodeURIComponent(JSON.stringify(variant.spec))}`;
   const copy = el("button", undefined, "Copy spec");
@@ -125,7 +147,7 @@ function plate(variant: Variant): HTMLElement {
     }
   });
   actions.append(open, copy);
-  card.append(heading, scores, tags, chart, explain, tastes, balance, actions);
+  node.append(heading, question, scores, tags, chart, explain, qualities, balance, actions);
   // Mount after the card is in the page, so the charts measure their real width.
   queueMicrotask(() => {
     const widget = mount(chart, variant.spec, ["expand", "csv"]);
@@ -133,77 +155,83 @@ function plate(variant: Variant): HTMLElement {
     void widget.ready.then(() => {
       explain.textContent = explainChart(variant.spec, widget.rows);
     });
-    mount(tastes, tasteSpec(variant.tastes));
+    mount(qualities, qualitySpec(variant.qualities));
   });
-  return card;
+  return node;
 }
 
-let cooking = 0;
-async function cook() {
-  const run = ++cooking;
-  const dish = dishes[Number(dishPick.value)] ?? dishes[0];
-  if (!dish) return;
-  $("#status").textContent = `Making new versions of ${dish.title ?? dish.id}...`;
-  const rows = await rowsOf(dish);
-  if (run !== cooking) return;
+let making = 0;
+async function make() {
+  const run = ++making;
+  const chart = charts[Number(chartPick.value)] ?? charts[0];
+  if (!chart) return;
+  const name = chart.title ?? chart.id;
+  $("#status").textContent = `Making new versions of ${name}...`;
+  const rows = await rowsOf(chart);
+  if (run !== making) return;
   for (const widget of live) widget.destroy();
   live = [];
 
-  // The starting chart, and how it reads.
+  // The starting chart: its question, and how it reads.
+  questionLine($("#original-question"), questionOf(chart, rows).text);
   const original = $("#original");
   original.replaceChildren();
-  mount(original, dish, ["expand"]);
-  const ownTastes = tasteOf(dish, rows);
-  const originalTastes = $("#original-tastes");
-  originalTastes.replaceChildren();
-  mount(originalTastes, tasteSpec(ownTastes));
-  const ownBalance = balanceOf(ownTastes, saucesOf(dish));
-  $("#original-balance").textContent = sentence(ownBalance.note);
+  mount(original, chart, ["expand"]);
+  const own = qualitiesOf(chart, rows);
+  const originalQualities = $("#original-qualities");
+  originalQualities.replaceChildren();
+  mount(originalQualities, qualitySpec(own));
+  $("#original-balance").textContent = sentence(balanceOf(own, fillsOf(chart)).note);
 
-  const menu = createVariants(dish, rows, {
+  const versions = createVariants(chart, rows, {
     count: 6,
     seed,
-    temperature: Number(temperature.value) / 100,
-    texture: Number(texture.value) / 100,
-    methods: [...chosen],
+    color: Number(color.value) / 100,
+    marks: Number(marks.value) / 100,
+    moves: [...chosen],
+    ...(audience ? { audience } : {}),
   });
-  const grid = $("#menu");
-  grid.replaceChildren(...menu.map(plate));
-  $("#status").textContent = menu.length
-    ? `${menu.length} new ${menu.length === 1 ? "version" : "versions"} of ${dish.title ?? dish.id} (seed ${seed}).`
-    : `No new version of ${dish.title ?? dish.id} with these choices: try other methods or another chart.`;
+  $("#versions").replaceChildren(...versions.map(card));
+  $("#status").textContent = versions.length
+    ? `${versions.length} new ${versions.length === 1 ? "version" : "versions"} of ${name} (seed ${seed}).`
+    : `No new version of ${name} with these choices: try other moves or another chart.`;
 }
 
-dishPick.addEventListener("change", () => {
+chartPick.addEventListener("change", () => {
   seed = 1;
   const url = new URL(location.href);
-  url.searchParams.set("dish", dishes[Number(dishPick.value)]?.id ?? "");
+  url.searchParams.set("chart", charts[Number(chartPick.value)]?.id ?? "");
   history.replaceState(null, "", url);
-  void cook();
+  void make();
 });
 let steering: ReturnType<typeof setTimeout> | undefined;
-for (const range of [temperature, texture]) {
+for (const range of [color, marks]) {
   range.addEventListener("input", () => {
     clearTimeout(steering);
-    steering = setTimeout(() => void cook(), 233);
+    steering = setTimeout(() => void make(), 233);
   });
 }
-$("#create").addEventListener("click", () => void cook());
+$("#create").addEventListener("click", () => void make());
 $("#surprise").addEventListener("click", () => {
   seed = 1 + Math.floor(Math.random() * 9999);
-  void cook();
+  void make();
 });
 
-// ---- The Diccionario ----
+// ---- The method: before creating, the seven moves, judging and keeping ----
 
-const dictionary = $("#dictionary");
-for (const group of [...new Set(DICTIONARY.map((entry) => entry.group))]) {
+const method = $("#method");
+const groups: [string, typeof PRINCIPLES][] = [
+  ["Before creating", PRINCIPLES.slice(0, 2)],
+  ["Seven sales moves", PRINCIPLES.filter((p) => p.move)],
+  ["Judging and keeping", PRINCIPLES.slice(2).filter((p) => !p.move)],
+];
+for (const [title, principles] of groups) {
   const section = el("section");
-  section.append(el("h3", undefined, group));
+  section.append(el("h3", undefined, title));
   const list = el("dl");
-  for (const entry of DICTIONARY.filter((e) => e.group === group)) list.append(el("dt", undefined, entry.kitchen), el("dd", undefined, entry.chart));
+  for (const p of principles) list.append(el("dt", undefined, p.principle), el("dd", undefined, p.sales));
   section.append(list);
-  dictionary.append(section);
+  method.append(section);
 }
 
-void cook();
+void make();

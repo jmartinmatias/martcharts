@@ -4,12 +4,12 @@ import { beforeAll, describe, expect, test } from "vitest";
 import { createLocalFetch } from "../mcp/store.ts";
 import { checkPalette, oklch } from "./color.ts";
 import { runPipeline } from "./pipeline.ts";
-import { balanceOf, createVariants, DICTIONARY, meaningOf, METHODS, noveltyOf, plainTags, profileDish, rankVariants, saucesOf, TASTE_MEANINGS, tasteOf, temperaturePalette } from "./taller.ts";
-import type { Method, Variant } from "./taller.ts";
+import { AUDIENCES, balanceOf, createVariants, fillsOf, huePalette, meaningOf, MOVES, noveltyOf, plainTags, PRINCIPLES, profileData, qualitiesOf, QUALITIES, rankVariants } from "./taller.ts";
+import type { Look, Move, Variant } from "./taller.ts";
 import type { Row, WidgetSpec } from "./types.ts";
 import { hasErrors, validateSpec } from "./validate.ts";
 
-/** A dish of regions: one category, three measures, one of them a target. */
+/** Regions: one category, three measures, one of them a target. */
 const regions: Row[] = [
   { region: "North", revenue: 278000, cost: 190000, target: 270000 },
   { region: "South", revenue: 204000, cost: 150000, target: 230000 },
@@ -19,90 +19,109 @@ const regions: Row[] = [
 ];
 const byRegion: WidgetSpec = { id: "revenue-by-region", title: "Revenue by region", data: { type: "inline", rows: regions }, view: { type: "bar", x: "region", y: "revenue" } };
 
-/** A dish of months: time and three measures. */
+/** Months: time and three measures. */
 const months: Row[] = Array.from({ length: 12 }, (_, i) => ({ month: `2026-${String(i + 1).padStart(2, "0")}`, web: 100 + i * 9, app: 80 + ((i * 7) % 30), store: 60 + i * 2 }));
 const byMonth: WidgetSpec = { id: "channels", title: "Orders by channel", data: { type: "inline", rows: months }, view: { type: "line", x: "month", y: ["web", "app", "store"] } };
 
 /** The shape of a spec, as "crear es no copiar" judges it. */
 const shape = (spec: WidgetSpec) => JSON.stringify({ view: { ...spec.view }, facet: spec.facet ?? null, headline: Boolean(spec.headline), steps: spec.transform?.length ?? 0, fields: spec.fields ?? null });
 
-describe("the Diccionario", () => {
-  test("names every kitchen term the Taller cooks with, with its chart equivalent", () => {
-    const groups = new Set(DICTIONARY.map((e) => e.group));
-    expect([...groups]).toEqual(["Ingredients", "Techniques", "Tools", "Soups and sauces", "Temperatures", "Textures", "Plating", "Tastes", "Methods"]);
-    const kitchen = DICTIONARY.map((e) => e.kitchen.toLowerCase()).join(" | ");
-    for (const term of ["deconstruction", "spherification", "foam", "reduction", "infusion", "tweezers", "squeeze bottle", "knife", "spoon", "hot", "cold", "soft", "crunchy", "salty", "acid", "bitter", "fatty", "umami"]) expect(kitchen).toContain(term);
-    expect(DICTIONARY.every((e) => e.chart.length > 20)).toBe(true);
+/** Cooking words. The Taller abstracts elBulli's method and applies it to sales; it never translates the kitchen word for word. */
+const KITCHEN = /\b(salty|acid|bitter|fatty|umami|plat(e|es|ed|ing)|spherif\w*|foam\w*|tweezers|squeeze|knife|spoon|ladle|crunchy|sauces?|dish(es)?|cook\w*|menu|kitchen|recipes?|chef|tastes?|ingredients?|pantry|biber\w*|emulsion|infus\w*|garnish|hot|cold|temperature|texture|bite)\b/i;
+
+describe("the method, abstracted", () => {
+  test("seven sales moves, each with what it does to a sales question and the creative principle it comes from", () => {
+    expect(Object.keys(MOVES)).toEqual(["decompose", "reframe", "distill", "contrast", "reveal", "combine", "reform"]);
+    for (const move of Object.values(MOVES)) expect([move.label.length > 3, move.does.length > 20, move.principle.length > 5]).toEqual([true, true, true]);
   });
 
-  test("every method has its name and its menu adjective", () => {
-    expect(Object.keys(METHODS).sort()).toEqual(["adaptation", "association", "change-of-state", "deconstruction", "minimalism", "sensory", "technique-concept"]);
+  test("the principles sit one level above the kitchen: each names a creative principle and how the Taller applies it to sales data", () => {
+    expect(PRINCIPLES.length).toBeGreaterThanOrEqual(6);
+    expect(PRINCIPLES.every((p) => p.principle.length > 5 && p.sales.length > 30)).toBe(true);
+    expect(PRINCIPLES.map((p) => p.principle)).toEqual(expect.arrayContaining(["Know what exists", "Keep the essence, change the form", "Judge twice: is it new, is it good"]));
+  });
+
+  test("audiences are moments of sales work, and each leans on the moves that serve it", () => {
+    expect(Object.keys(AUDIENCES)).toEqual(["rep", "manager", "leadership"]);
+    for (const audience of Object.values(AUDIENCES)) expect(audience.moves.length > 1 && audience.moves.every((m) => m in MOVES) && audience.moment.length > 20).toBe(true);
+  });
+
+  test("no cooking word anywhere: not in the moves, principles, audiences or results, nor in the engine's own source", () => {
+    const words = [...Object.values(MOVES).flatMap((m) => [m.label, m.does, m.principle]), ...PRINCIPLES.flatMap((p) => [p.principle, p.sales]), ...Object.values(AUDIENCES).flatMap((a) => [a.label, a.moment])];
+    for (const [spec, rows] of [[byRegion, regions], [byMonth, months]] as const) {
+      for (const v of createVariants(spec, rows, { count: 10 })) {
+        const { spec: _spec, ...rest } = v;
+        words.push(JSON.stringify(rest), ...plainTags(v));
+      }
+    }
+    expect(words.filter((w) => KITCHEN.test(w))).toEqual([]);
+    const source = readFileSync("src/core/taller.ts", "utf8") + readFileSync("src/core/taller-explain.ts", "utf8");
+    expect(source.match(new RegExp(KITCHEN.source, "gi")) ?? []).toEqual([]);
   });
 });
 
-describe("profileDish", () => {
-  test("reads the ingredients by kind, the dish's own fields first, and keeps the target apart", () => {
-    const dish = profileDish(byRegion, regions);
-    expect([dish.measures, dish.categories, dish.times, dish.target, dish.rows, dish.view]).toEqual([["revenue", "cost"], ["region"], [], "target", 5, "bar"]);
+describe("profileData", () => {
+  test("reads the fields by kind, the chart's own fields first, and keeps the target apart", () => {
+    const data = profileData(byRegion, regions);
+    expect([data.measures, data.categories, data.times, data.target, data.rows, data.view]).toEqual([["revenue", "cost"], ["region"], [], "target", 5, "bar"]);
   });
 
   test("dates are time, and days are told from months", () => {
-    expect([profileDish(byMonth, months).times, profileDish(byMonth, months).daily]).toEqual([["month"], false]);
+    expect([profileData(byMonth, months).times, profileData(byMonth, months).daily]).toEqual([["month"], false]);
   });
 });
 
-describe("tastes and balance", () => {
+describe("qualities and balance", () => {
   const rows = regions;
-  test("a headline salts, a target line brings depth and honesty, lollipops are lighter than bars, a stream surprises", () => {
-    const bars = tasteOf({ ...byRegion }, rows);
-    const salted = tasteOf({ ...byRegion, headline: { value: "revenue" } }, rows);
-    const target = tasteOf({ ...byRegion, view: { ...byRegion.view, lines: "target" } }, rows);
-    const lollipop = tasteOf({ ...byRegion, view: { ...byRegion.view, mark: "lollipop" } }, rows);
-    const stream = tasteOf({ ...byMonth, view: { type: "area", x: "month", y: ["web", "app", "store"], stacked: "stream" } }, months);
-    expect(salted.salty).toBeGreaterThan(bars.salty);
-    expect([target.umami > bars.umami, target.bitter > bars.bitter]).toEqual([true, true]);
-    expect(lollipop.fatty).toBeLessThan(bars.fatty);
-    expect(stream.acid).toBeGreaterThan(tasteOf(byMonth, months).acid);
+  test("a headline adds emphasis, a target line adds insight and honesty, lollipops carry less detail than bars, a stream surprises", () => {
+    const bars = qualitiesOf({ ...byRegion }, rows);
+    const headlined = qualitiesOf({ ...byRegion, headline: { value: "revenue" } }, rows);
+    const target = qualitiesOf({ ...byRegion, view: { ...byRegion.view, lines: "target" } }, rows);
+    const lollipop = qualitiesOf({ ...byRegion, view: { ...byRegion.view, mark: "lollipop" } }, rows);
+    const stream = qualitiesOf({ ...byMonth, view: { type: "area", x: "month", y: ["web", "app", "store"], stacked: "stream" } }, months);
+    expect(headlined.emphasis).toBeGreaterThan(bars.emphasis);
+    expect([target.insight > bars.insight, target.honesty > bars.honesty]).toEqual([true, true]);
+    expect(lollipop.detail).toBeLessThan(bars.detail);
+    expect(stream.surprise).toBeGreaterThan(qualitiesOf(byMonth, months).surprise);
   });
 
-  test("every taste stays between 0 and 1", () => {
-    const loaded = tasteOf({ ...byRegion, headline: { value: "revenue", compare: "previous" }, view: { ...byRegion.view, highlight: "East", lines: "target", reference: [{ value: 1 }] } }, rows);
+  test("every quality stays between 0 and 1", () => {
+    const loaded = qualitiesOf({ ...byRegion, headline: { value: "revenue", compare: "previous" }, view: { ...byRegion.view, highlight: "East", lines: "target", reference: [{ value: 1 }] } }, rows);
     expect(Object.values(loaded).every((v) => v >= 0 && v <= 1)).toBe(true);
   });
 
-  test("a wash and a band are two sauces", () => {
-    expect(saucesOf({ ...byMonth, view: { type: "area", x: "month", y: "web", band: { low: "app", high: "web" } } })).toBe(2);
+  test("a wash and a band are two filled layers", () => {
+    expect(fillsOf({ ...byMonth, view: { type: "area", x: "month", y: "web", band: { low: "app", high: "web" } } })).toBe(2);
   });
 
-  test("balance: two sauces, one shouting taste, or nothing to taste is turned away; a good plate says what leads, in chart words", () => {
-    const even = { salty: 0.4, acid: 0.3, bitter: 0.2, fatty: 0.35, umami: 0.45 };
+  test("balance: two filled layers, one quality shouting, or nothing to learn is turned away; a good chart says what leads", () => {
+    const even = { emphasis: 0.4, surprise: 0.3, honesty: 0.2, detail: 0.35, insight: 0.45 };
     expect(balanceOf(even, 2)).toEqual({ ok: false, note: "too much detail: two filled layers" });
-    expect(balanceOf({ ...even, salty: 1, umami: 0.3, fatty: 0.2 })).toEqual({ ok: false, note: "too much emphasis: everything shouts" });
-    expect(balanceOf({ salty: 0.1, acid: 0.1, bitter: 0.1, fatty: 0.2, umami: 0.1 }).ok).toBe(false);
+    expect(balanceOf({ ...even, emphasis: 1, insight: 0.3, detail: 0.2 })).toEqual({ ok: false, note: "too much emphasis: everything shouts" });
+    expect(balanceOf({ emphasis: 0.1, surprise: 0.1, honesty: 0.1, detail: 0.2, insight: 0.1 }).ok).toBe(false);
     expect(balanceOf(even)).toEqual({ ok: true, note: "balanced: mostly insight and emphasis" });
   });
 
-  test("on results, the five tastes go by what they mean for a chart", () => {
-    expect(TASTE_MEANINGS).toEqual({ salty: "Emphasis", acid: "Surprise", bitter: "Honesty", fatty: "Detail", umami: "Insight" });
+  test("the five qualities, in reading order", () => {
+    expect(QUALITIES).toEqual(["emphasis", "surprise", "honesty", "detail", "insight"]);
   });
 });
 
-describe("temperature palettes", () => {
-  test("hot is warm hues, cold is cool hues, and both pass the colorblind check", () => {
-    const hot = temperaturePalette("hot", 3) ?? [];
-    const cold = temperaturePalette("cold", 4) ?? [];
-    expect([hot.length, cold.length]).toEqual([3, 4]);
-    expect(hot.every((c) => oklch(c)[2] < 95 || oklch(c)[2] >= 330)).toBe(true);
-    expect(cold.every((c) => oklch(c)[2] >= 150 && oklch(c)[2] < 300)).toBe(true);
-    for (const palette of [hot, cold]) expect(checkPalette(palette, { mode: "light" }).checks.find((c) => c.name === "cvd")?.state).not.toBe("fail");
+describe("hue palettes", () => {
+  test("warm is reds, oranges and yellows, cool is greens, blues and purples, and both pass the colorblind check", () => {
+    const warm = huePalette("warm", 3) ?? [];
+    const cool = huePalette("cool", 4) ?? [];
+    expect([warm.length, cool.length]).toEqual([3, 4]);
+    expect(warm.every((c) => oklch(c)[2] < 95 || oklch(c)[2] >= 330)).toBe(true);
+    expect(cool.every((c) => oklch(c)[2] >= 150 && oklch(c)[2] < 300)).toBe(true);
+    for (const palette of [warm, cool]) expect(checkPalette(palette, { mode: "light" }).checks.find((c) => c.name === "cvd")?.state).not.toBe("fail");
   });
 });
 
 describe("createVariants", () => {
-  test("each method cooks at least one dish where the ingredients allow it", () => {
-    const cooks = (spec: WidgetSpec, rows: Row[], method: Method) => [1, 2, 3, 4].some((seed) => createVariants(spec, rows, { methods: [method], seed }).length > 0);
-    for (const method of ["association", "adaptation", "deconstruction", "minimalism", "change-of-state", "technique-concept"] as Method[]) expect([method, cooks(byRegion, regions, method)]).toEqual([method, true]);
-    expect(cooks(byMonth, months, "sensory")).toBe(true);
+  test("each move makes at least one version where the data allows it", () => {
+    const makes = (spec: WidgetSpec, rows: Row[], move: Move) => [1, 2, 3, 4].some((seed) => createVariants(spec, rows, { moves: [move], seed }).length > 0);
+    for (const move of Object.keys(MOVES) as Move[]) expect([move, makes(byRegion, regions, move) || makes(byMonth, months, move)]).toEqual([move, true]);
   });
 
   test("grids need crossing categories: accounts nested in segments get a sunburst or an icicle, never a sparse heat table", () => {
@@ -119,20 +138,22 @@ describe("createVariants", () => {
     expect(served({ ...byRegion, data: { type: "inline", rows: years }, view: { type: "bar", x: "region", y: "revenue2026" } }, years).has("slope")).toBe(true);
   });
 
-  test("a method filter keeps to that method", () => {
-    expect(createVariants(byRegion, regions, { methods: ["minimalism"], count: 6 }).every((v) => v.method === "minimalism")).toBe(true);
+  test("a move filter keeps to that move", () => {
+    const distilled = createVariants(byRegion, regions, { moves: ["distill"], count: 6 });
+    expect(distilled.length).toBeGreaterThan(0);
+    expect(distilled.every((v) => v.move === "distill" && v.lineage.move === "distill")).toBe(true);
   });
 
   test("crear es no copiar: never the original's shape, never two of the same", () => {
     for (const [spec, rows] of [[byRegion, regions], [byMonth, months]] as const) {
-      const menu = createVariants(spec, rows, { count: 8 });
-      const shapes = menu.map((v) => shape(v.spec));
+      const versions = createVariants(spec, rows, { count: 8 });
+      const shapes = versions.map((v) => shape(v.spec));
       expect(shapes).not.toContain(shape(spec));
       expect(new Set(shapes).size).toBe(shapes.length);
     }
   });
 
-  test("never a near copy: a dish served in its own view brings a new technique or two new elements", () => {
+  test("never a near copy: a version in the original's own view brings a new form or two new elements", () => {
     const technique = (spec: WidgetSpec) => JSON.stringify([spec.view?.mark ?? "bar", spec.view?.curve ?? "linear", spec.view?.stacked ?? false]);
     const extras = (spec: WidgetSpec) => [Boolean(spec.view?.lines), Boolean(spec.view?.reference), Boolean(spec.view?.highlight), Boolean(spec.headline), Boolean(spec.facet), (spec.transform?.length ?? 0) > 0];
     for (const [spec, rows] of [[byRegion, regions], [byMonth, months]] as const) {
@@ -145,7 +166,7 @@ describe("createVariants", () => {
     }
   });
 
-  test("taking garnish away is not creating: a dish in its own view needs a new technique or two new elements", () => {
+  test("taking extras away is not creating: a version in the original's own view needs a new form or two new elements", () => {
     const dressed: WidgetSpec = { ...byRegion, view: { ...byRegion.view, highlight: "East", reference: [{ value: 250000, label: "Plan" }] } };
     const technique = (spec: WidgetSpec) => JSON.stringify([spec.view?.mark ?? "bar", spec.view?.curve ?? "linear", spec.view?.stacked ?? false]);
     const extras = (spec: WidgetSpec) => [Boolean(spec.view?.lines), Boolean(spec.view?.reference), Boolean(spec.view?.highlight), Boolean(spec.headline), Boolean(spec.facet), (spec.transform?.length ?? 0) > 0];
@@ -157,7 +178,7 @@ describe("createVariants", () => {
     }
   });
 
-  test("the ingredients are kept: same data, and every field a variant uses is one the dish had", () => {
+  test("the numbers are kept: same data, and every field a version uses is one the original had", () => {
     const fields = new Set(Object.keys(regions[0] ?? {}));
     for (const v of createVariants(byRegion, regions, { count: 10 })) {
       expect(v.spec.data).toEqual(byRegion.data);
@@ -166,51 +187,64 @@ describe("createVariants", () => {
     }
   });
 
-  test("the same dish and seed give the same menu; another seed gives another", () => {
+  test("the same chart and seed give the same versions; another seed gives others", () => {
     const once = createVariants(byRegion, regions, { seed: 7 });
     expect(createVariants(byRegion, regions, { seed: 7 })).toEqual(once);
-    expect(createVariants(byRegion, regions, { seed: 8 }).map((v) => v.menu)).not.toEqual(once.map((v) => v.menu));
+    const look = (vs: Variant[]) => vs.map((v) => JSON.stringify([v.spec.view, v.spec.style]));
+    expect(look(createVariants(byRegion, regions, { seed: 8 }))).not.toEqual(look(once));
   });
 
-  test("steering: hot leans warm, cold leans cool, crunchy leans crunchy, soft leans soft", () => {
-    const share = (menu: Variant[], test: (v: Variant) => boolean) => menu.filter(test).length / Math.max(1, menu.length);
-    const hot = createVariants(byMonth, months, { temperature: 1, count: 8 });
-    const cold = createVariants(byMonth, months, { temperature: -1, count: 8 });
-    expect(share(hot, (v) => v.lineage.temperature === "hot" || v.lineage.temperature === "contrast")).toBeGreaterThan(0.5);
-    expect(share(cold, (v) => v.lineage.temperature === "cold" || v.lineage.temperature === "room")).toBeGreaterThan(0.5);
-    expect(share(createVariants(byRegion, regions, { texture: 1, count: 8 }), (v) => v.lineage.texture === "crunchy")).toBeGreaterThan(0.5);
-    expect(share(createVariants(byMonth, months, { texture: -1, count: 8 }), (v) => v.lineage.texture === "soft")).toBeGreaterThan(0.5);
+  test("steering: bold leans warm or one standout, calm leans cool or standard, sharp leans sharp, smooth leans smooth", () => {
+    const share = (versions: Variant[], test: (v: Variant) => boolean) => versions.filter(test).length / Math.max(1, versions.length);
+    const bold = createVariants(byMonth, months, { color: 1, count: 8 });
+    const calm = createVariants(byMonth, months, { color: -1, count: 8 });
+    expect(share(bold, (v) => v.lineage.color === "warm" || v.lineage.color === "standout")).toBeGreaterThan(0.5);
+    expect(share(calm, (v) => v.lineage.color === "cool" || v.lineage.color === "standard")).toBeGreaterThan(0.5);
+    expect(share(createVariants(byRegion, regions, { marks: 1, count: 8 }), (v) => v.lineage.marks === "sharp")).toBeGreaterThan(0.5);
+    expect(share(createVariants(byMonth, months, { marks: -1, count: 8 }), (v) => v.lineage.marks === "smooth")).toBeGreaterThan(0.5);
   });
 
-  test("every dish arrives balanced, with a menu line, a lineage and its tools", () => {
-    for (const v of createVariants(byRegion, regions, { count: 8 })) {
-      expect(v.balance.ok).toBe(true);
-      expect(v.menu).toMatch(/^[A-Z][a-z]+ revenue by region: .+, (hot|cold|hot on cold|at room temperature), (soft|crunchy), on (a white|an empty|a cold|the house) plate$/);
-      expect(v.lineage.tools.length).toBeGreaterThan(0);
+  test("an audience leans on the moves that serve its moment", () => {
+    for (const [audience, { moves }] of Object.entries(AUDIENCES) as [keyof typeof AUDIENCES, { moves: Move[] }][]) {
+      const versions = [1, 2, 3].flatMap((seed) => createVariants(byRegion, regions, { audience, seed, count: 6 }));
+      expect([audience, versions.filter((v) => moves.includes(v.move)).length / versions.length >= 0.6]).toEqual([audience, true]);
     }
   });
 
-  test("results speak in chart words only: a plain title, how to read it, plain tags and a plain balance note", () => {
-    const kitchen = /\b(salty|acid|bitter|fatty|umami|plate|spherif\w*|foam\w*|tweezers|squeeze|knife|spoon|hot|cold|crunchy|sauces?|dish|cook\w*|menu|kitchen|recipe)\b/i;
+  test("every version arrives balanced, with its move, the sales question it answers and a plain lineage", () => {
+    for (const v of createVariants(byRegion, regions, { count: 8 })) {
+      expect(v.balance.ok).toBe(true);
+      expect(v.question).toMatch(/^[A-Z].+\?$/);
+      expect(Object.keys(v.lineage).sort()).toEqual(["color", "form", "look", "marks", "move", "question"]);
+      expect(v.lineage.move).toBe(v.move);
+    }
+  });
+
+  test("the essence is kept: every version asks about the original's own numbers", () => {
+    for (const v of createVariants(byRegion, regions, { count: 12 })) expect([v.question, /revenue|cost|target/.test(v.question)]).toEqual([v.question, true]);
+  });
+
+  test("results read in chart words: a plain title and how to read it", () => {
     for (const [spec, rows] of [[byRegion, regions], [byMonth, months]] as const) {
       for (const v of createVariants(spec, rows, { count: 10 })) {
         expect(v.title.startsWith(`${spec.title} as `)).toBe(true);
         expect(v.explain.length).toBeGreaterThan(20);
-        for (const text of [v.title, v.explain, v.balance.note, ...plainTags(v)]) expect([text, kitchen.test(text)]).toEqual([text, false]);
       }
     }
   });
 
-  test("plain tags name the marks, colors and card", () => {
-    const [v] = createVariants(byRegion, regions, { methods: ["minimalism"], temperature: 1, texture: 1, seed: 2 });
-    expect(plainTags(v as Variant).some((tag) => ["warm colors", "one standout color"].includes(tag))).toBe(true);
-    expect(plainTags(v as Variant)).toContain("sharp marks");
+  test("plain tags name the move, the marks, the colors and the card", () => {
+    const [v] = createVariants(byRegion, regions, { moves: ["distill"], color: 1, marks: 1, seed: 2 });
+    const tags = plainTags(v as Variant);
+    expect(tags[0]).toBe("distill");
+    expect(tags.some((tag) => ["warm colors", "one standout color"].includes(tag))).toBe(true);
+    expect(tags).toContain("sharp marks");
   });
 
   test("variants are plain JSON, seed included, ready to be saved as a collection", () => {
-    const menu = createVariants(byMonth, months, { seed: 3 });
-    expect(JSON.parse(JSON.stringify(menu))).toEqual(menu);
-    expect(menu.every((v) => v.seed === 3)).toBe(true);
+    const versions = createVariants(byMonth, months, { seed: 3 });
+    expect(JSON.parse(JSON.stringify(versions))).toEqual(versions);
+    expect(versions.every((v) => v.seed === 3)).toBe(true);
   });
 });
 
@@ -222,26 +256,26 @@ describe("novelty, meaning and ranking", () => {
     expect(noveltyOf(byRegion, byRegion)).toBe(0);
   });
 
-  test("a balanced plate with depth means more than a flat one", () => {
-    const deep = meaningOf({ salty: 0.4, acid: 0.3, bitter: 0.35, fatty: 0.3, umami: 0.7 }, { ok: true, note: "" });
-    const flat = meaningOf({ salty: 0.1, acid: 0.1, bitter: 0.1, fatty: 0.1, umami: 0.1 }, { ok: false, note: "" });
+  test("a balanced chart with insight means more than a flat one", () => {
+    const deep = meaningOf({ emphasis: 0.4, surprise: 0.3, honesty: 0.35, detail: 0.3, insight: 0.7 }, { ok: true, note: "" });
+    const flat = meaningOf({ emphasis: 0.1, surprise: 0.1, honesty: 0.1, detail: 0.1, insight: 0.1 }, { ok: false, note: "" });
     expect(deep).toBeGreaterThan(flat);
   });
 
   test("rankVariants sorts by novelty, meaning or both, highest first, without touching the input", () => {
-    const menu = createVariants(byRegion, regions, { count: 8 });
-    const before = menu.map((v) => v.menu);
-    const novel = rankVariants(menu, "novelty");
-    const meaningful = rankVariants(menu, "meaning");
-    const both = rankVariants(menu);
+    const versions = createVariants(byRegion, regions, { count: 8 });
+    const before = versions.map((v) => v.title);
+    const novel = rankVariants(versions, "novelty");
+    const meaningful = rankVariants(versions, "meaning");
+    const both = rankVariants(versions);
     expect(novel.every((v, i) => i === 0 || v.novelty <= (novel[i - 1] as Variant).novelty)).toBe(true);
     expect(meaningful.every((v, i) => i === 0 || v.meaning <= (meaningful[i - 1] as Variant).meaning)).toBe(true);
     expect(both.every((v, i) => i === 0 || v.novelty + v.meaning <= (both[i - 1] as Variant).novelty + (both[i - 1] as Variant).meaning + 1e-9)).toBe(true);
-    expect(menu.map((v) => v.menu)).toEqual(before);
+    expect(versions.map((v) => v.title)).toEqual(before);
   });
 });
 
-describe("every widget in the kitchen", () => {
+describe("every stored widget", () => {
   const widgets = readdirSync("widgets")
     .filter((name) => name.endsWith(".json"))
     .map((name) => JSON.parse(readFileSync(join("widgets", name), "utf8")) as WidgetSpec);
@@ -251,17 +285,17 @@ describe("every widget in the kitchen", () => {
     for (const spec of widgets) rowsOf.set(spec.id as string, await runPipeline(spec, { fetch }));
   });
 
-  test("cooks a menu for most dishes, and every variant is valid, new, colorblind safe and balanced", () => {
-    let cooked = 0;
+  test("makes versions of most widgets, and every version is valid, new, colorblind safe and balanced", () => {
+    let made = 0;
     for (const spec of widgets) {
       const rows = rowsOf.get(spec.id as string) ?? [];
       for (const seed of [1, 2]) {
-        const menu = createVariants(spec, rows, { seed, count: 6 });
-        if (menu.length) cooked += 1;
+        const versions = createVariants(spec, rows, { seed, count: 6 });
+        if (versions.length) made += 1;
         const shapes = new Set<string>([shape(spec)]);
-        for (const v of menu) {
+        for (const v of versions) {
           const errors = validateSpec(v.spec, rows).filter((issue) => issue.level === "error");
-          expect([spec.id, v.menu, errors]).toEqual([spec.id, v.menu, []]);
+          expect([spec.id, v.title, errors]).toEqual([spec.id, v.title, []]);
           expect(hasErrors(validateSpec(v.spec, rows))).toBe(false);
           expect(shapes.has(shape(v.spec))).toBe(false);
           shapes.add(shape(v.spec));
@@ -272,15 +306,15 @@ describe("every widget in the kitchen", () => {
         }
       }
     }
-    expect(cooked / (widgets.length * 2)).toBeGreaterThan(0.8);
+    expect(made / (widgets.length * 2)).toBeGreaterThan(0.8);
   });
 });
 
 describe("honest forms", () => {
-  /** Every variant the kitchen can make from a spec, across many seeds and every temperature and texture. */
+  /** Every version the Taller can make from a spec, across many seeds, colors and marks. */
   const everything = (spec: WidgetSpec, rows: Row[]) => {
     const out: Variant[] = [];
-    for (let seed = 1; seed <= 12; seed++) for (const temperature of [-1, 0, 1]) for (const texture of [-1, 0, 1]) out.push(...createVariants(spec, rows, { count: 8, seed, temperature, texture }));
+    for (let seed = 1; seed <= 12; seed++) for (const color of [-1, 0, 1]) for (const marks of [-1, 0, 1]) out.push(...createVariants(spec, rows, { count: 8, seed, color, marks }));
     return out;
   };
   const months = ["2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06", "2026-07", "2026-08", "2026-09", "2026-10", "2026-11", "2026-12"];
@@ -316,8 +350,8 @@ describe("honest forms", () => {
 
 describe("plain tags", () => {
   test("a card tag names the look, true in light and dark themes alike", () => {
-    const tagsFor = (plating: "white" | "empty" | "cold" | "house") => plainTags({ lineage: { method: "minimalism", technique: "reduction", tools: [], temperature: "room", texture: "soft", plating }, spec: byRegion });
-    const cards = (["white", "empty", "cold", "house"] as const).map((p) => tagsFor(p).find((t) => /card|layout/.test(t)));
+    const tagsFor = (look: Look) => plainTags({ lineage: { move: "distill", question: "rank", form: "lollipops", color: "standard", marks: "smooth", look }, spec: byRegion });
+    const cards = (["paper", "airy", "glass", "default"] as const).map((look) => tagsFor(look).find((t) => /card|layout/.test(t)));
     expect(cards).toEqual(["paper card", "open layout, no card", "glass card", "standard card"]);
     expect(cards.some((t) => /light|dark/.test(t ?? ""))).toBe(false);
   });

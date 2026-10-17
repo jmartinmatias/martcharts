@@ -1,7 +1,7 @@
 /**
  * Plain words for a Taller variant, as if to a ten-year-old: a title that says what the chart is and what each
  * mark stands for, and one or two sentences on how to read it (what bigger, further right, stronger or warmer
- * means). Chart words only, never kitchen words: those belong to the creating side of the Taller.
+ * means). Plain chart words, the same on every page.
  *
  * One function on purpose: a general `explainChart(spec, rows)` can replace it without touching the engine.
  *
@@ -11,7 +11,7 @@ import { fieldLabel } from "./display.ts";
 import type { WidgetSpec } from "./types.ts";
 
 /** A plain title and a short "how to read it" for a chart spec. */
-export function explainVariant(spec: WidgetSpec, dishTitle: string, rowName?: string): { title: string; explain: string } {
+export function explainVariant(spec: WidgetSpec, chartTitle: string, rowName?: string): { title: string; explain: string } {
   const view = spec.view ?? { type: "table" };
   const name = (field: unknown) => (typeof field === "string" ? fieldLabel(field, spec.fields).toLowerCase() : "value");
   const first = (field: unknown) => (Array.isArray(field) ? field[0] : field);
@@ -192,6 +192,6 @@ export function explainVariant(spec: WidgetSpec, dishTitle: string, rowName?: st
   if (view.lines) extras.push(`The line across the bars is the ${name(view.lines)}.`);
   if (view.forecast) extras.push("The dashed part is a forecast, not real yet.");
   if (spec.headline) extras.push("The big number on top sums it up.");
-  const title = `${dishTitle} as ${form}${facet ? ` per ${name(facet)}` : ""}: ${mark}`;
+  const title = `${chartTitle} as ${form}${facet ? ` per ${name(facet)}` : ""}: ${mark}`;
   return { title, explain: [read, ...extras].slice(0, 2).join(" ") };
 }
