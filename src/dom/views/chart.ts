@@ -68,6 +68,8 @@ export function highlights(value: unknown): string[] {
 const TARGET = /target|plan|goal|budget|quota/i;
 /** A bar's light fill when it falls short of its target: a third of its color on the card. */
 const missFill = (color: string) => `color-mix(in srgb, ${color} 34%, var(--fft-surface))`;
+/** Its outline, the miss's only edge: leaning toward the text color keeps it at 3:1 on any page, light or dark. */
+const missEdge = (color: string) => `color-mix(in srgb, ${color} 85%, var(--fft-text))`;
 
 /** A legend key: a series, a line, or a mark state such as a bar that missed its target. */
 interface LegendEntry {
@@ -90,7 +92,7 @@ function legend(ctx: ViewContext<{ type: string }>, entries: LegendEntry[]): HTM
     if (entry.tone === "miss") {
       swatch.dataset.tone = "miss";
       swatch.style.background = missFill(entry.color);
-      swatch.style.boxShadow = `inset 0 0 0 1px ${entry.color}`;
+      swatch.style.boxShadow = `inset 0 0 0 1px ${missEdge(entry.color)}`;
     } else swatch.style.background = entry.color;
     swatch.setAttribute("aria-hidden", "true");
     const item = html(doc, "li");
@@ -267,7 +269,7 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
         // Short of its target: a light fill outlined in the bar's own color, so the miss reads by shape too.
         bar.dataset.tone = "miss";
         bar.style.setProperty("fill", missFill(fill));
-        bar.style.setProperty("stroke", fill);
+        bar.style.setProperty("stroke", missEdge(fill));
       } else bar.style.setProperty("fill", fill);
       if (rect.negative) bar.setAttribute("data-negative", "");
       markGroups[rect.index]?.append(bar);

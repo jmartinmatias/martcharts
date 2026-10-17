@@ -1165,7 +1165,8 @@ describe("combo: lines over bars", () => {
     await draw({ ...spec, rows: [{ m: "Jan", revenue: 80, target: 90 }, { m: "Feb", revenue: 150, target: 140 }] });
     const bars = all("path.fft-bar") as SVGElement[];
     expect(bars.map((bar) => bar.dataset.tone ?? null)).toEqual(["miss", null]);
-    expect([bars[0]?.style.stroke, bars[0]?.style.fill.startsWith("color-mix")]).toEqual(["var(--fft-series-1)", true]);
+    // The outline is the miss's only edge: it leans toward the text color, so it keeps 3:1 on any page, light or dark.
+    expect([bars[0]?.style.stroke, bars[0]?.style.fill.startsWith("color-mix")]).toEqual(["color-mix(in srgb, var(--fft-series-1) 85%, var(--fft-text))", true]);
     expect((all(".fft-legend li").at(-1)?.querySelector(".fft-swatch") as HTMLElement).dataset.tone).toBe("miss");
   });
 
