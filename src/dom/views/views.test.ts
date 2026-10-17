@@ -223,7 +223,7 @@ describe("kpi view", () => {
 
   test("a fall when down is good is good news, and the comparison is named after its field by default", async () => {
     await draw({ rows: [{ churn: 0.04, lastMonth: 0.05 }], view: { type: "kpi", value: "churn", compare: "lastMonth", goodWhen: "down" } });
-    expect([...texts(".fft-kpi-change"), ...texts(".fft-kpi-compare")]).toEqual(["▼ -20.0%", "vs Last month"]);
+    expect([...texts(".fft-kpi-change"), ...texts(".fft-kpi-compare")]).toEqual(["▼ −20.0%", "vs Last month"]);
     expect(target.querySelector<HTMLElement>(".fft-kpi-delta")?.dataset.sentiment).toBe("good");
   });
 
@@ -852,7 +852,7 @@ describe("waterfall view", () => {
 
   test("labels each step with its signed change and each total with its value", async () => {
     await draw(spec);
-    expect(texts(".fft-step-label")).toEqual(["1,000", "+150", "-80", "1,070"]);
+    expect(texts(".fft-step-label")).toEqual(["1,000", "+150", "−80", "1,070"]);
   });
 
   test("hairline connectors join each bar to the next", async () => {
@@ -873,7 +873,7 @@ describe("waterfall view", () => {
   test("the tooltip gives the change and the running total", async () => {
     await draw(spec);
     all(".fft-hit")[2]?.dispatchEvent(new Event("focus"));
-    expect([...texts(".fft-tooltip-title"), ...texts(".fft-tooltip-row")]).toEqual(["Churn", "-80Change", "1,070Running total"]);
+    expect([...texts(".fft-tooltip-title"), ...texts(".fft-tooltip-row")]).toEqual(["Churn", "−80Change", "1,070Running total"]);
   });
 });
 
@@ -1380,7 +1380,7 @@ describe("dumbbell view", () => {
     await draw(spec);
     expect(texts(".fft-legend li")).toEqual(["Last", "Now"]);
     all(".fft-db-hit")[1]?.dispatchEvent(new Event("focus"));
-    expect([...texts(".fft-tooltip-title"), ...texts(".fft-tooltip-row")]).toEqual(["South", "240Last", "204Now", "-15.0%Change"]);
+    expect([...texts(".fft-tooltip-title"), ...texts(".fft-tooltip-row")]).toEqual(["South", "240Last", "204Now", "−15.0%Change"]);
   });
   test("two different measures are not before and after: each dot takes a series color, and the tooltip gives the gap", async () => {
     await draw({ rows: [{ region: "North", revenue: 278, cost: 190 }], view: { type: "dumbbell", label: "region", from: "revenue", to: "cost" } });
@@ -1445,7 +1445,7 @@ describe("slope view", () => {
     await draw(spec);
     const hit = all(".fft-slope-hit")[1] as Element;
     hit.dispatchEvent(new Event("focus"));
-    expect([...texts(".fft-tooltip-title"), ...texts(".fft-tooltip-row")]).toEqual(["South", "240Last", "204Now", "-15.0%Change"]);
+    expect([...texts(".fft-tooltip-title"), ...texts(".fft-tooltip-row")]).toEqual(["South", "240Last", "204Now", "−15.0%Change"]);
     press(hit, "Enter");
     expect(seen).toEqual([regions[1]]);
   });
@@ -1863,16 +1863,16 @@ describe("variance view", () => {
 
   test("every variance is written with its sign, as an amount or, with percent, against plan", async () => {
     await draw(spec);
-    expect(texts(".fft-var-value")).toEqual(["+20", "-10", "0"]);
+    expect(texts(".fft-var-value")).toEqual(["+20", "−10", "0"]);
     target.replaceChildren();
     await draw({ ...spec, view: { ...spec.view, percent: true } });
-    expect(texts(".fft-var-value")).toEqual(["+20%", "-10%", "0%"]);
+    expect(texts(".fft-var-value")).toEqual(["+20%", "−10%", "0%"]);
   });
 
   test("the tooltip gives actual, plan, and the variance both ways", async () => {
     await draw(spec);
     all(".fft-var-hit")[1]?.dispatchEvent(new Event("focus"));
-    expect([...texts(".fft-tooltip-title"), ...texts(".fft-tooltip-row")]).toEqual(["Marketing", "90Actual", "100Plan", "-10Variance", "-10%vs plan"]);
+    expect([...texts(".fft-tooltip-title"), ...texts(".fft-tooltip-row")]).toEqual(["Marketing", "90Actual", "100Plan", "−10Variance", "−10%vs plan"]);
   });
 });
 
@@ -2083,7 +2083,7 @@ describe("candlestick view", () => {
   test("the tooltip gives open, high, low, close and the change", async () => {
     await draw(spec);
     all(".fft-candle-hit")[1]?.dispatchEvent(new Event("focus"));
-    expect([...texts(".fft-tooltip-title"), ...texts(".fft-tooltip-row")]).toEqual(["Tue", "13Open", "13.5High", "10Low", "11Close", "-15.4%Change"]);
+    expect([...texts(".fft-tooltip-title"), ...texts(".fft-tooltip-row")]).toEqual(["Tue", "13Open", "13.5High", "10Low", "11Close", "−15.4%Change"]);
   });
 
   test("the average is named in the chart's own time step: a 3-day average for days, otherwise an average of the last points", async () => {
@@ -2540,7 +2540,7 @@ describe("kpis view (a row of stat tiles)", () => {
     expect([texts(".fft-stat-label"), texts(".fft-stat-value"), texts(".fft-stat .fft-kpi-change")]).toEqual([
       ["Revenue", "Churn rate"],
       ["€1,250", "4.0%"],
-      ["▲ +25.0%", "▼ -20.0%"],
+      ["▲ +25.0%", "▼ −20.0%"],
     ]);
     expect(all(".fft-stat .fft-kpi-delta").map((d) => (d as HTMLElement).dataset.sentiment)).toEqual(["good", "good"]);
   });

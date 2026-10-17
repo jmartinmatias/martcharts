@@ -1,3 +1,4 @@
+import { minusFormat } from "../../core/display.ts";
 import { readNumber } from "../../core/formats.ts";
 import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
@@ -39,7 +40,7 @@ export const renderSlope: ViewRenderer<SlopeView> = (ctx) => {
       on: picked.length === 0 || picked.includes(String(row[label])),
     };
   });
-  const change = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1, signDisplay: "exceptZero" });
+  const change = minusFormat(new Intl.NumberFormat(ctx.spec.locale, { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1, signDisplay: "exceptZero" }));
 
   const labelWidth = (side: "from" | "to") => Math.max(34, ...items.map((it) => (it.name.length + 1 + (side === "from" ? it.fromText : it.toText).length) * CHAR_WIDTH)) + 13;
   const top = 34;

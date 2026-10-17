@@ -24,10 +24,24 @@ import type { FieldSpec, FormatSpec } from "./types.ts";
 export function formatValue(value: unknown, format?: FormatSpec, locale?: string): string {
   if (isMissing(value)) return "";
   if (format === undefined) {
-    return typeof value === "number" ? getBlock("format", "number").format(value, {}, locale) : String(value);
+    return typeof value === "number" ? trueMinus(getBlock("format", "number").format(value, {}, locale)) : String(value);
   }
   const { type, ...options } = typeof format === "string" ? { type: format } : format;
-  return getBlock("format", type).format(value, options, locale);
+  const text = getBlock("format", type).format(value, options, locale);
+  return typeof value === "number" ? trueMinus(text) : text;
+}
+
+/**
+ * A signed number in print form: a true minus sign (−) in place of the hyphen, as wide as the plus it pairs with
+ * and read aloud as "minus". Only a sign at the start or after a space or bracket: dates and ranges keep their hyphens.
+ */
+export function trueMinus(text: string): string {
+  return text.replace(/(^|[\s(])-(?=[\d€$£¥.,])/g, "$1\u2212");
+}
+
+/** An `Intl.NumberFormat` whose output signs with the true minus, for views that format their own changes. */
+export function minusFormat(format: Intl.NumberFormat): { format: (value: number) => string } {
+  return { format: (value) => trueMinus(format.format(value)) };
 }
 
 /**

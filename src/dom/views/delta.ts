@@ -1,3 +1,4 @@
+import { trueMinus } from "../../core/display.ts";
 import { html } from "./shared.ts";
 
 /**
@@ -10,7 +11,7 @@ export function deltaElement(doc: Document, change: number, goodWhen: "up" | "do
   const box = html(doc, "div", "fft-kpi-delta");
   box.dataset.direction = direction;
   box.dataset.sentiment = direction === "flat" ? "neutral" : direction === goodWhen ? "good" : "bad";
-  const text = new Intl.NumberFormat(locale, { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1, signDisplay: "exceptZero" }).format(change);
+  const text = trueMinus(new Intl.NumberFormat(locale, { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1, signDisplay: "exceptZero" }).format(change));
   const changeEl = html(doc, "span", "fft-kpi-change");
   if (direction !== "flat") {
     const arrow = html(doc, "span", undefined, direction === "up" ? "▲" : "▼");

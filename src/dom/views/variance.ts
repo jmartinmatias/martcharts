@@ -1,3 +1,4 @@
+import { minusFormat } from "../../core/display.ts";
 import { readNumber } from "../../core/formats.ts";
 import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
@@ -27,14 +28,14 @@ function varianceBar(from: number, to: number, y: number): string {
 export const renderVariance: ViewRenderer<VarianceView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
   const { label, value, target, percent = false, goodWhen = "up" } = ctx.view;
-  const share = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 1, signDisplay: "exceptZero" });
+  const share = minusFormat(new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 1, signDisplay: "exceptZero" }));
   const items = ctx.rows.flatMap((row) => {
     const actual = readNumber(row[value]);
     const plan = readNumber(row[target]);
     if (actual === null || plan === null) return [];
     const delta = actual - plan;
     const relative = plan !== 0 ? delta / Math.abs(plan) : null;
-    const signed = `${delta > 0 ? "+" : delta < 0 ? "-" : ""}${ctx.format(Math.abs(delta), value)}`;
+    const signed = `${delta > 0 ? "+" : delta < 0 ? "\u2212" : ""}${ctx.format(Math.abs(delta), value)}`;
     return [{ row, delta, relative, measure: percent ? (relative ?? 0) : delta, signed, rel: relative === null ? "" : share.format(relative), name: ctx.format(row[label], label) }];
   });
   const text = (it: (typeof items)[number]) => (percent ? it.rel : it.signed);

@@ -1,4 +1,4 @@
-import { timeStep } from "../../core/display.ts";
+import { timeStep, minusFormat } from "../../core/display.ts";
 import { readNumber } from "../../core/formats.ts";
 import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
@@ -28,7 +28,7 @@ export const renderCandlestick: ViewRenderer<CandlestickView> = (ctx) => {
     const c = readNumber(row[close]);
     return o === null || h === null || l === null || c === null ? [] : [{ row, o, h, l, c, text: ctx.format(row[xField], xField) }];
   });
-  const change = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1, signDisplay: "exceptZero" });
+  const change = minusFormat(new Intl.NumberFormat(ctx.spec.locale, { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1, signDisplay: "exceptZero" }));
   const means =
     average && average > 1
       ? periods.map((_, i) => (i + 1 < average ? null : periods.slice(i + 1 - average, i + 1).reduce((sum, p) => sum + p.c, 0) / average))

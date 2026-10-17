@@ -1,3 +1,4 @@
+import { minusFormat } from "../../core/display.ts";
 import { readNumber } from "../../core/formats.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { DumbbellView } from "../../core/views.ts";
@@ -31,7 +32,7 @@ export const renderDumbbell: ViewRenderer<DumbbellView> = (ctx) => {
   const width = Math.max(ctx.width, left + 144);
   const height = margin.top + rows.length * ROW + margin.bottom;
   const x = linearScale(values, [margin.left, width - margin.right], { includeZero: false });
-  const change = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1, signDisplay: "exceptZero" });
+  const change = minusFormat(new Intl.NumberFormat(ctx.spec.locale, { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1, signDisplay: "exceptZero" }));
   const periods = PERIOD.test(from) || PERIOD.test(to);
   const fromColor = periods ? undefined : ctx.color(0);
   const toColor = periods ? ctx.color(0) : ctx.color(1);

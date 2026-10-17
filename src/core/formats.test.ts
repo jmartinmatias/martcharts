@@ -97,9 +97,19 @@ describe("bar format", () => {
   });
 });
 
+describe("negative numbers", () => {
+  test("print a true minus sign, as wide as the plus it pairs with and read as minus", () => {
+    expect([formatValue(-84000, { type: "currency", currency: "EUR", compact: true }, en), formatValue(-12, undefined, en), formatValue(-0.05, "percent", en)]).toEqual(["\u2212€84K", "\u221212", "\u22125%"]);
+  });
+
+  test("dates, ranges and text keep their hyphens", () => {
+    expect([formatValue("2026-09-15", undefined, en), formatValue("10-12", undefined, en), formatValue("-", undefined, en)]).toEqual(["2026-09-15", "10-12", "-"]);
+  });
+});
+
 describe("delta format", () => {
   test("as plain text it is a signed change, a percent by default", () => {
-    expect([formatValue(0.124, "delta", en), formatValue(-0.05, "delta", en), formatValue(0, "delta", en)]).toEqual(["+12.4%", "-5.0%", "0.0%"]);
+    expect([formatValue(0.124, "delta", en), formatValue(-0.05, "delta", en), formatValue(0, "delta", en)]).toEqual(["+12.4%", "\u22125.0%", "0.0%"]);
   });
 
   test("an inner format changes the kind of number, still signed", () => {
