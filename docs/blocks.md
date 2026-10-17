@@ -226,7 +226,7 @@ Vertical bars comparing amounts across categories. Several y fields draw grouped
 | --- | --- | --- | --- | --- |
 | `x` | field name (category) | yes |  | Field for the categories along the horizontal axis. |
 | `y` | field name or list (number) | yes |  | Field or fields for bar heights. Each field is one series. |
-| `lines` | field name or list (number) |  |  | Field or fields drawn as lines over the bars, on the same axis, for example a target. Never a second axis. |
+| `lines` | field name or list (number) |  |  | Field or fields drawn as lines over the bars, on the same axis, for example a target. Never a second axis. Under one target line (a field named target, plan, goal, budget or quota), bars that fall short are drawn outlined and keyed Below target. |
 | `stacked` | any |  | `false` | true stacks the series into one column per category (part-to-whole); "percent" stacks them as shares of 100%. |
 | `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
 | `reference` | array |  |  | Target lines and bands across the value axis. Each item is { value, label }, { field, agg, label } (agg: last, first, sum, avg, min, max; default avg), or { from, to, label } for a band. Example: [{ "value": 1200000, "label": "Target" }]. |
@@ -253,7 +253,7 @@ A box plot per group on one shared axis: a box over the middle half of the value
 
 ### `bullet`
 
-Actual against target, one compact row per item: a value bar and a target tick over three qualitative bands (poor, fair, good). A dense alternative to gauges.
+Actual against target, one compact row per item: a value bar and a target tick over three qualitative bands (poor, fair, good). A met target carries a check by its number; the tooltip says what is left to go. A dense alternative to gauges.
 
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -336,7 +336,7 @@ Stages in order as centered bars narrowing from the first, with the conversion r
 
 ### `gauge`
 
-One headline number on a half-circle scale: an arc filled from min to the value, a tick at the target, the number large inside the arc and the scale's ends below. Reads the first row. For a single KPI with a known range, such as NPS or utilization.
+One headline number on a half-circle scale: an arc filled from min to the value, a tick at the target, the number large inside the arc and the scale's ends below; with a target, a line under the arc says where it stands (Target met, or how far to go). Reads the first row. For a single KPI with a known range, such as NPS or utilization.
 
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -468,7 +468,7 @@ A mosaic: one column per category, as wide as its total, split into segments by 
 
 ### `meter`
 
-Progress against a target, one meter per row: attainment as a percentage and a bar that fills to the target.
+Progress against a target, one meter per row: attainment as a percentage, a bar that fills to the target, and where it stands in plain words: a check and Target met, or how far it has to go (€22K to go).
 
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -507,7 +507,7 @@ One smooth distribution curve per group on a shared axis, overlapping like a mou
 
 ### `rings`
 
-Concentric progress rings, one per row from the outside in, each filled to its share of target; past the target a second lap shows how far over. A legend gives each attainment. For a few goals at a glance, up to 5.
+Concentric progress rings, one per row from the outside in, each filled to its share of target; past the target a second lap shows how far over. A legend gives each attainment and where it stands: a check and Target met, or how far it has to go. For a few goals at a glance, up to 5.
 
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |

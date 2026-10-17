@@ -557,7 +557,7 @@ const area: ViewBlock = {
 
 const meter: ViewBlock = {
   type: "meter",
-  description: "Progress against a target, one meter per row: attainment as a percentage and a bar that fills to the target.",
+  description: "Progress against a target, one meter per row: attainment as a percentage, a bar that fills to the target, and where it stands in plain words: a check and Target met, or how far it has to go (€22K to go).",
   options: {
     value: { type: "field", kind: "number", required: true, description: "Field holding the current amount." },
     target: { type: "field", kind: "number", required: true, description: "Field holding the target amount." },
@@ -612,7 +612,7 @@ const scatter: ViewBlock = {
 
 const bullet: ViewBlock = {
   type: "bullet",
-  description: "Actual against target, one compact row per item: a value bar and a target tick over three qualitative bands (poor, fair, good). A dense alternative to gauges.",
+  description: "Actual against target, one compact row per item: a value bar and a target tick over three qualitative bands (poor, fair, good). A met target carries a check by its number; the tooltip says what is left to go. A dense alternative to gauges.",
   options: {
     label: { type: "field", kind: "category", required: true, description: "Field naming each row." },
     value: { type: "field", kind: "number", required: true, description: "Field with the actual amount." },
@@ -764,7 +764,7 @@ const histogram: ViewBlock = {
 
 const rings: ViewBlock = {
   type: "rings",
-  description: "Concentric progress rings, one per row from the outside in, each filled to its share of target; past the target a second lap shows how far over. A legend gives each attainment. For a few goals at a glance, up to 5.",
+  description: "Concentric progress rings, one per row from the outside in, each filled to its share of target; past the target a second lap shows how far over. A legend gives each attainment and where it stands: a check and Target met, or how far it has to go. For a few goals at a glance, up to 5.",
   options: {
     label: { type: "field", kind: "category", required: true, description: "Field naming each goal." },
     value: { type: "field", kind: "number", required: true, description: "Field with the amount reached." },
@@ -825,7 +825,7 @@ const variance: ViewBlock = {
 
 const gauge: ViewBlock = {
   type: "gauge",
-  description: "One headline number on a half-circle scale: an arc filled from min to the value, a tick at the target, the number large inside the arc and the scale's ends below. Reads the first row. For a single KPI with a known range, such as NPS or utilization.",
+  description: "One headline number on a half-circle scale: an arc filled from min to the value, a tick at the target, the number large inside the arc and the scale's ends below; with a target, a line under the arc says where it stands (Target met, or how far to go). Reads the first row. For a single KPI with a known range, such as NPS or utilization.",
   options: {
     value: { type: "field", kind: "number", required: true, description: "Field holding the number." },
     target: { type: "field", kind: "number", description: "Field holding the target, marked with a tick." },
@@ -1013,7 +1013,7 @@ const bar: ViewBlock = {
     lines: {
       type: "fields",
       kind: "number",
-      description: "Field or fields drawn as lines over the bars, on the same axis, for example a target. Never a second axis.",
+      description: "Field or fields drawn as lines over the bars, on the same axis, for example a target. Never a second axis. Under one target line (a field named target, plan, goal, budget or quota), bars that fall short are drawn outlined and keyed Below target.",
     },
     stacked: {
       type: "any",
