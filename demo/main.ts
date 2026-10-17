@@ -100,7 +100,11 @@ segmented($("#explain"), (value) => {
 segmented($("#theme"), (theme) => {
   if (theme === "auto") delete document.documentElement.dataset.theme;
   else document.documentElement.dataset.theme = theme;
+  // The color editor shows the palette's steps for the theme on screen and checks them on that background.
+  syncStylePanel(current);
 });
+// With the switch on auto, the system theme decides: follow it when it changes.
+window.matchMedia?.("(prefers-color-scheme: dark)").addEventListener?.("change", () => syncStylePanel(current));
 
 const presetGroup = $("#preset");
 const presetOrder = describePresets().sort((a, b) => Number(b.name === "default") - Number(a.name === "default"));
