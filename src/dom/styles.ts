@@ -948,8 +948,8 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 /* The chosen period: raised, and an accent bar along its foot, a cue that is not color alone (WCAG 1.4.1, 1.4.11). */
 .fft-range button[aria-pressed="true"] { color: var(--fft-text); background: var(--fft-raised, var(--fft-surface)); box-shadow: inset 0 -2px 0 var(--fft-accent), 0 1px 3px rgba(0, 0, 0, 0.16), 0 0 0 1px var(--fft-border); }
 .fft-range button:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 1px; }
-/* Section filter: quiet chips at the end of the filter row, All first, the chosen one filled. */
-.fft-board-nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 2px; min-width: 0; margin-left: auto; scroll-behavior: smooth; }
+/* Section filter: quiet chips on their own line under the controls, All first, starting at the left edge like everything else. */
+.fft-board-nav { display: flex; flex: 1 0 100%; flex-wrap: wrap; justify-content: flex-start; gap: 2px; min-width: 0; margin-left: -8px; scroll-behavior: smooth; }
 .fft-board-nav button {
   display: inline-flex; flex-direction: column; align-items: center; padding: 2px 8px; border: 0; border-radius: 13px; background: transparent; cursor: pointer;
   font: inherit; font-size: 11px; line-height: 21px; white-space: nowrap; color: var(--fft-text-secondary);
@@ -979,9 +979,9 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
   .fft-dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .fft-cell-slot[data-span] { grid-column: span 1 !important; }
   .fft-cell-slot[data-span="2"], .fft-cell-slot[data-span="3"], .fft-cell-slot[data-span="4"], .fft-cell-slot[data-span="5"], .fft-cell-slot[data-span="6"] { grid-column: 1 / -1 !important; }
-  /* Tablets and phones: the section links take their own line and scroll sideways, so the pinned bar stays short. */
+  /* Tablets and phones: the section links scroll sideways on their one line, so the pinned bar stays short. */
   .fft-board-nav {
-    flex: 1 0 100%; flex-wrap: nowrap; justify-content: flex-start; margin-left: 0;
+    flex-wrap: nowrap; margin-left: 0;
     overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scrollbar-width: none;
   }
   .fft-board-nav::-webkit-scrollbar { display: none; }

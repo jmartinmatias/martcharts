@@ -233,6 +233,15 @@ describe("focus not obscured (2.4.11)", () => {
   });
 });
 
+describe("the filter row reads in one direction (1.3.2, 2.4.3)", () => {
+  const rule = (selector: string) => styleSheet.slice(styleSheet.indexOf(`${selector} {`), styleSheet.indexOf("}", styleSheet.indexOf(`${selector} {`)));
+
+  test("the section links take their own line, starting at the left edge with everything else", () => {
+    const nav = rule(".fft-board-nav");
+    expect([nav.includes("flex: 1 0 100%"), nav.includes("justify-content: flex-start"), nav.includes("margin-left: auto"), nav.includes("flex-end")]).toEqual([true, true, false, false]);
+  });
+});
+
 describe("focus order (2.4.3)", () => {
   test("within a card, Tab reaches the toolbar first, then the chart, and the ghost ref last, as they read top to bottom", async () => {
     const spec = stored.find(([id]) => id === "revenue-by-region")?.[1] as WidgetSpec;
