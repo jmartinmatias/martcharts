@@ -24,7 +24,7 @@ export const renderDonut: ViewRenderer<DonutView> = (ctx) => {
   const total = slices.reduce((sum, slice) => sum + slice.amount, 0);
   const share = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 0 });
   // The legend's figures in one precision, so they line up.
-  const amountText = evenFormat(ctx, value, slices.map((slice) => slice.amount));
+  const amountText = evenFormat(ctx, value, slices.map((slice) => slice.amount), { type: "number", compact: true });
 
   const size = figureSize(ctx.width);
   const thickness = ringThickness(size);

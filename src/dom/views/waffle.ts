@@ -29,7 +29,7 @@ export const renderWaffle: ViewRenderer<WaffleView> = (ctx) => {
   const counts = allocate([...parts.map((p) => p.amount), whole - sum], SIDE * SIDE);
   const share = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 0 });
   // The legend's figures in one precision, so they line up.
-  const even = evenFormat(ctx, value, parts.map((part) => part.amount));
+  const even = evenFormat(ctx, value, parts.map((part) => part.amount), { type: "number", compact: true });
   const amountText = (part: { row: Row; amount: number }) => even(part.amount);
 
   const size = figureSize(ctx.width);

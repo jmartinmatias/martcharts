@@ -3,7 +3,7 @@ import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { SankeyView } from "../../core/views.ts";
 import { layoutSankey } from "../layout.ts";
-import { buildTable, html, selectable, svg } from "./shared.ts";
+import { buildTable, evenFormat, html, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
 
 const NODE_WIDTH = 13;
@@ -83,6 +83,8 @@ export const renderSankey: ViewRenderer<SankeyView> = (ctx) => {
     overlay.append(hit);
   });
   const nodes = svg(doc, "g");
+  // The node totals in one precision, so they read as one set.
+  const totalOf = evenFormat(ctx, value, layout.nodes.filter((node) => node.height >= 30).map((node) => node.value));
   for (const node of layout.nodes) {
     const rect = svg(doc, "rect", { class: "fft-node", x: node.x, y: node.y, width: NODE_WIDTH, height: Math.max(1, node.height), rx: 2 });
     rect.style.setProperty("fill", node.column === 0 ? ctx.color(origin.get(node.name) ?? 0) : "var(--fft-total)");
@@ -95,7 +97,7 @@ export const renderSankey: ViewRenderer<SankeyView> = (ctx) => {
     nodes.append(nameText);
     if (node.height >= 30) {
       const valueText = svg(doc, "text", { class: "fft-node-value", x, y: node.y + node.height / 2 + 8, "text-anchor": anchor, "dominant-baseline": "middle" });
-      valueText.textContent = ctx.format(node.value, value);
+      valueText.textContent = totalOf(node.value);
       nodes.append(valueText);
     }
   }

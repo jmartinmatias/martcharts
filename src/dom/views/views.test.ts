@@ -1141,6 +1141,12 @@ describe("treemap view", () => {
   ];
   const spec = { rows: customers, view: { type: "treemap", label: "name", value: "revenue", group: "segment" } };
 
+  test("tile figures share one precision, so they read as one set: €214.0K beside €188.5K", async () => {
+    const big = customers.map((c, i) => ({ ...c, revenue: [214000, 188500, 172300, 97600][i] }));
+    await draw({ ...spec, rows: big, fields: { revenue: { format: { type: "currency", currency: "EUR", compact: true } } } });
+    expect(texts(".fft-tile-value").slice(0, 2)).toEqual(["€214.0K", "€188.5K"]);
+  });
+
   test("one tile per row, colored by group in order of first appearance", async () => {
     await draw(spec);
     expect(all("rect.fft-tile").map((t) => (t as SVGElement).style.fill)).toEqual([
@@ -1354,6 +1360,15 @@ describe("sankey view", () => {
     { from: "Pricing", to: "Signup", visits: 30 },
   ];
   const spec = { rows: flows, view: { type: "sankey", source: "from", target: "to", value: "visits" } };
+
+  test("node totals share one precision: 6.0K beside 6.8K, and plain numbers stay plain", async () => {
+    const many = flows.map((f, i) => ({ ...f, visits: [6000, 6800, 5700, 2300][i] }));
+    await draw({ ...spec, rows: many, fields: { visits: { format: { type: "number", compact: true } } } });
+    const compact = texts(".fft-node-value");
+    target.replaceChildren();
+    await draw(spec);
+    expect([compact.every((t) => /\d\.\d/.test(t ?? "")), texts(".fft-node-value").every((t) => /^\d+$/.test(t ?? ""))]).toEqual([true, true]);
+  });
 
   test("draws one node per name and one ribbon per flow", async () => {
     await draw(spec);

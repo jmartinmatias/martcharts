@@ -138,12 +138,14 @@ function sharedPlaces(ctx: ViewContext<{ type: string }>, rows: Row[], field: st
 }
 
 /**
- * A formatter for a legend's column of figures, in one precision: short figures that mix whole and one decimal all
- * get one ("€660.1K", "€447.0K", "€97.6K"). The field's own format, or else a short number.
+ * A formatter for a set of figures shown together (a legend, tiles, node totals), in one precision: short figures
+ * that mix whole and one decimal all get one ("€660.1K", "€447.0K", "€97.6K"). The field's own format, or else
+ * `fallback` (none: the plain number).
  */
-export function evenFormat(ctx: ViewContext<{ type: string }>, field: string, values: number[]): (n: number) => string {
-  const format: FormatSpec = ctx.spec.fields?.[field]?.format ?? { type: "number", compact: true };
-  const write = (n: number, places?: number) => formatValue(n, places === undefined ? format : { ...(typeof format === "string" ? { type: format } : format), places }, ctx.spec.locale);
+export function evenFormat(ctx: ViewContext<{ type: string }>, field: string, values: number[], fallback?: FormatSpec): (n: number) => string {
+  const format = ctx.spec.fields?.[field]?.format ?? fallback;
+  const write = (n: number, places?: number) =>
+    formatValue(n, places === undefined || format === undefined ? format : { ...(typeof format === "string" ? { type: format } : format), places }, ctx.spec.locale);
   const places = compactOnly(format) ? evenPlaces(values.map((n) => write(n))) : undefined;
   return (n) => write(n, places);
 }

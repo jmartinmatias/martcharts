@@ -3,7 +3,7 @@ import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { TreemapView } from "../../core/views.ts";
 import { squarify } from "../layout.ts";
-import { buildTable, html, selectable, svg } from "./shared.ts";
+import { buildTable, evenFormat, html, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
 
 /**
@@ -57,6 +57,8 @@ export const renderTreemap: ViewRenderer<TreemapView> = (ctx) => {
     for (const r of rects) r.removeAttribute("data-active");
     ctx.tooltip.hide();
   };
+  // The tiles' figures in one precision, so they read as one set.
+  const amountOf = evenFormat(ctx, value, kept.map((k) => readNumber(k.row[value]) ?? 0));
   kept.forEach((k, i) => {
     const t = tiles[i];
     if (!t || t.width <= 0 || t.height <= 0) return;
@@ -70,7 +72,7 @@ export const renderTreemap: ViewRenderer<TreemapView> = (ctx) => {
     marks.append(edge);
 
     const name = ctx.format(k.row[label], label);
-    const amountText = ctx.format(k.row[value], value);
+    const amountText = amountOf(readNumber(k.row[value]) ?? 0);
     const fitsName = box.width >= Math.max(55, name.length * 6.5 + 13) && box.height >= 21;
     if (fitsName) {
       const nameText = svg(doc, "text", { class: "fft-tile-name", x: box.x + 8, y: box.y + 21 });
