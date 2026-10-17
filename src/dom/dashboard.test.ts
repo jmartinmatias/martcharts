@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { readFileSync } from "node:fs";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import type { Mock } from "vitest";
 import { rangeStart, validateDashboard } from "../core/dashboard.ts";
@@ -512,5 +513,17 @@ describe("time range", () => {
       'range.options[0]: "3W" is not a period. Use a count of months or years such as "3M" or "1Y", "YTD" or "All".',
       'range.default: Must be one of the options: 3W.',
     ]);
+  });
+});
+
+describe("an even grid", () => {
+  const styleSheet = readFileSync("src/dom/styles.ts", "utf8");
+  const rule = (selector: string) => styleSheet.slice(styleSheet.indexOf(`${selector} {`), styleSheet.indexOf("}", styleSheet.indexOf(`${selector} {`)));
+
+  test("cards in a row share one height, and each card's source line sits on its floor", () => {
+    expect(rule(".fft-dashboard-grid")).toContain("align-items: stretch");
+    expect([rule(".fft-cell-slot"), rule(".fft-board-cell")].every((r) => r.includes("display: flex") && r.includes("flex-direction: column"))).toBe(true);
+    expect(rule(".fft-board-cell > .fft-widget")).toContain("flex: 1");
+    expect(rule(".fft-widget > .fft-base")).toContain("margin-top: auto");
   });
 });

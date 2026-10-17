@@ -320,6 +320,8 @@ export const BASE_CSS = `
 .fft-base { display: flex; align-items: baseline; gap: 13px; min-width: 0; }
 .fft-base[hidden] { display: none; }
 .fft-base .fft-footer { flex: 1; min-width: 0; }
+/* In a card taller than its content (a dashboard row of even height), the bottom row sits on the card's floor. */
+.fft-widget > .fft-base { margin-top: auto; }
 /* Ghost ref: the quietest text on the card, kept quiet by size, a light weight and wide spacing rather than by fading,
    so it still reads at 4.5:1; clearer when reached for, a click away from the clipboard. */
 .fft-widget-ref {
@@ -963,9 +965,11 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 /* A chosen section: the rest of the grid hides, and its heading leads the board without the divider above it. */
 .fft-dashboard-grid > [hidden] { display: none; }
 .fft-dashboard[data-section] .fft-board-section { margin-top: 0; padding-top: 0; border-top: 0; }
-.fft-dashboard-grid { display: grid; grid-template-columns: repeat(var(--fft-cols, 3), minmax(0, 1fr)); gap: 21px; align-items: start; }
-.fft-cell-slot { min-width: 0; }
-.fft-board-cell { min-width: 0; }
+/* An even grid: the cards in a row share one height, passed down from the cell to the card. */
+.fft-dashboard-grid { display: grid; grid-template-columns: repeat(var(--fft-cols, 3), minmax(0, 1fr)); gap: 21px; align-items: stretch; }
+.fft-cell-slot { min-width: 0; display: flex; flex-direction: column; }
+.fft-board-cell { min-width: 0; flex: 1; display: flex; flex-direction: column; }
+.fft-board-cell > .fft-widget { flex: 1; }
 .fft-board-section { display: flex; flex-wrap: wrap; align-items: baseline; gap: 3px 13px; margin-top: 21px; padding-top: 21px; border-top: 1px solid var(--fft-border); scroll-margin-top: 21px; }
 .fft-board-section:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
 .fft-board-section h3 { margin: 0; font-size: 11px; line-height: 21px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fft-text-secondary); }
