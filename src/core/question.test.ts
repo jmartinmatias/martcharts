@@ -129,6 +129,10 @@ describe("questionOf", () => {
     expect(questionOf({ data: { type: "inline", rows: growing }, view: { type: "hbar", label: "stage", value: "leads" } }, growing).kind).toBe("rank");
   });
 
+  test("a table with a column of gaps against target asks who is above or below it", () => {
+    expect(ask("region-margins")).toEqual({ kind: "target", text: "Which region is above or below target?" });
+  });
+
   test("a row of numbers names them when there are few", () => {
     const spec: WidgetSpec = { data: { type: "inline", rows: [] }, view: { type: "kpis", items: [{ value: "web" }, { value: "app" }] } };
     expect(questionOf(spec).text).toBe("Where do web and app stand right now?");

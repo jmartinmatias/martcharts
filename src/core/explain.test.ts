@@ -313,6 +313,19 @@ describe("explainChart", () => {
     );
   });
 
+  test("a table with a column of gaps against target counts and names who is above it", () => {
+    const fields = { vsTarget: { label: "vs target", format: { type: "delta" } } };
+    const rows = [
+      { region: "Central", revenue: 259, vsTarget: 0.036 },
+      { region: "North", revenue: 278, vsTarget: 0.03 },
+      { region: "West", revenue: 205, vsTarget: -0.068 },
+      { region: "East", revenue: 338, vsTarget: -0.081 },
+    ];
+    const at = (data: Record<string, unknown>[]) => explainChart({ ...spec({ type: "table", columns: ["region", "revenue", "vsTarget"] }, fields), locale: "en-US" }, data);
+    expect(at(rows)).toContain("Here, 2 of 4 regions are above target: Central and North.");
+    expect(at(rows.map((r) => ({ ...r, vsTarget: -Math.abs(r.vsTarget) - 0.01 })))).toContain("Here, every region is below target.");
+  });
+
   test("no guide names a hue or a dark shade: presets recolor and dark themes flip, so marks are read by side, shape and fill", () => {
     const guide = (view: Record<string, unknown>) => explainChart({ ...spec(view), locale: "en-US" });
     expect(guide({ type: "variance", label: "department", value: "actual", target: "budget", goodWhen: "down" })).toBe(

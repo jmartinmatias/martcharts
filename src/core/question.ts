@@ -287,6 +287,12 @@ export function questionOf(spec: WidgetSpec, rows: Row[] = []): Question {
       const columns = many(view.columns).length ? many(view.columns) : Object.keys(rows[0] ?? {});
       const first = columns[0];
       if (!first) break;
+      // A column of gaps against a target (a delta named for it) makes the table about the target.
+      const gapToTarget = columns.find((c) => {
+        const format = spec.fields?.[c]?.format;
+        return (typeof format === "object" ? (format as { type?: string }).type : format) === "delta" && (TARGET.test(c) || TARGET.test(spec.fields?.[c]?.label ?? ""));
+      });
+      if (gapToTarget && gapToTarget !== first) return ask("target", `which ${entityOf(first, spec)} is above or below target?`);
       const barred = columns.find((c) => {
         const format = spec.fields?.[c]?.format;
         return (typeof format === "object" ? (format as { type?: string }).type : format) === "bar";

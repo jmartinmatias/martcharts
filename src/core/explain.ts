@@ -519,6 +519,23 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const amount = periods.length ? periods.at(-1) : numbers[0];
       const row = label && amount ? top(amount) : undefined;
       if (!row || !label || !amount) return "";
+      // A column of gaps against a target: how many rows are above it, by name.
+      const gap = numbers.find((field) => {
+        const format = spec.fields?.[field]?.format;
+        return (typeof format === "object" ? (format as { type?: string }).type : format) === "delta" && /target|plan|goal|budget|quota/i.test(`${field} ${spec.fields?.[field]?.label ?? ""}`);
+      });
+      if (gap) {
+        const known = rows.filter((r) => value(r, gap) !== null);
+        const above = known.filter((r) => (value(r, gap) as number) > 0);
+        const entity = nameOf(label, spec);
+        if (known.length > 1) {
+          if (above.length === known.length) return `Here, every ${entity} is above target.`;
+          if (above.length === 0) return `Here, every ${entity} is below target.`;
+          const names = above.map((r) => text(r, label));
+          const listed = names.length <= 3 ? `: ${names.length > 1 ? `${names.slice(0, -1).join(", ")} and ${names.at(-1)}` : names[0]}` : "";
+          return `Here, ${above.length} of ${known.length} ${plural(entity)} ${above.length === 1 ? "is" : "are"} above target${listed}.`;
+        }
+      }
       // Months laid sideways ask how each row did: how many grew from the first month to the last, and who grew most.
       if (periods.length >= 2) {
         const [from, to] = [periods[0] as string, periods.at(-1) as string];
