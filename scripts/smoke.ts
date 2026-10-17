@@ -46,11 +46,12 @@ for (const { id } of (boards.structuredContent as { dashboards: { id: string }[]
 }
 
 const firstId = widgets[0]?.id ?? "";
-const menu = await client.callTool({ name: "fft_create_variants", arguments: { id: firstId, count: 3 } });
-assert.ok(!menu.isError, `variants for ${firstId} failed: ${text(menu)}`);
-const variants = (menu.structuredContent as { variants: { menu: string }[] }).variants;
-assert.ok(variants.length > 0, `the Taller should cook at least one variant of ${firstId}`);
-console.error(`ok  taller ${firstId}: ${variants.map((v) => v.menu).join(" | ")}`);
+const versions = await client.callTool({ name: "fft_create_variants", arguments: { id: firstId, count: 3 } });
+assert.ok(!versions.isError, `variants for ${firstId} failed: ${text(versions)}`);
+const variants = (versions.structuredContent as { variants: { move: string; question: string }[] }).variants;
+assert.ok(variants.length > 0, `the Taller should make at least one version of ${firstId}`);
+assert.ok(variants.every((v) => v.move && v.question.endsWith("?")), `every version of ${firstId} needs its move and the sales question it answers`);
+console.error(`ok  taller ${firstId}: ${variants.map((v) => `${v.move}: ${v.question}`).join(" | ")}`);
 
 const invalid = await client.callTool({ name: "fft_get_widget", arguments: { id: "../etc" } });
 assert.equal(invalid.isError, true, "an id with a path in it should be rejected");
