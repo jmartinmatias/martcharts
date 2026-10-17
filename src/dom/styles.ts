@@ -459,10 +459,15 @@ export const BASE_CSS = `
 .fft-meter:focus-visible { box-shadow: 0 0 0 2px var(--fft-ring, var(--fft-surface)), 0 0 0 3px var(--fft-accent); }
 .fft-meter-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .fft-meter-label { font-weight: 500; }
-.fft-meter-percent { font-weight: 600; font-variant-numeric: tabular-nums; }
+.fft-meter-percent { display: inline-flex; align-items: center; gap: 3px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .fft-meter-track { height: 8px; border-radius: 5px; background: color-mix(in srgb, var(--fft-accent) 16%, transparent); overflow: hidden; }
 .fft-meter-fill { height: 100%; border-radius: 5px; background: var(--fft-accent); transform-origin: 0 50%; }
 .fft-meter-value { font-size: 11px; line-height: 13px; color: var(--fft-muted); font-variant-numeric: tabular-nums; }
+/* Where each meter stands, in target words: how far to go, or a met target in the positive color with a check. */
+.fft-meter-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.fft-meter-gap { font-size: 11px; line-height: 13px; color: var(--fft-text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.fft-meter[data-met] .fft-meter-gap { color: var(--fft-positive); font-weight: 600; }
+.fft-meter-check { width: 13px; height: 13px; fill: none; stroke: var(--fft-positive); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
 .fft-donut { display: flex; flex-wrap: wrap; align-items: center; gap: 21px; }
 .fft-donut-figure { position: relative; flex: none; }

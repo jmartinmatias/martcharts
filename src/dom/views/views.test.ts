@@ -440,8 +440,18 @@ describe("meter view", () => {
       "meter",
       "338",
       "400",
-      "East: 85% of target",
+      "East: 85% of target, 62 to go",
     ]);
+  });
+
+  test("a met target carries a check and says so, and a missed one says how far it has to go", async () => {
+    await draw({ rows: regions, view: { type: "meter", value: "revenue", target: "target", label: "region" } });
+    expect(texts(".fft-meter-gap")).toEqual(["62 to go", "Target met"]);
+    expect(all(".fft-meter").map((m) => [(m as HTMLElement).dataset.met ?? "", Boolean(m.querySelector(".fft-meter-percent .fft-meter-check"))])).toEqual([
+      ["", false],
+      ["true", true],
+    ]);
+    expect(target.querySelectorAll(".fft-meter-track")[1]?.getAttribute("aria-label")).toBe("North: 111% of target, target met");
   });
 });
 
