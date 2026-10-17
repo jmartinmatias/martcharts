@@ -1,0 +1,43 @@
+{
+  "id": "revenue-vs-target",
+  "title": "Revenue against target",
+  "subtitle": "{first:month} to {last:month}",
+  "description": "Monthly revenue as bars with the monthly target as a line, on one axis.",
+  "footer": "Source: /data/monthly.json",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/monthly.json"
+  },
+  "fields": {
+    "month": {
+      "label": "Month",
+      "format": {
+        "type": "date",
+        "style": "month"
+      }
+    },
+    "revenue": {
+      "label": "Revenue",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "target": {
+      "label": "Target",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
+  },
+  "view": {
+    "type": "bar",
+    "x": "month",
+    "y": "revenue",
+    "lines": "target"
+  }
+}

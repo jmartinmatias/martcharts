@@ -1,0 +1,36 @@
+{
+  "id": "churn-kpi",
+  "title": "Customer churn",
+  "subtitle": "{last:month}",
+  "description": "Share of customers lost each month. Lower is better.",
+  "footer": "Source: CRM",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/monthly.json"
+  },
+  "fields": {
+    "month": {
+      "label": "Month",
+      "format": {
+        "type": "date",
+        "style": "month"
+      }
+    },
+    "churn": {
+      "label": "Monthly churn",
+      "format": {
+        "type": "percent",
+        "decimals": 1
+      }
+    }
+  },
+  "view": {
+    "type": "kpi",
+    "value": "churn",
+    "series": true,
+    "x": "month",
+    "goodWhen": "down",
+    "icon": "activity"
+  }
+}

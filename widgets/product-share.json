@@ -1,0 +1,58 @@
+{
+  "id": "product-share",
+  "title": "Product share",
+  "subtitle": "Share of each region's revenue",
+  "description": "Core and Plus as a share of each region's revenue.",
+  "footer": "Source: /data/sales.json",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/sales.json",
+    "path": "data.items"
+  },
+  "transform": [
+    {
+      "type": "pivot",
+      "row": "region",
+      "column": "product",
+      "value": "revenue"
+    },
+    {
+      "type": "calc",
+      "as": "total",
+      "op": "add",
+      "left": "Core",
+      "right": "Plus"
+    },
+    {
+      "type": "sort",
+      "field": "total",
+      "order": "desc"
+    }
+  ],
+  "fields": {
+    "Core": {
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "Plus": {
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
+  },
+  "view": {
+    "type": "bar",
+    "x": "region",
+    "y": [
+      "Core",
+      "Plus"
+    ],
+    "stacked": "percent"
+  }
+}

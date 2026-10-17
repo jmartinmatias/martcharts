@@ -1,0 +1,38 @@
+{
+  "id": "customer-treemap",
+  "title": "Revenue by customer",
+  "subtitle": "Year to date, colored by segment",
+  "description": "Every customer's share of revenue, grouped by segment.",
+  "footer": "Source: /data/customers.json",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/customers.json"
+  },
+  "transform": [
+    {
+      "type": "sort",
+      "field": "revenue",
+      "order": "desc"
+    }
+  ],
+  "fields": {
+    "revenue": {
+      "label": "Revenue",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "segment": {
+      "label": "Segment"
+    }
+  },
+  "view": {
+    "type": "treemap",
+    "label": "name",
+    "value": "revenue",
+    "group": "segment"
+  }
+}

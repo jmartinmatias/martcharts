@@ -1,0 +1,81 @@
+{
+  "id": "launch-plan",
+  "title": "Q4 launch plan",
+  "subtitle": "Discovery to launch, August to December 2026",
+  "description": "Each workstream's dates by phase, filled to its share done, with the launch-day milestone and a line at today.",
+  "footer": "Source: project office",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {
+        "task": "Customer research",
+        "phase": "Discovery",
+        "start": "2026-08-03",
+        "end": "2026-08-28",
+        "done": 1
+      },
+      {
+        "task": "Design system",
+        "phase": "Design",
+        "start": "2026-08-24",
+        "end": "2026-09-25",
+        "done": 1
+      },
+      {
+        "task": "Prototype",
+        "phase": "Design",
+        "start": "2026-09-07",
+        "end": "2026-10-02",
+        "done": 1
+      },
+      {
+        "task": "Platform build",
+        "phase": "Build",
+        "start": "2026-09-21",
+        "end": "2026-11-13",
+        "done": 0.55
+      },
+      {
+        "task": "Integrations",
+        "phase": "Build",
+        "start": "2026-10-05",
+        "end": "2026-11-20",
+        "done": 0.3
+      },
+      {
+        "task": "Private beta",
+        "phase": "Launch",
+        "start": "2026-11-09",
+        "end": "2026-11-27",
+        "done": 0
+      },
+      {
+        "task": "Launch day",
+        "phase": "Launch",
+        "start": "2026-11-30"
+      },
+      {
+        "task": "Marketing push",
+        "phase": "Launch",
+        "start": "2026-11-16",
+        "end": "2026-12-18",
+        "done": 0
+      }
+    ]
+  },
+  "fields": {
+    "phase": {
+      "label": "Phase"
+    }
+  },
+  "view": {
+    "type": "timeline",
+    "label": "task",
+    "start": "start",
+    "end": "end",
+    "group": "phase",
+    "today": true,
+    "progress": "done"
+  }
+}

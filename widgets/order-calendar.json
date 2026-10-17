@@ -1,0 +1,35 @@
+{
+  "id": "order-calendar",
+  "title": "Daily orders",
+  "subtitle": "{first:day} to {last:day}",
+  "description": "Orders per day, to spot weekly rhythm, quiet weekends and growth.",
+  "footer": "Source: /data/daily-orders.json",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/daily-orders.json"
+  },
+  "fields": {
+    "orders": {
+      "label": "Orders",
+      "format": "number"
+    },
+    "day": {
+      "label": "Day",
+      "format": {
+        "type": "date",
+        "style": "medium"
+      }
+    }
+  },
+  "headline": {
+    "value": "orders",
+    "agg": "sum",
+    "caption": "orders in {count} days"
+  },
+  "view": {
+    "type": "calendar",
+    "date": "day",
+    "value": "orders"
+  }
+}

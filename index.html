@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>FFT Widgets</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --page: #f9f9f7;
+        --ink: #0b0b0b;
+        --ink-2: #52514e;
+        --line: rgba(11, 11, 11, 0.1);
+        --field: #fcfcfb;
+        --accent: #2a78d6;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          color-scheme: dark;
+          --page: #0d0d0d;
+          --ink: #f0efec;
+          --ink-2: #c3c2b7;
+          --line: rgba(255, 255, 255, 0.1);
+          --field: #1a1a19;
+          --accent: #3987e5;
+        }
+      }
+      :root[data-theme="dark"] {
+        color-scheme: dark;
+        --page: #0d0d0d;
+        --ink: #f0efec;
+        --ink-2: #c3c2b7;
+        --line: rgba(255, 255, 255, 0.1);
+        --field: #1a1a19;
+        --accent: #3987e5;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--page);
+        color: var(--ink);
+        font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+        /* Clip, not hidden: no sideways page scroll, and sticky children still stick to the viewport. */
+        overflow-x: clip;
+      }
+      /* The gutter grows by the safe-area insets (notch, home bar) that viewport-fit=cover exposes. */
+      main {
+        max-width: 1200px; margin: 0 auto;
+        padding: calc(32px + env(safe-area-inset-top, 0px)) calc(16px + env(safe-area-inset-right, 0px))
+          calc(64px + env(safe-area-inset-bottom, 0px)) calc(16px + env(safe-area-inset-left, 0px));
+      }
+      header.page { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+      h1 { margin: 0; font-size: 24px; }
+      h2 { margin: 40px 0 4px; font-size: 18px; }
+      p.lede, p.note { margin: 4px 0 0; color: var(--ink-2); max-width: 70ch; }
+      .controls { display: flex; flex-wrap: wrap; gap: 13px; align-items: center; }
+      .controls .label { font-size: 13px; color: var(--ink-2); }
+      /* A group wider than its row scrolls sideways instead of pushing the page wider. */
+      .segmented { display: inline-flex; max-width: 100%; border: 1px solid var(--line); border-radius: 8px; overflow-x: auto; scrollbar-width: none; }
+      .segmented::-webkit-scrollbar { display: none; }
+      .segmented button {
+        flex: none; white-space: nowrap;
+        border: 0; background: transparent; color: var(--ink-2); padding: 5px 13px; font: inherit; font-size: 13px; cursor: pointer;
+      }
+      .segmented button[aria-pressed="true"] { background: var(--field); color: var(--ink); font-weight: 600; }
+
+      /* Backdrops for the gallery style presets. */
+      body { transition: background-color 610ms ease; }
+      body[data-preset="glass"] {
+        color-scheme: dark;
+        --ink: #f4f7f6; --ink-2: rgba(244, 247, 246, 0.66); --line: rgba(255, 255, 255, 0.14); --field: rgba(255, 255, 255, 0.08);
+        background: #121a19;
+      }
+      /* The gradient rides a fixed layer: iOS Safari ignores background-attachment: fixed and would stretch it down the whole page. */
+      body[data-preset="glass"]::before {
+        content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+        background:
+          radial-gradient(55% 45% at 12% 8%, rgba(118, 160, 120, 0.55), transparent 70%),
+          radial-gradient(45% 40% at 88% 18%, rgba(70, 120, 125, 0.55), transparent 70%),
+          radial-gradient(60% 50% at 70% 92%, rgba(150, 140, 90, 0.35), transparent 70%),
+          linear-gradient(160deg, #1d2b27 0%, #121a19 55%, #0e1414 100%);
+      }
+      body[data-preset="airy"] {
+        color-scheme: light;
+        --page: #f4f4f2; --ink: #111111; --ink-2: #6b6b68; --line: rgba(0, 0, 0, 0.08); --field: #ffffff;
+        background: #f4f4f2;
+      }
+      body[data-preset="airy"] .fft-dashboard-grid { gap: 34px 21px; }
+      body[data-preset="paper"] {
+        color-scheme: light;
+        --page: #f1ece2; --ink: #1d1d1b; --ink-2: #5e5a52; --line: rgba(29, 29, 27, 0.12); --field: #fbf8f3;
+        background: #f1ece2;
+      }
+      body[data-preset="paper"] :is(h1, h2) { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif; letter-spacing: -0.01em; }
+      body[data-preset="paper"] .fft-dashboard-grid { gap: 34px 21px; }
+      /* Sticky filter row backdrop: the page behind the dashboard, so cards scroll under it unseen. --page already
+         follows light, dark and airy; glass gets a translucent tone of its gradient. The body prefix outranks the
+         library's own .fft-dashboard rule, which loads later. */
+      body .fft-dashboard { --fft-board-bg: var(--page); }
+      body[data-preset="glass"] .fft-dashboard { --fft-board-bg: rgba(29, 43, 39, 0.89); }
+      .playground button {
+        border: 1px solid var(--line); background: var(--field); color: var(--ink-2);
+        border-radius: 6px; padding: 4px 10px; font: inherit; font-size: 13px; cursor: pointer;
+      }
+      .playground { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 21px; margin-top: 13px; align-items: start; }
+      .preview-col { display: flex; flex-direction: column; gap: 21px; min-width: 0; }
+      .style-panel { display: flex; flex-direction: column; gap: 13px; padding: 21px; border: 1px solid var(--line); border-radius: 13px; }
+      .style-head { display: flex; align-items: center; justify-content: space-between; gap: 13px; }
+      .style-panel h3 { margin: 0; font-size: 13px; }
+      .style-panel h4 { margin: 0; font-size: 11px; font-weight: 600; color: var(--ink-2); letter-spacing: 0.02em; }
+      .style-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(144px, 1fr)); gap: 13px; }
+      .style-grid label { display: flex; flex-direction: column; gap: 5px; font-size: 11px; color: var(--ink-2); }
+      .style-grid .height { grid-column: 1 / -1; }
+      .style-grid .accent, .style-grid .range { display: flex; align-items: center; gap: 8px; }
+      .style-grid input[type="range"] { flex: 1; accent-color: var(--accent); }
+      .style-grid input[type="color"] { width: 34px; height: 21px; padding: 0; border: 1px solid var(--line); border-radius: 5px; background: none; }
+      .style-grid output { min-width: 34px; font-variant-numeric: tabular-nums; color: var(--ink); }
+      .style-panel button, .style-grid button {
+        border: 1px solid var(--line); background: var(--field); color: var(--ink-2);
+        border-radius: 6px; padding: 2px 8px; font: inherit; font-size: 11px; cursor: pointer;
+      }
+      @media (max-width: 800px) { .playground { grid-template-columns: minmax(0, 1fr); } }
+      .editor { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+      .editor-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+      select {
+        max-width: 100%; font: inherit; font-size: 13px; padding: 4px 8px; border-radius: 6px;
+        border: 1px solid var(--line); background: var(--field); color: var(--ink);
+      }
+      textarea {
+        width: 100%; min-height: 420px; resize: vertical; padding: 12px;
+        border: 1px solid var(--line); border-radius: 10px; background: var(--field); color: var(--ink);
+        font: 12.5px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; tab-size: 2;
+      }
+      .issues { margin: 0; padding: 0; list-style: none; font-size: 13px; color: var(--ink-2); }
+      .issues li { padding: 2px 0; overflow-wrap: anywhere; }
+      .issues li[data-level="error"]::before { content: "Error  "; font-weight: 600; color: #d03b3b; }
+      .issues li[data-level="warning"]::before { content: "Warning  "; font-weight: 600; color: #b87500; }
+      .issues li[data-level="ok"]::before { content: "OK  "; font-weight: 600; color: #0ca30c; }
+      #selection { margin-top: 12px; font-size: 13px; color: var(--ink-2); min-height: 1.5em; overflow-wrap: anywhere; }
+      code { font: 0.92em ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+      /* Phones: everything in one column. Labels and their controls pair up in two-column grids so a
+         label never strands at the end of a row. */
+      @media (max-width: 700px) {
+        main { padding-top: calc(21px + env(safe-area-inset-top, 0px)); }
+        header.page { flex-direction: column; align-items: stretch; gap: 13px; }
+        .controls, .editor-bar { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 13px; }
+        .controls .segmented, .editor-bar button { justify-self: start; }
+        .editor-bar button { grid-column: 1 / -1; }
+        .editor-bar select { width: 100%; min-width: 0; }
+        textarea { min-height: 377px; }
+        .style-panel { padding: 13px; }
+        /* iOS Safari zooms into any focused field under 16px; the library's filter and hex fields included. */
+        input, select, textarea, main .fft-filter select, main .fft-picker-hex { font-size: 16px; }
+      }
+      /* Touch: 34px tall targets for the page controls. */
+      @media (pointer: coarse) {
+        .segmented button, .playground button, .playground select { min-height: 34px; }
+        .playground button { padding: 5px 13px; }
+        .playground select { padding: 5px 8px; }
+        .style-grid input[type="color"] { width: 55px; height: 34px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="page">
+        <div>
+          <h1>FFT Widgets</h1>
+          <p class="lede">
+            One widget block, many widgets. Each card below is the same component fed a different spec from the
+            <code>widgets/</code> folder: data, transforms, fields, view and style.
+          </p>
+        </div>
+        <div class="controls">
+          <span class="label" id="preset-label">Style</span>
+          <div id="preset" class="segmented" role="group" aria-labelledby="preset-label"></div>
+          <span class="label" id="theme-label">Theme</span>
+          <div id="theme" class="segmented" role="group" aria-labelledby="theme-label">
+            <button type="button" data-value="auto" aria-pressed="true">Auto</button>
+            <button type="button" data-value="light" aria-pressed="false">Light</button>
+            <button type="button" data-value="dark" aria-pressed="false">Dark</button>
+          </div>
+        </div>
+      </header>
+
+      <section aria-labelledby="gallery-title">
+        <h2 id="gallery-title">Dashboards</h2>
+        <div id="board-pick" class="segmented" role="group" aria-label="Dashboard" style="margin-top: 8px"></div>
+        <p class="note">The gallery is itself a dashboard, <code>dashboards/gallery.json</code>: pick a region and every widget with region data follows. Hover or tab through charts for values; click a row, bar or point to fire an <code>fft-select</code> event.</p>
+        <div id="gallery" style="margin-top: 13px"></div>
+        <p id="selection" role="status"></p>
+      </section>
+
+      <section aria-labelledby="playground-title">
+        <h2 id="playground-title">Playground</h2>
+        <p class="note">Pick a widget, or start from the vanilla block. Switch its view type or style preset, or edit the spec directly. The preview redraws as you go.</p>
+        <div class="playground">
+          <div class="editor">
+            <div class="editor-bar">
+              <label for="pick">Start from</label>
+              <select id="pick"></select>
+              <label for="view-pick">View</label>
+              <select id="view-pick"></select>
+              <button type="button" id="reset-all" title="Throw away every edit and reload the widget as saved">Reset to original</button>
+            </div>
+            <textarea id="spec" spellcheck="false" aria-label="Widget spec JSON"></textarea>
+            <ul id="issues" class="issues" aria-live="polite"></ul>
+          </div>
+          <div class="preview-col">
+            <div id="preview"></div>
+            <section class="style-panel" aria-labelledby="style-panel-title">
+              <div class="style-head">
+                <h3 id="style-panel-title">Chart styling</h3>
+                <button type="button" id="reset-style" title="Remove the style block: default preset, theme, palette, accent, spacing and height">Default style</button>
+              </div>
+              <div class="style-grid">
+                <label>Preset <select id="style-pick"></select></label>
+                <label>Theme
+                  <select id="theme-pick"><option value="auto">auto</option><option value="light">light</option><option value="dark">dark</option></select>
+                </label>
+                <label>Density
+                  <select id="density-pick"><option value="comfortable">comfortable</option><option value="compact">compact</option></select>
+                </label>
+                <label>Accent
+                  <span class="accent"><input type="color" id="accent-pick" aria-label="Accent color" /><button type="button" id="accent-reset" title="Use the preset's accent">auto</button></span>
+                </label>
+                <label class="height">Height
+                  <span class="range"><input type="range" id="height-pick" min="144" max="377" step="1" /><output id="height-out" for="height-pick">auto</output><button type="button" id="height-reset" title="Golden ratio of the width">auto</button></span>
+                </label>
+              </div>
+              <h4>Colors</h4>
+              <div id="palette-picker"></div>
+            </section>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="/demo/main.ts"></script>
+  </body>
+</html>

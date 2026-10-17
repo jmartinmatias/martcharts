@@ -1,0 +1,103 @@
+{
+  "id": "region-margins",
+  "title": "Margin by region",
+  "subtitle": "Q3 2026",
+  "description": "Revenue, profit and margin per region, best margin first.",
+  "footer": "Margin = profit / revenue",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/sales.json",
+    "path": "data.items"
+  },
+  "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": "region",
+      "measures": [
+        {
+          "op": "sum",
+          "field": "revenue"
+        },
+        {
+          "op": "sum",
+          "field": "cost"
+        },
+        {
+          "op": "sum",
+          "field": "target"
+        }
+      ]
+    },
+    {
+      "type": "calc",
+      "as": "profit",
+      "op": "subtract",
+      "left": "revenue",
+      "right": "cost"
+    },
+    {
+      "type": "calc",
+      "as": "margin",
+      "op": "divide",
+      "left": "profit",
+      "right": "revenue"
+    },
+    {
+      "type": "calc",
+      "as": "gap",
+      "op": "subtract",
+      "left": "revenue",
+      "right": "target"
+    },
+    {
+      "type": "calc",
+      "as": "vsTarget",
+      "op": "divide",
+      "left": "gap",
+      "right": "target"
+    },
+    {
+      "type": "sort",
+      "field": "margin",
+      "order": "desc"
+    }
+  ],
+  "fields": {
+    "revenue": {
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "decimals": 0
+      }
+    },
+    "profit": {
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "decimals": 0
+      }
+    },
+    "margin": {
+      "format": {
+        "type": "percent",
+        "decimals": 1
+      }
+    },
+    "vsTarget": {
+      "label": "vs target",
+      "format": {
+        "type": "delta"
+      }
+    }
+  },
+  "view": {
+    "type": "table",
+    "columns": [
+      "region",
+      "revenue",
+      "margin",
+      "vsTarget"
+    ]
+  }
+}

@@ -1,0 +1,223 @@
+{
+  "id": "product-ranking",
+  "title": "Product ranking",
+  "subtitle": "By monthly revenue, {first:month} to {last:month}",
+  "description": "Where each product ranks by revenue every month. Analytics overtook Platform in June, and Integrations climbed from fourth to second.",
+  "footer": "Source: finance ledger",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {
+        "month": "2026-04",
+        "product": "Platform",
+        "revenue": 120000
+      },
+      {
+        "month": "2026-04",
+        "product": "Analytics",
+        "revenue": 95000
+      },
+      {
+        "month": "2026-04",
+        "product": "Support",
+        "revenue": 80000
+      },
+      {
+        "month": "2026-04",
+        "product": "Integrations",
+        "revenue": 60000
+      },
+      {
+        "month": "2026-04",
+        "product": "Training",
+        "revenue": 55000
+      },
+      {
+        "month": "2026-04",
+        "product": "Consulting",
+        "revenue": 50000
+      },
+      {
+        "month": "2026-05",
+        "product": "Platform",
+        "revenue": 118000
+      },
+      {
+        "month": "2026-05",
+        "product": "Analytics",
+        "revenue": 102000
+      },
+      {
+        "month": "2026-05",
+        "product": "Support",
+        "revenue": 78000
+      },
+      {
+        "month": "2026-05",
+        "product": "Integrations",
+        "revenue": 66000
+      },
+      {
+        "month": "2026-05",
+        "product": "Training",
+        "revenue": 52000
+      },
+      {
+        "month": "2026-05",
+        "product": "Consulting",
+        "revenue": 58000
+      },
+      {
+        "month": "2026-06",
+        "product": "Platform",
+        "revenue": 119000
+      },
+      {
+        "month": "2026-06",
+        "product": "Analytics",
+        "revenue": 125000
+      },
+      {
+        "month": "2026-06",
+        "product": "Support",
+        "revenue": 81000
+      },
+      {
+        "month": "2026-06",
+        "product": "Integrations",
+        "revenue": 79000
+      },
+      {
+        "month": "2026-06",
+        "product": "Training",
+        "revenue": 50000
+      },
+      {
+        "month": "2026-06",
+        "product": "Consulting",
+        "revenue": 61000
+      },
+      {
+        "month": "2026-07",
+        "product": "Platform",
+        "revenue": 122000
+      },
+      {
+        "month": "2026-07",
+        "product": "Analytics",
+        "revenue": 131000
+      },
+      {
+        "month": "2026-07",
+        "product": "Support",
+        "revenue": 80000
+      },
+      {
+        "month": "2026-07",
+        "product": "Integrations",
+        "revenue": 88000
+      },
+      {
+        "month": "2026-07",
+        "product": "Training",
+        "revenue": 64000
+      },
+      {
+        "month": "2026-07",
+        "product": "Consulting",
+        "revenue": 59000
+      },
+      {
+        "month": "2026-08",
+        "product": "Platform",
+        "revenue": 120000
+      },
+      {
+        "month": "2026-08",
+        "product": "Analytics",
+        "revenue": 138000
+      },
+      {
+        "month": "2026-08",
+        "product": "Support",
+        "revenue": 79000
+      },
+      {
+        "month": "2026-08",
+        "product": "Integrations",
+        "revenue": 96000
+      },
+      {
+        "month": "2026-08",
+        "product": "Training",
+        "revenue": 71000
+      },
+      {
+        "month": "2026-08",
+        "product": "Consulting",
+        "revenue": 57000
+      },
+      {
+        "month": "2026-09",
+        "product": "Platform",
+        "revenue": 121000
+      },
+      {
+        "month": "2026-09",
+        "product": "Analytics",
+        "revenue": 146000
+      },
+      {
+        "month": "2026-09",
+        "product": "Support",
+        "revenue": 82000
+      },
+      {
+        "month": "2026-09",
+        "product": "Integrations",
+        "revenue": 124000
+      },
+      {
+        "month": "2026-09",
+        "product": "Training",
+        "revenue": 78000
+      },
+      {
+        "month": "2026-09",
+        "product": "Consulting",
+        "revenue": 55000
+      }
+    ]
+  },
+  "fields": {
+    "month": {
+      "label": "Month",
+      "format": {
+        "type": "date",
+        "style": "month"
+      }
+    },
+    "product": {
+      "label": "Product"
+    },
+    "revenue": {
+      "label": "Revenue",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
+  },
+  "view": {
+    "type": "bump",
+    "x": "month",
+    "series": "product",
+    "value": "revenue",
+    "highlight": [
+      "Analytics",
+      "Integrations"
+    ]
+  }
+}

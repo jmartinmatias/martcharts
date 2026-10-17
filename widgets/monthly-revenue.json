@@ -1,0 +1,57 @@
+{
+  "id": "monthly-revenue",
+  "title": "Revenue and cost",
+  "subtitle": "{first:month} to {last:month}",
+  "description": "Monthly revenue and cost trend from the finance ledger.",
+  "footer": "Source: /data/monthly.json",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/monthly.json"
+  },
+  "fields": {
+    "month": {
+      "label": "Month",
+      "format": {
+        "type": "date",
+        "style": "month"
+      }
+    },
+    "revenue": {
+      "label": "Revenue",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "decimals": 0
+      }
+    },
+    "cost": {
+      "label": "Cost",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "decimals": 0
+      }
+    }
+  },
+  "headline": {
+    "value": "revenue",
+    "compare": "previous",
+    "compareLabel": "vs Aug",
+    "caption": "revenue in {last:month}"
+  },
+  "view": {
+    "type": "line",
+    "x": "month",
+    "y": [
+      "revenue",
+      "cost"
+    ],
+    "reference": [
+      {
+        "value": 1200000,
+        "label": "Target"
+      }
+    ]
+  }
+}

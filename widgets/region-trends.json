@@ -1,0 +1,208 @@
+{
+  "id": "region-trends",
+  "title": "Regional trends",
+  "subtitle": "Monthly revenue, April to September",
+  "description": "Each region's six-month revenue trend and its total.",
+  "footer": "Source: finance ledger",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {
+        "region": "North",
+        "month": "2026-04",
+        "revenue": 44000
+      },
+      {
+        "region": "North",
+        "month": "2026-05",
+        "revenue": 46000
+      },
+      {
+        "region": "North",
+        "month": "2026-06",
+        "revenue": 45000
+      },
+      {
+        "region": "North",
+        "month": "2026-07",
+        "revenue": 48000
+      },
+      {
+        "region": "North",
+        "month": "2026-08",
+        "revenue": 47000
+      },
+      {
+        "region": "North",
+        "month": "2026-09",
+        "revenue": 52000
+      },
+      {
+        "region": "South",
+        "month": "2026-04",
+        "revenue": 33000
+      },
+      {
+        "region": "South",
+        "month": "2026-05",
+        "revenue": 32000
+      },
+      {
+        "region": "South",
+        "month": "2026-06",
+        "revenue": 35000
+      },
+      {
+        "region": "South",
+        "month": "2026-07",
+        "revenue": 34000
+      },
+      {
+        "region": "South",
+        "month": "2026-08",
+        "revenue": 36000
+      },
+      {
+        "region": "South",
+        "month": "2026-09",
+        "revenue": 34000
+      },
+      {
+        "region": "East",
+        "month": "2026-04",
+        "revenue": 52000
+      },
+      {
+        "region": "East",
+        "month": "2026-05",
+        "revenue": 55000
+      },
+      {
+        "region": "East",
+        "month": "2026-06",
+        "revenue": 58000
+      },
+      {
+        "region": "East",
+        "month": "2026-07",
+        "revenue": 57000
+      },
+      {
+        "region": "East",
+        "month": "2026-08",
+        "revenue": 61000
+      },
+      {
+        "region": "East",
+        "month": "2026-09",
+        "revenue": 65000
+      },
+      {
+        "region": "West",
+        "month": "2026-04",
+        "revenue": 30000
+      },
+      {
+        "region": "West",
+        "month": "2026-05",
+        "revenue": 31000
+      },
+      {
+        "region": "West",
+        "month": "2026-06",
+        "revenue": 33000
+      },
+      {
+        "region": "West",
+        "month": "2026-07",
+        "revenue": 32000
+      },
+      {
+        "region": "West",
+        "month": "2026-08",
+        "revenue": 35000
+      },
+      {
+        "region": "West",
+        "month": "2026-09",
+        "revenue": 36000
+      },
+      {
+        "region": "Central",
+        "month": "2026-04",
+        "revenue": 40000
+      },
+      {
+        "region": "Central",
+        "month": "2026-05",
+        "revenue": 42000
+      },
+      {
+        "region": "Central",
+        "month": "2026-06",
+        "revenue": 41000
+      },
+      {
+        "region": "Central",
+        "month": "2026-07",
+        "revenue": 44000
+      },
+      {
+        "region": "Central",
+        "month": "2026-08",
+        "revenue": 45000
+      },
+      {
+        "region": "Central",
+        "month": "2026-09",
+        "revenue": 47000
+      }
+    ]
+  },
+  "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": "region",
+      "measures": [
+        {
+          "op": "list",
+          "field": "revenue",
+          "as": "trend"
+        },
+        {
+          "op": "sum",
+          "field": "revenue",
+          "as": "total"
+        }
+      ]
+    },
+    {
+      "type": "sort",
+      "field": "total",
+      "order": "desc"
+    }
+  ],
+  "fields": {
+    "trend": {
+      "label": "6-month trend",
+      "format": "spark"
+    },
+    "total": {
+      "label": "Total",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
+  },
+  "view": {
+    "type": "table",
+    "columns": [
+      "region",
+      "trend",
+      "total"
+    ]
+  }
+}

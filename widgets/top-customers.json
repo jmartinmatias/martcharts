@@ -1,0 +1,42 @@
+{
+  "id": "top-customers",
+  "title": "Top customers",
+  "subtitle": "By revenue, year to date",
+  "description": "The five customers with the most revenue.",
+  "footer": "Source: /data/customers.json",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/customers.json"
+  },
+  "transform": [
+    {
+      "type": "sort",
+      "field": "revenue",
+      "order": "desc"
+    },
+    {
+      "type": "limit",
+      "count": 5
+    }
+  ],
+  "fields": {
+    "revenue": {
+      "format": {
+        "type": "bar",
+        "format": {
+          "type": "currency",
+          "currency": "EUR",
+          "decimals": 0,
+          "compact": true
+        }
+      }
+    }
+  },
+  "view": {
+    "type": "list",
+    "label": "name",
+    "detail": "country",
+    "value": "revenue"
+  }
+}

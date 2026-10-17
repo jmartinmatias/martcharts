@@ -1,0 +1,68 @@
+{
+  "id": "opex-variance",
+  "title": "Operating costs against budget",
+  "subtitle": "Q3 2026, by department",
+  "description": "Each department's Q3 spend minus its budget. Sales and R&D ran over; Marketing, Support and IT came in under.",
+  "footer": "Source: finance ledger",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {
+        "department": "Sales",
+        "actual": 412000,
+        "budget": 380000
+      },
+      {
+        "department": "Marketing",
+        "actual": 188000,
+        "budget": 210000
+      },
+      {
+        "department": "R&D",
+        "actual": 520000,
+        "budget": 500000
+      },
+      {
+        "department": "Support",
+        "actual": 140000,
+        "budget": 150000
+      },
+      {
+        "department": "G&A",
+        "actual": 96000,
+        "budget": 90000
+      },
+      {
+        "department": "IT",
+        "actual": 75000,
+        "budget": 85000
+      }
+    ]
+  },
+  "fields": {
+    "actual": {
+      "label": "Actual",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "budget": {
+      "label": "Budget",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
+  },
+  "view": {
+    "type": "variance",
+    "label": "department",
+    "value": "actual",
+    "target": "budget",
+    "goodWhen": "down"
+  }
+}

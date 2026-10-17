@@ -1,0 +1,83 @@
+{
+  "id": "deal-pipeline",
+  "title": "Open deals",
+  "subtitle": "Largest first",
+  "description": "Deals in progress with their stage.",
+  "footer": "Source: CRM",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {
+        "deal": "Aurora Logistics renewal",
+        "owner": "Lea",
+        "stage": "Won",
+        "amount": 240000
+      },
+      {
+        "deal": "Cobalt Analytics expansion",
+        "owner": "Marc",
+        "stage": "Negotiation",
+        "amount": 185000
+      },
+      {
+        "deal": "Fjord Energy pilot",
+        "owner": "Ines",
+        "stage": "Proposal",
+        "amount": 96000
+      },
+      {
+        "deal": "Halcyon Travel upgrade",
+        "owner": "Marc",
+        "stage": "At risk",
+        "amount": 64000
+      },
+      {
+        "deal": "Granite Bank onboarding",
+        "owner": "Lea",
+        "stage": "Negotiation",
+        "amount": 58000
+      }
+    ]
+  },
+  "transform": [
+    {
+      "type": "sort",
+      "field": "amount",
+      "order": "desc"
+    }
+  ],
+  "fields": {
+    "amount": {
+      "format": {
+        "type": "bar",
+        "format": {
+          "type": "currency",
+          "currency": "EUR",
+          "decimals": 0
+        }
+      }
+    },
+    "stage": {
+      "format": {
+        "type": "badge",
+        "tones": {
+          "Won": "positive",
+          "Negotiation": "accent",
+          "Proposal": "neutral",
+          "At risk": "negative"
+        }
+      }
+    }
+  },
+  "view": {
+    "type": "table",
+    "columns": [
+      "deal",
+      "owner",
+      "stage",
+      "amount"
+    ],
+    "totals": true
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "fft-widgets": {
+      "command": "node",
+      "args": ["src/mcp/main.ts"]
+    }
+  }
+}

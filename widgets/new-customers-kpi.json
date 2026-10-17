@@ -1,0 +1,32 @@
+{
+  "id": "new-customers-kpi",
+  "title": "New customers",
+  "subtitle": "{last:month}",
+  "description": "Customers won each month, with the 12-month trend.",
+  "footer": "Source: CRM",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/monthly.json"
+  },
+  "fields": {
+    "month": {
+      "label": "Month",
+      "format": {
+        "type": "date",
+        "style": "month"
+      }
+    },
+    "newCustomers": {
+      "label": "Customers won",
+      "format": "number"
+    }
+  },
+  "view": {
+    "type": "kpi",
+    "value": "newCustomers",
+    "series": true,
+    "x": "month",
+    "icon": "users"
+  }
+}

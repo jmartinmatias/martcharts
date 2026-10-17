@@ -1,0 +1,52 @@
+{
+  "id": "product-targets",
+  "title": "Q3 targets",
+  "subtitle": "Revenue against target, by product",
+  "description": "Each product's Q3 revenue as a share of its target. Analytics beat its target; Services trails at 77%.",
+  "footer": "Source: finance ledger",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {
+        "product": "Analytics",
+        "revenue": 386000,
+        "target": 360000
+      },
+      {
+        "product": "Platform",
+        "revenue": 412000,
+        "target": 450000
+      },
+      {
+        "product": "Services",
+        "revenue": 231000,
+        "target": 300000
+      }
+    ]
+  },
+  "fields": {
+    "revenue": {
+      "label": "Revenue",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "target": {
+      "label": "Target",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
+  },
+  "view": {
+    "type": "rings",
+    "label": "product",
+    "value": "revenue",
+    "target": "target"
+  }
+}

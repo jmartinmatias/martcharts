@@ -1,0 +1,10 @@
+[
+  { "name": "Aurora Logistics", "country": "Luxembourg", "segment": "Enterprise", "revenue": 214000 },
+  { "name": "Bellwether Foods", "country": "France", "segment": "Enterprise", "revenue": 188500 },
+  { "name": "Cobalt Analytics", "country": "Germany", "segment": "Mid-market", "revenue": 172300 },
+  { "name": "Dunmore Retail", "country": "Belgium", "segment": "Mid-market", "revenue": 151900 },
+  { "name": "Everline Health", "country": "Netherlands", "segment": "Enterprise", "revenue": 139400 },
+  { "name": "Fjord Energy", "country": "Norway", "segment": "Mid-market", "revenue": 122800 },
+  { "name": "Granite Bank", "country": "Luxembourg", "segment": "Enterprise", "revenue": 118200 },
+  { "name": "Halcyon Travel", "country": "Spain", "segment": "Small business", "revenue": 97600 }
+]

@@ -1,0 +1,221 @@
+{
+  "id": "gallery",
+  "description": "Every example widget, laid out as a dashboard with one region filter.",
+  "columns": 3,
+  "range": {
+    "field": [
+      "month",
+      "day",
+      "week"
+    ]
+  },
+  "filters": [
+    {
+      "field": "region",
+      "label": "Region"
+    }
+  ],
+  "widgets": [
+    {
+      "section": "Headline numbers",
+      "description": "The month at a glance"
+    },
+    {
+      "widget": "revenue-kpi"
+    },
+    {
+      "widget": "new-customers-kpi"
+    },
+    {
+      "widget": "churn-kpi"
+    },
+    {
+      "widget": "q3-at-a-glance",
+      "span": 3
+    },
+    {
+      "section": "Revenue and profit",
+      "description": "Trends, targets and where the money comes from"
+    },
+    {
+      "widget": "monthly-revenue",
+      "span": 2
+    },
+    {
+      "widget": "region-targets"
+    },
+    {
+      "widget": "gross-profit",
+      "span": 2
+    },
+    {
+      "widget": "revenue-sources"
+    },
+    {
+      "widget": "revenue-bridge",
+      "span": 2
+    },
+    {
+      "widget": "revenue-vs-target"
+    },
+    {
+      "widget": "kpi-scorecard",
+      "span": 2
+    },
+    {
+      "widget": "opex-variance"
+    },
+    {
+      "section": "Regions and products",
+      "description": "Size, mix, rank and change"
+    },
+    {
+      "widget": "revenue-by-region"
+    },
+    {
+      "widget": "product-share"
+    },
+    {
+      "widget": "region-trends"
+    },
+    {
+      "widget": "revenue-mix",
+      "span": 2
+    },
+    {
+      "widget": "region-margins"
+    },
+    {
+      "widget": "region-product-mix",
+      "span": 2
+    },
+    {
+      "widget": "product-targets"
+    },
+    {
+      "widget": "product-ranking",
+      "span": 2
+    },
+    {
+      "widget": "region-win-rate"
+    },
+    {
+      "widget": "product-mix-trend",
+      "span": 2
+    },
+    {
+      "widget": "region-yoy"
+    },
+    {
+      "widget": "region-panels",
+      "span": 2
+    },
+    {
+      "widget": "product-region-sunburst"
+    },
+    {
+      "widget": "region-heat-table",
+      "span": 3
+    },
+    {
+      "section": "Customers and pipeline",
+      "description": "Who buys, how they arrive, what is open"
+    },
+    {
+      "widget": "top-customers"
+    },
+    {
+      "widget": "lead-pipeline"
+    },
+    {
+      "widget": "signup-funnel"
+    },
+    {
+      "widget": "customer-treemap",
+      "span": 2
+    },
+    {
+      "widget": "revenue-by-segment"
+    },
+    {
+      "widget": "account-portfolio",
+      "span": 3
+    },
+    {
+      "widget": "traffic-stream",
+      "span": 3
+    },
+    {
+      "widget": "traffic-sankey",
+      "span": 2
+    },
+    {
+      "widget": "plan-moves"
+    },
+    {
+      "widget": "deal-pipeline",
+      "span": 2
+    },
+    {
+      "widget": "product-compare"
+    },
+    {
+      "section": "Deals and distributions",
+      "description": "How deal sizes spread, five ways"
+    },
+    {
+      "widget": "deal-scatter",
+      "span": 2
+    },
+    {
+      "widget": "deal-boxplot"
+    },
+    {
+      "widget": "deal-swarm",
+      "span": 2
+    },
+    {
+      "widget": "deal-histogram"
+    },
+    {
+      "widget": "deal-ridgeline",
+      "span": 3
+    },
+    {
+      "section": "Markets",
+      "description": "The share price, day by day"
+    },
+    {
+      "widget": "share-price",
+      "span": 3
+    },
+    {
+      "section": "Operations and sentiment",
+      "description": "Orders, tickets, plans and how people feel"
+    },
+    {
+      "widget": "order-calendar",
+      "span": 3
+    },
+    {
+      "widget": "ticket-causes",
+      "span": 2
+    },
+    {
+      "widget": "ticket-heatmap"
+    },
+    {
+      "widget": "launch-plan",
+      "span": 3
+    },
+    {
+      "widget": "employee-survey",
+      "span": 2
+    },
+    {
+      "widget": "nps-gauge"
+    }
+  ],
+  "title": "Gallery",
+  "subtitle": "Every example widget"
+}

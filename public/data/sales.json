@@ -1,0 +1,77 @@
+{
+  "generated": "2026-10-01",
+  "data": {
+    "items": [
+      {
+        "region": "North",
+        "product": "Core",
+        "revenue": 182000,
+        "cost": 121000,
+        "target": 170000
+      },
+      {
+        "region": "North",
+        "product": "Plus",
+        "revenue": 96000,
+        "cost": 71000,
+        "target": 100000
+      },
+      {
+        "region": "South",
+        "product": "Core",
+        "revenue": 143000,
+        "cost": 98000,
+        "target": 160000
+      },
+      {
+        "region": "South",
+        "product": "Plus",
+        "revenue": 61000,
+        "cost": 50000,
+        "target": 70000
+      },
+      {
+        "region": "East",
+        "product": "Core",
+        "revenue": 220000,
+        "cost": 154000,
+        "target": 230000
+      },
+      {
+        "region": "East",
+        "product": "Plus",
+        "revenue": 118000,
+        "cost": 93000,
+        "target": 130000
+      },
+      {
+        "region": "West",
+        "product": "Core",
+        "revenue": 131000,
+        "cost": 86000,
+        "target": 140000
+      },
+      {
+        "region": "West",
+        "product": "Plus",
+        "revenue": 74000,
+        "cost": 62000,
+        "target": 80000
+      },
+      {
+        "region": "Central",
+        "product": "Core",
+        "revenue": 165000,
+        "cost": 112000,
+        "target": 160000
+      },
+      {
+        "region": "Central",
+        "product": "Plus",
+        "revenue": 94000,
+        "cost": 63000,
+        "target": 90000
+      }
+    ]
+  }
+}

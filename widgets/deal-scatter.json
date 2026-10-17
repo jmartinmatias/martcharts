@@ -1,0 +1,126 @@
+{
+  "id": "deal-scatter",
+  "title": "Deal size and speed",
+  "subtitle": "Deal value against days to close, by stage",
+  "description": "Whether bigger deals take longer to close, and where lost deals sit.",
+  "footer": "Source: CRM, last two quarters",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {
+        "deal": "Aurora renewal",
+        "value": 240000,
+        "days": 30,
+        "stage": "Won"
+      },
+      {
+        "deal": "Bellwether pilot",
+        "value": 72000,
+        "days": 21,
+        "stage": "Won"
+      },
+      {
+        "deal": "Cobalt expansion",
+        "value": 185000,
+        "days": 62,
+        "stage": "Open"
+      },
+      {
+        "deal": "Dunmore rollout",
+        "value": 130000,
+        "days": 48,
+        "stage": "Open"
+      },
+      {
+        "deal": "Everline upgrade",
+        "value": 88000,
+        "days": 34,
+        "stage": "Won"
+      },
+      {
+        "deal": "Fjord pilot",
+        "value": 96000,
+        "days": 45,
+        "stage": "Won"
+      },
+      {
+        "deal": "Granite onboarding",
+        "value": 58000,
+        "days": 70,
+        "stage": "Open"
+      },
+      {
+        "deal": "Halcyon upgrade",
+        "value": 64000,
+        "days": 80,
+        "stage": "Lost"
+      },
+      {
+        "deal": "Iris analytics",
+        "value": 150000,
+        "days": 55,
+        "stage": "Open"
+      },
+      {
+        "deal": "Juno support",
+        "value": 42000,
+        "days": 18,
+        "stage": "Won"
+      },
+      {
+        "deal": "Kestrel data",
+        "value": 110000,
+        "days": 90,
+        "stage": "Lost"
+      },
+      {
+        "deal": "Lumen suite",
+        "value": 205000,
+        "days": 41,
+        "stage": "Won"
+      },
+      {
+        "deal": "Mistral cloud",
+        "value": 76000,
+        "days": 66,
+        "stage": "Lost"
+      },
+      {
+        "deal": "Nimbus seats",
+        "value": 54000,
+        "days": 27,
+        "stage": "Won"
+      },
+      {
+        "deal": "Orion migration",
+        "value": 170000,
+        "days": 74,
+        "stage": "Open"
+      }
+    ]
+  },
+  "fields": {
+    "value": {
+      "label": "Deal value",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "days": {
+      "label": "Days to close"
+    },
+    "stage": {
+      "label": "Stage"
+    }
+  },
+  "view": {
+    "type": "scatter",
+    "x": "days",
+    "y": "value",
+    "series": "stage",
+    "label": "deal"
+  }
+}

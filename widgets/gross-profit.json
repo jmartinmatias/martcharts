@@ -1,0 +1,49 @@
+{
+  "id": "gross-profit",
+  "title": "Gross profit",
+  "subtitle": "{first:month} to {last:month}",
+  "description": "Revenue minus cost, month by month.",
+  "footer": "Gross profit = revenue - cost",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/monthly.json"
+  },
+  "transform": [
+    {
+      "type": "calc",
+      "as": "profit",
+      "op": "subtract",
+      "left": "revenue",
+      "right": "cost"
+    }
+  ],
+  "fields": {
+    "month": {
+      "label": "Month",
+      "format": {
+        "type": "date",
+        "style": "month"
+      }
+    },
+    "profit": {
+      "label": "Gross profit",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "decimals": 0
+      }
+    }
+  },
+  "headline": {
+    "value": "profit",
+    "compare": "previous",
+    "compareLabel": "vs Aug",
+    "caption": "gross profit in {last:month}"
+  },
+  "view": {
+    "type": "area",
+    "x": "month",
+    "y": "profit"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "id": "q3-at-a-glance",
+  "title": "At a glance",
+  "subtitle": "{last:month} against the month before, with trends from {first:month}",
+  "description": "The four headline numbers in one row.",
+  "footer": "Source: finance ledger and CRM",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/monthly.json"
+  },
+  "transform": [
+    {
+      "type": "calc",
+      "as": "profit",
+      "op": "subtract",
+      "left": "revenue",
+      "right": "cost"
+    }
+  ],
+  "fields": {
+    "revenue": {
+      "label": "Revenue",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "profit": {
+      "label": "Gross profit",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "newCustomers": {
+      "label": "New customers",
+      "format": "number"
+    },
+    "churn": {
+      "label": "Churn",
+      "format": {
+        "type": "percent",
+        "decimals": 1
+      }
+    },
+    "month": {
+      "label": "Month",
+      "format": {
+        "type": "date",
+        "style": "month"
+      }
+    }
+  },
+  "view": {
+    "type": "kpis",
+    "series": true,
+    "items": [
+      {
+        "value": "revenue"
+      },
+      {
+        "value": "profit"
+      },
+      {
+        "value": "newCustomers"
+      },
+      {
+        "value": "churn",
+        "goodWhen": "down"
+      }
+    ]
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "id": "traffic-sankey",
+  "title": "Where visitors go",
+  "subtitle": "September 2026, source to page to outcome",
+  "description": "How visits from each source flow through the site to signup or leaving.",
+  "footer": "Source: web analytics",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {
+        "from": "Search",
+        "to": "Pricing",
+        "visits": 4200
+      },
+      {
+        "from": "Search",
+        "to": "Blog",
+        "visits": 2600
+      },
+      {
+        "from": "Social",
+        "to": "Blog",
+        "visits": 3100
+      },
+      {
+        "from": "Social",
+        "to": "Home",
+        "visits": 1400
+      },
+      {
+        "from": "Email",
+        "to": "Pricing",
+        "visits": 1800
+      },
+      {
+        "from": "Email",
+        "to": "Home",
+        "visits": 900
+      },
+      {
+        "from": "Pricing",
+        "to": "Signed up",
+        "visits": 2100
+      },
+      {
+        "from": "Pricing",
+        "to": "Left",
+        "visits": 3900
+      },
+      {
+        "from": "Blog",
+        "to": "Signed up",
+        "visits": 1200
+      },
+      {
+        "from": "Blog",
+        "to": "Left",
+        "visits": 4500
+      },
+      {
+        "from": "Home",
+        "to": "Signed up",
+        "visits": 600
+      },
+      {
+        "from": "Home",
+        "to": "Left",
+        "visits": 1700
+      }
+    ]
+  },
+  "fields": {
+    "visits": {
+      "label": "Visits",
+      "format": {
+        "type": "number",
+        "compact": true
+      }
+    }
+  },
+  "view": {
+    "type": "sankey",
+    "source": "from",
+    "target": "to",
+    "value": "visits"
+  }
+}

@@ -1,0 +1,152 @@
+{
+  "id": "deal-swarm",
+  "title": "Deal sizes by region",
+  "subtitle": "Every deal closed this half, one dot each",
+  "description": "The spread of deal values per region, including outliers an average would hide.",
+  "footer": "Source: CRM",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {
+        "deal": "North deal 1",
+        "value": 42000,
+        "region": "North"
+      },
+      {
+        "deal": "North deal 2",
+        "value": 55000,
+        "region": "North"
+      },
+      {
+        "deal": "North deal 3",
+        "value": 61000,
+        "region": "North"
+      },
+      {
+        "deal": "North deal 4",
+        "value": 48000,
+        "region": "North"
+      },
+      {
+        "deal": "North deal 5",
+        "value": 70000,
+        "region": "North"
+      },
+      {
+        "deal": "North deal 6",
+        "value": 95000,
+        "region": "North"
+      },
+      {
+        "deal": "North deal 7",
+        "value": 38000,
+        "region": "North"
+      },
+      {
+        "deal": "North deal 8",
+        "value": 52000,
+        "region": "North"
+      },
+      {
+        "deal": "South deal 9",
+        "value": 22000,
+        "region": "South"
+      },
+      {
+        "deal": "South deal 10",
+        "value": 31000,
+        "region": "South"
+      },
+      {
+        "deal": "South deal 11",
+        "value": 28000,
+        "region": "South"
+      },
+      {
+        "deal": "South deal 12",
+        "value": 35000,
+        "region": "South"
+      },
+      {
+        "deal": "South deal 13",
+        "value": 40000,
+        "region": "South"
+      },
+      {
+        "deal": "South deal 14",
+        "value": 26000,
+        "region": "South"
+      },
+      {
+        "deal": "South deal 15",
+        "value": 33000,
+        "region": "South"
+      },
+      {
+        "deal": "South deal 16",
+        "value": 180000,
+        "region": "South"
+      },
+      {
+        "deal": "East deal 17",
+        "value": 88000,
+        "region": "East"
+      },
+      {
+        "deal": "East deal 18",
+        "value": 120000,
+        "region": "East"
+      },
+      {
+        "deal": "East deal 19",
+        "value": 140000,
+        "region": "East"
+      },
+      {
+        "deal": "East deal 20",
+        "value": 96000,
+        "region": "East"
+      },
+      {
+        "deal": "East deal 21",
+        "value": 110000,
+        "region": "East"
+      },
+      {
+        "deal": "East deal 22",
+        "value": 135000,
+        "region": "East"
+      },
+      {
+        "deal": "East deal 23",
+        "value": 105000,
+        "region": "East"
+      },
+      {
+        "deal": "East deal 24",
+        "value": 150000,
+        "region": "East"
+      }
+    ]
+  },
+  "fields": {
+    "value": {
+      "label": "Deal value",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "region": {
+      "label": "Region"
+    }
+  },
+  "view": {
+    "type": "beeswarm",
+    "value": "value",
+    "group": "region",
+    "label": "deal"
+  }
+}

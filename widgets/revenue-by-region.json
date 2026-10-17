@@ -1,0 +1,73 @@
+{
+  "id": "revenue-by-region",
+  "title": "Revenue by region",
+  "subtitle": "Q3 2026, all products",
+  "description": "Revenue and cost per sales region, largest first, with the leading region highlighted.",
+  "footer": "Source: /data/sales.json",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/sales.json",
+    "path": "data.items"
+  },
+  "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": "region",
+      "measures": [
+        {
+          "op": "sum",
+          "field": "revenue"
+        },
+        {
+          "op": "sum",
+          "field": "cost"
+        }
+      ]
+    },
+    {
+      "type": "sort",
+      "field": "revenue",
+      "order": "desc"
+    }
+  ],
+  "fields": {
+    "revenue": {
+      "label": "Revenue",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "decimals": 0
+      }
+    },
+    "cost": {
+      "label": "Cost",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "decimals": 0
+      }
+    }
+  },
+  "headline": {
+    "value": "revenue",
+    "agg": "sum",
+    "caption": "total revenue, all regions"
+  },
+  "view": {
+    "type": "bar",
+    "x": "region",
+    "y": [
+      "revenue",
+      "cost"
+    ],
+    "highlight": "East",
+    "reference": [
+      {
+        "field": "revenue",
+        "agg": "avg",
+        "label": "Average"
+      }
+    ]
+  }
+}

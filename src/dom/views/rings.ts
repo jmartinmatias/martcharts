@@ -1,0 +1,113 @@
+import { readNumber } from "../../core/formats.ts";
+import type { Row } from "../../core/types.ts";
+import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
+import type { RingsView } from "../../core/views.ts";
+import { arcPath } from "../layout.ts";
+import { buildTable, figureSize, html, ringThickness, selectable, svg } from "./shared.ts";
+import { roving } from "./focus.ts";
+
+const GAP = 3;
+const FULL = Math.PI * 2;
+const round2 = (n: number) => Math.round(n * 100) / 100;
+
+/** An arc for `share` of a turn from twelve o'clock. A whole turn is two half arcs: one arc that ends where it starts draws nothing. */
+function ringPath(c: number, r: number, share: number): string {
+  if (share < 1) return arcPath(c, c, r, 0, share * FULL);
+  return `${arcPath(c, c, r, 0, Math.PI)}${arcPath(c, c, r, Math.PI, FULL).replace(/^M[^A]+/, "")}`;
+}
+
+/**
+ * Draws the `rings` view: one progress ring per row, outermost first, each a
+ * faint track of its color with an arc filled to value over target, starting
+ * at twelve o'clock. Past the target the ring closes and a second lap, lifted
+ * by a soft shadow, shows how far over. Sizes are Fibonacci steps: a 144px
+ * figure with 13px rings, or 233px with 21px rings when there is room.
+ */
+export const renderRings: ViewRenderer<RingsView> = (ctx) => {
+  const doc = ctx.el.ownerDocument;
+  const { label, value, target } = ctx.view;
+  const goals: { row: Row; amount: number; goal: number; ratio: number }[] = [];
+  for (const row of ctx.rows) {
+    const amount = readNumber(row[value]);
+    const goal = readNumber(row[target]);
+    if (amount === null || goal === null || goal <= 0) continue;
+    goals.push({ row, amount, goal, ratio: Math.max(0, amount / goal) });
+  }
+  const percent = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 0 });
+
+  const size = figureSize(ctx.width);
+  const c = size / 2;
+  // Thinner rings when there are many, so the innermost keeps a readable hole.
+  const thickness = Math.min(ringThickness(size), Math.floor((c - 13) / Math.max(1, goals.length)) - GAP);
+
+  const wrap = html(doc, "div", "fft-rings");
+  const figure = html(doc, "div", "fft-rings-figure");
+  const chart = svg(doc, "svg", { width: size, height: size, viewBox: `0 0 ${size} ${size}` });
+  chart.setAttribute("role", "group");
+  chart.setAttribute("aria-label", `Progress rings of ${ctx.label(value)} against ${ctx.label(target)}`);
+  const groups: SVGGElement[] = [];
+  const hits: Element[] = [];
+  const deactivate = () => {
+    wrap.removeAttribute("data-active");
+    for (const group of groups) group.removeAttribute("data-active");
+    ctx.tooltip.hide();
+  };
+  const legend = html(doc, "ul", "fft-rings-legend");
+  goals.forEach((g, i) => {
+    const r = c - thickness / 2 - i * (thickness + GAP);
+    const color = ctx.color(i);
+    const group = svg(doc, "g", { class: "fft-ring", style: `--fft-i: ${i}; --fft-ring-color: ${color}` });
+    group.append(svg(doc, "circle", { class: "fft-ring-track", cx: c, cy: c, r, "stroke-width": thickness }));
+    const filled = Math.min(1, g.ratio);
+    if (filled > 0) {
+      group.append(svg(doc, "path", { class: "fft-ring-arc", d: ringPath(c, r, filled), "stroke-width": thickness, pathLength: 1, "data-ratio": round2(filled) }));
+    }
+    if (g.ratio > 1) {
+      const over = Math.min(1, g.ratio - 1);
+      group.append(svg(doc, "path", { class: "fft-ring-lap", d: ringPath(c, r, over), "stroke-width": thickness, "data-ratio": round2(g.ratio - 1) }));
+    }
+    const name = ctx.format(g.row[label], label);
+    const attainment = percent.format(g.ratio);
+    const items: TooltipItem[] = [
+      { label: ctx.label(value), value: ctx.format(g.row[value], value), color },
+      { label: ctx.label(target), value: ctx.format(g.row[target], target) },
+      { label: "Of target", value: attainment },
+    ];
+    const hit = svg(doc, "circle", { class: "fft-ring-hit", cx: c, cy: c, r, "stroke-width": thickness + GAP, tabindex: 0, role: "img" });
+    hit.setAttribute("aria-label", `${name}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
+    const activate = () => {
+      wrap.setAttribute("data-active", "");
+      for (const other of groups) other.removeAttribute("data-active");
+      group.setAttribute("data-active", "");
+      ctx.tooltip.show(hit, name, items);
+    };
+    hit.addEventListener("pointerenter", activate);
+    hit.addEventListener("focus", activate);
+    hit.addEventListener("pointerleave", deactivate);
+    hit.addEventListener("blur", deactivate);
+    const row = g.row;
+    selectable(hit, () => ctx.select(row));
+    group.append(hit);
+    chart.append(group);
+    groups.push(group);
+    hits.push(hit);
+
+    const swatch = html(doc, "span", "fft-swatch");
+    swatch.style.background = color;
+    swatch.setAttribute("aria-hidden", "true");
+    const item = html(doc, "li");
+    item.append(
+      swatch,
+      html(doc, "span", "fft-rings-name", name),
+      html(doc, "span", "fft-rings-percent", attainment),
+      html(doc, "span", "fft-rings-value", `${ctx.format(g.row[value], value)} of ${ctx.format(g.row[target], target)}`),
+    );
+    legend.append(item);
+  });
+  figure.append(chart);
+  roving(hits);
+  const hidden = html(doc, "div", "fft-sr-only");
+  hidden.append(buildTable(ctx, goals.map((g) => g.row), [label, value, target], false));
+  wrap.append(figure, legend, hidden);
+  ctx.el.append(wrap);
+};

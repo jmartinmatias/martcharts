@@ -1,0 +1,71 @@
+{
+  "id": "revenue-mix",
+  "title": "Revenue mix",
+  "subtitle": "Q3 2026, Core and Plus by region",
+  "description": "How each region's revenue splits between the two products, largest region first.",
+  "footer": "Source: /data/sales.json",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/sales.json",
+    "path": "data.items"
+  },
+  "transform": [
+    {
+      "type": "pivot",
+      "row": "region",
+      "column": "product",
+      "value": "revenue"
+    },
+    {
+      "type": "calc",
+      "as": "total",
+      "op": "add",
+      "left": "Core",
+      "right": "Plus"
+    },
+    {
+      "type": "sort",
+      "field": "total",
+      "order": "desc"
+    }
+  ],
+  "fields": {
+    "Core": {
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "Plus": {
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "total": {
+      "label": "Total",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
+  },
+  "headline": {
+    "value": "total",
+    "agg": "sum",
+    "caption": "Q3 revenue across both products"
+  },
+  "view": {
+    "type": "bar",
+    "x": "region",
+    "y": [
+      "Core",
+      "Plus"
+    ],
+    "stacked": true
+  }
+}

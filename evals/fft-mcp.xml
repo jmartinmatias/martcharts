@@ -1,0 +1,47 @@
+<!--
+  Evaluation questions for the FFT MCP server, run against the sample widgets in ./widgets.
+  Every question is read-only and needs several tool calls. Answers were computed from the
+  real widget pipelines on 2026-10-16. If the sample data changes, recompute them.
+-->
+<evaluation>
+  <qa_pair>
+    <question>Among the sales regions in the margin widget, which one has the highest profit margin? Give the margin as a percentage with one decimal place.</question>
+    <answer>32.4%</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>In the monthly revenue and cost trend, which month had the largest gap between revenue and cost? Answer in YYYY-MM format.</question>
+    <answer>2026-09</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>One of the customers shown in the top customers widget is based in Belgium. What is its name?</question>
+    <answer>Dunmore Retail</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>Add up the revenue of every region in the revenue by region widget. What is the total in euros, as a plain number with no separators?</question>
+    <answer>1284000</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>By what percentage did monthly customer churn change compared with the previous month? Give a signed percentage with one decimal place.</question>
+    <answer>-13.9%</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>Which region has the second-highest revenue in the revenue by region widget?</question>
+    <answer>North</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>How many widgets in the store are drawn as a single headline number (the kpi view)?</question>
+    <answer>3</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>What is the South region's profit in euros according to the margin widget? Plain number, no separators.</question>
+    <answer>56000</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>In the monthly revenue and cost trend, which month had the lowest cost? Answer in YYYY-MM format.</question>
+    <answer>2025-10</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>What is the difference in euros between the highest and the lowest regional revenue in the revenue by region widget? Plain number, no separators.</question>
+    <answer>134000</answer>
+  </qa_pair>
+</evaluation>

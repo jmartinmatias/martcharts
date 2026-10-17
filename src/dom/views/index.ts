@@ -1,0 +1,84 @@
+/**
+ * Attaches the built-in renderers to the built-in view descriptors.
+ * Importing this module (or `fft-widgets`) is what makes them drawable.
+ *
+ * @module
+ */
+import { setRenderer } from "../../core/registry.ts";
+import { renderArea, renderBar, renderLine } from "./chart.ts";
+import { renderBeeswarm } from "./beeswarm.ts";
+import { renderBoxplot } from "./boxplot.ts";
+import { renderBullet } from "./bullet.ts";
+import { renderBump } from "./bump.ts";
+import { renderCalendar } from "./calendar.ts";
+import { renderCandlestick } from "./candlestick.ts";
+import { renderChord } from "./chord.ts";
+import { renderDonut } from "./donut.ts";
+import { renderDumbbell } from "./dumbbell.ts";
+import { renderFunnel } from "./funnel.ts";
+import { renderGauge } from "./gauge.ts";
+import { renderHbar } from "./hbar.ts";
+import { renderHeatmap } from "./heatmap.ts";
+import { renderHistogram } from "./histogram.ts";
+import { renderKpi } from "./kpi.ts";
+import { renderKpis } from "./kpis.ts";
+import { renderLikert } from "./likert.ts";
+import { renderList } from "./list.ts";
+import { renderMarimekko } from "./marimekko.ts";
+import { renderMeter } from "./meter.ts";
+import { renderPareto } from "./pareto.ts";
+import { renderRadar } from "./radar.ts";
+import { renderRidgeline } from "./ridgeline.ts";
+import { renderRings } from "./rings.ts";
+import { renderSankey } from "./sankey.ts";
+import { renderScatter } from "./scatter.ts";
+import { renderSlope } from "./slope.ts";
+import { renderSunburst } from "./sunburst.ts";
+import { renderTable } from "./table.ts";
+import { renderTimeline } from "./timeline.ts";
+import { renderTreemap } from "./treemap.ts";
+import { renderVariance } from "./variance.ts";
+import { renderWaffle } from "./waffle.ts";
+import { renderWaterfall } from "./waterfall.ts";
+
+setRenderer("table", renderTable);
+setRenderer("list", renderList);
+setRenderer("kpi", renderKpi);
+setRenderer("kpis", renderKpis);
+setRenderer("bar", renderBar);
+setRenderer("line", renderLine);
+setRenderer("area", renderArea);
+setRenderer("meter", renderMeter);
+setRenderer("donut", renderDonut);
+setRenderer("hbar", renderHbar);
+setRenderer("waterfall", renderWaterfall);
+setRenderer("heatmap", renderHeatmap);
+setRenderer("scatter", renderScatter);
+setRenderer("bullet", renderBullet);
+setRenderer("treemap", renderTreemap);
+setRenderer("funnel", renderFunnel);
+setRenderer("calendar", renderCalendar);
+setRenderer("beeswarm", renderBeeswarm);
+setRenderer("ridgeline", renderRidgeline);
+setRenderer("sankey", renderSankey);
+setRenderer("dumbbell", renderDumbbell);
+setRenderer("slope", renderSlope);
+setRenderer("bump", renderBump);
+setRenderer("marimekko", renderMarimekko);
+setRenderer("histogram", renderHistogram);
+setRenderer("rings", renderRings);
+setRenderer("timeline", renderTimeline);
+setRenderer("waffle", renderWaffle);
+setRenderer("variance", renderVariance);
+setRenderer("gauge", renderGauge);
+setRenderer("pareto", renderPareto);
+setRenderer("boxplot", renderBoxplot);
+setRenderer("likert", renderLikert);
+setRenderer("candlestick", renderCandlestick);
+setRenderer("sunburst", renderSunburst);
+setRenderer("chord", renderChord);
+setRenderer("radar", renderRadar);
+
+export { renderKpis } from "./kpis.ts";
+export { renderRidgeline } from "./ridgeline.ts";
+export { renderArea, renderBar, renderBeeswarm, renderBoxplot, renderBullet, renderBump, renderCalendar, renderCandlestick, renderChord, renderDonut, renderDumbbell, renderSankey, renderFunnel, renderGauge, renderTreemap, renderHbar, renderHeatmap, renderHistogram, renderKpi, renderLikert, renderLine, renderList, renderMarimekko, renderMeter, renderPareto, renderRadar, renderRings, renderScatter, renderSlope, renderSunburst, renderTable, renderTimeline, renderVariance, renderWaffle, renderWaterfall };

@@ -1,0 +1,49 @@
+{
+  "id": "lead-pipeline",
+  "title": "Lead pipeline",
+  "subtitle": "Q3 2026, by stage",
+  "description": "How many leads reached each stage of the sales pipeline.",
+  "footer": "Source: CRM",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {
+        "stage": "New leads",
+        "leads": 1240
+      },
+      {
+        "stage": "Contacted",
+        "leads": 870
+      },
+      {
+        "stage": "Qualified",
+        "leads": 410
+      },
+      {
+        "stage": "Proposal sent",
+        "leads": 190
+      },
+      {
+        "stage": "Won",
+        "leads": 96
+      }
+    ]
+  },
+  "fields": {
+    "leads": {
+      "label": "Leads",
+      "format": "number"
+    }
+  },
+  "headline": {
+    "value": "leads",
+    "agg": "last",
+    "caption": "deals won this quarter"
+  },
+  "view": {
+    "type": "hbar",
+    "label": "stage",
+    "value": "leads"
+  }
+}

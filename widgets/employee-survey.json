@@ -1,0 +1,64 @@
+{
+  "id": "employee-survey",
+  "title": "Employee pulse survey",
+  "subtitle": "Q3 2026, share disagreeing and agreeing",
+  "description": "Answers to five statements, centered on neutral. Strategy and recommendation score well; workload is the one most people disagree with.",
+  "footer": "Source: HR pulse survey, 240 responses",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {
+        "question": "I understand our strategy",
+        "strongly_disagree": 8,
+        "disagree": 22,
+        "neutral": 40,
+        "agree": 110,
+        "strongly_agree": 60
+      },
+      {
+        "question": "My manager supports my growth",
+        "strongly_disagree": 12,
+        "disagree": 28,
+        "neutral": 46,
+        "agree": 96,
+        "strongly_agree": 58
+      },
+      {
+        "question": "I have the tools to do my job",
+        "strongly_disagree": 24,
+        "disagree": 52,
+        "neutral": 60,
+        "agree": 78,
+        "strongly_agree": 26
+      },
+      {
+        "question": "My workload is sustainable",
+        "strongly_disagree": 38,
+        "disagree": 70,
+        "neutral": 56,
+        "agree": 58,
+        "strongly_agree": 18
+      },
+      {
+        "question": "I would recommend working here",
+        "strongly_disagree": 10,
+        "disagree": 20,
+        "neutral": 42,
+        "agree": 100,
+        "strongly_agree": 68
+      }
+    ]
+  },
+  "view": {
+    "type": "likert",
+    "label": "question",
+    "responses": [
+      "strongly_disagree",
+      "disagree",
+      "neutral",
+      "agree",
+      "strongly_agree"
+    ]
+  }
+}

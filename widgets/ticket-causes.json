@@ -1,0 +1,58 @@
+{
+  "id": "ticket-causes",
+  "title": "What drives support tickets",
+  "subtitle": "Q3 2026, by cause, with the running total",
+  "description": "Tickets by cause, largest first. Four causes make up over 80% of the volume: fix those first.",
+  "footer": "Source: helpdesk, {sum:tickets} tickets",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {
+        "cause": "Login problems",
+        "tickets": 412
+      },
+      {
+        "cause": "Billing questions",
+        "tickets": 286
+      },
+      {
+        "cause": "Slow pages",
+        "tickets": 198
+      },
+      {
+        "cause": "Integrations",
+        "tickets": 121
+      },
+      {
+        "cause": "Exports",
+        "tickets": 77
+      },
+      {
+        "cause": "Notifications",
+        "tickets": 52
+      },
+      {
+        "cause": "Permissions",
+        "tickets": 38
+      },
+      {
+        "cause": "Other",
+        "tickets": 26
+      }
+    ]
+  },
+  "fields": {
+    "tickets": {
+      "label": "Tickets",
+      "format": {
+        "type": "number"
+      }
+    }
+  },
+  "view": {
+    "type": "pareto",
+    "label": "cause",
+    "value": "tickets"
+  }
+}

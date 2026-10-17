@@ -1,0 +1,57 @@
+{
+  "id": "revenue-bridge",
+  "title": "Revenue bridge",
+  "subtitle": "Q2 to Q3 2026",
+  "description": "What moved quarterly revenue from Q2 to Q3: gains from new customers, upsell and pricing, losses from churn and discounts.",
+  "footer": "Source: finance ledger",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {
+        "step": "Q2 revenue",
+        "amount": 1180000
+      },
+      {
+        "step": "New customers",
+        "amount": 142000
+      },
+      {
+        "step": "Upsell",
+        "amount": 58000
+      },
+      {
+        "step": "Pricing",
+        "amount": 21000
+      },
+      {
+        "step": "Churn",
+        "amount": -84000
+      },
+      {
+        "step": "Discounts",
+        "amount": -33000
+      }
+    ]
+  },
+  "fields": {
+    "amount": {
+      "label": "Revenue",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
+  },
+  "view": {
+    "type": "waterfall",
+    "label": "step",
+    "value": "amount",
+    "totals": [
+      "Q2 revenue"
+    ],
+    "endLabel": "Q3 revenue",
+    "fit": true
+  }
+}
