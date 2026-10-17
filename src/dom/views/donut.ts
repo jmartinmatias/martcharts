@@ -1,11 +1,10 @@
-import { formatValue } from "../../core/display.ts";
 import { readNumber } from "../../core/formats.ts";
 import { getPreset } from "../../core/presets.ts";
 import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { DonutView } from "../../core/views.ts";
 import { arcPath } from "../layout.ts";
-import { buildTable, figureSize, html, ringThickness, selectable, svg } from "./shared.ts";
+import { buildTable, evenFormat, figureSize, html, ringThickness, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
 import { countable } from "../count-up.ts";
 
@@ -24,8 +23,8 @@ export const renderDonut: ViewRenderer<DonutView> = (ctx) => {
   }
   const total = slices.reduce((sum, slice) => sum + slice.amount, 0);
   const share = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 0 });
-  const hasFormat = ctx.spec.fields?.[value]?.format !== undefined;
-  const amountText = (n: number) => (hasFormat ? ctx.format(n, value) : formatValue(n, { type: "number", compact: true }, ctx.spec.locale));
+  // The legend's figures in one precision, so they line up.
+  const amountText = evenFormat(ctx, value, slices.map((slice) => slice.amount));
 
   const size = figureSize(ctx.width);
   const thickness = ringThickness(size);

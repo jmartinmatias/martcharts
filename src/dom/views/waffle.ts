@@ -1,10 +1,9 @@
-import { formatValue } from "../../core/display.ts";
 import { readNumber } from "../../core/formats.ts";
 import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { WaffleView } from "../../core/views.ts";
 import { allocate } from "../layout.ts";
-import { buildTable, figureSize, html, selectable, svg } from "./shared.ts";
+import { buildTable, evenFormat, figureSize, html, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
 
 const SIDE = 10;
@@ -29,8 +28,9 @@ export const renderWaffle: ViewRenderer<WaffleView> = (ctx) => {
   const whole = Math.max(sum, ctx.view.total ?? 0);
   const counts = allocate([...parts.map((p) => p.amount), whole - sum], SIDE * SIDE);
   const share = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 0 });
-  const hasFormat = ctx.spec.fields?.[value]?.format !== undefined;
-  const amountText = (part: { row: Row; amount: number }) => (hasFormat ? ctx.format(part.row[value], value) : formatValue(part.amount, { type: "number", compact: true }, ctx.spec.locale));
+  // The legend's figures in one precision, so they line up.
+  const even = evenFormat(ctx, value, parts.map((part) => part.amount));
+  const amountText = (part: { row: Row; amount: number }) => even(part.amount);
 
   const size = figureSize(ctx.width);
   const cell = (size - GAP * (SIDE - 1)) / SIDE;

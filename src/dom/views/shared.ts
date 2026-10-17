@@ -4,8 +4,9 @@
  *
  * @module
  */
+import { formatValue } from "../../core/display.ts";
 import { readNumber } from "../../core/formats.ts";
-import type { Row } from "../../core/types.ts";
+import type { FormatSpec, Row } from "../../core/types.ts";
 import type { ViewContext } from "../../core/view-context.ts";
 import { roving } from "./focus.ts";
 
@@ -117,17 +118,34 @@ export function isNumericColumn(rows: Row[], field: string): boolean {
  * With `interactive`, each body row can be focused and selected.
  */
 /** Column context for cell formats that need it: the largest absolute value for `bar` columns, so bars share one scale, and one min and max across all `heat` columns. */
-/**
- * One decimal for every short figure in a column when some have one and some do not ("€214K" above "€188.5K"), so
- * the column lines up; undefined when the column is already even, or its numbers are not short (compact).
- */
-function sharedPlaces(ctx: ViewContext<{ type: string }>, rows: Row[], field: string): number | undefined {
-  const format = ctx.spec.fields?.[field]?.format;
+/** Whether a format writes short figures (compact) with no decimals of its own, looking inside an in-cell bar. */
+function compactOnly(format: FormatSpec | undefined): boolean {
   const own = typeof format === "object" ? format : undefined;
   const inner = own?.type === "bar" && typeof own.format === "object" ? (own.format as Record<string, unknown>) : own;
-  if (!inner?.compact || typeof inner.decimals === "number") return undefined;
-  const shown = rows.filter((row) => readNumber(row[field]) !== null).map((row) => /\d[.,]\d/.test(ctx.format(row[field], field)));
+  return Boolean(inner?.compact) && typeof inner?.decimals !== "number";
+}
+
+/** One decimal when some figures show one and some do not ("€214K" above "€188.5K"); undefined when already even. */
+function evenPlaces(texts: string[]): number | undefined {
+  const shown = texts.map((text) => /\d[.,]\d/.test(text));
   return shown.some(Boolean) && !shown.every(Boolean) ? 1 : undefined;
+}
+
+/** The places a table or list column shares, so it lines up; undefined when it is even or not short figures. */
+function sharedPlaces(ctx: ViewContext<{ type: string }>, rows: Row[], field: string): number | undefined {
+  if (!compactOnly(ctx.spec.fields?.[field]?.format)) return undefined;
+  return evenPlaces(rows.filter((row) => readNumber(row[field]) !== null).map((row) => ctx.format(row[field], field)));
+}
+
+/**
+ * A formatter for a legend's column of figures, in one precision: short figures that mix whole and one decimal all
+ * get one ("€660.1K", "€447.0K", "€97.6K"). The field's own format, or else a short number.
+ */
+export function evenFormat(ctx: ViewContext<{ type: string }>, field: string, values: number[]): (n: number) => string {
+  const format: FormatSpec = ctx.spec.fields?.[field]?.format ?? { type: "number", compact: true };
+  const write = (n: number, places?: number) => formatValue(n, places === undefined ? format : { ...(typeof format === "string" ? { type: format } : format), places }, ctx.spec.locale);
+  const places = compactOnly(format) ? evenPlaces(values.map((n) => write(n))) : undefined;
+  return (n) => write(n, places);
 }
 
 export function columnContext(ctx: ViewContext<{ type: string }>, rows: Row[], columns: string[]): Map<string, Record<string, unknown>> {

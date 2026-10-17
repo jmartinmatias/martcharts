@@ -517,6 +517,12 @@ describe("meter view", () => {
 });
 
 describe("donut view", () => {
+  test("the legend's figures share one precision, so they line up: €660.1K, €447.0K, €97.6K", async () => {
+    const segments = [{ segment: "Enterprise", revenue: 660100 }, { segment: "Mid-market", revenue: 447000 }, { segment: "Small business", revenue: 97600 }];
+    await draw({ rows: segments, fields: { revenue: { format: { type: "currency", currency: "EUR", compact: true } } }, view: { type: "donut", label: "segment", value: "revenue" } });
+    expect(texts(".fft-donut-value")).toEqual(["€660.1K", "€447.0K", "€97.6K"]);
+  });
+
   const segments = [
     { segment: "Enterprise", revenue: 660_100 },
     { segment: "Mid-market", revenue: 447_000 },
