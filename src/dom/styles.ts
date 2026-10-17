@@ -467,7 +467,8 @@ export const BASE_CSS = `
 .fft-meter-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .fft-meter-gap { font-size: 11px; line-height: 13px; color: var(--fft-text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .fft-meter[data-met] .fft-meter-gap { color: var(--fft-positive); font-weight: 600; }
-.fft-meter-check { width: 13px; height: 13px; fill: none; stroke: var(--fft-positive); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+/* A met target's check mark, beside its percentage in meters and rings. */
+.fft-check { flex: none; width: 13px; height: 13px; fill: none; stroke: var(--fft-positive); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
 .fft-donut { display: flex; flex-wrap: wrap; align-items: center; gap: 21px; }
 .fft-donut-figure { position: relative; flex: none; }
@@ -507,11 +508,13 @@ export const BASE_CSS = `
 .fft-ring-hit { fill: none; stroke: transparent; cursor: pointer; outline: none; pointer-events: stroke; }
 .fft-ring-hit:focus-visible { stroke: color-mix(in srgb, var(--fft-accent) 16%, transparent); }
 .fft-rings-legend { flex: 1 1 144px; min-width: 144px; max-width: 377px; margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 13px; }
-.fft-rings-legend li { display: grid; grid-template-columns: 8px 1fr auto; grid-template-areas: "dot name percent" ". value value"; align-items: baseline; column-gap: 8px; }
+.fft-rings-legend li { display: grid; grid-template-columns: 8px 1fr auto; grid-template-areas: "dot name percent" ". value value" ". gap gap"; align-items: baseline; column-gap: 8px; }
 .fft-rings-legend .fft-swatch { grid-area: dot; align-self: center; }
 .fft-rings-name { grid-area: name; font-size: 11px; color: var(--fft-text-secondary); }
-.fft-rings-percent { grid-area: percent; font-size: 21px; line-height: 21px; font-weight: 600; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.fft-rings-percent { grid-area: percent; display: inline-flex; align-items: center; gap: 3px; justify-self: end; font-size: 21px; line-height: 21px; font-weight: 600; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
 .fft-rings-value { grid-area: value; font-size: 11px; color: var(--fft-muted); font-variant-numeric: tabular-nums; }
+.fft-rings-gap { grid-area: gap; font-size: 11px; color: var(--fft-text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.fft-rings-legend li[data-met] .fft-rings-gap { color: var(--fft-positive); font-weight: 600; }
 .fft-gantt { transition: opacity 377ms var(--fft-ease); }
 .fft-chart[data-active] .fft-gantt:not([data-active]) { opacity: 0.38; }
 .fft-gantt-label { fill: var(--fft-text-secondary); font-size: 11px; pointer-events: none; }

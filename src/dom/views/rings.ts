@@ -5,6 +5,7 @@ import type { RingsView } from "../../core/views.ts";
 import { arcPath } from "../layout.ts";
 import { buildTable, figureSize, html, ringThickness, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
+import { checkMark, standing } from "./target.ts";
 
 const GAP = 3;
 const FULL = Math.PI * 2;
@@ -96,12 +97,13 @@ export const renderRings: ViewRenderer<RingsView> = (ctx) => {
     swatch.style.background = color;
     swatch.setAttribute("aria-hidden", "true");
     const item = html(doc, "li");
-    item.append(
-      swatch,
-      html(doc, "span", "fft-rings-name", name),
-      html(doc, "span", "fft-rings-percent", attainment),
-      html(doc, "span", "fft-rings-value", `${ctx.format(g.row[value], value)} of ${ctx.format(g.row[target], target)}`),
-    );
+    // Where the goal stands, in target words: a check and "Target met", or how far it has to go.
+    const { met, text: stand } = standing(ctx, readNumber(g.row[value]), readNumber(g.row[target]), value);
+    if (met) item.dataset.met = "true";
+    const percentEl = html(doc, "span", "fft-rings-percent", attainment);
+    if (met) percentEl.prepend(checkMark(doc));
+    item.append(swatch, html(doc, "span", "fft-rings-name", name), percentEl, html(doc, "span", "fft-rings-value", `${ctx.format(g.row[value], value)} of ${ctx.format(g.row[target], target)}`));
+    if (stand) item.append(html(doc, "span", "fft-rings-gap", stand));
     legend.append(item);
   });
   figure.append(chart);

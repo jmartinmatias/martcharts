@@ -447,7 +447,7 @@ describe("meter view", () => {
   test("a met target carries a check and says so, and a missed one says how far it has to go", async () => {
     await draw({ rows: regions, view: { type: "meter", value: "revenue", target: "target", label: "region" } });
     expect(texts(".fft-meter-gap")).toEqual(["62 to go", "Target met"]);
-    expect(all(".fft-meter").map((m) => [(m as HTMLElement).dataset.met ?? "", Boolean(m.querySelector(".fft-meter-percent .fft-meter-check"))])).toEqual([
+    expect(all(".fft-meter").map((m) => [(m as HTMLElement).dataset.met ?? "", Boolean(m.querySelector(".fft-meter-percent .fft-check"))])).toEqual([
       ["", false],
       ["true", true],
     ]);
@@ -1535,12 +1535,17 @@ describe("rings view", () => {
     expect(all("path.fft-ring-lap").map((a) => a.getAttribute("data-ratio"))).toEqual(["0.07"]);
   });
 
-  test("the legend gives each goal's name, attainment and value of target", async () => {
+  test("the legend gives each goal's name, attainment, value of target and where it stands, a met target with a check", async () => {
     await draw(spec);
     expect(all(".fft-rings-legend li").map((li) => [...li.querySelectorAll("span:not(.fft-swatch)")].map((s) => s.textContent))).toEqual([
-      ["Revenue", "107%", "107 of 100"],
-      ["Signups", "50%", "30 of 60"],
-      ["Retention", "0%", "0 of 90"],
+      ["Revenue", "107%", "107 of 100", "Target met"],
+      ["Signups", "50%", "30 of 60", "30 to go"],
+      ["Retention", "0%", "0 of 90", "90 to go"],
+    ]);
+    expect(all(".fft-rings-legend li").map((li) => [(li as HTMLElement).dataset.met ?? "", Boolean(li.querySelector(".fft-rings-percent .fft-check"))])).toEqual([
+      ["true", true],
+      ["", false],
+      ["", false],
     ]);
   });
 
