@@ -88,6 +88,18 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
         const row = rows[best];
         return row ? `Here, ${text(row, x)} has the tallest bar, with ${formatValue(totals[best], spec.fields?.[series[0] as string]?.format, spec.locale)} in all.` : "";
       }
+      if (series.length === 2 && !view.stacked) {
+        // Two measures side by side: for how many is the first higher, and where is the gap biggest?
+        const [a, b] = series as [string, string];
+        const paired = rows.filter((r) => value(r, a) !== null && value(r, b) !== null);
+        if (paired.length > 1) {
+          const ahead = paired.filter((r) => (value(r, a) as number) > (value(r, b) as number)).length;
+          const widest = paired.reduce((best, r) => (Math.abs((value(r, a) as number) - (value(r, b) as number)) > Math.abs((value(best, a) as number) - (value(best, b) as number)) ? r : best));
+          const entity = nameOf(x, spec);
+          const count = ahead === paired.length ? `every ${entity}` : `${ahead} of ${paired.length} ${plural(entity)}`;
+          return `Here, ${nameOf(a, spec)} is higher than ${nameOf(b, spec)} for ${count}, and ${text(widest, x)} has the biggest gap: ${text(widest, a)} against ${text(widest, b)}.`;
+        }
+      }
       if (series.length > 1 && !view.stacked) {
         let best: { row: Row; field: string } | undefined;
         for (const row of rows) for (const field of series) if (value(row, field) !== null && (!best || (value(row, field) as number) > (value(best.row, best.field) as number))) best = { row, field };
@@ -224,12 +236,20 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const [label, from, to] = [one(view.label), one(view.from), one(view.to)];
       if (!label || !from || !to) return "";
       const moved = (row: Row) => Math.abs((value(row, to) ?? 0) - (value(row, from) ?? 0));
-      const row = rows.filter((r) => value(r, from) !== null && value(r, to) !== null).reduce<Row | undefined>((best, r) => (best && moved(best) >= moved(r) ? best : r), undefined);
+      const paired = rows.filter((r) => value(r, from) !== null && value(r, to) !== null);
+      const row = paired.reduce<Row | undefined>((best, r) => (best && moved(best) >= moved(r) ? best : r), undefined);
       if (!row) return "";
       // A slope, or a dumbbell between two periods, is before and after; other dumbbells compare two values, a gap.
-      return view.type === "slope" || (PERIOD.test(from) && PERIOD.test(to))
-        ? `Here, ${text(row, label)} moved the most, from ${text(row, from)} to ${text(row, to)}.`
-        : `Here, ${text(row, label)} has the biggest gap: ${text(row, from)} against ${text(row, to)}.`;
+      // With several rows, count first: how many went up, or for how many the first value is higher.
+      const entity = nameOf(label, spec);
+      const count = (k: number) => (k === paired.length ? `every ${entity}` : `${k} of ${paired.length} ${plural(entity)}`);
+      const higher = paired.filter((r) => (value(r, to) as number) > (value(r, from) as number)).length;
+      if (view.type === "slope" || (PERIOD.test(from) && PERIOD.test(to))) {
+        const most = `${text(row, label)} moved the most, from ${text(row, from)} to ${text(row, to)}`;
+        return paired.length > 1 ? `Here, ${count(higher)} went up, and ${most}.` : `Here, ${most}.`;
+      }
+      const gap = `${text(row, label)} has the biggest gap: ${text(row, from)} against ${text(row, to)}`;
+      return paired.length > 1 ? `Here, ${nameOf(from, spec)} is higher than ${nameOf(to, spec)} for ${count(paired.length - higher - paired.filter((r) => value(r, to) === value(r, from)).length)}, and ${gap}.` : `Here, ${gap}.`;
     }
     case "bump": {
       const [x, group, amount] = [one(view.x), one(view.series), one(view.value)];

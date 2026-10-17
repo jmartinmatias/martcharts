@@ -61,7 +61,7 @@ describe("explainChart", () => {
     const at = (view: Record<string, unknown>, rows: Record<string, unknown>[]) => explainChart({ ...spec(view), locale: "en-US" }, rows);
     expect(at({ type: "heatmap", x: "hour", y: "day", value: "n" }, [{ hour: "9", day: "Mon", n: 4 }, { hour: "10", day: "Tue", n: 9 }])).toContain("Here, the strongest square is day Tue and hour 10, at 9.");
     expect(at({ type: "funnel", label: "step", value: "n" }, [{ step: "Visit", n: 1000 }, { step: "Signup", n: 200 }, { step: "Paid", n: 150 }])).toContain("Here, the biggest drop is from Visit to Signup: 80% stop there.");
-    expect(at({ type: "slope", label: "region", from: "q2", to: "q3" }, [{ region: "North", q2: 10, q3: 12 }, { region: "East", q2: 10, q3: 25 }])).toContain("Here, East moved the most, from 10 to 25.");
+    expect(at({ type: "slope", label: "region", from: "q2", to: "q3" }, [{ region: "North", q2: 10, q3: 12 }, { region: "East", q2: 10, q3: 25 }])).toContain("Here, every region went up, and East moved the most, from 10 to 25.");
     expect(at({ type: "likert", label: "q", responses: ["no", "meh", "yes"] }, [{ q: "Pay", no: 6, meh: 2, yes: 2 }, { q: "Team", no: 1, meh: 2, yes: 7 }])).toContain("Here, the most agreed question is Team: 70% agree.");
     expect(at({ type: "meter", value: "v", target: "t", label: "name" }, [{ name: "A", v: 12, t: 10 }, { name: "B", v: 5, t: 10 }])).toContain("Here, 1 of 2 has reached its goal.");
     expect(at({ type: "icicle", levels: ["region", "product"], value: "v" }, [{ region: "East", product: "x", v: 6 }, { region: "West", product: "x", v: 4 }])).toContain("Here, East is the biggest group, with 60% of the total.");
@@ -71,7 +71,7 @@ describe("explainChart", () => {
   test("two-value, mix, range, target and rank charts say what their parts are", () => {
     const at = (view: Record<string, unknown>, rows: Record<string, unknown>[], fields: WidgetSpec["fields"] = {}) => explainChart({ ...spec(view, fields), locale: "en-US" }, rows);
     const pair = at({ type: "dumbbell", label: "region", from: "revenue", to: "cost" }, [{ region: "East", revenue: 30, cost: 20 }, { region: "West", revenue: 10, cost: 8 }]);
-    expect(pair).toBe("Each row has two dots: revenue and cost. The line between them is the gap. Here, East has the biggest gap: 30 against 20.");
+    expect(pair).toBe("Each row has two dots: revenue and cost. The line between them is the gap. Here, revenue is higher than cost for every region, and East has the biggest gap: 30 against 20.");
     expect(at({ type: "marimekko", x: "from", series: "to", value: "n" }, [], { from: { label: "Plan they left" }, to: { label: "Plan they joined" } })).toBe(
       "Each column is one plan they left: the wider the column, the bigger its total, and its colored parts show how it splits by plan they joined.",
     );
@@ -257,6 +257,15 @@ describe("explainChart", () => {
     expect(at({ type: "pareto", label: "cause", value: "tickets", threshold: 0.5 })).toContain("Here, 2 of 8 causes make up 58% of the tickets: Login problems and Billing questions.");
     const lopsided = [{ cause: "Login", tickets: 900 }, { cause: "Other", tickets: 100 }, { cause: "Rest", tickets: 50 }];
     expect(explainChart({ ...spec({ type: "pareto", label: "cause", value: "tickets" }), locale: "en-US" }, lopsided)).toContain("Here, Login alone makes up 86% of the tickets.");
+  });
+
+  test("comparisons count first: how many went up, or for how many one value beats the other, then the biggest", () => {
+    const at = (view: Record<string, unknown>, rows: Record<string, unknown>[]) => explainChart({ ...spec(view), locale: "en-US" }, rows);
+    const years = [{ region: "North", q3_2025: 270, q3_2026: 278 }, { region: "South", q3_2025: 240, q3_2026: 204 }, { region: "East", q3_2025: 291, q3_2026: 338 }];
+    expect(at({ type: "dumbbell", label: "region", from: "q3_2025", to: "q3_2026" }, years)).toContain("Here, 2 of 3 regions went up, and East moved the most, from 291 to 338.");
+    const money = [{ region: "North", revenue: 278, cost: 190 }, { region: "East", revenue: 338, cost: 247 }, { region: "West", revenue: 205, cost: 210 }];
+    expect(at({ type: "bar", x: "region", y: ["revenue", "cost"] }, money)).toContain("Here, revenue is higher than cost for 2 of 3 regions, and East has the biggest gap: 338 against 247.");
+    expect(at({ type: "bar", x: "region", y: ["revenue", "cost", "profit"] }, money.map((r) => ({ ...r, profit: 1 })))).toContain("the tallest bar is East's revenue");
   });
 
   test("no guide names a hue or a dark shade: presets recolor and dark themes flip, so marks are read by side, shape and fill", () => {
