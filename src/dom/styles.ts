@@ -257,6 +257,21 @@ export const BASE_CSS = `
 .fft-action svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .fft-action:hover, .fft-action:focus-visible { color: var(--fft-text); background: var(--fft-grid); outline: none; }
 .fft-action[data-done] { color: var(--fft-positive); }
+/* The label shows only inside the More menu; in the toolbar the icon and its tooltip name the action. */
+.fft-action-text { display: none; }
+/* The title keeps the toolbar's width free (three buttons at most), so it never runs under it; the subtitle sits below the toolbar. */
+.fft-widget[data-actions] .fft-title { padding-right: 89px; }
+.fft-actions:has(.fft-menu:not([hidden])) { opacity: 1; }
+/* More: a small popover card of labelled actions, one per row, each a comfortable 34px target. */
+.fft-menu {
+  position: absolute; top: calc(100% + 5px); right: 0; z-index: 6; min-width: 200px;
+  display: flex; flex-direction: column; gap: 2px; padding: 5px;
+  background: var(--fft-popover, var(--fft-surface)); color: var(--fft-text);
+  border: 1px solid var(--fft-border); border-radius: 8px; box-shadow: 0 8px 21px rgba(0, 0, 0, 0.16);
+}
+.fft-menu[hidden] { display: none; }
+.fft-menu .fft-action { display: flex; align-items: center; justify-content: flex-start; gap: 8px; width: 100%; height: 34px; padding: 0 8px; color: var(--fft-text-secondary); }
+.fft-menu .fft-action-text { display: inline; font: inherit; font-size: 13px; color: var(--fft-text); white-space: nowrap; }
 /* Expand: the widget redrawn large in a dialog over a blurred page; full screen on phones. */
 .fft-overlay {
   position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 21px;

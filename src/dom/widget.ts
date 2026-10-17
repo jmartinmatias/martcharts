@@ -140,31 +140,121 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
   root.append(header, headlineEl, body, guide, message, base, tip);
   const actionButtons = new Map<WidgetAction, HTMLButtonElement>();
   let bar: HTMLElement | undefined;
-  /** A toolbar button: an icon of 2px strokes on a 24px grid, named for tooltips and screen readers. */
+  /** Every action in order. Past three, the first two stay in the toolbar and the rest go into a More menu. */
+  const entries: HTMLButtonElement[] = [];
+  let more: HTMLButtonElement | undefined;
+  let menu: HTMLElement | undefined;
+  /** An icon of 2px strokes on a 24px grid. */
+  const icon = (paths: readonly string[]) => {
+    const svg = doc.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("width", "16");
+    svg.setAttribute("height", "16");
+    svg.setAttribute("aria-hidden", "true");
+    for (const d of paths) {
+      const path = doc.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", d);
+      svg.append(path);
+    }
+    return svg;
+  };
+  /** A toolbar button, named for tooltips and screen readers; its label shows as text when it sits in the More menu. */
   const actionButton = (label: string, paths: readonly string[]) => {
     if (!bar) {
       bar = make("div", "fft-actions");
       // Right after the header, so Tab meets the toolbar before the chart, as it reads (WCAG 2.4.3).
       root.insertBefore(bar, headlineEl);
+      // The header keeps the toolbar's width free, so a long title never runs under it, hovered or on touch.
+      root.dataset.actions = "";
     }
     const button = make("button", "fft-action");
     button.type = "button";
     button.setAttribute("aria-label", label);
     button.title = label;
-    const icon = doc.createElementNS("http://www.w3.org/2000/svg", "svg");
-    icon.setAttribute("viewBox", "0 0 24 24");
-    icon.setAttribute("width", "16");
-    icon.setAttribute("height", "16");
-    icon.setAttribute("aria-hidden", "true");
-    for (const d of paths) {
-      const path = doc.createElementNS("http://www.w3.org/2000/svg", "path");
-      path.setAttribute("d", d);
-      icon.append(path);
-    }
-    button.append(icon);
-    bar.append(button);
+    const text = make("span", "fft-action-text");
+    text.textContent = label;
+    button.append(icon(paths), text);
+    entries.push(button);
+    layoutActions();
     return button;
   };
+  /** Three or fewer actions sit in the toolbar; past three, two stay and the rest go into the More menu. */
+  function layoutActions() {
+    if (!bar) return;
+    if (entries.length <= 3) {
+      bar.replaceChildren(...entries);
+      return;
+    }
+    if (!more || !menu) {
+      more = make("button", "fft-action fft-more");
+      more.type = "button";
+      more.setAttribute("aria-label", "More actions");
+      more.title = "More actions";
+      more.setAttribute("aria-haspopup", "menu");
+      more.setAttribute("aria-expanded", "false");
+      more.append(icon(["M5 12h.01", "M12 12h.01", "M19 12h.01"]));
+      menu = make("div", "fft-menu");
+      menu.id = `${id}-menu`;
+      menu.setAttribute("role", "menu");
+      menu.setAttribute("aria-label", "More actions");
+      menu.hidden = true;
+      more.setAttribute("aria-controls", menu.id);
+      more.addEventListener("click", () => setMenu(Boolean(menu?.hidden)));
+      menu.addEventListener("keydown", menuKeys);
+      // An item runs its own action first, then the menu closes and focus returns to its button.
+      menu.addEventListener("click", (event) => {
+        if (!(event.target as Element).closest('[role="menuitem"]')) return;
+        setMenu(false);
+        more?.focus();
+      });
+    }
+    const [first, second, ...rest] = entries;
+    for (const button of [first, second]) {
+      button?.removeAttribute("role");
+      button?.removeAttribute("tabindex");
+    }
+    for (const button of rest) {
+      button.setAttribute("role", "menuitem");
+      button.tabIndex = -1;
+    }
+    menu.replaceChildren(...rest);
+    bar.replaceChildren(first as HTMLButtonElement, second as HTMLButtonElement, more, menu);
+  }
+  /** Opens or closes the More menu; open, focus goes to its first item and a press outside closes it. */
+  function setMenu(open: boolean) {
+    if (!menu || !more) return;
+    menu.hidden = !open;
+    more.setAttribute("aria-expanded", String(open));
+    if (open) {
+      menu.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
+      doc.addEventListener("pointerdown", outsideMenu, true);
+    } else {
+      doc.removeEventListener("pointerdown", outsideMenu, true);
+    }
+  }
+  function outsideMenu(event: Event) {
+    if (!bar?.contains(event.target as Node)) setMenu(false);
+  }
+  /** Arrow keys, Home and End move through the items; Escape closes back on the button; Tab closes and moves on. */
+  function menuKeys(event: KeyboardEvent) {
+    if (!menu || !more) return;
+    const items = [...menu.querySelectorAll<HTMLElement>('[role="menuitem"]')];
+    const at = items.indexOf(doc.activeElement as HTMLElement);
+    const go = (i: number) => {
+      event.preventDefault();
+      items[(i + items.length) % items.length]?.focus();
+    };
+    if (event.key === "ArrowDown") go(at + 1);
+    else if (event.key === "ArrowUp") go(at - 1);
+    else if (event.key === "Home") go(0);
+    else if (event.key === "End") go(items.length - 1);
+    else if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      setMenu(false);
+      more.focus();
+    } else if (event.key === "Tab") setMenu(false);
+  }
   for (const action of options.actions ?? []) {
     const button = actionButton(ACTION_LABELS[action], ACTION_ICONS[action]);
     button.dataset.action = action;
@@ -231,7 +321,8 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
   // Escape dismisses a showing tooltip without moving focus or the pointer (WCAG 1.4.13). It stops there, so a
   // dialog the widget sits in stays open; the next Escape closes the dialog.
   const dismissTip = (event: KeyboardEvent) => {
-    if (event.key !== "Escape" || tip.hidden) return;
+    // A widget taken off the page without destroy() must not swallow keys meant for the page.
+    if (event.key !== "Escape" || tip.hidden || !root.isConnected) return;
     tip.hidden = true;
     event.preventDefault();
     event.stopImmediatePropagation();
@@ -696,6 +787,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       doc.removeEventListener("pointerover", release, true);
       doc.removeEventListener("pointerdown", press, true);
       doc.removeEventListener("keydown", dismissTip, true);
+      doc.removeEventListener("pointerdown", outsideMenu, true);
       clearBody();
       root.remove();
     },

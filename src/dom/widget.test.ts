@@ -731,3 +731,53 @@ describe("how to read it", () => {
   });
 });
 
+describe("more menu", () => {
+  const spec: WidgetSpec = { locale: "en-US", data: { type: "inline", rows: [{ region: "North", revenue: 1 }] }, view: { type: "bar", x: "region", y: "revenue" } };
+  const bar = () => [...target.querySelectorAll<HTMLElement>(".fft-actions > button")].map((b) => b.dataset.action ?? b.getAttribute("aria-label"));
+  const items = () => [...target.querySelectorAll<HTMLElement>('.fft-menu [role="menuitem"]')].map((b) => b.dataset.action ?? b.textContent);
+  const more = () => target.querySelector<HTMLButtonElement>(".fft-more") as HTMLButtonElement;
+  const menu = () => target.querySelector<HTMLElement>(".fft-menu") as HTMLElement;
+
+  test("past three actions, the first two stay in the toolbar and the rest sit in a More menu, with room kept for the title", async () => {
+    await createWidget(target, spec, { actions: ["expand", "explain", "csv", "image", "copy"] }).ready;
+    expect([bar(), items(), root()?.hasAttribute("data-actions")]).toEqual([["expand", "explain", "More actions"], ["csv", "image", "copy"], true]);
+    expect([more().getAttribute("aria-haspopup"), more().getAttribute("aria-expanded"), menu().hidden]).toEqual(["menu", "false", true]);
+  });
+
+  test("three or fewer actions stay in the toolbar, with no menu", async () => {
+    await createWidget(target, spec, { actions: ["csv", "image", "copy"] }).ready;
+    expect([bar(), target.querySelector(".fft-more")]).toEqual([["csv", "image", "copy"], null]);
+  });
+
+  test("the menu opens on its button, moves with the arrow keys, and closes with Escape back on the button", async () => {
+    await createWidget(target, spec, { actions: ["expand", "explain", "csv", "image", "copy"] }).ready;
+    more().click();
+    const opened = [menu().hidden, more().getAttribute("aria-expanded"), (document.activeElement as HTMLElement)?.dataset.action];
+    menu().dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
+    const moved = (document.activeElement as HTMLElement)?.dataset.action;
+    menu().dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    expect([opened, moved, menu().hidden, document.activeElement === more()]).toEqual([[false, "true", "csv"], "image", true, true]);
+  });
+
+  test("an item runs its action and closes the menu", async () => {
+    const writeText = vi.fn(async () => {});
+    Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
+    try {
+      await createWidget(target, spec, { actions: ["expand", "explain", "csv", "image", "copy"] }).ready;
+      more().click();
+      target.querySelector<HTMLButtonElement>('.fft-menu [data-action="copy"]')?.click();
+      await vi.waitFor(() => expect(writeText).toHaveBeenCalled());
+      expect(menu().hidden).toBe(true);
+    } finally {
+      Reflect.deleteProperty(navigator, "clipboard");
+    }
+  });
+
+  test("a host action added past the third moves the overflow into the menu", async () => {
+    const widget = createWidget(target, spec, { actions: ["expand", "explain", "csv"] });
+    await widget.ready;
+    widget.addAction("Edit in playground", ["M4 20h4"], () => {});
+    expect([bar(), items()]).toEqual([["expand", "explain", "More actions"], ["csv", "Edit in playground"]]);
+  });
+});
+

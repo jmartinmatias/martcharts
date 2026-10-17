@@ -38,7 +38,7 @@ const boardOptions: Parameters<typeof createDashboard>[2] = {
     const spec = byId[id];
     if (!spec) return;
     const command = `node src/mcp/main.ts --widget ${id}`;
-    widget.addAction(`Copy MCP command: ${command}`, ["M5 7l5 5-5 5", "M12 17h7"], async (b) => {
+    const mcp = widget.addAction("Copy MCP command", ["M5 7l5 5-5 5", "M12 17h7"], async (b) => {
       try {
         await navigator.clipboard.writeText(command);
         b.dataset.done = "";
@@ -47,6 +47,8 @@ const boardOptions: Parameters<typeof createDashboard>[2] = {
       }
       setTimeout(() => b.removeAttribute(b.hasAttribute("data-done") ? "data-done" : "data-failed"), 1597);
     });
+    // The menu shows a short label; the full command is in the tooltip.
+    mcp.title = command;
     widget.addAction("Edit in playground", ["M4 20h4L18.5 9.5a2.1 2.1 0 0 0-4-4L4 16z", "M13.5 6.5l4 4"], () => {
       load(spec);
       $("#playground-title").scrollIntoView({ behavior: "smooth" });
