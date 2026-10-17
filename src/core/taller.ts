@@ -166,6 +166,8 @@ export interface DataProfile {
   negatives: boolean;
   /** The time field holds days, not months. */
   daily: boolean;
+  /** Date and text fields whose values go round a cycle that comes round again: hours, weekdays, the months of one year. */
+  cycles: string[];
   /** The first two categories cross (most pairs exist, as regions by products do) rather than nest (accounts in segments). */
   crossed: boolean;
   /** The view type the chart arrived in. */
@@ -198,6 +200,36 @@ function additive(field: string, spec: WidgetSpec): boolean {
   if (unitOf(field, spec).startsWith("percent") || PRICE.test(field)) return false;
   const words = `${field.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/[_-]/g, " ")} ${spec.fields?.[field]?.label ?? ""}`;
   return !NOT_ADDITIVE.test(words);
+}
+
+const WEEKDAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+const MONTHS = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
+const SEASONS = ["spring", "summer", "autumn", "fall", "winter"];
+/** A time of day: "09:00", "21:30", "9am", "9 pm". */
+const CLOCK = /^(([01]?\d|2[0-3]):[0-5]\d|(1[0-2]|0?[1-9]) ?[ap]m)$/i;
+/** A bare hour, "0" to "23": read as an hour only in a field named for hours. */
+const HOUR = /^([01]?\d|2[0-3])$/;
+const MONTH_KEY = /^(\d{4})-(\d{2})$/;
+
+/**
+ * Whether a field's values name places in a cycle that comes round again, so a clock dial tells the truth: times of
+ * day ("09:00", "9am", or "9" in a field named for hours), weekdays, months, quarters and seasons ("Mon", "September",
+ * "Q3"), and month keys ("2026-01") that span one year at most. Teams and regions never come round again, and nor
+ * does a dated series longer than one cycle.
+ */
+function cyclic(field: string, values: string[]): boolean {
+  if (values.length === 0) return false;
+  const all = (test: (value: string) => boolean) => values.every(test);
+  // A name, or at least its first three letters: "Mon", "Tues", "Sept".
+  const named = (names: string[]) =>
+    all((value) => {
+      const word = value.replace(/\.$/, "").toLowerCase();
+      return word.length >= 3 && names.some((name) => name.startsWith(word));
+    });
+  if (all((v) => CLOCK.test(v)) || (/hour/i.test(field) && all((v) => HOUR.test(v)))) return true;
+  if (named(WEEKDAYS) || named(MONTHS) || named(SEASONS) || all((v) => /^q[1-4]$/i.test(v))) return true;
+  const months = values.map((v) => MONTH_KEY.exec(v)).map((m) => (m ? Number(m[1]) * 12 + Number(m[2]) : Number.NaN));
+  return months.every(Number.isFinite) && Math.max(...months) - Math.min(...months) < 12;
 }
 
 /** The measures that share the first one's unit; unformatted numbers also need a similar size (within 50 times). */
@@ -255,6 +287,7 @@ export function profileData(spec: WidgetSpec, rows: Row[]): DataProfile {
   const times = ordered("date");
   const distinct: Record<string, number> = {};
   for (const key of kinds.keys()) distinct[key] = new Set(rows.map((row) => String(row[key]))).size;
+  const texts = (field: string) => rows.map((row) => row[field]).filter((value): value is string => typeof value === "string");
   const [first, second] = categories;
   const pairs = first && second ? new Set(rows.map((row) => `${String(row[first])}\u0000${String(row[second])}`)).size : 0;
   const grid = first && second ? (distinct[first] ?? 0) * (distinct[second] ?? 0) : 0;
@@ -280,6 +313,7 @@ export function profileData(spec: WidgetSpec, rows: Row[]): DataProfile {
     distinct,
     negatives: rows.some((row) => measures.some((f) => typeof row[f] === "number" && (row[f] as number) < 0)),
     daily: times[0] !== undefined && rows.every((row) => typeof row[times[0] as string] !== "string" || DAY.test(String(row[times[0] as string]))),
+    cycles: [...times, ...categories].filter((field) => cyclic(field, texts(field))),
     crossed: grid > 0 && pairs / grid >= 0.5,
     stacked: Boolean((spec.view as { stacked?: unknown } | undefined)?.stacked),
     view: String(view.type ?? "table"),
@@ -323,6 +357,8 @@ const rowKey = (d: DataProfile): string | undefined =>
 const perRow = (d: DataProfile, min: number, max: number) => d.measures.length > 0 && rowKey(d) !== undefined && d.rows >= min && d.rows <= max;
 /** One row per period: a time series. */
 const perPeriod = (d: DataProfile, min = 3) => d.times.length > 0 && d.measures.length > 0 && d.distinct[t1(d)] === d.rows && d.rows >= min;
+/** The field whose labels go round a cycle, one row each: what a clock dial goes round. */
+const cycle = (d: DataProfile) => d.cycles.find((field) => d.distinct[field] === d.rows);
 const positive = (d: DataProfile) => !d.negatives;
 /** Parts of one whole: positive numbers that add up, so a share, a stack or a total means something. */
 const parts = (d: DataProfile) => positive(d) && d.whole;
@@ -623,10 +659,11 @@ const PATTERNS: Pattern[] = [
     form: "a rose dial",
     moves: ["reveal", "reform"],
     marks: "smooth",
-    fits: (d) => (perPeriod(d, 6) || perCategory(d, 6, 24)) && d.rows <= 24 && positive(d),
+    // Going round the dial is going round the cycle, so only labels that come round again: never teams or regions.
+    fits: (d) => d.measures.length > 0 && cycle(d) !== undefined && d.rows >= 6 && d.rows <= 24 && positive(d),
     // Wedges stack only numbers that add up: the parts the chart already stacked. Otherwise one measure, never
     // revenue on top of a customer count or a profit on top of the revenue it comes from.
-    make: (d) => ({ view: { type: "rose", label: d.times[0] ?? c1(d), y: d.stacked ? d.peers.slice(0, 4) : m1(d) } }),
+    make: (d) => ({ view: { type: "rose", label: cycle(d) as string, y: d.stacked ? d.peers.slice(0, 4) : m1(d) } }),
   },
   {
     id: "histogram",
