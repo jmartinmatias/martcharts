@@ -1,5 +1,5 @@
 {
-  "about": "Chart variations picked from the variation engine (the Taller) because they are new and meaningful. Plain words only. Engine run: 55 widgets, seeds 1 to 5, every color and marks setting, 718 unique variants, reviewed by hand. Kept only picks scoring at least 4 out of 10 for how new they are.",
+  "about": "Chart variations picked from the variation engine (the Taller) because they are new and meaningful. Plain words only. Engine run: 55 widgets, seeds 1 to 5, every color and marks setting, 753 unique variants, reviewed by hand. Kept only picks scoring at least 4 out of 10 for how new they are.",
   "selections": [
     {
       "source": "revenue-by-region",
@@ -327,6 +327,60 @@
           "value": "revenue",
           "target": "target"
         },
+        "style": {
+          "height": 300
+        }
+      }
+    },
+    {
+      "source": "revenue-vs-target",
+      "title": "Revenue against target, month by month: a check for every month that made it",
+      "change": "The bars with a target line become one row per month: a bar for revenue, a tick for the target, and a check beside each month that reached it.",
+      "why": "It reads like a scorecard: 7 of 12 months made their target, and every miss came before June (Oct, Nov, Jan, Feb and May). From June on, every month passed, September by the most (€84K).",
+      "novelty": 0.49,
+      "meaning": 0.67,
+      "spec": {
+        "title": "Revenue against target",
+        "subtitle": "{first:month} to {last:month}",
+        "description": "Monthly revenue as bars with the monthly target as a line, on one axis.",
+        "footer": "Source: /data/monthly.json",
+        "locale": "en-US",
+        "data": {
+          "type": "url",
+          "url": "/data/monthly.json"
+        },
+        "fields": {
+          "month": {
+            "label": "Month",
+            "format": {
+              "type": "date",
+              "style": "month"
+            }
+          },
+          "revenue": {
+            "label": "Revenue",
+            "format": {
+              "type": "currency",
+              "currency": "EUR",
+              "compact": true
+            }
+          },
+          "target": {
+            "label": "Target",
+            "format": {
+              "type": "currency",
+              "currency": "EUR",
+              "compact": true
+            }
+          }
+        },
+        "view": {
+          "type": "bullet",
+          "label": "month",
+          "value": "revenue",
+          "target": "target"
+        },
+        "id": "revenue-vs-target-taller-bullet",
         "style": {
           "height": 300
         }
@@ -1122,6 +1176,6 @@
       }
     }
   ],
-  "made": 718,
+  "made": 753,
   "charts": 55
 }
