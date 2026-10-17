@@ -641,7 +641,13 @@ function seeded(seed: number): () => number {
 /** Warm hues (reds, oranges, yellows, pinks) or cool ones (greens, teals, blues, purples). */
 const warmth = (hue: number): "warm" | "cool" | "mid" => (hue < 95 || hue >= 330 ? "warm" : hue >= 150 && hue < 300 ? "cool" : "mid");
 
-/** Every vivid color in the palette library that reads well on a light card, by warmth. */
+/** Reds read as alerts in sales (a missed target, a loss), so warm palettes leave them to status colors. */
+const ALERT_RED = (hue: number) => hue < 38;
+
+/**
+ * Every vivid color in the palette library that reads well on a light card, by warmth: each reaches 3:1 on the card,
+ * as EN 301 549 asks of chart marks. Warm skips alert red.
+ */
 function vividColors(): Record<"warm" | "cool", string[]> {
   const seen = new Set<string>();
   const out: Record<"warm" | "cool", string[]> = { warm: [], cool: [] };
@@ -652,8 +658,9 @@ function vividColors(): Record<"warm" | "cool", string[]> {
       seen.add(hex);
       const [l, c, h] = oklch(hex);
       if (c < 0.1 || l < 0.46 || l > 0.74) continue;
+      if (checkPalette([hex], { mode: "light" }).checks.find((check) => check.name === "contrast")?.state !== "pass") continue;
       const kind = warmth(h);
-      if (kind !== "mid") out[kind].push(hex);
+      if (kind === "cool" || (kind === "warm" && !ALERT_RED(h))) out[kind].push(hex);
     }
   }
   return out;
@@ -661,8 +668,8 @@ function vividColors(): Record<"warm" | "cool", string[]> {
 
 /**
  * A palette of `size` warm or cool colors from the library, every neighbour apart for colorblind readers and
- * for everyone: built greedily from a seeded start and kept only if `checkPalette` passes its colorblind and
- * neighbour checks. Null when the library cannot make one that safe.
+ * for everyone, and every color at 3:1 on the card: built greedily from a seeded start and kept only if
+ * `checkPalette` passes. Null when the library cannot make one that safe.
  */
 export function huePalette(kind: "warm" | "cool", size: number, seed = 1): string[] | null {
   const pool = vividColors()[kind];
@@ -685,7 +692,7 @@ export function huePalette(kind: "warm" | "cool", size: number, seed = 1): strin
     if (chosen.length < n) return null;
     const report = checkPalette(chosen, { mode: "light" });
     const state = (name: string) => report.checks.find((check) => check.name === name)?.state;
-    if (state("cvd") !== "fail" && state("normal") !== "fail" && state("lightness") !== "fail" && state("chroma") !== "fail") return chosen;
+    if (state("cvd") !== "fail" && state("normal") !== "fail" && state("lightness") !== "fail" && state("chroma") !== "fail" && state("contrast") === "pass") return chosen;
   }
   return null;
 }
@@ -905,16 +912,19 @@ export function createVariants(spec: WidgetSpec, rows: Row[], options: TallerOpt
     // Color: warm or cool hues from the palette library, one standout item against grey, or the standard palette.
     let tone = pickColor(view);
     const style: StyleSpec = {};
+    const paletteSeed = (options.seed ?? 1) + versions.length;
+    const palette = tone === "warm" || tone === "cool" ? huePalette(tone, colorsNeeded(view, data), paletteSeed) : null;
+    // Many warm colors cannot all stay apart for colorblind readers: bold then means one warm standout against grey.
+    if (tone === "warm" && !palette && HIGHLIGHTABLE.has(String(view.type))) tone = "standout";
     if (tone === "standout") {
       const item = standoutItem(view, rows, data);
-      const warm = huePalette("warm", 1, (options.seed ?? 1) + versions.length);
+      const warm = huePalette("warm", 1, paletteSeed);
       if (item && warm) {
         view.highlight = item;
-        style.palette = Array.isArray(view.y) && view.y.length > 1 ? (huePalette("warm", view.y.length, (options.seed ?? 1) + versions.length) ?? warm) : warm;
+        style.palette = Array.isArray(view.y) && view.y.length > 1 ? (huePalette("warm", view.y.length, paletteSeed) ?? warm) : warm;
       } else tone = "standard";
     }
     if (tone === "warm" || tone === "cool") {
-      const palette = huePalette(tone, colorsNeeded(view, data), (options.seed ?? 1) + versions.length);
       if (palette) style.palette = palette;
       else tone = "standard";
     }

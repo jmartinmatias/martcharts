@@ -108,10 +108,46 @@ describe("qualities and balance", () => {
 });
 
 describe("hue palettes", () => {
-  test("warm is reds, oranges and yellows, cool is greens, blues and purples, and both pass the colorblind check", () => {
-    const warm = huePalette("warm", 3) ?? [];
+  test("warm palettes leave alert red alone: oranges, golds and pinks only, so a warm chart never reads as bad news", () => {
+    for (const size of [1, 2, 3, 4]) {
+      for (const seed of [1, 2, 3, 4, 5]) {
+        const warm = huePalette("warm", size, seed) ?? [];
+        expect([size, seed, warm.filter((c) => oklch(c)[2] < 38)]).toEqual([size, seed, []]);
+      }
+    }
+  });
+
+  test("every color a hue palette offers reaches 3:1 on a light card, as EN 301 549 asks of chart marks", () => {
+    for (const kind of ["warm", "cool"] as const) {
+      for (const size of [1, 2, 3]) {
+        for (const seed of [1, 2, 3]) {
+          const palette = huePalette(kind, size, seed);
+          if (palette) expect([kind, size, seed, checkPalette(palette, { mode: "light" }).checks.find((c) => c.name === "contrast")?.state]).toEqual([kind, size, seed, "pass"]);
+        }
+      }
+    }
+    expect([huePalette("warm", 2), huePalette("cool", 3)].every(Boolean)).toBe(true);
+  });
+
+  test("bold on many series is one warm standout against grey, since many warm colors cannot stay apart for colorblind readers", () => {
+    const bold = createVariants(byMonth, months, { color: 1, count: 8 }).filter((v) => ["line", "area"].includes(String(v.spec.view?.type)) && [v.spec.view?.y].flat().length > 1);
+    expect(bold.length).toBeGreaterThan(0);
+    expect(bold.every((v) => v.lineage.color !== "warm")).toBe(true);
+    expect(bold.filter((v) => v.lineage.color === "standout").length / bold.length).toBeGreaterThan(0.5);
+  });
+
+  test("a standout item is never painted alert red", () => {
+    for (const seed of [1, 2, 3, 4, 5, 6]) {
+      for (const v of createVariants(byRegion, regions, { color: 1, seed, count: 8 }).filter((v) => v.lineage.color === "standout")) {
+        expect((v.spec.style?.palette as string[]).filter((c) => oklch(c)[2] < 38)).toEqual([]);
+      }
+    }
+  });
+
+  test("warm is oranges, golds and pinks, cool is greens, blues and purples, and both pass the colorblind check", () => {
+    const warm = huePalette("warm", 2) ?? [];
     const cool = huePalette("cool", 4) ?? [];
-    expect([warm.length, cool.length]).toEqual([3, 4]);
+    expect([warm.length, cool.length]).toEqual([2, 4]);
     expect(warm.every((c) => oklch(c)[2] < 95 || oklch(c)[2] >= 330)).toBe(true);
     expect(cool.every((c) => oklch(c)[2] >= 150 && oklch(c)[2] < 300)).toBe(true);
     for (const palette of [warm, cool]) expect(checkPalette(palette, { mode: "light" }).checks.find((c) => c.name === "cvd")?.state).not.toBe("fail");
