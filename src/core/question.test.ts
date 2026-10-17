@@ -108,6 +108,15 @@ describe("questionOf", () => {
     expect(questionOf({ ...base, view: { type: "donut", label: "region", value: "revenue" } }).text).toBe("What share of revenue comes from each region?");
   });
 
+  test("a measure that is a period (Q3 2025, a month column) reads as what happened in that period", () => {
+    const base = { data: { type: "inline" as const, rows: [] }, fields: { q3_2025: { label: "Q3 2025" }, "2026-04": { label: "Apr" } } };
+    expect(questionOf({ ...base, view: { type: "bar", x: "region", y: "q3_2025" } }).text).toBe("Which region had the most in Q3 2025?");
+    expect(questionOf({ ...base, view: { type: "hbar", label: "region", value: "2026-04" } }).text).toBe("Which region had the most in Apr?");
+    expect(questionOf({ ...base, view: { type: "donut", label: "region", value: "q3_2025" } }).text).toBe("What share of the Q3 2025 total comes from each region?");
+    expect(questionOf({ ...base, view: { type: "pareto", label: "region", value: "q3_2025" } }).text).toBe("Which few regions drive most of the Q3 2025 total?");
+    expect(questionOf({ ...base, view: { type: "histogram", value: "q3_2025" } }).text).toBe("How spread out are the values in Q3 2025?");
+  });
+
   test("a row of numbers names them when there are few", () => {
     const spec: WidgetSpec = { data: { type: "inline", rows: [] }, view: { type: "kpis", items: [{ value: "web" }, { value: "app" }] } };
     expect(questionOf(spec).text).toBe("Where do web and app stand right now?");

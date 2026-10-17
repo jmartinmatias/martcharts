@@ -88,6 +88,8 @@ const step = (field: string, spec: WidgetSpec) => {
   return `${name} by ${name}`;
 };
 const isTime = (field: string | undefined) => Boolean(field && TIME.test(field));
+/** A measure named after a period (q3_2025, a 2026-04 column): it reads as "in Q3 2025", "the Q3 2025 total". */
+const isPeriod = (field: string) => PERIOD.test(field) || MONTH_COLUMN.test(field);
 /** "the most revenue", but "the highest amount". */
 const most = (measure: string) => `${GENERIC_MEASURE.test(measure) ? "highest" : "most"} ${measure}`;
 /** "revenue", but "the amount". */
@@ -119,13 +121,14 @@ export function questionOf(spec: WidgetSpec, rows: Row[] = []): Question {
       if (series.length > 1) return ask("compare", `how do ${list(series.map(name))} compare for each ${entity}?`);
       if (targetLine) return isTime(label) ? ask("target", `is ${name(value)} on target, ${step(label, spec)}?`) : ask("target", `which ${entity} is above or below target on ${name(value)}?`);
       if (isTime(label)) return ask("trend", `how ${be(name(value))} ${name(value)} moving, ${step(label, spec)}?`);
-      return ask("rank", `which ${entity} has the ${most(name(value))}?`);
+      return ask("rank", isPeriod(value) ? `which ${entity} had the most in ${name(value)}?` : `which ${entity} has the ${most(name(value))}?`);
     }
     case "pareto": {
       const [label, value] = [one(view.label), one(view.value)];
       if (!label || !value) break;
       const plurals = plural(entityOf(label, spec));
-      return plurals ? ask("rank", `which few ${plurals} drive most of the ${name(value)}?`) : ask("rank", `which ${entityOf(label, spec)} drives the most ${name(value)}?`);
+      const total = isPeriod(value) ? `${name(value)} total` : name(value);
+      return plurals ? ask("rank", `which few ${plurals} drive most of the ${total}?`) : ask("rank", `which ${entityOf(label, spec)} drives the most ${name(value)}?`);
       break;
     }
     case "line":
@@ -156,7 +159,7 @@ export function questionOf(spec: WidgetSpec, rows: Row[] = []): Question {
     case "waffle":
     case "treemap": {
       const [label, value] = [one(view.label), one(view.value)];
-      if (label && value) return ask("mix", `what share of ${whole(name(value))} comes from each ${entityOf(label, spec)}?`);
+      if (label && value) return ask("mix", `what share of ${isPeriod(value) ? `the ${name(value)} total` : whole(name(value))} comes from each ${entityOf(label, spec)}?`);
       break;
     }
     case "sunburst":
@@ -203,8 +206,9 @@ export function questionOf(spec: WidgetSpec, rows: Row[] = []): Question {
     case "ridgeline": {
       const value = one(view.value);
       const group = one(view.group);
-      if (value) return ask("spread", `how spread out ${be(name(value))} ${name(value)}${group ? ` in each ${name(group)}` : ""}?`);
-      break;
+      if (!value) break;
+      const what = isPeriod(value) ? `are the values in ${name(value)}` : `${be(name(value))} ${name(value)}`;
+      return ask("spread", `how spread out ${what}${group ? ` in each ${name(group)}` : ""}?`);
     }
     case "scatter": {
       const [x, y] = [one(view.x), one(view.y)];

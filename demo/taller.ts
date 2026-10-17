@@ -107,13 +107,16 @@ function mount(target: HTMLElement, spec: WidgetSpec, actions: ("expand" | "csv"
   return widget;
 }
 
-/** A version card: its title, the sales question it answers, the move and plain tags, the chart, how to read it, its qualities and balance. */
+/**
+ * A version card, led by the sales question it answers, then what the chart is, the move and plain tags, the chart,
+ * how to read it, its qualities and balance.
+ */
 function card(variant: Variant): HTMLElement {
   const node = el("article", "version");
-  const heading = el("h3", undefined, variant.title);
-  node.setAttribute("aria-label", variant.title);
-  const question = el("p", "question");
-  questionLine(question, variant.question);
+  node.setAttribute("aria-label", variant.question);
+  const heading = el("h3", "question");
+  questionLine(heading, variant.question);
+  const form = el("p", "form", variant.title);
   const scores = el("p", "scores", `New: ${Math.round(variant.novelty * 100)}%  ·  Says: ${Math.round(variant.meaning * 100)}%`);
   scores.title = "New: how different the chart is from the starting one. Says: how balanced and insightful it is.";
   const tags = el("ul", "tags");
@@ -147,7 +150,7 @@ function card(variant: Variant): HTMLElement {
     }
   });
   actions.append(open, copy);
-  node.append(heading, question, scores, tags, chart, explain, qualities, balance, actions);
+  node.append(heading, form, scores, tags, chart, explain, qualities, balance, actions);
   // Mount after the card is in the page, so the charts measure their real width.
   queueMicrotask(() => {
     const widget = mount(chart, variant.spec, ["expand", "csv"]);
