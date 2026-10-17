@@ -96,7 +96,7 @@ describe("explainChart", () => {
     expect(at({ type: "marimekko", x: "region", series: "p", value: "v" }, [{ region: "East", p: "a", v: 5 }, { region: "East", p: "b", v: 5 }, { region: "West", p: "a", v: 3 }])).toContain("Here, East is the widest column, with 10.");
     expect(at({ type: "gauge", value: "v", target: "t" }, [{ v: 42, t: 50 }])).toContain("Here, the needle is at 42, short of the goal of 50.");
     expect(at({ type: "bar", x: "region", y: ["a", "b"], stacked: true }, [{ region: "East", a: 5, b: 6 }, { region: "West", a: 4, b: 2 }])).toContain("Here, East has the tallest bar, with 11 in all.");
-    expect(at({ type: "area", x: "week", y: ["a", "b"], stacked: "stream" }, [{ week: "1", a: 5, b: 1 }, { week: "2", a: 6, b: 2 }])).toContain("Here, a is the thickest band overall.");
+    expect(at({ type: "area", x: "week", y: ["a", "b"], stacked: "stream" }, [{ week: "1", a: 5, b: 1 }, { week: "2", a: 6, b: 2 }])).toContain("Here, a grew the most, from 5 in the week of 1 to 6 in the week of 2, and is the thickest band overall.");
     expect(at({ type: "candlestick", x: "day", open: "o", high: "h", low: "l", close: "c" }, [{ day: "1", o: 10, h: 12, l: 9, c: 11 }, { day: "2", o: 11, h: 11, l: 9, c: 10 }, { day: "3", o: 10, h: 13, l: 10, c: 12 }])).toContain("Here, 2 of 3 days went up.");
   });
 
@@ -130,7 +130,7 @@ describe("explainChart", () => {
     const at = (view: Record<string, unknown>, rows: Record<string, unknown>[]) => explainChart({ ...spec(view), locale: "en-US" }, rows);
     expect(at({ type: "line", x: "m", y: ["revenue", "cost"] }, [{ m: "Jan", revenue: 10, cost: 8 }, { m: "Feb", revenue: 14, cost: 9 }])).toContain("Here, revenue went from 10 in Jan to 14 in Feb.");
     expect(at({ type: "bar", x: "region", y: ["core", "plus"], stacked: "percent" }, [{ region: "East", core: 65, plus: 35 }, { region: "West", core: 50, plus: 50 }])).toContain("Here, the largest share is core in East, at 65%.");
-    expect(at({ type: "area", x: "m", y: ["a", "b"], stacked: "percent" }, [{ m: "Jan", a: 50, b: 50 }, { m: "Feb", a: 30, b: 70 }])).toContain("Here, by Feb, b has the largest share, at 70%.");
+    expect(at({ type: "area", x: "m", y: ["a", "b"], stacked: "percent" }, [{ m: "Jan", a: 50, b: 50 }, { m: "Feb", a: 30, b: 70 }])).toContain("Here, b grew its share the most, from 50% in Jan to 70% in Feb, and is now the largest share.");
     expect(at({ type: "ridgeline", value: "v", group: "g" }, [1, 2, 3, 10, 11, 12].map((v, i) => ({ g: i < 3 ? "A" : "B", v })))).toContain("Here, B sits furthest right, with a middle value of 11.");
     expect(at({ type: "table" }, [{ region: "North", revenue: 12, cost: 5 }, { region: "East", revenue: 20, cost: 9 }])).toContain("Here, East is the top row by revenue, at 20.");
     // A table of months points at the latest month.
@@ -279,6 +279,18 @@ describe("explainChart", () => {
     const at = (extra: Record<string, unknown>, data = rows) => explainChart({ ...spec({ type: "waterfall", label: "step", value: "amount", totals: ["Q2 revenue"], ...extra }), locale: "en-US" }, data);
     expect(at({ endLabel: "Q3 revenue" })).toContain("Here, it went from 1,180,000 (Q2 revenue) to 1,263,000 (Q3 revenue): New customers added the most, 142,000, and Churn took the most away, 84,000.");
     expect(at({ endLabel: "Q3 revenue" }, rows.slice(0, 3))).toContain("Here, it went from 1,180,000 (Q2 revenue) to 1,380,000 (Q3 revenue): New customers added the most, 142,000.");
+  });
+
+  test("a mix over time names the part that grew the most, and the leader when it is another part", () => {
+    const at = (view: Record<string, unknown>, rows: Record<string, unknown>[]) => explainChart({ ...spec(view), locale: "en-US" }, rows);
+    const weeks = [{ week: "Mar 30", paid: 50, search: 10 }, { week: "Sep 21", paid: 52, search: 30 }];
+    expect(at({ type: "area", x: "week", y: ["paid", "search"], stacked: "stream" }, weeks)).toContain(
+      "Here, search grew the most, from 10 in the week of Mar 30 to 30 in the week of Sep 21; paid is still the thickest band overall.",
+    );
+    const days = [{ day: "Sep 1", orders: 10 }, { day: "Sep 15", orders: 25 }];
+    expect(at({ type: "line", x: "day", y: "orders" }, days)).toContain("Here, it went from 10 on Sep 1 to 25 on Sep 15.");
+    const mix = [{ m: "Jan", core: 70, plus: 20, add: 10 }, { m: "Sep", core: 55, plus: 20, add: 25 }];
+    expect(at({ type: "area", x: "m", y: ["core", "plus", "add"], stacked: "percent" }, mix)).toContain("Here, add grew its share the most, from 10% in Jan to 25% in Sep; core is still the largest share, at 55%.");
   });
 
   test("no guide names a hue or a dark shade: presets recolor and dark themes flip, so marks are read by side, shape and fill", () => {

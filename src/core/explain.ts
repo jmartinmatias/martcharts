@@ -51,6 +51,11 @@ const PERIOD = /(19|20)\d\d|\bq[1-4]\b|before|after|previous|prior|last|current|
 function exampleOf(spec: WidgetSpec, rows: Row[]): string {
   const view = (spec.view ?? { type: "table" }) as View;
   const text = (row: Row, field: string) => formatValue(row[field], spec.fields?.[field]?.format, spec.locale);
+  // When something happened, worded for the time step: "on Sep 15", "in the week of Mar 30", "in Sep 2026".
+  const when = (row: Row, x: string) => {
+    const step = timeStep(x);
+    return step === "day" ? `on ${text(row, x)}` : step === "week" ? `in the week of ${text(row, x)}` : `in ${text(row, x)}`;
+  };
   // A pipeline (stages whose numbers only shrink): how many made it from the first stage to the last.
   const pipeline = (label: string, amount: string): string => {
     if (!/^(stage|step|phase)s?$/i.test(label) || rows.length < 3) return "";
@@ -139,17 +144,32 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const x = one(view.x);
       const forecast = one(view.forecast);
       if (view.type === "area" && view.stacked === "percent" && series.length > 1 && x) {
-        // The mix at the latest period: whose share is largest now.
-        const last = rows.at(-1);
-        if (!last) return "";
-        const total = series.reduce((sum, field) => sum + Math.max(0, value(last, field) ?? 0), 0);
-        const best = series.reduce((b, field) => ((value(last, field) ?? 0) > (value(last, b) ?? 0) ? field : b), series[0] as string);
-        return total > 0 ? `Here, by ${text(last, x)}, ${nameOf(best, spec)} has the largest share, at ${percent(Math.max(0, value(last, best) ?? 0) / total)}.` : "";
+        // A mix over time: which part grew its share the most, from the first period to the latest, and who leads now.
+        const [start, last] = [rows[0], rows.at(-1)];
+        if (!start || !last) return "";
+        const share = (row: Row, field: string) => {
+          const total = series.reduce((sum, f) => sum + Math.max(0, value(row, f) ?? 0), 0);
+          return total > 0 ? Math.max(0, value(row, field) ?? 0) / total : 0;
+        };
+        const leader = series.reduce((b, field) => (share(last, field) > share(last, b) ? field : b), series[0] as string);
+        const grower = series.reduce((b, field) => (share(last, field) - share(start, field) > share(last, b) - share(start, b) ? field : b), series[0] as string);
+        const lead = `${nameOf(leader, spec)} has the largest share, at ${percent(share(last, leader))}`;
+        if (start === last || share(last, grower) - share(start, grower) <= 0) return `Here, by ${text(last, x)}, ${lead}.`;
+        const grew = `${nameOf(grower, spec)} grew its share the most, from ${percent(share(start, grower))} ${when(start, x)} to ${percent(share(last, grower))} ${when(last, x)}`;
+        return grower === leader ? `Here, ${grew}, and is now the largest share.` : `Here, ${grew}; ${nameOf(leader, spec)} is still the largest share, at ${percent(share(last, leader))}.`;
       }
       if (view.type === "area" && view.stacked && view.stacked !== "percent" && series.length > 1) {
+        // Stacked parts over time: which part grew the most, and which is thickest overall.
+        const band = view.stacked === "stream" ? "thickest band" : "thickest layer";
         const sums = series.map((field) => rows.reduce((sum, row) => sum + Math.max(0, value(row, field) ?? 0), 0));
-        const best = sums.indexOf(Math.max(...sums));
-        return (sums[best] ?? 0) > 0 ? `Here, ${nameOf(series[best] as string, spec)} is the ${view.stacked === "stream" ? "thickest band" : "thickest layer"} overall.` : "";
+        const thickest = series[sums.indexOf(Math.max(...sums))] as string;
+        if ((sums[series.indexOf(thickest)] ?? 0) <= 0) return "";
+        const [start, last] = [rows[0], rows.at(-1)];
+        const growth = (field: string) => (start && last ? (value(last, field) ?? 0) - (value(start, field) ?? 0) : 0);
+        const grower = series.reduce((b, field) => (growth(field) > growth(b) ? field : b), series[0] as string);
+        if (!start || !last || start === last || !x || growth(grower) <= 0) return `Here, ${nameOf(thickest, spec)} is the ${band} overall.`;
+        const grew = `${nameOf(grower, spec)} grew the most, from ${text(start, grower)} ${when(start, x)} to ${text(last, grower)} ${when(last, x)}`;
+        return grower === thickest ? `Here, ${grew}, and is the ${band} overall.` : `Here, ${grew}; ${nameOf(thickest, spec)} is still the ${band} overall.`;
       }
       // One line traces itself; with several, the first line speaks for the chart, by name.
       const traced = single ?? (view.stacked ? undefined : series[0]);
@@ -167,7 +187,7 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const band = view.band as { low?: string; high?: string } | undefined;
       const range = ahead && band?.low && band?.high && value(ahead, band.low) !== null && value(ahead, band.high) !== null ? `, most likely between ${text(ahead, band.low)} and ${text(ahead, band.high)}` : "";
       const next = ahead ? `, and is expected to reach ${text(ahead, traced)} by ${text(ahead, x)}${range}` : "";
-      return first && last && first !== last ? `Here, ${subject} went from ${text(first, traced)} in ${text(first, x)} to ${text(last, traced)} in ${text(last, x)}${against}${next}.` : "";
+      return first && last && first !== last ? `Here, ${subject} went from ${text(first, traced)} ${when(first, x)} to ${text(last, traced)} ${when(last, x)}${against}${next}.` : "";
     }
     case "donut": {
       const [label, amount] = [one(view.label), one(view.value)];
