@@ -501,7 +501,24 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const label = one(view.label);
       const first = series[0];
       const row = label && first ? top(first) : undefined;
-      return row && label && first ? `Here, the highest score is ${text(row, label)}, at ${text(row, first)}.` : "";
+      if (!row || !label || !first) return "";
+      // Two profiles side by side: where the first leads, by how much at most, and where it trails the most.
+      const second = series[1];
+      const paired = second ? rows.filter((r) => value(r, first) !== null && value(r, second) !== null) : [];
+      if (series.length === 2 && second && paired.length > 1) {
+        const gap = (r: Row) => (value(r, first) as number) - (value(r, second) as number);
+        const ahead = paired.filter((r) => gap(r) > 0);
+        if (ahead.length) {
+          const lead = ahead.reduce((b, r) => (gap(r) > gap(b) ? r : b));
+          const behind = paired.filter((r) => gap(r) < 0);
+          const trail = behind.length ? behind.reduce((b, r) => (gap(r) < gap(b) ? r : b)) : undefined;
+          const entity = nameOf(label, spec);
+          const count = ahead.length === paired.length ? `every ${entity}` : `${ahead.length} of ${paired.length} ${plural(entity)}`;
+          const pair = (r: Row) => `${text(r, first)} against ${text(r, second)}`;
+          return `Here, ${nameOf(first, spec)} is ahead of ${nameOf(second, spec)} on ${count}, most on ${text(lead, label)} (${pair(lead)})${trail ? `, and behind on ${text(trail, label)} (${pair(trail)})` : ""}.`;
+        }
+      }
+      return `Here, the highest score is ${text(row, label)}, at ${text(row, first)}.`;
     }
     case "beeswarm": {
       const [amount, label] = [one(view.value), one(view.label)];

@@ -115,7 +115,7 @@ describe("explainChart", () => {
     const at = (view: Record<string, unknown>, rows: Record<string, unknown>[]) => explainChart({ ...spec(view), locale: "en-US" }, rows);
     expect(at({ type: "sankey", source: "from", target: "to", value: "n" }, [{ from: "Search", to: "Pricing", n: 40 }, { from: "Email", to: "Home", n: 10 }])).toContain("Here, the thickest band goes from Search to Pricing, with 40.");
     expect(at({ type: "chord", source: "from", target: "to", value: "n" }, [{ from: "Starter", to: "Growth", n: 120 }, { from: "Pro", to: "Growth", n: 18 }])).toContain("Here, the thickest band joins Starter and Growth, with 120.");
-    expect(at({ type: "radar", label: "attribute", y: ["us", "market"] }, [{ attribute: "Speed", us: 8, market: 6 }, { attribute: "Price", us: 6, market: 7 }])).toContain("Here, the highest score is Speed, at 8.");
+    expect(at({ type: "radar", label: "attribute", y: ["us", "market"] }, [{ attribute: "Speed", us: 8, market: 6 }, { attribute: "Price", us: 6, market: 7 }])).toContain("Here, us is ahead of market on 1 of 2 attributes, most on Speed (8 against 6), and behind on Price (6 against 7).");
     expect(at({ type: "beeswarm", value: "v", label: "deal" }, [{ deal: "Acme", v: 9 }, { deal: "Bolt", v: 4 }])).toContain("Here, the dot furthest right is Acme, at 9.");
     expect(at({ type: "beeswarm", value: "size", label: "deal" }, [])).toContain("Each dot is one deal, placed by its size.");
     expect(at({ type: "rings", label: "p", value: "v", target: "t" }, [{ p: "Core", v: 9, t: 10 }, { p: "Plus", v: 5, t: 10 }])).toContain("Here, Core is closest to its goal, at 90%.");
@@ -382,6 +382,19 @@ describe("explainChart", () => {
     const at = (view: Record<string, unknown>) => explainChart({ ...spec({ type: "timeline", label: "task", start: "start", end: "end", ...view }), locale: "en-US" }, rows);
     expect(at({ progress: "done" })).toContain("Here, 2 of 4 tasks are done and 1 is under way; the longest, Build, is 55% done.");
     expect(at({})).toContain("Here, the longest task is Build.");
+  });
+
+  test("a radar of two series counts where the first leads, then names its biggest lead and its biggest gap", () => {
+    const fields = { us: { label: "Our product" }, market: { label: "Market average" } };
+    const rows = [
+      { attribute: "Speed", us: 8.6, market: 6.9 },
+      { attribute: "Support", us: 8.2, market: 6.4 },
+      { attribute: "Price", us: 6.1, market: 7.4 },
+    ];
+    const at = (data: Record<string, unknown>[]) => explainChart({ ...spec({ type: "radar", label: "attribute", y: ["us", "market"] }, fields), locale: "en-US" }, data);
+    expect(at(rows)).toContain("Here, our product is ahead of market average on 2 of 3 attributes, most on Support (8.2 against 6.4), and behind on Price (6.1 against 7.4).");
+    expect(at(rows.slice(0, 2))).toContain("Here, our product is ahead of market average on every attribute, most on Support (8.2 against 6.4).");
+    expect(explainChart({ ...spec({ type: "radar", label: "attribute", y: ["us"] }, fields), locale: "en-US" }, rows)).toContain("Here, the highest score is Speed, at 8.6.");
   });
 
   test("no guide names a hue or a dark shade: presets recolor and dark themes flip, so marks are read by side, shape and fill", () => {
