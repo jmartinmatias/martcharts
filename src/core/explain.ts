@@ -270,10 +270,29 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
     case "rose": {
       const label = one(view.label);
       if (!label || series.length === 0) return "";
-      const totals = rows.map((row) => series.reduce((sum, field) => sum + Math.max(0, value(row, field) ?? 0), 0));
-      const best = totals.indexOf(Math.max(...totals));
-      const row = rows[best];
-      return row && (totals[best] ?? 0) > 0 ? `Here, ${text(row, label)} is the biggest slice.` : "";
+      const total = (row: Row) => series.reduce((sum, field) => sum + Math.max(0, value(row, field) ?? 0), 0);
+      const most = Math.max(0, ...rows.map(total));
+      if (most <= 0) return "";
+      // Hours, days and months have a busiest time; plain categories a biggest slice. Two or three tied are named together.
+      const entity = nameOf(label, spec);
+      const time = /^(hour|time|slot|day|weekday|week|month|quarter|year|period|date)s?$/i.test(label);
+      const peaks = rows.filter((row) => total(row) === most).map((row) => text(row, label));
+      const amount = formatValue(most, spec.fields?.[series[0] as string]?.format, spec.locale);
+      const busiest =
+        peaks.length === 1
+          ? `${peaks[0]} is the ${time ? `busiest ${entity}` : "biggest slice"}, with ${amount}${series.length > 1 ? " in all" : ""}`
+          : peaks.length <= 3
+            ? `${peaks.slice(0, -1).join(", ")} and ${peaks.at(-1)} are the ${time ? `busiest ${plural(entity)}` : "biggest slices"}, with ${amount} each`
+            : "";
+      // With two rings or more: the one that brings the most in the most slices, when one clearly does.
+      const known = rows.filter((row) => series.every((field) => value(row, field) !== null));
+      const wins = series.map((field) => known.filter((row) => series.every((other) => other === field || (value(row, field) as number) > (value(row, other) as number))).length);
+      const lead = wins.indexOf(Math.max(...wins));
+      const clear = series.length > 1 && (wins[lead] ?? 0) > 0 && wins.filter((w) => w === wins[lead]).length === 1;
+      const where = wins[lead] === known.length ? `in every ${entity}` : `in ${wins[lead]} of ${known.length} ${plural(entity)}`;
+      const leader = clear ? `${nameOf(series[lead] as string, spec)} brings ${series.length === 2 ? `more than ${nameOf(series[1 - lead] as string, spec)}` : "the most"} ${where}` : "";
+      const parts = [busiest, leader].filter(Boolean);
+      return parts.length ? `Here, ${parts.join("; ")}.` : "";
     }
     case "scatter": {
       const [label, x, y] = [one(view.label), one(view.x), one(view.y)];
@@ -636,14 +655,42 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const step = timeStep(one(view.x) ?? "");
       return days.length ? `Here, ${up} of ${days.length} ${step ? plural(step) : "candles"} went up.` : "";
     }
-    case "sankey":
-    case "chord": {
+    case "sankey": {
       const [from, to, amount] = [one(view.source), one(view.target), one(view.value)];
       const row = from && to && amount ? top(amount) : undefined;
       if (!row || !from || !to || !amount) return "";
-      return view.type === "sankey"
-        ? `Here, the thickest band goes from ${text(row, from)} to ${text(row, to)}, with ${text(row, amount)}.`
-        : `Here, the thickest band joins ${text(row, from)} and ${text(row, to)}, with ${text(row, amount)}.`;
+      return `Here, the thickest band goes from ${text(row, from)} to ${text(row, to)}, with ${text(row, amount)}.`;
+    }
+    case "chord": {
+      const [from, to, amount] = [one(view.source), one(view.target), one(view.value)];
+      if (!from || !to || !amount) return "";
+      // A band carries moves both ways. As drawn: each direction adds up its rows, and staying in the same group is no move.
+      const key = (a: unknown, b: unknown) => JSON.stringify([String(a), String(b)]);
+      const moves = new Map<string, { row: Row; size: number }>();
+      for (const row of rows) {
+        const size = value(row, amount);
+        if (size === null || size <= 0 || String(row[from]) === String(row[to])) continue;
+        const entry = moves.get(key(row[from], row[to])) ?? { row, size: 0 };
+        entry.size += size;
+        moves.set(key(row[from], row[to]), entry);
+      }
+      const most = Math.max(0, ...[...moves.values()].map((m) => m.size));
+      if (most <= 0) return "";
+      const show = (n: number) => formatValue(n, spec.fields?.[amount]?.format, spec.locale);
+      // "120 customers", but a plain value field adds no word after the number.
+      const unit = /^(\w|value|amount|count|number|size|flows?|total|weight)$/i.test(amount) ? "" : ` ${nameOf(amount, spec)}`;
+      const biggest = [...moves.values()].filter((m) => m.size === most);
+      const path = (m: { row: Row }) => `from ${text(m.row, from)} to ${text(m.row, to)}`;
+      const [first, second] = [biggest[0] as { row: Row; size: number }, biggest[1]];
+      // Tied: both ways of one band, or two or three moves named together.
+      if (second && biggest.length === 2 && key(first.row[from], first.row[to]) === key(second.row[to], second.row[from]))
+        return `Here, the biggest moves are between ${text(first.row, from)} and ${text(first.row, to)}: ${show(most)}${unit} each way.`;
+      const paths = biggest.map(path);
+      if (second) return biggest.length <= 3 ? `Here, the biggest moves are ${paths.slice(0, -1).join(", ")} and ${paths.at(-1)}, with ${show(most)}${unit} each.` : "";
+      // When some moved the other way, what the receiving group gained from the sender overall.
+      const back = moves.get(key(first.row[to], first.row[from]))?.size ?? 0;
+      const lead = `Here, the biggest move is ${path(first)}: ${show(most)}${unit}`;
+      return back > 0 ? `${lead}; ${show(back)} went the other way, so ${text(first.row, to)} gained ${show(most - back)} from ${text(first.row, from)}.` : `${lead}.`;
     }
     case "radar": {
       const label = one(view.label);
@@ -792,7 +839,7 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const periods = numbers.filter((field) => /^\d{4}(-\d{2})?/.test(field));
       const amount = periods.length ? periods.at(-1) : numbers[0];
       const row = label && amount ? top(amount) : undefined;
-      if (!row || !label || !amount) return "";
+      if (!label) return "";
       // A column of gaps against a target: how many rows are above it, by name.
       const gap = numbers.find((field) => {
         const format = spec.fields?.[field]?.format;
@@ -810,6 +857,38 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
           return `Here, ${above.length} of ${known.length} ${plural(entity)} ${above.length === 1 ? "is" : "are"} above target${listed}.`;
         }
       }
+      // A small trend line in each row (a list of numbers) asks how the rows moved: how many grew from start to finish, and who grew most.
+      const trend = columns.find((field) => field !== label && rows.some((r) => Array.isArray(r[field])));
+      if (trend) {
+        const runs = rows.flatMap((r) => {
+          const points = (Array.isArray(r[trend]) ? (r[trend] as unknown[]) : []).map(readNumber).filter((n): n is number => n !== null);
+          return points.length >= 2 ? [{ row: r, first: points[0] as number, last: points.at(-1) as number }] : [];
+        });
+        // The points have no format of their own: they take the one of the field they were listed from, or of its total.
+        const measures = (spec.transform ?? []).flatMap((step) => (step.type === "aggregate" && Array.isArray(step.measures) ? (step.measures as { op?: string; field?: string; as?: string }[]) : []));
+        const listed = measures.find((m) => m.op === "list" && (m.as ?? m.field) === trend);
+        const kin = listed?.field ? [listed.field, ...measures.filter((m) => m.field === listed.field && ["sum", "avg", "min", "max"].includes(m.op ?? "")).map((m) => m.as ?? (m.field as string))] : [];
+        const format = kin.map((field) => spec.fields?.[field]?.format).find(Boolean);
+        const show = (n: number) => formatValue(n, format, spec.locale);
+        const change = (run: (typeof runs)[number]) => run.last - run.first;
+        // The row that moved the most, unless two moved the same.
+        const most = (list: typeof runs, sign: 1 | -1) => {
+          const best = list.reduce((b, run) => (sign * change(run) > sign * change(b) ? run : b));
+          return list.filter((run) => change(run) === change(best)).length === 1 ? best : undefined;
+        };
+        const [grew, fell] = [runs.filter((run) => change(run) > 0), runs.filter((run) => change(run) < 0)];
+        const entity = nameOf(label, spec);
+        if (runs.length > 1 && grew.length) {
+          const best = most(grew, 1);
+          const count = grew.length === runs.length ? `every ${entity}` : `${grew.length} of ${runs.length} ${plural(entity)}`;
+          return `Here, ${count} grew from start to finish${best ? `, and ${text(best.row, label)} grew the most, from ${show(best.first)} to ${show(best.last)}` : ""}.`;
+        }
+        if (runs.length > 1 && fell.length) {
+          const worst = most(fell, -1);
+          return `Here, no ${entity} grew from start to finish${worst ? `, and ${text(worst.row, label)} fell the most, from ${show(worst.first)} to ${show(worst.last)}` : ""}.`;
+        }
+      }
+      if (!row || !amount) return "";
       // Months laid sideways ask how each row did: how many grew from the first month to the last, and who grew most.
       if (periods.length >= 2) {
         const [from, to] = [periods[0] as string, periods.at(-1) as string];

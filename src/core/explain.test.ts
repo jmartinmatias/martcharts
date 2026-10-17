@@ -160,7 +160,7 @@ describe("explainChart", () => {
   test("the last charts point at their standout too: flows, profiles, dots, goals, tasks, lists and big numbers", () => {
     const at = (view: Record<string, unknown>, rows: Record<string, unknown>[]) => explainChart({ ...spec(view), locale: "en-US" }, rows);
     expect(at({ type: "sankey", source: "from", target: "to", value: "n" }, [{ from: "Search", to: "Pricing", n: 40 }, { from: "Email", to: "Home", n: 10 }])).toContain("Here, the thickest band goes from Search to Pricing, with 40.");
-    expect(at({ type: "chord", source: "from", target: "to", value: "n" }, [{ from: "Starter", to: "Growth", n: 120 }, { from: "Pro", to: "Growth", n: 18 }])).toContain("Here, the thickest band joins Starter and Growth, with 120.");
+    expect(at({ type: "chord", source: "from", target: "to", value: "n" }, [{ from: "Starter", to: "Growth", n: 120 }, { from: "Pro", to: "Growth", n: 18 }])).toContain("Here, the biggest move is from Starter to Growth: 120.");
     expect(at({ type: "radar", label: "attribute", y: ["us", "market"] }, [{ attribute: "Speed", us: 8, market: 6 }, { attribute: "Price", us: 6, market: 7 }])).toContain("Here, us is ahead of market on 1 of 2 attributes, most on Speed (8 against 6), and behind on Price (6 against 7).");
     expect(at({ type: "beeswarm", value: "v", label: "deal" }, [{ deal: "Acme", v: 9 }, { deal: "Bolt", v: 4 }])).toContain("Here, the dot furthest right is Acme, at 9.");
     expect(at({ type: "beeswarm", value: "size", label: "deal" }, [])).toContain("Each dot is one deal, placed by its size.");
