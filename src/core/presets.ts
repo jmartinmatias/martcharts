@@ -175,6 +175,7 @@ registerPreset({
   --fft-negative: #cc3737;
   --fft-shadow: none;
   --fft-pad: 8px 0;
+  --fft-ref-inset: 0px;
 }
 & .fft-title { font-weight: 400; color: var(--fft-text-secondary); }
 & .fft-subtitle { color: var(--fft-muted); font-size: 11px; line-height: 13px; }

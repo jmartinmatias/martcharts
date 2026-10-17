@@ -325,7 +325,8 @@ export const BASE_CSS = `
 /* Ghost ref: the quietest text on the card, kept quiet by size, a light weight and wide spacing rather than by fading,
    so it still reads at 4.5:1; clearer when reached for, a click away from the clipboard. */
 .fft-widget-ref {
-  margin: 0 -5px 0 auto; padding: 2px 5px; border: 0; border-radius: 5px; background: none;
+  /* Its 5px hit padding tucks into the card's own padding; a cardless look (no side padding) sets --fft-ref-inset to 0. */
+  margin: 0 calc(-1 * var(--fft-ref-inset, 5px)) 0 auto; padding: 2px 5px; border: 0; border-radius: 5px; background: none;
   font: 400 10px/13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: 0.08em;
   color: var(--fft-muted); cursor: copy; white-space: nowrap;
   transition: color 233ms var(--fft-ease), background-color 233ms var(--fft-ease);

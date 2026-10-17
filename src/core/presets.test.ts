@@ -49,3 +49,10 @@ describe("style presets", () => {
     expect(getPreset("nope")).toBeUndefined();
   });
 });
+
+describe("a cardless look", () => {
+  test("airy has no side padding, so the ghost ref drops its inset and stays inside the widget", () => {
+    expect((getPreset("airy")?.css ?? "").replace(/\s+/g, " ")).toContain("--fft-ref-inset: 0px");
+  });
+});
+
