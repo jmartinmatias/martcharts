@@ -123,6 +123,12 @@ describe("questionOf", () => {
     expect(questionOf(spec)).toEqual({ kind: "target", text: "Is monthly revenue on target?" });
   });
 
+  test("stages whose numbers only shrink are a pipeline: the question is where they drop out", () => {
+    expect(ask("lead-pipeline")).toEqual({ kind: "flow", text: "Where do leads drop out, stage by stage?" });
+    const growing = [{ stage: "A", leads: 10 }, { stage: "B", leads: 30 }, { stage: "C", leads: 20 }];
+    expect(questionOf({ data: { type: "inline", rows: growing }, view: { type: "hbar", label: "stage", value: "leads" } }, growing).kind).toBe("rank");
+  });
+
   test("a row of numbers names them when there are few", () => {
     const spec: WidgetSpec = { data: { type: "inline", rows: [] }, view: { type: "kpis", items: [{ value: "web" }, { value: "app" }] } };
     expect(questionOf(spec).text).toBe("Where do web and app stand right now?");

@@ -51,6 +51,10 @@ const TARGET = /target|plan|goal|budget|quota/i;
 const PERIOD = /(19|20)\d\d|\b[qh][1-4]\b|before|after|previous|prior|last|current|start|end/i;
 /** Measures named by a generic word: they read as "the highest amount" and "a share of the amount". */
 const GENERIC_MEASURE = /\b(amount|value|total|count|number|sum|score)$/i;
+/** Fields that name the steps of a pipeline. */
+const STAGE = /^(stage|step|phase)s?$/i;
+/** Whether the rows shrink from one to the next, as a pipeline's stages do (at least three of them). */
+const shrinking = (rows: Row[], field: string) => rows.length >= 3 && rows.every((row, i) => i === 0 || Number(row[field]) <= Number(rows[i - 1]?.[field]));
 /** Column names that are months: 2026-04. */
 const MONTH_COLUMN = /^\d{4}-\d{2}$/;
 
@@ -119,6 +123,9 @@ export function questionOf(spec: WidgetSpec, rows: Row[] = []): Question {
       if (series.length > 1 && view.stacked === "percent") return ask("mix", `how is each ${entity} split between ${list(series.map(name))}?`);
       if (series.length > 1 && view.stacked) return ask("mix", `which ${entity} has the most in all, and what is it made of?`);
       if (series.length > 1) return ask("compare", `how do ${list(series.map(name))} compare for each ${entity}?`);
+      // Stages whose numbers only shrink are a pipeline: the question is where they drop out, not which stage is biggest.
+      const known = rows.length ? rows : spec.data?.type === "inline" ? ((spec.data as { rows?: Row[] }).rows ?? []) : [];
+      if (STAGE.test(label) && shrinking(known, value)) return ask("flow", `where ${isPlural(name(value)) ? "do" : "does"} ${name(value)} drop out, ${entity} by ${entity}?`);
       if (targetLine) return isTime(label) ? ask("target", `is ${name(value)} on target, ${step(label, spec)}?`) : ask("target", `which ${entity} is above or below target on ${name(value)}?`);
       if (isTime(label)) return ask("trend", `how ${be(name(value))} ${name(value)} moving, ${step(label, spec)}?`);
       return ask("rank", isPeriod(value) ? `which ${entity} had the most in ${name(value)}?` : `which ${entity} has the ${most(name(value))}?`);

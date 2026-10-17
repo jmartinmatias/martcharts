@@ -202,6 +202,15 @@ describe("explainChart", () => {
     expect(tiles([{ value: "revenue" }])).not.toContain("target");
   });
 
+  test("a pipeline of shrinking stages says how many made it from the first stage to the last", () => {
+    const rows = [
+      { stage: "New leads", leads: 1240 },
+      { stage: "Contacted", leads: 870 },
+      { stage: "Won", leads: 96 },
+    ];
+    expect(explainChart({ ...spec({ type: "hbar", label: "stage", value: "leads" }), locale: "en-US" }, rows)).toContain("Here, 96 of 1,240 leads made it from New leads to Won (8%).");
+  });
+
   test("no guide names a hue or a dark shade: presets recolor and dark themes flip, so marks are read by side, shape and fill", () => {
     const guide = (view: Record<string, unknown>) => explainChart({ ...spec(view), locale: "en-US" });
     expect(guide({ type: "variance", label: "department", value: "actual", target: "budget", goodWhen: "down" })).toBe(

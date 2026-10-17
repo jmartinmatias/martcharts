@@ -50,6 +50,15 @@ const PERIOD = /(19|20)\d\d|\bq[1-4]\b|before|after|previous|prior|last|current|
 function exampleOf(spec: WidgetSpec, rows: Row[]): string {
   const view = (spec.view ?? { type: "table" }) as View;
   const text = (row: Row, field: string) => formatValue(row[field], spec.fields?.[field]?.format, spec.locale);
+  // A pipeline (stages whose numbers only shrink): how many made it from the first stage to the last.
+  const pipeline = (label: string, amount: string): string => {
+    if (!/^(stage|step|phase)s?$/i.test(label) || rows.length < 3) return "";
+    const values = rows.map((row) => readNumber(row[amount]));
+    if (values.some((v, i) => v === null || (i > 0 && v > (values[i - 1] as number)))) return "";
+    const [first, last] = [rows[0] as Row, rows.at(-1) as Row];
+    const share = (values[0] as number) > 0 ? ` (${percent((values.at(-1) as number) / (values[0] as number))})` : "";
+    return `Here, ${text(last, amount)} of ${text(first, amount)} ${nameOf(amount, spec)} made it from ${text(first, label)} to ${text(last, label)}${share}.`;
+  };
   const value = (row: Row, field: string) => readNumber(row[field]);
   const top = (field: string | undefined) =>
     field ? rows.filter((row) => value(row, field) !== null).reduce<Row | undefined>((best, row) => (best && (value(best, field) as number) >= (value(row, field) as number) ? best : row), undefined) : undefined;
@@ -83,6 +92,8 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
         for (const row of rows) for (const field of series) if (value(row, field) !== null && (!best || (value(row, field) as number) > (value(best.row, best.field) as number))) best = { row, field };
         return best ? `Here, the tallest bar is ${text(best.row, x)}'s ${nameOf(best.field, spec)}, with ${text(best.row, best.field)}.` : "";
       }
+      const flow = single ? pipeline(x, single) : "";
+      if (flow) return flow;
       // A target line: the question is how often the bars beat it, not which bar is tallest.
       const goal = one(view.lines);
       if (single && goal) {
@@ -105,6 +116,8 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
     }
     case "hbar": {
       const [label, amount] = [one(view.label), one(view.value)];
+      const flow = label && amount ? pipeline(label, amount) : "";
+      if (flow) return flow;
       const row = label && amount ? top(amount) : undefined;
       return row && label && amount ? `Here, ${text(row, label)} ${view.mark === "lollipop" ? "has the dot furthest right" : "is the longest"}, with ${text(row, amount)}.` : "";
     }
