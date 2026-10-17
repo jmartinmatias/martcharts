@@ -186,10 +186,18 @@ export function explainVariant(spec: WidgetSpec, chartTitle: string, rowName?: s
       read = "Hover a mark to see its numbers.";
   }
   const facet = (spec.facet as { field?: string } | undefined)?.field;
+  const references = (Array.isArray(view.reference) ? view.reference : []) as { label?: unknown }[];
+  const goal = references.map((r) => String(r.label ?? "")).find((label) => /target|plan|goal|budget|quota/i.test(label));
   const extras: string[] = [];
   if (facet) extras.push(`There is one small chart per ${name(facet)}, all on the same scale.`);
+  // A dashed target is what the chart is read against, so it comes before the other extras, with the side that meets it.
+  if (goal) {
+    const named = goal.replace(/^[A-Z][a-z]*\b/, (word) => word.toLowerCase());
+    const side = view.goodWhen === "down" ? "under" : "that reaches";
+    extras.push(view.type === "bar" ? `The dashed line is the ${named}: a ${lollipop ? "dot" : "bar"} ${side} the line meets it.` : `The dashed line is the ${named}.`);
+  }
   if (view.highlight) extras.push("One item is in color and the rest are grey, so it stands out.");
-  if (Array.isArray(view.reference) && view.reference.length) extras.push("The dashed line is the average.");
+  if (references.length && !goal) extras.push("The dashed line is the average.");
   if (view.lines) extras.push(`The line across the bars is the ${name(view.lines)}.`);
   if (view.forecast) extras.push("The dashed part is a forecast, not real yet.");
   if (spec.headline) extras.push("The big number on top sums it up.");

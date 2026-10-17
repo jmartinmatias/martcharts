@@ -150,6 +150,10 @@ export interface DataProfile {
   times: string[];
   /** A number field that reads as a target, plan or budget. */
   target?: string;
+  /** The dashed line the chart draws at a fixed target, plan or budget ({ value: 60, label: "1 hour target" }), against its first measure. */
+  targetLine?: { value: number; label: string };
+  /** Which side of the target is good news, as the chart says: "down" for wait times and costs. It travels with the target. */
+  goodWhen?: "up" | "down";
   /**
    * The first measure adds up across rows: a count or an amount. An average, a median, a rate, a score or a percent
    * does not, so it is never sliced into shares, stacked, or summed into a total.
@@ -257,6 +261,10 @@ export function profileData(spec: WidgetSpec, rows: Row[]): DataProfile {
   const fan: Record<string, unknown> = {};
   if (typeof view.forecast === "string") fan.forecast = view.forecast;
   if (band) fan.band = band;
+  // A target line on the first measure's own axis: a stacked chart's line is for the whole stack, a scatter's for its second measure.
+  const marks = ["bar", "line", "area"].includes(String(view.type)) && !view.stacked && Array.isArray(view.reference) ? (view.reference as { value?: unknown; label?: unknown }[]) : [];
+  const line = marks.find((r) => typeof r?.value === "number" && TARGET_NAME.test(String(r.label ?? "")));
+  const goodWhen = view.goodWhen === "up" || view.goodWhen === "down" ? view.goodWhen : undefined;
   return {
     title: spec.title ?? spec.id ?? "this chart",
     measures,
@@ -264,6 +272,8 @@ export function profileData(spec: WidgetSpec, rows: Row[]): DataProfile {
     categories,
     times,
     ...(target ? { target } : {}),
+    ...(line ? { targetLine: { value: line.value as number, label: String(line.label) } } : {}),
+    ...(goodWhen ? { goodWhen } : {}),
     whole: measures[0] !== undefined && additive(measures[0], spec) && !MEASURE_ROWS.test(categories[0] ?? ""),
     scorecard: MEASURE_ROWS.test(categories[0] ?? ""),
     rows: rows.length,
@@ -316,6 +326,10 @@ const perPeriod = (d: DataProfile, min = 3) => d.times.length > 0 && d.measures.
 const positive = (d: DataProfile) => !d.negatives;
 /** Parts of one whole: positive numbers that add up, so a share, a stack or a total means something. */
 const parts = (d: DataProfile) => positive(d) && d.whole;
+/** Which side of the target is good news, when the chart says so: carried with a target, never alone. */
+const judged = (d: DataProfile) => (d.goodWhen ? { goodWhen: d.goodWhen } : {});
+/** The chart's own dashed target line, for bars of its first measure: kept when the chart has one, never invented. */
+const targetRef = (d: DataProfile) => (d.targetLine ? { reference: [d.targetLine], ...judged(d) } : {});
 const PERIOD_WORD = /(19|20)\d\d|q[1-4]|before|after|previous|prior|last|current|this|start|end|from|to$/i;
 /** The first two measures read as one measure at two times (revenue2025 and revenue2026, before and after). */
 const periodPair = (d: DataProfile) => d.peers.length > 1 && PERIOD_WORD.test(p1(d)) && PERIOD_WORD.test(p2(d));
@@ -342,7 +356,7 @@ const PATTERNS: Pattern[] = [
     moves: ["reform"],
     marks: "sharp",
     fits: (d) => perCategory(d, 2, 24),
-    make: (d) => ({ view: { type: "bar", x: c1(d), y: m1(d) } }),
+    make: (d) => ({ view: { type: "bar", x: c1(d), y: m1(d), ...targetRef(d) } }),
   },
   {
     id: "donut",
@@ -439,13 +453,22 @@ const PATTERNS: Pattern[] = [
     make: (d) => ({ view: { type: "bar", x: rowKey(d) as string, y: m1(d), mark: "lollipop", lines: d.target as string } }),
   },
   {
+    id: "reference-lollipops",
+    form: "lollipops with their dashed target line",
+    moves: ["distill", "combine"],
+    marks: "sharp",
+    // One row per category: over time, lollipops in time already keep the dashed target.
+    fits: (d) => perCategory(d, 3, 24) && d.targetLine !== undefined,
+    make: (d) => ({ view: { type: "bar", x: c1(d), y: m1(d), mark: "lollipop", ...targetRef(d) } }),
+  },
+  {
     id: "variance",
     form: "a variance against target",
     moves: ["reframe", "contrast"],
     marks: "sharp",
     fits: (d) => perRow(d, 2, 24) && d.target !== undefined,
     // A scorecard's gaps are in different units, so each is a share of its own target (+10%), never euros beside points.
-    make: (d) => ({ view: { type: "variance", label: rowKey(d) as string, value: m1(d), target: d.target as string, ...(d.scorecard ? { percent: true } : {}) } }),
+    make: (d) => ({ view: { type: "variance", label: rowKey(d) as string, value: m1(d), target: d.target as string, ...(d.scorecard ? { percent: true } : {}), ...judged(d) } }),
   },
   {
     id: "attainment",
@@ -527,7 +550,7 @@ const PATTERNS: Pattern[] = [
     moves: ["reform"],
     marks: "sharp",
     fits: (d) => perPeriod(d) && d.rows <= 40,
-    make: (d) => ({ view: { type: "bar", x: t1(d), y: m1(d) } }),
+    make: (d) => ({ view: { type: "bar", x: t1(d), y: m1(d), ...targetRef(d) } }),
   },
   {
     id: "time-lollipops",
@@ -535,7 +558,7 @@ const PATTERNS: Pattern[] = [
     moves: ["distill", "reform"],
     marks: "sharp",
     fits: (d) => perPeriod(d) && d.rows <= 40,
-    make: (d) => ({ view: { type: "bar", x: t1(d), y: m1(d), mark: "lollipop" } }),
+    make: (d) => ({ view: { type: "bar", x: t1(d), y: m1(d), mark: "lollipop", ...targetRef(d) } }),
   },
   {
     id: "headline-line",
@@ -924,13 +947,15 @@ function shapeOf(spec: WidgetSpec): string {
   const fields = Object.entries(spec.fields ?? {})
     .map(([name, field]) => `${name}:${typeof field?.format === "object" ? (field.format as { type?: string }).type : (field?.format ?? "")}`)
     .sort();
+  const references = (Array.isArray(view.reference) ? view.reference : []) as { label?: unknown }[];
   return JSON.stringify({
     type: view.type,
     mark: view.mark ?? "bar",
     curve: view.curve ?? "linear",
     stacked: view.stacked ?? false,
     lines: view.lines ?? null,
-    reference: Array.isArray(view.reference) && view.reference.length > 0,
+    // A target line and an average line ask different questions, so they are different shapes.
+    reference: references.some((r) => TARGET_NAME.test(String(r?.label ?? ""))) ? "target" : references.length > 0,
     highlight: Boolean(view.highlight),
     headline: Boolean(spec.headline),
     facet: (spec.facet as { field?: string } | undefined)?.field ?? null,
