@@ -106,7 +106,7 @@ const DARK = `
   --fft-text-secondary: #c3c2b7;
   --fft-muted: #898781;
   --fft-grid: #2c2c2a;
-  --fft-axis: #383835;
+  --fft-axis: #464642;
   --fft-border: rgba(255, 255, 255, 0.10);
   --fft-accent: #3987e5;
   --fft-positive: #0ca30c;

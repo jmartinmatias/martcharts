@@ -62,6 +62,10 @@ describe.each(contexts)("contrast in $name", (context) => {
     expect(text.filter((t) => ratio(color(t), context.surface) < 4.5).map((t) => `${t} ${ratio(color(t), context.surface)}`)).toEqual([]);
   });
 
+  test("the zero line stands apart from the gridlines, so the baseline reads at a glance", () => {
+    expect([context.name, ratio(color("axis"), color("grid")) >= 1.3]).toEqual([context.name, true]);
+  });
+
   test("every heat step's text reaches 4.5:1 on its own fill (1.4.3)", () => {
     const steps = Array.from({ length: 7 }, (_, i) => i + 1).filter((n) => context.tokens[`seq-${n}`]);
     const low = steps.filter((n) => ratio(color(`seq-text-${n}`), color(`seq-${n}`)) < 4.5);

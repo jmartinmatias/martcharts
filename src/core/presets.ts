@@ -83,7 +83,7 @@ registerPreset({
   --fft-text-secondary: rgba(16, 32, 29, 0.7);
   --fft-muted: rgba(16, 32, 29, 0.64);
   --fft-grid: rgba(16, 32, 29, 0.07);
-  --fft-axis: rgba(16, 32, 29, 0.18);
+  --fft-axis: rgba(16, 32, 29, 0.22);
   --fft-border: rgba(255, 255, 255, 0.72);
   --fft-accent: #2270cf;
   --fft-positive: #006300;
@@ -168,7 +168,7 @@ registerPreset({
   --fft-text-secondary: #6b6b68;
   --fft-muted: #6f6f6b;
   --fft-grid: #e7e7e3;
-  --fft-axis: #d3d3ce;
+  --fft-axis: #c9c9c3;
   --fft-border: transparent;
   --fft-accent: #c34400;
   --fft-positive: #006300;
