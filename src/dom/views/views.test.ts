@@ -727,6 +727,16 @@ describe("time axis labels", () => {
     return [left, left + width];
   };
 
+  test.each(["line", "stream"])("a thinned %s axis keeps an even rhythm: every step between labels is the same, but for the closing date", async (kind) => {
+    const weeks = Array.from({ length: 26 }, (_, i) => new Date(Date.UTC(2026, 2, 30 + i * 7)).toISOString().slice(0, 10));
+    const view = kind === "line" ? { type: "line", x: "d", y: "v" } : { type: "area", x: "d", y: ["v", "w"], stacked: "stream" };
+    await draw({ rows: weeks.map((d, i) => ({ d, v: 100 + i, w: 50 + i })), fields: { d: { format: { type: "date", style: "day" } } }, view });
+    // Labels sit at their period's place on the axis, so equal steps in place are equal steps in time.
+    const xs = all(".fft-tick-x").map((label) => Number(label.getAttribute("x")));
+    const steps = xs.map((x, k) => (k ? Math.round(x - (xs[k - 1] ?? 0)) : null)).slice(1, -1);
+    expect([xs.length > 2, new Set(steps).size]).toEqual([true, 1]);
+  });
+
   test.each(["line", "bar"])("a thinned %s axis still names its first and last period, and no two labels touch", async (type) => {
     await draw({ rows: months.map((m, i) => ({ m, v: 100 + i })), view: { type, x: "m", y: "v" } });
     const labels = all(".fft-tick-x");
@@ -2351,6 +2361,14 @@ describe("horizon view", () => {
     const day2 = texts(".fft-tooltip-row");
     all(".fft-horizon-hit")[3]?.dispatchEvent(new Event("focus"));
     expect([day2, texts(".fft-tooltip-row")]).toEqual([["50 above planA", "5 below planB"], ["30 above planA", "On planB"]]);
+  });
+
+  test("a long run of days keeps an even rhythm on its axis, but for the closing date", async () => {
+    const days = Array.from({ length: 92 }, (_, i) => ({ d: new Date(Date.UTC(2026, 6, 1 + i)).toISOString().slice(0, 10), a: Math.sin(i / 5) * 10, b: Math.cos(i / 7) * 10 }));
+    await draw({ rows: days, fields: { d: { format: { type: "date", style: "day" } } }, view: { type: "horizon", x: "d", y: ["a", "b"] } });
+    const xs = all(".fft-tick-x").map((label) => Number(label.getAttribute("x")));
+    const steps = xs.map((x, k) => (k ? Math.round(x - (xs[k - 1] ?? 0)) : null)).slice(1, -1);
+    expect([xs.length > 2, new Set(steps).size]).toEqual([true, 1]);
   });
 
   test("validation: a horizon needs two or more periods", () => {

@@ -13,7 +13,7 @@ import type { FormatSpec } from "../../core/types.ts";
 import type { TooltipItem, ViewContext, ViewRenderer } from "../../core/view-context.ts";
 import { isForecast } from "../../core/views.ts";
 import type { AreaView, BarView, LineView } from "../../core/views.ts";
-import { bandPath, bands, barPath, curveArea, curveLine, fitLabels, layoutBars, layoutStacked, LINE_HEIGHT, linearScale, linePath, smoothBands, spread, wrapLabels } from "../layout.ts";
+import { bandPath, bands, barPath, curveArea, curveLine, evenLabels, layoutBars, layoutStacked, LINE_HEIGHT, linearScale, linePath, smoothBands, spread, wrapLabels } from "../layout.ts";
 import type { LabelBox } from "../layout.ts";
 import { buildTable, categoryLabel, fieldList, html, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
@@ -242,17 +242,12 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
     label.textContent = tickText(tick);
     axis.append(label);
   }
-  // Category labels, wrapped as above, or else thinned to every nth, then any that would still come within 8px of the
-  // last one drawn are skipped.
-  const every = wrapped ? 1 : Math.max(1, Math.ceil((rows.length * widest) / plot.w));
+  // Category labels, wrapped as above, or else thinned to an even rhythm that always names the last one.
   // Edge-to-edge series align their first and last labels inward, so they never spill out of the chart.
   const anchorOf = (i: number) => (kind === "bar" || rows.length < 2 ? "middle" : i === 0 ? "start" : i === rows.length - 1 ? "end" : "middle");
-  // A thinned axis still names its last category or period, giving up the label before it if the two would touch.
-  const last = rows.length - 1;
-  const candidates = slots.map((_, i) => i).filter((i) => i % every === 0 || i === last);
-  const boxes: LabelBox[] = candidates.map((i) => ({ x: slots[i]?.center ?? 0, width: (xLabels[i] ?? "").length * CHAR_WIDTH, anchor: anchorOf(i) }));
-  for (const k of wrapped ? candidates.map((_, k) => k) : fitLabels(boxes, { keepLast: true })) {
-    const i = candidates[k] as number;
+  const box = (i: number): LabelBox => ({ x: slots[i]?.center ?? 0, width: (xLabels[i] ?? "").length * CHAR_WIDTH, anchor: anchorOf(i) });
+  const shown = wrapped ? slots.map((_, i) => i) : evenLabels(rows.length, Math.ceil((rows.length * widest) / plot.w), box);
+  for (const i of shown) {
     axis.append(categoryLabel(doc, { class: "fft-tick fft-tick-x", x: slots[i]?.center ?? 0, y: plot.y + plot.h + 18, "text-anchor": anchorOf(i) }, xLabels[i] ?? "", wrapped?.[i], LINE_HEIGHT));
   }
   chart.append(axis);

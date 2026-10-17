@@ -1,7 +1,7 @@
 import { readNumber } from "../../core/formats.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { HorizonView } from "../../core/views.ts";
-import { areaPath, fitLabels, spread } from "../layout.ts";
+import { areaPath, evenLabels, spread } from "../layout.ts";
 import type { LabelBox } from "../layout.ts";
 import { tickFormatter } from "./chart.ts";
 import { buildTable, fieldList, html, selectable, svg } from "./shared.ts";
@@ -124,11 +124,9 @@ export const renderHorizon: ViewRenderer<HorizonView> = (ctx) => {
   const xLabels = rows.map((row) => ctx.format(row[x], x));
   const anchorOf = (i: number) => (rows.length < 2 ? "middle" : i === 0 ? "start" : i === rows.length - 1 ? "end" : "middle");
   const widest = Math.max(...xLabels.map((text) => text.length)) * CHAR_WIDTH + 8;
-  const every = Math.max(1, Math.ceil((rows.length * widest) / plot.w));
-  const candidates = slots.map((_, i) => i).filter((i) => i % every === 0 || i === rows.length - 1);
-  const boxes: LabelBox[] = candidates.map((i) => ({ x: slots[i]?.center ?? 0, width: (xLabels[i] ?? "").length * CHAR_WIDTH, anchor: anchorOf(i) }));
-  for (const k of fitLabels(boxes, { keepLast: true })) {
-    const i = candidates[k] as number;
+  // An even rhythm: every gap the same but the closing one.
+  const box = (i: number): LabelBox => ({ x: slots[i]?.center ?? 0, width: (xLabels[i] ?? "").length * CHAR_WIDTH, anchor: anchorOf(i) });
+  for (const i of evenLabels(rows.length, Math.ceil((rows.length * widest) / plot.w), box)) {
     const text = svg(doc, "text", { class: "fft-tick fft-tick-x", x: slots[i]?.center ?? 0, y: rowsHeight + 18, "text-anchor": anchorOf(i) });
     text.textContent = xLabels[i] ?? "";
     chart.append(text);

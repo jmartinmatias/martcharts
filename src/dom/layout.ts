@@ -740,6 +740,19 @@ export interface LabelBox {
   anchor?: "start" | "middle" | "end";
 }
 
+/**
+ * Which of `count` evenly placed labels to draw: every nth from the first, always naming the last, with n widened
+ * from `step` until no label in the run is skipped, so every gap is the same but the closing one. Returns indices.
+ */
+export function evenLabels(count: number, step: number, box: (i: number) => LabelBox): number[] {
+  const last = count - 1;
+  for (let n = Math.max(1, step); ; n++) {
+    const candidates = Array.from({ length: count }, (_, i) => i).filter((i) => i % n === 0 || i === last);
+    const kept = fitLabels(candidates.map(box), { keepLast: true });
+    if (n >= count || candidates.slice(0, -2).every((_, k) => kept.includes(k))) return kept.map((k) => candidates[k] as number);
+  }
+}
+
 /** The height of one line of a wrapped category label, and the most lines a label may take. */
 export const LINE_HEIGHT = 13;
 const MAX_LINES = 3;
