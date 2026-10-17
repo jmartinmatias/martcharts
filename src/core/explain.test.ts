@@ -84,7 +84,7 @@ describe("explainChart", () => {
 
   test("still more charts point at their standout, from steps and boxes to gauges, stacks, streams and price days", () => {
     const at = (view: Record<string, unknown>, rows: Record<string, unknown>[]) => explainChart({ ...spec(view), locale: "en-US" }, rows);
-    expect(at({ type: "waterfall", label: "step", value: "v" }, [{ step: "Start", v: 100 }, { step: "New deals", v: 40 }, { step: "Churn", v: -55 }])).toContain("Here, the biggest step is Churn, at -55.");
+    expect(at({ type: "waterfall", label: "step", value: "v" }, [{ step: "Start", v: 100 }, { step: "New deals", v: 40 }, { step: "Churn", v: -55 }])).toContain("Here, it went from 100 (Start) to 85 (the end): New deals added the most, 40, and Churn took the most away, 55.");
     expect(at({ type: "boxplot", value: "v", group: "g" }, [1, 2, 3, 10, 11, 12].map((v, i) => ({ g: i < 3 ? "A" : "B", v })))).toContain("Here, B has the highest middle value, 11.");
     expect(at({ type: "variance", label: "region", value: "v", target: "budget" }, [{ region: "North", v: 105, budget: 100 }, { region: "South", v: 70, budget: 100 }])).toContain(
       "Here, 1 of 2 regions is over its budget, and South is furthest from it: 70 against 100.",
@@ -266,6 +266,19 @@ describe("explainChart", () => {
     const money = [{ region: "North", revenue: 278, cost: 190 }, { region: "East", revenue: 338, cost: 247 }, { region: "West", revenue: 205, cost: 210 }];
     expect(at({ type: "bar", x: "region", y: ["revenue", "cost"] }, money)).toContain("Here, revenue is higher than cost for 2 of 3 regions, and East has the biggest gap: 338 against 247.");
     expect(at({ type: "bar", x: "region", y: ["revenue", "cost", "profit"] }, money.map((r) => ({ ...r, profit: 1 })))).toContain("the tallest bar is East's revenue");
+  });
+
+  test("a bridge says where it started and landed, what added the most and what took the most away", () => {
+    const rows = [
+      { step: "Q2 revenue", amount: 1180000 },
+      { step: "New customers", amount: 142000 },
+      { step: "Upsell", amount: 58000 },
+      { step: "Churn", amount: -84000 },
+      { step: "Discounts", amount: -33000 },
+    ];
+    const at = (extra: Record<string, unknown>, data = rows) => explainChart({ ...spec({ type: "waterfall", label: "step", value: "amount", totals: ["Q2 revenue"], ...extra }), locale: "en-US" }, data);
+    expect(at({ endLabel: "Q3 revenue" })).toContain("Here, it went from 1,180,000 (Q2 revenue) to 1,263,000 (Q3 revenue): New customers added the most, 142,000, and Churn took the most away, 84,000.");
+    expect(at({ endLabel: "Q3 revenue" }, rows.slice(0, 3))).toContain("Here, it went from 1,180,000 (Q2 revenue) to 1,380,000 (Q3 revenue): New customers added the most, 142,000.");
   });
 
   test("no guide names a hue or a dark shade: presets recolor and dark themes flip, so marks are read by side, shape and fill", () => {

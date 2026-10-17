@@ -350,8 +350,20 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       // The steps between the totals: the first row and any named totals are where the bridge starts and lands.
       const totals = new Set(many(view.totals));
       const steps = rows.slice(1).filter((row) => !totals.has(String(row[label])) && value(row, amount) !== null);
-      const row = steps.reduce<Row | undefined>((best, r) => (best && Math.abs(value(best, amount) as number) >= Math.abs(value(r, amount) as number) ? best : r), undefined);
-      return row ? `Here, the biggest step is ${text(row, label)}, at ${text(row, amount)}.` : "";
+      // A bridge's story: where it started and landed, what added the most, and what took the most away.
+      const first = rows[0];
+      if (!first || value(first, amount) === null || !steps.length) return "";
+      const start = value(first, amount) as number;
+      const end = start + steps.reduce((sum, r) => sum + (value(r, amount) as number), 0);
+      const money = (n: number) => formatValue(n, spec.fields?.[amount]?.format, spec.locale);
+      const extreme = (sign: 1 | -1) => steps.filter((r) => sign * (value(r, amount) as number) > 0).reduce<Row | undefined>((best, r) => (best && sign * (value(best, amount) as number) >= sign * (value(r, amount) as number) ? best : r), undefined);
+      const [gain, loss] = [extreme(1), extreme(-1)];
+      const parts = [
+        gain ? `${text(gain, label)} added the most, ${money(value(gain, amount) as number)}` : "",
+        loss ? `${text(loss, label)} took the most away, ${money(Math.abs(value(loss, amount) as number))}` : "",
+      ].filter(Boolean);
+      const landing = typeof view.endLabel === "string" && view.endLabel ? view.endLabel : "the end";
+      return `Here, it went from ${money(start)} (${text(first, label)}) to ${money(end)} (${landing}): ${parts.join(", and ")}.`;
     }
     case "ridgeline":
     case "boxplot": {
