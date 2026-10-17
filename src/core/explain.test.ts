@@ -64,7 +64,7 @@ describe("explainChart", () => {
     expect(at({ type: "slope", label: "region", from: "q2", to: "q3" }, [{ region: "North", q2: 10, q3: 12 }, { region: "East", q2: 10, q3: 25 }])).toContain("Here, every region went up, and East moved the most, from 10 to 25.");
     expect(at({ type: "likert", label: "q", responses: ["no", "meh", "yes"] }, [{ q: "Pay", no: 6, meh: 2, yes: 2 }, { q: "Team", no: 1, meh: 2, yes: 7 }])).toContain("Here, the most agreed question is “Team”: 70% agree, and the least agreed is “Pay”: 20% agree.");
     expect(at({ type: "likert", label: "q", responses: ["no", "meh", "yes"] }, [{ q: "Team", no: 1, meh: 2, yes: 7 }])).toContain("Here, the most agreed question is “Team”: 70% agree.");
-    expect(at({ type: "meter", value: "v", target: "t", label: "name" }, [{ name: "A", v: 12, t: 10 }, { name: "B", v: 5, t: 10 }])).toContain("Here, 1 of 2 has reached its goal.");
+    expect(at({ type: "meter", value: "v", target: "t", label: "name" }, [{ name: "A", v: 12, t: 10 }, { name: "B", v: 5, t: 10 }])).toContain("Here, 1 of 2 has reached its goal: A.");
     expect(at({ type: "icicle", levels: ["region", "product"], value: "v" }, [{ region: "East", product: "x", v: 6 }, { region: "West", product: "x", v: 4 }])).toContain("Here, East is the biggest region, with 60% of the total; inside it, x brings the most, 100% of East.");
     expect(at({ type: "histogram", value: "size" }, [1, 2, 2, 3, 3, 3, 8].map((size) => ({ size })))).toMatch(/Here, the most common range is .+, which happened \d+ times\./);
   });
@@ -121,7 +121,7 @@ describe("explainChart", () => {
     expect(at({ type: "beeswarm", value: "v", label: "deal" }, [{ deal: "Acme", v: 9 }, { deal: "Bolt", v: 4 }])).toContain("Here, the dot furthest right is Acme, at 9.");
     expect(at({ type: "beeswarm", value: "size", label: "deal" }, [])).toContain("Each dot is one deal, placed by its size.");
     expect(at({ type: "rings", label: "p", value: "v", target: "t" }, [{ p: "Core", v: 9, t: 10 }, { p: "Plus", v: 5, t: 10 }])).toContain("Here, Core is closest to its goal, at 90%.");
-    expect(at({ type: "bullet", label: "kpi", value: "v", target: "t" }, [{ kpi: "Leads", v: 12, t: 10 }, { kpi: "Calls", v: 8, t: 10 }, { kpi: "Deals", v: 11, t: 10 }])).toContain("Here, 2 of 3 have passed their goal.");
+    expect(at({ type: "bullet", label: "kpi", value: "v", target: "t" }, [{ kpi: "Leads", v: 12, t: 10 }, { kpi: "Calls", v: 8, t: 10 }, { kpi: "Deals", v: 11, t: 10 }])).toContain("Here, 2 of 3 have passed their goal: Leads and Deals.");
     expect(at({ type: "timeline", label: "task", start: "s", end: "e", progress: "p" }, [{ task: "Build", s: "2026-08-01", e: "2026-10-01", p: 0.5 }, { task: "Launch", s: "2026-11-01", e: "2026-11-02", p: 0 }])).toContain("Here, no task is done yet and 1 is under way; the longest, Build, is 50% done.");
     expect(at({ type: "kpi", value: "v" }, [{ v: 10 }, { v: 12 }])).toContain("Here, it is 12, up from 10.");
     expect(at({ type: "list", label: "name", value: "v" }, [{ name: "Aurora", v: 9 }, { name: "Bell", v: 7 }])).toContain("Here, Aurora is at the top, with 9.");
@@ -440,6 +440,12 @@ describe("explainChart", () => {
     expect(at(rows)).toContain("Here, every number moved the right way since last time: revenue, gross profit and new customers went up, and churn went down. Revenue is past its target of 1,200.");
     const mixed = [rows[0], { ...rows[1], profit: 380, churn: 3.9 }] as Record<string, unknown>[];
     expect(at(mixed)).toContain("Here, 2 of 4 numbers moved the right way since last time; gross profit and churn did not. Revenue is past its target of 1,200.");
+  });
+
+  test("goal charts name who reached the goal, or say all or none", () => {
+    const at = (rows: Record<string, unknown>[]) => explainChart({ ...spec({ type: "meter", value: "v", target: "t", label: "region" }), locale: "en-US" }, rows);
+    expect(at([{ region: "North", v: 12, t: 10 }, { region: "East", v: 11, t: 10 }])).toContain("Here, all 2 have reached their goal.");
+    expect(at([{ region: "North", v: 2, t: 10 }, { region: "East", v: 1, t: 10 }])).toContain("Here, none of the 2 has reached its goal yet.");
   });
 
   test("no guide names a hue or a dark shade: presets recolor and dark themes flip, so marks are read by side, shape and fill", () => {

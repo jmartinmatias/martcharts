@@ -56,6 +56,15 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
     const step = timeStep(x);
     return step === "day" ? `on ${text(row, x)}` : step === "week" ? `in the week of ${text(row, x)}` : `in ${text(row, x)}`;
   };
+  // Goal charts: how many reached the goal, by name when there are few, or all, or none yet.
+  const goalLine = (total: number, met: Row[], label: string | undefined, verb: "reached" | "passed"): string => {
+    if (!total) return "";
+    if (met.length === total) return `Here, all ${total} have ${verb} their goal.`;
+    if (met.length === 0) return `Here, none of the ${total} has ${verb} its goal yet.`;
+    const names = label ? met.map((r) => text(r, label)) : [];
+    const listed = names.length && names.length <= 5 ? `: ${names.length > 1 ? `${names.slice(0, -1).join(", ")} and ${names.at(-1)}` : names[0]}` : "";
+    return `Here, ${met.length} of ${total} ${met.length === 1 ? `has ${verb} its goal` : `have ${verb} their goal`}${listed}.`;
+  };
   // A pipeline (stages whose numbers only shrink): how many made it from the first stage to the last.
   const pipeline = (label: string, amount: string): string => {
     if (!/^(stage|step|phase)s?$/i.test(label) || rows.length < 3) return "";
@@ -348,8 +357,8 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const [amount, target] = [one(view.value), one(view.target)];
       if (!amount || !target) return "";
       const measured = rows.filter((row) => value(row, amount) !== null && (value(row, target) ?? 0) > 0);
-      const reached = measured.filter((row) => (value(row, amount) as number) >= (value(row, target) as number)).length;
-      return measured.length ? `Here, ${reached} of ${measured.length} ${reached === 1 ? "has reached its goal" : "have reached their goal"}.` : "";
+      const reached = measured.filter((row) => (value(row, amount) as number) >= (value(row, target) as number));
+      return goalLine(measured.length, reached, one(view.label), "reached");
     }
     case "sunburst":
     case "icicle": {
@@ -599,8 +608,8 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const [amount, target] = [one(view.value), one(view.target)];
       if (!amount || !target) return "";
       const measured = rows.filter((row) => value(row, amount) !== null && value(row, target) !== null);
-      const passed = measured.filter((row) => (value(row, amount) as number) >= (value(row, target) as number)).length;
-      return measured.length ? `Here, ${passed} of ${measured.length} ${passed === 1 ? "has passed its goal" : "have passed their goal"}.` : "";
+      const passed = measured.filter((row) => (value(row, amount) as number) >= (value(row, target) as number));
+      return goalLine(measured.length, passed, one(view.label), "passed");
     }
     case "timeline": {
       const [label, start, end] = [one(view.label), one(view.start), one(view.end)];
