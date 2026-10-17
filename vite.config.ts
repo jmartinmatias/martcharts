@@ -9,11 +9,12 @@ export default defineConfig({
     allowedHosts: [".ts.net"],
   },
   build: {
-    // Two pages: the gallery and the Taller, elBulli's creative workshop for charts.
+    // Three pages: the gallery, the Taller (elBulli's creative workshop for charts) and the selected variations.
     rollupOptions: {
       input: {
         main: fileURLToPath(new URL("./index.html", import.meta.url)),
         taller: fileURLToPath(new URL("./taller.html", import.meta.url)),
+        selected: fileURLToPath(new URL("./selected.html", import.meta.url)),
       },
     },
   },

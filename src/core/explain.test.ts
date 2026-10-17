@@ -100,6 +100,7 @@ describe("explainChart", () => {
     expect(at({ type: "chord", source: "from", target: "to", value: "n" }, [{ from: "Starter", to: "Growth", n: 120 }, { from: "Pro", to: "Growth", n: 18 }])).toContain("Here, the thickest band joins Starter and Growth, with 120.");
     expect(at({ type: "radar", label: "attribute", y: ["us", "market"] }, [{ attribute: "Speed", us: 8, market: 6 }, { attribute: "Price", us: 6, market: 7 }])).toContain("Here, the highest score is Speed, at 8.");
     expect(at({ type: "beeswarm", value: "v", label: "deal" }, [{ deal: "Acme", v: 9 }, { deal: "Bolt", v: 4 }])).toContain("Here, the dot furthest right is Acme, at 9.");
+    expect(at({ type: "beeswarm", value: "size", label: "deal" }, [])).toContain("Each dot is one deal, placed by its size.");
     expect(at({ type: "rings", label: "p", value: "v", target: "t" }, [{ p: "Core", v: 9, t: 10 }, { p: "Plus", v: 5, t: 10 }])).toContain("Here, Core is closest to its goal, at 90%.");
     expect(at({ type: "bullet", label: "kpi", value: "v", target: "t" }, [{ kpi: "Leads", v: 12, t: 10 }, { kpi: "Calls", v: 8, t: 10 }, { kpi: "Deals", v: 11, t: 10 }])).toContain("Here, 2 of 3 have passed their goal.");
     expect(at({ type: "timeline", label: "task", start: "s", end: "e", progress: "p" }, [{ task: "Build", s: "2026-08-01", e: "2026-10-01", p: 0.5 }, { task: "Launch", s: "2026-11-01", e: "2026-11-02", p: 0 }])).toContain("Here, the longest task is Build.");

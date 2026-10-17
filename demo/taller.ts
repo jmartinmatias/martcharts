@@ -3,7 +3,7 @@
  * kitchen with temperature, texture and methods, and cook a menu of live variants, each with its menu line,
  * lineage, five tastes and balance note.
  */
-import { balanceOf, createVariants, createWidget, DICTIONARY, METHODS, plainTags, runPipeline, saucesOf, TASTE_MEANINGS, tasteOf } from "../src/index.ts";
+import { balanceOf, createVariants, createWidget, DICTIONARY, explainChart, METHODS, plainTags, runPipeline, saucesOf, TASTE_MEANINGS, tasteOf } from "../src/index.ts";
 import type { Method, Row, Taste, Tastes, Variant, Widget, WidgetSpec } from "../src/index.ts";
 
 const stored = import.meta.glob<WidgetSpec>("../widgets/*.json", { eager: true, import: "default" });
@@ -128,7 +128,11 @@ function plate(variant: Variant): HTMLElement {
   card.append(heading, scores, tags, chart, explain, tastes, balance, actions);
   // Mount after the card is in the page, so the charts measure their real width.
   queueMicrotask(() => {
-    mount(chart, variant.spec, ["expand", "csv"]);
+    const widget = mount(chart, variant.spec, ["expand", "csv"]);
+    // Once the chart has its rows, the plain guide adds one concrete example from them.
+    void widget.ready.then(() => {
+      explain.textContent = explainChart(variant.spec, widget.rows);
+    });
     mount(tastes, tasteSpec(variant.tastes));
   });
   return card;

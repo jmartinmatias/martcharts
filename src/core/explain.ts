@@ -458,7 +458,7 @@ function guide(spec: WidgetSpec): string {
       return `Each dot is one ${name(one(view.label), "item")}. Further right means more ${name(one(view.x))}; higher means more ${name(one(view.y))}.${sized}`;
     }
     case "beeswarm":
-      return `Each dot is one row, placed by its ${name(one(view.value))}. Dots pile up where many values are close together.`;
+      return `Each dot is one ${name(one(view.label), "row")}, placed by its ${name(one(view.value))}. Dots pile up where many values are close together.`;
     case "ridgeline":
       return `Each hill shows how ${name(one(view.value))} spreads in one group. Where the hill is tallest is where most values are; a hill further right has bigger values.`;
     case "sankey":
