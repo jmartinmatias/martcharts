@@ -104,7 +104,7 @@ function plate(variant: Variant): HTMLElement {
     if (i === 0) li.dataset.kind = "method";
     tags.append(li);
   });
-  // A dark glass card is see-through, so it sits on a dark backdrop, as the gallery does.
+  // A glass card is see-through, so it sits on a tinted backdrop that follows the theme, as the gallery does.
   const chart = el("div", "plate-chart");
   chart.dataset.plate = variant.lineage.plating;
   const explain = el("p", "taller-explain", variant.explain);

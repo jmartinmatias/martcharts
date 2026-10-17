@@ -944,7 +944,7 @@ const TECHNIQUE_WORDS: Record<string, string> = {
 };
 const TEMPERATURE_PLAIN: Record<Temperature, string> = { hot: "warm colors", cold: "cool colors", contrast: "one standout color", room: "standard colors" };
 const TEXTURE_PLAIN: Record<Texture, string> = { soft: "soft curves", crunchy: "sharp marks" };
-const PLATE_PLAIN: Record<Plate, string> = { white: "light card", empty: "borderless card", cold: "dark glass card", house: "standard card" };
+const PLATE_PLAIN: Record<Plate, string> = { white: "paper card", empty: "open layout, no card", cold: "glass card", house: "standard card" };
 
 /** A variant's lineage in chart words, for a result card: the marks, the colors, the card. */
 export function plainTags(variant: Pick<Variant, "lineage" | "spec">): string[] {

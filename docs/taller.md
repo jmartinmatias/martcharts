@@ -14,7 +14,7 @@ The kitchen words belong to the creating side only: the methods, the temperature
 | --- | --- |
 | Salty, acid, bitter, fatty, umami | Emphasis, surprise, honesty, detail, insight (`TASTE_MEANINGS`) |
 | The menu line ("Spherified revenue by region: lollipops, hot on cold, crunchy, on the house plate") | A plain title ("Revenue by region as lollipops: each dot is one region") and how to read it ("A dot further right means more revenue.") |
-| Spherification, tweezers, hot, crunchy, white plate | Dots, shows one standout, warm colors, sharp marks, light card (`plainTags`) |
+| Spherification, tweezers, hot, crunchy, white plate | Dots, shows one standout, warm colors, sharp marks, paper card (`plainTags`) |
 
 ## The equivalents
 

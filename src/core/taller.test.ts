@@ -313,3 +313,13 @@ describe("honest forms", () => {
     expect(swarms.every((v) => v.spec.view?.label === "account" && v.title.includes("each dot is one account"))).toBe(true);
   });
 });
+
+describe("plain tags", () => {
+  test("a card tag names the look, true in light and dark themes alike", () => {
+    const tagsFor = (plating: "white" | "empty" | "cold" | "house") => plainTags({ lineage: { method: "minimalism", technique: "reduction", tools: [], temperature: "room", texture: "soft", plating }, spec: byRegion });
+    const cards = (["white", "empty", "cold", "house"] as const).map((p) => tagsFor(p).find((t) => /card|layout/.test(t)));
+    expect(cards).toEqual(["paper card", "open layout, no card", "glass card", "standard card"]);
+    expect(cards.some((t) => /light|dark/.test(t ?? ""))).toBe(false);
+  });
+});
+

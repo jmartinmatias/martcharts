@@ -92,13 +92,27 @@
       .plate-actions { display: flex; flex-wrap: wrap; gap: 8px; }
       .plate-actions :is(a, button) { font: inherit; font-size: 13px; color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 5px 13px; text-decoration: none; cursor: pointer; min-height: 32px; display: inline-flex; align-items: center; }
       .plate-actions [data-done]::after { content: " (copied)"; color: var(--ink-2); }
-      /* A cold plate (the glass preset) is frosted glass: it needs its dark slate behind it, on a light page too. */
+      /* A glass card is frosted, so it sits on a tinted backdrop: light frost on a light page, smoked slate on a dark one, as the gallery does. */
       .plate-chart[data-plate="cold"] {
         padding: 13px; border-radius: 21px;
+        background:
+          radial-gradient(60% 50% at 15% 10%, rgba(160, 205, 165, 0.55), transparent 70%),
+          radial-gradient(50% 45% at 90% 20%, rgba(140, 195, 205, 0.5), transparent 70%),
+          linear-gradient(160deg, #f4f8f6 0%, #e7efec 60%, #dfe8e5 100%);
+      }
+      :root[data-theme="dark"] .plate-chart[data-plate="cold"] {
         background:
           radial-gradient(60% 50% at 15% 10%, rgba(118, 160, 120, 0.5), transparent 70%),
           radial-gradient(50% 45% at 90% 20%, rgba(70, 120, 125, 0.5), transparent 70%),
           linear-gradient(160deg, #1d2b27 0%, #121a19 60%, #0e1414 100%);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) .plate-chart[data-plate="cold"] {
+          background:
+            radial-gradient(60% 50% at 15% 10%, rgba(118, 160, 120, 0.5), transparent 70%),
+            radial-gradient(50% 45% at 90% 20%, rgba(70, 120, 125, 0.5), transparent 70%),
+            linear-gradient(160deg, #1d2b27 0%, #121a19 60%, #0e1414 100%);
+        }
       }
       /* The taste bars sit inside a plate: the library's list, without a second card around it. */
       .tastes .fft-widget { border: 0; box-shadow: none; padding: 0; background: transparent; }
