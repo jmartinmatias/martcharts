@@ -143,6 +143,18 @@ describe("explainChart", () => {
     expect(texts[0]).toContain("The stronger the color, the more orders; the key under the chart shows the scale. Here, the top day is Sep 15, 2026, with 225.");
   });
 
+  test("bars with a target line say what the line is and how many periods beat it", () => {
+    const view = { type: "bar", x: "month", y: "revenue", lines: "target" };
+    const rows = [
+      { month: "Jul", revenue: 10, target: 9 },
+      { month: "Aug", revenue: 8, target: 9 },
+      { month: "Sep", revenue: 12, target: 11 },
+    ];
+    expect(explainChart({ ...spec(view), locale: "en-US" }, rows)).toBe(
+      "Each bar is one month. The taller the bar, the more revenue. The line is the target: a bar that reaches past it beat the target. Here, revenue beat the target in 2 of 3 months.",
+    );
+  });
+
   test("no guide names a hue or a dark shade: presets recolor and dark themes flip, so marks are read by side, shape and fill", () => {
     const guide = (view: Record<string, unknown>) => explainChart({ ...spec(view), locale: "en-US" });
     expect(guide({ type: "variance", label: "department", value: "actual", target: "budget", goodWhen: "down" })).toBe(

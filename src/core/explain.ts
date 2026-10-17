@@ -70,6 +70,14 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
         for (const row of rows) for (const field of series) if (value(row, field) !== null && (!best || (value(row, field) as number) > (value(best.row, best.field) as number))) best = { row, field };
         return best ? `Here, the tallest bar is ${text(best.row, x)}'s ${nameOf(best.field, spec)}, with ${text(best.row, best.field)}.` : "";
       }
+      // A target line: the question is how often the bars beat it, not which bar is tallest.
+      const goal = one(view.lines);
+      if (single && goal) {
+        const paired = rows.filter((row) => value(row, single) !== null && value(row, goal) !== null);
+        const beat = paired.filter((row) => (value(row, single) as number) >= (value(row, goal) as number)).length;
+        const each = nameOf(x, spec);
+        if (paired.length) return `Here, ${nameOf(single, spec)} beat the ${nameOf(goal, spec)} in ${beat} of ${paired.length} ${/s$/.test(each) ? each : `${each}s`}.`;
+      }
       const row = single ? top(single) : undefined;
       return row && single ? `Here, ${text(row, x)} ${view.mark === "lollipop" ? "has the highest dot" : "is the tallest"}, with ${text(row, single)}.` : "";
     }
@@ -429,7 +437,9 @@ function guide(spec: WidgetSpec): string {
       const more = lollipop ? "The higher the dot" : "The taller the bar";
       if (series.length > 1 && view.stacked) return `Each bar is one ${name(one(view.x))}, split into colored parts for ${both(series.map((f) => name(f)))}. ${view.stacked === "percent" ? "Every bar adds up to 100%, so compare the sizes of the parts." : "The parts add up to the total, so the whole bar is the total."}`;
       if (series.length > 1) return `Each group of bars is one ${name(one(view.x))}, with one color each for ${both(series.map((f) => name(f)))}. The taller the bar, the more.`;
-      return `Each ${mark} is one ${name(one(view.x))}. ${more}, the more ${name(series[0])}.`;
+      const goal = one(view.lines);
+      const line = goal ? ` The line is the ${name(goal)}: a ${mark} that reaches past it beat the ${name(goal)}.` : "";
+      return `Each ${mark} is one ${name(one(view.x))}. ${more}, the more ${name(series[0])}.${line}`;
     }
     case "hbar":
       return view.mark === "lollipop"
