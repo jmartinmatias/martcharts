@@ -312,7 +312,17 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const row = top(amount);
       if (!row || total <= 0) return "";
       const share = percent((value(row, amount) as number) / total);
-      return view.type === "waffle" ? `Here, ${text(row, label)} fills the most squares: ${share}.` : `Here, ${text(row, label)} alone is ${share} of the total.`;
+      if (view.type === "waffle") return `Here, ${text(row, label)} fills the most squares: ${share}.`;
+      // A Pareto's question is how few make up most of the total: the fewest causes that reach the threshold line, by name.
+      const threshold = typeof view.threshold === "number" ? view.threshold : 0.8;
+      const sorted = rows.filter((r) => (value(r, amount) ?? 0) > 0).sort((a, b) => (value(b, amount) as number) - (value(a, amount) as number));
+      let [kept, running] = [0, 0];
+      while (kept < sorted.length && running / total < threshold) running += value(sorted[kept++] as Row, amount) as number;
+      const what = nameOf(amount, spec);
+      if (kept <= 1) return `Here, ${text(row, label)} alone makes up ${share} of the ${what}.`;
+      const names = sorted.slice(0, kept).map((r) => text(r, label));
+      const named = kept <= 5 ? `: ${names.slice(0, -1).join(", ")} and ${names.at(-1)}` : `, led by ${names[0]}`;
+      return `Here, ${kept} of ${sorted.length} ${plural(nameOf(label, spec))} make up ${percent(running / total)} of the ${what}${named}.`;
     }
     case "waterfall": {
       const [label, amount] = [one(view.label), one(view.value)];

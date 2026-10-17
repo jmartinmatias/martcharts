@@ -239,6 +239,26 @@ describe("explainChart", () => {
     expect(at(falling)).toContain("Here, when days to close go up, deal value clearly goes down.");
   });
 
+  test("a Pareto says how few causes make up most of the total, and names them", () => {
+    const rows = [
+      { cause: "Billing questions", tickets: 286 },
+      { cause: "Login problems", tickets: 412 },
+      { cause: "Slow pages", tickets: 198 },
+      { cause: "Integrations", tickets: 121 },
+      { cause: "Exports", tickets: 77 },
+      { cause: "Notifications", tickets: 52 },
+      { cause: "Permissions", tickets: 38 },
+      { cause: "Other", tickets: 26 },
+    ];
+    const at = (view: Record<string, unknown>) => explainChart({ ...spec(view), locale: "en-US" }, rows);
+    expect(at({ type: "pareto", label: "cause", value: "tickets" })).toContain(
+      "Here, 4 of 8 causes make up 84% of the tickets: Login problems, Billing questions, Slow pages and Integrations.",
+    );
+    expect(at({ type: "pareto", label: "cause", value: "tickets", threshold: 0.5 })).toContain("Here, 2 of 8 causes make up 58% of the tickets: Login problems and Billing questions.");
+    const lopsided = [{ cause: "Login", tickets: 900 }, { cause: "Other", tickets: 100 }, { cause: "Rest", tickets: 50 }];
+    expect(explainChart({ ...spec({ type: "pareto", label: "cause", value: "tickets" }), locale: "en-US" }, lopsided)).toContain("Here, Login alone makes up 86% of the tickets.");
+  });
+
   test("no guide names a hue or a dark shade: presets recolor and dark themes flip, so marks are read by side, shape and fill", () => {
     const guide = (view: Record<string, unknown>) => explainChart({ ...spec(view), locale: "en-US" });
     expect(guide({ type: "variance", label: "department", value: "actual", target: "budget", goodWhen: "down" })).toBe(
