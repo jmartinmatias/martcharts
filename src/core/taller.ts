@@ -164,6 +164,8 @@ export interface Dish {
   crossed: boolean;
   /** The view type the dish arrived in. */
   view: string;
+  /** The dish already stacks its measures as parts of one whole, so they add up. */
+  stacked: boolean;
   /** Forecast and band options worth carrying into line and area dishes. */
   fan: Record<string, unknown>;
 }
@@ -229,6 +231,7 @@ export function profileDish(spec: WidgetSpec, rows: Row[]): Dish {
     negatives: rows.some((row) => measures.some((f) => typeof row[f] === "number" && (row[f] as number) < 0)),
     daily: times[0] !== undefined && rows.every((row) => typeof row[times[0] as string] !== "string" || DAY.test(String(row[times[0] as string]))),
     crossed: grid > 0 && pairs / grid >= 0.5,
+    stacked: Boolean((spec.view as { stacked?: unknown } | undefined)?.stacked),
     view: String(view.type ?? "table"),
     fan,
   };
@@ -440,8 +443,9 @@ const RECIPES: Recipe[] = [
     tools: ["squeeze bottle"],
     fits: (d) => perCategory(d, 2, 16) && periodPair(d),
     cook: (d) => {
-      // From the earlier period to the later one, whatever order the dish lists them in.
-      const [from, to] = [m1(d), m2(d)].sort();
+      // From the earliest period to the latest, whatever order the dish lists them in: April to September, not April to May.
+      const periods = d.measures.filter((m) => PERIOD_WORD.test(m)).sort();
+      const [from, to] = periods.length > 1 ? [periods[0], periods.at(-1)] : [m1(d), m2(d)].sort();
       return { view: { type: "slope", label: c1(d), from: from as string, to: to as string } };
     },
   },
@@ -583,7 +587,9 @@ const RECIPES: Recipe[] = [
     texture: "soft",
     tools: ["spoon"],
     fits: (d) => (perPeriod(d, 6) || perCategory(d, 6, 24)) && d.rows <= 24 && positive(d),
-    cook: (d) => ({ view: { type: "rose", label: d.times[0] ?? c1(d), y: d.measures.slice(0, 3) } }),
+    // Wedges stack only numbers that add up: the parts the dish already stacked. Otherwise one measure, never
+    // revenue on top of a customer count or a profit on top of the revenue it comes from.
+    cook: (d) => ({ view: { type: "rose", label: d.times[0] ?? c1(d), y: d.stacked ? d.measures.slice(0, 4) : m1(d) } }),
   },
   {
     id: "histogram",
@@ -605,7 +611,9 @@ const RECIPES: Recipe[] = [
     fits: (d) => d.measures.length > 0 && d.rows >= 8 && d.rows <= 400,
     cook: (d) => {
       const group = d.categories.find((c) => (d.distinct[c] ?? 0) >= 2 && (d.distinct[c] ?? 0) <= 6);
-      return { view: { type: "beeswarm", value: m1(d), ...(group ? { group } : {}) } };
+      // The field that names each row (an account, a deal), so every dot says what it is.
+      const label = d.categories.find((c) => d.distinct[c] === d.rows);
+      return { view: { type: "beeswarm", value: m1(d), ...(group ? { group } : {}), ...(label ? { label } : {}) } };
     },
   },
   {

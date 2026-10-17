@@ -275,3 +275,41 @@ describe("every widget in the kitchen", () => {
     expect(cooked / (widgets.length * 2)).toBeGreaterThan(0.8);
   });
 });
+
+describe("honest forms", () => {
+  /** Every variant the kitchen can make from a spec, across many seeds and every temperature and texture. */
+  const everything = (spec: WidgetSpec, rows: Row[]) => {
+    const out: Variant[] = [];
+    for (let seed = 1; seed <= 12; seed++) for (const temperature of [-1, 0, 1]) for (const texture of [-1, 0, 1]) out.push(...createVariants(spec, rows, { count: 8, seed, temperature, texture }));
+    return out;
+  };
+  const months = ["2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06", "2026-07", "2026-08", "2026-09", "2026-10", "2026-11", "2026-12"];
+
+  test("a dial stacks numbers only when the original stacked them as parts of one whole", () => {
+    const mixed = months.map((month, i) => ({ month, revenue: 800 + i * 40, cost: 600 + i * 20, newCustomers: 30 + i }));
+    const line: WidgetSpec = { title: "Revenue and cost", data: { type: "inline", rows: mixed }, view: { type: "line", x: "month", y: ["revenue", "cost"] } };
+    const dials = everything(line, mixed).filter((v) => v.spec.view?.type === "rose");
+    expect(dials.length).toBeGreaterThan(0);
+    expect(dials.every((v) => [v.spec.view?.y].flat().length === 1)).toBe(true);
+    const parts = months.map((month, i) => ({ month, core: 500 + i * 10, plus: 300 + i * 5 }));
+    const stacked: WidgetSpec = { title: "Revenue mix", data: { type: "inline", rows: parts }, view: { type: "area", x: "month", y: ["core", "plus"], stacked: true } };
+    const stackedDials = everything(stacked, parts).filter((v) => v.spec.view?.type === "rose");
+    expect(stackedDials.some((v) => [v.spec.view?.y].flat().length === 2)).toBe(true);
+  });
+
+  test("a slope compares the earliest period with the latest, not the first two columns", () => {
+    const wide = ["North", "South", "East", "West"].map((region, r) => Object.fromEntries([["region", region], ...months.slice(3, 9).map((m, i) => [m, 40 + r * 5 + i * (r + 1)])]));
+    const table: WidgetSpec = { title: "Revenue by region and month", data: { type: "inline", rows: wide }, view: { type: "table" } };
+    const slopes = everything(table, wide).filter((v) => v.spec.view?.type === "slope");
+    expect(slopes.length).toBeGreaterThan(0);
+    expect(slopes.every((v) => v.spec.view?.from === "2026-04" && v.spec.view?.to === "2026-09")).toBe(true);
+  });
+
+  test("a dot swarm says what each dot is", () => {
+    const accounts = Array.from({ length: 12 }, (_, i) => ({ account: `Account ${i}`, segment: ["A", "B", "C"][i % 3], growth: (i % 7) / 10 - 0.1 }));
+    const scatter: WidgetSpec = { title: "Accounts", data: { type: "inline", rows: accounts }, view: { type: "table" } };
+    const swarms = everything(scatter, accounts).filter((v) => v.spec.view?.type === "beeswarm");
+    expect(swarms.length).toBeGreaterThan(0);
+    expect(swarms.every((v) => v.spec.view?.label === "account" && v.title.includes("each dot is one account"))).toBe(true);
+  });
+});
