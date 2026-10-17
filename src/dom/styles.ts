@@ -562,12 +562,12 @@ export const BASE_CSS = `
 .fft-var-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-var-hit:hover, .fft-var-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 6%, transparent); }
 .fft-gauge { display: flex; flex-direction: column; align-items: center; }
-.fft-gauge svg { display: block; overflow: visible; }
+.fft-gauge > svg { display: block; overflow: visible; }
 .fft-gauge-track { fill: none; stroke: var(--fft-gauge-color); stroke-opacity: 0.16; stroke-linecap: round; }
 .fft-gauge-arc { fill: none; stroke: var(--fft-gauge-color); stroke-linecap: round; pointer-events: none; }
 .fft-gauge-target { stroke: var(--fft-text); stroke-width: 2.5; stroke-linecap: round; pointer-events: none; }
 .fft-gauge-value { fill: var(--fft-text); font-size: 34px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; pointer-events: none; }
-.fft-gauge svg[width="377"] .fft-gauge-value { font-size: 55px; }
+.fft-gauge > svg[width="377"] .fft-gauge-value { font-size: 55px; }
 .fft-gauge-caption { fill: var(--fft-text-secondary); font-size: 11px; pointer-events: none; }
 .fft-gauge-scale { fill: var(--fft-muted); font-size: 11px; font-variant-numeric: tabular-nums; pointer-events: none; }
 .fft-gauge-hit { fill: none; stroke: transparent; stroke-linecap: round; cursor: pointer; outline: none; pointer-events: stroke; }
@@ -807,13 +807,17 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-ref { stroke: var(--fft-text-secondary); stroke-width: 1.5; stroke-dasharray: 5 3; pointer-events: none; }
 .fft-ref-band { fill: color-mix(in srgb, var(--fft-text) 5%, transparent); pointer-events: none; }
 .fft-ref-label { fill: var(--fft-text-secondary); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; }
-.fft-bullets { display: flex; flex-direction: column; gap: 13px; }
+/* Every row shares one set of columns (subgrid), so a check by one number never shortens that row's track: bars on one scale. */
+.fft-bullets { display: grid; grid-template-columns: minmax(55px, 30%) 1fr minmax(34px, auto); gap: 13px 8px; }
 .fft-bullet {
-  display: grid; grid-template-columns: minmax(55px, 30%) 1fr minmax(34px, auto); align-items: center; gap: 8px;
+  display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: center;
   border-radius: 5px; outline: none; cursor: pointer;
 }
+@supports not (grid-template-columns: subgrid) {
+  .fft-bullet { grid-template-columns: minmax(55px, 30%) 1fr 89px; column-gap: 8px; }
+}
 .fft-bullet:focus-visible { box-shadow: 0 0 0 2px var(--fft-ring, var(--fft-surface)), 0 0 0 3px var(--fft-accent); }
-.fft-bullet svg { display: block; width: 100%; height: 21px; overflow: visible; }
+.fft-bullet > svg { display: block; width: 100%; height: 21px; overflow: visible; }
 .fft-bullet-band[data-band="1"] { fill: color-mix(in srgb, var(--fft-text) 18%, transparent); }
 .fft-bullet-band[data-band="2"] { fill: color-mix(in srgb, var(--fft-text) 11%, transparent); }
 .fft-bullet-band[data-band="3"] { fill: color-mix(in srgb, var(--fft-text) 5%, transparent); }
@@ -821,6 +825,8 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-bullet-target { stroke: var(--fft-text); stroke-width: 2; stroke-linecap: round; }
 .fft-bullet-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--fft-text-secondary); }
 .fft-bullet-number { display: inline-flex; align-items: center; justify-content: flex-end; gap: 3px; font-weight: 600; font-variant-numeric: tabular-nums; }
+/* Checks line up in one column at the start of the numbers, whatever each number's width. */
+.fft-bullet-number .fft-check { margin-right: auto; }
 .fft-tile { fill-opacity: 0.2; transition: opacity 377ms var(--fft-ease), fill-opacity 377ms var(--fft-ease); pointer-events: none; }
 .fft-tile[data-active] { fill-opacity: 0.32; }
 .fft-tile-edge { pointer-events: none; }

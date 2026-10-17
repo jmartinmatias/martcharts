@@ -542,6 +542,11 @@ describe("an even grid", () => {
     expect(rule(".fft-widget > .fft-base")).toContain("margin-top: auto");
   });
 
+  test("scorecard rows share one set of columns, so a check by one number never shortens that row's track", () => {
+    expect(rule(".fft-bullets")).toContain("display: grid");
+    expect(rule(".fft-bullet")).toContain("grid-template-columns: subgrid");
+  });
+
   test("in a row of tiles, every sparkline sits on the tile's floor, so a tile with an extra line keeps its trend level with the rest", () => {
     expect(rule(".fft-stat > .fft-sparkline")).toContain("margin-top: auto");
   });
