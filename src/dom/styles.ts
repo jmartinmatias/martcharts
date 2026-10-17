@@ -467,7 +467,10 @@ export const BASE_CSS = `
 .fft-meter-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .fft-meter-gap { font-size: 11px; line-height: 13px; color: var(--fft-text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .fft-meter[data-met] .fft-meter-gap { color: var(--fft-positive); font-weight: 600; }
-/* A met target's check mark, beside its percentage in meters and rings. */
+/* Where a gauge's number stands against its goal, centered under the arc. */
+.fft-gauge-standing { display: flex; align-items: center; justify-content: center; gap: 3px; margin: 0; font-size: 13px; line-height: 21px; color: var(--fft-text-secondary); font-variant-numeric: tabular-nums; }
+.fft-gauge-standing[data-met] { color: var(--fft-positive); font-weight: 600; }
+/* A met target's check mark, beside its percentage in meters and rings, and before Target met under a gauge. */
 .fft-check { flex: none; width: 13px; height: 13px; fill: none; stroke: var(--fft-positive); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
 .fft-donut { display: flex; flex-wrap: wrap; align-items: center; gap: 21px; }
@@ -553,7 +556,7 @@ export const BASE_CSS = `
 .fft-var-zero { stroke: var(--fft-text-secondary); stroke-width: 1.5; pointer-events: none; }
 .fft-var-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-var-hit:hover, .fft-var-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 6%, transparent); }
-.fft-gauge { display: flex; justify-content: center; }
+.fft-gauge { display: flex; flex-direction: column; align-items: center; }
 .fft-gauge svg { display: block; overflow: visible; }
 .fft-gauge-track { fill: none; stroke: var(--fft-gauge-color); stroke-opacity: 0.16; stroke-linecap: round; }
 .fft-gauge-arc { fill: none; stroke: var(--fft-gauge-color); stroke-linecap: round; pointer-events: none; }

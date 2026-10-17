@@ -1765,6 +1765,17 @@ describe("gauge view", () => {
     expect(texts(".fft-tooltip-row")).toEqual(["42Nps", "50Goal", "84%Of target"]);
   });
 
+  test("under the gauge it says where the number stands against its goal: how far to go, or a check and Target met", async () => {
+    await draw(spec);
+    const short = [texts(".fft-gauge-standing"), Boolean(target.querySelector(".fft-gauge-standing .fft-check"))];
+    await draw({ ...spec, rows: [{ nps: 55, goal: 50 }] });
+    const met = all(".fft-gauge-standing").at(-1);
+    expect([short, [[met?.textContent], Boolean(met?.querySelector(".fft-check"))]]).toEqual([
+      [["8 to go"], false],
+      [["Target met"], true],
+    ]);
+  });
+
   test("past the maximum the arc stops at the end, but the number stays true", async () => {
     await draw({ ...spec, rows: [{ nps: 130, goal: 50 }] });
     expect([target.querySelector("path.fft-gauge-arc")?.getAttribute("data-ratio"), texts(".fft-gauge-value")[0]]).toEqual(["1", "130"]);

@@ -5,6 +5,7 @@ import type { GaugeView } from "../../core/views.ts";
 import { countable } from "../count-up.ts";
 import { arcPath, niceTicks, polar } from "../layout.ts";
 import { buildTable, html, selectable, svg } from "./shared.ts";
+import { checkMark, standing } from "./target.ts";
 
 const HALF = Math.PI / 2;
 const round2 = (n: number) => Math.round(n * 100) / 100;
@@ -78,6 +79,17 @@ export const renderGauge: ViewRenderer<GaugeView> = (ctx) => {
   selectable(hit, () => ctx.select(row));
   chart.append(hit);
   wrap.append(chart);
+  // Where the number stands against its goal, in target words, under the gauge.
+  const { met, text: stand } = standing(ctx, value, goal, field);
+  if (stand) {
+    const line = html(doc, "p", "fft-gauge-standing", stand);
+    if (met) {
+      line.dataset.met = "true";
+      line.prepend(checkMark(doc));
+    }
+    wrap.append(line);
+    hit.setAttribute("aria-label", `${hit.getAttribute("aria-label")}, ${stand.charAt(0).toLowerCase()}${stand.slice(1)}`);
+  }
   const hidden = html(doc, "div", "fft-sr-only");
   hidden.append(buildTable(ctx, [row], [field, ...(target ? [target] : [])], false));
   wrap.append(hidden);
