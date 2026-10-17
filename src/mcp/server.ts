@@ -280,7 +280,7 @@ The spec has data (where rows come from), transform (reshaping steps), fields (l
       title: "Get widget data",
       description: `Run ${which}'s data pipeline (load, then every transform) and return the rows the view draws.
 
-Use it to answer questions about the numbers a widget shows. Both formats start with howToRead: how to read the chart in plain words a ten-year-old can follow, ending with one example from these rows; quote it when someone asks what a chart means. Markdown gives a table with labels and formatted values; json gives raw values. Large results are paged: pass next_offset as offset for more.`,
+Use it to answer questions about the numbers a widget shows. Both formats start with question, the sales question the chart answers ("Which region has the most revenue?"), and howToRead: how to read the chart in plain words a ten-year-old can follow, ending with one example from these rows; quote them when someone asks what a chart means. Markdown gives a table with labels and formatted values; json gives raw values. Large results are paged: pass next_offset as offset for more.`,
       inputSchema: withId({
         limit: z.number().int().min(1).max(500).default(50).describe("Maximum number of rows to return."),
         offset: z.number().int().min(0).default(0).describe("Number of rows to skip, for paging."),
@@ -295,15 +295,16 @@ Use it to answer questions about the numbers a widget shows. Both formats start 
       const fields = fieldsOf(rows);
       const warnings = validateSpec(spec, rows).filter((issue) => issue.level === "warning");
       // How to read the chart, in plain words a ten-year-old can follow, with one example from these rows.
+      const question = questionOf(spec, rows).text;
       const howToRead = explainChart(spec, rows);
       const render = (page: Row[]) => {
         const { info } = paginate(rows, args.offset, page.length);
         const fullInfo = { ...info, has_more: rows.length > args.offset + page.length, ...(rows.length > args.offset + page.length ? { next_offset: args.offset + page.length } : {}) };
         if (args.response_format === "json") {
-          const data = { id, ...fullInfo, howToRead, fields, rows: page, warnings };
+          const data = { id, ...fullInfo, question, howToRead, fields, rows: page, warnings };
           return { data, text: JSON.stringify(data, null, 2) };
         }
-        const lines = [`# ${spec.title ?? id}: data`, "", `How to read it: ${howToRead}`, "", `${rows.length} rows after transforms. Showing ${page.length ? `${args.offset + 1} to ${args.offset + page.length}` : "none"}.`, ""];
+        const lines = [`# ${spec.title ?? id}: data`, "", `Answers: ${question}`, "", `How to read it: ${howToRead}`, "", `${rows.length} rows after transforms. Showing ${page.length ? `${args.offset + 1} to ${args.offset + page.length}` : "none"}.`, ""];
         if (page.length) lines.push(markdownTable(spec, page, fields));
         if (fullInfo.has_more) lines.push("", `More rows: call again with offset=${fullInfo.next_offset}.`);
         for (const warning of warnings) lines.push("", `Warning at ${warning.path}: ${warning.message}`);

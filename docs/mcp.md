@@ -65,7 +65,7 @@ All tools validate input; bad input comes back as a tool error that says how to 
 | --- | --- | --- |
 | `fft_list_widgets` | yes | Every widget: id, title, view type, source type, description. Paged with `limit` (default 50) and `offset`. |
 | `fft_get_widget` | yes | One widget's full spec, plus static validation issues. |
-| `fft_get_widget_data` | yes | Runs the widget's pipeline and returns the rows it draws, led by `howToRead`: how to read the chart in plain words, ending with one example from those rows. Markdown is a table with labels and formatted values. Paged with `limit` (default 50, max 500) and `offset`; also includes data warnings. |
+| `fft_get_widget_data` | yes | Runs the widget's pipeline and returns the rows it draws, led by `question` (the sales question the chart answers, such as "Which region has the most revenue?") and `howToRead`: how to read the chart in plain words, ending with one example from those rows. Markdown is a table with labels and formatted values. Paged with `limit` (default 50, max 500) and `offset`; also includes data warnings. |
 | `fft_create_widget` | no | Creates `id`. With `from`, forks that widget and `spec` holds only the changes; without it, forks the vanilla block. Refuses existing ids and invalid specs. |
 | `fft_update_widget` | no (overwrites) | Pass `changes` (a merge patch) or `replace` (a whole spec). Refuses changes that would make the spec invalid. |
 | `fft_delete_widget` | no (destructive) | Removes the widget's file. |

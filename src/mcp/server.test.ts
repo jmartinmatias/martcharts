@@ -125,6 +125,15 @@ describe("tools", () => {
     expect([howToRead.startsWith("Each bar is one region."), howToRead.includes("Here, East is the tallest"), markdown.text.includes(`How to read it: ${howToRead}`)]).toEqual([true, true, true]);
   });
 
+  test("fft_get_widget_data names the sales question the chart answers, before how to read it", async () => {
+    const { call } = await connect();
+    const json = await call("fft_get_widget_data", { id: "sales-by-region", response_format: "json" });
+    const markdown = await call("fft_get_widget_data", { id: "sales-by-region" });
+    expect(json.data?.question).toBe("Which region has the most revenue?");
+    expect(markdown.text.indexOf("Answers: Which region has the most revenue?")).toBeGreaterThan(-1);
+    expect(markdown.text.indexOf("Answers:")).toBeLessThan(markdown.text.indexOf("How to read it:"));
+  });
+
   test("a ref that matches no widget says how to find one", async () => {
     const { call } = await connect();
     const { isError, text } = await call("fft_get_widget", { id: "W-ZZZZ" });
