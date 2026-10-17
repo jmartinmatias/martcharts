@@ -113,6 +113,8 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
   const categoryOn = (i: number) => kind !== "bar" || picked.length === 0 || picked.includes(String(rows[i]?.[view.x]));
   const seriesOn = (s: number) => kind === "bar" || picked.length === 0 || picked.includes(series[s] as string);
   const seriesColor = (s: number) => (seriesOn(s) ? ctx.color(s) : DEEMPHASIS);
+  // A muted category of grouped bars keeps a hint of each series' hue, so its two greys still say which is which.
+  const mutedColor = (s: number) => (series.length > 1 ? `color-mix(in srgb, ${ctx.color(s)} 30%, ${DEEMPHASIS})` : DEEMPHASIS);
   const raw = series.map((field) => rows.map((row) => readNumber(row[field])));
   // Combo: extra series drawn as lines over the bars, on the same axis (never a second one).
   const overlayFields = kind === "bar" ? fieldList((view as BarView).lines) : [];
@@ -274,7 +276,7 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
         const cx = rect.x + rect.width / 2;
         const base = rect.negative ? rect.y : rect.y + rect.height;
         const tip = rect.negative ? rect.y + rect.height : rect.y;
-        const color = categoryOn(rect.index) ? ctx.color(rect.series) : DEEMPHASIS;
+        const color = categoryOn(rect.index) ? ctx.color(rect.series) : mutedColor(rect.series);
         const stem = svg(doc, "line", { class: "fft-lolli-stem", x1: cx, x2: cx, y1: base, y2: tip });
         stem.style.setProperty("stroke", color);
         const dot = svg(doc, "circle", { class: "fft-lolli-dot", cx, cy: tip, r: 5 });
@@ -294,7 +296,7 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
       }
       obstacles.boxes.push(rect);
       const bar = svg(doc, "path", { class: "fft-bar", d: barPath(rect, radius) });
-      const fill = categoryOn(rect.index) ? ctx.color(rect.series) : DEEMPHASIS;
+      const fill = categoryOn(rect.index) ? ctx.color(rect.series) : mutedColor(rect.series);
       if (missed(rect.index)) {
         // Short of its target: a light fill outlined in the bar's own color, so the miss reads by shape too.
         bar.dataset.tone = "miss";
@@ -470,7 +472,7 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
   };
   slots.forEach((slot, i) => {
     const row = rows[i] ?? {};
-    const items: TooltipItem[] = series.map((field, s) => ({ label: ctx.label(field), value: ctx.format(row[field], field), color: categoryOn(i) ? seriesColor(s) : DEEMPHASIS }));
+    const items: TooltipItem[] = series.map((field, s) => ({ label: ctx.label(field), value: ctx.format(row[field], field), color: categoryOn(i) ? seriesColor(s) : mutedColor(s) }));
     if (stacked) items.push({ label: "Total", value: ctx.format(raw.reduce((sum, seriesValues) => sum + (seriesValues[i] ?? 0), 0), series[0]) });
     const low = bandLow[i];
     const high = bandHigh[i];

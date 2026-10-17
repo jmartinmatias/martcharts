@@ -622,14 +622,20 @@ describe("hbar view", () => {
 });
 
 describe("highlight on bar and line views", () => {
-  test("bar: highlighted categories keep their series colors, the rest turn grey", async () => {
+  test("bar: highlighted categories keep their series colors; the rest step back to grey, each series keeping a hint of its hue", async () => {
     await draw({ rows: sales, view: { type: "bar", x: "region", y: ["revenue", "cost"], highlight: ["East"] } });
     const fills = all("g.fft-marks").map((g) => [...g.querySelectorAll<SVGElement>("path.fft-bar")].map((b) => b.style.fill));
+    // Two greys a reader can tell apart, so the legend still says which bar is revenue and which is cost.
+    const muted = (s: number) => `color-mix(in srgb, var(--fft-series-${s}) 30%, var(--fft-deemphasis))`;
     expect(fills).toEqual([
-      ["var(--fft-deemphasis)", "var(--fft-deemphasis)"],
-      ["var(--fft-deemphasis)", "var(--fft-deemphasis)"],
+      [muted(1), muted(2)],
+      [muted(1), muted(2)],
       ["var(--fft-series-1)", "var(--fft-series-2)"],
     ]);
+    // One series needs no hint: its grey is plain.
+    target.replaceChildren();
+    await draw({ rows: sales, view: { type: "bar", x: "region", y: "revenue", highlight: ["East"] } });
+    expect((all("path.fft-bar")[0] as SVGElement).style.fill).toBe("var(--fft-deemphasis)");
   });
 
   test("line: the highlighted series keeps its color, the others turn grey, legend included", async () => {
