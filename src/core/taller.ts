@@ -297,7 +297,10 @@ export function profileData(spec: WidgetSpec, rows: Row[]): DataProfile {
   // A target line on the first measure's own axis: a stacked chart's line is for the whole stack, a scatter's for its second measure.
   const marks = ["bar", "line", "area"].includes(String(view.type)) && !view.stacked && Array.isArray(view.reference) ? (view.reference as { value?: unknown; label?: unknown }[]) : [];
   const line = marks.find((r) => typeof r?.value === "number" && TARGET_NAME.test(String(r.label ?? "")));
-  const goodWhen = view.goodWhen === "up" || view.goodWhen === "down" ? view.goodWhen : undefined;
+  // Which side of the target is good news: the view's own, or in a row of numbers the tile that carries the target.
+  const tile = target && view.type === "kpis" && Array.isArray(view.items) ? (view.items as { target?: unknown; goodWhen?: unknown }[]).find((item) => item?.target === target) : undefined;
+  const side = view.goodWhen ?? tile?.goodWhen;
+  const goodWhen = side === "up" || side === "down" ? side : undefined;
   return {
     title: spec.title ?? spec.id ?? "this chart",
     measures,
@@ -366,6 +369,8 @@ const parts = (d: DataProfile) => positive(d) && d.whole;
 const judged = (d: DataProfile) => (d.goodWhen ? { goodWhen: d.goodWhen } : {});
 /** The chart's own dashed target line, for bars of its first measure: kept when the chart has one, never invented. */
 const targetRef = (d: DataProfile) => (d.targetLine ? { reference: [d.targetLine], ...judged(d) } : {});
+/** The same dashed target line for a line or area of the first measure on its own axis: lines mark no misses, so no side. */
+const lineTarget = (d: DataProfile) => (d.targetLine ? { reference: [d.targetLine] } : {});
 const PERIOD_WORD = /(19|20)\d\d|q[1-4]|before|after|previous|prior|last|current|this|start|end|from|to$/i;
 /** The first two measures read as one measure at two times (revenue2025 and revenue2026, before and after). */
 const periodPair = (d: DataProfile) => d.peers.length > 1 && PERIOD_WORD.test(p1(d)) && PERIOD_WORD.test(p2(d));
@@ -493,7 +498,7 @@ const PATTERNS: Pattern[] = [
     moves: ["reframe", "combine"],
     marks: "sharp",
     fits: (d) => perRow(d, 2, 24) && d.target !== undefined,
-    make: (d) => ({ view: { type: "bar", x: rowKey(d) as string, y: m1(d), lines: d.target as string } }),
+    make: (d) => ({ view: { type: "bar", x: rowKey(d) as string, y: m1(d), lines: d.target as string, ...judged(d) } }),
   },
   {
     id: "target-lollipops",
@@ -501,7 +506,7 @@ const PATTERNS: Pattern[] = [
     moves: ["distill", "combine"],
     marks: "sharp",
     fits: (d) => perRow(d, 3, 24) && d.target !== undefined,
-    make: (d) => ({ view: { type: "bar", x: rowKey(d) as string, y: m1(d), mark: "lollipop", lines: d.target as string } }),
+    make: (d) => ({ view: { type: "bar", x: rowKey(d) as string, y: m1(d), mark: "lollipop", lines: d.target as string, ...judged(d) } }),
   },
   {
     id: "reference-lollipops",
@@ -539,7 +544,8 @@ const PATTERNS: Pattern[] = [
     form: "bullet bars",
     moves: ["reframe"],
     marks: "sharp",
-    fits: (d) => perRow(d, 2, 12) && d.target !== undefined,
+    // A bullet ticks a bar that reaches its target and has no goodWhen, so never where lower is better (a cost over budget).
+    fits: (d) => perRow(d, 2, 12) && d.target !== undefined && d.goodWhen !== "down",
     make: (d) => ({ view: { type: "bullet", label: rowKey(d) as string, value: m1(d), target: d.target as string } }),
   },
   {
@@ -577,7 +583,7 @@ const PATTERNS: Pattern[] = [
     moves: ["reform"],
     marks: "smooth",
     fits: (d) => perPeriod(d),
-    make: (d) => ({ view: { type: "line", x: t1(d), y: d.peers.slice(0, 4), ...d.fan } }),
+    make: (d) => ({ view: { type: "line", x: t1(d), y: d.peers.slice(0, 4), ...d.fan, ...lineTarget(d) } }),
   },
   {
     id: "washes",
@@ -585,7 +591,7 @@ const PATTERNS: Pattern[] = [
     moves: ["reform"],
     marks: "smooth",
     fits: (d) => perPeriod(d) && d.peers.length <= 2,
-    make: (d) => ({ view: { type: "area", x: t1(d), y: d.peers.slice(0, 2), curve: "smooth", ...d.fan } }),
+    make: (d) => ({ view: { type: "area", x: t1(d), y: d.peers.slice(0, 2), curve: "smooth", ...d.fan, ...lineTarget(d) } }),
   },
   {
     id: "steps",
@@ -593,7 +599,7 @@ const PATTERNS: Pattern[] = [
     moves: ["reform"],
     marks: "sharp",
     fits: (d) => perPeriod(d, 4),
-    make: (d) => ({ view: { type: "line", x: t1(d), y: d.peers.slice(0, 3), curve: "step", ...d.fan } }),
+    make: (d) => ({ view: { type: "line", x: t1(d), y: d.peers.slice(0, 3), curve: "step", ...d.fan, ...lineTarget(d) } }),
   },
   {
     id: "time-bars",
@@ -617,7 +623,7 @@ const PATTERNS: Pattern[] = [
     moves: ["combine"],
     marks: "smooth",
     fits: (d) => perPeriod(d),
-    make: (d) => ({ view: { type: "line", x: t1(d), y: m1(d), ...d.fan }, headline: { value: m1(d), agg: "last", compare: "previous" } }),
+    make: (d) => ({ view: { type: "line", x: t1(d), y: m1(d), ...d.fan, ...lineTarget(d) }, headline: { value: m1(d), agg: "last", compare: "previous" } }),
   },
   {
     id: "stream",
@@ -649,8 +655,9 @@ const PATTERNS: Pattern[] = [
     moves: ["distill"],
     marks: "smooth",
     fits: (d) => perPeriod(d),
-    // The target the chart is about stays with its number: the card then says whether the latest reached it.
-    make: (d) => ({ view: { type: "kpi", value: m1(d), x: t1(d), series: true, ...(d.target ? { target: d.target } : {}) } }),
+    // The target the chart is about stays with its number, and which side of it is good news: the card then says
+    // whether the latest reached it (or, when lower is better, stayed under it).
+    make: (d) => ({ view: { type: "kpi", value: m1(d), x: t1(d), series: true, ...(d.target ? { target: d.target, ...judged(d) } : {}) } }),
   },
   {
     id: "numbers",
@@ -659,7 +666,7 @@ const PATTERNS: Pattern[] = [
     marks: "smooth",
     fits: (d) => d.measures.length >= 2 && (perPeriod(d, 1) || d.rows === 1),
     // Over time the tiles read the latest period (and draw a sparkline each), never the first row.
-    make: (d) => ({ view: { type: "kpis", ...(d.times.length ? { series: true } : {}), items: d.measures.slice(0, 3).map((value) => ({ value, ...(d.target && value === m1(d) ? { target: d.target } : {}) })) } }),
+    make: (d) => ({ view: { type: "kpis", ...(d.times.length ? { series: true } : {}), items: d.measures.slice(0, 3).map((value) => ({ value, ...(d.target && value === m1(d) ? { target: d.target, ...judged(d) } : {}) })) } }),
   },
   {
     id: "calendar",

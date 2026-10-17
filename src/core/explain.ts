@@ -172,12 +172,17 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       }
       const flow = single ? pipeline(x, single) : "";
       if (flow) return flow;
-      // A target line: the question is how often the bars beat it, not which bar is tallest.
+      // A target line: the question is how often the bars beat it, not which bar is tallest. When lower is better
+      // (costs against a budget), how often they stayed within it.
       const goal = one(view.lines);
       if (single && goal) {
         const paired = rows.filter((row) => value(row, single) !== null && value(row, goal) !== null);
-        const beat = paired.filter((row) => (value(row, single) as number) >= (value(row, goal) as number)).length;
         const each = nameOf(x, spec);
+        if (paired.length && view.goodWhen === "down") {
+          const within = paired.filter((row) => (value(row, single) as number) <= (value(row, goal) as number)).length;
+          return `Here, ${nameOf(single, spec)} stayed within the ${nameOf(goal, spec)} in ${within} of ${paired.length} ${plural(each)}.`;
+        }
+        const beat = paired.filter((row) => (value(row, single) as number) >= (value(row, goal) as number)).length;
         if (paired.length) return `Here, ${nameOf(single, spec)} beat the ${nameOf(goal, spec)} in ${beat} of ${paired.length} ${plural(each)}.`;
       }
       const row = single ? top(single) : undefined;
@@ -982,9 +987,15 @@ function guide(spec: WidgetSpec): string {
       if (series.length > 1 && view.stacked) return `Each bar is one ${name(one(view.x))}, split into colored parts for ${both(series.map((f) => name(f)))}. ${view.stacked === "percent" ? "Every bar adds up to 100%, so compare the sizes of the parts." : "The parts add up to the total, so the whole bar is the total."}`;
       if (series.length > 1) return `Each group of bars is one ${name(one(view.x))}, with one color each for ${both(series.map((f) => name(f)))}. The taller the bar, the more.`;
       const goal = one(view.lines);
-      // Bars short of a target are drawn outlined (a shape cue, the same in light and dark themes).
-      const outlined = !lollipop && goal && /target|plan|goal|budget|quota/i.test(goal) ? `, and an outlined ${mark} fell short` : "";
-      const line = goal ? ` The line is the ${name(goal)}: a ${mark} that reaches past it beat the ${name(goal)}${outlined}.` : "";
+      // Bars on the wrong side of a target are drawn outlined (a shape cue, the same in light and dark themes): short of
+      // it, or over it when lower is better (costs against a budget).
+      const down = view.goodWhen === "down";
+      const outlined = !lollipop && goal && /target|plan|goal|budget|quota/i.test(goal) ? `, and an outlined ${mark} ${down ? "went over it" : "fell short"}` : "";
+      const line = !goal
+        ? ""
+        : down
+          ? ` The line is the ${name(goal)}. Lower is better here: a ${mark} under the line stayed within the ${name(goal)}${outlined}.`
+          : ` The line is the ${name(goal)}: a ${mark} that reaches past it beat the ${name(goal)}${outlined}.`;
       return `Each ${mark} is one ${name(one(view.x))}. ${more}, the more ${name(series[0])}.${line}`;
     }
     case "hbar":
