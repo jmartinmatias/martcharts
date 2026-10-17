@@ -149,7 +149,12 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const goal = targetLine(spec);
       const lastValue = last ? value(last, traced) : null;
       const against = goal && lastValue !== null ? `, ${lastValue >= goal.value ? "past" : "short of"} the ${goal.name} of ${formatValue(goal.value, spec.fields?.[traced]?.format, spec.locale)}` : "";
-      return first && last && first !== last ? `Here, ${subject} went from ${text(first, traced)} in ${text(first, x)} to ${text(last, traced)} in ${text(last, x)}${against}.` : "";
+      // A forecast answers where it is heading: its last point, and the likely range when a band is drawn.
+      const ahead = forecast ? rows.filter((row) => value(row, traced) !== null && (row[forecast] === true || row[forecast] === "true" || row[forecast] === 1)).at(-1) : undefined;
+      const band = view.band as { low?: string; high?: string } | undefined;
+      const range = ahead && band?.low && band?.high && value(ahead, band.low) !== null && value(ahead, band.high) !== null ? `, most likely between ${text(ahead, band.low)} and ${text(ahead, band.high)}` : "";
+      const next = ahead ? `, and is expected to reach ${text(ahead, traced)} by ${text(ahead, x)}${range}` : "";
+      return first && last && first !== last ? `Here, ${subject} went from ${text(first, traced)} in ${text(first, x)} to ${text(last, traced)} in ${text(last, x)}${against}${next}.` : "";
     }
     case "donut": {
       const [label, amount] = [one(view.label), one(view.value)];

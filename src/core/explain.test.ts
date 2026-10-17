@@ -211,6 +211,21 @@ describe("explainChart", () => {
     expect(explainChart({ ...spec({ type: "hbar", label: "stage", value: "leads" }), locale: "en-US" }, rows)).toContain("Here, 96 of 1,240 leads made it from New leads to Won (8%).");
   });
 
+  test("a forecast says where the line is heading, and how sure it is, after where it has been", () => {
+    const view = { type: "line", x: "month", y: "revenue", forecast: "forecast", band: { low: "low", high: "high", label: "80% range" } };
+    const rows = [
+      { month: "Oct", revenue: 820 },
+      { month: "Sep", revenue: 1284 },
+      { month: "Dec", revenue: 1400, low: 1250, high: 1550, forecast: true },
+      { month: "Mar", revenue: 1500, low: 1200, high: 1800, forecast: true },
+    ];
+    expect(explainChart({ ...spec(view), locale: "en-US" }, rows)).toContain(
+      "Here, it went from 820 in Oct to 1,284 in Sep, and is expected to reach 1,500 by Mar, most likely between 1,200 and 1,800.",
+    );
+    const noBand = explainChart({ ...spec({ ...view, band: undefined }), locale: "en-US" }, rows);
+    expect(noBand).toContain("and is expected to reach 1,500 by Mar.");
+  });
+
   test("no guide names a hue or a dark shade: presets recolor and dark themes flip, so marks are read by side, shape and fill", () => {
     const guide = (view: Record<string, unknown>) => explainChart({ ...spec(view), locale: "en-US" });
     expect(guide({ type: "variance", label: "department", value: "actual", target: "budget", goodWhen: "down" })).toBe(
