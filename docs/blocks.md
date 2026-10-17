@@ -226,11 +226,12 @@ Vertical bars comparing amounts across categories. Several y fields draw grouped
 | --- | --- | --- | --- | --- |
 | `x` | field name (category) | yes |  | Field for the categories along the horizontal axis. |
 | `y` | field name or list (number) | yes |  | Field or fields for bar heights. Each field is one series. |
-| `lines` | field name or list (number) |  |  | Field or fields drawn as lines over the bars, on the same axis, for example a target. Never a second axis. Under one target line (a field named target, plan, goal, budget or quota), bars that fall short are drawn outlined and keyed Below target. |
+| `lines` | field name or list (number) |  |  | Field or fields drawn as lines over the bars, on the same axis, for example a target. Never a second axis. Under one target line (a field named target, plan, goal, budget or quota), bars on the wrong side of it (see goodWhen) are drawn outlined and keyed Below target. |
 | `stacked` | any |  | `false` | true stacks the series into one column per category (part-to-whole); "percent" stacks them as shares of 100%. |
 | `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
 | `reference` | array |  |  | Target lines and bands across the value axis. Each item is { value, label }, { field, agg, label } (agg: last, first, sum, avg, min, max; default avg), or { from, to, label } for a band. Example: [{ "value": 1200000, "label": "Target" }]. |
 | `mark` | `bar`, `lollipop` |  | `"bar"` | "lollipop" draws a thin stem from the baseline and a dot at the value in place of each bar: the same reading with far less ink, for rankings of many similar values. |
+| `goodWhen` | `up`, `down` |  | `"up"` | Which side of a target is good news: "up" for revenue, "down" for wait times and costs. Under one target (a lines field or a reference line labeled target, plan, goal, budget or quota), a bar on the wrong side is drawn outlined and keyed Below or Over the target. |
 
 ### `beeswarm`
 

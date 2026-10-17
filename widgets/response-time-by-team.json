@@ -58,6 +58,7 @@
     "x": "team",
     "y": "minutes",
     "mark": "lollipop",
+    "goodWhen": "down",
     "reference": [
       {
         "value": 60,

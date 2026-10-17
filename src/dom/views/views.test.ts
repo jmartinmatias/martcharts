@@ -1226,6 +1226,26 @@ describe("combo: lines over bars", () => {
     await draw({ rows: [{ m: "Jan", revenue: 80, average: 90 }], view: { type: "bar", x: "m", y: "revenue", lines: "average" } });
     expect([allHit, [all("path.fft-bar[data-tone]").length, texts(".fft-legend li").some((t) => t?.startsWith("Below"))]]).toEqual([[0, false], [0, false]]);
   });
+
+  test("under a dashed target line, a lower-is-better chart marks the dots over the line as misses, keyed Over", async () => {
+    const reference = [{ value: 60, label: "1 hour target" }];
+    await draw({ rows: [{ team: "A", minutes: 95 }, { team: "B", minutes: 40 }, { team: "C", minutes: 64 }], view: { type: "bar", x: "team", y: "minutes", mark: "lollipop", goodWhen: "down", reference } });
+    const dots = all("circle.fft-lolli-dot") as SVGElement[];
+    expect(dots.map((dot) => dot.dataset.tone ?? null)).toEqual(["miss", null, "miss"]);
+    // A hollow dot: the light fill and the outline that keeps 3:1, as a missed bar has.
+    expect([dots[0]?.style.fill.startsWith("color-mix"), dots[0]?.style.stroke]).toEqual([true, "color-mix(in srgb, var(--fft-series-1) 85%, var(--fft-text))"]);
+    const key = all(".fft-legend li").at(-1);
+    expect([key?.textContent, (key?.querySelector(".fft-swatch") as HTMLElement).dataset.tone]).toEqual(["Over 1 hour target", "miss"]);
+  });
+
+  test("a dashed target line marks the bars under it by default; an average line marks nothing", async () => {
+    const rows = [{ m: "Jan", revenue: 80 }, { m: "Feb", revenue: 120 }];
+    await draw({ rows, view: { type: "bar", x: "m", y: "revenue", reference: [{ value: 100, label: "Target" }] } });
+    const marked = [(all("path.fft-bar") as SVGElement[]).map((bar) => bar.dataset.tone ?? null), texts(".fft-legend li").at(-1)];
+    target.replaceChildren();
+    await draw({ rows, view: { type: "bar", x: "m", y: "revenue", reference: [{ value: 100, label: "Average" }] } });
+    expect([marked, all("path.fft-bar[data-tone]").length, all(".fft-legend").length]).toEqual([[["miss", null], "Below target"], 0, 0]);
+  });
 });
 
 describe("beeswarm view", () => {

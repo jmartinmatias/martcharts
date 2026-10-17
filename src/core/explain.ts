@@ -27,7 +27,7 @@ export function explainChart(spec: WidgetSpec, rows: Row[] = []): string {
   const facet = (spec.facet as { field?: string } | undefined)?.field;
   // A dashed target line says what it is, so the chart reads against it.
   const goal = targetLine(spec);
-  const lined = goal ? `${guide(spec)} The dashed line is the ${goal.name}.` : guide(spec);
+  const lined = goal ? `${guide(spec)} The dashed line is the ${goal.name}.${missKey(spec)}` : guide(spec);
   // Small multiples: one chart per value, so an example across all rows would mix the panels up.
   const general = facet ? `${lined} There is one small chart for each ${nameOf(facet, spec)}, all on the same scale.` : lined;
   const example = rows.length ? (facet ? facetExample(spec, rows, facet) : exampleOf(spec, rows)) : "";
@@ -65,6 +65,14 @@ function targetLine(spec: WidgetSpec): { value: number; name: string } | undefin
   if (!found) return undefined;
   const label = String(found.label);
   return { value: found.value as number, name: /^[A-Z][a-z]*\b/.test(label) ? label.charAt(0).toLowerCase() + label.slice(1) : label };
+}
+
+/** Bars under a dashed target: which side of the line meets it, and how a miss looks, as the chart draws it. */
+function missKey(spec: WidgetSpec): string {
+  const view = (spec.view ?? { type: "table" }) as View;
+  if (view.type !== "bar" || many(view.y).length !== 1 || one(view.lines)) return "";
+  const [mark, missed] = view.mark === "lollipop" ? ["dot", "a hollow dot"] : ["bar", "an outlined bar"];
+  return view.goodWhen === "down" ? ` Lower is better here: a ${mark} under the line meets it, and ${missed} went over.` : ` A ${mark} that reaches the line meets it, and ${missed} fell short.`;
 }
 
 /** Field names that read as one measure at two times: q3_2025 and q3_2026, before and after. */
@@ -174,13 +182,19 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       }
       const row = single ? top(single) : undefined;
       const standout = row && single ? `${text(row, x)} ${view.mark === "lollipop" ? "has the highest dot" : "is the tallest"}, with ${text(row, single)}` : "";
-      // Against a dashed target line: how many are above it, said without assuming above is better.
+      // Against a dashed target line: how many meet it, and which miss it, below it or, when lower is better, over it.
       const line = targetLine(spec);
-      if (standout && single && line) {
+      if (single && line) {
         const known = rows.filter((r) => value(r, single) !== null);
-        const above = known.filter((r) => (value(r, single) as number) > line.value).length;
+        const missing = known.filter((r) => (view.goodWhen === "down" ? (value(r, single) as number) > line.value : (value(r, single) as number) < line.value));
+        const met = known.length - missing.length;
         const each = plural(nameOf(x, spec));
-        return `Here, ${above} of ${known.length} ${each} ${above === 1 ? "is" : "are"} above the ${line.name}, and ${standout}.`;
+        if (!known.length) return "";
+        if (!missing.length) return `Here, all ${known.length} ${each} meet the ${line.name}.`;
+        if (!met) return `Here, none of the ${known.length} ${each} meets the ${line.name} yet.`;
+        const names = missing.map((r) => text(r, x));
+        const listed = names.length <= 5 ? `: ${names.length > 1 ? `${names.slice(0, -1).join(", ")} and ${names.at(-1)}` : names[0]}` : "";
+        return `Here, ${met} of ${known.length} ${each} ${met === 1 ? "meets" : "meet"} the ${line.name}, and ${missing.length} ${missing.length === 1 ? "misses" : "miss"} it${listed}.`;
       }
       return standout ? `Here, ${standout}.` : "";
     }

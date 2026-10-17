@@ -368,6 +368,8 @@ export interface BarView {
   reference?: ReferenceMark[];
   /** "lollipop" draws a thin stem and a dot in place of each bar. */
   mark?: "bar" | "lollipop";
+  /** Which side of a target is good: "up" (revenue, the default) or "down" (wait times, costs). */
+  goodWhen?: "up" | "down";
 }
 
 /** `{ type: "hbar", label, value, highlight? }`: a ranking with values at the bar ends. */
@@ -1020,7 +1022,7 @@ const bar: ViewBlock = {
     lines: {
       type: "fields",
       kind: "number",
-      description: "Field or fields drawn as lines over the bars, on the same axis, for example a target. Never a second axis. Under one target line (a field named target, plan, goal, budget or quota), bars that fall short are drawn outlined and keyed Below target.",
+      description: "Field or fields drawn as lines over the bars, on the same axis, for example a target. Never a second axis. Under one target line (a field named target, plan, goal, budget or quota), bars on the wrong side of it (see goodWhen) are drawn outlined and keyed Below target.",
     },
     stacked: {
       type: "any",
@@ -1030,6 +1032,12 @@ const bar: ViewBlock = {
     highlight: highlightCategories,
     reference: REFERENCE_OPTION,
     mark: MARK_OPTION,
+    goodWhen: {
+      type: "enum",
+      values: ["up", "down"],
+      default: "up",
+      description: 'Which side of a target is good news: "up" for revenue, "down" for wait times and costs. Under one target (a lines field or a reference line labeled target, plan, goal, budget or quota), a bar on the wrong side is drawn outlined and keyed Below or Over the target.',
+    },
   },
   validate(view) {
     const stacked = view.stacked;

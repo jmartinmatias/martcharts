@@ -83,6 +83,23 @@ describe("explainChart", () => {
     );
   });
 
+  test("under a dashed target line, bars say how many meet the target and name the ones that miss it, lower-is-better too", () => {
+    const at = (view: Record<string, unknown>, rows: Record<string, unknown>[]) => explainChart({ ...spec(view), locale: "en-US" }, rows);
+    const minutes = [95, 77, 64, 51, 42].map((m, i) => ({ team: ["Technical", "Data", "SMB", "Partners", "Billing"][i], m }));
+    const reference = [{ value: 60, label: "1 hour target" }];
+    expect(at({ type: "bar", x: "team", y: "m", mark: "lollipop", goodWhen: "down", reference }, minutes)).toContain(
+      "Here, 2 of 5 teams meet the 1 hour target, and 3 miss it: Technical, Data and SMB.",
+    );
+    expect(at({ type: "bar", x: "team", y: "m", reference }, minutes)).toContain("Here, 3 of 5 teams meet the 1 hour target, and 2 miss it: Partners and Billing.");
+    // The guide says which side meets the line and how a miss looks, as the chart draws it.
+    expect(at({ type: "bar", x: "team", y: "m", mark: "lollipop", goodWhen: "down", reference }, minutes)).toContain(
+      "The dashed line is the 1 hour target. Lower is better here: a dot under the line meets it, and a hollow dot went over.",
+    );
+    expect(at({ type: "bar", x: "team", y: "m", reference: [{ value: 100, label: "Target" }] }, minutes)).toContain("The dashed line is the target. A bar that reaches the line meets it, and an outlined bar fell short.");
+    expect(at({ type: "bar", x: "team", y: "m", goodWhen: "down", reference: [{ value: 100, label: "Target" }] }, minutes)).toContain("Here, all 5 teams meet the target.");
+    expect(at({ type: "bar", x: "team", y: "m", reference: [{ value: 100, label: "Target" }] }, minutes)).toContain("Here, none of the 5 teams meets the target yet.");
+  });
+
   test("a ranking race says who is 1st at the end, and when the lead changed hands", () => {
     const race = (orders: string[][]) =>
       explainChart(
@@ -185,9 +202,9 @@ describe("explainChart", () => {
       { team: "Sales", minutes: 70 },
       { team: "Onboarding", minutes: 50 },
     ];
-    const lollipops = explainChart({ ...spec({ type: "bar", x: "team", y: "minutes", mark: "lollipop", reference: [{ value: 60, label: "1 hour target" }] }), locale: "en-US" }, teams);
+    const lollipops = explainChart({ ...spec({ type: "bar", x: "team", y: "minutes", mark: "lollipop", goodWhen: "down", reference: [{ value: 60, label: "1 hour target" }] }), locale: "en-US" }, teams);
     expect(lollipops).toContain("The dashed line is the 1 hour target.");
-    expect(lollipops).toContain("Here, 2 of 4 teams are above the 1 hour target, and Technical has the highest dot, with 95.");
+    expect(lollipops).toContain("Here, 2 of 4 teams meet the 1 hour target, and 2 miss it: Technical and Sales.");
     const months = [
       { month: "Oct", revenue: 820, cost: 600 },
       { month: "Sep", revenue: 1284, cost: 700 },

@@ -7,7 +7,7 @@
 import { formatValue } from "../../core/display.ts";
 import { readNumber } from "../../core/formats.ts";
 import { getPreset } from "../../core/presets.ts";
-import { referenceValues, resolveReferences } from "../../core/reference.ts";
+import { referenceValues, resolveReferences, type ResolvedReference } from "../../core/reference.ts";
 import { drawReferences, type LabelObstacles } from "./reference.ts";
 import type { FormatSpec } from "../../core/types.ts";
 import type { TooltipItem, ViewContext, ViewRenderer } from "../../core/view-context.ts";
@@ -118,12 +118,20 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
   const overlayFields = kind === "bar" ? fieldList((view as BarView).lines) : [];
   const overlayValues = overlayFields.map((field) => rows.map((row) => readNumber(row[field])));
   const overlayColor = (k: number) => ctx.color(series.length + k);
-  // A single series under one target line: a bar that falls short of the line is marked as a miss.
+  // A single series under one target, a lines field or a dashed reference line: a bar on the wrong side of it is a miss.
+  // Below it is the wrong side, or above it when lower is better (goodWhen down, as for wait times).
   const goalField = kind === "bar" && series.length === 1 && overlayFields.length === 1 && TARGET.test(overlayFields[0] as string) ? overlayFields[0] : undefined;
+  const goalLine =
+    kind === "bar" && series.length === 1 && !goalField
+      ? resolveReferences(view, rows).find((ref): ref is Extract<ResolvedReference, { kind: "line" }> => ref.kind === "line" && TARGET.test(String(ref.label ?? "")))
+      : undefined;
+  const lowerIsBetter = kind === "bar" && (view as BarView).goodWhen === "down";
   const missed = (i: number) => {
-    const [amount, goal] = [raw[0]?.[i], goalField ? overlayValues[0]?.[i] : null];
-    return amount !== null && amount !== undefined && goal !== null && goal !== undefined && amount < goal;
+    const [amount, goal] = [raw[0]?.[i], goalField ? overlayValues[0]?.[i] : goalLine?.value];
+    return amount !== null && amount !== undefined && goal !== null && goal !== undefined && (lowerIsBetter ? amount > goal : amount < goal);
   };
+  // The miss key's words: "Below target", "Over 1 hour target".
+  const goalName = goalField ? ctx.label(goalField).toLowerCase() : String(goalLine?.label ?? "").replace(/^[A-Z][a-z]*\b/, (word) => word.toLowerCase());
   const stacked = kind === "bar" ? (view as BarView).stacked : kind === "area" ? (view as AreaView).stacked : undefined;
   const percent = stacked === "percent";
   // Streams center each column on the middle line: the stack starts half its total below zero.
@@ -185,7 +193,7 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
   const legendEntries = [
     ...series.map((field, s) => ({ field, color: seriesColor(s), shape: (kind === "bar" ? "rect" : "line") as "rect" | "line" })),
     ...overlayFields.map((field, k) => ({ field, color: overlayColor(k), shape: "line" as const })),
-    ...(goalField && rows.some((_, i) => missed(i)) ? [{ field: goalField, color: seriesColor(0), shape: "rect" as const, label: `Below ${ctx.label(goalField).toLowerCase()}`, tone: "miss" as const }] : []),
+    ...(rows.some((_, i) => missed(i)) ? [{ field: series[0] as string, color: seriesColor(0), shape: "rect" as const, label: `${lowerIsBetter ? "Over" : "Below"} ${goalName}`, tone: "miss" as const }] : []),
   ];
   if (legendEntries.length > 1 && !ctx.inFacet) wrap.append(legend(ctx, legendEntries));
 
@@ -253,7 +261,12 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
         const stem = svg(doc, "line", { class: "fft-lolli-stem", x1: cx, x2: cx, y1: base, y2: tip });
         stem.style.setProperty("stroke", color);
         const dot = svg(doc, "circle", { class: "fft-lolli-dot", cx, cy: tip, r: 5 });
-        dot.style.setProperty("fill", color);
+        if (missed(rect.index)) {
+          // On the wrong side of its target: a hollow dot, the light fill and outline a missed bar has.
+          dot.dataset.tone = "miss";
+          dot.style.setProperty("fill", missFill(color));
+          dot.style.setProperty("stroke", missEdge(color));
+        } else dot.style.setProperty("fill", color);
         obstacles.boxes.push({ ...rect, x: cx - 5, width: 10 });
         markGroups[rect.index]?.append(stem, dot);
         continue;
@@ -265,7 +278,7 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
       obstacles.boxes.push(rect);
       const bar = svg(doc, "path", { class: "fft-bar", d: barPath(rect, radius) });
       const fill = categoryOn(rect.index) ? ctx.color(rect.series) : DEEMPHASIS;
-      if (goalField && missed(rect.index)) {
+      if (missed(rect.index)) {
         // Short of its target: a light fill outlined in the bar's own color, so the miss reads by shape too.
         bar.dataset.tone = "miss";
         bar.style.setProperty("fill", missFill(fill));
