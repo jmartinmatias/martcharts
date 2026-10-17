@@ -64,14 +64,16 @@
       /* The playground opens as a modal over the gallery: a calm sheet with its title row pinned, full screen on phones. */
       .playground-dialog {
         width: min(1200px, calc(100vw - 32px)); max-width: none; max-height: calc(100dvh - 32px); margin: auto; padding: 0;
-        border: 1px solid var(--line); border-radius: 13px; background: var(--page); color: var(--ink);
+        border: 1px solid var(--line); border-radius: 13px; background: var(--sheet); color: var(--ink);
+        /* A raised sheet: a step lighter than the page in every theme and preset, so it separates from the dimmed page behind. */
+        --sheet: color-mix(in srgb, var(--page) 93%, #ffffff);
         box-shadow: 0 21px 55px -13px rgba(0, 0, 0, 0.45); overflow: auto; overscroll-behavior: contain;
       }
       .playground-dialog::backdrop { background: rgba(10, 10, 10, 0.5); backdrop-filter: blur(3px); }
       .playground-dialog[open] { display: block; }
       .playground-head {
         position: sticky; top: 0; z-index: 2; display: flex; align-items: flex-start; justify-content: space-between; gap: 21px;
-        padding: 21px 21px 13px; background: var(--page); border-bottom: 1px solid var(--line);
+        padding: 21px 21px 13px; background: var(--sheet); border-bottom: 1px solid var(--line);
       }
       .playground-head h2 { margin: 0; }
       .playground-dialog .playground { margin: 0; padding: 21px; }
