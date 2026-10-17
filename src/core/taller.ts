@@ -148,7 +148,7 @@ export interface DataProfile {
   categories: string[];
   /** Date fields. */
   times: string[];
-  /** A number field that reads as a target, plan or budget. */
+  /** A number field that reads as a target, plan or budget, for the first measure: the chart pairs them, or they share a unit. */
   target?: string;
   /** The dashed line the chart draws at a fixed target, plan or budget ({ value: 60, label: "1 hour target" }), against its first measure. */
   targetLine?: { value: number; label: string };
@@ -256,8 +256,21 @@ function usedFields(spec: WidgetSpec): string[] {
   } catch {
     // An unknown view still has fields: the rows say what they are.
   }
+  // A row of numbers names its fields in its tiles: the tile that carries a target leads, so the target pairs with its own value.
+  if (view.type === "kpis" && Array.isArray(view.items)) {
+    const tiles = view.items as { value?: unknown; target?: unknown }[];
+    add([...tiles.filter((tile) => tile?.target), ...tiles.filter((tile) => !tile?.target)].map((tile) => tile?.value));
+  }
   if (spec.headline && typeof spec.headline === "object") add((spec.headline as { value?: unknown }).value);
   return out;
+}
+
+/** The target the chart itself reads a measure against: a bar's target line, the target of one number, a meter or a variance, or the tile that carries one. */
+function ownTarget(view: ViewSpec): { measure: unknown; target: unknown } | undefined {
+  if (view.type === "kpis") return Array.isArray(view.items) ? (view.items as { value?: unknown; target?: unknown }[]).map((tile) => ({ measure: tile?.value, target: tile?.target })).find((pair) => pair.target) : undefined;
+  // A stacked chart's line is for the whole stack, not its first part.
+  if (view.type === "bar") return view.stacked ? undefined : { measure: [view.y].flat()[0], target: [view.lines].flat().find((field) => typeof field === "string" && TARGET_NAME.test(field)) };
+  return { measure: view.value, target: view.target };
 }
 
 /** Reads the data: its fields by kind, how many rows and distinct values, and what the chart already shows. */
@@ -280,8 +293,16 @@ export function profileData(spec: WidgetSpec, rows: Row[]): DataProfile {
     return [...used.filter((f) => all.includes(f)), ...all.filter((f) => !used.includes(f))];
   };
   const numbers = ordered("number").filter((f) => !aside.has(f));
-  const target = numbers.find((f) => TARGET_NAME.test(f));
-  const measures = numbers.filter((f) => f !== target);
+  // The field named as a target: the one the chart already reads its measure against, or else the first.
+  const own = ownTarget(view);
+  const named = numbers.filter((f) => TARGET_NAME.test(f));
+  const apart = named.find((f) => f === own?.target) ?? named[0];
+  const measures = numbers.filter((f) => f !== apart);
+  // It is the first measure's target only when the chart pairs them, or when it shares that measure's unit and size:
+  // a revenue target the chart never shows is no target for churn or for a count of customers.
+  const lead = measures[0];
+  const belongs = (field: string) => lead !== undefined && ((field === own?.target && own.measure === lead) || sameUnit([lead, field], spec, rows).includes(field));
+  const target = apart !== undefined && belongs(apart) ? apart : undefined;
   const peers = sameUnit(measures, spec, rows);
   const categories = ordered("category");
   const times = ordered("date");
