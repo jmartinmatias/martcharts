@@ -150,6 +150,11 @@ export interface DataProfile {
   times: string[];
   /** A number field that reads as a target, plan or budget. */
   target?: string;
+  /**
+   * The first measure adds up across rows: a count or an amount. An average, a median, a rate, a score or a percent
+   * does not, so it is never sliced into shares, stacked, or summed into a total.
+   */
+  whole: boolean;
   rows: number;
   distinct: Record<string, number>;
   negatives: boolean;
@@ -173,6 +178,20 @@ function unitOf(field: string, spec: WidgetSpec): string {
   if (typeof format === "string") return format;
   const { type, currency } = format as { type?: unknown; currency?: unknown };
   return `${String(type)}:${String(currency ?? "")}`;
+}
+
+/** Words for numbers that do not add up: the sum of two medians, rates, scores, prices or wait times means nothing. */
+const NOT_ADDITIVE = /\b(median|average|avg|mean|rate|ratio|score|index|nps|margin|growth|price|time|(days|hours|minutes|weeks) to)\b/i;
+/** A price day's fields: open, high, low and close. */
+const PRICE = /^(open|high|low|close)$/i;
+/** Rows that are each a different measure (a scorecard): their numbers have different units. */
+const MEASURE_ROWS = /^(kpi|metric|measure|indicator)s?$/i;
+
+/** Whether a measure adds up across rows: not a percent or a price, and not named as an average, a median, a rate or a score. */
+function additive(field: string, spec: WidgetSpec): boolean {
+  if (unitOf(field, spec).startsWith("percent") || PRICE.test(field)) return false;
+  const words = `${field.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/[_-]/g, " ")} ${spec.fields?.[field]?.label ?? ""}`;
+  return !NOT_ADDITIVE.test(words);
 }
 
 /** The measures that share the first one's unit; unformatted numbers also need a similar size (within 50 times). */
@@ -243,6 +262,7 @@ export function profileData(spec: WidgetSpec, rows: Row[]): DataProfile {
     categories,
     times,
     ...(target ? { target } : {}),
+    whole: measures[0] !== undefined && additive(measures[0], spec) && !MEASURE_ROWS.test(categories[0] ?? ""),
     rows: rows.length,
     distinct,
     negatives: rows.some((row) => measures.some((f) => typeof row[f] === "number" && (row[f] as number) < 0)),
@@ -291,6 +311,8 @@ const perRow = (d: DataProfile, min: number, max: number) => d.measures.length >
 /** One row per period: a time series. */
 const perPeriod = (d: DataProfile, min = 3) => d.times.length > 0 && d.measures.length > 0 && d.distinct[t1(d)] === d.rows && d.rows >= min;
 const positive = (d: DataProfile) => !d.negatives;
+/** Parts of one whole: positive numbers that add up, so a share, a stack or a total means something. */
+const parts = (d: DataProfile) => positive(d) && d.whole;
 const PERIOD_WORD = /(19|20)\d\d|q[1-4]|before|after|previous|prior|last|current|this|start|end|from|to$/i;
 /** The first two measures read as one measure at two times (revenue2025 and revenue2026, before and after). */
 const periodPair = (d: DataProfile) => d.peers.length > 1 && PERIOD_WORD.test(p1(d)) && PERIOD_WORD.test(p2(d));
@@ -321,7 +343,7 @@ const PATTERNS: Pattern[] = [
     form: "a donut",
     moves: ["decompose"],
     marks: "smooth",
-    fits: (d) => perCategory(d, 2, 6) && positive(d),
+    fits: (d) => perCategory(d, 2, 6) && parts(d),
     make: (d) => ({ view: { type: "donut", label: c1(d), value: m1(d) } }),
   },
   {
@@ -329,7 +351,7 @@ const PATTERNS: Pattern[] = [
     form: "a waffle of 100 squares",
     moves: ["decompose"],
     marks: "sharp",
-    fits: (d) => perCategory(d, 2, 6) && positive(d),
+    fits: (d) => perCategory(d, 2, 6) && parts(d),
     make: (d) => ({ view: { type: "waffle", label: c1(d), value: m1(d) } }),
   },
   {
@@ -337,7 +359,7 @@ const PATTERNS: Pattern[] = [
     form: "a treemap",
     moves: ["decompose", "reform"],
     marks: "sharp",
-    fits: (d) => perCategory(d, 4, 40) && positive(d),
+    fits: (d) => perCategory(d, 4, 40) && parts(d),
     make: (d) => ({ view: { type: "treemap", label: c1(d), value: m1(d) } }),
   },
   {
@@ -345,7 +367,7 @@ const PATTERNS: Pattern[] = [
     form: "a Pareto",
     moves: ["distill", "reveal"],
     marks: "sharp",
-    fits: (d) => perCategory(d, 4, 30) && positive(d),
+    fits: (d) => perCategory(d, 4, 30) && parts(d),
     make: (d) => ({ view: { type: "pareto", label: c1(d), value: m1(d) } }),
   },
   {
@@ -391,7 +413,7 @@ const PATTERNS: Pattern[] = [
     form: "a headline number over bars",
     moves: ["combine"],
     marks: "sharp",
-    fits: (d) => perCategory(d, 2, 24),
+    fits: (d) => perCategory(d, 2, 24) && d.whole,
     make: (d) => ({ view: { type: "hbar", label: c1(d), value: m1(d) }, headline: { value: m1(d), agg: "sum" } }),
   },
   {
@@ -508,7 +530,7 @@ const PATTERNS: Pattern[] = [
     form: "a streamgraph",
     moves: ["decompose", "reveal"],
     marks: "smooth",
-    fits: (d) => perPeriod(d, 6) && d.peers.length >= 3 && positive(d),
+    fits: (d) => perPeriod(d, 6) && d.peers.length >= 3 && parts(d),
     make: (d) => ({ view: { type: "area", x: t1(d), y: d.peers.slice(0, 8), stacked: "stream" } }),
   },
   {
@@ -524,7 +546,7 @@ const PATTERNS: Pattern[] = [
     form: "a mix in shares",
     moves: ["reframe", "decompose"],
     marks: "smooth",
-    fits: (d) => perPeriod(d) && d.peers.length >= 2 && positive(d),
+    fits: (d) => perPeriod(d) && d.peers.length >= 2 && parts(d),
     make: (d) => ({ view: { type: "area", x: t1(d), y: d.peers.slice(0, 6), stacked: "percent" } }),
   },
   {
@@ -616,7 +638,7 @@ const PATTERNS: Pattern[] = [
     form: "a sunburst",
     moves: ["decompose", "reform"],
     marks: "smooth",
-    fits: (d) => twoLevels(d) && positive(d) && (d.distinct[c1(d)] ?? 0) <= 8,
+    fits: (d) => twoLevels(d) && parts(d) && (d.distinct[c1(d)] ?? 0) <= 8,
     make: (d) => ({ view: { type: "sunburst", levels: [c1(d), c2(d)], value: m1(d) } }),
   },
   {
@@ -624,7 +646,7 @@ const PATTERNS: Pattern[] = [
     form: "an icicle",
     moves: ["decompose"],
     marks: "sharp",
-    fits: (d) => twoLevels(d) && positive(d) && (d.distinct[c1(d)] ?? 0) <= 8,
+    fits: (d) => twoLevels(d) && parts(d) && (d.distinct[c1(d)] ?? 0) <= 8,
     make: (d) => ({ view: { type: "icicle", levels: [c1(d), c2(d)], value: m1(d) } }),
   },
   {
@@ -641,7 +663,7 @@ const PATTERNS: Pattern[] = [
     form: "a marimekko of size and mix",
     moves: ["combine", "decompose"],
     marks: "sharp",
-    fits: (d) => twoLevels(d) && d.crossed && positive(d) && (d.distinct[c1(d)] ?? 0) <= 8 && (d.distinct[c2(d)] ?? 0) <= 8,
+    fits: (d) => twoLevels(d) && d.crossed && parts(d) && (d.distinct[c1(d)] ?? 0) <= 8 && (d.distinct[c2(d)] ?? 0) <= 8,
     make: (d) => ({ view: { type: "marimekko", x: c1(d), series: c2(d), value: m1(d) } }),
   },
   {

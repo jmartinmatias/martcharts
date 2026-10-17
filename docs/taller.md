@@ -64,6 +64,7 @@ Every version:
 
 - keeps the data, the transforms and the fields of the original (distilling to the top five may add a sort and a limit, and says so);
 - passes `validateSpec` with no errors and actually renders (a test draws every version of every widget);
+- slices, stacks or totals only numbers that add up: never a donut, tiles, a Pareto, stacked shares or a summed headline of an average, a median, a rate, a percent, a score, a price or a wait time, nor of a scorecard whose rows are different KPIs (`profileData(...).whole`);
 - brings a colorblind-safe palette when it brings its own (`checkPalette`);
 - is new: never the original's shape, never another version's shape, and in the original's own view it needs a new form (mark, curve, stacking) or two new elements. Taking extras away is not creating.
 

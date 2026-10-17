@@ -367,6 +367,36 @@ describe("honest forms", () => {
     expect(stackedDials.some((v) => [v.spec.view?.y].flat().length === 2)).toBe(true);
   });
 
+  test("a number that does not add up, a median, an average, a rate or a percent, is never sliced into shares, stacked or summed", () => {
+    const teams = ["Technical", "Data", "SMB", "Partners", "Billing", "Security", "Onboarding", "Enterprise"];
+    const byTeam = (field: string, label: string, format?: { type: string }) => {
+      const rows = teams.map((team, i) => ({ team, [field]: 95 - i * 10 }));
+      const spec: WidgetSpec = { title: label, data: { type: "inline", rows }, fields: { [field]: { label, ...(format ? { format } : {}) } }, view: { type: "bar", x: "team", y: field } };
+      return [spec, rows] as const;
+    };
+    const rates = months.map((month, i) => ({ month, online: 0.2 + i / 100, store: 0.3 - i / 100, phone: 0.1 + i / 200 }));
+    const overTime: WidgetSpec = { title: "Win rate by channel", data: { type: "inline", rows: rates }, fields: { online: { format: { type: "percent" } }, store: { format: { type: "percent" } }, phone: { format: { type: "percent" } } }, view: { type: "line", x: "month", y: ["online", "store", "phone"] } };
+    const WHOLE = ["donut", "waffle", "treemap", "pareto", "sunburst", "icicle", "marimekko"];
+    const sliced = (v: Variant) => WHOLE.includes(String(v.spec.view?.type)) || Boolean(v.spec.view?.stacked) || (v.spec.headline as { agg?: unknown } | undefined)?.agg === "sum";
+    for (const [spec, rows] of [byTeam("minutes", "Median minutes"), byTeam("deal", "Average deal"), byTeam("won", "Won", { type: "percent" }), [overTime, rates] as const]) {
+      const versions = everything(spec, rows);
+      expect([spec.title, versions.length > 0, versions.filter(sliced).map((v) => v.title)]).toEqual([spec.title, true, []]);
+      expect(profileData(spec, rows).whole).toBe(false);
+    }
+    // Prices, durations, and rows that are each a different KPI do not add up either.
+    const one = (rows: Row[], fields: WidgetSpec["fields"] = {}) => profileData({ data: { type: "inline", rows }, fields, view: { type: "table" } }, rows).whole;
+    expect([
+      one([{ day: "2026-09-01", open: 10, high: 12, low: 9, close: 11 }]),
+      one([{ deal: "A", days: 30 }], { days: { label: "Days to close" } }),
+      one([{ team: "A", response_time: 30 }]),
+      one([{ kpi: "Revenue", actual: 1200 }, { kpi: "Churn", actual: 3 }]),
+      one([{ deal: "A", value: 30 }], { value: { label: "Deal value" } }),
+    ]).toEqual([false, false, false, false, true]);
+    // Amounts still add up, so they still get their shares.
+    const [revenue, rows] = byTeam("revenue", "Revenue");
+    expect([profileData(revenue, rows).whole, everything(revenue, rows).some(sliced)]).toEqual([true, true]);
+  });
+
   test("a slope compares the earliest period with the latest, not the first two columns", () => {
     const wide = ["North", "South", "East", "West"].map((region, r) => Object.fromEntries([["region", region], ...months.slice(3, 9).map((m, i) => [m, 40 + r * 5 + i * (r + 1)])]));
     const table: WidgetSpec = { title: "Revenue by region and month", data: { type: "inline", rows: wide }, view: { type: "table" } };
