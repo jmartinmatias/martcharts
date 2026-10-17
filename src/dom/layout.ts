@@ -725,9 +725,11 @@ export function smoothBands(edges: Point[][]): string[] {
 export function spread(count: number, x: number, width: number): Band[] {
   if (count === 1) return [{ start: x, width, center: x + width / 2 }];
   const step = count > 1 ? width / (count - 1) : 0;
+  // Each point owns the space halfway to its neighbours, clipped to the plot: the end points own only the inner half.
   return Array.from({ length: count }, (_, i) => {
     const center = x + i * step;
-    return { start: center - step / 2, width: step, center };
+    const start = Math.max(x, center - step / 2);
+    return { start, width: Math.min(x + width, center + step / 2) - start, center };
   });
 }
 

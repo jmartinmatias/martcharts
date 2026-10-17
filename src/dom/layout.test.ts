@@ -399,11 +399,12 @@ describe("bandPath", () => {
 });
 
 describe("spread", () => {
-  test("places points edge to edge, each owning the space halfway to its neighbours", () => {
+  test("places points edge to edge, each owning the space halfway to its neighbours, and never past the plot's ends", () => {
+    // The first and last points sit on the plot's edges, so they own only the inner half: a hover area never spills outside the chart.
     expect(spread(3, 10, 100)).toEqual([
-      { start: -15, width: 50, center: 10 },
+      { start: 10, width: 25, center: 10 },
       { start: 35, width: 50, center: 60 },
-      { start: 85, width: 50, center: 110 },
+      { start: 85, width: 25, center: 110 },
     ]);
   });
 
