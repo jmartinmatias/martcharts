@@ -1236,6 +1236,8 @@ describe("combo: lines over bars", () => {
     expect([dots[0]?.style.fill.startsWith("color-mix"), dots[0]?.style.stroke]).toEqual([true, "color-mix(in srgb, var(--fft-series-1) 85%, var(--fft-text))"]);
     const key = all(".fft-legend li").at(-1);
     expect([key?.textContent, (key?.querySelector(".fft-swatch") as HTMLElement).dataset.tone]).toEqual(["Over 1 hour target", "miss"]);
+    // The keys mirror the marks: round for lollipop dots, as bars get squares.
+    expect(all(".fft-legend .fft-swatch").map((swatch) => (swatch as HTMLElement).dataset.shape)).toEqual(["dot", "dot"]);
   });
 
   test("a dashed target line marks the bars under it by default; an average line marks nothing", async () => {

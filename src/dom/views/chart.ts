@@ -75,14 +75,14 @@ const missEdge = (color: string) => `color-mix(in srgb, ${color} 85%, var(--fft-
 interface LegendEntry {
   field: string;
   color: string;
-  shape: "rect" | "line";
+  shape: "rect" | "line" | "dot";
   /** The words, when they are not the field's label ("Below target"). */
   label?: string;
   /** A mark state the swatch mirrors, as the marks do: `miss` is a light fill outlined in the color. */
   tone?: "miss";
 }
 
-/** A legend whose keys mirror their marks: a square for bars, a short line for lines. */
+/** A legend whose keys mirror their marks: a square for bars, a dot for lollipops, a short line for lines. */
 function legend(ctx: ViewContext<{ type: string }>, entries: LegendEntry[]): HTMLElement {
   const doc = ctx.el.ownerDocument;
   const list = html(doc, "ul", "fft-legend");
@@ -190,10 +190,11 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
   const endRoom = Math.max(0, ...[...endLabels.map((label) => label?.text), ...bandEndText].map((text) => (text ? text.length * CHAR_WIDTH + 13 : 0)));
 
   const wrap = html(doc, "div", "fft-chart");
+  const markShape: LegendEntry["shape"] = kind !== "bar" ? "line" : (view as BarView).mark === "lollipop" ? "dot" : "rect";
   const legendEntries = [
-    ...series.map((field, s) => ({ field, color: seriesColor(s), shape: (kind === "bar" ? "rect" : "line") as "rect" | "line" })),
+    ...series.map((field, s) => ({ field, color: seriesColor(s), shape: markShape })),
     ...overlayFields.map((field, k) => ({ field, color: overlayColor(k), shape: "line" as const })),
-    ...(rows.some((_, i) => missed(i)) ? [{ field: series[0] as string, color: seriesColor(0), shape: "rect" as const, label: `${lowerIsBetter ? "Over" : "Below"} ${goalName}`, tone: "miss" as const }] : []),
+    ...(rows.some((_, i) => missed(i)) ? [{ field: series[0] as string, color: seriesColor(0), shape: markShape, label: `${lowerIsBetter ? "Over" : "Below"} ${goalName}`, tone: "miss" as const }] : []),
   ];
   if (legendEntries.length > 1 && !ctx.inFacet) wrap.append(legend(ctx, legendEntries));
 
