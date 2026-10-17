@@ -118,7 +118,7 @@ export const DICTIONARY: Equivalent[] = [
   { group: "Tastes", kitchen: "Salty", chart: "Emphasis that brings out the data: a headline, a highlight, bold values. Too salty: everything shouts." },
   { group: "Tastes", kitchen: "Acid", chart: "Freshness and surprise: an unexpected but fitting form, or a precise annotation that cuts through." },
   { group: "Tastes", kitchen: "Bitter", chart: "Honesty: negatives, variance, targets missed, uncertainty. Small doses, never hidden." },
-  { group: "Tastes", kitchen: "Fatty", chart: "Richness and ink: fills, stacks, many marks. Carries flavor, gets heavy fast." },
+  { group: "Tastes", kitchen: "Fatty", chart: "Detail: how much is drawn (fills, stacks, many marks). Carries flavor, gets heavy fast." },
   { group: "Tastes", kitchen: "Umami", chart: "Depth of insight: comparison, reference, forecast, the story that completes the dish." },
   { group: "Methods", kitchen: "Association", chart: "Combine two techniques: bars with their target line, a headline over a chart." },
   { group: "Methods", kitchen: "Adaptation", chart: "A classic served in a new form." },
@@ -885,7 +885,7 @@ export function saucesOf(spec: WidgetSpec): number {
 }
 
 /** What each taste means for a chart: the names results go by, so a reader never needs the kitchen words. */
-export const TASTE_MEANINGS: Record<Taste, string> = { salty: "Emphasis", acid: "Surprise", bitter: "Honesty", fatty: "Ink", umami: "Insight" };
+export const TASTE_MEANINGS: Record<Taste, string> = { salty: "Emphasis", acid: "Surprise", bitter: "Honesty", fatty: "Detail", umami: "Insight" };
 
 const TOO: Record<Taste, string> = {
   salty: "everything shouts",
@@ -897,18 +897,18 @@ const TOO: Record<Taste, string> = {
 
 /**
  * Whether a plate is balanced: no taste dominating, none the dish needs missing, at most one sauce. The note is in
- * chart words (emphasis, surprise, honesty, ink, insight), since it is read next to the chart.
+ * chart words (emphasis, surprise, honesty, detail, insight), since it is read next to the chart.
  */
 export function balanceOf(tastes: Tastes, sauces = 0): Balance {
   const sorted = [...TASTES].sort((a, b) => tastes[b] - tastes[a]);
   const [top, second] = sorted as [Taste, Taste];
   const plain = (taste: Taste) => TASTE_MEANINGS[taste].toLowerCase();
-  if (sauces > 1) return { ok: false, note: "too much ink: two filled layers" };
+  if (sauces > 1) return { ok: false, note: "too much detail: two filled layers" };
   if (tastes[top] >= 0.9 && tastes[top] - tastes[second] >= 0.35) return { ok: false, note: `too much ${plain(top)}: ${TOO[top]}` };
   const total = TASTES.reduce((sum, taste) => sum + tastes[taste], 0);
   if (total < 0.9) return { ok: false, note: "too plain: it needs emphasis or insight" };
   if (tastes.umami < 0.15 && tastes.salty < 0.2) return { ok: false, note: "too plain: nothing stands out and nothing to learn" };
-  const hint = tastes.fatty >= 0.7 ? ", with a lot of ink" : tastes.salty >= 0.75 ? ", with strong emphasis" : "";
+  const hint = tastes.fatty >= 0.7 ? ", with a lot of detail" : tastes.salty >= 0.75 ? ", with strong emphasis" : "";
   return { ok: true, note: `balanced: mostly ${plain(top)} and ${plain(second)}${hint}` };
 }
 
@@ -1105,7 +1105,8 @@ export function createVariants(spec: WidgetSpec, rows: Row[], options: TallerOpt
       tastes,
       balance,
       menu: `${adjective} ${lowerFirst(dish.title)}: ${recipe.form}, ${TEMPERATURE_WORDS[temp]}, ${feel}, ${PLATES[plate].words}`,
-      ...explainVariant(variant, dish.title),
+      // The field that names each row (an account, a deal) lets a title say what every row or dot is.
+      ...explainVariant(variant, dish.title, dish.categories.find((c) => dish.distinct[c] === dish.rows)),
       seed: options.seed ?? 1,
       novelty: noveltyOf(variant, spec),
       meaning: meaningOf(tastes, balance),

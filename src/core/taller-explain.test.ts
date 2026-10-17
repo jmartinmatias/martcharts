@@ -18,6 +18,11 @@ describe("explainVariant", () => {
     expect(explainVariant({ ...base, view: { type: "scatter", x: "revenue", y: "cost" } }, "Sales").title).toBe("Sales as a scatter: each dot is one item");
   });
 
+  test("names what each row or dot is when it knows the field that names the rows", () => {
+    expect(explainVariant({ ...base, view: { type: "table" } }, "Account portfolio", "account").title).toBe("Account portfolio as a table: each row is one account");
+    expect(explainVariant({ ...base, view: { type: "scatter", x: "revenue", y: "cost" } }, "Accounts", "account").title).toBe("Accounts as a scatter: each dot is one account");
+  });
+
   test("adds what the extras mean, at most two sentences", () => {
     const { explain } = explainVariant({ ...base, headline: { value: "revenue" }, view: { type: "bar", x: "region", y: "revenue", highlight: "East" } }, "Sales");
     expect(explain).toBe("A taller bar means more revenue. One item is in color and the rest are grey, so it stands out.");

@@ -11,7 +11,7 @@ import { fieldLabel } from "./display.ts";
 import type { WidgetSpec } from "./types.ts";
 
 /** A plain title and a short "how to read it" for a chart spec. */
-export function explainVariant(spec: WidgetSpec, dishTitle: string): { title: string; explain: string } {
+export function explainVariant(spec: WidgetSpec, dishTitle: string, rowName?: string): { title: string; explain: string } {
   const view = spec.view ?? { type: "table" };
   const name = (field: unknown) => (typeof field === "string" ? fieldLabel(field, spec.fields).toLowerCase() : "value");
   const first = (field: unknown) => (Array.isArray(field) ? field[0] : field);
@@ -76,7 +76,7 @@ export function explainVariant(spec: WidgetSpec, dishTitle: string): { title: st
       break;
     case "table":
       form = "a table";
-      mark = "each row is one item";
+      mark = `each row is one ${rowName ? name(rowName) : "item"}`;
       read = "The bar inside a cell shows how big that number is next to the biggest one.";
       break;
     case "list":
@@ -121,7 +121,7 @@ export function explainVariant(spec: WidgetSpec, dishTitle: string): { title: st
       break;
     case "scatter":
       form = "a scatter";
-      mark = `each dot is one ${view.label ? name(view.label) : "item"}`;
+      mark = `each dot is one ${view.label ? name(view.label) : rowName ? name(rowName) : "item"}`;
       read = `Further right means more ${name(view.x)}, higher means more ${name(view.y)}.`;
       break;
     case "histogram":
@@ -181,7 +181,7 @@ export function explainVariant(spec: WidgetSpec, dishTitle: string): { title: st
       break;
     default:
       form = `a ${String(view.type)} chart`;
-      mark = "each mark is one item";
+      mark = `each mark is one ${rowName ? name(rowName) : "item"}`;
       read = "Hover a mark to see its numbers.";
   }
   const facet = (spec.facet as { field?: string } | undefined)?.field;

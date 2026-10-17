@@ -76,14 +76,14 @@ describe("tastes and balance", () => {
 
   test("balance: two sauces, one shouting taste, or nothing to taste is turned away; a good plate says what leads, in chart words", () => {
     const even = { salty: 0.4, acid: 0.3, bitter: 0.2, fatty: 0.35, umami: 0.45 };
-    expect(balanceOf(even, 2)).toEqual({ ok: false, note: "too much ink: two filled layers" });
+    expect(balanceOf(even, 2)).toEqual({ ok: false, note: "too much detail: two filled layers" });
     expect(balanceOf({ ...even, salty: 1, umami: 0.3, fatty: 0.2 })).toEqual({ ok: false, note: "too much emphasis: everything shouts" });
     expect(balanceOf({ salty: 0.1, acid: 0.1, bitter: 0.1, fatty: 0.2, umami: 0.1 }).ok).toBe(false);
     expect(balanceOf(even)).toEqual({ ok: true, note: "balanced: mostly insight and emphasis" });
   });
 
   test("on results, the five tastes go by what they mean for a chart", () => {
-    expect(TASTE_MEANINGS).toEqual({ salty: "Emphasis", acid: "Surprise", bitter: "Honesty", fatty: "Ink", umami: "Insight" });
+    expect(TASTE_MEANINGS).toEqual({ salty: "Emphasis", acid: "Surprise", bitter: "Honesty", fatty: "Detail", umami: "Insight" });
   });
 });
 
