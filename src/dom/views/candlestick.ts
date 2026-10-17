@@ -18,6 +18,40 @@ const BODY = 13;
  * its open (hollow) and the down color when below (filled). A legend names the two, so color is
  * never the only key. `average` adds a moving average of the close as a line.
  */
+/** Dates written as days, 2026-08-17. */
+const DAY = /^\d{4}-\d{2}-\d{2}/;
+
+/**
+ * Labels for trading days, week by week as price charts do: each week's first trading day, every week or every nth
+ * week so they fit (`fits` says whether a set does), the year only on the first label and where it changes ("Aug 17,
+ * 2026", "Aug 24", "Aug 31"). Undefined when the periods are not dated days.
+ */
+function dayLabels(days: string[], locale: string | undefined, fits: (labels: [number, string][]) => boolean): [number, string][] | undefined {
+  if (!days.length || !days.every((day) => DAY.test(day))) return undefined;
+  const date = (day: string) => new Date(`${day.slice(0, 10)}T00:00:00Z`);
+  // A new week starts when the weekday (Monday first) does not move forward.
+  const weekday = (day: string) => (date(day).getUTCDay() + 6) % 7;
+  const starts = days.map((_, i) => i).filter((i) => i === 0 || weekday(days[i] as string) <= weekday(days[i - 1] as string));
+  const monthDay = new Intl.DateTimeFormat(locale, { month: "short", day: "numeric", timeZone: "UTC" });
+  const full = new Intl.DateTimeFormat(locale, { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+  const every = (step: number): [number, string][] => {
+    let year = "";
+    return starts
+      .filter((_, k) => k % step === 0)
+      .map((i) => {
+        const day = days[i] as string;
+        const own = day.slice(0, 4);
+        const label = own === year ? monthDay.format(date(day)) : full.format(date(day));
+        year = own;
+        return [i, label];
+      });
+  };
+  // Every week, or every other week, and so on, until they all fit.
+  let step = 1;
+  while (step < starts.length && !fits(every(step))) step++;
+  return every(step);
+}
+
 export const renderCandlestick: ViewRenderer<CandlestickView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
   const { x: xField, open, high, low, close, average } = ctx.view;
@@ -76,10 +110,18 @@ export const renderCandlestick: ViewRenderer<CandlestickView> = (ctx) => {
     text.textContent = tickText(tick);
     chart.append(text);
   }
-  for (const i of fitLabels(periods.map((p, k) => ({ x: slots[k]?.center ?? 0, width: p.text.length * CHAR_WIDTH })), { keepLast: true })) {
+  const fits = (labels: [number, string][]) => fitLabels(labels.map(([i, label]) => ({ x: slots[i]?.center ?? 0, width: label.length * CHAR_WIDTH }))).length === labels.length;
+  for (const [i, label] of dayLabels(periods.map((p) => String(p.row[xField] ?? "")), ctx.spec.locale, fits) ?? []) {
     const text = svg(doc, "text", { class: "fft-tick fft-tick-x", x: slots[i]?.center ?? 0, y: plot.y + plot.h + 18, "text-anchor": "middle" });
-    text.textContent = periods[i]?.text ?? "";
+    text.textContent = label;
     chart.append(text);
+  }
+  if (!DAY.test(String(periods[0]?.row[xField] ?? ""))) {
+    for (const i of fitLabels(periods.map((p, k) => ({ x: slots[k]?.center ?? 0, width: p.text.length * CHAR_WIDTH })), { keepLast: true })) {
+      const text = svg(doc, "text", { class: "fft-tick fft-tick-x", x: slots[i]?.center ?? 0, y: plot.y + plot.h + 18, "text-anchor": "middle" });
+      text.textContent = periods[i]?.text ?? "";
+      chart.append(text);
+    }
   }
 
   const candles: SVGGElement[] = [];

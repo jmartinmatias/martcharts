@@ -2113,6 +2113,14 @@ describe("candlestick view", () => {
   const candle = (i: number) => all(".fft-candle")[i];
   const num = (node: Element | null | undefined, attr: string) => Number(node?.getAttribute(attr));
 
+  test("trading days are labelled week by week, on each week's first trading day, naming the year once", async () => {
+    // 30 trading days from Monday Aug 17, 2026, weekends skipped.
+    const trading: string[] = [];
+    for (let t = Date.UTC(2026, 7, 17); trading.length < 30; t += 86400000) if (![0, 6].includes(new Date(t).getUTCDay())) trading.push(new Date(t).toISOString().slice(0, 10));
+    await draw({ rows: trading.map((d, i) => ({ d, o: 10 + i, h: 12 + i, l: 9 + i, c: 11 + i })), fields: { d: { format: { type: "date" } } }, view: { type: "candlestick", x: "d", open: "o", high: "h", low: "l", close: "c" } });
+    expect(texts(".fft-tick-x")).toEqual(["Aug 17, 2026", "Aug 24", "Aug 31", "Sep 7", "Sep 14", "Sep 21"]);
+  });
+
   test("one candle per row: a wick from low to high around a body from open to close", async () => {
     await draw(spec);
     expect(all(".fft-candle").length).toBe(4);
