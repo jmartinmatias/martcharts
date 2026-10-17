@@ -66,7 +66,7 @@ registerPreset({
   name: "glass",
   description: "Frosted translucent cards for dark, image or gradient backdrops: soft blur, large radius, pill bars on tracks, blue and gold leading the palette.",
   // Blue, gold, teal, orange, violet, red, green, magenta: passes adjacent CVD (worst 8.4) and the normal-vision floor on a dark glass surface.
-  palette: ["#3987e5", "#c98500", "#199e70", "#d95926", "#9085e9", "#e66767", "#008300", "#d55181"],
+  palette: ["#3987e5", "#c98500", "#199e70", "#d95926", "#9085e9", "#e66767", "#20921d", "#d55181"],
   scheme: "dark",
   marks: { barRadius: "full", barTrack: true, sliceCaps: "round" },
   css: `
@@ -77,13 +77,13 @@ registerPreset({
   --fft-popover: rgba(24, 33, 32, 0.92);
   --fft-text: #f4f7f6;
   --fft-text-secondary: rgba(244, 247, 246, 0.66);
-  --fft-muted: rgba(244, 247, 246, 0.46);
+  --fft-muted: rgba(244, 247, 246, 0.58);
   --fft-grid: rgba(255, 255, 255, 0.07);
   --fft-axis: rgba(255, 255, 255, 0.16);
   --fft-border: rgba(255, 255, 255, 0.12);
-  --fft-accent: #3987e5;
-  --fft-positive: #0ca30c;
-  --fft-negative: #e66767;
+  --fft-accent: #509efe;
+  --fft-positive: #2db429;
+  --fft-negative: #f67574;
   --fft-radius: 21px;
   --fft-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 8px 34px rgba(0, 0, 0, 0.21);
   backdrop-filter: blur(21px) saturate(144%);
@@ -99,10 +99,10 @@ registerPreset({
   --fft-seq-text-1: #ffffff;
   --fft-seq-2: #1c5cab;
   --fft-seq-text-2: #ffffff;
-  --fft-seq-3: #2a78d6;
+  --fft-seq-3: #2674d2;
   --fft-seq-text-3: #ffffff;
   --fft-seq-4: #3987e5;
-  --fft-seq-text-4: #ffffff;
+  --fft-seq-text-4: #0b0b0b;
   --fft-seq-5: #6da7ec;
   --fft-seq-text-5: #0b0b0b;
   --fft-seq-6: #9ec5f4;
@@ -124,7 +124,7 @@ registerPreset({
   name: "airy",
   description: "Editorial and chrome-free for light pages: no card, generous whitespace, small grey labels over large numbers, warm orange leading the palette, solid value pills.",
   // Orange, blue, yellow, teal, green, magenta, violet, red: passes adjacent CVD (worst 9.1) and the normal-vision floor on a light page.
-  palette: ["#eb6834", "#2a78d6", "#eda100", "#1baf7a", "#008300", "#e87ba4", "#6250d6", "#e34948"],
+  palette: ["#e5632e", "#2a78d6", "#009f6d", "#bd7f00", "#d36992", "#008300", "#6250d6", "#e34948"],
   scheme: "light",
   marks: { areaGradient: true },
   css: `
@@ -135,13 +135,13 @@ registerPreset({
   --fft-popover: #eb6834;
   --fft-text: #111111;
   --fft-text-secondary: #6b6b68;
-  --fft-muted: #9a9a96;
+  --fft-muted: #6f6f6b;
   --fft-grid: #e7e7e3;
   --fft-axis: #d3d3ce;
   --fft-border: transparent;
-  --fft-accent: #eb6834;
+  --fft-accent: #c34400;
   --fft-positive: #006300;
-  --fft-negative: #d03b3b;
+  --fft-negative: #cc3737;
   --fft-shadow: none;
   --fft-pad: 8px 0;
 }
@@ -166,7 +166,7 @@ registerPreset({
   name: "paper",
   description: "Editorial print for reports and briefings: a warm paper card under a black rule instead of a border, serif titles and headline numbers, nearly square bars, deep ink blue leading the palette.",
   // Ink blue, orange, teal, gold, magenta, green, violet, red: passes adjacent CVD (worst 8.4) and the normal-vision floor (19.3) on the paper surface.
-  palette: ["#1c5cab", "#d95926", "#199e70", "#c98500", "#d55181", "#008300", "#6250d6", "#e34948"],
+  palette: ["#1c5cab", "#d95926", "#199e70", "#c18000", "#d55181", "#008300", "#6250d6", "#e34948"],
   scheme: "light",
   marks: { barRadius: 1 },
   css: `
@@ -177,7 +177,7 @@ registerPreset({
   --fft-popover: #1d1d1b;
   --fft-text: #1d1d1b;
   --fft-text-secondary: #5e5a52;
-  --fft-muted: #8c877d;
+  --fft-muted: #746f66;
   --fft-grid: #ebe5da;
   --fft-axis: #cfc7b8;
   --fft-border: transparent;

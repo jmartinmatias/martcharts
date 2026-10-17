@@ -18,6 +18,7 @@ export const renderFunnel: ViewRenderer<FunnelView> = (ctx) => {
   const pct = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 0 });
 
   const funnel = html(doc, "div", "fft-funnel");
+  funnel.setAttribute("role", "list");
   ctx.rows.forEach((row, i) => {
     const amount = amounts[i] ?? null;
     const name = ctx.format(row[label], label);
@@ -25,6 +26,7 @@ export const renderFunnel: ViewRenderer<FunnelView> = (ctx) => {
     const ofFirst = amount === null ? "" : pct.format(amount / base);
 
     const item = html(doc, "div", "fft-funnel-row");
+    item.setAttribute("role", "listitem");
     item.tabIndex = 0;
     item.style.setProperty("--fft-i", String(i));
     const track = html(doc, "div", "fft-funnel-track");
@@ -53,7 +55,10 @@ export const renderFunnel: ViewRenderer<FunnelView> = (ctx) => {
 
     const next = amounts[i + 1];
     if (i < ctx.rows.length - 1 && amount && next !== undefined && next !== null) {
-      funnel.append(html(doc, "div", "fft-funnel-step", `${pct.format(next / amount)} →`));
+      // The step-to-step rate is in the next stage's label ("Of previous stage"), so the arrow between them is visual only.
+      const step = html(doc, "div", "fft-funnel-step", `${pct.format(next / amount)} →`);
+      step.setAttribute("aria-hidden", "true");
+      funnel.append(step);
     }
   });
   roving([...funnel.querySelectorAll(".fft-funnel-row")]);

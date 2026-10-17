@@ -70,7 +70,7 @@ registerPalette({
   name: "default",
   label: "Default",
   description: "The validated house palette, with its own dark-mode steps. Choosing it removes any palette override.",
-  colors: ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#6250d6", "#e34948"],
+  colors: ["#2a78d6", "#eb6834", "#00a470", "#c38300", "#d86d96", "#008300", "#6250d6", "#e34948"],
   darkColors: ["#3987e5", "#d95926", "#199e70", "#c98500", "#d55181", "#008300", "#9085e9", "#e66767"],
 });
 

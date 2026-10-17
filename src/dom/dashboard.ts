@@ -195,6 +195,8 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     nav.setAttribute("aria-label", "Sections");
     for (const entry of [null, ...sections]) {
       const button = el("button", "", entry ? entry.title : "All");
+      // The label again, for the stylesheet to reserve its semibold width, so choosing a chip never shifts the row.
+      button.dataset.label = button.textContent ?? "";
       button.type = "button";
       if (entry) button.dataset.section = entry.node.id;
       button.setAttribute("aria-pressed", String(entry === null));
@@ -243,7 +245,16 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   }
 
   // A pinned filter row wraps to several lines on a phone: track its height so a jumped-to section scrolls clear of it.
-  const barSize = options.sticky && typeof ResizeObserver === "function" ? new ResizeObserver(() => root.style.setProperty("--fft-filters-height", `${filterRow.offsetHeight}px`)) : undefined;
+  // The page gets the height too: it scroll-pads by it, so a card brought into view by Tab never hides beneath the row (WCAG 2.4.11).
+  const page = doc.documentElement;
+  const barSize =
+    options.sticky && typeof ResizeObserver === "function"
+      ? new ResizeObserver(() => {
+          const height = `${filterRow.offsetHeight}px`;
+          root.style.setProperty("--fft-filters-height", height);
+          page.style.setProperty("--fft-filters-height", height);
+        })
+      : undefined;
   barSize?.observe(filterRow);
   // A zero-height marker where the row sits in the page: once it scrolls above the top, the row is stuck and shows an edge.
   let stuckSpy: IntersectionObserver | undefined;
@@ -371,6 +382,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     destroy() {
       doc.defaultView?.removeEventListener("hashchange", onHash);
       barSize?.disconnect();
+      if (barSize) page.style.removeProperty("--fft-filters-height");
       stuckSpy?.disconnect();
       for (const widget of widgets.values()) widget.destroy();
       root.remove();

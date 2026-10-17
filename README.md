@@ -96,6 +96,7 @@ const asTable = fork(topCustomers, { view: { type: "table", label: null, detail:
 | Dashboards | `createDashboard(el, spec, { widgets })` lays out widgets from one JSON file, with a filter row that scopes every widget with that field, a Period control (`"range": { "field": "month" }`: 3M, 6M, 12M, YTD, All) and full-width section headings (`{ "section": "Revenue" }`) with a section filter (All, or one section at a time) |
 | Text templates | Titles, subtitles, footers and headline captions can say `{first:month} to {last:month}`, `{count} deals` or `{sum:revenue}`, filled from the rows the chart draws |
 | Export | `createWidget(el, spec, { actions: ["csv", "image", "copy"] })` adds download CSV, download PNG and copy-for-Excel buttons |
+| Accessibility | Conforms to EN 301 549 v3.2.1 (European Accessibility Act), that is WCAG 2.1 AA, plus WCAG 2.2 target size and focus not obscured: keyboard reach for every mark, a data table behind every chart, 4.5:1 text and 3:1 marks in every theme and preset, color never the only signal, Escape-dismissable tooltips. See [docs/accessibility.md](docs/accessibility.md) |
 | Widget refs | Every widget with an id wears a faint ref such as `W-7Q2K` in its bottom corner (`widgetRef(id)`, stable, easy to say). Click to copy it; the MCP tools take it in place of the id, so "fix W-7Q2K" is enough |
 | Small multiples | `"facet": { "field": "region" }` splits any chart into one panel per value, on one shared scale |
 | KPI icons | `"icon": "users"` and 13 more line icons on KPI tiles |
@@ -157,6 +158,7 @@ Widgets are stored as `widgets/<id>.json`, the same files the demo page reads. A
 - [docs/api.md](docs/api.md): the spec format, the JavaScript API, events, styling and extending.
 - [docs/blocks.md](docs/blocks.md): every block and option (generated).
 - [docs/mcp.md](docs/mcp.md): MCP tools, resources and setup.
+- [docs/accessibility.md](docs/accessibility.md): conformance with EN 301 549 (the European Accessibility Act) and WCAG 2.1 AA, criterion by criterion, and how to test it.
 
 ## Project layout
 

@@ -615,12 +615,14 @@ describe("touch", () => {
     expect([tip().hidden, active()]).toEqual([true, []]);
   });
 
-  test("a mouse leaving a mark still hides the tooltip at once", async () => {
+  test("a mouse leaving a mark clears the highlight at once and the tooltip after a short grace, so it can be hovered (WCAG 1.4.13)", async () => {
     await draw().ready;
     fire(mark(0), "pointerenter", "mouse");
     expect(tip().hidden).toBe(false);
     fire(mark(0), "pointerleave", "mouse");
-    expect([tip().hidden, active()]).toEqual([true, []]);
+    expect(active()).toEqual([]);
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    expect(tip().hidden).toBe(true);
     mark(1).dispatchEvent(new Event("pointerenter"));
     mark(1).dispatchEvent(new Event("pointerleave"));
     expect([tip().hidden, deactivations]).toEqual([true, 2]);

@@ -4,7 +4,7 @@ import type { RidgelineView } from "../../core/views.ts";
 import { density, linearScale, quantile } from "../layout.ts";
 import { tickFormatter } from "./chart.ts";
 import { roving } from "./focus.ts";
-import { html, selectable, svg } from "./shared.ts";
+import { hiddenTable, html, selectable, svg } from "./shared.ts";
 
 const CHAR_WIDTH = 6;
 const ROW = 55;
@@ -76,6 +76,7 @@ export const renderRidgeline: ViewRenderer<RidgelineView> = (ctx) => {
     for (const r of ridges) r.removeAttribute("data-active");
     ctx.tooltip.hide();
   };
+  const summary: string[][] = [];
   groups.forEach((name, g) => {
     const base = margin.top + (g + 1) * ROW;
     const points = grid.map((v, i) => `${Math.round(x(v) * 100) / 100},${Math.round((base - ((curves[g]?.[i] ?? 0) / peak) * ridgeHeight) * 100) / 100}`);
@@ -100,6 +101,7 @@ export const renderRidgeline: ViewRenderer<RidgelineView> = (ctx) => {
       { label: "Middle half", value: `${ctx.format(quantile(list, 0.25), value)} to ${ctx.format(quantile(list, 0.75), value)}` },
       { label: "Count", value: String(list.length) },
     ];
+    summary.push([labels[g] ?? name, ...items.map((it) => it.value)]);
     const hit = svg(doc, "rect", { class: "fft-ridge-hit", x: 0, y: base - ROW, width, height: ROW, role: "img" });
     hit.setAttribute("aria-label", `${labels[g]}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
     const activate = () => {
@@ -118,6 +120,6 @@ export const renderRidgeline: ViewRenderer<RidgelineView> = (ctx) => {
   });
   chart.append(overlay);
   roving([...overlay.children]);
-  wrap.append(chart);
+  wrap.append(chart, hiddenTable(doc, [ctx.label(group), "Median", "Middle half", "Count"], summary));
   ctx.el.append(wrap);
 };

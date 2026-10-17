@@ -14,7 +14,7 @@ const BODY = 13;
 /**
  * Draws the `candlestick` view: per period, a thin wick from low to high and a
  * body from open to close, in the up color when the period closed at or above
- * its open and the down color when below. A legend names the two, so color is
+ * its open (hollow) and the down color when below (filled). A legend names the two, so color is
  * never the only key. `average` adds a moving average of the close as a line.
  */
 export const renderCandlestick: ViewRenderer<CandlestickView> = (ctx) => {
@@ -36,14 +36,16 @@ export const renderCandlestick: ViewRenderer<CandlestickView> = (ctx) => {
   const wrap = html(doc, "div", "fft-chart");
   const legend = html(doc, "ul", "fft-legend");
   const keys: [string, string, string][] = [
-    ["Up", "var(--fft-up)", "rect"],
+    ["Up", "var(--fft-up)", "hollow"],
     ["Down", "var(--fft-down)", "rect"],
     ...(means.length ? ([[`${average}-period average`, "var(--fft-text-secondary)", "line"]] as [string, string, string][]) : []),
   ];
   for (const [name, color, shape] of keys) {
     const swatch = html(doc, "span", "fft-swatch");
     swatch.dataset.shape = shape;
-    swatch.style.background = color;
+    // Up is hollow and down filled, as on the candles, so direction reads without color (WCAG 1.4.1).
+    if (shape === "hollow") swatch.style.boxShadow = `inset 0 0 0 1.5px ${color}`;
+    else swatch.style.background = color;
     swatch.setAttribute("aria-hidden", "true");
     const item = html(doc, "li");
     item.append(swatch, name);
