@@ -472,13 +472,34 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const x = one(view.x);
       const base = typeof view.baseline === "number" ? view.baseline : 0;
       if (!x || series.length === 0) return "";
-      const above = series.map((field) => rows.reduce((sum, row) => sum + Math.max(0, (value(row, field) ?? base) - base), 0));
-      const below = series.map((field) => rows.reduce((sum, row) => sum + Math.max(0, base - (value(row, field) ?? base)), 0));
-      const [up, down] = [above.indexOf(Math.max(...above)), below.indexOf(Math.max(...below))];
-      const name = (i: number) => fieldLabel(series[i] as string, spec.fields);
-      const high = (above[up] ?? 0) > 0 ? `${name(up)} ran furthest above the baseline` : "";
-      const low = (below[down] ?? 0) > 0 ? `${name(down)} dipped furthest below it` : "";
-      return high || low ? `Here, ${[high, low].filter(Boolean).join(" and ")}.` : "";
+      // In the baseline's own words when it has a name ("above plan"), else "above the baseline".
+      const named = typeof view.baselineLabel === "string" && view.baselineLabel.trim() ? view.baselineLabel.trim() : "";
+      const line = named || "the baseline";
+      const name = (field: string) => fieldLabel(field, spec.fields);
+      // Which row was above it on the most periods: one winner, or every row that ties.
+      const days = series.map((field) => rows.filter((row) => (value(row, field) ?? base) > base).length);
+      const most = Math.max(...days);
+      const tied = series.filter((_, i) => days[i] === most);
+      const periods = rows.filter((row) => series.some((field) => value(row, field) !== null)).length;
+      const span = most === periods ? `all ${periods} ${plural(nameOf(x, spec))}` : `${most} of ${periods} ${plural(nameOf(x, spec))}`;
+      const lead =
+        most === 0
+          ? `every row stayed at or under ${line}`
+          : tied.length === 1
+            ? `${name(tied[0] as string)} was above ${line} on ${span}${series.length > 1 ? ", the most" : ""}`
+            : `${tied.length <= 3 ? `${tied.slice(0, -1).map(name).join(", ")} and ${name(tied.at(-1) as string)}` : `${tied.length} rows`} were above ${line} on ${span}`;
+      // The deepest miss: which row, when, and how far under.
+      let low: { field: string; row: Row; gap: number } | undefined;
+      for (const field of series) for (const row of rows) {
+        const gap = base - (value(row, field) ?? base);
+        if (gap > 0 && (!low || gap > low.gap)) low = { field, row, gap };
+      }
+      const miss = low
+        ? `, and the furthest below was ${name(low.field)} ${when(low.row, x)}, ${formatValue(low.gap, spec.fields?.[low.field]?.format, spec.locale)} under${named ? "" : " it"}`
+        : most === 0
+          ? ""
+          : ", and no row fell below it";
+      return `Here, ${lead}${miss}.`;
     }
     case "waffle":
     case "pareto": {
@@ -976,7 +997,14 @@ function guide(spec: WidgetSpec): string {
     case "rose":
       return `Each slice is one ${name(one(view.label))}, going round like a clock. The bigger a slice's area, the more ${series.length > 1 ? `in that ${name(one(view.label))}` : name(series[0])}.${series.length > 1 ? ` The colors are ${both(series.map((f) => name(f)))}, stacked from the center out.` : ""}`;
     case "horizon":
-      return `Each row is one of ${series.length > 1 && series.length <= 8 ? either(series.map((f) => name(f))) : "the series"}, ${over(one(view.x))}. Values above the baseline rise from the bottom of the row, and values below hang from its top; the stronger the shade, the further away it is.`;
+    {
+      // A named baseline ("plan") reads in its own words.
+      const named = typeof view.baselineLabel === "string" ? view.baselineLabel.trim() : "";
+      const rows = `Each row is one of ${series.length > 1 && series.length <= 8 ? either(series.map((f) => name(f))) : "the series"}, ${over(one(view.x))}.`;
+      return named
+        ? `${rows} Values above ${named} rise from the bottom of the row, and values below it hang from its top; the stronger the shade, the further from ${named}.`
+        : `${rows} Values above the baseline rise from the bottom of the row, and values below hang from its top; the stronger the shade, the further away it is.`;
+    }
     case "icicle":
       return `The first column is the total. Each column to the right splits the boxes into smaller parts: the taller the box, the more ${name(one(view.value))}.`;
     case "list":

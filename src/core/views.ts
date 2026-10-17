@@ -332,13 +332,15 @@ export interface RadarView {
   max?: number;
 }
 
-/** `{ type: "horizon", x, y, bands?, baseline? }`: many time series in thin rows, values folded into bands of deepening color. */
+/** `{ type: "horizon", x, y, bands?, baseline?, baselineLabel? }`: many time series in thin rows, values folded into bands of deepening color. */
 export interface HorizonView {
   type: "horizon";
   x: string;
   y: string | string[];
   bands?: number;
   baseline?: number;
+  /** What the baseline stands for, such as "plan": the key, tooltips and guide then say above or below it. */
+  baselineLabel?: string;
 }
 
 /** `{ type: "rose", label, y, max? }`: a polar area chart for a cycle, wedges true to their values by area. */
@@ -1086,6 +1088,10 @@ const horizon: ViewBlock = {
     y: { type: "fields", kind: "number", required: true, description: "Field or fields, one row each, such as a region's revenue against plan." },
     bands: { type: "number", default: 3, description: "How many shades each side folds into, 1 to 5. More bands pack more range into a row but read less exactly." },
     baseline: { type: "number", default: 0, description: "The value rows are measured from, such as 0 for a difference or the plan for a raw amount." },
+    baselineLabel: {
+      type: "string",
+      description: 'What the baseline stands for, in a word or two, such as "plan" or "target". The key then reads "Above plan, rising", pointing at a day says "€6.5K above plan", and the guide counts the days above it.',
+    },
   },
   validate(view) {
     const bands = view.bands;

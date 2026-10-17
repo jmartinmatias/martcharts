@@ -59,7 +59,10 @@ export const renderHorizon: ViewRenderer<HorizonView> = (ctx) => {
   const wrap = html(doc, "div", "fft-chart fft-horizon");
   // The key: which side is which, and what one shade is worth.
   const key = html(doc, "div", "fft-horizon-key");
-  for (const [sign, text] of [["up", `Above ${valueText(base)}, rising`], ["down", `Below ${valueText(base)}, hanging`]] as const) {
+  // A named baseline ("plan") reads in its own words; otherwise the key gives its value.
+  const named = ctx.view.baselineLabel?.trim();
+  const baseText = named || valueText(base);
+  for (const [sign, text] of [["up", `Above ${baseText}, rising`], ["down", `Below ${baseText}, hanging`]] as const) {
     const ramp = html(doc, "span", "fft-horizon-ramp");
     ramp.setAttribute("aria-hidden", "true");
     for (let k = 0; k < count; k++) {
@@ -144,7 +147,9 @@ export const renderHorizon: ViewRenderer<HorizonView> = (ctx) => {
     const row = rows[i] ?? {};
     const items: TooltipItem[] = series.map((field, s) => {
       const v = values[s]?.[i];
-      return { label: names[s] ?? field, value: ctx.format(row[field], field), ...(v === null || v === undefined || v === base ? {} : { color: `var(--fft-${v > base ? "up" : "down"})` }) };
+      // Against a named baseline, how far from it and which side: "€6.5K above plan", "On plan".
+      const away = v === null || v === undefined ? undefined : v === base ? `On ${named}` : `${ctx.format(Math.abs(v - base), field)} ${v > base ? "above" : "below"} ${named}`;
+      return { label: names[s] ?? field, value: named && away ? away : ctx.format(row[field], field), ...(v === null || v === undefined || v === base ? {} : { color: `var(--fft-${v > base ? "up" : "down"})` }) };
     });
     const hit = svg(doc, "rect", { class: "fft-horizon-hit", x: slot.start, y: 0, width: slot.width, height: rowsHeight, tabindex: 0, role: "img" });
     hit.setAttribute("aria-label", `${xLabels[i]}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);

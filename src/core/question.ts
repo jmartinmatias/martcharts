@@ -260,7 +260,8 @@ export function questionOf(spec: WidgetSpec, rows: Row[] = []): Question {
     }
     case "horizon": {
       const x = one(view.x);
-      if (x) return ask("trend", `how is each of the ${series.length} rows doing, ${step(x, spec)}?`);
+      const against = typeof view.baselineLabel === "string" && view.baselineLabel.trim() ? ` against ${view.baselineLabel.trim()}` : "";
+      if (x) return ask("trend", `how is each of the ${series.length} rows doing${against}, ${step(x, spec)}?`);
       break;
     }
     case "bump": {

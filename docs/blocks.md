@@ -389,6 +389,7 @@ Many time series at once, each in a thin row: values are measured from a baselin
 | `y` | field name or list (number) | yes |  | Field or fields, one row each, such as a region's revenue against plan. |
 | `bands` | number |  | `3` | How many shades each side folds into, 1 to 5. More bands pack more range into a row but read less exactly. |
 | `baseline` | number |  | `0` | The value rows are measured from, such as 0 for a difference or the plan for a raw amount. |
+| `baselineLabel` | string |  |  | What the baseline stands for, in a word or two, such as "plan" or "target". The key then reads "Above plan, rising", pointing at a day says "€6.5K above plan", and the guide counts the days above it. |
 
 ### `icicle`
 

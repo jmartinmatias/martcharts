@@ -202,7 +202,7 @@ describe("color is never the only signal (1.4.1)", () => {
     const up = ys('.fft-horizon-row[data-series="South"] path[data-sign="up"]');
     const down = ys('.fft-horizon-row[data-series="South"] path[data-sign="down"]');
     expect([Math.max(...up), Math.min(...down)]).toEqual([bottom, top]);
-    expect([...target.querySelectorAll(".fft-horizon-key-text")].map((t) => t.textContent).slice(0, 2)).toEqual(["Above €0, rising", "Below €0, hanging"]);
+    expect([...target.querySelectorAll(".fft-horizon-key-text")].map((t) => t.textContent).slice(0, 2)).toEqual(["Above plan, rising", "Below plan, hanging"]);
   });
 });
 

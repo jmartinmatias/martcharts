@@ -2256,6 +2256,15 @@ describe("horizon view", () => {
     expect([...texts(".fft-tooltip-title"), ...texts(".fft-tooltip-row")]).toEqual(["3", "90A", "20B"]);
   });
 
+  test("a named baseline speaks in its words: the key says above and below plan, and pointing says how far from it", async () => {
+    await draw({ ...spec, view: { ...spec.view, baselineLabel: "plan" } });
+    expect(texts(".fft-horizon-key-text")).toEqual(["Above plan, rising", "Below plan, hanging", "Each shade 30"]);
+    all(".fft-horizon-hit")[1]?.dispatchEvent(new Event("focus"));
+    const day2 = texts(".fft-tooltip-row");
+    all(".fft-horizon-hit")[3]?.dispatchEvent(new Event("focus"));
+    expect([day2, texts(".fft-tooltip-row")]).toEqual([["50 above planA", "5 below planB"], ["30 above planA", "On planB"]]);
+  });
+
   test("validation: a horizon needs two or more periods", () => {
     const issues = validateSpec({ data: { type: "inline", rows: [] }, view: { type: "horizon", x: "d", y: "a" } }, [{ d: "1", a: 1 }]);
     expect(issues.map((i) => i.message)).toContain("A horizon needs at least 2 periods to draw a shape; with 1, show the number instead.");
