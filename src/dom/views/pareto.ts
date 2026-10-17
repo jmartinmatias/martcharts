@@ -2,10 +2,10 @@ import { readNumber } from "../../core/formats.ts";
 import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { ParetoView } from "../../core/views.ts";
-import { bands, barPath, fitLabels, layoutBars, linearScale, linePath } from "../layout.ts";
+import { bands, barPath, fitLabels, layoutBars, LINE_HEIGHT, linearScale, linePath, wrapLabels } from "../layout.ts";
 import { DEEMPHASIS } from "./chart.ts";
 import { drawReferences } from "./reference.ts";
-import { buildTable, html, selectable, svg } from "./shared.ts";
+import { buildTable, categoryLabel, html, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
 
 const CHAR_WIDTH = 6;
@@ -55,7 +55,12 @@ export const renderPareto: ViewRenderer<ParetoView> = (ctx) => {
   const left = Math.max(28, Math.max(...ticks.map((t) => tickText(t).length)) * CHAR_WIDTH + 12);
   const width = Math.max(ctx.width, left + 144);
   const height = ctx.height;
-  const plot = { x: left, y: 13, w: width - left - 13, h: height - 13 - 26 };
+  // Names that would be thinned out wrap onto short lines instead, so every cause the guide names is on the chart.
+  const room = width - left - 13;
+  const widest = Math.max(...shares.map((it) => it.name.length)) * CHAR_WIDTH + 8;
+  const wrapped = shares.length <= 12 && shares.length * widest > room ? wrapLabels(shares.map((it) => it.name), room / shares.length - 4, CHAR_WIDTH) : undefined;
+  const bottom = 26 + (wrapped ? (Math.max(...wrapped.map((lines) => lines.length)) - 1) * LINE_HEIGHT : 0);
+  const plot = { x: left, y: 13, w: room, h: height - 13 - bottom };
   const y = linearScale([0, 1], [plot.y + plot.h, plot.y], { includeZero: true });
   const slots = bands(shares.length, plot.x, plot.w);
 
@@ -69,15 +74,13 @@ export const renderPareto: ViewRenderer<ParetoView> = (ctx) => {
     text.textContent = tickText(tick);
     chart.append(text);
   }
-  // Category labels, thinned, then skipped when they would still come within 8px of the last one drawn.
-  const widest = Math.max(...shares.map((it) => it.name.length)) * CHAR_WIDTH + 8;
-  const every = Math.max(1, Math.ceil((shares.length * widest) / plot.w));
+  // Category labels, wrapped as above, or else thinned, then skipped when they would still come within 8px of the last one drawn.
+  const every = wrapped ? 1 : Math.max(1, Math.ceil((shares.length * widest) / plot.w));
   const candidates = slots.map((_, i) => i).filter((i) => i % every === 0);
-  for (const k of fitLabels(candidates.map((i) => ({ x: slots[i]?.center ?? 0, width: (shares[i]?.name ?? "").length * CHAR_WIDTH })))) {
+  const drawn = wrapped ? candidates.map((_, k) => k) : fitLabels(candidates.map((i) => ({ x: slots[i]?.center ?? 0, width: (shares[i]?.name ?? "").length * CHAR_WIDTH })));
+  for (const k of drawn) {
     const i = candidates[k] as number;
-    const text = svg(doc, "text", { class: "fft-tick fft-tick-x", x: slots[i]?.center ?? 0, y: plot.y + plot.h + 18, "text-anchor": "middle" });
-    text.textContent = shares[i]?.name ?? "";
-    chart.append(text);
+    chart.append(categoryLabel(doc, { class: "fft-tick fft-tick-x", x: slots[i]?.center ?? 0, y: plot.y + plot.h + 18, "text-anchor": "middle" }, shares[i]?.name ?? "", wrapped?.[i], LINE_HEIGHT));
   }
 
   const below = svg(doc, "g");

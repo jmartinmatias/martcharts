@@ -1916,6 +1916,14 @@ describe("pareto view", () => {
   ];
   const spec = { rows: causes, view: { type: "pareto", label: "cause", value: "n" } };
 
+  test("every cause is named: long names wrap onto short lines under their bar instead of being skipped", async () => {
+    const names = ["Login problems", "Billing questions", "Slow pages", "Single sign-on", "Exports", "Mobile app", "Permissions", "Data import"];
+    await draw({ rows: names.map((cause, i) => ({ cause, n: 80 - i * 10 })), view: { type: "pareto", label: "cause", value: "n" } });
+    const labels = all(".fft-tick-x");
+    expect(labels.map((label) => label.getAttribute("aria-label") ?? label.textContent)).toEqual(names);
+    expect([...(labels[1]?.querySelectorAll("tspan") ?? [])].map((t) => t.textContent)).toEqual(["Billing", "questions"]);
+  });
+
   test("bars sort largest first, each as its share of the total, on one percent axis", async () => {
     await draw(spec);
     expect(texts(".fft-tick-x")).toEqual(["A", "B", "C", "D"]);

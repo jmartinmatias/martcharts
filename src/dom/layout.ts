@@ -740,6 +740,30 @@ export interface LabelBox {
   anchor?: "start" | "middle" | "end";
 }
 
+/** The height of one line of a wrapped category label, and the most lines a label may take. */
+export const LINE_HEIGHT = 13;
+const MAX_LINES = 3;
+
+/**
+ * Category labels broken at spaces onto at most three lines no wider than `room`, so a few long names ("Net promoter
+ * score") can all be read under their bars. Undefined when any one will not fit: the axis then thins its labels.
+ */
+export function wrapLabels(labels: string[], room: number, charWidth = 6): string[][] | undefined {
+  const max = Math.floor(room / charWidth);
+  const wrapped: string[][] = [];
+  for (const label of labels) {
+    const lines: string[] = [];
+    for (const word of label.split(/\s+/).filter(Boolean)) {
+      const line = lines.at(-1);
+      if (line !== undefined && `${line} ${word}`.length <= max) lines[lines.length - 1] = `${line} ${word}`;
+      else lines.push(word);
+    }
+    if (lines.length > MAX_LINES || lines.some((line) => line.length > max)) return undefined;
+    wrapped.push(lines);
+  }
+  return wrapped;
+}
+
 /**
  * Which labels to draw so none comes within `gap` of the one before: greedily
  * from the first, by each label's real extent (its anchor decides which way

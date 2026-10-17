@@ -13,9 +13,9 @@ import type { FormatSpec } from "../../core/types.ts";
 import type { TooltipItem, ViewContext, ViewRenderer } from "../../core/view-context.ts";
 import { isForecast } from "../../core/views.ts";
 import type { AreaView, BarView, LineView } from "../../core/views.ts";
-import { bandPath, bands, barPath, curveArea, curveLine, fitLabels, layoutBars, layoutStacked, linearScale, linePath, smoothBands, spread } from "../layout.ts";
+import { bandPath, bands, barPath, curveArea, curveLine, fitLabels, layoutBars, layoutStacked, LINE_HEIGHT, linearScale, linePath, smoothBands, spread, wrapLabels } from "../layout.ts";
 import type { LabelBox } from "../layout.ts";
-import { buildTable, fieldList, html, selectable, svg } from "./shared.ts";
+import { buildTable, categoryLabel, fieldList, html, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
 
 type Kind = "bar" | "line" | "area";
@@ -70,30 +70,6 @@ const TARGET = /target|plan|goal|budget|quota/i;
 const missFill = (color: string) => `color-mix(in srgb, ${color} 34%, var(--fft-surface))`;
 /** Its outline, the miss's only edge: leaning toward the text color keeps it at 3:1 on any page, light or dark. */
 const missEdge = (color: string) => `color-mix(in srgb, ${color} 85%, var(--fft-text))`;
-
-/** One line of a wrapped category label, and the most lines a label may take. */
-const LINE_HEIGHT = 13;
-const MAX_LINES = 3;
-
-/**
- * Category labels broken at spaces onto at most three lines no wider than `room`, so a few long names ("Net promoter
- * score") can all be read under their bars. Undefined when any one will not fit: the axis then thins its labels.
- */
-function wrapLabels(labels: string[], room: number): string[][] | undefined {
-  const max = Math.floor(room / CHAR_WIDTH);
-  const wrapped: string[][] = [];
-  for (const label of labels) {
-    const lines: string[] = [];
-    for (const word of label.split(/\s+/).filter(Boolean)) {
-      const line = lines.at(-1);
-      if (line !== undefined && `${line} ${word}`.length <= max) lines[lines.length - 1] = `${line} ${word}`;
-      else lines.push(word);
-    }
-    if (lines.length > MAX_LINES || lines.some((line) => line.length > max)) return undefined;
-    wrapped.push(lines);
-  }
-  return wrapped;
-}
 
 /** A legend key: a series, a line, or a mark state such as a bar that missed its target. */
 interface LegendEntry {
@@ -269,18 +245,7 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
   const boxes: LabelBox[] = candidates.map((i) => ({ x: slots[i]?.center ?? 0, width: (xLabels[i] ?? "").length * CHAR_WIDTH, anchor: anchorOf(i) }));
   for (const k of wrapped ? candidates.map((_, k) => k) : fitLabels(boxes, { keepLast: true })) {
     const i = candidates[k] as number;
-    const label = svg(doc, "text", { class: "fft-tick fft-tick-x", x: slots[i]?.center ?? 0, y: plot.y + plot.h + 18, "text-anchor": anchorOf(i) });
-    const lines = wrapped?.[i];
-    if (lines) {
-      // One tspan per line; the label keeps its whole name for screen readers, which would run the lines together.
-      label.setAttribute("aria-label", xLabels[i] ?? "");
-      for (const [n, line] of lines.entries()) {
-        const span = svg(doc, "tspan", { x: slots[i]?.center ?? 0, dy: n === 0 ? 0 : LINE_HEIGHT });
-        span.textContent = line;
-        label.append(span);
-      }
-    } else label.textContent = xLabels[i] ?? "";
-    axis.append(label);
+    axis.append(categoryLabel(doc, { class: "fft-tick fft-tick-x", x: slots[i]?.center ?? 0, y: plot.y + plot.h + 18, "text-anchor": anchorOf(i) }, xLabels[i] ?? "", wrapped?.[i], LINE_HEIGHT));
   }
   chart.append(axis);
   const refsBelow = svg(doc, "g");

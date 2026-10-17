@@ -56,6 +56,25 @@ export function svg<K extends keyof SVGElementTagNameMap>(doc: Document, tag: K,
   return node;
 }
 
+/**
+ * A category label under an axis: one line, or one tspan per line when it wraps. A wrapped label keeps its whole
+ * name for screen readers, which would run the lines together.
+ */
+export function categoryLabel(doc: Document, attrs: Record<string, string | number>, name: string, lines?: string[], lineHeight = 13): SVGTextElement {
+  const text = svg(doc, "text", attrs);
+  if (!lines) {
+    text.textContent = name;
+    return text;
+  }
+  text.setAttribute("aria-label", name);
+  for (const [n, line] of lines.entries()) {
+    const span = svg(doc, "tspan", { x: attrs.x ?? 0, dy: n === 0 ? 0 : lineHeight });
+    span.textContent = line;
+    text.append(span);
+  }
+  return text;
+}
+
 /** Makes an element pick its row on click, Enter or Space. */
 export function selectable(node: Element, select: () => void): void {
   node.addEventListener("click", select);
