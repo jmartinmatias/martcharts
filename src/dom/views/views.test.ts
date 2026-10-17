@@ -736,6 +736,18 @@ describe("category labels that wrap", () => {
     expect(all(".fft-tick-x")[1]?.getAttribute("aria-label")).toBe("Nov 2025");
   });
 
+  test("in a narrow card, months too tight for their year still all show, the year spilling only where it changes", async () => {
+    Object.defineProperty(HTMLElement.prototype, "clientWidth", { configurable: true, get: () => 340 });
+    try {
+      const months = ["2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06", "2026-07", "2026-08", "2026-09"];
+      await draw({ rows: months.map((m, i) => ({ m, v: 100 + i })), fields: { m: { format: { type: "date", style: "month" } } }, view: { type: "bar", x: "m", y: "v" } });
+      const lines = all(".fft-tick-x").map((label) => [...label.querySelectorAll("tspan")].map((t) => t.textContent).join(" "));
+      expect(lines).toEqual(["Oct 2025", "Nov", "Dec", "Jan 2026", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"]);
+    } finally {
+      Reflect.deleteProperty(HTMLElement.prototype, "clientWidth");
+    }
+  });
+
   test("names that cannot wrap into three short lines are thinned as before", async () => {
     await draw({ rows: names.map((kpi, i) => ({ kpi: kpi.replace(/ /g, "_"), v: 100 - i * 5 })), view: { type: "bar", x: "kpi", y: "v" } });
     expect([all(".fft-tick-x").length < names.length, all(".fft-tick-x tspan").length]).toEqual([true, 0]);

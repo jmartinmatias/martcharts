@@ -205,15 +205,21 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
   // A few bars whose names would be thinned out wrap them onto short lines instead, every name read under its bar.
   const widest = Math.max(...xLabels.map((label) => label.length)) * CHAR_WIDTH + 8;
   const room = width - margin.left - margin.right;
-  const wrapped = kind === "bar" && rows.length <= 12 && rows.length * widest > room ? wrapLabels(xLabels, room / rows.length - 4) : undefined;
-  if (wrapped) margin.bottom += (Math.max(...wrapped.map((lines) => lines.length)) - 1) * LINE_HEIGHT;
+  const slotRoom = room / rows.length - 4;
+  const overflow = kind === "bar" && rows.length <= 12 && rows.length * widest > room;
+  const dated = rows.every((row) => /^\d{4}-\d{2}/.test(String(row[view.x])));
+  let wrapped = overflow ? wrapLabels(xLabels, slotRoom) : undefined;
   // Dates name their year once, then again only where it changes: "Oct 2025", "Nov", "Dec", "Jan 2026".
-  if (wrapped && rows.every((row) => /^\d{4}-\d{2}/.test(String(row[view.x])))) {
-    for (let i = wrapped.length - 1; i > 0; i--) {
-      const [lines, before] = [wrapped[i] as string[], wrapped[i - 1] as string[]];
-      if (lines.length > 1 && lines.at(-1) === before.at(-1)) wrapped[i] = lines.slice(0, -1);
-    }
+  const yearOnce = (lines: string[][]) => lines.map((own, i) => (i > 0 && own.length > 1 && own.at(-1) === lines[i - 1]?.at(-1) ? own.slice(0, -1) : own));
+  if (wrapped && dated) wrapped = yearOnce(wrapped);
+  // Months too tight for their year still all show: the month under every bar, and the year, where it changes, may
+  // spill into the empty room beside it, as long as no neighbour also carries one.
+  if (!wrapped && overflow && dated) {
+    const split = yearOnce(xLabels.map((label) => (/\s\S+$/.test(label) ? [label.replace(/\s\S+$/, ""), label.slice(label.lastIndexOf(" ") + 1)] : [label])));
+    const fits = split.every((lines, i) => (lines[0] ?? "").length * CHAR_WIDTH <= slotRoom && (lines.length < 2 || ((lines[1] ?? "").length * CHAR_WIDTH <= slotRoom * 2 && (split[i - 1]?.length ?? 1) < 2 && (split[i + 1]?.length ?? 1) < 2)));
+    if (fits) wrapped = split;
   }
+  if (wrapped) margin.bottom += (Math.max(...wrapped.map((lines) => lines.length)) - 1) * LINE_HEIGHT;
   const height = ctx.height;
   const plot = { x: margin.left, y: margin.top, w: width - margin.left - margin.right, h: height - margin.top - margin.bottom };
   const y = linearScale(present, [plot.y + plot.h, plot.y], { includeZero: fromZero, nice: !stream });
