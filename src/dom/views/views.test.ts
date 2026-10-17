@@ -1135,9 +1135,25 @@ describe("combo: lines over bars", () => {
     expect(all(".fft-legend li").map((li) => [li.textContent, (li.querySelector(".fft-swatch") as HTMLElement).dataset.shape])).toEqual([
       ["Revenue", "rect"],
       ["Target", "line"],
+      ["Below target", "rect"],
     ]);
     all(".fft-hit")[1]?.dispatchEvent(new Event("focus"));
     expect(texts(".fft-tooltip-row")).toEqual(["120Revenue", "140Target"]);
+  });
+
+  test("a bar below its target line is marked as a miss: a light fill outlined in its own color, keyed in the legend", async () => {
+    await draw({ ...spec, rows: [{ m: "Jan", revenue: 80, target: 90 }, { m: "Feb", revenue: 150, target: 140 }] });
+    const bars = all("path.fft-bar") as SVGElement[];
+    expect(bars.map((bar) => bar.dataset.tone ?? null)).toEqual(["miss", null]);
+    expect([bars[0]?.style.stroke, bars[0]?.style.fill.startsWith("color-mix")]).toEqual(["var(--fft-series-1)", true]);
+    expect((all(".fft-legend li").at(-1)?.querySelector(".fft-swatch") as HTMLElement).dataset.tone).toBe("miss");
+  });
+
+  test("when every bar beats its target, or the line is no target at all, nothing is marked as a miss", async () => {
+    await draw({ ...spec, rows: [{ m: "Jan", revenue: 95, target: 90 }] });
+    const allHit = [all("path.fft-bar[data-tone]").length, texts(".fft-legend li").includes("Below target")];
+    await draw({ rows: [{ m: "Jan", revenue: 80, average: 90 }], view: { type: "bar", x: "m", y: "revenue", lines: "average" } });
+    expect([allHit, [all("path.fft-bar[data-tone]").length, texts(".fft-legend li").some((t) => t?.startsWith("Below"))]]).toEqual([[0, false], [0, false]]);
   });
 });
 

@@ -438,7 +438,9 @@ function guide(spec: WidgetSpec): string {
       if (series.length > 1 && view.stacked) return `Each bar is one ${name(one(view.x))}, split into colored parts for ${both(series.map((f) => name(f)))}. ${view.stacked === "percent" ? "Every bar adds up to 100%, so compare the sizes of the parts." : "The parts add up to the total, so the whole bar is the total."}`;
       if (series.length > 1) return `Each group of bars is one ${name(one(view.x))}, with one color each for ${both(series.map((f) => name(f)))}. The taller the bar, the more.`;
       const goal = one(view.lines);
-      const line = goal ? ` The line is the ${name(goal)}: a ${mark} that reaches past it beat the ${name(goal)}.` : "";
+      // Bars short of a target are drawn outlined (a shape cue, the same in light and dark themes).
+      const outlined = !lollipop && goal && /target|plan|goal|budget|quota/i.test(goal) ? `, and an outlined ${mark} fell short` : "";
+      const line = goal ? ` The line is the ${name(goal)}: a ${mark} that reaches past it beat the ${name(goal)}${outlined}.` : "";
       return `Each ${mark} is one ${name(one(view.x))}. ${more}, the more ${name(series[0])}.${line}`;
     }
     case "hbar":

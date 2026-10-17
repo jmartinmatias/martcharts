@@ -151,7 +151,7 @@ describe("explainChart", () => {
       { month: "Sep", revenue: 12, target: 11 },
     ];
     expect(explainChart({ ...spec(view), locale: "en-US" }, rows)).toBe(
-      "Each bar is one month. The taller the bar, the more revenue. The line is the target: a bar that reaches past it beat the target. Here, revenue beat the target in 2 of 3 months.",
+      "Each bar is one month. The taller the bar, the more revenue. The line is the target: a bar that reaches past it beat the target, and an outlined bar fell short. Here, revenue beat the target in 2 of 3 months.",
     );
   });
 

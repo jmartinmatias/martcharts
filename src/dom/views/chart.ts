@@ -64,17 +64,37 @@ export function highlights(value: unknown): string[] {
   return (Array.isArray(value) ? value : [value]).map(String);
 }
 
+/** Field names that hold a target, plan or budget. */
+const TARGET = /target|plan|goal|budget|quota/i;
+/** A bar's light fill when it falls short of its target: a third of its color on the card. */
+const missFill = (color: string) => `color-mix(in srgb, ${color} 34%, var(--fft-surface))`;
+
+/** A legend key: a series, a line, or a mark state such as a bar that missed its target. */
+interface LegendEntry {
+  field: string;
+  color: string;
+  shape: "rect" | "line";
+  /** The words, when they are not the field's label ("Below target"). */
+  label?: string;
+  /** A mark state the swatch mirrors, as the marks do: `miss` is a light fill outlined in the color. */
+  tone?: "miss";
+}
+
 /** A legend whose keys mirror their marks: a square for bars, a short line for lines. */
-function legend(ctx: ViewContext<{ type: string }>, entries: { field: string; color: string; shape: "rect" | "line" }[]): HTMLElement {
+function legend(ctx: ViewContext<{ type: string }>, entries: LegendEntry[]): HTMLElement {
   const doc = ctx.el.ownerDocument;
   const list = html(doc, "ul", "fft-legend");
   for (const entry of entries) {
     const swatch = html(doc, "span", "fft-swatch");
     swatch.dataset.shape = entry.shape;
-    swatch.style.background = entry.color;
+    if (entry.tone === "miss") {
+      swatch.dataset.tone = "miss";
+      swatch.style.background = missFill(entry.color);
+      swatch.style.boxShadow = `inset 0 0 0 1px ${entry.color}`;
+    } else swatch.style.background = entry.color;
     swatch.setAttribute("aria-hidden", "true");
     const item = html(doc, "li");
-    item.append(swatch, ctx.label(entry.field));
+    item.append(swatch, entry.label ?? ctx.label(entry.field));
     list.append(item);
   }
   return list;
@@ -96,6 +116,12 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
   const overlayFields = kind === "bar" ? fieldList((view as BarView).lines) : [];
   const overlayValues = overlayFields.map((field) => rows.map((row) => readNumber(row[field])));
   const overlayColor = (k: number) => ctx.color(series.length + k);
+  // A single series under one target line: a bar that falls short of the line is marked as a miss.
+  const goalField = kind === "bar" && series.length === 1 && overlayFields.length === 1 && TARGET.test(overlayFields[0] as string) ? overlayFields[0] : undefined;
+  const missed = (i: number) => {
+    const [amount, goal] = [raw[0]?.[i], goalField ? overlayValues[0]?.[i] : null];
+    return amount !== null && amount !== undefined && goal !== null && goal !== undefined && amount < goal;
+  };
   const stacked = kind === "bar" ? (view as BarView).stacked : kind === "area" ? (view as AreaView).stacked : undefined;
   const percent = stacked === "percent";
   // Streams center each column on the middle line: the stack starts half its total below zero.
@@ -157,6 +183,7 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
   const legendEntries = [
     ...series.map((field, s) => ({ field, color: seriesColor(s), shape: (kind === "bar" ? "rect" : "line") as "rect" | "line" })),
     ...overlayFields.map((field, k) => ({ field, color: overlayColor(k), shape: "line" as const })),
+    ...(goalField && rows.some((_, i) => missed(i)) ? [{ field: goalField, color: seriesColor(0), shape: "rect" as const, label: `Below ${ctx.label(goalField).toLowerCase()}`, tone: "miss" as const }] : []),
   ];
   if (legendEntries.length > 1 && !ctx.inFacet) wrap.append(legend(ctx, legendEntries));
 
@@ -235,7 +262,13 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
       }
       obstacles.boxes.push(rect);
       const bar = svg(doc, "path", { class: "fft-bar", d: barPath(rect, radius) });
-      bar.style.setProperty("fill", categoryOn(rect.index) ? ctx.color(rect.series) : DEEMPHASIS);
+      const fill = categoryOn(rect.index) ? ctx.color(rect.series) : DEEMPHASIS;
+      if (goalField && missed(rect.index)) {
+        // Short of its target: a light fill outlined in the bar's own color, so the miss reads by shape too.
+        bar.dataset.tone = "miss";
+        bar.style.setProperty("fill", missFill(fill));
+        bar.style.setProperty("stroke", fill);
+      } else bar.style.setProperty("fill", fill);
       if (rect.negative) bar.setAttribute("data-negative", "");
       markGroups[rect.index]?.append(bar);
     }
