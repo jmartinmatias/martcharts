@@ -29,8 +29,10 @@ const button = (label: string, title?: string) => {
 const boardOptions: Parameters<typeof createDashboard>[2] = {
   widgets: byId,
   actions: ["expand", "csv", "image", "copy"],
-  // The filter row (period, region, section links) stays pinned while the long gallery scrolls.
+  // The filter row (period, region, sections) stays pinned while the long gallery scrolls.
   sticky: true,
+  // The chosen section lives in the address, so a link opens the gallery on it.
+  hash: true,
   // Two host actions join each widget's own hover toolbar, so the cards stay free of chrome until reached for.
   decorate(_cell, id, widget) {
     const spec = byId[id];
@@ -51,7 +53,8 @@ const boardOptions: Parameters<typeof createDashboard>[2] = {
     });
   },
 };
-let currentPreset = "default";
+/** The style every chart takes when styling is set to All charts (a merge patch over each widget's own style). */
+let shared: Record<string, unknown> = {};
 let board = createDashboard($("#gallery"), gallerySpec, boardOptions);
 
 // Dashboard switcher: one button per file in dashboards/.
@@ -64,7 +67,7 @@ for (const spec of boardSpecs) {
     for (const other of boardGroup.querySelectorAll("button")) other.setAttribute("aria-pressed", String(other === b));
     board.destroy();
     board = createDashboard($("#gallery"), spec, boardOptions);
-    if (currentPreset !== "default") void board.setOverride({ style: { preset: currentPreset } });
+    if (Object.keys(shared).length) void board.setOverride({ style: shared });
   });
   boardGroup.append(b);
 }
@@ -99,10 +102,31 @@ for (const { name, description } of presetOrder) {
   presetGroup.append(b);
 }
 segmented(presetGroup, (preset) => {
-  document.body.dataset.preset = preset;
-  currentPreset = preset;
-  void board.setOverride({ style: { preset: preset === "default" ? null : preset } });
+  const patch = { preset: preset === "default" ? null : preset };
+  styleAll(patch);
+  if (scope === "all") void apply(fork(current, { style: patch }));
 });
+
+/** Styles every chart on the board: the patch merges into the shared style, and the page controls follow it. */
+function styleAll(patch: Record<string, unknown>) {
+  shared = fork(shared, patch);
+  void board.setOverride({ style: patch });
+  syncPage();
+}
+
+/** The header's Style and Theme controls, and the page backdrop, show the shared style. */
+function syncPage() {
+  const preset = typeof shared.preset === "string" ? shared.preset : "default";
+  document.body.dataset.preset = preset;
+  for (const b of presetGroup.querySelectorAll("button")) b.setAttribute("aria-pressed", String(b.dataset.value === preset));
+  // A theme for every chart is the page's theme too, so cards never sit on the opposite background.
+  const theme = typeof shared.theme === "string" ? shared.theme : undefined;
+  if (theme) {
+    if (theme === "auto") delete document.documentElement.dataset.theme;
+    else document.documentElement.dataset.theme = theme;
+    for (const b of $("#theme").querySelectorAll("button")) b.setAttribute("aria-pressed", String(b.dataset.value === theme));
+  }
+}
 
 // ---- Playground ----
 
@@ -159,7 +183,19 @@ const picker = createPalettePicker($("#palette-picker"), {
   onChange: (colors, name) => setStyle({ palette: name === "default" ? null : (name ?? colors) }),
 });
 
+// Scope: the panel styles the chart above, or every chart on the board.
+let scope: "chart" | "all" = "chart";
+const SCOPE_NOTES = {
+  chart: "Styles the chart above only.",
+  all: "Every chart on the board takes these settings over its own. Default style hands each its own look back.",
+};
+segmented($("#style-scope"), (value) => {
+  scope = value === "all" ? "all" : "chart";
+  $("#scope-note").textContent = SCOPE_NOTES[scope];
+});
+
 function setStyle(patch: Record<string, unknown>) {
+  if (scope === "all") styleAll(patch);
   void apply(fork(current, { style: patch }));
 }
 
@@ -237,10 +273,18 @@ function viewFor(type: string, rows: Row[]): ViewSpec {
 }
 
 viewPick.addEventListener("change", () => void apply(fork(current, { view: viewFor(viewPick.value, preview.rows) })));
-stylePick.addEventListener("change", () =>
-  void apply(fork(current, { style: { preset: stylePick.value === "default" ? null : stylePick.value } })),
-);
-$("#reset-style").addEventListener("click", () => void apply(fork(current, { style: null })));
+stylePick.addEventListener("change", () => setStyle({ preset: stylePick.value === "default" ? null : stylePick.value }));
+$("#reset-style").addEventListener("click", () => {
+  if (scope === "all") {
+    shared = {};
+    void board.setOverride({ style: null });
+    // Default style is the default page too: the theme goes back to following the system.
+    delete document.documentElement.dataset.theme;
+    for (const b of $("#theme").querySelectorAll("button")) b.setAttribute("aria-pressed", String(b.dataset.value === "auto"));
+    syncPage();
+  }
+  void apply(fork(current, { style: null }));
+});
 $("#reset-all").addEventListener("click", () => load(choices[Number(pick.value)] ?? vanilla));
 
 load(vanilla);

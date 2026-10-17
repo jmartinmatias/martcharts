@@ -178,75 +178,146 @@ describe("sections", () => {
   });
 });
 
-describe("section navigation", () => {
+describe("section filter", () => {
   const spec = { id: "g", widgets: [{ section: "Revenue and profit" }, { widget: "by-region" }, { section: "Trends" }, { widget: "monthly" }] };
+  const buttons = () => [...target.querySelectorAll<HTMLButtonElement>(".fft-board-nav button")];
+  const pressed = () => buttons().map((b) => b.getAttribute("aria-pressed"));
+  /** The grid as it shows: section headings as "# title", cells by widget id, hidden ones left out. */
+  const shown = () =>
+    [...target.querySelectorAll<HTMLElement>(".fft-dashboard-grid > *")]
+      .filter((el) => !el.hidden)
+      .map((el) => (el.classList.contains("fft-board-section") ? `# ${el.querySelector("h3")?.textContent}` : el.dataset.widget));
 
-  test("with two or more sections, the filter row links to each one", async () => {
+  test("with two or more sections, the filter row offers All and each section, All chosen at first", async () => {
     const board = createDashboard(target, spec, { widgets });
     await board.ready;
-    const links = [...target.querySelectorAll<HTMLAnchorElement>(".fft-board-nav a")];
-    expect(links.map((a) => [a.textContent, a.getAttribute("href")])).toEqual([
-      ["Revenue and profit", "#g-revenue-and-profit"],
-      ["Trends", "#g-trends"],
+    expect(buttons().map((b) => [b.textContent, b.dataset.section ?? null])).toEqual([
+      ["All", null],
+      ["Revenue and profit", "g-revenue-and-profit"],
+      ["Trends", "g-trends"],
     ]);
-    expect([...target.querySelectorAll(".fft-board-section")].map((el) => el.id)).toEqual(["g-revenue-and-profit", "g-trends"]);
+    expect([pressed(), target.querySelector(".fft-board-nav")?.getAttribute("aria-label")]).toEqual([["true", "false", "false"], "Sections"]);
+    expect(shown()).toEqual(["# Revenue and profit", "by-region", "# Trends", "monthly"]);
     expect((target.querySelector(".fft-filters") as HTMLElement).hidden).toBe(false);
   });
 
-  test("a single section gets no navigation", async () => {
+  test("a single section gets no filter", async () => {
     const board = createDashboard(target, { widgets: [{ section: "Only" }, { widget: "monthly" }] }, { widgets });
     await board.ready;
     expect(target.querySelector(".fft-board-nav")).toBeNull();
   });
 
-  test("the link of the section in view is marked current as the page scrolls", async () => {
-    let notify: ((entries: { target: Element; isIntersecting: boolean }[]) => void) | undefined;
-    vi.stubGlobal("IntersectionObserver", class {
-      constructor(callback: typeof notify) {
-        notify = callback;
-      }
-      observe() {}
-      disconnect() {}
-    });
+  test("choosing a section shows only its heading and cards, and All brings every section back", async () => {
+    const board = createDashboard(target, spec, { widgets });
+    await board.ready;
+    board.setSection("Trends");
+    expect([shown(), pressed(), board.root.dataset.section]).toEqual([["# Trends", "monthly"], ["false", "false", "true"], "g-trends"]);
+    board.setSection(null);
+    expect([shown(), pressed(), board.root.dataset.section]).toEqual([["# Revenue and profit", "by-region", "# Trends", "monthly"], ["true", "false", "false"], undefined]);
+  });
+
+  test("clicking a section button filters, and cells before the first heading belong to All only", async () => {
+    const lead = { id: "g", widgets: [{ widget: "by-region" }, { section: "One" }, { widget: "monthly" }, { section: "Two" }] };
+    await createDashboard(target, lead, { widgets }).ready;
+    buttons()[1]?.click();
+    expect([shown(), pressed()]).toEqual([["# One", "monthly"], ["false", "true", "false"]]);
+    buttons()[0]?.click();
+    expect(shown()).toEqual(["by-region", "# One", "monthly", "# Two"]);
+  });
+
+  test("an unknown section is named in the error", async () => {
+    const board = createDashboard(target, spec, { widgets });
+    await board.ready;
+    expect(() => board.setSection("Nope")).toThrow('No section "Nope". Sections: Revenue and profit, Trends.');
+  });
+
+  test("the expanded view steps only through the cards in view", async () => {
+    const board = createDashboard(target, { id: "g", widgets: [{ section: "A" }, { widget: "by-region" }, { section: "B" }, { widget: "monthly" }, { widget: "trend" }] }, { widgets: { ...widgets, trend: { ...widgets.monthly, title: "Trend" } as WidgetSpec }, actions: ["expand"] });
+    await board.ready;
+    board.setSection("B");
+    target.querySelector<HTMLButtonElement>('.fft-cell-slot[data-widget="monthly"] .fft-action[data-action="expand"]')?.click();
+    expect(document.querySelector(".fft-overlay-count")?.textContent).toBe("1 of 2");
+    document.querySelector<HTMLButtonElement>(".fft-overlay-close")?.click();
+  });
+
+  test("with hash on, the choice lives in the address, and an address naming a section opens on it", async () => {
     try {
-      const board = createDashboard(target, spec, { widgets });
+      const board = createDashboard(target, spec, { widgets, hash: true });
       await board.ready;
-      notify?.([{ target: target.querySelector("#g-trends") as Element, isIntersecting: true }]);
-      expect([...target.querySelectorAll(".fft-board-nav a")].map((a) => a.getAttribute("aria-current"))).toEqual([null, "true"]);
+      board.setSection("Trends");
+      const chosen = location.hash;
+      board.setSection(null);
+      const cleared = location.hash;
+      board.destroy();
+      history.replaceState(null, "", "#g-trends");
+      await createDashboard(target, spec, { widgets, hash: true }).ready;
+      expect([chosen, cleared, shown()]).toEqual(["#g-trends", "", ["# Trends", "monthly"]]);
     } finally {
-      vi.unstubAllGlobals();
+      history.replaceState(null, "", location.pathname);
     }
   });
 
-  test("scrolled to the very bottom, the last section counts as current even if it is too short to reach the top", async () => {
-    vi.stubGlobal("IntersectionObserver", class {
-      observe() {}
-      disconnect() {}
-    });
-    // jsdom has no layout: fake a page scrolled to its bottom, restoring every property afterwards.
-    const page = document.documentElement;
-    const saved = [
-      [page, "scrollHeight", 1268],
-      [window, "innerHeight", 768],
-      [window, "scrollY", 500],
-    ] as const;
-    const originals = saved.map(([obj, key]) => Object.getOwnPropertyDescriptor(obj, key));
-    for (const [obj, key, value] of saved) Object.defineProperty(obj, key, { configurable: true, value });
+  test("with hash on, the board follows the address as it changes: a link to a section, then back to none", async () => {
     try {
-      const board = createDashboard(target, spec, { widgets });
+      const board = createDashboard(target, spec, { widgets, hash: true });
       await board.ready;
-      window.dispatchEvent(new Event("scroll"));
-      expect([...target.querySelectorAll(".fft-board-nav a")].map((a) => a.getAttribute("aria-current"))).toEqual([null, "true"]);
+      history.replaceState(null, "", "#g-trends");
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
+      const linked = shown();
+      history.replaceState(null, "", location.pathname);
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
+      expect([linked, shown()]).toEqual([["# Trends", "monthly"], ["# Revenue and profit", "by-region", "# Trends", "monthly"]]);
       board.destroy();
-      window.dispatchEvent(new Event("scroll"));
     } finally {
-      vi.unstubAllGlobals();
-      saved.forEach(([obj, key], i) => {
-        const original = originals[i];
-        if (original) Object.defineProperty(obj, key, original);
-        else Reflect.deleteProperty(obj, key);
-      });
+      history.replaceState(null, "", location.pathname);
     }
+  });
+
+  test("without hash, the address is left alone", async () => {
+    const board = createDashboard(target, spec, { widgets });
+    await board.ready;
+    board.setSection("Trends");
+    expect(location.hash).toBe("");
+  });
+
+  test("when the buttons scroll sideways, the chosen one is brought into view", async () => {
+    await createDashboard(target, spec, { widgets }).ready;
+    const nav = target.querySelector(".fft-board-nav") as HTMLElement;
+    const button = buttons()[2] as HTMLButtonElement;
+    Object.defineProperties(nav, { scrollWidth: { value: 600 }, clientWidth: { value: 300 } });
+    nav.getBoundingClientRect = () => ({ left: 16, width: 300 }) as DOMRect;
+    button.getBoundingClientRect = () => ({ left: 416, width: 60 }) as DOMRect;
+    const scrollBy = vi.fn();
+    nav.scrollBy = scrollBy;
+    button.click();
+    expect(scrollBy).toHaveBeenCalledWith({ left: 280 });
+  });
+
+  const ids = () => [...target.querySelectorAll(".fft-board-section")].map((el) => el.id);
+
+  test("repeated titles get unique ids, punctuation collapses to one hyphen, and the prefix defaults to board", async () => {
+    const board = createDashboard(target, { widgets: [{ section: "Sales" }, { widget: "monthly" }, { section: "Sales" }, { section: " Q3: Margin & Cost!" }] }, { widgets });
+    await board.ready;
+    expect(ids()).toEqual(["board-sales", "board-sales-2", "board-q3-margin-cost"]);
+    expect(buttons().slice(1).map((b) => b.dataset.section)).toEqual(["board-sales", "board-sales-2", "board-q3-margin-cost"]);
+  });
+
+  test("two boards on one page do not share section ids", async () => {
+    await createDashboard(target, spec, { widgets }).ready;
+    await createDashboard(target, spec, { widgets }).ready;
+    expect(ids()).toEqual(["g-revenue-and-profit", "g-trends", "g-revenue-and-profit-2", "g-trends-2"]);
+  });
+
+  test("the section filter comes after the period and filter controls", async () => {
+    const board = createDashboard(target, { ...spec, filters: [{ field: "region" }], range: { field: "month" } }, { widgets });
+    await board.ready;
+    expect([...(target.querySelector(".fft-filters") as HTMLElement).children].map((el) => el.className)).toEqual(["fft-range", "fft-filter", "fft-board-nav"]);
+  });
+
+  test("with no filters, no range and fewer than two sections, the filter row stays hidden", async () => {
+    const board = createDashboard(target, { widgets: [{ section: "Only" }, { widget: "monthly" }] }, { widgets });
+    await board.ready;
+    expect((target.querySelector(".fft-filters") as HTMLElement).hidden).toBe(true);
   });
 
   test("once the pinned row has left its place, it is marked stuck, so it can show an edge", async () => {
@@ -275,147 +346,13 @@ describe("section navigation", () => {
     }
   });
 
-  test("on scroll, the current section is the last heading above the reading line, even after a jump skipped past it", async () => {
-    vi.stubGlobal("IntersectionObserver", class {
-      observe() {}
-      disconnect() {}
-    });
-    const page = document.documentElement;
-    const saved = [
-      [page, "scrollHeight", 5000],
-      [window, "innerHeight", 1000],
-      [window, "scrollY", 1200],
-    ] as const;
-    const originals = saved.map(([obj, key]) => Object.getOwnPropertyDescriptor(obj, key));
-    for (const [obj, key, value] of saved) Object.defineProperty(obj, key, { configurable: true, value });
-    try {
-      const three = { id: "g", widgets: [{ section: "One" }, { widget: "by-region" }, { section: "Two" }, { widget: "monthly" }, { section: "Three" }] };
-      const board = createDashboard(target, three, { widgets });
-      await board.ready;
-      const tops: Record<string, number> = { "g-one": -900, "g-two": -50, "g-three": 800 };
-      for (const node of target.querySelectorAll<HTMLElement>(".fft-board-section")) node.getBoundingClientRect = () => ({ top: tops[node.id] ?? 0 }) as DOMRect;
-      window.dispatchEvent(new Event("scroll"));
-      expect([...target.querySelectorAll(".fft-board-nav a")].map((a) => a.getAttribute("aria-current"))).toEqual([null, "true", null]);
-    } finally {
-      vi.unstubAllGlobals();
-      saved.forEach(([obj, key], i) => {
-        const original = originals[i];
-        if (original) Object.defineProperty(obj, key, original);
-        else Reflect.deleteProperty(obj, key);
-      });
-    }
-  });
-
   test("sticky pins the filter row while the page scrolls", async () => {
     const board = createDashboard(target, spec, { widgets, sticky: true });
     await board.ready;
     expect(target.querySelector(".fft-dashboard")?.hasAttribute("data-sticky")).toBe(true);
   });
 
-  const ids = () => [...target.querySelectorAll(".fft-board-section")].map((el) => el.id);
-  const hrefs = () => [...target.querySelectorAll(".fft-board-nav a")].map((a) => a.getAttribute("href"));
-  const current = () => [...target.querySelectorAll(".fft-board-nav a")].map((a) => a.getAttribute("aria-current"));
-
-  test("repeated titles get unique ids, punctuation collapses to one hyphen, and the prefix defaults to board", async () => {
-    const board = createDashboard(target, { widgets: [{ section: "Sales" }, { widget: "monthly" }, { section: "Sales" }, { section: " Q3: Margin & Cost!" }] }, { widgets });
-    await board.ready;
-    expect(ids()).toEqual(["board-sales", "board-sales-2", "board-q3-margin-cost"]);
-    expect(hrefs()).toEqual(["#board-sales", "#board-sales-2", "#board-q3-margin-cost"]);
-  });
-
-  test("two boards on one page do not share section ids", async () => {
-    await createDashboard(target, spec, { widgets }).ready;
-    await createDashboard(target, spec, { widgets }).ready;
-    expect(ids()).toEqual(["g-revenue-and-profit", "g-trends", "g-revenue-and-profit-2", "g-trends-2"]);
-  });
-
-  test("the links come after the period and filter controls", async () => {
-    const board = createDashboard(target, { ...spec, filters: [{ field: "region" }], range: { field: "month" } }, { widgets });
-    await board.ready;
-    expect([...(target.querySelector(".fft-filters") as HTMLElement).children].map((el) => el.className)).toEqual(["fft-range", "fft-filter", "fft-board-nav"]);
-  });
-
-  test("with no filters, no range and fewer than two sections, the filter row stays hidden", async () => {
-    const board = createDashboard(target, { widgets: [{ section: "Only" }, { widget: "monthly" }] }, { widgets });
-    await board.ready;
-    expect((target.querySelector(".fft-filters") as HTMLElement).hidden).toBe(true);
-  });
-
-  /** Stands in for IntersectionObserver: records what it observes and hands back the callback. */
-  const stubSpy = () => {
-    const spy = { notify: undefined as ((entries: { target: Element; isIntersecting: boolean }[]) => void) | undefined, observed: [] as Element[], disconnect: vi.fn<() => void>() };
-    vi.stubGlobal("IntersectionObserver", class {
-      constructor(callback: typeof spy.notify) {
-        spy.notify = callback;
-      }
-      observe(el: Element) {
-        spy.observed.push(el);
-      }
-      disconnect() {
-        spy.disconnect();
-      }
-    });
-    return spy;
-  };
-  const three = { id: "g", widgets: [{ section: "Revenue" }, { widget: "by-region" }, { section: "Trends" }, { widget: "monthly" }, { section: "Detail" }] };
-  const section = (id: string) => target.querySelector(`#${id}`) as Element;
-
-  test("the current mark moves with the page; a jump that shows several sections at once marks the topmost", async () => {
-    const spy = stubSpy();
-    try {
-      await createDashboard(target, three, { widgets }).ready;
-      spy.notify?.([{ target: section("g-trends"), isIntersecting: true }]);
-      expect(current()).toEqual([null, "true", null]);
-      spy.notify?.([{ target: section("g-trends"), isIntersecting: false }]);
-      expect(current()).toEqual([null, "true", null]);
-      spy.notify?.([{ target: section("g-revenue"), isIntersecting: false }, { target: section("g-trends"), isIntersecting: true }, { target: section("g-detail"), isIntersecting: true }]);
-      expect(current()).toEqual([null, "true", null]);
-      spy.notify?.([{ target: section("g-revenue"), isIntersecting: true }]);
-      expect(current()).toEqual(["true", null, null]);
-    } finally {
-      vi.unstubAllGlobals();
-    }
-  });
-
-  test("tapping a link marks it current right away", async () => {
-    await createDashboard(target, three, { widgets }).ready;
-    (target.querySelectorAll<HTMLAnchorElement>(".fft-board-nav a")[2] as HTMLAnchorElement).click();
-    expect(current()).toEqual([null, null, "true"]);
-  });
-
-  test("every section is observed, and destroy stops observing", async () => {
-    const spy = stubSpy();
-    try {
-      const board = createDashboard(target, three, { widgets });
-      await board.ready;
-      expect(spy.observed.map((el) => el.id)).toEqual(["g-revenue", "g-trends", "g-detail"]);
-      expect(spy.disconnect).not.toHaveBeenCalled();
-      board.destroy();
-      expect(spy.disconnect).toHaveBeenCalledOnce();
-    } finally {
-      vi.unstubAllGlobals();
-    }
-  });
-
-  test("when the links scroll sideways, the current one is brought into view", async () => {
-    const spy = stubSpy();
-    try {
-      await createDashboard(target, three, { widgets }).ready;
-      const nav = target.querySelector(".fft-board-nav") as HTMLElement;
-      const link = nav.querySelectorAll("a")[2] as HTMLAnchorElement;
-      Object.defineProperties(nav, { scrollWidth: { value: 600 }, clientWidth: { value: 300 } });
-      nav.getBoundingClientRect = () => ({ left: 16, width: 300 }) as DOMRect;
-      link.getBoundingClientRect = () => ({ left: 416, width: 60 }) as DOMRect;
-      const scrollBy = vi.fn();
-      nav.scrollBy = scrollBy;
-      spy.notify?.([{ target: section("g-detail"), isIntersecting: true }]);
-      expect(scrollBy).toHaveBeenCalledWith({ left: 280 });
-    } finally {
-      vi.unstubAllGlobals();
-    }
-  });
-
-  test("a sticky board tracks the filter row's height, so a jumped-to section clears it", async () => {
+  test("a sticky board tracks the filter row's height, so content clears it", async () => {
     const watchers: { callback: () => void; targets: Element[]; disconnect: Mock<() => void> }[] = [];
     vi.stubGlobal("ResizeObserver", class {
       watcher: (typeof watchers)[number];
@@ -529,6 +466,21 @@ describe("time range", () => {
       ["2026-02", "2026-03", "2026-04"],
       ["2026-02-01", "2026-04-30"],
     ]);
+  });
+
+  test("forecast rows never move the end a period counts back from", async () => {
+    const ahead: Record<string, WidgetSpec> = {
+      ...timed,
+      plan: {
+        title: "Plan",
+        data: { type: "inline", rows: [{ month: "2026-04", v: 1, f: false }, { month: "2026-08", v: 2, f: true }] },
+        view: { type: "line", x: "month", y: "v", forecast: "f" },
+      },
+    };
+    const board = createDashboard(target, { range: { field: "month" }, widgets: [{ widget: "trend" }, { widget: "plan" }] }, { widgets: ahead });
+    await board.ready;
+    await board.setRange("3M");
+    expect(cellRows("trend").map((row) => row?.slice(0, 7))).toEqual(["2026-02", "2026-03", "2026-04"]);
   });
 
   test("validation: the range needs a field, options must be periods, and the default one of them", () => {

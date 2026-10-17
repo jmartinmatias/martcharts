@@ -34,9 +34,12 @@ export const renderCalendar: ViewRenderer<CalendarView> = (ctx) => {
   const left = 34;
   const top = 21;
   const gap = 2;
-  const cell = Math.max(8, Math.min(21, Math.floor((ctx.width - left) / weeks) - gap));
-  const width = left + weeks * (cell + gap);
-  const height = top + 7 * (cell + gap);
+  // The weeks fill the width: cells are square up to 34px tall, then widen, at most to the golden ratio.
+  const room = Math.max(8, Math.floor((ctx.width - left) / weeks) - gap);
+  const cellH = Math.min(room, 34);
+  const cellW = Math.min(room, Math.floor(cellH * 1.618));
+  const width = left + weeks * (cellW + gap);
+  const height = top + 7 * (cellH + gap);
   const locale = ctx.spec.locale;
   const longDate = new Intl.DateTimeFormat(locale, { weekday: "short", month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
   const monthName = new Intl.DateTimeFormat(locale, { month: "short", timeZone: "UTC" });
@@ -48,14 +51,14 @@ export const renderCalendar: ViewRenderer<CalendarView> = (ctx) => {
   chart.setAttribute("aria-label", `Calendar of ${ctx.label(value)} by day`);
   // Weekday labels on Monday, Wednesday and Friday rows (1970-01-05 was a Monday).
   for (const row of [0, 2, 4]) {
-    const text = svg(doc, "text", { class: "fft-cal-weekday", x: left - 5, y: top + row * (cell + gap) + cell / 2, "text-anchor": "end", "dominant-baseline": "middle" });
+    const text = svg(doc, "text", { class: "fft-cal-weekday", x: left - 5, y: top + row * (cellH + gap) + cellH / 2, "text-anchor": "end", "dominant-baseline": "middle" });
     text.textContent = weekdayName.format(new Date((4 + row) * DAY));
     chart.append(text);
   }
   for (let day = first; day <= last; day++) {
     const column = Math.floor((day - start) / 7);
-    const x = left + column * (cell + gap);
-    const y = top + weekday(day) * (cell + gap);
+    const x = left + column * (cellW + gap);
+    const y = top + weekday(day) * (cellH + gap);
     const when = new Date(day * DAY);
     if (day === first || when.getUTCDate() === 1) {
       const label = svg(doc, "text", { class: "fft-cal-month", x, y: top - 8 });
@@ -63,7 +66,7 @@ export const renderCalendar: ViewRenderer<CalendarView> = (ctx) => {
       chart.append(label);
     }
     const entry = days.get(day);
-    const rect = svg(doc, "rect", { class: "fft-day", x, y, width: cell, height: cell, rx: 2, style: `--fft-i: ${column}` });
+    const rect = svg(doc, "rect", { class: "fft-day", x, y, width: cellW, height: cellH, rx: Math.min(3, cellH / 8), style: `--fft-i: ${column}` });
     if (entry && entry.amount !== null) {
       rect.dataset.step = String(quantize(entry.amount, min, max, STEPS));
       const dayText = longDate.format(when);

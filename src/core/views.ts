@@ -72,6 +72,9 @@ export interface AreaView {
   highlight?: string | string[];
   endLabels?: boolean;
   reference?: ReferenceMark[];
+  /** As on the line view, for one unstacked area. */
+  forecast?: string;
+  band?: { low: string; high: string; label?: string };
 }
 
 /** `{ type: "meter", value, target, label? }`: one meter per row. */
@@ -302,6 +305,13 @@ export interface SunburstView {
   caption?: string;
 }
 
+/** `{ type: "icicle", levels, value }`: a hierarchy as columns of rectangles, each child splitting its parent's height. */
+export interface IcicleView {
+  type: "icicle";
+  levels: string[];
+  value: string;
+}
+
 /** `{ type: "chord", source, target, value }`: flows between groups as ribbons around a circle. */
 export interface ChordView {
   type: "chord";
@@ -313,6 +323,23 @@ export interface ChordView {
 /** `{ type: "radar", label, y, max? }`: profiles across several attributes on one shared scale. */
 export interface RadarView {
   type: "radar";
+  label: string;
+  y: string | string[];
+  max?: number;
+}
+
+/** `{ type: "horizon", x, y, bands?, baseline? }`: many time series in thin rows, values folded into bands of deepening color. */
+export interface HorizonView {
+  type: "horizon";
+  x: string;
+  y: string | string[];
+  bands?: number;
+  baseline?: number;
+}
+
+/** `{ type: "rose", label, y, max? }`: a polar area chart for a cycle, wedges true to their values by area. */
+export interface RoseView {
+  type: "rose";
   label: string;
   y: string | string[];
   max?: number;
@@ -335,6 +362,8 @@ export interface BarView {
   stacked?: boolean | "percent";
   highlight?: string | string[];
   reference?: ReferenceMark[];
+  /** "lollipop" draws a thin stem and a dot in place of each bar. */
+  mark?: "bar" | "lollipop";
 }
 
 /** `{ type: "hbar", label, value, highlight? }`: a ranking with values at the bar ends. */
@@ -343,7 +372,16 @@ export interface HbarView {
   label: string;
   value: string;
   highlight?: string | string[];
+  mark?: "bar" | "lollipop";
 }
+
+/** The `mark` option shared by bar and hbar. */
+const MARK_OPTION = {
+  type: "enum",
+  values: ["bar", "lollipop"],
+  default: "bar",
+  description: '"lollipop" draws a thin stem from the baseline and a dot at the value in place of each bar: the same reading with far less ink, for rankings of many similar values.',
+} as const;
 
 /** `{ type: "line", x, y, highlight?, endLabels? }` */
 export interface LineView {
@@ -353,6 +391,15 @@ export interface LineView {
   highlight?: string | string[];
   endLabels?: boolean;
   reference?: ReferenceMark[];
+  /** Field that is true on forecast rows: they draw dashed, in a shaded zone after the last actual. */
+  forecast?: string;
+  /** A shaded range behind the first line, such as a forecast's p10 to p90. */
+  band?: { low: string; high: string; label?: string };
+}
+
+/** Whether a forecast flag is set: true, 1, "true" or "yes". */
+export function isForecast(value: unknown): boolean {
+  return value === true || value === 1 || value === "true" || value === "yes";
 }
 
 /** Values a series axis must cover: every value, or the column sums when stacked (0 to 1 for percent stacks, half the sum either side of zero for streams). */
@@ -371,7 +418,9 @@ function seriesExtent(view: Record<string, unknown>, rows: Row[]): number[] {
       return [values.filter((v) => v > 0).reduce((a, b) => a + b, 0), values.filter((v) => v < 0).reduce((a, b) => a + b, 0)];
     });
   }
-  return rows.flatMap((row) => fields.map((f) => readNumber(row[f]))).filter((n): n is number => n !== null);
+  const band = view.band as LineView["band"] | undefined;
+  const banded = band ? [band.low, band.high] : [];
+  return rows.flatMap((row) => [...fields, ...banded].map((f) => readNumber(row[f]))).filter((n): n is number => n !== null);
 }
 
 const highlightCategories: OptionSchema = {
@@ -444,6 +493,26 @@ const kpis: ViewBlock = {
   },
 };
 
+/** The forecast fan options, shared by line and area. */
+const FORECAST_OPTION = {
+  type: "field",
+  kind: "category",
+  description: "Field that is true on forecast rows. From the last actual on, lines draw dashed in a softly shaded zone labelled Forecast, and the tooltip marks those rows.",
+} as const;
+const BAND_OPTION = {
+  type: "any",
+  description:
+    'A shaded range behind the first line, for a forecast fan or any low to high spread: { "low": "p10", "high": "p90", "label": "80% range" }. Give the last actual row low and high equal to its value, so the fan opens from it. The ends are labelled and the tooltip gives the range.',
+} as const;
+
+/** The band must name its low and high fields. */
+function checkBand(view: Record<string, unknown>): string[] {
+  const band = view.band as Record<string, unknown> | undefined;
+  return band === undefined || (typeof band === "object" && band !== null && typeof band.low === "string" && typeof band.high === "string")
+    ? []
+    : ['band needs low and high fields, for example { "low": "p10", "high": "p90", "label": "80% range" }.'];
+}
+
 const area: ViewBlock = {
   type: "area",
   extent: seriesExtent,
@@ -461,11 +530,14 @@ const area: ViewBlock = {
     highlight: highlightSeries,
     endLabels: { type: "boolean", default: true, description: "Write each series' last value at its end, for up to 4 series. Hidden automatically when two ends would collide." },
     reference: REFERENCE_OPTION,
+    forecast: { ...FORECAST_OPTION, description: `${FORECAST_OPTION.description} On an area the forecast's wash is fainter too. Unstacked areas only.` },
+    band: BAND_OPTION,
   },
   validate(view) {
     const stacked = view.stacked;
     const problems = stacked === undefined || stacked === true || stacked === false || stacked === "percent" || stacked === "stream" ? [] : ['stacked must be true, false, "percent" or "stream".'];
-    return [...problems, ...checkReference(view)];
+    if (stacked && (view.forecast !== undefined || view.band !== undefined)) problems.push("forecast and band draw on an unstacked area: drop stacked, or use a line.");
+    return [...problems, ...checkBand(view), ...checkReference(view)];
   },
 };
 
@@ -837,6 +909,25 @@ const sunburst: ViewBlock = {
   },
 };
 
+const icicle: ViewBlock = {
+  type: "icicle",
+  description:
+    "A hierarchy laid flat: a column for the total, then one per level left to right, each child splitting its parent's height by value, in lighter tints of its family's color. Rectangles compare and label more easily than rings, so it takes deeper hierarchies than the sunburst. Pointing at a cell lights its family and gives its share of each level.",
+  options: {
+    levels: { type: "fields", kind: "category", required: true, description: 'Fields from the top level down, one column each, for example ["region", "product", "plan"]. Up to 4.' },
+    value: { type: "field", kind: "number", required: true, description: "Field sizing the cells. Zero and negative values are left out." },
+  },
+  validate(view) {
+    const levels = view.levels;
+    return Array.isArray(levels) && levels.length > 4 ? ["levels takes at most 4 fields; deeper columns get too narrow to read."] : [];
+  },
+  checkData(view, rows) {
+    const top = Array.isArray(view.levels) ? String(view.levels[0]) : String(view.levels);
+    const count = new Set(rows.map((row) => String(row[top]))).size;
+    return count > 8 ? [`${count} top-level values but only 8 colors. Fold the smallest into "Other".`] : [];
+  },
+};
+
 const chord: ViewBlock = {
   type: "chord",
   description: "Flows between groups around a circle: each group an arc as long as everything it sends and receives, each flow a ribbon from its sender to its receiver, in the sender's color. For exchanges within one set, such as customers moving between plans or staff moving between teams.",
@@ -917,10 +1008,12 @@ const bar: ViewBlock = {
     },
     highlight: highlightCategories,
     reference: REFERENCE_OPTION,
+    mark: MARK_OPTION,
   },
   validate(view) {
     const stacked = view.stacked;
     const problems = stacked === undefined || stacked === true || stacked === false || stacked === "percent" ? [] : ['stacked must be true, false or "percent".'];
+    if (view.mark === "lollipop" && stacked) problems.push("A lollipop shows one dot per value, so it cannot stack: drop stacked, or use bars.");
     return [...problems, ...checkReference(view)];
   },
 };
@@ -932,6 +1025,7 @@ const hbar: ViewBlock = {
     label: { type: "field", kind: "category", required: true, description: "Field naming each bar." },
     value: { type: "field", kind: "number", required: true, description: "Field with each bar's amount. Bars start at zero." },
     highlight: highlightCategories,
+    mark: MARK_OPTION,
   },
 };
 
@@ -945,8 +1039,49 @@ const line: ViewBlock = {
     highlight: highlightSeries,
     endLabels: { type: "boolean", default: true, description: "Write each series' last value at its end, for up to 4 series. Hidden automatically when two ends would collide." },
     reference: REFERENCE_OPTION,
+    forecast: FORECAST_OPTION,
+    band: BAND_OPTION,
   },
-  validate: checkReference,
+  validate(view) {
+    return [...checkBand(view), ...checkReference(view)];
+  },
 };
 
-export const builtinViews: ViewBlock[] = [table, list, kpi, kpis, bar, hbar, line, area, meter, bullet, donut, treemap, funnel, waterfall, heatmap, calendar, scatter, beeswarm, ridgeline, sankey, dumbbell, slope, bump, marimekko, histogram, rings, timeline, waffle, variance, gauge, pareto, boxplot, likert, candlestick, sunburst, chord, radar];
+const horizon: ViewBlock = {
+  type: "horizon",
+  description:
+    "Many time series at once, each in a thin row: values are measured from a baseline and folded into bands of deepening color, blue above and red below, so a dozen series fit where one line chart would. For spotting which series run hot or cold, and when. Pointing at a period lists every series there.",
+  options: {
+    x: { type: "field", kind: "date", required: true, description: "Field for the ordered axis, usually a date." },
+    y: { type: "fields", kind: "number", required: true, description: "Field or fields, one row each, such as a region's revenue against plan." },
+    bands: { type: "number", default: 3, description: "How many shades each side folds into, 1 to 5. More bands pack more range into a row but read less exactly." },
+    baseline: { type: "number", default: 0, description: "The value rows are measured from, such as 0 for a difference or the plan for a raw amount." },
+  },
+  validate(view) {
+    const bands = view.bands;
+    return bands === undefined || (Number.isInteger(bands) && (bands as number) >= 1 && (bands as number) <= 5) ? [] : ["bands must be a whole number from 1 to 5."];
+  },
+  checkData(_view, rows) {
+    return rows.length < 2 ? [`A horizon needs at least 2 periods to draw a shape; with ${rows.length}, show the number instead.`] : [];
+  },
+};
+
+const rose: ViewBlock = {
+  type: "rose",
+  description:
+    "A polar area chart (a Nightingale rose) for a cycle that wraps round, such as hours of the day or months of the year: one equal wedge per row, clockwise from twelve o'clock, its area true to its value. Several fields stack outward, each ring adding its own area. For plain ranking, a bar chart reads more exactly.",
+  options: {
+    label: { type: "field", kind: "category", required: true, description: "Field naming each wedge, in cycle order, such as the hour or the month." },
+    y: { type: "fields", kind: "number", required: true, description: "Field or fields with the values; each field is one ring of the stack. Up to 4 stay readable." },
+    max: { type: "number", description: "Total the outer ring stands for. Defaults to a round number at or above the largest wedge." },
+  },
+  checkData(view, rows) {
+    const series = Array.isArray(view.y) ? view.y.length : 1;
+    const out: string[] = [];
+    if (rows.length < 3) out.push(`A rose needs at least 3 wedges to read as a cycle; with ${rows.length}, use a bar chart.`);
+    if (series > 4) out.push(`${series} rings crowd a rose; keep 4 or fewer, or use small multiples.`);
+    return out;
+  },
+};
+
+export const builtinViews: ViewBlock[] = [table, list, kpi, kpis, bar, hbar, line, area, meter, bullet, donut, treemap, funnel, waterfall, heatmap, calendar, scatter, beeswarm, ridgeline, sankey, dumbbell, slope, bump, marimekko, histogram, rings, timeline, waffle, variance, gauge, pareto, boxplot, likert, candlestick, sunburst, chord, radar, rose, horizon, icicle];

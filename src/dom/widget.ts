@@ -7,6 +7,7 @@ import { fieldLabel, formatNode, formatValue } from "../core/display.ts";
 import { fork } from "../core/fork.ts";
 import type { Override } from "../core/fork.ts";
 import { runPipeline } from "../core/pipeline.ts";
+import { widgetRef } from "../core/ref.ts";
 import { getBlock } from "../core/registry.ts";
 import type { Issue, Row, WidgetSpec } from "../core/types.ts";
 import { hasErrors, validateSpec } from "../core/validate.ts";
@@ -113,6 +114,11 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
   const body = make("div", "fft-body");
   const message = make("div", "fft-message");
   const footer = make("p", "fft-footer");
+  // The bottom row: the footer, and the widget's ghost ref (W-7Q2K) faintly at the right, a click away from the clipboard.
+  const base = make("div", "fft-base");
+  const refButton = make("button", "fft-widget-ref");
+  refButton.type = "button";
+  base.append(footer, refButton);
   const tip = make("div", "fft-tooltip");
   title.id = `${id}-title`;
   message.setAttribute("role", "status");
@@ -120,7 +126,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
   tip.hidden = true;
   headlineEl.hidden = true;
   header.append(title, subtitle);
-  root.append(header, headlineEl, body, message, footer, tip);
+  root.append(header, headlineEl, body, message, base, tip);
   const actionButtons = new Map<WidgetAction, HTMLButtonElement>();
   let bar: HTMLElement | undefined;
   /** A toolbar button: an icon of 2px strokes on a 24px grid, named for tooltips and screen readers. */
@@ -231,7 +237,32 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       setText(node, text === undefined ? undefined : fillTemplate(text, rows, current.fields, current.locale));
       node.style.visibility = !loaded && text && hasTemplate(text) ? "hidden" : "";
     }
+    paintRef();
   }
+
+  /** The ghost ref: shown for widgets with an id, and on the root as data-fft-ref for scripts and tests. */
+  function paintRef() {
+    const ref = current.id ? widgetRef(current.id) : "";
+    refButton.hidden = !ref;
+    refButton.textContent = ref;
+    if (ref) {
+      root.dataset.fftRef = ref;
+      refButton.title = `Widget ref ${ref} (id ${current.id}). Click to copy; agents can use it in place of the id.`;
+      refButton.setAttribute("aria-label", `Copy widget ref ${ref}`);
+    } else {
+      delete root.dataset.fftRef;
+    }
+    base.hidden = footer.hidden && !ref;
+  }
+  refButton.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(refButton.textContent ?? "");
+      refButton.dataset.done = "";
+    } catch {
+      refButton.dataset.failed = "";
+    }
+    setTimeout(() => refButton.removeAttribute(refButton.hasAttribute("data-done") ? "data-done" : "data-failed"), 1597);
+  });
 
   function paintFrame() {
     ensureStyles(doc);
@@ -626,7 +657,7 @@ function createTooltip(root: HTMLElement, tip: HTMLElement): Tooltip {
     return node;
   };
   return {
-    show(anchor: Element, title: string, items: TooltipItem[]) {
+    show(anchor: Element, title: string, items: TooltipItem[], options: { below?: boolean } = {}) {
       const heading = doc.createElement("div");
       heading.className = "fft-tooltip-title";
       heading.textContent = title;
@@ -652,7 +683,10 @@ function createTooltip(root: HTMLElement, tip: HTMLElement): Tooltip {
       const screen = doc.documentElement.clientWidth;
       if (screen > 0) left = Math.max(Math.min(left, screen - 8 - frame.left - half), 8 - frame.left + half);
       tip.style.left = `${left}px`;
-      tip.style.top = `${box.top - frame.top}px`;
+      // Above the anchor by default; below it when the view asks, for marks whose room is underneath.
+      if (options.below) tip.dataset.placement = "below";
+      else delete tip.dataset.placement;
+      tip.style.top = `${(options.below ? box.bottom : box.top) - frame.top}px`;
     },
     hide() {
       tip.hidden = true;

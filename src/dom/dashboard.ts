@@ -11,6 +11,7 @@ import { fieldLabel, formatValue } from "../core/display.ts";
 import { fork } from "../core/fork.ts";
 import { runPipeline } from "../core/pipeline.ts";
 import { compareValues } from "../core/transforms.ts";
+import { isForecast } from "../core/views.ts";
 import type { Row, TransformSpec, WidgetSpec } from "../core/types.ts";
 import type { WidgetAction } from "./export.ts";
 import { ensureStyles } from "./styles.ts";
@@ -35,6 +36,12 @@ export interface DashboardOptions {
    * so the pinned row blends in.
    */
   sticky?: boolean;
+  /**
+   * Keeps the chosen section in the address (#<section id>), so a link opens the
+   * board on it and reload keeps it. Off by default, so a host page's address is
+   * left alone.
+   */
+  hash?: boolean;
 }
 
 /** A live dashboard. */
@@ -48,6 +55,8 @@ export interface Dashboard {
   setFilter(field: string, value: unknown): Promise<void>;
   /** Picks a period of the time range ("3M", "YTD", "All") and redraws the widgets it scopes. */
   setRange(option: string): Promise<void>;
+  /** Shows one section (by title or id) with its heading and cards, or every section again with `null`. Throws for an unknown section. */
+  setSection(section: string | null): void;
   /** Merges a patch into every widget's spec (merge patch rules), for example a style preset. Survives filtering. */
   setOverride(patch: Record<string, unknown>): Promise<void>;
   destroy(): void;
@@ -97,7 +106,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   const rangeFields = range ? (Array.isArray(range.field) ? range.field : [range.field]) : [];
   const periods = range?.options ?? RANGE_OPTIONS;
   let period = range ? (range.default ?? (periods.includes("All") ? "All" : (periods.at(-1) ?? "All"))) : "All";
-  /** The latest date across every widget whose data has the range field: the end every period counts back from. */
+  /** The latest actual date across every widget whose data has the range field: the end every period counts back from. Forecast rows never count. */
   let latestDate: Promise<string> | undefined;
   const latest = () => (latestDate ??= (async () => {
     if (!range) return "";
@@ -106,7 +115,9 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       const fields = await rawFields.get(id);
       const field = rangeFields.find((f) => fields?.has(f));
       if (!field) continue;
+      const forecast = originals.get(id)?.view?.forecast;
       for (const row of await rows) {
+        if (typeof forecast === "string" && isForecast(row[forecast])) continue;
         const value = row[field];
         if (typeof value === "string" && /^\d{4}-\d{2}/.test(value) && value > max) max = value;
       }
@@ -125,9 +136,14 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     return id;
   };
 
-  /** The expanded view steps through the board's widgets in grid order, sections skipped. */
+  /** The grid items each section shows: its heading and the cells after it, up to the next heading. */
+  const members = new Map<HTMLElement, Set<HTMLElement>>();
+  let opened: Set<HTMLElement> | undefined;
+  /** Each widget's slot, so stepping can skip the ones a section filter hides. */
+  const slotOf = new Map<Widget, HTMLElement>();
+  /** The expanded view steps through the board's widgets in grid order, sections skipped, and only those in view. */
   const neighbors = (widget: Widget) => {
-    const list = [...widgets.values()];
+    const list = [...widgets.values()].filter((other) => !slotOf.get(other)?.hidden);
     const i = list.indexOf(widget);
     return { previous: list[i - 1], next: list[i + 1], position: i + 1, total: list.length };
   };
@@ -142,6 +158,8 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       if (cell.description) section.append(el("p", "", cell.description));
       grid.append(section);
       sections.push({ node: section, title: cell.section });
+      opened = new Set([section]);
+      members.set(section, opened);
       return;
     }
     const id = cell.widget ?? `cell-${index}`;
@@ -153,6 +171,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     const mount = el("div", "fft-board-cell");
     slot.append(mount);
     grid.append(slot);
+    opened?.add(slot);
     const found = cell.spec ?? (cell.widget ? (options.widgets?.[cell.widget] ?? options.resolve?.(cell.widget)) : undefined);
     if (!found) {
       mount.append(el("p", "fft-cell-missing", `No widget "${cell.widget ?? index}".`));
@@ -164,64 +183,63 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     rawFields.set(id, rows.then((list) => new Set(list.flatMap((row) => Object.keys(row)))));
     const widget = createWidget(mount, found, { actions: options.actions, fetch: options.fetch, neighbors });
     widgets.set(id, widget);
+    slotOf.set(widget, slot);
     options.decorate?.(mount, id, widget);
   });
 
-  // Section links: with two or more sections, the filter row links to each, the one in view marked current.
-  const links = new Map<Element, HTMLAnchorElement>();
-  const nav = sections.length > 1 ? el("nav", "fft-board-nav") : undefined;
-  let spy: IntersectionObserver | undefined;
-  let atBottom: (() => void) | undefined;
+  // Section filter: with two or more sections, the filter row offers All and each section, like the period control.
+  const nav = sections.length > 1 ? el("div", "fft-board-nav") : undefined;
+  const sectionButtons: HTMLButtonElement[] = [];
   if (nav) {
+    nav.setAttribute("role", "group");
     nav.setAttribute("aria-label", "Sections");
-    for (const { node, title } of sections) {
-      const link = el("a", "", title);
-      link.href = `#${node.id}`;
-      link.addEventListener("click", () => markCurrent(node));
-      links.set(node, link);
-      nav.append(link);
+    for (const entry of [null, ...sections]) {
+      const button = el("button", "", entry ? entry.title : "All");
+      button.type = "button";
+      if (entry) button.dataset.section = entry.node.id;
+      button.setAttribute("aria-pressed", String(entry === null));
+      button.addEventListener("click", () => choose(entry?.node ?? null));
+      sectionButtons.push(button);
+      nav.append(button);
     }
     filterRow.append(nav);
-    if (typeof IntersectionObserver === "function") {
-      // A heading counts as in view in the top part of the viewport. A jump can bring several in at once: the topmost is the one jumped to.
-      spy = new IntersectionObserver((entries) => {
-        const hit = entries.find((entry) => entry.isIntersecting);
-        if (hit) markCurrent(hit.target);
-      }, { rootMargin: "0px 0px -60% 0px" });
-      for (const { node } of sections) spy.observe(node);
-      // On every scroll, the current section is the last heading above the reading line (0.4 of the viewport). The
-      // observer alone goes stale when a jump skips past headings without crossing them. A short last section can
-      // never reach the line: at the very bottom of the page it is the current one.
-      const last = sections.at(-1)?.node;
-      const view = doc.defaultView;
-      if (last && view) {
-        atBottom = () => {
-          if (view.scrollY > 0 && view.scrollY + view.innerHeight >= doc.documentElement.scrollHeight - 2) {
-            markCurrent(last);
-            return;
-          }
-          let current = sections[0]?.node;
-          for (const { node } of sections) if (node.getBoundingClientRect().top <= view.innerHeight * 0.4) current = node;
-          if (current) markCurrent(current);
-        };
-        view.addEventListener("scroll", atBottom, { passive: true });
-      }
-    }
   }
 
-  function markCurrent(section: Element) {
-    for (const [node, link] of links) {
-      if (node !== section) link.removeAttribute("aria-current");
-      else if (!link.hasAttribute("aria-current")) {
-        link.setAttribute("aria-current", "true");
-        // On narrow screens the links scroll sideways: center the current one. CSS owns the motion (scroll-behavior).
-        if (nav && nav.scrollWidth > nav.clientWidth) {
-          const box = nav.getBoundingClientRect();
-          const chip = link.getBoundingClientRect();
-          nav.scrollBy({ left: chip.left - box.left - (box.width - chip.width) / 2 });
-        }
+  /** Shows one section's heading and cards, or everything for null; the board starts again from its top. */
+  function choose(section: HTMLElement | null) {
+    const keep = section ? members.get(section) : undefined;
+    for (const child of grid.children) (child as HTMLElement).hidden = keep ? !keep.has(child as HTMLElement) : false;
+    if (section) root.dataset.section = section.id;
+    else delete root.dataset.section;
+    sectionButtons.forEach((button) => {
+      const on = (button.dataset.section ?? null) === (section?.id ?? null);
+      button.setAttribute("aria-pressed", String(on));
+      // On narrow screens the buttons scroll sideways: center the chosen one. CSS owns the motion (scroll-behavior).
+      if (on && nav && nav.scrollWidth > nav.clientWidth) {
+        const box = nav.getBoundingClientRect();
+        const chip = button.getBoundingClientRect();
+        nav.scrollBy({ left: chip.left - box.left - (box.width - chip.width) / 2 });
       }
+    });
+    if (options.hash) {
+      const view = doc.defaultView;
+      view?.history.replaceState(view.history.state, "", section ? `#${section.id}` : `${view.location.pathname}${view.location.search}`);
     }
+    if (root.getBoundingClientRect().top < 0) root.scrollIntoView?.({ block: "start" });
+  }
+
+  // An address naming one of this board's sections opens the board on it, and the board follows the address as it
+  // changes (links, back and forward): a section's id shows it, an empty address shows them all, anything else is left alone.
+  const fromAddress = (initial: boolean) => {
+    const named = doc.defaultView?.location.hash.slice(1) ?? "";
+    const match = sections.find(({ node }) => node.id === named);
+    if (match) choose(match.node);
+    else if (!named && !initial) choose(null);
+  };
+  const onHash = () => fromAddress(false);
+  if (options.hash && nav) {
+    fromAddress(true);
+    doc.defaultView?.addEventListener("hashchange", onHash);
   }
 
   // A pinned filter row wraps to several lines on a phone: track its height so a jumped-to section scrolls clear of it.
@@ -335,6 +353,12 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     ready,
     setFilter,
     setRange,
+    setSection(section) {
+      if (section === null) return choose(null);
+      const match = sections.find(({ node, title }) => title === section || node.id === section);
+      if (!match) throw new Error(`No section "${section}". Sections: ${sections.map(({ title }) => title).join(", ")}.`);
+      choose(match.node);
+    },
     async setOverride(patch) {
       override = fork(override, patch);
       // A preset built for one color scheme (glass is dark, airy and paper light) takes the filter row and headings with it.
@@ -345,8 +369,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       await redraw();
     },
     destroy() {
-      spy?.disconnect();
-      if (atBottom) doc.defaultView?.removeEventListener("scroll", atBottom);
+      doc.defaultView?.removeEventListener("hashchange", onHash);
       barSize?.disconnect();
       stuckSpy?.disconnect();
       for (const widget of widgets.values()) widget.destroy();

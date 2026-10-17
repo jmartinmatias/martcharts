@@ -1,0 +1,186 @@
+{
+  "id": "revenue-forecast",
+  "title": "Revenue forecast",
+  "subtitle": "Monthly revenue, {first:month} to {last:month}, with a six-month forecast",
+  "description": "Revenue reached \u20ac1.28M in September. The middle case reaches \u20ac1.47M by March 2027, inside an 80% range of \u20ac1.15M to \u20ac1.82M that widens with each month further out.",
+  "footer": "Source: finance ledger and planning model",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {
+        "month": "2025-10",
+        "revenue": 820000,
+        "low": null,
+        "high": null,
+        "forecast": false
+      },
+      {
+        "month": "2025-11",
+        "revenue": 860000,
+        "low": null,
+        "high": null,
+        "forecast": false
+      },
+      {
+        "month": "2025-12",
+        "revenue": 910000,
+        "low": null,
+        "high": null,
+        "forecast": false
+      },
+      {
+        "month": "2026-01",
+        "revenue": 870000,
+        "low": null,
+        "high": null,
+        "forecast": false
+      },
+      {
+        "month": "2026-02",
+        "revenue": 900000,
+        "low": null,
+        "high": null,
+        "forecast": false
+      },
+      {
+        "month": "2026-03",
+        "revenue": 960000,
+        "low": null,
+        "high": null,
+        "forecast": false
+      },
+      {
+        "month": "2026-04",
+        "revenue": 1010000,
+        "low": null,
+        "high": null,
+        "forecast": false
+      },
+      {
+        "month": "2026-05",
+        "revenue": 980000,
+        "low": null,
+        "high": null,
+        "forecast": false
+      },
+      {
+        "month": "2026-06",
+        "revenue": 1050000,
+        "low": null,
+        "high": null,
+        "forecast": false
+      },
+      {
+        "month": "2026-07",
+        "revenue": 1120000,
+        "low": null,
+        "high": null,
+        "forecast": false
+      },
+      {
+        "month": "2026-08",
+        "revenue": 1142000,
+        "low": null,
+        "high": null,
+        "forecast": false
+      },
+      {
+        "month": "2026-09",
+        "revenue": 1284000,
+        "low": 1284000,
+        "high": 1284000,
+        "forecast": false
+      },
+      {
+        "month": "2026-10",
+        "revenue": 1310000,
+        "low": 1278000,
+        "high": 1346000,
+        "forecast": true
+      },
+      {
+        "month": "2026-11",
+        "revenue": 1350000,
+        "low": 1277000,
+        "high": 1431000,
+        "forecast": true
+      },
+      {
+        "month": "2026-12",
+        "revenue": 1420000,
+        "low": 1295000,
+        "high": 1558000,
+        "forecast": true
+      },
+      {
+        "month": "2027-01",
+        "revenue": 1370000,
+        "low": 1197000,
+        "high": 1562000,
+        "forecast": true
+      },
+      {
+        "month": "2027-02",
+        "revenue": 1410000,
+        "low": 1172000,
+        "high": 1674000,
+        "forecast": true
+      },
+      {
+        "month": "2027-03",
+        "revenue": 1470000,
+        "low": 1152000,
+        "high": 1823000,
+        "forecast": true
+      }
+    ]
+  },
+  "fields": {
+    "month": {
+      "label": "Month",
+      "format": {
+        "type": "date",
+        "style": "month"
+      }
+    },
+    "revenue": {
+      "label": "Revenue",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "low": {
+      "label": "Low (p10)",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "high": {
+      "label": "High (p90)",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "forecast": {
+      "label": "Forecast"
+    }
+  },
+  "view": {
+    "type": "line",
+    "x": "month",
+    "y": "revenue",
+    "forecast": "forecast",
+    "band": {
+      "low": "low",
+      "high": "high",
+      "label": "80% range"
+    }
+  }
+}

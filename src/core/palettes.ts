@@ -8,6 +8,7 @@
  *
  * @module
  */
+import { darkSteps } from "./color.ts";
 import { getPreset } from "./presets.ts";
 import type { StyleSpec } from "./types.ts";
 
@@ -21,18 +22,21 @@ export interface NamedPalette {
   description: string;
   /** Hex colors in series order. */
   colors: string[];
-  /** The same series stepped for dark backgrounds, when the palette has its own dark steps. */
+  /** The same series stepped for dark backgrounds. Derived by `darkSteps` when a palette is registered without them. */
   darkColors?: string[];
+  /** True when the dark steps were derived here rather than published with the palette. */
+  darkDerived?: boolean;
   /** Where the colors come from, when they belong to someone else's brand or system. */
   source?: string;
 }
 
 const palettes = new Map<string, NamedPalette>();
 
-/** Adds or replaces a palette. */
+/** Adds or replaces a palette. Every palette gets a light and a dark set: missing dark steps are derived. */
 export function registerPalette(palette: NamedPalette): void {
   if (!palette.name) throw new Error("A palette needs a name.");
-  palettes.set(palette.name, palette);
+  const own = palette.darkColors?.length === palette.colors.length;
+  palettes.set(palette.name, own ? palette : { ...palette, darkColors: darkSteps(palette.colors), darkDerived: true });
 }
 
 /** Looks up a palette by name. */
@@ -95,7 +99,51 @@ registerPalette({
 registerPalette({
   name: "apple",
   label: "Apple",
-  description: "Apple's system colors (light appearance), ordered for the widest colorblind separation. Vivid; yellow and orange need labels on white.",
+  description: "Apple's system colors, light and dark appearances, ordered for the widest colorblind separation. Vivid; yellow and orange need labels on white.",
   colors: ["#007AFF", "#34C759", "#AF52DE", "#FF9500", "#30B0C7", "#FF3B30", "#FFCC00", "#FF2D55"],
-  source: "Apple Human Interface Guidelines system colors, light appearance.",
+  darkColors: ["#0A84FF", "#30D158", "#BF5AF2", "#FF9F0A", "#40C8E0", "#FF453A", "#FFD60A", "#FF375F"],
+  source: "Apple Human Interface Guidelines system colors (iOS 13 to 18), light and dark appearances.",
+});
+
+// Five acclaimed palettes, colors exactly as published. Each one's checkPalette report is honest about its trade-offs.
+
+registerPalette({
+  name: "okabe-ito",
+  label: "Okabe-Ito",
+  description: "The colorblind-safe standard of science publishing: seven hues that stay distinct under every common color vision deficiency. Orange, sky blue and yellow are light, so give them labels on white.",
+  colors: ["#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7"],
+  source: "Okabe and Ito, Color Universal Design (2008); popularised by Wong, Nature Methods 8, 441 (2011). Black is left out, as it reads as text.",
+});
+
+registerPalette({
+  name: "tol-vibrant",
+  label: "Paul Tol Vibrant",
+  description: "Paul Tol's vibrant qualitative scheme, designed for colorblind readers and screens. Ordered here so no two neighbours are alike; orange and cyan want labels on white.",
+  colors: ["#EE7733", "#0077BB", "#EE3377", "#33BBEE", "#CC3311", "#009988"],
+  source: "Paul Tol, Colour Schemes (SRON technical note, 2021), vibrant scheme. The grey for missing data is left out.",
+});
+
+registerPalette({
+  name: "tableau-10",
+  label: "Tableau 10",
+  description: "Tableau's default since 2016: ten calm, slightly muted hues tuned to look balanced together, a safe choice for business dashboards with many series.",
+  colors: ["#4e79a7", "#f28e2c", "#e15759", "#76b7b2", "#59a14f", "#edc949", "#af7aa1", "#ff9da7", "#9c755f", "#bab0ab"],
+  source: "Tableau 10 by Maureen Stone (2016), as published in d3-scale-chromatic (schemeTableau10).",
+});
+
+registerPalette({
+  name: "carbon",
+  label: "IBM Carbon",
+  description: "IBM Carbon's categorical palette, in its strict published sequence for the widest contrast between neighbours, with Carbon's own steps for dark themes.",
+  colors: ["#6929c4", "#1192e8", "#005d5d", "#9f1853", "#fa4d56", "#520408", "#198038", "#002d9c"],
+  darkColors: ["#8a3ffc", "#33b1ff", "#007d79", "#ff7eb6", "#fa4d56", "#fff1f1", "#6fdc8c", "#4589ff"],
+  source: "IBM Carbon Design System, data visualization categorical palette (first 8 of 14, light and dark themes), from @carbon/colors tokens and carbon-charts.",
+});
+
+registerPalette({
+  name: "observable-10",
+  label: "Observable 10",
+  description: "Observable Plot's default since 2024: ten bright, friendly hues designed for the web, balanced in lightness so no series shouts over the rest.",
+  colors: ["#4269d0", "#efb118", "#ff725c", "#6cc5b0", "#3ca951", "#ff8ab7", "#a463f2", "#97bbf5", "#9c6b4e", "#9498a0"],
+  source: "Observable 10, as published in d3-scale-chromatic (schemeObservable10).",
 });

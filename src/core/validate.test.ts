@@ -42,6 +42,12 @@ describe("validateSpec", () => {
     expect(area("sideways")).toEqual(['error view: stacked must be true, false, "percent" or "stream".']);
   });
 
+  test("a line's band needs a low and a high field", () => {
+    const line = (band: unknown) => messages({ ...good, view: { type: "line", x: "region", y: "revenue", band } });
+    expect(line({ low: "revenue", high: "revenue" })).toEqual([]);
+    expect(line({ low: "revenue" })).toEqual(['error view: band needs low and high fields, for example { "low": "p10", "high": "p90", "label": "80% range" }.']);
+  });
+
   test("an unknown view type names the views that exist", () => {
     const [only, ...rest] = messages({ ...good, view: { type: "pie" } });
     expect(rest).toEqual([]);
@@ -307,5 +313,12 @@ describe("area extent for small multiples", () => {
     const rows = [{ m: "Jan", a: 10, b: 30 }, { m: "Feb", a: 50, b: 30 }];
     const extent = getBlock("view", "area").extent?.({ type: "area", x: "m", y: ["a", "b"], stacked: "stream" }, rows);
     expect([Math.min(...(extent ?? [])), Math.max(...(extent ?? []))]).toEqual([-40, 40]);
+  });
+
+  test("a line's band stretches the shared scale to the band's edges", async () => {
+    const { getBlock } = await import("./registry.ts");
+    const rows = [{ m: "Jan", v: 10, lo: 4, hi: 25 }];
+    const extent = getBlock("view", "line").extent?.({ type: "line", x: "m", y: "v", band: { low: "lo", high: "hi" } }, rows) ?? [];
+    expect([Math.min(...extent), Math.max(...extent)]).toEqual([4, 25]);
   });
 });

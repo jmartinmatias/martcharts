@@ -220,3 +220,60 @@ export function checkPalette(colors: string[], opts: { mode: "light" | "dark"; s
 
   return { ok: checks.every((c) => c.state !== "fail"), checks };
 }
+
+const toGamma = (c: number) => (c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055);
+
+/** Linear sRGB for an OKLab color; channels may fall outside 0 to 1 when the color is out of gamut. */
+function linearFromOklab(L: number, a: number, b: number): Rgb {
+  const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3;
+  const m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3;
+  const s = (L - 0.0894841775 * a - 1.291485548 * b) ** 3;
+  return [
+    4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+    -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+    -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s,
+  ];
+}
+
+/** An OKLCH color as hex. Out of gamut, it gives up chroma (never lightness or hue) until it fits. */
+export function fromOklch(L: number, C: number, h: number): string {
+  const rad = (h * Math.PI) / 180;
+  const at = (c: number) => linearFromOklab(L, c * Math.cos(rad), c * Math.sin(rad));
+  const fits = (rgb: Rgb) => rgb.every((v) => v >= -1e-4 && v <= 1 + 1e-4);
+  let chroma = C;
+  if (!fits(at(chroma))) {
+    let [lo, hi] = [0, C];
+    for (let i = 0; i < 24; i++) {
+      const mid = (lo + hi) / 2;
+      if (fits(at(mid))) lo = mid;
+      else hi = mid;
+    }
+    chroma = lo;
+  }
+  return toHex(at(chroma).map((v) => toGamma(Math.max(0, Math.min(1, v)))) as Rgb);
+}
+
+/**
+ * Dark-background steps for a palette with none of its own: the same hues, lightness moved into the dark band.
+ * Of two moves, clamping only the colors outside the band or squeezing every lightness into it in order, the one
+ * that passes more of `checkPalette`'s dark checks wins (clamping on a tie, as it stays closer to the original).
+ * A palette of greys flips instead, so its first series stays the most prominent on a dark card.
+ */
+export function darkSteps(colors: string[]): string[] {
+  const lch = colors.map((color) => oklch(color));
+  if (lch.every(([, c]) => c < 0.03)) {
+    // Greys flip and spread evenly from near white down to a grey still clear of the dark card.
+    const ls = lch.map(([l]) => l);
+    const [lightest, darkest] = [Math.max(...ls), Math.min(...ls)];
+    return lch.map(([l, c, h]) => fromOklch(0.93 - ((l - darkest) / (lightest - darkest || 1)) * (0.93 - 0.42), c, h));
+  }
+  const [low, high] = BAND.dark;
+  const inset = 0.01;
+  const clamp = lch.map(([l, c, h]) => fromOklch(Math.min(high - inset, Math.max(low + inset, l)), c, h));
+  const squeeze = lch.map(([l, c, h]) => {
+    const t = (Math.min(0.95, Math.max(0.3, l)) - 0.3) / 0.65;
+    return fromOklch(low + inset + t * (high - low - 2 * inset), c, h);
+  });
+  const passes = (set: string[]) => checkPalette(set, { mode: "dark" }).checks.filter((check) => check.state === "pass").length;
+  return passes(squeeze) > passes(clamp) ? squeeze : clamp;
+}

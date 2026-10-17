@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import { registerView } from "../core/registry.ts";
 import type { ViewContext } from "../core/view-context.ts";
 import type { Row, WidgetSpec } from "../core/types.ts";
+import { widgetRef } from "../core/ref.ts";
 import { createWidget } from "./widget.ts";
 
 /** A promise you resolve by hand, for controlling when a data source answers. */
@@ -387,8 +388,27 @@ describe("style", () => {
   });
 
   test("a palette name fills the series variables from the library", async () => {
-    await createWidget(target, echo(rows(1), { style: { palette: "apple" } })).ready;
+    await createWidget(target, echo(rows(1), { style: { palette: "apple", theme: "light" } })).ready;
     expect([root()?.style.getPropertyValue("--fft-series-1"), root()?.style.getPropertyValue("--fft-series-2")]).toEqual(["#007AFF", "#34C759"]);
+  });
+
+  test("a palette with its own dark steps uses them on a dark widget, and on a dark preset", async () => {
+    await createWidget(target, echo(rows(1), { style: { palette: "carbon", theme: "dark" } })).ready;
+    const dark = root()?.style.getPropertyValue("--fft-series-1");
+    target.replaceChildren();
+    await createWidget(target, echo(rows(1), { style: { palette: "carbon", preset: "glass" } })).ready;
+    const glass = root()?.style.getPropertyValue("--fft-series-1");
+    target.replaceChildren();
+    await createWidget(target, echo(rows(1), { style: { palette: "carbon", theme: "light" } })).ready;
+    expect([dark, glass, root()?.style.getPropertyValue("--fft-series-1")]).toEqual(["#8a3ffc", "#8a3ffc", "#6929c4"]);
+  });
+
+  test("on an auto theme it carries both steps, and the stylesheet picks by the system or page theme", async () => {
+    await createWidget(target, echo(rows(1), { style: { palette: "carbon" } })).ready;
+    const el = root() as HTMLElement;
+    expect([el.hasAttribute("data-palette-steps"), el.style.getPropertyValue("--fft-pal-1"), el.style.getPropertyValue("--fft-pal-dark-1"), el.style.getPropertyValue("--fft-series-1")]).toEqual([true, "#6929c4", "#8a3ffc", ""]);
+    const css = [...document.querySelectorAll("style")].map((tag) => tag.textContent).join("");
+    expect([css.includes("--fft-series-1: var(--fft-pal-1)"), css.includes("--fft-series-1: var(--fft-pal-dark-1)")]).toEqual([true, true]);
   });
 
   test("an update that drops a token removes its variable", async () => {
@@ -468,6 +488,20 @@ describe("tooltip", () => {
       Reflect.deleteProperty(document.documentElement, "clientWidth");
     }
   }
+
+  test("asked to, it sits below its anchor instead of above, and the next plain show puts it back above", async () => {
+    let ctx!: ViewContext;
+    registerView({ type: "test-tip-below", description: "Keeps ctx", options: {}, render: (c: ViewContext) => void (ctx = c) });
+    await createWidget(target, { data: { type: "inline", rows: rows(1) }, view: { type: "test-tip-below" } }).ready;
+    const tip = target.querySelector<HTMLElement>(".fft-tooltip") as HTMLElement;
+    (root() as HTMLElement).getBoundingClientRect = () => box(0, 50, 600, 300);
+    const anchor = document.createElement("div");
+    anchor.getBoundingClientRect = () => box(100, 150, 20, 30);
+    ctx.tooltip.show(anchor, "North", [], { below: true });
+    const below = [tip.dataset.placement, tip.style.top];
+    ctx.tooltip.show(anchor, "North", []);
+    expect([below, [tip.dataset.placement, tip.style.top]]).toEqual([["below", "130px"], [undefined, "100px"]]);
+  });
 
   test("on a wide screen it stays centered over the mark", async () => {
     expect(await placeTip(1280, 100, 800, 400, 40)).toBe(320);
@@ -614,5 +648,28 @@ describe("touch", () => {
       added.mockRestore();
       removed.mockRestore();
     }
+  });
+});
+
+describe("ghost ref", () => {
+  test("a stored widget wears its ref faintly beside the footer, and a click copies it", async () => {
+    const writeText = vi.fn(async () => {});
+    Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
+    try {
+      await createWidget(target, { ...echo(rows(1)), id: "revenue-kpi", footer: "Source: ERP" }).ready;
+      const ref = widgetRef("revenue-kpi");
+      expect([text(".fft-base .fft-footer"), text(".fft-base .fft-widget-ref"), root()?.dataset.fftRef]).toEqual(["Source: ERP", ref, ref]);
+      // Never styled as a reference line (.fft-ref), whose rules switch clicks off.
+      expect(target.querySelector(".fft-widget-ref")?.matches(".fft-ref")).toBe(false);
+      target.querySelector<HTMLButtonElement>(".fft-widget-ref")?.click();
+      await vi.waitFor(() => expect(writeText).toHaveBeenCalledWith(ref));
+    } finally {
+      Reflect.deleteProperty(navigator, "clipboard");
+    }
+  });
+
+  test("a widget with no id has no ref, and with no footer either the bottom row stays hidden", async () => {
+    await createWidget(target, echo(rows(1))).ready;
+    expect([target.querySelector(".fft-widget-ref")?.hasAttribute("hidden"), root()?.dataset.fftRef, target.querySelector(".fft-base")?.hasAttribute("hidden")]).toEqual([true, undefined, true]);
   });
 });

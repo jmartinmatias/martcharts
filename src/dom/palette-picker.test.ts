@@ -23,7 +23,7 @@ const type = (input: HTMLInputElement, value: string) => {
 describe("palette picker", () => {
   test("offers every library palette as a chip, and starts from a named palette", () => {
     createPalettePicker(target, { value: "apple", onChange });
-    expect([...target.querySelectorAll(".fft-picker-chip")].map((c) => c.textContent)).toEqual(["50 Shades", "Apple", "B&W", "Crédit Agricole", "Default"]);
+    expect([...target.querySelectorAll(".fft-picker-chip")].map((c) => c.textContent)).toEqual(["50 Shades", "Apple", "B&W", "IBM Carbon", "Crédit Agricole", "Default", "Observable 10", "Okabe-Ito", "Tableau 10", "Paul Tol Vibrant"]);
     expect(chip("apple").getAttribute("aria-checked")).toBe("true");
     expect(hexes()).toEqual(["#007aff", "#34c759", "#af52de", "#ff9500", "#30b0c7", "#ff3b30", "#ffcc00", "#ff2d55"]);
   });

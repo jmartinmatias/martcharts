@@ -22,6 +22,7 @@ import { describePalettes, getPalette, paletteNames } from "../core/palettes.ts"
 import { describePresets } from "../core/presets.ts";
 import { HEADLINE_OPTIONS } from "../core/headline.ts";
 import { FACET_OPTIONS } from "../core/validate.ts";
+import { WIDGET_REF, widgetRef } from "../core/ref.ts";
 import { describeBlocks } from "../core/registry.ts";
 import type { BlockKind } from "../core/registry.ts";
 import type { Issue, Row, WidgetSpec } from "../core/types.ts";
@@ -48,6 +49,10 @@ const KINDS: BlockKind[] = ["source", "transform", "format", "view"];
 const KIND_TITLES: Record<BlockKind, string> = { source: "Data sources", transform: "Transforms", format: "Formats", view: "Views" };
 
 const IdSchema = z.string().regex(WIDGET_ID).describe('Widget id: lowercase letters, digits and dashes, for example "revenue-by-region". fft_list_widgets lists them.');
+const IdOrRefSchema = z
+  .string()
+  .regex(new RegExp(`${WIDGET_ID.source}|${WIDGET_REF.source}`))
+  .describe('Widget id, for example "revenue-by-region", or its ref as shown faintly on the card, for example "W-7Q2K". fft_list_widgets lists both.');
 const ResponseFormat = z.enum(["markdown", "json"]).default("markdown").describe("'markdown' for readable text, 'json' for structured data.");
 const JsonObject = z.record(z.string(), z.unknown());
 
@@ -103,6 +108,7 @@ function summary(entry: StoredWidget) {
   const { spec } = entry;
   return {
     id: entry.id,
+    ref: widgetRef(entry.id),
     ...(spec.title ? { title: spec.title } : {}),
     view: spec.view?.type,
     source: spec.data?.type,
@@ -116,9 +122,12 @@ const VIEW_GUIDE = [
   "Progress to a goal: meter, bullet (with poor, fair and good bands), rings (a few goals at once), gauge.",
   "A ranking or a comparison across categories: hbar, bar, dumbbell (before and after), slope (who moved between two periods).",
   "Change over time: line, area, bar, calendar (day by day), heatmap (two time scales, such as weekday by hour), candlestick (prices: open, high, low, close).",
+  "Many time series at once: horizon (one thin row each, values folded into bands of deepening color, blue above the baseline and red below).",
   "Rank over time: bump.",
-  'Parts of a whole: donut (up to 6 parts), waffle (100 countable squares), treemap (many parts), sunburst (two or three levels), bar or area with stacked "percent".',
+  'Parts of a whole: donut (up to 6 parts), waffle (100 countable squares), treemap (many parts), sunburst (two or three levels), icicle (a hierarchy laid flat, up to four levels, easier to label), bar or area with stacked "percent".',
   'How a mix flows over time: area with stacked "stream" (a streamgraph; best with many periods and 3 to 8 layers).',
+  "A cycle that wraps round (hours of the day, months of the year): rose (a polar area chart, wedges true by area, series stacked outward).",
+  'What comes next: line, or an unstacked area, with forecast (a true/false field) and band ({ low, high, label }): a forecast fan.',
   "Size and mix at once: marimekko.",
   "What makes up a change: waterfall (a bridge between totals), variance (actual against plan, good or bad).",
   "Where the bulk is: pareto (the vital few behind 80%).",
@@ -182,10 +191,17 @@ export function createFftServer(options: FftServerOptions): McpServer {
 
   /** The input schema with an `id` argument, or without one when the server is linked to a widget. */
   function withId<S extends z.ZodRawShape>(shape: S) {
-    const typed = z.strictObject({ id: IdSchema.optional(), ...shape });
-    return (linked ? z.strictObject(shape) : z.strictObject({ id: IdSchema, ...shape })) as unknown as typeof typed;
+    const typed = z.strictObject({ id: IdOrRefSchema.optional(), ...shape });
+    return (linked ? z.strictObject(shape) : z.strictObject({ id: IdOrRefSchema, ...shape })) as unknown as typeof typed;
   }
-  const idOf = (args: { id?: string }) => linked ?? (args.id as string);
+  /** An id as given, or a ref (W-7Q2K, in any case) turned into the id of the widget that wears it. */
+  async function resolveId(id: string): Promise<string> {
+    if (!WIDGET_REF.test(id) || (WIDGET_ID.test(id) && (await store.has(id)))) return id;
+    const found = (await store.list()).find((entry) => widgetRef(entry.id) === id.toUpperCase());
+    if (!found) throw new WidgetNotFoundError(id);
+    return found.id;
+  }
+  const idOf = async (args: { id?: string }) => linked ?? (await resolveId(args.id as string));
   const which = linked ? `the linked widget ("${linked}")` : "a widget";
 
   async function dataWarnings(spec: WidgetSpec, signal?: AbortSignal): Promise<Issue[]> {
@@ -229,7 +245,7 @@ Use it first to find ids. Then read a spec with fft_get_widget or its rows with 
         const lines = [`# Widgets (${all.length})`, ""];
         for (const w of slice) {
           if ("error" in w) lines.push(`- \`${w.id}\`: could not be read: ${w.error}`);
-          else lines.push(`- ${w.title ? `**${w.title}** (\`${w.id}\`)` : `\`${w.id}\``}: ${w.view} view, ${w.source} data.${w.description ? ` ${w.description}` : ""}`);
+          else lines.push(`- ${w.title ? `**${w.title}** (\`${w.id}\`, ${w.ref})` : `\`${w.id}\` (${w.ref})`}: ${w.view} view, ${w.source} data.${w.description ? ` ${w.description}` : ""}`);
         }
         if (info.has_more) lines.push("", `More widgets: call again with offset=${info.next_offset}.`);
         return asMarkdown(lines.join("\n"));
@@ -249,7 +265,7 @@ The spec has data (where rows come from), transform (reshaping steps), fields (l
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     },
     async (args) => {
-      const spec = await store.get(idOf(args));
+      const spec = await store.get(await idOf(args));
       return asJson({ spec, issues: validateSpec(spec) });
     },
   );
@@ -269,7 +285,7 @@ Use it to answer questions about the numbers a widget shows. Markdown gives a ta
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     },
     async (args, ctx) => {
-      const id = idOf(args);
+      const id = await idOf(args);
       const spec = await store.get(id);
       const rows = await runPipeline(spec, loadContext(ctx.mcpReq.signal));
       const fields = fieldsOf(rows);
@@ -312,14 +328,14 @@ Examples:
   - New KPI: {"id": "orders-kpi", "spec": {"title": "Orders", "data": {"type": "inline", "rows": [{"orders": 120, "previous": 100}]}, "view": {"type": "kpi", "value": "orders", "compare": "previous"}}}`,
         inputSchema: z.strictObject({
           id: IdSchema.describe('Id for the new widget, for example "orders-kpi". Becomes widgets/<id>.json.'),
-          from: IdSchema.optional().describe("Id of an existing widget to fork."),
+          from: IdOrRefSchema.optional().describe("Id or ref of an existing widget to fork."),
           spec: JsonObject.optional().describe("Spec fields to set. With from, only the changes."),
         }),
         annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
       },
       async ({ id, from, spec }, ctx) => {
         if (await store.has(id)) throw new Error(`Widget "${id}" already exists. Use fft_update_widget to change it.`);
-        const { id: _sourceId, ...source } = from ? await store.get(from) : baseWidget;
+        const { id: _sourceId, ...source } = from ? await store.get(await resolveId(from)) : baseWidget;
         const next = fork(source as WidgetSpec, spec ?? {});
         const saved = await saveChecked(id, next, "The spec has problems, so nothing was saved:", ctx.mcpReq.signal);
         await server.sendResourceListChanged();
@@ -350,7 +366,7 @@ Examples:
       if ((args.changes === undefined) === (args.replace === undefined)) {
         throw new Error("Pass either changes (to edit some fields) or replace (to swap the whole spec).");
       }
-      const id = idOf(args);
+      const id = await idOf(args);
       const current = await store.get(id);
       const next = args.replace ? (args.replace as unknown as WidgetSpec) : fork(current, args.changes ?? {});
       const saved = await saveChecked(id, next, "The change would break the widget, so nothing was saved:", ctx.mcpReq.signal);

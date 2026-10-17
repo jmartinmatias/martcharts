@@ -3,6 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Client, InMemoryTransport } from "@modelcontextprotocol/client";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { widgetRef } from "../core/ref.ts";
 import { createFftServer } from "./server.ts";
 import type { FftServerOptions } from "./server.ts";
 import { createFileStore, createLocalFetch } from "./store.ts";
@@ -82,6 +83,21 @@ describe("tools", () => {
     ]);
   });
 
+  test("a widget's ref, as shown faintly on its card, works in place of its id, in any case", async () => {
+    const { call } = await connect();
+    const ref = widgetRef("visits");
+    const [byRef, byLower] = [await call("fft_get_widget", { id: ref }), await call("fft_get_widget", { id: ref.toLowerCase() })];
+    expect([(byRef.data?.spec as { id?: string })?.id, (byLower.data?.spec as { id?: string })?.id]).toEqual(["visits", "visits"]);
+    const forked = await call("fft_create_widget", { id: "visits-copy", from: ref, spec: { title: "Visits copy" } });
+    expect(forked.isError).toBe(false);
+  });
+
+  test("a ref that matches no widget says how to find one", async () => {
+    const { call } = await connect();
+    const { isError, text } = await call("fft_get_widget", { id: "W-ZZZZ" });
+    expect([isError, text]).toEqual([true, 'No widget "W-ZZZZ". Call fft_list_widgets to see the ids.']);
+  });
+
   test("read-only tools say so and delete is marked destructive", async () => {
     const { client } = await connect();
     const { tools } = await client.listTools();
@@ -95,8 +111,8 @@ describe("tools", () => {
     const { call } = await connect();
     const { data } = await call("fft_list_widgets", { response_format: "json" });
     expect(data?.widgets).toEqual([
-      { id: "sales-by-region", title: "Revenue by region", view: "bar", source: "url", description: "Revenue per region, largest first." },
-      { id: "visits", title: "Visits", view: "kpi", source: "inline" },
+      { id: "sales-by-region", ref: widgetRef("sales-by-region"), title: "Revenue by region", view: "bar", source: "url", description: "Revenue per region, largest first." },
+      { id: "visits", ref: widgetRef("visits"), title: "Visits", view: "kpi", source: "inline" },
     ]);
     expect(data?.total).toBe(2);
   });
@@ -109,9 +125,9 @@ describe("tools", () => {
     expect([(second.data?.widgets as { id: string }[])[0]?.id, second.data?.has_more]).toEqual(["visits", false]);
   });
 
-  test("fft_list_widgets in markdown names each widget with its id", async () => {
+  test("fft_list_widgets in markdown names each widget with its id and ref", async () => {
     const { text } = await connect().then((s) => s.call("fft_list_widgets"));
-    expect(text).toContain("**Revenue by region** (`sales-by-region`): bar view, url data. Revenue per region, largest first.");
+    expect(text).toContain(`**Revenue by region** (\`sales-by-region\`, ${widgetRef("sales-by-region")}): bar view, url data. Revenue per region, largest first.`);
   });
 
   test("fft_get_widget returns the stored spec and its validation issues", async () => {

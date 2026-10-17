@@ -66,6 +66,13 @@
       "widget": "opex-variance"
     },
     {
+      "widget": "revenue-forecast",
+      "span": 2
+    },
+    {
+      "widget": "cash-forecast"
+    },
+    {
       "section": "Regions and products",
       "description": "Size, mix, rank and change"
     },
@@ -118,6 +125,14 @@
       "span": 3
     },
     {
+      "widget": "revenue-icicle",
+      "span": 3
+    },
+    {
+      "widget": "region-plan-horizon",
+      "span": 3
+    },
+    {
       "section": "Customers and pipeline",
       "description": "Who buys, how they arrive, what is open"
     },
@@ -143,7 +158,10 @@
     },
     {
       "widget": "traffic-stream",
-      "span": 3
+      "span": 2
+    },
+    {
+      "widget": "visits-by-hour"
     },
     {
       "widget": "traffic-sankey",
@@ -214,6 +232,13 @@
     },
     {
       "widget": "nps-gauge"
+    },
+    {
+      "widget": "response-time-by-team",
+      "span": 2
+    },
+    {
+      "widget": "feature-adoption"
     }
   ],
   "title": "Gallery",

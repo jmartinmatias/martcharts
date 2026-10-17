@@ -18,8 +18,8 @@ export interface TooltipItem {
 
 /** The single tooltip each widget owns. */
 export interface Tooltip {
-  /** Shows the tooltip next to `anchor`. All text is inserted as text, never as HTML. */
-  show(anchor: Element, title: string, items: TooltipItem[]): void;
+  /** Shows the tooltip above `anchor`, or below it with `below`. All text is inserted as text, never as HTML. */
+  show(anchor: Element, title: string, items: TooltipItem[], options?: { below?: boolean }): void;
   hide(): void;
 }
 

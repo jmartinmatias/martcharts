@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, test } from "vitest";
 import type { Row, WidgetSpec } from "../../core/types.ts";
+import { validateSpec } from "../../core/validate.ts";
 import { createWidget } from "../widget.ts";
 import "./index.ts";
 
@@ -603,6 +604,90 @@ describe("stacked bars", () => {
   });
 });
 
+describe("time axis labels", () => {
+  const months = Array.from({ length: 18 }, (_, i) => {
+    const index = 2025 * 12 + 9 + i;
+    return `${Math.floor(index / 12)}-${String((index % 12) + 1).padStart(2, "0")}`;
+  });
+  const span = (label: Element) => {
+    const x = Number(label.getAttribute("x"));
+    const width = (label.textContent ?? "").length * 6;
+    const anchor = label.getAttribute("text-anchor");
+    const left = anchor === "start" ? x : anchor === "end" ? x - width : x - width / 2;
+    return [left, left + width];
+  };
+
+  test.each(["line", "bar"])("a thinned %s axis still names its first and last period, and no two labels touch", async (type) => {
+    await draw({ rows: months.map((m, i) => ({ m, v: 100 + i })), view: { type, x: "m", y: "v" } });
+    const labels = all(".fft-tick-x");
+    expect(labels.length).toBeLessThan(18);
+    expect([labels[0]?.textContent, labels.at(-1)?.textContent]).toEqual(["2025-10", "2027-03"]);
+    const boxes = labels.map(span);
+    expect(boxes.every((box, i) => i === 0 || (box[0] ?? 0) >= (boxes[i - 1]?.[1] ?? 0) + 8)).toBe(true);
+  });
+});
+
+describe("value axis ticks", () => {
+  test("tick labels are exact, never rounded: a quarter step reads 1.25M, not 1.3M", async () => {
+    await draw({ rows: [{ m: "Jan", v: 820000 }, { m: "Feb", v: 1823000 }], view: { type: "line", x: "m", y: "v" } });
+    expect(texts(".fft-tick-y")).toEqual(["750K", "1M", "1.25M", "1.5M", "1.75M", "2M"]);
+  });
+});
+
+describe("forecast fan (line with forecast and band)", () => {
+  const rows = [
+    { m: "2026-01", v: 100, lo: null, hi: null, f: false },
+    { m: "2026-02", v: 110, lo: null, hi: null, f: false },
+    { m: "2026-03", v: 120, lo: 120, hi: 120, f: false },
+    { m: "2026-04", v: 128, lo: 115, hi: 140, f: true },
+    { m: "2026-05", v: 135, lo: 110, hi: 170, f: true },
+  ];
+  const spec = { rows, view: { type: "line", x: "m", y: "v", forecast: "f", band: { low: "lo", high: "hi", label: "80% range" } } };
+  const points = (d: string) => d.split(/[ML]/).filter(Boolean);
+
+  test("actuals draw solid and the forecast dashed, joined at the last actual, in a shaded forecast zone", async () => {
+    await draw(spec);
+    const solid = all("path.fft-line:not([data-forecast])");
+    const dashed = all("path.fft-line[data-forecast]");
+    expect([solid.length, dashed.length]).toEqual([1, 1]);
+    expect(points(dashed[0]?.getAttribute("d") ?? "")[0]).toBe(points(solid[0]?.getAttribute("d") ?? "").at(-1));
+    expect([all(".fft-forecast-zone").length, texts(".fft-forecast-label")]).toEqual([1, ["Forecast", "Shaded: 80% range"]]);
+  });
+
+  test("the band fans out from the last actual, and the axis stretches to hold it", async () => {
+    await draw(spec);
+    expect(all("path.fft-band").length).toBe(1);
+    expect(Number(texts(".fft-tick-y").at(-1))).toBeGreaterThanOrEqual(170);
+  });
+
+  test("on an area, actuals keep their wash; the forecast's line is dashed and its wash fainter, joined at the last actual", async () => {
+    await draw({ ...spec, view: { ...spec.view, type: "area" } });
+    const washes = all("path.fft-area");
+    expect([washes.filter((w) => w.hasAttribute("data-forecast")).length, washes.filter((w) => !w.hasAttribute("data-forecast")).length]).toEqual([1, 1]);
+    expect([all("path.fft-line[data-forecast]").length, all(".fft-forecast-zone").length, all("path.fft-band").length]).toEqual([1, 1, 1]);
+    const ahead = points(all("path.fft-area[data-forecast]")[0]?.getAttribute("d") ?? "")[0];
+    expect(ahead).toBe(points(all("path.fft-line:not([data-forecast])")[0]?.getAttribute("d") ?? "").at(-1));
+  });
+
+  test("validation: a forecast fan needs one unstacked area", () => {
+    const issues = validateSpec({ data: { type: "inline", rows: [] }, view: { type: "area", x: "m", y: ["a", "b"], stacked: true, forecast: "f" } }).map((i) => i.message);
+    expect(issues).toContain("forecast and band draw on an unstacked area: drop stacked, or use a line.");
+  });
+
+  test("in a narrow forecast zone, the notes keep inside it: the range note gives way, Forecast aligns to the zone's end", async () => {
+    const long = Array.from({ length: 30 }, (_, i) => ({ m: String(i), v: 100 + i, lo: i === 28 ? 128 : i === 29 ? 120 : null, hi: i === 28 ? 128 : i === 29 ? 140 : null, f: i === 29 }));
+    await draw({ rows: long, view: { ...spec.view, x: "m" } });
+    const notes = all(".fft-forecast-label");
+    expect([notes.map((n) => n.textContent), notes[0]?.getAttribute("text-anchor")]).toEqual([["Forecast"], "end"]);
+  });
+
+  test("the tooltip marks forecast rows and gives the range", async () => {
+    await draw(spec);
+    all(".fft-hit")[4]?.dispatchEvent(new Event("focus"));
+    expect([...texts(".fft-tooltip-title"), ...texts(".fft-tooltip-row")]).toEqual(["2026-05 (forecast)", "135V", "110 to 17080% range"]);
+  });
+});
+
 describe("line end labels", () => {
   test("each series' last value sits at its end", async () => {
     await draw({ rows: [{ m: "Jan", a: 10, b: 90 }, { m: "Feb", a: 12, b: 95 }], view: { type: "line", x: "m", y: ["a", "b"] } });
@@ -959,6 +1044,17 @@ describe("calendar view", () => {
   // 2026-03-02 is a Monday; 14 days span exactly two weeks.
   const days = Array.from({ length: 14 }, (_, i) => ({ day: `2026-03-${String(i + 2).padStart(2, "0")}`, sales: i }));
   const spec = { rows: days, view: { type: "calendar", date: "day", value: "sales" } };
+
+  test("the weeks fill the card's width: cells stay square up to 34px, then widen, never past the golden ratio", async () => {
+    // 16 weeks in the 640px test width: square 21px cells would leave a third of the card empty.
+    const season = Array.from({ length: 112 }, (_, i) => ({ day: new Date(Date.UTC(2026, 2, 2 + i)).toISOString().slice(0, 10), sales: i }));
+    await draw({ rows: season, view: { type: "calendar", date: "day", value: "sales" } });
+    const width = Number(target.querySelector("svg.fft-calendar")?.getAttribute("width"));
+    const cell = all("rect.fft-day")[0];
+    const [w, h] = [Number(cell?.getAttribute("width")), Number(cell?.getAttribute("height"))];
+    expect(width / 640).toBeGreaterThan(0.95);
+    expect([h <= 34, w >= h, w <= h * 1.618]).toEqual([true, true, true]);
+  });
 
   test("one cell per day, laid out in week columns from Monday", async () => {
     await draw(spec);
@@ -1867,6 +1963,205 @@ describe("chord view", () => {
     await draw(spec);
     target.querySelector('path.fft-chord-arc-hit[data-group="C"]')?.dispatchEvent(new Event("focus"));
     expect(all("path.fft-chord-ribbon[data-active]").map((r) => r.getAttribute("data-flow"))).toEqual(["A to C"]);
+  });
+});
+
+describe("icicle view", () => {
+  const sales = [
+    { p: "A", r: "x", v: 30 },
+    { p: "A", r: "y", v: 9 },
+    { p: "B", r: "x", v: 60 },
+    { p: "B", r: "z", v: 1 },
+  ];
+  const spec = { rows: sales, view: { type: "icicle", levels: ["p", "r"], value: "v" } };
+  const cell = (path: string) => target.querySelector(`rect.fft-ice[data-path="${path}"]`);
+  const tall = (path: string) => Number(cell(path)?.getAttribute("height")) + 2;
+
+  test("a column for the total, then one per level, left to right", async () => {
+    await draw(spec);
+    const xs = (depth: number) => new Set(all(`rect.fft-ice[data-depth="${depth}"]`).map((r) => r.getAttribute("x")));
+    expect([all('rect.fft-ice[data-depth="0"]').length, xs(1).size, xs(2).size]).toEqual([1, 1, 1]);
+    expect(Number([...xs(1)][0]) < Number([...xs(2)][0])).toBe(true);
+  });
+
+  test("each child takes its share of its parent's height", async () => {
+    await draw(spec);
+    expect(tall("A") / tall("B")).toBeCloseTo(39 / 61, 1);
+    expect(tall("A/x") / tall("A")).toBeCloseTo(30 / 39, 1);
+  });
+
+  test("names and values show only in cells with room for them", async () => {
+    await draw(spec);
+    const names = texts(".fft-ice-name");
+    expect(names).toContain("B");
+    expect(names).toContain("x");
+    expect(names).not.toContain("z");
+  });
+
+  test("pointing at a cell lights it and its parents, and the tooltip gives its share of each", async () => {
+    await draw(spec);
+    target.querySelector<SVGElement>('.fft-ice-hit[data-path="A/x"]')?.dispatchEvent(new Event("focus"));
+    expect([...texts(".fft-tooltip-title"), ...texts(".fft-tooltip-row")]).toEqual(["A / x", "30V", "77%Share of A", "30%Share of total"]);
+    expect(all("rect.fft-ice[data-active]").map((r) => r.getAttribute("data-path"))).toEqual(["", "A", "A/x"]);
+  });
+
+  test("a deep hierarchy grows taller, so its typical leaf has room for a name", async () => {
+    const leaves = Array.from({ length: 20 }, (_, i) => ({ p: `P${i % 4}`, r: `R${i}`, v: 10 }));
+    await draw({ rows: leaves, view: { type: "icicle", levels: ["p", "r"], value: "v" } });
+    const height = Number(target.querySelector(".fft-icicle svg")?.getAttribute("height"));
+    expect(height).toBeGreaterThanOrEqual(20 * 24);
+    expect(texts(".fft-ice-name")).toContain("R7");
+  });
+
+  test("validation: up to 4 levels", () => {
+    const issues = validateSpec({ data: { type: "inline", rows: [] }, view: { type: "icicle", levels: ["a", "b", "c", "d", "e"], value: "v" } }).map((i) => i.message);
+    expect(issues).toContain("levels takes at most 4 fields; deeper columns get too narrow to read.");
+  });
+});
+
+describe("lollipop mark", () => {
+  const ranked = [
+    { region: "East", revenue: 2000 },
+    { region: "North", revenue: 1000 },
+    { region: "South", revenue: 500 },
+  ];
+
+  test("hbar: a thin stem to a dot at the value, the dot placed by the same scale as a bar", async () => {
+    await draw({ rows: ranked, view: { type: "hbar", label: "region", value: "revenue", mark: "lollipop" } });
+    expect(target.querySelector(".fft-hbars")?.getAttribute("data-mark")).toBe("lollipop");
+    expect(all(".fft-hbar-dot").map((dot) => (dot as HTMLElement).style.left)).toEqual(["100%", "50%", "25%"]);
+    expect(all(".fft-hbar-fill").map((stem) => (stem as HTMLElement).style.width)).toEqual(["100%", "50%", "25%"]);
+  });
+
+  test("bar: stems rise from one baseline to a dot per value, in place of bars", async () => {
+    await draw({ rows: ranked, view: { type: "bar", x: "region", y: "revenue", mark: "lollipop" } });
+    const stems = all("line.fft-lolli-stem");
+    const dots = all("circle.fft-lolli-dot").map((dot) => Number(dot.getAttribute("cy")));
+    expect([all("path.fft-bar").length, stems.length, dots.length]).toEqual([0, 3, 3]);
+    expect(new Set(stems.map((stem) => stem.getAttribute("y1"))).size).toBe(1);
+    expect(dots.map((cy, i) => cy === Number(stems[i]?.getAttribute("y2")))).toEqual([true, true, true]);
+    expect((dots[0] ?? 0) < (dots[1] ?? 0) && (dots[1] ?? 0) < (dots[2] ?? 0)).toBe(true);
+  });
+
+  test("validation: mark is bar or lollipop, and a lollipop cannot stack", () => {
+    const issues = (view: Record<string, unknown>) => validateSpec({ data: { type: "inline", rows: [] }, view }).map((i) => i.message);
+    expect(issues({ type: "bar", x: "region", y: ["a", "b"], mark: "lollipop", stacked: true })).toContain("A lollipop shows one dot per value, so it cannot stack: drop stacked, or use bars.");
+    expect(issues({ type: "hbar", label: "region", value: "revenue", mark: "pin" }).join(" ")).toContain("lollipop");
+  });
+});
+
+describe("horizon view", () => {
+  const days = [
+    { d: "1", a: 10, b: -30 },
+    { d: "2", a: 50, b: -5 },
+    { d: "3", a: 90, b: 20 },
+    { d: "4", a: 30, b: 0 },
+  ];
+  const spec = { rows: days, view: { type: "horizon", x: "d", y: ["a", "b"], bands: 3 } };
+  const bands = (series: string, sign: string) => all(`path.fft-horizon-band[data-series="${series}"][data-sign="${sign}"]`).map((p) => p.getAttribute("data-band"));
+
+  test("one thin row per series, named at the left", async () => {
+    await draw(spec);
+    expect([all(".fft-horizon-row").length, texts(".fft-horizon-label")]).toEqual([2, ["A", "B"]]);
+  });
+
+  test("values fold into bands one round step tall, so further from the baseline reads deeper; empty bands draw nothing", async () => {
+    await draw(spec);
+    // The largest distance is 90: three bands of 30.
+    expect([bands("a", "up"), bands("a", "down"), bands("b", "up"), bands("b", "down")]).toEqual([["0", "1", "2"], [], ["0"], ["0"]]);
+  });
+
+  test("a series that crosses the baseline splits exactly there, so the two colors never overlap", async () => {
+    await draw(spec);
+    const xs = (d: string) => [...d.matchAll(/(-?[\d.]+),(-?[\d.]+)/g)].map((m) => Number(m[1]));
+    const up = xs(all('path.fft-horizon-band[data-series="b"][data-sign="up"]')[0]?.getAttribute("d") ?? "");
+    const down = xs(all('path.fft-horizon-band[data-series="b"][data-sign="down"]')[0]?.getAttribute("d") ?? "");
+    // b goes from -5 on day 2 to 20 on day 3: it crosses a fifth of the way along, where up begins and down ends.
+    expect(Math.min(...up)).toBeCloseTo(Math.max(...down), 1);
+  });
+
+  test("the key says what a shade is worth and which side is which", async () => {
+    await draw(spec);
+    expect(texts(".fft-horizon-key-text")).toEqual(["Above 0", "Below 0", "Each shade 30"]);
+  });
+
+  test("pointing at a day lists every series there", async () => {
+    await draw(spec);
+    all(".fft-horizon-hit")[2]?.dispatchEvent(new Event("focus"));
+    expect([...texts(".fft-tooltip-title"), ...texts(".fft-tooltip-row")]).toEqual(["3", "90A", "20B"]);
+  });
+
+  test("validation: a horizon needs two or more periods", () => {
+    const issues = validateSpec({ data: { type: "inline", rows: [] }, view: { type: "horizon", x: "d", y: "a" } }, [{ d: "1", a: 1 }]);
+    expect(issues.map((i) => i.message)).toContain("A horizon needs at least 2 periods to draw a shape; with 1, show the number instead.");
+  });
+});
+
+describe("rose view (polar area)", () => {
+  const hours = [
+    { hour: "00", web: 4, app: 0 },
+    { hour: "06", web: 16, app: 9 },
+    { hour: "12", web: 36, app: 0 },
+    { hour: "18", web: 9, app: 16 },
+  ];
+  const spec = { rows: hours, view: { type: "rose", label: "hour", y: ["web", "app"] } };
+  // A wedge's outer radius: the first arc in its path.
+  const outer = (series: string, index: number) => Number(/A([\d.]+),/.exec(all(`path.fft-rose-seg[data-series="${series}"][data-index="${index}"]`)[0]?.getAttribute("d") ?? "")?.[1]);
+
+  test("one equal wedge per row, clockwise from twelve o'clock, named round the outside", async () => {
+    await draw(spec);
+    expect(texts(".fft-rose-axis")).toEqual(["00", "06", "12", "18"]);
+    const [first, second] = all(".fft-rose-axis").map((t) => Number(t.getAttribute("x")));
+    const middle = Number(target.querySelector(".fft-rose svg")?.getAttribute("width")) / 2;
+    expect([(first ?? 0) > middle, (second ?? 0) > middle]).toEqual([true, true]);
+  });
+
+  test("area tells the value: a wedge of 36 reaches three times as far as one of 4", async () => {
+    await draw(spec);
+    expect(outer("web", 2) / outer("web", 0)).toBeCloseTo(3, 1);
+  });
+
+  test("series stack outward, each ring adding its own area, and empty ones draw nothing", async () => {
+    await draw(spec);
+    // 16 then 9 more: the stack reaches the radius of 25, five fourths of 16's.
+    expect(outer("app", 1) / outer("web", 1)).toBeCloseTo(1.25, 2);
+    expect(all("path.fft-rose-seg").length).toBe(6);
+  });
+
+  test("a wedge's tooltip gives each series and the total", async () => {
+    await draw(spec);
+    all(".fft-rose-hit")[1]?.dispatchEvent(new Event("focus"));
+    expect([...texts(".fft-tooltip-title"), ...texts(".fft-tooltip-row")]).toEqual(["06", "16Web", "9App", "25Total"]);
+  });
+
+  test("each wedge's tooltip anchors just outside the dial at the wedge's middle, so it never covers the dial", async () => {
+    await draw(spec);
+    const svgEl = target.querySelector(".fft-rose svg");
+    const [cx, cy] = [Number(svgEl?.getAttribute("width")) / 2, Number(svgEl?.getAttribute("height")) / 2];
+    const anchors = all("circle.fft-rose-anchor").map((a) => [Number(a.getAttribute("cx")) - cx, Number(a.getAttribute("cy")) - cy]);
+    const reach = Math.max(...all("path.fft-rose-seg").map((seg) => Number(/A([\d.]+),/.exec(seg.getAttribute("d") ?? "")?.[1])));
+    expect(anchors.length).toBe(4);
+    expect(anchors.every(([dx = 0, dy = 0]) => Math.hypot(dx, dy) > reach)).toBe(true);
+    // Wedge 0 spans twelve to three o'clock: its middle is up and to the right.
+    expect([(anchors[0]?.[0] ?? 0) > 0, (anchors[0]?.[1] ?? 0) < 0]).toEqual([true, true]);
+  });
+
+  test("wedges in the top half show their tooltip above the dial, those in the bottom half below it", async () => {
+    await draw(spec);
+    const placement = (i: number) => {
+      all(".fft-rose-hit")[i]?.dispatchEvent(new Event("focus"));
+      return target.querySelector<HTMLElement>(".fft-tooltip")?.dataset.placement ?? "above";
+    };
+    expect([0, 1, 2, 3].map(placement)).toEqual(["above", "below", "below", "above"]);
+  });
+
+  test("names thin out round a crowded dial, so 24 hours show every few", async () => {
+    const day = Array.from({ length: 24 }, (_, h) => ({ hour: `${String(h).padStart(2, "0")}:00`, n: 10 + h }));
+    await draw({ rows: day, view: { type: "rose", label: "hour", y: "n" } });
+    const shown = texts(".fft-rose-axis");
+    expect(shown[0]).toBe("00:00");
+    expect(shown.length).toBeLessThan(24);
+    expect(24 % shown.length).toBe(0);
   });
 });
 

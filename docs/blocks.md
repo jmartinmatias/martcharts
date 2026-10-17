@@ -214,6 +214,8 @@ A line with a soft filled area down to zero, for a trend where the amount itself
 | `highlight` | any |  |  | Series field or fields to keep in color; every other series turns grey. Example: "revenue". |
 | `endLabels` | boolean |  | `true` | Write each series' last value at its end, for up to 4 series. Hidden automatically when two ends would collide. |
 | `reference` | array |  |  | Target lines and bands across the value axis. Each item is { value, label }, { field, agg, label } (agg: last, first, sum, avg, min, max; default avg), or { from, to, label } for a band. Example: [{ "value": 1200000, "label": "Target" }]. |
+| `forecast` | field name (category) |  |  | Field that is true on forecast rows. From the last actual on, lines draw dashed in a softly shaded zone labelled Forecast, and the tooltip marks those rows. On an area the forecast's wash is fainter too. Unstacked areas only. |
+| `band` | any |  |  | A shaded range behind the first line, for a forecast fan or any low to high spread: { "low": "p10", "high": "p90", "label": "80% range" }. Give the last actual row low and high equal to its value, so the fan opens from it. The ends are labelled and the tooltip gives the range. |
 
 ### `bar`
 
@@ -227,6 +229,7 @@ Vertical bars comparing amounts across categories. Several y fields draw grouped
 | `stacked` | any |  | `false` | true stacks the series into one column per category (part-to-whole); "percent" stacks them as shares of 100%. |
 | `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
 | `reference` | array |  |  | Target lines and bands across the value axis. Each item is { value, label }, { field, agg, label } (agg: last, first, sum, avg, min, max; default avg), or { from, to, label } for a band. Example: [{ "value": 1200000, "label": "Target" }]. |
+| `mark` | `bar`, `lollipop` |  | `"bar"` | "lollipop" draws a thin stem from the baseline and a dot at the value in place of each bar: the same reading with far less ink, for rankings of many similar values. |
 
 ### `beeswarm`
 
@@ -351,6 +354,7 @@ Horizontal bars for rankings and long labels: label on the left, bar, value at t
 | `label` | field name (category) | yes |  | Field naming each bar. |
 | `value` | field name (number) | yes |  | Field with each bar's amount. Bars start at zero. |
 | `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `mark` | `bar`, `lollipop` |  | `"bar"` | "lollipop" draws a thin stem from the baseline and a dot at the value in place of each bar: the same reading with far less ink, for rankings of many similar values. |
 
 ### `heatmap`
 
@@ -372,6 +376,26 @@ A distribution as touching bars: the value's range is cut into bins on round edg
 | `bins` | number |  |  | About how many bins to use; edges snap to round numbers, so the exact count can differ. Defaults to Sturges' rule (1 + log2 of the row count). |
 | `median` | boolean |  | `true` | Draw a dashed line at the median. |
 | `countLabel` | string |  | `"Count"` | Name for the counts in the tooltip, for example "Deals". |
+
+### `horizon`
+
+Many time series at once, each in a thin row: values are measured from a baseline and folded into bands of deepening color, blue above and red below, so a dozen series fit where one line chart would. For spotting which series run hot or cold, and when. Pointing at a period lists every series there.
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `x` | field name (date) | yes |  | Field for the ordered axis, usually a date. |
+| `y` | field name or list (number) | yes |  | Field or fields, one row each, such as a region's revenue against plan. |
+| `bands` | number |  | `3` | How many shades each side folds into, 1 to 5. More bands pack more range into a row but read less exactly. |
+| `baseline` | number |  | `0` | The value rows are measured from, such as 0 for a difference or the plan for a raw amount. |
+
+### `icicle`
+
+A hierarchy laid flat: a column for the total, then one per level left to right, each child splitting its parent's height by value, in lighter tints of its family's color. Rectangles compare and label more easily than rings, so it takes deeper hierarchies than the sunburst. Pointing at a cell lights its family and gives its share of each level.
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `levels` | field name or list (category) | yes |  | Fields from the top level down, one column each, for example ["region", "product", "plan"]. Up to 4. |
+| `value` | field name (number) | yes |  | Field sizing the cells. Zero and negative values are left out. |
 
 ### `kpi`
 
@@ -417,6 +441,8 @@ Lines showing change over an ordered axis, usually time. Several y fields draw s
 | `highlight` | any |  |  | Series field or fields to keep in color; every other series turns grey. Example: "revenue". |
 | `endLabels` | boolean |  | `true` | Write each series' last value at its end, for up to 4 series. Hidden automatically when two ends would collide. |
 | `reference` | array |  |  | Target lines and bands across the value axis. Each item is { value, label }, { field, agg, label } (agg: last, first, sum, avg, min, max; default avg), or { from, to, label } for a band. Example: [{ "value": 1200000, "label": "Target" }]. |
+| `forecast` | field name (category) |  |  | Field that is true on forecast rows. From the last actual on, lines draw dashed in a softly shaded zone labelled Forecast, and the tooltip marks those rows. |
+| `band` | any |  |  | A shaded range behind the first line, for a forecast fan or any low to high spread: { "low": "p10", "high": "p90", "label": "80% range" }. Give the last actual row low and high equal to its value, so the fan opens from it. The ends are labelled and the tooltip gives the range. |
 
 ### `list`
 
@@ -486,6 +512,16 @@ Concentric progress rings, one per row from the outside in, each filled to its s
 | `label` | field name (category) | yes |  | Field naming each goal. |
 | `value` | field name (number) | yes |  | Field with the amount reached. |
 | `target` | field name (number) | yes |  | Field with the goal amount. |
+
+### `rose`
+
+A polar area chart (a Nightingale rose) for a cycle that wraps round, such as hours of the day or months of the year: one equal wedge per row, clockwise from twelve o'clock, its area true to its value. Several fields stack outward, each ring adding its own area. For plain ranking, a bar chart reads more exactly.
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `label` | field name (category) | yes |  | Field naming each wedge, in cycle order, such as the hour or the month. |
+| `y` | field name or list (number) | yes |  | Field or fields with the values; each field is one ring of the stack. Up to 4 stay readable. |
+| `max` | number |  |  | Total the outer ring stands for. Defaults to a round number at or above the largest wedge. |
 
 ### `sankey`
 
@@ -639,7 +675,12 @@ Slot: `style.palette`, as a name or a list of colors. "Checks" is `checkPalette`
 | Palette | Name | Colors | Checks (light) | Notes |
 | --- | --- | --- | --- | --- |
 | 50 Shades | `50-shades` | `#1f1f1f` `#383838` `#525252` `#6b6b6b` `#858585` `#9e9e9e` `#b8b8b8` `#d1d1d1` | fails lightness band, colorfulness, neighbour separation | Eight greys from charcoal to silver, for quiet context or highlighting one series in color against the rest. |
-| Apple | `apple` | `#007AFF` `#34C759` `#AF52DE` `#FF9500` `#30B0C7` `#FF3B30` `#FFCC00` `#FF2D55` | fails lightness band | Apple's system colors (light appearance), ordered for the widest colorblind separation. Vivid; yellow and orange need labels on white. Source: Apple Human Interface Guidelines system colors, light appearance. |
+| Apple | `apple` | `#007AFF` `#34C759` `#AF52DE` `#FF9500` `#30B0C7` `#FF3B30` `#FFCC00` `#FF2D55` | fails lightness band | Apple's system colors, light and dark appearances, ordered for the widest colorblind separation. Vivid; yellow and orange need labels on white. Source: Apple Human Interface Guidelines system colors (iOS 13 to 18), light and dark appearances. |
 | B&W | `bw` | `#111111` `#4d4d4d` `#808080` `#b3b3b3` | fails lightness band, colorfulness | Black to light grey, for print and monochrome reports. Best with one series, or with labels on every series. |
+| IBM Carbon | `carbon` | `#6929c4` `#1192e8` `#005d5d` `#9f1853` `#fa4d56` `#520408` `#198038` `#002d9c` | fails lightness band, colorfulness | IBM Carbon's categorical palette, in its strict published sequence for the widest contrast between neighbours, with Carbon's own steps for dark themes. Source: IBM Carbon Design System, data visualization categorical palette (first 8 of 14, light and dark themes), from @carbon/colors tokens and carbon-charts. |
 | Crédit Agricole | `credit-agricole` | `#006C4D` `#00969A` `#E30613` `#6E7378` | fails colorfulness | The bank's green, teal and red identity with a neutral grey, ordered so neighbours stay apart for colorblind readers. Source: Approximate logo colors from public logo databases (coloropedia.com, whatthelogo.com); confirm against official brand assets. The grey is a neutral addition. |
 | Default | `default` | `#2a78d6` `#eb6834` `#1baf7a` `#eda100` `#e87ba4` `#008300` `#6250d6` `#e34948` | passes | The validated house palette, with its own dark-mode steps. Choosing it removes any palette override. |
+| Observable 10 | `observable-10` | `#4269d0` `#efb118` `#ff725c` `#6cc5b0` `#3ca951` `#ff8ab7` `#a463f2` `#97bbf5` `#9c6b4e` `#9498a0` | fails lightness band, colorfulness, neighbour separation | Observable Plot's default since 2024: ten bright, friendly hues designed for the web, balanced in lightness so no series shouts over the rest. Source: Observable 10, as published in d3-scale-chromatic (schemeObservable10). |
+| Okabe-Ito | `okabe-ito` | `#E69F00` `#56B4E9` `#009E73` `#F0E442` `#0072B2` `#D55E00` `#CC79A7` | fails lightness band | The colorblind-safe standard of science publishing: seven hues that stay distinct under every common color vision deficiency. Orange, sky blue and yellow are light, so give them labels on white. Source: Okabe and Ito, Color Universal Design (2008); popularised by Wong, Nature Methods 8, 441 (2011). Black is left out, as it reads as text. |
+| Tableau 10 | `tableau-10` | `#4e79a7` `#f28e2c` `#e15759` `#76b7b2` `#59a14f` `#edc949` `#af7aa1` `#ff9da7` `#9c755f` `#bab0ab` | fails lightness band, colorfulness, neighbour separation | Tableau's default since 2016: ten calm, slightly muted hues tuned to look balanced together, a safe choice for business dashboards with many series. Source: Tableau 10 by Maureen Stone (2016), as published in d3-scale-chromatic (schemeTableau10). |
+| Paul Tol Vibrant | `tol-vibrant` | `#EE7733` `#0077BB` `#EE3377` `#33BBEE` `#CC3311` `#009988` | passes | Paul Tol's vibrant qualitative scheme, designed for colorblind readers and screens. Ordered here so no two neighbours are alike; orange and cyan want labels on white. Source: Paul Tol, Colour Schemes (SRON technical note, 2021), vibrant scheme. The grey for missing data is left out. |

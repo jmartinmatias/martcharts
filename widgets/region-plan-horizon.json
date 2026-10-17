@@ -1,0 +1,905 @@
+{
+  "id": "region-plan-horizon",
+  "title": "Daily revenue against plan",
+  "subtitle": "By region, {first:day} to {last:day}",
+  "description": "Each region's daily revenue against plan, blue above and red below. East beats plan every day, by about \u20ac6K a day in July and \u20ac16K by September. South falls behind in mid-August, worst on Aug 15 at \u20ac14.6K under. West misses every weekend, Central turns positive with September's campaign, and Online swings both ways.",
+  "footer": "Source: finance ledger and daily plan",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {
+        "day": "2026-07-01",
+        "North": 1700,
+        "South": 1300,
+        "East": 6500,
+        "West": 2900,
+        "Central": -3000,
+        "Online": 700
+      },
+      {
+        "day": "2026-07-02",
+        "North": 100,
+        "South": 1100,
+        "East": 4900,
+        "West": 4200,
+        "Central": -4600,
+        "Online": 0
+      },
+      {
+        "day": "2026-07-03",
+        "North": -500,
+        "South": 2500,
+        "East": 5500,
+        "West": 1200,
+        "Central": -1100,
+        "Online": 6700
+      },
+      {
+        "day": "2026-07-04",
+        "North": 2900,
+        "South": 1600,
+        "East": 2400,
+        "West": -8900,
+        "Central": -2900,
+        "Online": 900
+      },
+      {
+        "day": "2026-07-05",
+        "North": 100,
+        "South": -300,
+        "East": 1800,
+        "West": -7100,
+        "Central": -3200,
+        "Online": 8500
+      },
+      {
+        "day": "2026-07-06",
+        "North": 2100,
+        "South": 1700,
+        "East": 4800,
+        "West": 3600,
+        "Central": -3200,
+        "Online": 5200
+      },
+      {
+        "day": "2026-07-07",
+        "North": 5000,
+        "South": 3500,
+        "East": 7000,
+        "West": 3800,
+        "Central": -3700,
+        "Online": 5800
+      },
+      {
+        "day": "2026-07-08",
+        "North": 700,
+        "South": -1100,
+        "East": 6700,
+        "West": 2600,
+        "Central": -1600,
+        "Online": 7900
+      },
+      {
+        "day": "2026-07-09",
+        "North": 4700,
+        "South": 2700,
+        "East": 2200,
+        "West": 1800,
+        "Central": -1400,
+        "Online": 9200
+      },
+      {
+        "day": "2026-07-10",
+        "North": 4900,
+        "South": 500,
+        "East": 2800,
+        "West": 3500,
+        "Central": -1900,
+        "Online": 8000
+      },
+      {
+        "day": "2026-07-11",
+        "North": -500,
+        "South": 200,
+        "East": 8300,
+        "West": -6000,
+        "Central": -4500,
+        "Online": 8000
+      },
+      {
+        "day": "2026-07-12",
+        "North": -400,
+        "South": -1200,
+        "East": 7500,
+        "West": -8300,
+        "Central": -2800,
+        "Online": 9500
+      },
+      {
+        "day": "2026-07-13",
+        "North": 100,
+        "South": 2200,
+        "East": 3600,
+        "West": 3600,
+        "Central": -4500,
+        "Online": 9000
+      },
+      {
+        "day": "2026-07-14",
+        "North": 300,
+        "South": -200,
+        "East": 8800,
+        "West": 4200,
+        "Central": -3800,
+        "Online": 12200
+      },
+      {
+        "day": "2026-07-15",
+        "North": 300,
+        "South": 500,
+        "East": 8300,
+        "West": 3600,
+        "Central": -4600,
+        "Online": 12300
+      },
+      {
+        "day": "2026-07-16",
+        "North": 300,
+        "South": -200,
+        "East": 7900,
+        "West": 2300,
+        "Central": -3800,
+        "Online": 4000
+      },
+      {
+        "day": "2026-07-17",
+        "North": -500,
+        "South": 1400,
+        "East": 4900,
+        "West": 3400,
+        "Central": -3500,
+        "Online": 5900
+      },
+      {
+        "day": "2026-07-18",
+        "North": 4800,
+        "South": 900,
+        "East": 7100,
+        "West": -5500,
+        "Central": -4300,
+        "Online": 2300
+      },
+      {
+        "day": "2026-07-19",
+        "North": 4500,
+        "South": 2600,
+        "East": 5300,
+        "West": -8200,
+        "Central": -2000,
+        "Online": 7200
+      },
+      {
+        "day": "2026-07-20",
+        "North": 200,
+        "South": 3300,
+        "East": 9200,
+        "West": 3400,
+        "Central": -3300,
+        "Online": -1000
+      },
+      {
+        "day": "2026-07-21",
+        "North": -800,
+        "South": 3300,
+        "East": 5500,
+        "West": 3800,
+        "Central": -4000,
+        "Online": 3200
+      },
+      {
+        "day": "2026-07-22",
+        "North": 2600,
+        "South": 0,
+        "East": 5300,
+        "West": 3900,
+        "Central": -4700,
+        "Online": -3100
+      },
+      {
+        "day": "2026-07-23",
+        "North": 2400,
+        "South": 2800,
+        "East": 8100,
+        "West": 2100,
+        "Central": -1300,
+        "Online": -4800
+      },
+      {
+        "day": "2026-07-24",
+        "North": -900,
+        "South": -200,
+        "East": 7200,
+        "West": 1200,
+        "Central": -4300,
+        "Online": -4900
+      },
+      {
+        "day": "2026-07-25",
+        "North": 2400,
+        "South": -800,
+        "East": 6900,
+        "West": -5400,
+        "Central": -1100,
+        "Online": -4000
+      },
+      {
+        "day": "2026-07-26",
+        "North": 3100,
+        "South": 1400,
+        "East": 5700,
+        "West": -8900,
+        "Central": -4900,
+        "Online": -3200
+      },
+      {
+        "day": "2026-07-27",
+        "North": 3200,
+        "South": 3300,
+        "East": 5100,
+        "West": 3500,
+        "Central": -3100,
+        "Online": -5700
+      },
+      {
+        "day": "2026-07-28",
+        "North": 900,
+        "South": 3500,
+        "East": 5600,
+        "West": 3200,
+        "Central": -2100,
+        "Online": -5300
+      },
+      {
+        "day": "2026-07-29",
+        "North": 3400,
+        "South": 2000,
+        "East": 10100,
+        "West": 4700,
+        "Central": -3600,
+        "Online": -7700
+      },
+      {
+        "day": "2026-07-30",
+        "North": 4400,
+        "South": 2800,
+        "East": 8000,
+        "West": 4200,
+        "Central": -1500,
+        "Online": -9100
+      },
+      {
+        "day": "2026-07-31",
+        "North": 2700,
+        "South": 400,
+        "East": 9100,
+        "West": 3400,
+        "Central": -4700,
+        "Online": -8800
+      },
+      {
+        "day": "2026-08-01",
+        "North": 5000,
+        "South": 2800,
+        "East": 10100,
+        "West": -7400,
+        "Central": -2100,
+        "Online": -9300
+      },
+      {
+        "day": "2026-08-02",
+        "North": 1600,
+        "South": 2600,
+        "East": 6400,
+        "West": -6000,
+        "Central": -4900,
+        "Online": -9000
+      },
+      {
+        "day": "2026-08-03",
+        "North": 1900,
+        "South": -600,
+        "East": 10300,
+        "West": 3000,
+        "Central": -2500,
+        "Online": -6000
+      },
+      {
+        "day": "2026-08-04",
+        "North": 500,
+        "South": -1900,
+        "East": 8000,
+        "West": 3700,
+        "Central": -4200,
+        "Online": -11300
+      },
+      {
+        "day": "2026-08-05",
+        "North": 4400,
+        "South": 900,
+        "East": 9000,
+        "West": 4600,
+        "Central": -3700,
+        "Online": -6500
+      },
+      {
+        "day": "2026-08-06",
+        "North": 200,
+        "South": -800,
+        "East": 11400,
+        "West": 4700,
+        "Central": -1500,
+        "Online": -7700
+      },
+      {
+        "day": "2026-08-07",
+        "North": 2500,
+        "South": -2300,
+        "East": 7500,
+        "West": 3000,
+        "Central": -1700,
+        "Online": -2800
+      },
+      {
+        "day": "2026-08-08",
+        "North": 3300,
+        "South": -300,
+        "East": 8500,
+        "West": -8300,
+        "Central": -3200,
+        "Online": -6000
+      },
+      {
+        "day": "2026-08-09",
+        "North": 300,
+        "South": -4600,
+        "East": 10800,
+        "West": -7000,
+        "Central": -3700,
+        "Online": -100
+      },
+      {
+        "day": "2026-08-10",
+        "North": 4900,
+        "South": -6200,
+        "East": 7600,
+        "West": 1100,
+        "Central": -1500,
+        "Online": -5000
+      },
+      {
+        "day": "2026-08-11",
+        "North": 3300,
+        "South": -7600,
+        "East": 9200,
+        "West": 4200,
+        "Central": -4900,
+        "Online": -2700
+      },
+      {
+        "day": "2026-08-12",
+        "North": 1700,
+        "South": -12300,
+        "East": 12400,
+        "West": 1900,
+        "Central": -4400,
+        "Online": -1900
+      },
+      {
+        "day": "2026-08-13",
+        "North": 2800,
+        "South": -11800,
+        "East": 11400,
+        "West": 3600,
+        "Central": -1800,
+        "Online": 6900
+      },
+      {
+        "day": "2026-08-14",
+        "North": 3100,
+        "South": -14100,
+        "East": 10600,
+        "West": 1700,
+        "Central": -5000,
+        "Online": 4400
+      },
+      {
+        "day": "2026-08-15",
+        "North": 3300,
+        "South": -14600,
+        "East": 9600,
+        "West": -7600,
+        "Central": -2200,
+        "Online": 6100
+      },
+      {
+        "day": "2026-08-16",
+        "North": 2700,
+        "South": -11300,
+        "East": 10400,
+        "West": -5800,
+        "Central": -1400,
+        "Online": 3800
+      },
+      {
+        "day": "2026-08-17",
+        "North": 4600,
+        "South": -10400,
+        "East": 9000,
+        "West": 2800,
+        "Central": -2500,
+        "Online": 11400
+      },
+      {
+        "day": "2026-08-18",
+        "North": 1300,
+        "South": -9600,
+        "East": 13700,
+        "West": 4200,
+        "Central": -1200,
+        "Online": 8600
+      },
+      {
+        "day": "2026-08-19",
+        "North": 2900,
+        "South": -9500,
+        "East": 12900,
+        "West": 4300,
+        "Central": -2400,
+        "Online": 11200
+      },
+      {
+        "day": "2026-08-20",
+        "North": 300,
+        "South": -4000,
+        "East": 14600,
+        "West": 4900,
+        "Central": -2900,
+        "Online": 12200
+      },
+      {
+        "day": "2026-08-21",
+        "North": 900,
+        "South": -2100,
+        "East": 14000,
+        "West": 2400,
+        "Central": -4700,
+        "Online": 9500
+      },
+      {
+        "day": "2026-08-22",
+        "North": 2300,
+        "South": -1200,
+        "East": 11900,
+        "West": -8900,
+        "Central": -1800,
+        "Online": 6400
+      },
+      {
+        "day": "2026-08-23",
+        "North": 3800,
+        "South": -3000,
+        "East": 11200,
+        "West": -5800,
+        "Central": -4400,
+        "Online": 6700
+      },
+      {
+        "day": "2026-08-24",
+        "North": 2100,
+        "South": 600,
+        "East": 14300,
+        "West": 3800,
+        "Central": -1200,
+        "Online": 8900
+      },
+      {
+        "day": "2026-08-25",
+        "North": 4700,
+        "South": -1900,
+        "East": 10800,
+        "West": 3100,
+        "Central": -3800,
+        "Online": 10000
+      },
+      {
+        "day": "2026-08-26",
+        "North": 2800,
+        "South": 600,
+        "East": 14700,
+        "West": 3200,
+        "Central": -3800,
+        "Online": 6300
+      },
+      {
+        "day": "2026-08-27",
+        "North": 4100,
+        "South": 2700,
+        "East": 11000,
+        "West": 4400,
+        "Central": -1100,
+        "Online": 6300
+      },
+      {
+        "day": "2026-08-28",
+        "North": 2400,
+        "South": -600,
+        "East": 13100,
+        "West": 3000,
+        "Central": -2600,
+        "Online": 1000
+      },
+      {
+        "day": "2026-08-29",
+        "North": 4800,
+        "South": 1000,
+        "East": 12500,
+        "West": -5800,
+        "Central": -2700,
+        "Online": 3300
+      },
+      {
+        "day": "2026-08-30",
+        "North": 3100,
+        "South": -1200,
+        "East": 13500,
+        "West": -7300,
+        "Central": -1200,
+        "Online": 5300
+      },
+      {
+        "day": "2026-08-31",
+        "North": 600,
+        "South": 900,
+        "East": 11100,
+        "West": 2700,
+        "Central": -1700,
+        "Online": 3600
+      },
+      {
+        "day": "2026-09-01",
+        "North": 1900,
+        "South": 100,
+        "East": 11700,
+        "West": 3500,
+        "Central": 2100,
+        "Online": -4100
+      },
+      {
+        "day": "2026-09-02",
+        "North": 3700,
+        "South": -1400,
+        "East": 11900,
+        "West": 1900,
+        "Central": 2400,
+        "Online": -4100
+      },
+      {
+        "day": "2026-09-03",
+        "North": 1100,
+        "South": 1600,
+        "East": 11500,
+        "West": 3900,
+        "Central": 1100,
+        "Online": -4000
+      },
+      {
+        "day": "2026-09-04",
+        "North": 500,
+        "South": -500,
+        "East": 14200,
+        "West": 2700,
+        "Central": 3900,
+        "Online": -6100
+      },
+      {
+        "day": "2026-09-05",
+        "North": 2200,
+        "South": -700,
+        "East": 12400,
+        "West": -6500,
+        "Central": 6700,
+        "Online": -6400
+      },
+      {
+        "day": "2026-09-06",
+        "North": 4100,
+        "South": 1600,
+        "East": 16400,
+        "West": -8100,
+        "Central": 8700,
+        "Online": -5200
+      },
+      {
+        "day": "2026-09-07",
+        "North": 4400,
+        "South": 100,
+        "East": 13400,
+        "West": 4700,
+        "Central": 7600,
+        "Online": -4600
+      },
+      {
+        "day": "2026-09-08",
+        "North": 4300,
+        "South": -800,
+        "East": 13100,
+        "West": 3900,
+        "Central": 7800,
+        "Online": -12500
+      },
+      {
+        "day": "2026-09-09",
+        "North": 4000,
+        "South": 600,
+        "East": 16500,
+        "West": 1500,
+        "Central": 8500,
+        "Online": -8300
+      },
+      {
+        "day": "2026-09-10",
+        "North": -900,
+        "South": -500,
+        "East": 16000,
+        "West": 4600,
+        "Central": 11300,
+        "Online": -13100
+      },
+      {
+        "day": "2026-09-11",
+        "North": 2000,
+        "South": 2300,
+        "East": 15100,
+        "West": 3700,
+        "Central": 7400,
+        "Online": -13400
+      },
+      {
+        "day": "2026-09-12",
+        "North": -400,
+        "South": -1300,
+        "East": 15500,
+        "West": -6900,
+        "Central": 9300,
+        "Online": -12600
+      },
+      {
+        "day": "2026-09-13",
+        "North": 100,
+        "South": -500,
+        "East": 17400,
+        "West": -5000,
+        "Central": 11100,
+        "Online": -12500
+      },
+      {
+        "day": "2026-09-14",
+        "North": -600,
+        "South": 3300,
+        "East": 15300,
+        "West": 4100,
+        "Central": 8100,
+        "Online": -8800
+      },
+      {
+        "day": "2026-09-15",
+        "North": 2100,
+        "South": 700,
+        "East": 16300,
+        "West": 1100,
+        "Central": 10000,
+        "Online": -4900
+      },
+      {
+        "day": "2026-09-16",
+        "North": 100,
+        "South": 800,
+        "East": 17300,
+        "West": 2600,
+        "Central": 7500,
+        "Online": -9300
+      },
+      {
+        "day": "2026-09-17",
+        "North": 2100,
+        "South": -1400,
+        "East": 18400,
+        "West": 4200,
+        "Central": 10000,
+        "Online": -2500
+      },
+      {
+        "day": "2026-09-18",
+        "North": 2800,
+        "South": 500,
+        "East": 16800,
+        "West": 3000,
+        "Central": 11400,
+        "Online": -1600
+      },
+      {
+        "day": "2026-09-19",
+        "North": 500,
+        "South": 3100,
+        "East": 17800,
+        "West": -5900,
+        "Central": 10600,
+        "Online": -3300
+      },
+      {
+        "day": "2026-09-20",
+        "North": 4400,
+        "South": 2900,
+        "East": 17600,
+        "West": -5900,
+        "Central": 10300,
+        "Online": -1800
+      },
+      {
+        "day": "2026-09-21",
+        "North": 3300,
+        "South": -1100,
+        "East": 15700,
+        "West": 2900,
+        "Central": 6600,
+        "Online": -700
+      },
+      {
+        "day": "2026-09-22",
+        "North": 2800,
+        "South": 1600,
+        "East": 15200,
+        "West": 4800,
+        "Central": 9800,
+        "Online": 700
+      },
+      {
+        "day": "2026-09-23",
+        "North": 3000,
+        "South": 1300,
+        "East": 17100,
+        "West": 2600,
+        "Central": 11500,
+        "Online": 4600
+      },
+      {
+        "day": "2026-09-24",
+        "North": 3200,
+        "South": 2300,
+        "East": 20000,
+        "West": 1100,
+        "Central": 9600,
+        "Online": 6800
+      },
+      {
+        "day": "2026-09-25",
+        "North": 500,
+        "South": 500,
+        "East": 14500,
+        "West": 1800,
+        "Central": 8400,
+        "Online": 3000
+      },
+      {
+        "day": "2026-09-26",
+        "North": 500,
+        "South": 3000,
+        "East": 17700,
+        "West": -7000,
+        "Central": 11300,
+        "Online": 7800
+      },
+      {
+        "day": "2026-09-27",
+        "North": 5000,
+        "South": 1700,
+        "East": 19400,
+        "West": -8700,
+        "Central": 9500,
+        "Online": 10300
+      },
+      {
+        "day": "2026-09-28",
+        "North": -700,
+        "South": 3200,
+        "East": 15700,
+        "West": 2900,
+        "Central": 7300,
+        "Online": 9000
+      },
+      {
+        "day": "2026-09-29",
+        "North": 2700,
+        "South": -1200,
+        "East": 20500,
+        "West": 2700,
+        "Central": 9100,
+        "Online": 10400
+      },
+      {
+        "day": "2026-09-30",
+        "North": 1200,
+        "South": -100,
+        "East": 18900,
+        "West": 3200,
+        "Central": 7900,
+        "Online": 11600
+      }
+    ]
+  },
+  "fields": {
+    "day": {
+      "label": "Day",
+      "format": {
+        "type": "date",
+        "style": "day"
+      }
+    },
+    "North": {
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "South": {
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "East": {
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "West": {
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "Central": {
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "Online": {
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
+  },
+  "view": {
+    "type": "horizon",
+    "x": "day",
+    "y": [
+      "North",
+      "South",
+      "East",
+      "West",
+      "Central",
+      "Online"
+    ],
+    "bands": 3
+  }
+}

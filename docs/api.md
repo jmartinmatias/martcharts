@@ -219,14 +219,17 @@ const board = createDashboard(document.querySelector("#board")!, dashboardSpec, 
   widgets: storedSpecsById,         // or resolve: (id) => spec
   actions: ["csv", "image", "copy"],
   decorate: (cell, id, widget) => { /* add your own controls to each cell */ },
+  sticky: true,                     // pin the filter row while the page scrolls
+  hash: true,                       // keep the chosen section in the address (#<section id>)
 });
 await board.ready;
 await board.setFilter("region", "East");                 // null clears it
 await board.setRange("3M");                              // "6M", "12M", "YTD", "All", ...
+board.setSection("Revenue");                             // one section (title or id); null shows them all
 await board.setOverride({ style: { preset: "glass" } }); // applies to every widget, survives filtering
 ```
 
-Each filter offers "All" plus every value of its field found in the widgets' data. Choosing a value filters every widget whose data has that field (headlines and KPIs recompute) and leaves the others alone. Cells span 1 to `columns` columns (default 3); below 1100px the grid drops to 2 columns and below 700px to 1, with wide cells taking the full row. A cell naming an unknown widget shows a message instead of breaking the board. A `section` cell is a full-width heading (with an optional `description`) that groups the cells after it; it is not a widget and takes no filters. `validateDashboard(spec)` checks a spec before drawing it.
+Each filter offers "All" plus every value of its field found in the widgets' data. Choosing a value filters every widget whose data has that field (headlines and KPIs recompute) and leaves the others alone. Cells span 1 to `columns` columns (default 3); below 1100px the grid drops to 2 columns and below 700px to 1, with wide cells taking the full row. A cell naming an unknown widget shows a message instead of breaking the board. A `section` cell is a full-width heading (with an optional `description`) that groups the cells after it; it is not a widget and takes no filters. With two or more sections, the filter row ends with a **section filter**: All (the default) and one button per section; choosing one shows only that section's heading and cards, the expanded view steps through those cards only, and All brings everything back. With `hash: true` the choice is kept in the address, so a link or a reload opens the board on that section. `validateDashboard(spec)` checks a spec before drawing it.
 
 `range` adds a **Period** control at the head of the filter row: a segmented control of `options` (default `["3M", "6M", "12M", "All"]`; any count of months or years such as `"2Y"`, plus `"YTD"`), starting at `default` (`"All"` when offered). A period keeps the latest months in every widget whose data has the range `field`, counting back from the latest date across those widgets and including its month, and combines with the other filters. The field holds ISO months or dates (`"2026-09"`, `"2026-09-30"`); name several (`"field": ["month", "day"]`) so monthly and daily widgets share one window. Widget subtitles and captions are fixed text, so word them to suit any period or leave the period out. `rangeStart(period, latest)` gives the first month a period keeps: `rangeStart("3M", "2026-09")` is `"2026-07"`.
 

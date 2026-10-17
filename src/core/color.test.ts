@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { checkPalette, contrast, oklch, parseHex } from "./color.ts";
+import { checkPalette, contrast, darkSteps, fromOklch, oklch, parseHex } from "./color.ts";
 
 const DEFAULT_LIGHT = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#6250d6", "#e34948"];
 const check = (report: ReturnType<typeof checkPalette>, name: string) => report.checks.find((c) => c.name === name);
@@ -77,5 +77,37 @@ describe("checkPalette", () => {
   test("one color has no neighbours to compare", () => {
     const report = checkPalette(["#2a78d6"], { mode: "light" });
     expect(check(report, "cvd")?.state).toBe("pass");
+  });
+});
+
+describe("fromOklch", () => {
+  test("turns OKLCH back into the same hex, and pulls an out-of-gamut color in by giving up chroma", () => {
+    const [l, c, h] = oklch("#2a78d6");
+    expect(fromOklch(l, c, h)).toBe("#2a78d6");
+    const vivid = fromOklch(0.6, 0.5, 30);
+    expect(parseHex(vivid)).not.toBeNull();
+    expect(oklch(vivid)[1]).toBeLessThan(0.5);
+  });
+});
+
+describe("darkSteps", () => {
+  test("keeps each hue and moves lightness into the dark band", () => {
+    const light = ["#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7"];
+    const dark = darkSteps(light);
+    expect(dark.length).toBe(light.length);
+    expect(checkPalette(dark, { mode: "dark" }).checks.find((c) => c.name === "lightness")?.state).toBe("pass");
+    dark.forEach((color, i) => expect(Math.abs(oklch(color)[2] - oklch(light[i] as string)[2])).toBeLessThan(6));
+  });
+
+  test("greys flip, so the first series stays the most prominent on a dark card", () => {
+    const dark = darkSteps(["#111111", "#4d4d4d", "#808080", "#b3b3b3"]);
+    const lightness = dark.map((c) => oklch(c)[0]);
+    expect(lightness.every((l, i) => i === 0 || l < (lightness[i - 1] as number))).toBe(true);
+    expect(contrast(dark.at(-1) as string, "#1a1a19")).toBeGreaterThan(1.5);
+  });
+
+  test("eight greys stay eight distinct greys when they flip", () => {
+    const dark = darkSteps(["#1f1f1f", "#383838", "#525252", "#6b6b6b", "#858585", "#9e9e9e", "#b8b8b8", "#d1d1d1"]);
+    expect(new Set(dark).size).toBe(8);
   });
 });

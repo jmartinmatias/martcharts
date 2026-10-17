@@ -39,8 +39,19 @@ export function applyStyle(root: HTMLElement, style: StyleSpec = {}): void {
   }
   for (const name of stale) root.style.removeProperty(name);
   // The preset's own palette arrives through its stylesheet; only an explicit palette is set inline.
-  const own = Array.isArray(style.palette) ? style.palette : typeof style.palette === "string" && style.palette !== "default" ? getPalette(style.palette)?.colors : undefined;
-  own?.forEach((color, i) => root.style.setProperty(`--fft-series-${i + 1}`, color));
+  const named = typeof style.palette === "string" && style.palette !== "default" ? getPalette(style.palette) : undefined;
+  const own = Array.isArray(style.palette) ? style.palette : named?.colors;
+  // A palette with its own dark steps: a known scheme (an explicit theme, or a preset built for one) takes its steps
+  // directly; an auto theme carries both as variables and the stylesheet picks by the system or page theme.
+  const scheme = style.theme === "dark" || style.theme === "light" ? style.theme : getPreset(style.preset)?.scheme;
+  if (named?.darkColors && !scheme) {
+    root.dataset.paletteSteps = "";
+    named.colors.forEach((color, i) => root.style.setProperty(`--fft-pal-${i + 1}`, color));
+    named.darkColors.forEach((color, i) => root.style.setProperty(`--fft-pal-dark-${i + 1}`, color));
+  } else {
+    root.removeAttribute("data-palette-steps");
+    (scheme === "dark" && named?.darkColors ? named.darkColors : own)?.forEach((color, i) => root.style.setProperty(`--fft-series-${i + 1}`, color));
+  }
   for (const [token, value] of Object.entries(style.tokens ?? {})) {
     if (typeof value === "string") root.style.setProperty(`--fft-${kebab(token)}`, value);
   }
@@ -76,6 +87,10 @@ export function presetCss(preset: StylePreset): string {
     : "";
   return `${palette}${preset.css}`.replaceAll("&", scope);
 }
+
+/** Series variables pointing at a palette's light or dark steps, for palettes of up to 14 colors. */
+const steps = (kind: "pal" | "pal-dark") =>
+  Array.from({ length: 14 }, (_, i) => `\n  --fft-series-${i + 1}: var(--fft-${kind}-${i + 1});`).join("") + "\n";
 
 const DARK = `
   color-scheme: dark;
@@ -201,6 +216,12 @@ export const BASE_CSS = `
 }
 :root[data-theme="dark"] .fft-widget[data-theme="auto"] {${DARK}}
 :root[data-theme="light"] .fft-widget[data-theme="auto"] {${LIGHT}}
+/* A named palette with its own dark steps, on a widget that follows the system or page theme: both steps arrive as variables, these pick. */
+:root:root .fft-widget[data-palette-steps][data-theme] {${steps("pal")}}
+@media (prefers-color-scheme: dark) {
+  :root:root:not([data-theme="light"]) .fft-widget[data-palette-steps][data-theme] {${steps("pal-dark")}}
+}
+:root:root[data-theme="dark"] .fft-widget[data-palette-steps][data-theme] {${steps("pal-dark")}}
 .fft-widget *, .fft-widget *::before, .fft-widget *::after { box-sizing: border-box; }
 .fft-widget[data-density="compact"] { --fft-pad: 13px; --fft-gap: 8px; --fft-radius: 8px; }
 .fft-widget [hidden] { display: none !important; }
@@ -258,6 +279,23 @@ export const BASE_CSS = `
 .fft-title { margin: 0; font-size: 13px; line-height: 21px; font-weight: 600; letter-spacing: -0.005em; }
 .fft-subtitle { margin: 0; font-size: 13px; line-height: 21px; color: var(--fft-text-secondary); }
 .fft-footer { margin: 0; font-size: 11px; line-height: 13px; color: var(--fft-muted); }
+/* The bottom row: footer at the left, the ghost ref at the right. */
+.fft-base { display: flex; align-items: baseline; gap: 13px; min-width: 0; }
+.fft-base[hidden] { display: none; }
+.fft-base .fft-footer { flex: 1; min-width: 0; }
+/* Ghost ref: a faint mono code, clearer when the card is reached for, a click away from the clipboard. */
+.fft-widget-ref {
+  margin: 0 -5px 0 auto; padding: 2px 5px; border: 0; border-radius: 5px; background: none;
+  font: 500 10px/13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: 0.08em;
+  color: var(--fft-muted); opacity: 0.38; cursor: copy; white-space: nowrap;
+  transition: opacity 233ms var(--fft-ease), color 233ms var(--fft-ease), background-color 233ms var(--fft-ease);
+}
+.fft-widget-ref[hidden] { display: none; }
+.fft-widget:hover .fft-widget-ref { opacity: 0.72; }
+.fft-widget-ref:hover, .fft-widget-ref:focus-visible { opacity: 1; color: var(--fft-text-secondary); background: color-mix(in srgb, var(--fft-text) 6%, transparent); outline: none; }
+.fft-widget-ref:focus-visible { box-shadow: 0 0 0 2px var(--fft-accent); }
+.fft-widget-ref[data-done]::after { content: " copied"; letter-spacing: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+.fft-widget-ref[data-failed] { color: var(--fft-negative); }
 .fft-headline { display: flex; flex-direction: column; gap: 2px; margin-top: -5px; }
 .fft-headline-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; }
 .fft-headline-value { font-size: 34px; line-height: 34px; font-weight: 600; letter-spacing: -0.02em; }
@@ -311,6 +349,7 @@ export const BASE_CSS = `
   font-size: 11px; line-height: 21px;
   transform: translate(-50%, calc(-100% - 8px));
 }
+.fft-tooltip[data-placement="below"] { transform: translate(-50%, 8px); }
 .fft-tooltip-title { color: var(--fft-text-secondary); }
 .fft-tooltip-row { display: flex; align-items: center; gap: 8px; }
 .fft-tooltip-key { flex: none; width: 13px; height: 2px; border-radius: 1px; }
@@ -526,6 +565,36 @@ export const BASE_CSS = `
 .fft-radar-dot { stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 1.5; pointer-events: none; }
 .fft-radar-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-radar-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 6%, transparent); }
+/* Icicle: tinted cells with a full-color edge, names in text ink; a pointed cell keeps its lineage lit. */
+.fft-ice-cell { transition: opacity 377ms var(--fft-ease); }
+.fft-ice { pointer-events: none; }
+.fft-ice[data-root] { fill: var(--fft-text); fill-opacity: 0.06; }
+.fft-ice-edge { pointer-events: none; }
+.fft-ice-name { fill: var(--fft-text); font-size: 11px; font-weight: 600; pointer-events: none; }
+.fft-ice-value { fill: var(--fft-text-secondary); font-size: 11px; font-variant-numeric: tabular-nums; pointer-events: none; }
+.fft-icicle[data-active] .fft-ice-cell:not([data-active]) { opacity: 0.38; }
+.fft-ice-hit { fill: transparent; cursor: pointer; outline: none; }
+.fft-ice-hit:focus-visible { stroke: var(--fft-accent); stroke-width: 2; }
+/* Horizon: thin rows on a faint track, bands deepening with distance, a compact key above. */
+.fft-horizon-key { display: flex; flex-wrap: wrap; align-items: center; gap: 5px 13px; margin-bottom: 8px; font-size: 11px; line-height: 13px; color: var(--fft-text-secondary); }
+.fft-horizon-ramp { display: inline-flex; gap: 1px; margin-left: -8px; }
+.fft-horizon-swatch { width: 13px; height: 8px; border-radius: 2px; }
+.fft-horizon-track { fill: color-mix(in srgb, var(--fft-text) 3%, transparent); pointer-events: none; }
+.fft-horizon-band { stroke: none; pointer-events: none; }
+.fft-horizon-label { fill: var(--fft-text-secondary); font-size: 11px; pointer-events: none; }
+.fft-horizon-hit { fill: transparent; outline: none; cursor: pointer; }
+.fft-horizon-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 6%, transparent); }
+/* Rose: hairline rings, wedges parted by the card color, the pointed wedge kept while the rest step back. */
+.fft-rose-ring { fill: none; stroke: var(--fft-grid); stroke-width: 1; pointer-events: none; }
+.fft-rose-seg { fill-opacity: 0.88; stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 1.5; stroke-linejoin: round; pointer-events: none; transition: opacity 377ms var(--fft-ease); }
+.fft-rose[data-active] .fft-rose-wedge:not([data-active]) .fft-rose-seg { opacity: 0.32; }
+.fft-rose-tick { fill: var(--fft-muted); font-size: 10px; font-variant-numeric: tabular-nums; paint-order: stroke; stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 3; stroke-linejoin: round; pointer-events: none; transition: opacity 233ms var(--fft-ease); }
+/* While a wedge is pointed at, its tooltip carries the exact numbers: the scale steps back, so nothing sits under the tooltip. */
+.fft-rose[data-active] .fft-rose-tick { opacity: 0; }
+.fft-rose-anchor { fill: none; stroke: none; pointer-events: none; }
+.fft-rose-axis { fill: var(--fft-text-secondary); font-size: 11px; font-variant-numeric: tabular-nums; pointer-events: none; }
+.fft-rose-hit { fill: transparent; cursor: pointer; outline: none; }
+.fft-rose-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 6%, transparent); }
 .fft-point-bubble { fill-opacity: 0.62; stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 1.5; }
 .fft-scatter-size { color: var(--fft-muted); }
 .fft-cell-bar { display: inline-grid; grid-template-columns: minmax(34px, 89px) auto; align-items: center; gap: 8px; width: 100%; justify-content: end; }
@@ -573,6 +642,11 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-hbar-fill { height: 100%; border-radius: 2px 5px 5px 2px; transform-origin: 0 50%; transition: opacity 377ms var(--fft-ease); }
 .fft-hbars[data-active] .fft-hbar:not([data-active]) .fft-hbar-fill { opacity: 0.38; }
 .fft-hbar-value { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* Lollipop rankings: a hairline guide, a 2px stem, an 11px dot ringed in the card color. */
+.fft-hbars[data-mark="lollipop"] .fft-hbar-track { position: relative; background: linear-gradient(var(--fft-grid), var(--fft-grid)) center / 100% 1px no-repeat; }
+.fft-hbars[data-mark="lollipop"] .fft-hbar-fill { height: 2px; margin-top: 5.5px; border-radius: 1px; }
+.fft-hbar-dot { position: absolute; top: 50%; width: 11px; height: 11px; margin: -5.5px 0 0 -5.5px; border-radius: 50%; box-shadow: 0 0 0 2px var(--fft-ring, var(--fft-surface)); transition: opacity 377ms var(--fft-ease); }
+.fft-hbars[data-active] .fft-hbar:not([data-active]) .fft-hbar-dot { opacity: 0.38; }
 
 .fft-step { transition: opacity 377ms var(--fft-ease); transform-box: fill-box; transform-origin: 50% 100%; }
 .fft-step[data-kind="up"] { fill: var(--fft-up); }
@@ -639,12 +713,24 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-bar { transition: opacity 377ms var(--fft-ease); transform-box: fill-box; transform-origin: 50% 100%; }
 .fft-bar[data-negative] { transform-origin: 50% 0; }
 .fft-chart[data-active] .fft-marks:not([data-active]) .fft-bar { opacity: 0.38; }
+.fft-lolli-stem { stroke-width: 2; stroke-linecap: round; transition: opacity 377ms var(--fft-ease); transform-box: fill-box; transform-origin: 50% 100%; }
+.fft-lolli-dot { stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 2; transition: opacity 377ms var(--fft-ease); }
+.fft-chart[data-active] .fft-marks:not([data-active]) :is(.fft-lolli-stem, .fft-lolli-dot) { opacity: 0.38; }
 .fft-line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 .fft-area { fill-opacity: 0.1; stroke: none; pointer-events: none; }
 .fft-area[data-stacked] { fill-opacity: 0.34; }
 /* Streams: fuller bands parted by a hairline of the card, each named inside itself in text ink. */
 .fft-area[data-stream] { fill-opacity: var(--fft-stream-fill, 0.62); stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 1.5; stroke-linejoin: round; transition: fill-opacity 377ms var(--fft-ease); }
 .fft-chart[data-active] .fft-area[data-stream] { fill-opacity: calc(var(--fft-stream-fill, 0.62) - 0.12); }
+/* Forecast fans: a faint zone after the last actual, a soft band, dashed forecasts ending on a hollow dot. */
+.fft-forecast-zone { fill: var(--fft-text); fill-opacity: 0.035; pointer-events: none; }
+.fft-forecast-divider { stroke: var(--fft-text-secondary); stroke-opacity: 0.55; stroke-width: 1; stroke-dasharray: 2 3; pointer-events: none; }
+.fft-forecast-label { fill: var(--fft-text-secondary); font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; pointer-events: none; }
+.fft-forecast-note { font-weight: 400; letter-spacing: 0; text-transform: none; }
+.fft-band { fill-opacity: 0.16; stroke: none; pointer-events: none; }
+.fft-area[data-forecast] { opacity: 0.5; }
+.fft-line[data-forecast] { stroke-dasharray: 5 5; }
+.fft-band-label { fill: var(--fft-text-secondary); font-size: 11px; font-variant-numeric: tabular-nums; pointer-events: none; }
 .fft-stream-label { fill: var(--fft-text); font-size: 11px; font-weight: 600; letter-spacing: 0.01em; pointer-events: none; }
 .fft-dot { stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 2; pointer-events: none; }
 .fft-bar-track { pointer-events: none; }
@@ -820,16 +906,19 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-range button:hover { color: var(--fft-text); }
 .fft-range button[aria-pressed="true"] { color: var(--fft-text); background: var(--fft-raised, var(--fft-surface)); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16), 0 0 0 1px var(--fft-border); }
 .fft-range button:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 1px; }
-/* Section links: quiet chips at the end of the filter row, the one in view filled. */
+/* Section filter: quiet chips at the end of the filter row, All first, the chosen one filled. */
 .fft-board-nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 2px; min-width: 0; margin-left: auto; scroll-behavior: smooth; }
-.fft-board-nav a {
-  display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 13px;
-  font-size: 11px; line-height: 21px; white-space: nowrap; text-decoration: none; color: var(--fft-text-secondary);
+.fft-board-nav button {
+  display: inline-flex; align-items: center; padding: 2px 8px; border: 0; border-radius: 13px; background: transparent; cursor: pointer;
+  font: inherit; font-size: 11px; line-height: 21px; white-space: nowrap; color: var(--fft-text-secondary);
   transition: background 233ms var(--fft-ease), color 233ms var(--fft-ease);
 }
-@media (hover: hover) { .fft-board-nav a:hover { color: var(--fft-text); background: color-mix(in srgb, var(--fft-text) 5%, transparent); } }
-.fft-board-nav a[aria-current="true"] { color: var(--fft-text); background: color-mix(in srgb, var(--fft-text) 8%, transparent); }
-.fft-board-nav a:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: -2px; }
+@media (hover: hover) { .fft-board-nav button:hover { color: var(--fft-text); background: color-mix(in srgb, var(--fft-text) 5%, transparent); } }
+.fft-board-nav button[aria-pressed="true"] { color: var(--fft-text); background: color-mix(in srgb, var(--fft-text) 8%, transparent); }
+.fft-board-nav button:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: -2px; }
+/* A chosen section: the rest of the grid hides, and its heading leads the board without the divider above it. */
+.fft-dashboard-grid > [hidden] { display: none; }
+.fft-dashboard[data-section] .fft-board-section { margin-top: 0; padding-top: 0; border-top: 0; }
 .fft-dashboard-grid { display: grid; grid-template-columns: repeat(var(--fft-cols, 3), minmax(0, 1fr)); gap: 21px; align-items: start; }
 .fft-cell-slot { min-width: 0; }
 .fft-board-cell { min-width: 0; }
@@ -850,7 +939,7 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
     overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scrollbar-width: none;
   }
   .fft-board-nav::-webkit-scrollbar { display: none; }
-  .fft-board-nav a { flex: none; scroll-snap-align: start; }
+  .fft-board-nav button { flex: none; scroll-snap-align: start; }
 }
 @media (max-width: 700px) {
   .fft-dashboard-grid { grid-template-columns: minmax(0, 1fr); }
@@ -865,12 +954,12 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 }
 /* Touch: every control at least 34px tall, without the grey tap flash. */
 @media (pointer: coarse) {
-  .fft-range button, .fft-board-nav a { min-height: 34px; padding: 5px 13px; -webkit-tap-highlight-color: transparent; }
+  .fft-range button, .fft-board-nav button { min-height: 34px; padding: 5px 13px; -webkit-tap-highlight-color: transparent; }
   .fft-filter select { min-height: 34px; padding: 5px 13px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .fft-board-nav { scroll-behavior: auto; }
-  .fft-range button, .fft-board-nav a { transition: none; }
+  .fft-range button, .fft-board-nav button { transition: none; }
 }
 
 /* Palette picker: carries its own tokens, so it can sit outside any widget. */
@@ -936,8 +1025,16 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 @keyframes fft-fade { from { opacity: 0; } }
 @keyframes fft-rise { from { opacity: 0; transform: translateY(3px); } }
 .fft-widget[data-animate] .fft-bar { animation: fft-grow 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 21ms); }
+.fft-widget[data-animate] .fft-lolli-stem { animation: fft-grow 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 21ms); }
+.fft-widget[data-animate] .fft-lolli-dot, .fft-widget[data-animate] .fft-hbar-dot { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(377ms + var(--fft-i, 0) * 34ms); }
 .fft-widget[data-animate] .fft-line,
 .fft-widget[data-animate] .fft-spark-line { stroke-dasharray: 1; animation: fft-draw 987ms var(--fft-ease) both; }
+/* Dashes cannot draw in, so forecasts and their band fade in once the actuals have drawn. */
+.fft-widget[data-animate] .fft-line[data-forecast] { stroke-dasharray: 5 5; animation: fft-fade 610ms var(--fft-ease) 610ms both; }
+.fft-widget[data-animate] .fft-band,
+.fft-widget[data-animate] .fft-band-label,
+.fft-widget[data-animate] .fft-forecast-zone,
+.fft-widget[data-animate] .fft-forecast-label { animation: fft-fade 610ms var(--fft-ease) 377ms both; }
 .fft-widget[data-animate] .fft-slice { stroke-dasharray: 1; animation: fft-draw 987ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 89ms); }
 .fft-widget[data-animate] .fft-end-label,
 .fft-widget[data-animate] .fft-stream-label,
@@ -962,6 +1059,9 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-widget[data-animate] .fft-gantt-done,
 .fft-widget[data-animate] .fft-gantt-bar { animation: fft-grow-x 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 55ms); }
 .fft-widget[data-animate] .fft-gantt-milestone { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(377ms + var(--fft-i, 0) * 55ms); }
+.fft-widget[data-animate] .fft-ice-cell { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 144ms); }
+.fft-widget[data-animate] .fft-horizon-row { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 55ms); }
+.fft-widget[data-animate] .fft-rose-wedge { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 34ms); }
 .fft-widget[data-animate] .fft-radar-shape, .fft-widget[data-animate] .fft-radar-dot { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: 233ms; }
 .fft-widget[data-animate] .fft-chord-ribbon { animation: fft-fade 987ms var(--fft-ease) both; animation-delay: 233ms; }
 .fft-widget[data-animate] .fft-sun-seg { animation: fft-fade 610ms var(--fft-ease) both; }

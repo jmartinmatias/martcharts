@@ -1,0 +1,159 @@
+{
+  "id": "visits-by-hour",
+  "title": "Visits by hour",
+  "subtitle": "Average visits per hour of the day, September 2026",
+  "description": "The day has two shapes. Desktop builds through the working morning to an 11:00 peak and fades by 17:00; mobile spikes on the 08:00 commute and owns the evening, peaking at 21:00. Each wedge's area is its visits.",
+  "footer": "Source: web analytics, local time",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {
+        "hour": "00:00",
+        "Desktop": 120,
+        "Mobile": 320
+      },
+      {
+        "hour": "01:00",
+        "Desktop": 120,
+        "Mobile": 190
+      },
+      {
+        "hour": "02:00",
+        "Desktop": 120,
+        "Mobile": 160
+      },
+      {
+        "hour": "03:00",
+        "Desktop": 120,
+        "Mobile": 160
+      },
+      {
+        "hour": "04:00",
+        "Desktop": 120,
+        "Mobile": 160
+      },
+      {
+        "hour": "05:00",
+        "Desktop": 130,
+        "Mobile": 160
+      },
+      {
+        "hour": "06:00",
+        "Desktop": 160,
+        "Mobile": 220
+      },
+      {
+        "hour": "07:00",
+        "Desktop": 260,
+        "Mobile": 490
+      },
+      {
+        "hour": "08:00",
+        "Desktop": 520,
+        "Mobile": 760
+      },
+      {
+        "hour": "09:00",
+        "Desktop": 950,
+        "Mobile": 490
+      },
+      {
+        "hour": "10:00",
+        "Desktop": 1420,
+        "Mobile": 220
+      },
+      {
+        "hour": "11:00",
+        "Desktop": 1650,
+        "Mobile": 190
+      },
+      {
+        "hour": "12:00",
+        "Desktop": 1550,
+        "Mobile": 350
+      },
+      {
+        "hour": "13:00",
+        "Desktop": 1340,
+        "Mobile": 540
+      },
+      {
+        "hour": "14:00",
+        "Desktop": 1250,
+        "Mobile": 350
+      },
+      {
+        "hour": "15:00",
+        "Desktop": 1160,
+        "Mobile": 180
+      },
+      {
+        "hour": "16:00",
+        "Desktop": 890,
+        "Mobile": 160
+      },
+      {
+        "hour": "17:00",
+        "Desktop": 520,
+        "Mobile": 190
+      },
+      {
+        "hour": "18:00",
+        "Desktop": 260,
+        "Mobile": 320
+      },
+      {
+        "hour": "19:00",
+        "Desktop": 150,
+        "Mobile": 710
+      },
+      {
+        "hour": "20:00",
+        "Desktop": 130,
+        "Mobile": 1330
+      },
+      {
+        "hour": "21:00",
+        "Desktop": 120,
+        "Mobile": 1660
+      },
+      {
+        "hour": "22:00",
+        "Desktop": 120,
+        "Mobile": 1330
+      },
+      {
+        "hour": "23:00",
+        "Desktop": 120,
+        "Mobile": 710
+      }
+    ]
+  },
+  "fields": {
+    "hour": {
+      "label": "Hour"
+    },
+    "Desktop": {
+      "format": {
+        "type": "number"
+      }
+    },
+    "Mobile": {
+      "format": {
+        "type": "number"
+      }
+    }
+  },
+  "view": {
+    "type": "rose",
+    "label": "hour",
+    "y": [
+      "Desktop",
+      "Mobile"
+    ]
+  },
+  "style": {
+    "height": 300
+  }
+}

@@ -10,6 +10,7 @@ import { roving } from "./focus.ts";
  * bar from zero, and the value at the bar's end. Built from HTML so long
  * labels stay crisp, wrap-free and readable by assistive technology.
  * One series means one color; `highlight` keeps named rows in color and greys the rest.
+ * With `mark: "lollipop"` each bar is a thin stem ending in a dot at the value.
  */
 export const renderHbar: ViewRenderer<HbarView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
@@ -18,7 +19,9 @@ export const renderHbar: ViewRenderer<HbarView> = (ctx) => {
   const amounts = ctx.rows.map((row) => readNumber(row[value]));
   const max = Math.max(0, ...amounts.filter((n): n is number => n !== null));
 
+  const lollipop = ctx.view.mark === "lollipop";
   const list = html(doc, "ol", "fft-hbars");
+  if (lollipop) list.dataset.mark = "lollipop";
   const rows: HTMLElement[] = [];
   const deactivate = () => {
     list.removeAttribute("data-active");
@@ -37,10 +40,17 @@ export const renderHbar: ViewRenderer<HbarView> = (ctx) => {
     item.setAttribute("aria-label", `${name}: ${valueText || "no value"}`);
     const track = html(doc, "div", "fft-hbar-track");
     const fill = html(doc, "div", "fft-hbar-fill");
-    fill.style.width = `${amount === null || amount <= 0 || max === 0 ? 0 : Math.round((amount / max) * 1000) / 10}%`;
+    const share = `${amount === null || amount <= 0 || max === 0 ? 0 : Math.round((amount / max) * 1000) / 10}%`;
+    fill.style.width = share;
     fill.style.background = on ? ctx.color(0) : DEEMPHASIS;
     fill.style.setProperty("--fft-bar-color", on ? ctx.color(0) : DEEMPHASIS);
     track.append(fill);
+    if (lollipop) {
+      const dot = html(doc, "span", "fft-hbar-dot");
+      dot.style.left = share;
+      dot.style.background = on ? ctx.color(0) : DEEMPHASIS;
+      track.append(dot);
+    }
     item.append(html(doc, "span", "fft-hbar-label", name), track, html(doc, "span", "fft-hbar-value", valueText));
 
     const activate = () => {

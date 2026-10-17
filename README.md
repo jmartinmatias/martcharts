@@ -88,20 +88,21 @@ const asTable = fork(topCustomers, { view: { type: "table", label: null, detail:
 | Data sources | `inline`, `url`, `fn` |
 | Transforms | `filter`, `sort`, `limit`, `aggregate` (including `list`, for spark columns), `pivot` (long to wide), `calc`, `bin` (value bands with counts) |
 | Formats | `number`, `currency`, `percent`, `date`, `badge` (status pills), `spark` (mini trends in table and list cells), `bar` (in-cell data bars scaled to the column), `delta` (signed changes with an arrow, good or bad), `heat` (cells tinted on one shared scale, for heat tables), `text` |
-| Views | 37 of them, grouped by the question they answer in [Which view?](#which-view) |
+| Views | 40 of them, grouped by the question they answer in [Which view?](#which-view) |
 | Emphasis | `highlight` on bar, hbar, line and area keeps the named categories or series in color and greys the rest |
 | Combo | `"lines": "target"` on a bar chart draws lines over the bars on the same axis (never a second one) |
 | Part-to-whole | `"stacked": true` or `"percent"` on bar charts; `donut` for up to 6 slices |
 | Reference marks | `"reference": [{ "value": 1200000, "label": "Target" }]` draws target lines and bands on bar, line, area and scatter charts |
-| Dashboards | `createDashboard(el, spec, { widgets })` lays out widgets from one JSON file, with a filter row that scopes every widget with that field, a Period control (`"range": { "field": "month" }`: 3M, 6M, 12M, YTD, All) and full-width section headings (`{ "section": "Revenue" }`) |
+| Dashboards | `createDashboard(el, spec, { widgets })` lays out widgets from one JSON file, with a filter row that scopes every widget with that field, a Period control (`"range": { "field": "month" }`: 3M, 6M, 12M, YTD, All) and full-width section headings (`{ "section": "Revenue" }`) with a section filter (All, or one section at a time) |
 | Text templates | Titles, subtitles, footers and headline captions can say `{first:month} to {last:month}`, `{count} deals` or `{sum:revenue}`, filled from the rows the chart draws |
 | Export | `createWidget(el, spec, { actions: ["csv", "image", "copy"] })` adds download CSV, download PNG and copy-for-Excel buttons |
+| Widget refs | Every widget with an id wears a faint ref such as `W-7Q2K` in its bottom corner (`widgetRef(id)`, stable, easy to say). Click to copy it; the MCP tools take it in place of the id, so "fix W-7Q2K" is enough |
 | Small multiples | `"facet": { "field": "region" }` splits any chart into one panel per value, on one shared scale |
 | KPI icons | `"icon": "users"` and 13 more line icons on KPI tiles |
 | Direct labels | Lines and areas write each series' last value at its end (up to 4 series, hidden when ends collide) |
 | Headline | A big number with its change and a caption above any chart: `"headline": { "value": "revenue", "compare": "previous" }` |
 | Style presets | `default`, `glass` (frosted translucent cards), `airy` (chrome-free editorial), `paper` (print: warm paper, serif titles, a black rule over each card) |
-| Palettes | `default`, `apple`, `credit-agricole`, `bw`, `50-shades`, or any list of colors; `createPalettePicker` chooses them with an eyedropper and live colorblind checks |
+| Palettes | `default`, `apple`, `credit-agricole`, `bw`, `50-shades`, five acclaimed ones with their exact published colors (`okabe-ito`, `tol-vibrant`, `tableau-10`, `carbon`, `observable-10`), or any list of colors. Every named palette has a light and a dark set: its own where published (Default, Apple, Carbon), otherwise derived with the same hues moved into the dark band (greys flip), and charts switch with the theme; `createPalettePicker` chooses them with an eyedropper and live colorblind checks |
 
 Every option of every block is listed in [docs/blocks.md](docs/blocks.md), generated from the code.
 
@@ -113,10 +114,13 @@ Start from what you want the reader to see. Every view takes plain rows; `sugges
 | --- | --- |
 | One number and how it moved | `kpi`, `kpis` (a row of them), `gauge` (on a known scale), or a `headline` above any chart |
 | Progress to a goal | `meter`, `bullet` (with poor, fair and good bands), `rings` (a few goals at once), `gauge` |
-| A ranking or a comparison across categories | `hbar`, `bar`, `dumbbell` (before and after), `slope` (who moved between two periods) |
+| A ranking or a comparison across categories | `hbar`, `bar` (either with `"mark": "lollipop"`: a thin stem and a dot, for many similar values), `dumbbell` (before and after), `slope` (who moved between two periods) |
 | Change over time | `line`, `area`, `bar`, `calendar` (day by day), `heatmap` (two time scales, such as weekday by hour), `candlestick` (prices: open, high, low and close) |
+| What comes next | `line` (or an unstacked `area`) with `"forecast"` and `"band"`: a forecast fan, dashed after the last actual inside a shaded zone, with its low to high range fanning out (dashboard periods count back from the last actual) |
+| Many time series at once | `horizon` (a thin row per series, values folded into bands of deepening color, blue above the baseline and red below) |
 | Rank over time | `bump` |
-| Parts of a whole | `donut` (up to 6 parts), `waffle` (in 100 countable squares), `treemap` (many parts), `sunburst` (two or three levels), `bar` or `area` with `"stacked": "percent"` |
+| A cycle that wraps round | `rose` (a polar area chart for hours of the day or months of the year: wedges true to their values by area, series stacked outward) |
+| Parts of a whole | `donut` (up to 6 parts), `waffle` (in 100 countable squares), `treemap` (many parts), `sunburst` (two or three levels), `icicle` (a hierarchy laid flat in columns, up to four levels, easier to label), `bar` or `area` with `"stacked": "percent"` |
 | How a mix flows over time | `area` with `"stacked": "stream"` (a streamgraph: smooth layers around a center line, each named inside itself) |
 | Size and mix at once | `marimekko` |
 | What makes up a change | `waterfall` (a bridge from one total to the next), `variance` (actual against plan, good or bad) |

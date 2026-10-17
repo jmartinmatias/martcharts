@@ -120,3 +120,7 @@ The server sends `resources/list_changed` after creating or deleting a widget.
 - Widget ids are limited to lowercase letters, digits and dashes, so they cannot name files outside the store.
 - Relative data URLs are served only from inside `--public`; paths that resolve outside it, including through symlinks or encoded `..%2f` segments, get a 404.
 - Absolute `http(s)` data URLs are fetched from the network, as they would be in a browser. Only point the server at widget folders you trust.
+
+## Widget refs
+
+Every widget card shows a faint ref such as `W-7Q2K`, hashed from its id, in its bottom right corner. `fft_get_widget`, `fft_get_widget_data`, `fft_update_widget` and the `from` of `fft_create_widget` accept the ref in place of the id, in any case. `fft_list_widgets` lists both. Delete and create take ids only, so a destructive call always names the exact file.

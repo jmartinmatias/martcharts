@@ -119,6 +119,12 @@
         border: 1px solid var(--line); background: var(--field); color: var(--ink-2);
         border-radius: 6px; padding: 2px 8px; font: inherit; font-size: 11px; cursor: pointer;
       }
+      /* The scope switch: a small segmented control between the title and Default style. */
+      .style-head { flex-wrap: wrap; }
+      .style-head h3 { margin-right: auto; }
+      .style-panel .segmented button { border: 0; border-radius: 0; background: transparent; padding: 3px 10px; }
+      .style-panel .segmented button[aria-pressed="true"] { background: var(--field); color: var(--ink); font-weight: 600; }
+      .scope-note { margin: -5px 0 0; font-size: 11px; color: var(--ink-2); }
       @media (max-width: 800px) { .playground { grid-template-columns: minmax(0, 1fr); } }
       .editor { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
       .editor-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
@@ -212,8 +218,13 @@
             <section class="style-panel" aria-labelledby="style-panel-title">
               <div class="style-head">
                 <h3 id="style-panel-title">Chart styling</h3>
+                <div id="style-scope" class="segmented" role="group" aria-label="Apply styling to">
+                  <button type="button" data-value="chart" aria-pressed="true">This chart</button>
+                  <button type="button" data-value="all" aria-pressed="false">All charts</button>
+                </div>
                 <button type="button" id="reset-style" title="Remove the style block: default preset, theme, palette, accent, spacing and height">Default style</button>
               </div>
+              <p class="scope-note" id="scope-note" aria-live="polite">Styles the chart above only.</p>
               <div class="style-grid">
                 <label>Preset <select id="style-pick"></select></label>
                 <label>Theme

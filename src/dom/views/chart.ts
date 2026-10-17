@@ -11,8 +11,10 @@ import { referenceValues, resolveReferences } from "../../core/reference.ts";
 import { drawReferences, type LabelObstacles } from "./reference.ts";
 import type { FormatSpec } from "../../core/types.ts";
 import type { TooltipItem, ViewContext, ViewRenderer } from "../../core/view-context.ts";
+import { isForecast } from "../../core/views.ts";
 import type { AreaView, BarView, LineView } from "../../core/views.ts";
 import { areaPath, bandPath, bands, barPath, fitLabels, layoutBars, layoutStacked, linearScale, linePath, smoothBands, spread } from "../layout.ts";
+import type { LabelBox } from "../layout.ts";
 import { buildTable, fieldList, html, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
 
@@ -39,11 +41,14 @@ export function tickFormatter(ctx: ViewContext<{ type: string }>, field: string 
   if (!format || format.type === "number" || format.type === "currency") {
     const style: Intl.NumberFormatOptions =
       format?.type === "currency" ? { style: "currency", currency: typeof format.currency === "string" ? format.currency : "USD" } : {};
-    let formatter = new Intl.NumberFormat(ctx.spec.locale, { ...style, notation: "compact", maximumFractionDigits: 1 });
+    // The fewest decimals that write every tick exactly (1.25M, never a rounded 1.3M), and so tell them apart.
+    const compact = (digits: number) => new Intl.NumberFormat(ctx.spec.locale, { ...style, notation: "compact", maximumFractionDigits: digits });
+    const precise = ticks.map((tick) => compact(3).format(tick));
+    let formatter = compact(3);
     for (const digits of [1, 2, 3]) {
-      formatter = new Intl.NumberFormat(ctx.spec.locale, { ...style, notation: "compact", maximumFractionDigits: digits });
+      formatter = compact(digits);
       const labels = ticks.map((tick) => formatter.format(tick));
-      if (new Set(labels).size === labels.length) break;
+      if (new Set(labels).size === labels.length && labels.every((label, i) => label === precise[i])) break;
     }
     return (value) => formatter.format(value);
   }
@@ -95,6 +100,16 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
   const percent = stacked === "percent";
   // Streams center each column on the middle line: the stack starts half its total below zero.
   const stream = kind === "area" && stacked === "stream";
+  // Forecast fans (lines and unstacked areas): forecast rows draw dashed from the last actual on, over a shaded low to high band.
+  const fanView = kind === "line" || (kind === "area" && !stacked) ? (view as LineView | AreaView) : undefined;
+  const forecastField = fanView?.forecast;
+  const forecastAt = forecastField ? rows.findIndex((row) => isForecast(row[forecastField])) : -1;
+  const band = fanView?.band;
+  const bandLow = band ? rows.map((row) => readNumber(row[band.low])) : [];
+  const bandHigh = band ? rows.map((row) => readNumber(row[band.high])) : [];
+  const banded = rows.map((_, i) => i).filter((i) => bandLow[i] != null && bandHigh[i] != null);
+  const bandEnd = banded.at(-1) ?? -1;
+  const bandEnds = bandEnd >= 0 && bandLow[bandEnd] !== bandHigh[bandEnd] ? [bandHigh[bandEnd] as number, bandLow[bandEnd] as number] : [];
   // Percent stacks draw each value as its share of the column's total.
   const columnTotal = (i: number) => raw.reduce((sum, seriesValues) => sum + Math.abs(seriesValues[i] ?? 0), 0);
   const values = percent ? raw.map((seriesValues) => seriesValues.map((v, i) => (v === null || columnTotal(i) === 0 ? null : v / columnTotal(i)))) : raw;
@@ -111,6 +126,7 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
       })
     : values.flat().filter((v): v is number => v !== null);
   present.push(...overlayValues.flat().filter((v): v is number => v !== null));
+  present.push(...banded.flatMap((i) => [bandLow[i] as number, bandHigh[i] as number]));
   // Small multiples pass a shared extent, so every panel draws on the same scale.
   if (ctx.extent) present.push(...ctx.extent);
   // Reference lines and bands stretch the axis so they are always in view.
@@ -132,7 +148,8 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
           return index < 0 ? null : { s, index, text: ctx.format(rows[index]?.[field], field) };
         })
       : [];
-  const endRoom = Math.max(0, ...endLabels.map((label) => (label ? label.text.length * CHAR_WIDTH + 13 : 0)));
+  const bandEndText = bandEnds.map((v) => ctx.format(v, series[0]));
+  const endRoom = Math.max(0, ...[...endLabels.map((label) => label?.text), ...bandEndText].map((text) => (text ? text.length * CHAR_WIDTH + 13 : 0)));
 
   const wrap = html(doc, "div", "fft-chart");
   const legendEntries = [
@@ -170,8 +187,11 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
   const every = Math.max(1, Math.ceil((rows.length * widest) / plot.w));
   // Edge-to-edge series align their first and last labels inward, so they never spill out of the chart.
   const anchorOf = (i: number) => (kind === "bar" || rows.length < 2 ? "middle" : i === 0 ? "start" : i === rows.length - 1 ? "end" : "middle");
-  const candidates = slots.map((_, i) => i).filter((i) => i % every === 0);
-  for (const k of fitLabels(candidates.map((i) => ({ x: slots[i]?.center ?? 0, width: (xLabels[i] ?? "").length * CHAR_WIDTH, anchor: anchorOf(i) })))) {
+  // A thinned axis still names its last category or period, giving up the label before it if the two would touch.
+  const last = rows.length - 1;
+  const candidates = slots.map((_, i) => i).filter((i) => i % every === 0 || i === last);
+  const boxes: LabelBox[] = candidates.map((i) => ({ x: slots[i]?.center ?? 0, width: (xLabels[i] ?? "").length * CHAR_WIDTH, anchor: anchorOf(i) }));
+  for (const k of fitLabels(boxes, { keepLast: true })) {
     const i = candidates[k] as number;
     const label = svg(doc, "text", { class: "fft-tick fft-tick-x", x: slots[i]?.center ?? 0, y: plot.y + plot.h + 18, "text-anchor": anchorOf(i) });
     label.textContent = xLabels[i] ?? "";
@@ -191,7 +211,22 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
   if (kind === "bar") {
     const marks = getPreset(ctx.spec.style?.preset)?.marks ?? {};
     const radius = marks.barRadius === "full" ? Number.POSITIVE_INFINITY : (marks.barRadius ?? 4);
+    const lollipop = (view as BarView).mark === "lollipop";
     for (const rect of stacked ? layoutStacked(values, slots, y) : layoutBars(values, slots, y)) {
+      if (lollipop) {
+        // A stem from the baseline and a dot at the value, centered where the bar would stand.
+        const cx = rect.x + rect.width / 2;
+        const base = rect.negative ? rect.y : rect.y + rect.height;
+        const tip = rect.negative ? rect.y + rect.height : rect.y;
+        const color = categoryOn(rect.index) ? ctx.color(rect.series) : DEEMPHASIS;
+        const stem = svg(doc, "line", { class: "fft-lolli-stem", x1: cx, x2: cx, y1: base, y2: tip });
+        stem.style.setProperty("stroke", color);
+        const dot = svg(doc, "circle", { class: "fft-lolli-dot", cx, cy: tip, r: 5 });
+        dot.style.setProperty("fill", color);
+        obstacles.boxes.push({ ...rect, x: cx - 5, width: 10 });
+        markGroups[rect.index]?.append(stem, dot);
+        continue;
+      }
       if (marks.barTrack) {
         const track = { ...rect, y: plot.y, height: plot.h, negative: false };
         markGroups[rect.index]?.append(svg(doc, "path", { class: "fft-bar-track", d: barPath(track, radius) }));
@@ -218,9 +253,38 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
       }
     });
   } else {
+    // The forecast zone: a faint wash from the last actual to the end, under a small Forecast label.
+    if (forecastAt >= 0) {
+      const from = forecastAt > 0 ? (slots[forecastAt - 1]?.center ?? plot.x) : plot.x;
+      chart.append(svg(doc, "rect", { class: "fft-forecast-zone", x: from, y: plot.y, width: Math.max(0, plot.x + plot.w - from), height: plot.h }));
+      if (forecastAt > 0) chart.append(svg(doc, "line", { class: "fft-forecast-divider", x1: from, x2: from, y1: plot.y, y2: plot.y + plot.h }));
+      // The notes keep inside the zone: one that does not fit gives way (the tooltip still names the range), except
+      // Forecast itself, which then aligns to the zone's end.
+      const room = plot.x + plot.w - from - 13;
+      const notes = ["Forecast", ...(band?.label ? [`Shaded: ${band.label}`] : [])];
+      notes.forEach((note, k) => {
+        // Forecast is set in spaced capitals, a little wider per character than the note under it.
+        const fits = note.length * (k === 0 ? 7.5 : CHAR_WIDTH) <= room;
+        if (!fits && k > 0) return;
+        const text = svg(doc, "text", {
+          class: k === 0 ? "fft-forecast-label" : "fft-forecast-label fft-forecast-note",
+          x: fits ? from + 8 : plot.x + plot.w - 5,
+          y: plot.y + 13 + k * 14,
+          "text-anchor": fits ? "start" : "end",
+        });
+        text.textContent = note;
+        chart.append(text);
+      });
+    }
     // Grey series first, so highlighted ones draw on top. Washes sit behind every line.
     const washes = svg(doc, "g");
     chart.append(washes);
+    if (banded.length) {
+      const at = (list: (number | null)[]) => banded.map((i) => ({ x: slots[i]?.center ?? 0, y: y(list[i] as number) }));
+      const shade = svg(doc, "path", { class: "fft-band", d: bandPath(at(bandHigh), at(bandLow)) });
+      shade.style.setProperty("fill", seriesColor(0));
+      washes.append(shade);
+    }
     const order = series.map((_, s) => s).sort((a, b) => Number(seriesOn(a)) - Number(seriesOn(b)));
     const edge = (s: number) => rows.map((_, i) => ({ x: slots[i]?.center ?? 0, y: y(tops?.[s]?.[i] ?? 0) }));
     if (stream) drawStream(chart, washes, { series, label: ctx.label, slots, plot, edge, base: rows.map((_, i) => ({ x: slots[i]?.center ?? 0, y: y(floor(i)) })), color: seriesColor });
@@ -234,7 +298,10 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
         band.style.setProperty("fill", seriesColor(s));
         washes.append(band);
       } else if (kind === "area") {
-        const wash = svg(doc, "path", { class: "fft-area", d: areaPath(points, y(Math.max(y.domain[0], Math.min(0, y.domain[1])))) });
+        // With a forecast, the wash splits at the last actual: the forecast's part is fainter, a value not yet real.
+        const floorY = y(Math.max(y.domain[0], Math.min(0, y.domain[1])));
+        const wash = svg(doc, "path", { class: "fft-area", d: areaPath(forecastAt > 0 ? points.map((p, i) => (i < forecastAt ? p : null)) : points, floorY) });
+        if (forecastAt === 0) wash.setAttribute("data-forecast", "");
         if (getPreset(ctx.spec.style?.preset)?.marks?.areaGradient) {
           const id = `fft-gradient-${++gradients}`;
           const gradient = svg(doc, "linearGradient", { id, x1: 0, y1: 0, x2: 0, y2: 1 });
@@ -252,15 +319,44 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
           wash.style.setProperty("fill", seriesColor(s));
         }
         washes.append(wash);
+        if (forecastAt > 0) {
+          const ahead = svg(doc, "path", { class: "fft-area", d: areaPath(points.map((p, i) => (i >= forecastAt - 1 ? p : null)), floorY), "data-forecast": "" });
+          const gradient = wash.getAttribute("fill");
+          if (gradient) {
+            ahead.setAttribute("fill", gradient);
+            ahead.setAttribute("data-gradient", "");
+          } else {
+            ahead.style.setProperty("fill", seriesColor(s));
+          }
+          washes.append(ahead);
+        }
       }
-      const line = svg(doc, "path", { class: "fft-line", d: linePath(points), pathLength: 1 });
-      line.style.setProperty("stroke", seriesColor(s));
-      line.dataset.series = series[s] ?? "";
-      chart.append(line);
+      // Actuals solid; forecasts dashed, picking up from the last actual so the two meet.
+      const solid = forecastAt < 0 ? points : points.map((p, i) => (i < forecastAt ? p : null));
+      const ahead = forecastAt < 0 ? [] : points.map((p, i) => (i >= forecastAt - 1 ? p : null));
+      if (solid.some(Boolean)) {
+        const line = svg(doc, "path", { class: "fft-line", d: linePath(solid), pathLength: 1 });
+        line.style.setProperty("stroke", seriesColor(s));
+        line.dataset.series = series[s] ?? "";
+        chart.append(line);
+      }
+      if (ahead.some(Boolean)) {
+        const line = svg(doc, "path", { class: "fft-line", d: linePath(ahead), "data-forecast": "" });
+        line.style.setProperty("stroke", seriesColor(s));
+        line.dataset.series = series[s] ?? "";
+        chart.append(line);
+      }
       const last = points.findLast((p) => p !== null);
       if (last) {
         const dot = svg(doc, "circle", { class: "fft-dot fft-end", cx: last.x, cy: last.y, r: 4 });
-        dot.style.setProperty("fill", seriesColor(s));
+        // A forecast ends on a hollow dot: a value not yet real.
+        if (ahead.some(Boolean)) {
+          dot.setAttribute("data-forecast", "");
+          dot.style.setProperty("fill", "var(--fft-ring, var(--fft-surface))");
+          dot.style.setProperty("stroke", seriesColor(s));
+        } else {
+          dot.style.setProperty("fill", seriesColor(s));
+        }
         chart.append(dot);
       }
     });
@@ -272,13 +368,24 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
     });
     const sorted = [...placed].sort((a, b) => a.y - b.y);
     const collides = sorted.some((label, i) => i > 0 && label.y - (sorted[i - 1] as { y: number }).y < 13);
+    const taken: number[] = [];
     if (!collides) {
       for (const label of placed) {
         const text = svg(doc, "text", { class: "fft-end-label", x: label.x + 8, y: label.y, "dominant-baseline": "middle" });
         text.textContent = label.text;
         chart.append(text);
+        taken.push(label.y);
       }
     }
+    // The band's two ends, in quieter ink, wherever they clear the line's own end label.
+    bandEnds.forEach((v, k) => {
+      const ty = y(v);
+      if (taken.some((t) => Math.abs(t - ty) < 13)) return;
+      taken.push(ty);
+      const text = svg(doc, "text", { class: "fft-band-label", x: (slots[bandEnd]?.center ?? 0) + 8, y: ty, "dominant-baseline": "middle" });
+      text.textContent = bandEndText[k] ?? "";
+      chart.append(text);
+    });
     chart.append(crosshair);
   }
   drawReferences(doc, references, y, plot, tickText, refsBelow, refsAbove, obstacles);
@@ -298,9 +405,13 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
     const row = rows[i] ?? {};
     const items: TooltipItem[] = series.map((field, s) => ({ label: ctx.label(field), value: ctx.format(row[field], field), color: categoryOn(i) ? seriesColor(s) : DEEMPHASIS }));
     if (stacked) items.push({ label: "Total", value: ctx.format(raw.reduce((sum, seriesValues) => sum + (seriesValues[i] ?? 0), 0), series[0]) });
+    const low = bandLow[i];
+    const high = bandHigh[i];
+    if (band && low != null && high != null && low !== high) items.push({ label: band.label ?? "Range", value: `${ctx.format(low, series[0])} to ${ctx.format(high, series[0])}` });
+    const title = forecastField && isForecast(row[forecastField]) ? `${xLabels[i] ?? ""} (forecast)` : (xLabels[i] ?? "");
     overlayFields.forEach((field, k) => items.push({ label: ctx.label(field), value: ctx.format(row[field], field), color: overlayColor(k) }));
     const hit = svg(doc, "rect", { class: "fft-hit", x: slot.start, y: plot.y, width: slot.width, height: plot.h, tabindex: 0, role: "img" });
-    hit.setAttribute("aria-label", `${xLabels[i]}: ${items.map((item) => `${item.label} ${item.value || "no value"}`).join(", ")}`);
+    hit.setAttribute("aria-label", `${title}: ${items.map((item) => `${item.label} ${item.value || "no value"}`).join(", ")}`);
     const activate = () => {
       wrap.setAttribute("data-active", "");
       markGroups[i]?.setAttribute("data-active", "");
@@ -317,7 +428,7 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
           hoverDots.append(dot);
         });
       }
-      ctx.tooltip.show(hit, xLabels[i] ?? "", items);
+      ctx.tooltip.show(hit, title, items);
     };
     hit.addEventListener("pointerenter", activate);
     hit.addEventListener("focus", activate);
@@ -331,7 +442,7 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
   wrap.append(chart);
   // The same numbers as a table, for screen readers.
   const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, rows, [view.x, ...series], false));
+  hidden.append(buildTable(ctx, rows, [view.x, ...series, ...(band ? [band.low, band.high] : [])], false));
   wrap.append(hidden);
   ctx.el.append(wrap);
 }
