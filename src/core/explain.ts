@@ -76,7 +76,7 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
         const paired = rows.filter((row) => value(row, single) !== null && value(row, goal) !== null);
         const beat = paired.filter((row) => (value(row, single) as number) >= (value(row, goal) as number)).length;
         const each = nameOf(x, spec);
-        if (paired.length) return `Here, ${nameOf(single, spec)} beat the ${nameOf(goal, spec)} in ${beat} of ${paired.length} ${/s$/.test(each) ? each : `${each}s`}.`;
+        if (paired.length) return `Here, ${nameOf(single, spec)} beat the ${nameOf(goal, spec)} in ${beat} of ${paired.length} ${plural(each)}.`;
       }
       const row = single ? top(single) : undefined;
       return row && single ? `Here, ${text(row, x)} ${view.mark === "lollipop" ? "has the highest dot" : "is the tallest"}, with ${text(row, single)}.` : "";
@@ -290,7 +290,14 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       if (!label || !amount || !target) return "";
       const gap = (row: Row) => Math.abs((value(row, amount) ?? 0) - (value(row, target) ?? 0));
       const row = rows.filter((r) => value(r, amount) !== null && value(r, target) !== null).reduce<Row | undefined>((best, r) => (best && gap(best) >= gap(r) ? best : r), undefined);
-      return row ? `Here, ${text(row, label)} is furthest from its ${nameOf(target, spec)}: ${text(row, amount)} against ${text(row, target)}.` : "";
+      if (!row) return "";
+      // In target terms first: how many are over, then the one furthest from its target.
+      const paired = rows.filter((r) => value(r, amount) !== null && value(r, target) !== null);
+      const over = paired.filter((r) => (value(r, amount) as number) > (value(r, target) as number)).length;
+      const [entity, goal] = [nameOf(label, spec), nameOf(target, spec)];
+      const count =
+        over === 0 ? `every ${entity} is at or under its ${goal}` : over === 1 ? `1 of ${paired.length} ${plural(entity)} is over its ${goal}` : `${over} of ${paired.length} ${plural(entity)} are over their ${goal}`;
+      return `Here, ${count}, and ${text(row, label)} is furthest from it: ${text(row, amount)} against ${text(row, target)}.`;
     }
     case "marimekko": {
       const [x, amount] = [one(view.x), one(view.value)];
@@ -318,7 +325,7 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const days = rows.filter((row) => value(row, open) !== null && value(row, close) !== null);
       const up = days.filter((row) => (value(row, close) as number) > (value(row, open) as number)).length;
       const step = timeStep(one(view.x) ?? "");
-      return days.length ? `Here, ${up} of ${days.length} ${step ? `${step}s` : "candles"} went up.` : "";
+      return days.length ? `Here, ${up} of ${days.length} ${step ? plural(step) : "candles"} went up.` : "";
     }
     case "sankey":
     case "chord": {
@@ -402,6 +409,9 @@ function nameOf(field: string, spec: WidgetSpec): string {
   const label = fieldLabel(field, spec.fields);
   return /^[a-z]/.test(field) && /^[A-Z][a-z]*\b/.test(label) ? label[0]?.toLowerCase() + label.slice(1) : label;
 }
+
+/** The plural of a one-word noun: "region" to "regions", "category" to "categories". */
+const plural = (noun: string) => (/[^aeiou]y$/.test(noun) ? `${noun.slice(0, -1)}ies` : /(s|x|ch|sh)$/.test(noun) ? `${noun}es` : `${noun}s`);
 
 /** A share as a whole percentage: 0.8 is "80%". */
 const percent = (share: number) => `${Math.round(share * 100)}%`;

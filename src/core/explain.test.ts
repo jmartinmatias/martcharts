@@ -86,7 +86,13 @@ describe("explainChart", () => {
     const at = (view: Record<string, unknown>, rows: Record<string, unknown>[]) => explainChart({ ...spec(view), locale: "en-US" }, rows);
     expect(at({ type: "waterfall", label: "step", value: "v" }, [{ step: "Start", v: 100 }, { step: "New deals", v: 40 }, { step: "Churn", v: -55 }])).toContain("Here, the biggest step is Churn, at -55.");
     expect(at({ type: "boxplot", value: "v", group: "g" }, [1, 2, 3, 10, 11, 12].map((v, i) => ({ g: i < 3 ? "A" : "B", v })))).toContain("Here, B has the highest middle value, 11.");
-    expect(at({ type: "variance", label: "r", value: "v", target: "budget" }, [{ r: "North", v: 105, budget: 100 }, { r: "South", v: 70, budget: 100 }])).toContain("Here, South is furthest from its budget: 70 against 100.");
+    expect(at({ type: "variance", label: "region", value: "v", target: "budget" }, [{ region: "North", v: 105, budget: 100 }, { region: "South", v: 70, budget: 100 }])).toContain(
+      "Here, 1 of 2 regions is over its budget, and South is furthest from it: 70 against 100.",
+    );
+    expect(at({ type: "variance", label: "region", value: "v", target: "budget" }, [{ region: "North", v: 105, budget: 100 }, { region: "West", v: 130, budget: 100 }, { region: "South", v: 90, budget: 100 }])).toContain(
+      "Here, 2 of 3 regions are over their budget, and West is furthest from it: 130 against 100.",
+    );
+    expect(at({ type: "variance", label: "region", value: "v", target: "budget" }, [{ region: "North", v: 95, budget: 100 }])).toContain("Here, every region is at or under its budget, and North is furthest from it: 95 against 100.");
     expect(at({ type: "marimekko", x: "region", series: "p", value: "v" }, [{ region: "East", p: "a", v: 5 }, { region: "East", p: "b", v: 5 }, { region: "West", p: "a", v: 3 }])).toContain("Here, East is the widest column, with 10.");
     expect(at({ type: "gauge", value: "v", target: "t" }, [{ v: 42, t: 50 }])).toContain("Here, the needle is at 42, short of the goal of 50.");
     expect(at({ type: "bar", x: "region", y: ["a", "b"], stacked: true }, [{ region: "East", a: 5, b: 6 }, { region: "West", a: 4, b: 2 }])).toContain("Here, East has the tallest bar, with 11 in all.");
