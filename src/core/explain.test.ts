@@ -429,6 +429,19 @@ describe("explainChart", () => {
     expect(explainChart({ ...spec({ type: "sunburst", levels: ["product"], value: "revenue" }), locale: "en-US" }, rows)).toContain("Here, Platform is the biggest product, with 67% of the total.");
   });
 
+  test("a row of tiles says which numbers moved the right way since last time, and where a target stands", () => {
+    const fields = { revenue: { label: "Revenue" }, profit: { label: "Gross profit" }, newCustomers: { label: "New customers" }, churn: { label: "Churn" } };
+    const items = [{ value: "revenue", target: "target" }, { value: "profit" }, { value: "newCustomers" }, { value: "churn", goodWhen: "down" }];
+    const rows = [
+      { revenue: 1100, target: 1150, profit: 400, newCustomers: 54, churn: 3.6 },
+      { revenue: 1284, target: 1200, profit: 424, newCustomers: 66, churn: 3.1 },
+    ];
+    const at = (data: Record<string, unknown>[]) => explainChart({ ...spec({ type: "kpis", series: true, items }, fields), locale: "en-US" }, data);
+    expect(at(rows)).toContain("Here, every number moved the right way since last time: revenue, gross profit and new customers went up, and churn went down. Revenue is past its target of 1,200.");
+    const mixed = [rows[0], { ...rows[1], profit: 380, churn: 3.9 }] as Record<string, unknown>[];
+    expect(at(mixed)).toContain("Here, 2 of 4 numbers moved the right way since last time; gross profit and churn did not. Revenue is past its target of 1,200.");
+  });
+
   test("no guide names a hue or a dark shade: presets recolor and dark themes flip, so marks are read by side, shape and fill", () => {
     const guide = (view: Record<string, unknown>) => explainChart({ ...spec(view), locale: "en-US" });
     expect(guide({ type: "variance", label: "department", value: "actual", target: "budget", goodWhen: "down" })).toBe(

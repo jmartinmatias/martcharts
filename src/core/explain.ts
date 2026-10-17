@@ -638,6 +638,41 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const a = value(before, amount) as number;
       return `Here, it is ${text(now, amount)}, ${latest > a ? "up from" : latest < a ? "down from" : "the same as"} ${text(before, amount)}${against}.`;
     }
+    case "kpis": {
+      // Headline tiles: did each number move the right way since last time (down is right for a goodWhen down tile)?
+      const items = (Array.isArray(view.items) ? view.items : []) as { value?: unknown; label?: unknown; goodWhen?: unknown; target?: unknown }[];
+      const [before, now] = view.series ? [rows.at(-2), rows.at(-1)] : [undefined, rows[0]];
+      if (!now || !before || items.length < 2) return "";
+      const named = (item: (typeof items)[number]) => (typeof item.label === "string" && item.label ? item.label.toLowerCase() : nameOf(String(item.value), spec));
+      const moves = items
+        .filter((item) => typeof item.value === "string" && value(now, item.value) !== null && value(before, item.value) !== null)
+        .map((item) => {
+          const field = item.value as string;
+          const change = (value(now, field) as number) - (value(before, field) as number);
+          const direction = change > 0 ? "up" : change < 0 ? "down" : "flat";
+          return { item, direction, right: direction === (item.goodWhen === "down" ? "down" : "up") };
+        });
+      if (moves.length < 2) return "";
+      const right = moves.filter((m) => m.right);
+      const and = (names: string[]) => (names.length > 1 ? `${names.slice(0, -1).join(", ")} and ${names.at(-1)}` : (names[0] ?? ""));
+      let summary: string;
+      if (right.length === moves.length) {
+        const [ups, downs] = [moves.filter((m) => m.direction === "up").map((m) => named(m.item)), moves.filter((m) => m.direction === "down").map((m) => named(m.item))];
+        summary = `Here, every number moved the right way since last time: ${[ups.length ? `${and(ups)} went up` : "", downs.length ? `${and(downs)} went down` : ""].filter(Boolean).join(", and ")}.`;
+      } else {
+        const wrong = moves.filter((m) => !m.right && m.direction !== "flat").map((m) => named(m.item));
+        summary = `Here, ${right.length} of ${moves.length} numbers moved the right way since last time${wrong.length ? `; ${and(wrong)} did not` : ""}.`;
+      }
+      // A tile with a target says where it stands.
+      const targeted = items.find((item) => typeof item.target === "string" && typeof item.value === "string" && value(now, item.target as string) !== null && value(now, item.value as string) !== null);
+      if (!targeted) return summary;
+      const [field, goal] = [targeted.value as string, targeted.target as string];
+      const down = targeted.goodWhen === "down";
+      const met = down ? (value(now, field) as number) <= (value(now, goal) as number) : (value(now, field) as number) >= (value(now, goal) as number);
+      const where = down ? (met ? "under" : "above") : met ? "past" : "short of";
+      const label = named(targeted);
+      return `${summary} ${label.charAt(0).toUpperCase()}${label.slice(1)} is ${where} its target of ${formatValue(value(now, goal), spec.fields?.[field]?.format, spec.locale)}.`;
+    }
     case "table": {
       // The first text column names the rows; the first number column is what they are compared on.
       const columns = many(view.columns).length ? many(view.columns) : Object.keys(rows[0] ?? {});
