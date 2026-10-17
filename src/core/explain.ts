@@ -448,7 +448,7 @@ function guide(spec: WidgetSpec): string {
     case "meter":
       return `Each bar fills up toward its target. A full bar means the goal for ${name(one(view.value))} is reached; the percentage says how close it is.`;
     case "bullet":
-      return "The dark bar is the real number and the thin line is the goal. The grey bands behind show poor, fair and good.";
+      return "The solid bar is the real number and the thin line is the goal. The shaded bands behind show poor, fair and good.";
     case "donut":
       return `The ring is the whole. Each slice is one ${noun(one(view.label))}: the bigger the slice, the bigger its share of ${name(one(view.value))}.`;
     case "treemap":
@@ -492,7 +492,8 @@ function guide(spec: WidgetSpec): string {
     case "waffle":
       return "There are 100 squares, so each colored square is one percent of the whole.";
     case "variance":
-      return `Each bar shows how far one ${name(one(view.label))} is from its ${name(one(view.target), "plan")}. Blue means better, red means worse; the longer the bar, the bigger the gap.`;
+      // Read by side and the written gap, never by color: presets recolor good and bad.
+      return `Each bar shows how far one ${name(one(view.label))} is from its ${name(one(view.target), "plan")}: to the right when above it, to the left when below, with the gap written beside it. ${view.goodWhen === "down" ? "Below" : "Above"} the ${name(one(view.target), "plan")} is better. The longer the bar, the bigger the gap.`;
     case "gauge":
       return "The needle points to the number on a scale from low to high. The small mark on the arc is the goal.";
     case "pareto":
@@ -517,7 +518,7 @@ function guide(spec: WidgetSpec): string {
     case "rose":
       return `Each slice is one ${name(one(view.label))}, going round like a clock. The bigger a slice's area, the more ${series.length > 1 ? `in that ${name(one(view.label))}` : name(series[0])}.${series.length > 1 ? ` The colors are ${both(series.map((f) => name(f)))}, stacked from the center out.` : ""}`;
     case "horizon":
-      return `Each row is one of ${series.length > 1 && series.length <= 8 ? either(series.map((f) => name(f))) : "the series"}, ${over(one(view.x))}. Blue rises from the bottom of its row when above the baseline, and red hangs from the top when below; the stronger the shade, the further away it is.`;
+      return `Each row is one of ${series.length > 1 && series.length <= 8 ? either(series.map((f) => name(f))) : "the series"}, ${over(one(view.x))}. Values above the baseline rise from the bottom of the row, and values below hang from its top; the stronger the shade, the further away it is.`;
     case "icicle":
       return `The first column is the total. Each column to the right splits the boxes into smaller parts: the taller the box, the more ${name(one(view.value))}.`;
     case "list":

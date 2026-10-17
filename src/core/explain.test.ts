@@ -143,6 +143,21 @@ describe("explainChart", () => {
     expect(texts[0]).toContain("The stronger the color, the more orders; the key under the chart shows the scale. Here, the top day is Sep 15, 2026, with 225.");
   });
 
+  test("no guide names a hue or a dark shade: presets recolor and dark themes flip, so marks are read by side, shape and fill", () => {
+    const guide = (view: Record<string, unknown>) => explainChart({ ...spec(view), locale: "en-US" });
+    expect(guide({ type: "variance", label: "department", value: "actual", target: "budget", goodWhen: "down" })).toBe(
+      "Each bar shows how far one department is from its budget: to the right when above it, to the left when below, with the gap written beside it. Below the budget is better. The longer the bar, the bigger the gap.",
+    );
+    expect(guide({ type: "variance", label: "region", value: "revenue", target: "target" })).toContain(" Above the target is better.");
+    expect(guide({ type: "bullet", label: "kpi", value: "actual", target: "target" })).toBe("The solid bar is the real number and the thin line is the goal. The shaded bands behind show poor, fair and good.");
+    expect(guide({ type: "horizon", x: "day", y: ["a", "b"] })).toBe(
+      "Each row is one of A or B, day by day. Values above the baseline rise from the bottom of the row, and values below hang from its top; the stronger the shade, the further away it is.",
+    );
+    const views = ["variance", "bullet", "horizon", "candlestick", "heatmap", "calendar", "waterfall", "kpi", "bar", "line"];
+    const all = views.map((type) => guide({ type, x: "day", y: ["a", "b"], label: "l", value: "v", target: "t", open: "o", high: "h", low: "l", close: "c" }));
+    expect(all.filter((t) => /\b(blue|red|green|orange|purple|pink|dark)\b/i.test(t))).toEqual([]);
+  });
+
   test("proofread: entries not names, small multiples, changes between periods, sorting only when on", () => {
     const at = (view: Record<string, unknown>, rows: Record<string, unknown>[] = [], extra: Partial<WidgetSpec> = {}) => explainChart({ ...spec(view), locale: "en-US", ...extra }, rows);
     expect(at({ type: "treemap", label: "name", value: "revenue" })).toContain("Each box is one entry.");

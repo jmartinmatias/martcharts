@@ -172,7 +172,7 @@ export function explainVariant(spec: WidgetSpec, chartTitle: string, rowName?: s
     case "horizon":
       form = "thin folded rows";
       mark = "each row is one series";
-      read = "Blue means above zero and red below; a stronger color means further from zero.";
+      read = "Shapes rising from a row's foot are above zero and shapes hanging from its top are below; a stronger shade means further from zero.";
       break;
     case "bump":
       form = "a ranking race";
