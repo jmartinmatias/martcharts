@@ -79,7 +79,7 @@ const singular = (noun: string) => (/ies$/.test(noun) ? `${noun.slice(0, -3)}y` 
 /** The plural of a one-word noun ("region" to "regions"); undefined for several words, which read badly forced into a plural. */
 const plural = (noun: string): string | undefined => (/\s/.test(noun) ? undefined : /[^aeiou]y$/.test(noun) ? `${noun.slice(0, -1)}ies` : /(s|x|ch|sh)$/.test(noun) ? `${noun}es` : `${noun}s`);
 /** Whether a measure reads as plural: "orders", "people", "customers won", but not "revenue", "NPS" or "deal value". */
-const isPlural = (name: string) => {
+export const isPlural = (name: string) => {
   const words = name.split(" ");
   return [words[0] ?? "", words.at(-1) ?? ""].some((word) => /^people$/i.test(word) || (/[^s]s$/.test(word) && word !== word.toUpperCase()));
 };

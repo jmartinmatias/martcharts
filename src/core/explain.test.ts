@@ -226,6 +226,19 @@ describe("explainChart", () => {
     expect(noBand).toContain("and is expected to reach 1,500 by Mar.");
   });
 
+  test("a scatter answers whether the two numbers move together, in plain words, before naming the highest dot", () => {
+    const at = (rows: Record<string, unknown>[]) =>
+      explainChart({ ...spec({ type: "scatter", x: "days", y: "value", label: "deal" }, { days: { label: "Days to close" }, value: { label: "Deal value" } }), locale: "en-US" }, rows);
+    const rising = Array.from({ length: 8 }, (_, i) => ({ deal: `D${i}`, days: 10 + i * 10, value: 50 + i * 20 }));
+    expect(at(rising)).toContain("Here, when days to close go up, deal value clearly goes up too. D7 sits highest, with the most deal value.");
+    const loose = [10, 20, 30, 40, 50, 60, 70, 80].map((days, i) => ({ deal: `D${i}`, days, value: [60, 40, 90, 50, 70, 110, 60, 100][i] }));
+    expect(at(loose)).toContain("Here, more days to close tends to come with more deal value, but not always.");
+    const flat = [10, 20, 30, 40, 50, 60, 70, 80].map((days, i) => ({ deal: `D${i}`, days, value: [70, 40, 90, 60, 50, 80, 40, 70][i] }));
+    expect(at(flat)).toContain("Here, days to close and deal value barely move together.");
+    const falling = rising.map((row) => ({ ...row, value: 300 - (row.value as number) }));
+    expect(at(falling)).toContain("Here, when days to close go up, deal value clearly goes down.");
+  });
+
   test("no guide names a hue or a dark shade: presets recolor and dark themes flip, so marks are read by side, shape and fill", () => {
     const guide = (view: Record<string, unknown>) => explainChart({ ...spec(view), locale: "en-US" });
     expect(guide({ type: "variance", label: "department", value: "actual", target: "budget", goodWhen: "down" })).toBe(

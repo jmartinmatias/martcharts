@@ -9,6 +9,7 @@
 import { fieldLabel, formatValue, timeStep } from "./display.ts";
 import { readNumber } from "./formats.ts";
 import { binValues, sturges } from "./scale.ts";
+import { isPlural } from "./question.ts";
 import type { Row, WidgetSpec } from "./types.ts";
 
 type View = Record<string, unknown> & { type: string };
@@ -177,9 +178,24 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       return row && (totals[best] ?? 0) > 0 ? `Here, ${text(row, label)} is the biggest slice.` : "";
     }
     case "scatter": {
-      const [label, y] = [one(view.label), one(view.y)];
+      const [label, x, y] = [one(view.label), one(view.x), one(view.y)];
+      // The question a scatter asks is whether the two numbers move together: answer that first, in plain words.
+      const pairs = x && y ? rows.map((row) => [value(row, x), value(row, y)]).filter((pair): pair is [number, number] => pair[0] !== null && pair[1] !== null) : [];
+      let link = "";
+      if (x && y && pairs.length >= 5) {
+        const r = correlation(pairs);
+        const [across, up] = [nameOf(x, spec), nameOf(y, spec)];
+        const goes = (name: string) => (isPlural(name) ? "go" : "goes");
+        if (r >= 0.6) link = `when ${across} ${goes(across)} up, ${up} clearly ${goes(up)} up too.`;
+        else if (r >= 0.25) link = `more ${across} tends to come with more ${up}, but not always.`;
+        else if (r <= -0.6) link = `when ${across} ${goes(across)} up, ${up} clearly ${goes(up)} down.`;
+        else if (r <= -0.25) link = `more ${across} tends to come with less ${up}, but not always.`;
+        else link = `${across} and ${up} barely move together.`;
+      }
       const row = label && y ? top(y) : undefined;
-      return row && label && y ? `Here, ${text(row, label)} sits highest, with the most ${fieldLabel(y, spec.fields).toLowerCase()}.` : "";
+      const highest = row && label && y ? `${text(row, label)} sits highest, with the most ${nameOf(y, spec)}.` : "";
+      if (link) return `Here, ${link}${highest ? ` ${highest.charAt(0).toUpperCase()}${highest.slice(1)}` : ""}`;
+      return highest ? `Here, ${highest}` : "";
     }
     case "calendar": {
       const [date, amount] = [one(view.date), one(view.value)];
@@ -459,6 +475,19 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
 function nameOf(field: string, spec: WidgetSpec): string {
   const label = fieldLabel(field, spec.fields);
   return /^[a-z]/.test(field) && /^[A-Z][a-z]*\b/.test(label) ? label[0]?.toLowerCase() + label.slice(1) : label;
+}
+
+/** How closely two numbers move together, from -1 (one up, the other down) through 0 (no link) to 1 (up together). */
+function correlation(pairs: [number, number][]): number {
+  const n = pairs.length;
+  const [mx, my] = [pairs.reduce((sum, [a]) => sum + a, 0) / n, pairs.reduce((sum, [, b]) => sum + b, 0) / n];
+  let [sxy, sxx, syy] = [0, 0, 0];
+  for (const [a, b] of pairs) {
+    sxy += (a - mx) * (b - my);
+    sxx += (a - mx) ** 2;
+    syy += (b - my) ** 2;
+  }
+  return sxx > 0 && syy > 0 ? sxy / Math.sqrt(sxx * syy) : 0;
 }
 
 /** The plural of a one-word noun: "region" to "regions", "category" to "categories". */
