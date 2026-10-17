@@ -3,7 +3,7 @@ import type { Row } from "../../core/types.ts";
 import type { ViewRenderer } from "../../core/view-context.ts";
 import type { CalendarView } from "../../core/views.ts";
 import { quantize } from "../layout.ts";
-import { DAY, dayOf, html, selectable, svg } from "./shared.ts";
+import { DAY, dayOf, hiddenTable, html, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
 
 const STEPS = 7;
@@ -98,6 +98,11 @@ export const renderCalendar: ViewRenderer<CalendarView> = (ctx) => {
   legend.append(html(doc, "span", undefined, ctx.format(min, value)), ramp, html(doc, "span", undefined, ctx.format(max, value)));
   // Weeks run across, days down: left and right move a week, up and down a day.
   roving([...chart.querySelectorAll(".fft-day[data-step]")], { across: 7, down: 1 });
-  wrap.append(chart, legend);
+  // Every day with a value as a table for screen readers.
+  const listed = [...days.keys()].sort((a, b) => a - b).flatMap((day) => {
+    const entry = days.get(day);
+    return entry && entry.amount !== null ? [[longDate.format(new Date(day * DAY)), ctx.format(entry.row[value], value)]] : [];
+  });
+  wrap.append(chart, legend, hiddenTable(doc, [ctx.label(date), ctx.label(value)], listed));
   ctx.el.append(wrap);
 };

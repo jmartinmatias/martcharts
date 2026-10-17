@@ -18,6 +18,7 @@ export const renderBullet: ViewRenderer<BulletView> = (ctx) => {
   const ranges = Array.isArray(ctx.view.ranges) && ctx.view.ranges.length === 3 ? ctx.view.ranges : DEFAULT_RANGES;
   const share = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 0 });
   const list = html(doc, "div", "fft-bullets");
+  list.setAttribute("role", "list");
   ctx.rows.forEach((row, i) => {
     const actual = readNumber(row[value]);
     const goal = readNumber(row[target]);
@@ -25,6 +26,7 @@ export const renderBullet: ViewRenderer<BulletView> = (ctx) => {
     const domain = Math.max(actual ?? 0, (goal ?? 0) * (ranges[2] ?? 1.2), goal ?? 0) || 1;
 
     const item = html(doc, "div", "fft-bullet");
+    item.setAttribute("role", "listitem");
     item.tabIndex = 0;
     item.style.setProperty("--fft-i", String(i));
     const chart = svg(doc, "svg", { height: 21, preserveAspectRatio: "none" });

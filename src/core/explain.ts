@@ -500,7 +500,7 @@ function guide(spec: WidgetSpec): string {
     case "rose":
       return `Each slice is one ${name(one(view.label))}, going round like a clock. The bigger a slice's area, the more ${series.length > 1 ? `in that ${name(one(view.label))}` : name(series[0])}.${series.length > 1 ? ` The colors are ${both(series.map((f) => name(f)))}, stacked from the center out.` : ""}`;
     case "horizon":
-      return `Each row is one of ${series.length > 1 && series.length <= 8 ? either(series.map((f) => name(f))) : "the series"}, ${over(one(view.x))}. Blue means above the baseline and red means below; the darker the shade, the further away it is.`;
+      return `Each row is one of ${series.length > 1 && series.length <= 8 ? either(series.map((f) => name(f))) : "the series"}, ${over(one(view.x))}. Blue rises from the bottom of its row when above the baseline, and red hangs from the top when below; the darker the shade, the further away it is.`;
     case "icicle":
       return `The first column is the total. Each column to the right splits the boxes into smaller parts: the taller the box, the more ${name(one(view.value))}.`;
     case "list":

@@ -2082,7 +2082,7 @@ describe("horizon view", () => {
 
   test("the key says what a shade is worth and which side is which", async () => {
     await draw(spec);
-    expect(texts(".fft-horizon-key-text")).toEqual(["Above 0", "Below 0", "Each shade 30"]);
+    expect(texts(".fft-horizon-key-text")).toEqual(["Above 0, rising", "Below 0, hanging", "Each shade 30"]);
   });
 
   test("pointing at a day lists every series there", async () => {

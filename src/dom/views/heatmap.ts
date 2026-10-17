@@ -3,7 +3,7 @@ import type { Row } from "../../core/types.ts";
 import type { ViewRenderer } from "../../core/view-context.ts";
 import type { HeatmapView } from "../../core/views.ts";
 import { quantize } from "../layout.ts";
-import { html, selectable } from "./shared.ts";
+import { hiddenTable, html, selectable } from "./shared.ts";
 import { roving } from "./focus.ts";
 
 /** Steps in the sequential scale. */
@@ -82,6 +82,18 @@ export const renderHeatmap: ViewRenderer<HeatmapView> = (ctx) => {
   const focusable = [...grid.querySelectorAll(".fft-cell:not(.fft-cell-empty)")];
   // A complete grid moves by rows with up and down; a sparse one moves cell to cell.
   roving(focusable, focusable.length === columns.length * lines.length ? { down: columns.length } : {});
-  wrap.append(grid, legend);
+  // The grid as a table for screen readers: one row per line, one column per column.
+  const table = hiddenTable(
+    doc,
+    [ctx.label(y), ...columns.map((column) => sample(column, x))],
+    lines.map((line) => [
+      sample(line, y),
+      ...columns.map((column) => {
+        const row = cells.get(JSON.stringify([line, column]));
+        return row ? ctx.format(row[value], value) : "";
+      }),
+    ]),
+  );
+  wrap.append(grid, legend, table);
   ctx.el.append(wrap);
 };

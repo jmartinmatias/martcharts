@@ -120,10 +120,10 @@ const DARK = `
   --fft-seq-text-1: #ffffff;
   --fft-seq-2: #1c5cab;
   --fft-seq-text-2: #ffffff;
-  --fft-seq-3: #2a78d6;
+  --fft-seq-3: #2674d2;
   --fft-seq-text-3: #ffffff;
   --fft-seq-4: #3987e5;
-  --fft-seq-text-4: #ffffff;
+  --fft-seq-text-4: #0b0b0b;
   --fft-seq-5: #6da7ec;
   --fft-seq-text-5: #0b0b0b;
   --fft-seq-6: #9ec5f4;
@@ -148,11 +148,11 @@ const LIGHT = `
   --fft-stream-fill: 0.62;
   --fft-text: #0b0b0b;
   --fft-text-secondary: #52514e;
-  --fft-muted: #898781;
+  --fft-muted: #75736d;
   --fft-grid: #e1e0d9;
   --fft-axis: #c3c2b7;
   --fft-border: rgba(11, 11, 11, 0.10);
-  --fft-accent: #2a78d6;
+  --fft-accent: #2372cf;
   --fft-positive: #006300;
   --fft-negative: #d03b3b;
   --fft-warning: #8a5a00;
@@ -167,7 +167,7 @@ const LIGHT = `
   --fft-seq-3: #6da7ec;
   --fft-seq-text-3: #0b0b0b;
   --fft-seq-4: #3987e5;
-  --fft-seq-text-4: #ffffff;
+  --fft-seq-text-4: #0b0b0b;
   --fft-seq-5: #256abf;
   --fft-seq-text-5: #ffffff;
   --fft-seq-6: #184f95;
@@ -176,14 +176,24 @@ const LIGHT = `
   --fft-seq-text-7: #ffffff;
   --fft-series-1: #2a78d6;
   --fft-series-2: #eb6834;
-  --fft-series-3: #1baf7a;
-  --fft-series-4: #eda100;
-  --fft-series-5: #e87ba4;
+  --fft-series-3: #00a470;
+  --fft-series-4: #c38300;
+  --fft-series-5: #d86d96;
   --fft-series-6: #008300;
   --fft-series-7: #6250d6;
   --fft-series-8: #e34948;
   --fft-shadow: 0 1px 2px rgba(11, 11, 11, 0.04), 0 3px 13px rgba(11, 11, 11, 0.04);
 `;
+
+/** The base theme tokens as name to value, without the --fft- prefix: for contrast checks and docs. */
+export function themeTokens(scheme: "light" | "dark"): Record<string, string> {
+  return parseTokens(scheme === "dark" ? DARK : LIGHT);
+}
+
+/** `--fft-name: value;` declarations in a block of CSS, as name to value. */
+export function parseTokens(css: string): Record<string, string> {
+  return Object.fromEntries([...css.matchAll(/--fft-([\w-]+):\s*([^;]+);/g)].map((m) => [m[1] as string, (m[2] as string).trim()]));
+}
 
 /**
  * The base stylesheet. Exported so server-rendered pages can inline it.
@@ -290,16 +300,16 @@ export const BASE_CSS = `
 .fft-base { display: flex; align-items: baseline; gap: 13px; min-width: 0; }
 .fft-base[hidden] { display: none; }
 .fft-base .fft-footer { flex: 1; min-width: 0; }
-/* Ghost ref: a faint mono code, clearer when the card is reached for, a click away from the clipboard. */
+/* Ghost ref: the quietest text on the card, kept quiet by size, a light weight and wide spacing rather than by fading,
+   so it still reads at 4.5:1; clearer when reached for, a click away from the clipboard. */
 .fft-widget-ref {
   margin: 0 -5px 0 auto; padding: 2px 5px; border: 0; border-radius: 5px; background: none;
-  font: 500 10px/13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: 0.08em;
-  color: var(--fft-muted); opacity: 0.38; cursor: copy; white-space: nowrap;
-  transition: opacity 233ms var(--fft-ease), color 233ms var(--fft-ease), background-color 233ms var(--fft-ease);
+  font: 400 10px/13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: 0.08em;
+  color: var(--fft-muted); cursor: copy; white-space: nowrap;
+  transition: color 233ms var(--fft-ease), background-color 233ms var(--fft-ease);
 }
 .fft-widget-ref[hidden] { display: none; }
-.fft-widget:hover .fft-widget-ref { opacity: 0.72; }
-.fft-widget-ref:hover, .fft-widget-ref:focus-visible { opacity: 1; color: var(--fft-text-secondary); background: color-mix(in srgb, var(--fft-text) 6%, transparent); outline: none; }
+.fft-widget-ref:hover, .fft-widget-ref:focus-visible { color: var(--fft-text-secondary); background: color-mix(in srgb, var(--fft-text) 6%, transparent); outline: none; }
 .fft-widget-ref:focus-visible { box-shadow: 0 0 0 2px var(--fft-accent); }
 .fft-widget-ref[data-done]::after { content: " copied"; letter-spacing: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
 .fft-widget-ref[data-failed] { color: var(--fft-negative); }
@@ -347,7 +357,8 @@ export const BASE_CSS = `
 }
 
 .fft-tooltip {
-  position: absolute; z-index: 10; pointer-events: none;
+  /* It takes the pointer, so it can be hovered while it is read (WCAG 1.4.13). */
+  position: absolute; z-index: 10;
   --fft-tip-bg: var(--fft-popover, var(--fft-surface));
   min-width: 144px; max-width: 233px; padding: 8px 13px;
   background: var(--fft-tip-bg); color: var(--fft-text);
@@ -547,6 +558,8 @@ export const BASE_CSS = `
 .fft-chart[data-active] .fft-candle:not([data-active]) { opacity: 0.38; }
 .fft-candle-wick { stroke: var(--fft-candle-color); stroke-width: 1.5; pointer-events: none; }
 .fft-candle-body { fill: var(--fft-candle-color); pointer-events: none; }
+/* Up candles are hollow, down candles filled: direction reads without color (WCAG 1.4.1). */
+.fft-candle[data-tone="up"] .fft-candle-body { fill: var(--fft-ring, var(--fft-surface)); stroke: var(--fft-candle-color); stroke-width: 1.5; }
 .fft-candle-average { fill: none; stroke: var(--fft-text-secondary); stroke-width: 1.5; stroke-linejoin: round; pointer-events: none; }
 .fft-candle-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-candle-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 8%, transparent); }
@@ -702,7 +715,8 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
   display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px 2px 5px; border-radius: 13px;
   font-size: 11px; line-height: 13px; font-weight: 500; white-space: nowrap;
   --fft-tone: var(--fft-muted);
-  color: var(--fft-tone);
+  /* The tone deepened toward the text color, so it reads at 4.5:1 on its own tint in every theme. */
+  color: color-mix(in srgb, var(--fft-tone) 72%, var(--fft-text));
   background: color-mix(in srgb, var(--fft-tone) 13%, transparent);
 }
 .fft-badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
@@ -821,7 +835,7 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-slope-label { font-size: 11px; font-variant-numeric: tabular-nums; pointer-events: none; transition: opacity 233ms var(--fft-ease); }
 .fft-slope-name { fill: var(--fft-text-secondary); }
 .fft-slope-value { fill: var(--fft-text); font-weight: 600; }
-.fft-slope[data-muted] .fft-slope-label { opacity: 0.62; }
+.fft-slope[data-muted] .fft-slope-label, .fft-slope[data-muted] .fft-slope-label tspan { fill: var(--fft-muted); }
 .fft-slope-hit { fill: none; stroke: transparent; stroke-width: 13; stroke-linecap: round; cursor: pointer; outline: none; pointer-events: stroke; }
 .fft-slope-hit:focus-visible { stroke: color-mix(in srgb, var(--fft-accent) 21%, transparent); }
 .fft-chart[data-active] .fft-slope:not([data-active]) :is(.fft-slope-line, .fft-slope-dot, .fft-slope-label) { opacity: 0.21; }
@@ -831,7 +845,7 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-bump-label { font-size: 11px; font-variant-numeric: tabular-nums; pointer-events: none; transition: opacity 233ms var(--fft-ease); }
 .fft-bump-name { fill: var(--fft-text-secondary); }
 .fft-bump-rank { fill: var(--fft-text); font-weight: 600; }
-.fft-bump[data-muted] .fft-bump-label { opacity: 0.62; }
+.fft-bump[data-muted] .fft-bump-label, .fft-bump[data-muted] .fft-bump-label tspan { fill: var(--fft-muted); }
 .fft-bump-hit { fill: none; stroke: transparent; stroke-width: 13; stroke-linecap: round; cursor: pointer; outline: none; pointer-events: stroke; }
 .fft-bump-hit:focus-visible { stroke: color-mix(in srgb, var(--fft-accent) 21%, transparent); }
 .fft-chart[data-active] .fft-bump:not([data-active]) :is(.fft-bump-line, .fft-bump-dot, .fft-bump-label) { opacity: 0.21; }
@@ -911,17 +925,20 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
   transition: background 233ms var(--fft-ease), color 233ms var(--fft-ease), box-shadow 233ms var(--fft-ease);
 }
 .fft-range button:hover { color: var(--fft-text); }
-.fft-range button[aria-pressed="true"] { color: var(--fft-text); background: var(--fft-raised, var(--fft-surface)); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16), 0 0 0 1px var(--fft-border); }
+/* The chosen period: raised, and an accent bar along its foot, a cue that is not color alone (WCAG 1.4.1, 1.4.11). */
+.fft-range button[aria-pressed="true"] { color: var(--fft-text); background: var(--fft-raised, var(--fft-surface)); box-shadow: inset 0 -2px 0 var(--fft-accent), 0 1px 3px rgba(0, 0, 0, 0.16), 0 0 0 1px var(--fft-border); }
 .fft-range button:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 1px; }
 /* Section filter: quiet chips at the end of the filter row, All first, the chosen one filled. */
 .fft-board-nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 2px; min-width: 0; margin-left: auto; scroll-behavior: smooth; }
 .fft-board-nav button {
-  display: inline-flex; align-items: center; padding: 2px 8px; border: 0; border-radius: 13px; background: transparent; cursor: pointer;
+  display: inline-flex; flex-direction: column; align-items: center; padding: 2px 8px; border: 0; border-radius: 13px; background: transparent; cursor: pointer;
   font: inherit; font-size: 11px; line-height: 21px; white-space: nowrap; color: var(--fft-text-secondary);
   transition: background 233ms var(--fft-ease), color 233ms var(--fft-ease);
 }
 @media (hover: hover) { .fft-board-nav button:hover { color: var(--fft-text); background: color-mix(in srgb, var(--fft-text) 5%, transparent); } }
-.fft-board-nav button[aria-pressed="true"] { color: var(--fft-text); background: color-mix(in srgb, var(--fft-text) 8%, transparent); }
+/* The chosen section turns semibold, a cue that is not color alone (WCAG 1.4.1); every chip reserves that width. */
+.fft-board-nav button[aria-pressed="true"] { color: var(--fft-text); font-weight: 600; background: color-mix(in srgb, var(--fft-text) 8%, transparent); }
+.fft-board-nav button::after { content: attr(data-label); content: attr(data-label) / ""; height: 0; overflow: hidden; visibility: hidden; font-weight: 600; }
 .fft-board-nav button:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: -2px; }
 /* A chosen section: the rest of the grid hides, and its heading leads the board without the divider above it. */
 .fft-dashboard-grid > [hidden] { display: none; }
@@ -932,9 +949,11 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-board-section { display: flex; flex-wrap: wrap; align-items: baseline; gap: 3px 13px; margin-top: 21px; padding-top: 21px; border-top: 1px solid var(--fft-border); scroll-margin-top: 21px; }
 .fft-board-section:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
 .fft-board-section h3 { margin: 0; font-size: 11px; line-height: 21px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fft-text-secondary); }
-.fft-board-section p { margin: 0; font-size: 13px; color: var(--fft-muted); }
+.fft-board-section p { margin: 0; font-size: 13px; color: var(--fft-text-secondary); }
 /* A jumped-to section lands clear of the pinned row: its height comes from the runtime, with a fallback until measured. */
 .fft-dashboard[data-sticky] .fft-board-section { scroll-margin-top: calc(var(--fft-filters-height, 89px) + 13px); }
+/* Under a pinned filter row, the page scroll-pads by its height, so whatever takes focus is scrolled clear of it (WCAG 2.4.11). */
+:root:has(.fft-dashboard[data-sticky]) { scroll-padding-top: calc(var(--fft-filters-height, 89px) + 13px); }
 .fft-cell-missing { margin: 0; padding: 21px; border: 1px dashed var(--fft-axis); border-radius: 13px; color: var(--fft-text-secondary); text-align: center; }
 @media (max-width: 1100px) {
   .fft-dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }

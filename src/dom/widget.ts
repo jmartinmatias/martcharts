@@ -133,7 +133,8 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
   const actionButton = (label: string, paths: readonly string[]) => {
     if (!bar) {
       bar = make("div", "fft-actions");
-      root.append(bar);
+      // Right after the header, so Tab meets the toolbar before the chart, as it reads (WCAG 2.4.3).
+      root.insertBefore(bar, headlineEl);
     }
     const button = make("button", "fft-action");
     button.type = "button";
@@ -212,6 +213,15 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
   // pointerover comes before pointerenter, so tapping another mark clears the old one before the new one lights up.
   doc.addEventListener("pointerover", release, true);
   doc.addEventListener("pointerdown", press, true);
+  // Escape dismisses a showing tooltip without moving focus or the pointer (WCAG 1.4.13). It stops there, so a
+  // dialog the widget sits in stays open; the next Escape closes the dialog.
+  const dismissTip = (event: KeyboardEvent) => {
+    if (event.key !== "Escape" || tip.hidden) return;
+    tip.hidden = true;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  };
+  doc.addEventListener("keydown", dismissTip, true);
 
   const resize =
     typeof ResizeObserver === "undefined"
@@ -270,6 +280,9 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     if (current.title) root.setAttribute("aria-labelledby", title.id);
     else root.removeAttribute("aria-labelledby");
     applyStyle(root, current.style);
+    // The widget's text is in its locale's language, for screen reader pronunciation (WCAG 3.1.2).
+    if (current.locale) root.lang = current.locale;
+    else root.removeAttribute("lang");
     root.dataset.view = typeof current.view?.type === "string" ? current.view.type : "";
   }
 
@@ -522,6 +535,15 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     };
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") close();
+      // Tab stays inside the dialog: past its last control it comes back to the first, and the other way round.
+      else if (event.key === "Tab") {
+        const stops = [...overlay.querySelectorAll<HTMLElement>("button:not([disabled]), [tabindex='0'], select, a[href]")].filter((el) => !el.closest("[hidden]"));
+        const edge = event.shiftKey ? stops[0] : stops.at(-1);
+        if (stops.length && (doc.activeElement === edge || !overlay.contains(doc.activeElement))) {
+          event.preventDefault();
+          (event.shiftKey ? stops.at(-1) : stops[0])?.focus();
+        }
+      }
       // A chart inside uses the arrows to move between its marks; only an unused arrow steps between widgets.
       else if (nav && !event.defaultPrevented && (event.key === "ArrowRight" || event.key === "ArrowLeft")) step(event.key === "ArrowRight" ? 1 : -1);
     };
@@ -636,6 +658,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       resize?.disconnect();
       doc.removeEventListener("pointerover", release, true);
       doc.removeEventListener("pointerdown", press, true);
+      doc.removeEventListener("keydown", dismissTip, true);
       clearBody();
       root.remove();
     },
@@ -648,8 +671,33 @@ function errorMessage(caught: unknown): string {
 }
 
 /** The widget's single tooltip. Text only: labels often come from data, so nothing is parsed as HTML. */
+/** How long a tooltip waits after the mouse leaves its mark, so the mouse can reach it (WCAG 1.4.13, hoverable). */
+const TIP_GRACE = 144;
+
 function createTooltip(root: HTMLElement, tip: HTMLElement): Tooltip {
   const doc = root.ownerDocument;
+  // A mouse leaving a mark gives the tooltip a moment: if the mouse reaches it, it stays until the mouse leaves it.
+  // Every other hide (blur, a tap elsewhere, a redraw) is immediate.
+  let closing: ReturnType<typeof setTimeout> | undefined;
+  let hovered = false;
+  let mouseLeaving = false;
+  root.addEventListener(
+    "pointerleave",
+    (event) => {
+      if ((event as PointerEvent).pointerType !== "mouse") return;
+      mouseLeaving = true;
+      queueMicrotask(() => (mouseLeaving = false));
+    },
+    true,
+  );
+  tip.addEventListener("pointerenter", () => {
+    hovered = true;
+    clearTimeout(closing);
+  });
+  tip.addEventListener("pointerleave", () => {
+    hovered = false;
+    tip.hidden = true;
+  });
   const span = (className: string, text?: string) => {
     const node = doc.createElement("span");
     node.className = className;
@@ -658,6 +706,7 @@ function createTooltip(root: HTMLElement, tip: HTMLElement): Tooltip {
   };
   return {
     show(anchor: Element, title: string, items: TooltipItem[], options: { below?: boolean } = {}) {
+      clearTimeout(closing);
       const heading = doc.createElement("div");
       heading.className = "fft-tooltip-title";
       heading.textContent = title;
@@ -689,6 +738,14 @@ function createTooltip(root: HTMLElement, tip: HTMLElement): Tooltip {
       tip.style.top = `${(options.below ? box.bottom : box.top) - frame.top}px`;
     },
     hide() {
+      clearTimeout(closing);
+      if (mouseLeaving && !tip.hidden) {
+        closing = setTimeout(() => {
+          if (!hovered) tip.hidden = true;
+        }, TIP_GRACE);
+        return;
+      }
+      hovered = false;
       tip.hidden = true;
     },
   };

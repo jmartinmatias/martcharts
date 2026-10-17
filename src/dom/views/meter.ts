@@ -14,6 +14,7 @@ export const renderMeter: ViewRenderer<MeterView> = (ctx) => {
   const { value: valueField, target: targetField, label: labelField } = ctx.view;
   const percent = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 0 });
   const list = html(doc, "div", "fft-meters");
+  list.setAttribute("role", "list");
   for (const row of ctx.rows) {
     const value = readNumber(row[valueField]);
     const target = readNumber(row[targetField]);
@@ -22,6 +23,7 @@ export const renderMeter: ViewRenderer<MeterView> = (ctx) => {
     const percentText = ratio === null ? "" : percent.format(ratio);
 
     const meter = html(doc, "div", "fft-meter");
+    meter.setAttribute("role", "listitem");
     if (ratio !== null && ratio > 1) meter.dataset.over = "true";
     const head = html(doc, "div", "fft-meter-head");
     head.append(html(doc, "span", "fft-meter-label", name), html(doc, "span", "fft-meter-percent", percentText));

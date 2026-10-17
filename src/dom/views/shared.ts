@@ -119,6 +119,33 @@ export function columnContext(ctx: ViewContext<{ type: string }>, rows: Row[], c
   return out;
 }
 
+/**
+ * A table for screen readers only (WCAG 1.3.1): a header row, then one row per entry whose first cell names it.
+ * For views whose data is not plain rows of fields, such as a grid or a summary per group.
+ */
+export function hiddenTable(doc: Document, headers: string[], rows: string[][]): HTMLElement {
+  const hidden = html(doc, "div", "fft-sr-only");
+  const table = html(doc, "table");
+  const head = html(doc, "tr");
+  for (const text of headers) {
+    const th = html(doc, "th", undefined, text);
+    th.setAttribute("scope", "col");
+    head.append(th);
+  }
+  table.append(head);
+  for (const cells of rows) {
+    const tr = html(doc, "tr");
+    cells.forEach((text, i) => {
+      const cell = html(doc, i === 0 ? "th" : "td", undefined, text);
+      if (i === 0) cell.setAttribute("scope", "row");
+      tr.append(cell);
+    });
+    table.append(tr);
+  }
+  hidden.append(table);
+  return hidden;
+}
+
 export function buildTable(ctx: ViewContext<{ type: string }>, rows: Row[], columns: string[], interactive: boolean): HTMLTableElement {
   const doc = ctx.el.ownerDocument;
   const table = html(doc, "table", "fft-table");

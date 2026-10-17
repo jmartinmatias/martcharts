@@ -30,8 +30,9 @@ const shade = (sign: Sign, band: number, count: number) =>
 /**
  * Draws the `horizon` view: one thin row per series. Each value's distance
  * from the baseline is cut into bands one round step tall, and the bands are
- * folded down into the row, each deeper in color than the one below, blue for
- * above the baseline and red for below. A series that crosses the baseline is
+ * folded down into the row, each deeper in color than the one below: blue
+ * rising from the row's foot for above the baseline, red hanging from its top
+ * for below, so the side reads by position as well as color. A series that crosses the baseline is
  * split exactly there, so the two colors never overlap. A key names the step,
  * and pointing at a period lists every series there.
  */
@@ -58,7 +59,7 @@ export const renderHorizon: ViewRenderer<HorizonView> = (ctx) => {
   const wrap = html(doc, "div", "fft-chart fft-horizon");
   // The key: which side is which, and what one shade is worth.
   const key = html(doc, "div", "fft-horizon-key");
-  for (const [sign, text] of [["up", `Above ${valueText(base)}`], ["down", `Below ${valueText(base)}`]] as const) {
+  for (const [sign, text] of [["up", `Above ${valueText(base)}, rising`], ["down", `Below ${valueText(base)}, hanging`]] as const) {
     const ramp = html(doc, "span", "fft-horizon-ramp");
     ramp.setAttribute("aria-hidden", "true");
     for (let k = 0; k < count; k++) {
@@ -98,11 +99,14 @@ export const renderHorizon: ViewRenderer<HorizonView> = (ctx) => {
       for (let k = 0; k < count; k++) {
         const portion = points.map((p) => Math.min(step, Math.max(0, (sign === "up" ? p.d : -p.d) - k * step)));
         if (!portion.some((v) => v > 0)) continue;
-        // Only the stretches where this band holds something, each closed at the zero points either side.
+        // Only the stretches where this band holds something, each closed at the zero points either side. Above the
+        // baseline rises from the row's foot and below hangs from its top, so the side reads without color (WCAG 1.4.1).
+        const edge = sign === "up" ? bottom : top;
+        const reach = sign === "up" ? -ROW : ROW;
         const shape = points.map((p, i) =>
-          (portion[i] ?? 0) > 0 || (portion[i - 1] ?? 0) > 0 || (portion[i + 1] ?? 0) > 0 ? { x: p.x, y: bottom - ((portion[i] ?? 0) / step) * ROW } : null,
+          (portion[i] ?? 0) > 0 || (portion[i - 1] ?? 0) > 0 || (portion[i + 1] ?? 0) > 0 ? { x: p.x, y: edge + ((portion[i] ?? 0) / step) * reach } : null,
         );
-        const band = svg(doc, "path", { class: "fft-horizon-band", d: areaPath(shape, bottom), "data-series": field, "data-sign": sign, "data-band": k });
+        const band = svg(doc, "path", { class: "fft-horizon-band", d: areaPath(shape, edge), "data-series": field, "data-sign": sign, "data-band": k });
         band.style.setProperty("fill", shade(sign, k, count));
         group.append(band);
       }

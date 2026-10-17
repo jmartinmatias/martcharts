@@ -71,7 +71,7 @@ registerPreset({
   name: "glass",
   description: "Frosted translucent cards for image or gradient backdrops: light frost or dark smoke with the theme, soft blur, large radius, pill bars on tracks, blue and gold leading the palette.",
   // Blue, gold, teal, orange, violet, red, green, magenta: adjacent CVD passes on the dark smoke (worst 8.4); on the light frost red and green sit 7.2 apart, legal with the direct labels and tooltips every chart has.
-  palette: ["#2a78d6", "#eda100", "#1baf7a", "#eb6834", "#6250d6", "#e34948", "#008300", "#e87ba4"],
+  palette: ["#2a78d6", "#bd7f00", "#009f6d", "#eb6834", "#6250d6", "#e34948", "#008300", "#d36992"],
   marks: { barRadius: "full", barTrack: true, sliceCaps: "round" },
   css: `
 & {
@@ -81,11 +81,11 @@ registerPreset({
   --fft-popover: rgba(255, 255, 255, 0.9);
   --fft-text: #10201d;
   --fft-text-secondary: rgba(16, 32, 29, 0.7);
-  --fft-muted: rgba(16, 32, 29, 0.56);
+  --fft-muted: rgba(16, 32, 29, 0.64);
   --fft-grid: rgba(16, 32, 29, 0.07);
   --fft-axis: rgba(16, 32, 29, 0.18);
   --fft-border: rgba(255, 255, 255, 0.72);
-  --fft-accent: #2a78d6;
+  --fft-accent: #2270cf;
   --fft-positive: #006300;
   --fft-negative: #d03b3b;
   --fft-radius: 21px;
@@ -107,7 +107,7 @@ registerPreset({
 & .fft-kpi-icon { border-radius: 50%; background: rgba(16, 32, 29, 0.06); color: var(--fft-text); }
 `,
   dark: {
-    palette: ["#3987e5", "#c98500", "#199e70", "#d95926", "#9085e9", "#e66767", "#008300", "#d55181"],
+    palette: ["#3987e5", "#c98500", "#199e70", "#d95926", "#9085e9", "#e66767", "#20921d", "#d55181"],
     css: `
 & {
   color-scheme: dark;
@@ -116,13 +116,13 @@ registerPreset({
   --fft-popover: rgba(24, 33, 32, 0.92);
   --fft-text: #f4f7f6;
   --fft-text-secondary: rgba(244, 247, 246, 0.66);
-  --fft-muted: rgba(244, 247, 246, 0.46);
+  --fft-muted: rgba(244, 247, 246, 0.58);
   --fft-grid: rgba(255, 255, 255, 0.07);
   --fft-axis: rgba(255, 255, 255, 0.16);
   --fft-border: rgba(255, 255, 255, 0.12);
-  --fft-accent: #3987e5;
-  --fft-positive: #0ca30c;
-  --fft-negative: #e66767;
+  --fft-accent: #509efe;
+  --fft-positive: #2db429;
+  --fft-negative: #f67574;
   --fft-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 8px 34px rgba(0, 0, 0, 0.21);
   --fft-deemphasis: rgba(255, 255, 255, 0.16);
   --fft-up: #3987e5; --fft-down: #e66767; --fft-total: rgba(244, 247, 246, 0.72);
@@ -130,10 +130,10 @@ registerPreset({
   --fft-seq-text-1: #ffffff;
   --fft-seq-2: #1c5cab;
   --fft-seq-text-2: #ffffff;
-  --fft-seq-3: #2a78d6;
+  --fft-seq-3: #2674d2;
   --fft-seq-text-3: #ffffff;
   --fft-seq-4: #3987e5;
-  --fft-seq-text-4: #ffffff;
+  --fft-seq-text-4: #0b0b0b;
   --fft-seq-5: #6da7ec;
   --fft-seq-text-5: #0b0b0b;
   --fft-seq-6: #9ec5f4;
@@ -156,7 +156,7 @@ registerPreset({
   name: "airy",
   description: "Editorial and chrome-free, on a light or a dark page: no card, generous whitespace, small grey labels over large numbers, warm orange leading the palette, solid value pills.",
   // Orange, teal, gold, blue, green, magenta, violet, red: passes adjacent CVD and the normal-vision floor on both the light and the dark page.
-  palette: ["#eb6834", "#1baf7a", "#eda100", "#2a78d6", "#008300", "#e87ba4", "#6250d6", "#e34948"],
+  palette: ["#e5632e", "#009f6d", "#bd7f00", "#2a78d6", "#008300", "#d36992", "#6250d6", "#e34948"],
   marks: { areaGradient: true },
   css: `
 & {
@@ -166,13 +166,13 @@ registerPreset({
   --fft-popover: #eb6834;
   --fft-text: #111111;
   --fft-text-secondary: #6b6b68;
-  --fft-muted: #9a9a96;
+  --fft-muted: #6f6f6b;
   --fft-grid: #e7e7e3;
   --fft-axis: #d3d3ce;
   --fft-border: transparent;
-  --fft-accent: #eb6834;
+  --fft-accent: #c34400;
   --fft-positive: #006300;
-  --fft-negative: #d03b3b;
+  --fft-negative: #cc3737;
   --fft-shadow: none;
   --fft-pad: 8px 0;
 }
@@ -190,7 +190,7 @@ registerPreset({
 & .fft-tooltip-key { background: #ffffff !important; }
 `,
   dark: {
-    palette: ["#d95926", "#199e70", "#c98500", "#3987e5", "#008300", "#d55181", "#9085e9", "#e66767"],
+    palette: ["#d95926", "#199e70", "#c98500", "#3987e5", "#20921d", "#d55181", "#9085e9", "#e66767"],
     css: `
 & {
   color-scheme: dark;
@@ -217,7 +217,7 @@ registerPreset({
   name: "paper",
   description: "Editorial print for reports and briefings: a warm paper card under a black rule (a night edition on dark: warm dark paper, cream rule), serif titles and headline numbers, nearly square bars, deep ink blue leading the palette.",
   // Ink blue, orange, teal, gold, magenta, green, violet, red: passes adjacent CVD (worst 8.4) and the normal-vision floor (19.3) on the paper surface, and every check on the night paper.
-  palette: ["#1c5cab", "#d95926", "#199e70", "#c98500", "#d55181", "#008300", "#6250d6", "#e34948"],
+  palette: ["#1c5cab", "#d95926", "#199e70", "#c18000", "#d55181", "#008300", "#6250d6", "#e34948"],
   marks: { barRadius: 1 },
   css: `
 & {
@@ -227,7 +227,7 @@ registerPreset({
   --fft-popover: #1d1d1b;
   --fft-text: #1d1d1b;
   --fft-text-secondary: #5e5a52;
-  --fft-muted: #8c877d;
+  --fft-muted: #746f66;
   --fft-grid: #ebe5da;
   --fft-axis: #cfc7b8;
   --fft-border: transparent;
@@ -248,7 +248,7 @@ registerPreset({
 & .fft-kpi-icon { border-radius: 2px; background: #efe9de; color: #1d1d1b; }
 `,
   dark: {
-    palette: ["#3987e5", "#d95926", "#199e70", "#c98500", "#d55181", "#008300", "#9085e9", "#e66767"],
+    palette: ["#3987e5", "#d95926", "#199e70", "#c98500", "#d55181", "#20921d", "#9085e9", "#e66767"],
     css: `
 & {
   color-scheme: dark;
