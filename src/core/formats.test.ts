@@ -147,6 +147,10 @@ describe("humanize", () => {
     ["revenue_eur", "Revenue eur"],
     ["open-tickets", "Open tickets"],
     ["KPI", "KPI"],
+    // Sales abbreviations keep their capitals, so a sentence never says "kpi".
+    ["kpi", "KPI"],
+    ["nps_score", "NPS score"],
+    ["arr", "ARR"],
   ])("%s becomes %s", (input, expected) => {
     expect(humanize(input)).toBe(expected);
   });

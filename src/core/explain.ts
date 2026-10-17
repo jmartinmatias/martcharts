@@ -563,7 +563,11 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
     case "variance": {
       const [label, amount, target] = [one(view.label), one(view.value), one(view.target)];
       if (!label || !amount || !target) return "";
-      const gap = (row: Row) => Math.abs((value(row, amount) ?? 0) - (value(row, target) ?? 0));
+      // In percent, each gap is a share of its own target, so rows in different units compare fairly.
+      const gap = (row: Row) => {
+        const [a, t] = [value(row, amount) ?? 0, value(row, target) ?? 0];
+        return view.percent ? (t ? Math.abs(a - t) / Math.abs(t) : 0) : Math.abs(a - t);
+      };
       const row = rows.filter((r) => value(r, amount) !== null && value(r, target) !== null).reduce<Row | undefined>((best, r) => (best && gap(best) >= gap(r) ? best : r), undefined);
       if (!row) return "";
       // In target terms first: how many are over, then the one furthest from its target.
@@ -572,7 +576,9 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const [entity, goal] = [nameOf(label, spec), nameOf(target, spec)];
       const count =
         over === 0 ? `every ${entity} is at or under its ${goal}` : over === 1 ? `1 of ${paired.length} ${plural(entity)} is over its ${goal}` : `${over} of ${paired.length} ${plural(entity)} are over their ${goal}`;
-      return `Here, ${count}, and ${text(row, label)} is furthest from it: ${text(row, amount)} against ${text(row, target)}.`;
+      const under = (value(row, amount) as number) < (value(row, target) as number);
+      const far = view.percent ? `, ${formatValue(gap(row), { type: "percent", decimals: 0 }, spec.locale)} ${under ? "under" : "over"}` : `: ${text(row, amount)} against ${text(row, target)}`;
+      return `Here, ${count}, and ${text(row, label)} is furthest from it${far}.`;
     }
     case "marimekko": {
       const [x, amount] = [one(view.x), one(view.value)];

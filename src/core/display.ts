@@ -59,7 +59,9 @@ export function humanize(field: string): string {
     .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
     .replace(/[_-]+/g, " ")
     .trim()
-    .toLowerCase();
+    .toLowerCase()
+    // Sales abbreviations keep their capitals: "KPI", "NPS score", never "Kpi".
+    .replace(/\b(kpi|nps|arr|mrr|roi|cac|ltv|sla)\b/g, (word) => word.toUpperCase());
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
 

@@ -155,6 +155,8 @@ export interface DataProfile {
    * does not, so it is never sliced into shares, stacked, or summed into a total.
    */
   whole: boolean;
+  /** Each row is a different measure (a KPI scorecard): rows never share an axis, only each one's own target. */
+  scorecard: boolean;
   rows: number;
   distinct: Record<string, number>;
   negatives: boolean;
@@ -263,6 +265,7 @@ export function profileData(spec: WidgetSpec, rows: Row[]): DataProfile {
     times,
     ...(target ? { target } : {}),
     whole: measures[0] !== undefined && additive(measures[0], spec) && !MEASURE_ROWS.test(categories[0] ?? ""),
+    scorecard: MEASURE_ROWS.test(categories[0] ?? ""),
     rows: rows.length,
     distinct,
     negatives: rows.some((row) => measures.some((f) => typeof row[f] === "number" && (row[f] as number) < 0)),
@@ -319,6 +322,9 @@ const periodPair = (d: DataProfile) => d.peers.length > 1 && PERIOD_WORD.test(p1
 /** Several periods per category: long data, time by group. */
 const timeByGroup = (d: DataProfile) => d.times.length > 0 && d.categories.length > 0 && d.measures.length > 0 && (d.distinct[t1(d)] ?? 0) < d.rows;
 const twoLevels = (d: DataProfile) => d.categories.length > 1 && d.measures.length > 0 && (d.distinct[c1(d)] ?? 0) < d.rows;
+
+/** The forms that read each row of a scorecard against its own target: its rows are in different units, so never one axis. */
+const SCORECARD_FORMS = new Set(["variance", "attainment", "bullet"]);
 
 /** The pattern library: each form the Taller knows, what data it needs, and how it draws the chart's own fields. */
 const PATTERNS: Pattern[] = [
@@ -438,7 +444,21 @@ const PATTERNS: Pattern[] = [
     moves: ["reframe", "contrast"],
     marks: "sharp",
     fits: (d) => perRow(d, 2, 24) && d.target !== undefined,
-    make: (d) => ({ view: { type: "variance", label: rowKey(d) as string, value: m1(d), target: d.target as string } }),
+    // A scorecard's gaps are in different units, so each is a share of its own target (+10%), never euros beside points.
+    make: (d) => ({ view: { type: "variance", label: rowKey(d) as string, value: m1(d), target: d.target as string, ...(d.scorecard ? { percent: true } : {}) } }),
+  },
+  {
+    id: "attainment",
+    form: "lollipops of the target reached",
+    moves: ["reframe", "distill"],
+    marks: "sharp",
+    // Only for rows in different units: amounts in one unit read better against the target itself.
+    fits: (d) => d.scorecard && perRow(d, 2, 24) && d.target !== undefined,
+    make: (d, spec) => ({
+      view: { type: "bar", x: rowKey(d) as string, y: "reached", mark: "lollipop", reference: [{ value: 1, label: "Target" }] },
+      transform: [...(spec.transform ?? []), { type: "calc", as: "reached", op: "divide", left: m1(d), right: d.target as string }],
+      fields: { ...spec.fields, reached: { label: "Target reached", format: { type: "percent", decimals: 0 } } },
+    }),
   },
   {
     id: "bullet",
@@ -942,7 +962,7 @@ export function createVariants(spec: WidgetSpec, rows: Row[], options: TallerOpt
 
   // Every pattern the data can take, once per move it carries out, weighed by the requested marks, the audience and a seeded random share.
   const wanted: Marks | null = marks > 0.2 ? "sharp" : marks < -0.2 ? "smooth" : null;
-  const candidates = PATTERNS.filter((pattern) => pattern.fits(data)).flatMap((pattern) =>
+  const candidates = PATTERNS.filter((pattern) => pattern.fits(data) && (!data.scorecard || SCORECARD_FORMS.has(pattern.id))).flatMap((pattern) =>
     pattern.moves
       .filter((move) => allowed.has(move))
       .map((move) => ({ pattern, move, weight: (wanted && pattern.marks === wanted ? Math.abs(marks) : 0) + (served.has(move) ? 1 : 0) + (RARE.has(pattern.id) ? 0.1 : 0) + random() })),

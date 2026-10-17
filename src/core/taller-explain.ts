@@ -13,7 +13,8 @@ import type { WidgetSpec } from "./types.ts";
 /** A plain title and a short "how to read it" for a chart spec. */
 export function explainVariant(spec: WidgetSpec, chartTitle: string, rowName?: string): { title: string; explain: string } {
   const view = spec.view ?? { type: "table" };
-  const name = (field: unknown) => (typeof field === "string" ? fieldLabel(field, spec.fields).toLowerCase() : "value");
+  // Plain words go lower case in a sentence; abbreviations keep their capitals ("KPI").
+  const name = (field: unknown) => (typeof field === "string" ? fieldLabel(field, spec.fields).replace(/^[A-Z][a-z]+\b/, (word) => word.toLowerCase()) : "value");
   const first = (field: unknown) => (Array.isArray(field) ? field[0] : field);
   const list = (field: unknown) => {
     const names = (Array.isArray(field) ? field : [field]).map(name);

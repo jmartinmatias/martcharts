@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { describe, expect, test } from "vitest";
 import { explainChart } from "./explain.ts";
+import { explainVariant } from "./taller-explain.ts";
 import { describeBlocks } from "./registry.ts";
 import "./index.ts";
 import type { WidgetSpec } from "./types.ts";
@@ -98,6 +99,18 @@ describe("explainChart", () => {
     expect(at({ type: "bar", x: "team", y: "m", reference: [{ value: 100, label: "Target" }] }, minutes)).toContain("The dashed line is the target. A bar that reaches the line meets it, and an outlined bar fell short.");
     expect(at({ type: "bar", x: "team", y: "m", goodWhen: "down", reference: [{ value: 100, label: "Target" }] }, minutes)).toContain("Here, all 5 teams meet the target.");
     expect(at({ type: "bar", x: "team", y: "m", reference: [{ value: 100, label: "Target" }] }, minutes)).toContain("Here, none of the 5 teams meets the target yet.");
+  });
+
+  test("a variance in percent finds the row furthest from its own target as a share of it, and says KPI in capitals", () => {
+    const kpis = [
+      { kpi: "Revenue", actual: 1284000, target: 1300000 },
+      { kpi: "New customers", actual: 66, target: 60 },
+      { kpi: "Net promoter score", actual: 42, target: 50 },
+    ];
+    const text = explainChart({ ...spec({ type: "variance", label: "kpi", value: "actual", target: "target", percent: true }), locale: "en-US" }, kpis);
+    expect(text).toContain("Each bar shows how far one KPI is from its target");
+    expect(text).toContain("Here, 1 of 3 KPIs is over its target, and Net promoter score is furthest from it, 16% under.");
+    expect(explainVariant(spec({ type: "bar", x: "kpi", y: "reached" }), "Q3 scorecard").title).toBe("Q3 scorecard as bars: each bar is one KPI");
   });
 
   test("a ranking race says who is 1st at the end, and when the lead changed hands", () => {

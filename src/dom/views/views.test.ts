@@ -1851,7 +1851,7 @@ describe("gauge view", () => {
     await draw(spec);
     expect(target.querySelector(".fft-gauge-target")?.getAttribute("data-ratio")).toBe("0.5");
     all(".fft-gauge-hit")[0]?.dispatchEvent(new Event("focus"));
-    expect(texts(".fft-tooltip-row")).toEqual(["42Nps", "50Goal", "84%Of target"]);
+    expect(texts(".fft-tooltip-row")).toEqual(["42NPS", "50Goal", "84%Of target"]);
   });
 
   test("under the gauge it says where the number stands against its goal: how far to go, or a check and Target met", async () => {

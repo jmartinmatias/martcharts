@@ -397,6 +397,25 @@ describe("honest forms", () => {
     expect([profileData(revenue, rows).whole, everything(revenue, rows).some(sliced)]).toEqual([true, true]);
   });
 
+  test("a scorecard's rows are different KPIs: versions read each against its own target, never on one shared axis", async () => {
+    const kpis = [
+      { kpi: "Revenue", actual: 1284000, target: 1300000 },
+      { kpi: "New customers", actual: 66, target: 60 },
+      { kpi: "Gross margin (%)", actual: 33, target: 30 },
+      { kpi: "Net promoter score", actual: 42, target: 50 },
+    ];
+    const card: WidgetSpec = { title: "Q3 scorecard", data: { type: "inline", rows: kpis }, view: { type: "bullet", label: "kpi", value: "actual", target: "target" } };
+    const versions = everything(card, kpis);
+    expect([...new Set(versions.map((v) => v.spec.view?.type))].sort()).toEqual(["bar", "variance"]);
+    // The gap as a share of each KPI's own target, never euros next to points.
+    expect(versions.filter((v) => v.spec.view?.type === "variance").every((v) => v.spec.view?.percent === true)).toBe(true);
+    // How much of its own target each KPI reached, against a dashed 100% target line.
+    const reached = versions.find((v) => v.spec.view?.type === "bar") as Variant;
+    expect([reached.spec.view?.reference, reached.question]).toEqual([[{ value: 1, label: "Target" }], "Which KPIs meet the target?"]);
+    const rows = await runPipeline(reached.spec);
+    expect(rows.map((row) => Math.round((row[String(reached.spec.view?.y)] as number) * 100))).toEqual([99, 110, 110, 84]);
+  });
+
   test("a slope compares the earliest period with the latest, not the first two columns", () => {
     const wide = ["North", "South", "East", "West"].map((region, r) => Object.fromEntries([["region", region], ...months.slice(3, 9).map((m, i) => [m, 40 + r * 5 + i * (r + 1)])]));
     const table: WidgetSpec = { title: "Revenue by region and month", data: { type: "inline", rows: wide }, view: { type: "table" } };
