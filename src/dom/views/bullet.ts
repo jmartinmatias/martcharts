@@ -3,6 +3,7 @@ import type { ViewRenderer } from "../../core/view-context.ts";
 import type { BulletView } from "../../core/views.ts";
 import { html, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
+import { checkMark, standing } from "./target.ts";
 
 const DEFAULT_RANGES = [0.6, 0.9, 1.2];
 const pct = (fraction: number) => `${Math.round(Math.max(0, Math.min(1, fraction)) * 10000) / 100}%`;
@@ -11,6 +12,7 @@ const pct = (fraction: number) => `${Math.round(Math.max(0, Math.min(1, fraction
  * Draws the `bullet` view: per row, three qualitative bands (poor, fair, good,
  * ending at multiples of the target), a value bar through the middle, and a
  * target tick. Geometry is in percentages, so bullets stretch with the card.
+ * A met target carries a check by its number; a missed one says what is left to go.
  */
 export const renderBullet: ViewRenderer<BulletView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
@@ -43,14 +45,22 @@ export const renderBullet: ViewRenderer<BulletView> = (ctx) => {
       chart.append(svg(doc, "line", { class: "fft-bullet-target", x1: x, x2: x, y1: 2, y2: 19 }));
     }
     const valueText = ctx.format(row[value], value);
-    item.append(html(doc, "span", "fft-bullet-label", name), chart, html(doc, "span", "fft-bullet-number", valueText));
+    const { met, text: stand } = standing(ctx, actual, goal, value);
+    const number = html(doc, "span", "fft-bullet-number", valueText);
+    if (met) {
+      item.dataset.met = "true";
+      number.prepend(checkMark(doc));
+    }
+    item.append(html(doc, "span", "fft-bullet-label", name), chart, number);
     const attainment = actual !== null && goal ? share.format(actual / goal) : "";
     const items = [
       { label: ctx.label(value), value: valueText },
       { label: ctx.label(target), value: ctx.format(row[target], target) },
       ...(attainment ? [{ label: "Of target", value: attainment }] : []),
+      ...(stand && !met && actual !== null && goal !== null ? [{ label: "To go", value: ctx.format(goal - actual, value) }] : []),
     ];
-    item.setAttribute("aria-label", `${name}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
+    const said = items.filter((it) => it.label !== "To go").map((it) => `${it.label} ${it.value}`);
+    item.setAttribute("aria-label", `${name}: ${[...said, ...(stand ? [`${stand.charAt(0).toLowerCase()}${stand.slice(1)}`] : [])].join(", ")}`);
     const show = () => ctx.tooltip.show(chart, name, items);
     item.addEventListener("pointerenter", show);
     item.addEventListener("focus", show);

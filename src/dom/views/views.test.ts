@@ -1007,6 +1007,16 @@ describe("bullet view", () => {
     all(".fft-bullet")[1]?.dispatchEvent(new Event("focus"));
     expect([...texts(".fft-tooltip-title"), ...texts(".fft-tooltip-row")]).toEqual(["Margin", "33Actual", "30Target", "110%Of target"]);
   });
+  test("a met target carries a check by its number; a missed one says what is left to go, in the tooltip and to screen readers", async () => {
+    await draw(spec);
+    expect(all(".fft-bullet").map((b) => [(b as HTMLElement).dataset.met ?? "", Boolean(b.querySelector(".fft-bullet-number .fft-check"))])).toEqual([
+      ["", false],
+      ["true", true],
+    ]);
+    expect(all(".fft-bullet").map((b) => b.getAttribute("aria-label")?.split(", ").at(-1))).toEqual(["30 to go", "target met"]);
+    all(".fft-bullet")[0]?.dispatchEvent(new Event("focus"));
+    expect(texts(".fft-tooltip-row")).toEqual(["270Actual", "300Target", "90%Of target", "30To go"]);
+  });
 });
 
 describe("treemap view", () => {

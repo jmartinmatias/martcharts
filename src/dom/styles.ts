@@ -815,7 +815,7 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-bullet-value { fill: var(--fft-accent); transform-box: fill-box; transform-origin: 0 50%; }
 .fft-bullet-target { stroke: var(--fft-text); stroke-width: 2; stroke-linecap: round; }
 .fft-bullet-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--fft-text-secondary); }
-.fft-bullet-number { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+.fft-bullet-number { display: inline-flex; align-items: center; justify-content: flex-end; gap: 3px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .fft-tile { fill-opacity: 0.2; transition: opacity 377ms var(--fft-ease), fill-opacity 377ms var(--fft-ease); pointer-events: none; }
 .fft-tile[data-active] { fill-opacity: 0.32; }
 .fft-tile-edge { pointer-events: none; }
