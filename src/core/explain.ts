@@ -1008,11 +1008,17 @@ function guide(spec: WidgetSpec): string {
       if (view.stacked === "stream") return `Each colored band is one of ${either(series.map((f) => name(f)))}. The thicker a band at a moment, the more it had then; the whole stream's height is the total.`;
       if (view.stacked) return `Colored layers stack on top of each other, ${over(one(view.x))}; the top edge is the total and each layer's thickness is its part.`;
       return `The filled shape shows how ${name(series[0])} changes ${over(one(view.x))}: higher means more.${colors}${forecast}`;
-    case "kpi":
-      return `The big number is ${name(one(view.value))}. The small arrow says whether it went up or down since last time${one(view.target) ? ", and the line under it says whether it reached its target" : ""}.`;
+    case "kpi": {
+      // Lower is better (churn, costs): the line says whether it stayed under the target.
+      const reached = view.goodWhen === "down" ? "stayed under its target" : "reached its target";
+      return `The big number is ${name(one(view.value))}. The small arrow says whether it went up or down since last time${one(view.target) ? `, and the line under it says whether it ${reached}` : ""}.`;
+    }
     case "kpis": {
-      const targeted = Array.isArray(view.items) && view.items.some((item) => typeof (item as { target?: unknown }).target === "string");
-      return `Each tile is one key number, with a small arrow that says whether it went up or down since last time.${targeted ? " A line under a tile says whether it reached its target." : ""}`;
+      // Each tile with a target judges its own side: reached it, or for a lower-is-better tile, stayed under it.
+      const targeted = (Array.isArray(view.items) ? view.items : []) as { target?: unknown; goodWhen?: unknown }[];
+      const sides = new Set(targeted.filter((item) => typeof item.target === "string").map((item) => item.goodWhen === "down"));
+      const line = !sides.size ? "" : sides.size > 1 ? "reached its target, or stayed under it where lower is better" : sides.has(true) ? "stayed under its target" : "reached its target";
+      return `Each tile is one key number, with a small arrow that says whether it went up or down since last time.${line ? ` A line under a tile says whether it ${line}.` : ""}`;
     }
     case "meter":
       return `Each bar fills up toward its target. A full bar means the goal for ${name(one(view.value))} is reached; the percentage says how close it is.`;

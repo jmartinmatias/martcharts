@@ -27,7 +27,8 @@ describe("questionOf", () => {
     expect(ask("response-time-by-team").text).toBe("Which teams meet the 1 hour target?");
     const bars = (label: string, x = "region") => questionOf({ data: { type: "inline", rows: [] }, view: { type: "bar", x, y: "revenue", reference: [{ value: 9, label }] } }).text;
     expect([bars("Target"), bars("Q3 plan"), bars("Target", "sales rep")]).toEqual(["Which regions meet the target?", "Which regions meet the Q3 plan?", "Which sales rep meets the target?"]);
-    expect(ask("opex-variance").text).toBe("Which department is above or below budget?");
+    // Operating costs say lower is better, so the question is who stayed within budget.
+    expect(ask("opex-variance").text).toBe("Which departments stayed within budget?");
     expect(ask("region-targets").text).toBe("Which region is above or below target?");
     expect(ask("kpi-scorecard").text).toBe("Which KPI is above or below target?");
     expect(ask("nps-gauge").text).toBe("Is NPS above or below goal?");

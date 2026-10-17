@@ -18,6 +18,7 @@ The demo has its own page, `taller.html`, linked from the gallery header: pick a
 | Bars of revenue by region | Which region has the most revenue? |
 | Bars of revenue with a target line, by month | Is revenue on target, month by month? |
 | Variance of actual against budget | Which department is above or below budget? |
+| The same variance of costs, with `goodWhen: "down"` (lower is better) | Which departments stayed within budget? |
 | A donut of revenue by segment | What share of revenue comes from each segment? |
 | Dumbbells from Q3 2025 to Q3 2026 | How did each region change from Q3 2025 to Q3 2026? |
 | A histogram of deal value | How spread out is deal value? |

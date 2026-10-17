@@ -98,6 +98,11 @@ const isPeriod = (field: string) => PERIOD.test(field) || MONTH_COLUMN.test(fiel
 const most = (measure: string) => `${GENERIC_MEASURE.test(measure) ? "highest" : "most"} ${measure}`;
 /** "revenue", but "the amount". */
 const whole = (measure: string) => (GENERIC_MEASURE.test(measure) ? `the ${measure}` : measure);
+/** Where lower is better: "which departments stayed within budget?", singular for several words ("which sales rep"). */
+const stayedWithin = (entity: string, goal: string) => {
+  const plurals = plural(entity);
+  return plurals ? `which ${plurals} stayed within ${goal}?` : `which ${entity} stayed within ${goal}?`;
+};
 
 /**
  * The sales question a chart answers, worded from its own fields. Used next to a chart, and by the Taller, where
@@ -111,6 +116,10 @@ export function questionOf(spec: WidgetSpec, rows: Row[] = []): Question {
   const series = many(view.y);
   const facet = (spec.facet as { field?: string } | undefined)?.field;
   const targetLine = Boolean(view.lines) || (Array.isArray(view.reference) && view.reference.some((r) => TARGET.test(String((r as { label?: unknown }).label ?? ""))));
+  // Lower is better (costs, churn): the question is whether it stayed within or under the target.
+  const down = view.goodWhen === "down";
+  // A target field by its own name when it reads as one ("budget", "plan"), else plain "target".
+  const goalName = (field: string) => (TARGET.test(field) || TARGET.test(spec.fields?.[field]?.label ?? "") ? name(field) : "target");
 
   switch (view.type) {
     case "bar":
@@ -133,6 +142,9 @@ export function questionOf(spec: WidgetSpec, rows: Row[] = []): Question {
         const plurals = plural(entity);
         return ask("target", plurals ? `which ${plurals} meet the ${named}?` : `which ${entity} meets the ${named}?`);
       }
+      // A target field where lower is better (costs against a budget): who stayed within it, in its own name.
+      const budget = one(view.lines);
+      if (budget && down) return ask("target", isTime(label) ? `did ${name(value)} stay within ${goalName(budget)}, ${step(label, spec)}?` : stayedWithin(entity, goalName(budget)));
       if (targetLine) return isTime(label) ? ask("target", `is ${name(value)} on target, ${step(label, spec)}?`) : ask("target", `which ${entity} is above or below target on ${name(value)}?`);
       if (isTime(label)) return ask("trend", `how ${be(name(value))} ${name(value)} moving, ${step(label, spec)}?`);
       return ask("rank", isPeriod(value) ? `which ${entity} had the most in ${name(value)}?` : `which ${entity} has the ${most(name(value))}?`);
@@ -162,7 +174,8 @@ export function questionOf(spec: WidgetSpec, rows: Row[] = []): Question {
     }
     case "kpi": {
       const value = one(view.value);
-      if (value && one(view.target)) return ask("target", `${be(name(value))} ${name(value)} on target?`);
+      const target = one(view.target);
+      if (value && target) return ask("target", down ? `${be(name(value))} ${name(value)} under ${goalName(target)}?` : `${be(name(value))} ${name(value)} on target?`);
       if (value) return ask("number", `${be(name(value))} ${name(value)} going up or down?`);
       break;
     }
@@ -207,6 +220,7 @@ export function questionOf(spec: WidgetSpec, rows: Row[] = []): Question {
     case "meter":
     case "rings": {
       const [label, target] = [one(view.label), one(view.target)];
+      if (label && target && down) return ask("target", stayedWithin(entityOf(label, spec), name(target)));
       if (label && target) return ask("target", `which ${entityOf(label, spec)} is above or below ${name(target)}?`);
       break;
     }

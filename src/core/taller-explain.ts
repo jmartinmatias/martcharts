@@ -98,7 +98,11 @@ export function explainVariant(spec: WidgetSpec, chartTitle: string, rowName?: s
     case "variance":
       form = "above-or-below bars";
       mark = `each bar is one ${name(view.label)}`;
-      read = `A bar to the right means ${name(view.value)} beat its target; to the left means it fell short.`;
+      // Lower is better (costs against a budget): the left side is the good one.
+      read =
+        view.goodWhen === "down"
+          ? `A bar to the left means ${name(view.value)} stayed under its ${name(view.target)}; to the right means it went over.`
+          : `A bar to the right means ${name(view.value)} beat its target; to the left means it fell short.`;
       break;
     case "bullet":
       form = "bars against a target";
