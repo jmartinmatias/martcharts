@@ -82,11 +82,13 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
   // Goal charts: how many reached the goal, by name when there are few, or all, or none yet.
   const goalLine = (total: number, met: Row[], label: string | undefined, verb: "reached" | "passed"): string => {
     if (!total) return "";
-    if (met.length === total) return `Here, all ${total} have ${verb} their goal.`;
-    if (met.length === 0) return `Here, none of the ${total} has ${verb} its goal yet.`;
+    // The unit, when the rows' field has a real name: "7 of 12 months", "2 of 5 regions"; a generic name field says nothing.
+    const unit = label && !/^(name|title|label|id|item)$/i.test(label) ? ` ${plural(nameOf(label, spec))}` : "";
+    if (met.length === total) return `Here, all ${total}${unit} have ${verb} their goal.`;
+    if (met.length === 0) return `Here, none of the ${total}${unit} has ${verb} its goal yet.`;
     const names = label ? met.map((r) => text(r, label)) : [];
     const listed = names.length && names.length <= 5 ? `: ${names.length > 1 ? `${names.slice(0, -1).join(", ")} and ${names.at(-1)}` : names[0]}` : "";
-    return `Here, ${met.length} of ${total} ${met.length === 1 ? `has ${verb} its goal` : `have ${verb} their goal`}${listed}.`;
+    return `Here, ${met.length} of ${total}${unit} ${met.length === 1 ? `has ${verb} its goal` : `have ${verb} their goal`}${listed}.`;
   };
   // A pipeline (stages whose numbers only shrink): how many made it from the first stage to the last.
   const pipeline = (label: string, amount: string): string => {
@@ -789,6 +791,9 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
 
 /** A field's name in the middle of a sentence: "revenue", but "North" and "NPS" keep their capitals. */
 function nameOf(field: string, spec: WidgetSpec): string {
+  // Abbreviations keep their capitals: "KPI", "NPS".
+  const short = ({ kpi: "KPI", nps: "NPS" } as Record<string, string>)[field.toLowerCase()];
+  if (short && !spec.fields?.[field]?.label) return short;
   const label = fieldLabel(field, spec.fields);
   return /^[a-z]/.test(field) && /^[A-Z][a-z]*\b/.test(label) ? label[0]?.toLowerCase() + label.slice(1) : label;
 }

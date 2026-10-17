@@ -121,7 +121,7 @@ describe("explainChart", () => {
     expect(at({ type: "beeswarm", value: "v", label: "deal" }, [{ deal: "Acme", v: 9 }, { deal: "Bolt", v: 4 }])).toContain("Here, the dot furthest right is Acme, at 9.");
     expect(at({ type: "beeswarm", value: "size", label: "deal" }, [])).toContain("Each dot is one deal, placed by its size.");
     expect(at({ type: "rings", label: "p", value: "v", target: "t" }, [{ p: "Core", v: 9, t: 10 }, { p: "Plus", v: 5, t: 10 }])).toContain("Here, none of the 2 has reached its goal yet; Core is closest, at 90%.");
-    expect(at({ type: "bullet", label: "kpi", value: "v", target: "t" }, [{ kpi: "Leads", v: 12, t: 10 }, { kpi: "Calls", v: 8, t: 10 }, { kpi: "Deals", v: 11, t: 10 }])).toContain("Here, 2 of 3 have passed their goal: Leads and Deals.");
+    expect(at({ type: "bullet", label: "kpi", value: "v", target: "t" }, [{ kpi: "Leads", v: 12, t: 10 }, { kpi: "Calls", v: 8, t: 10 }, { kpi: "Deals", v: 11, t: 10 }])).toContain("Here, 2 of 3 KPIs have passed their goal: Leads and Deals.");
     expect(at({ type: "timeline", label: "task", start: "s", end: "e", progress: "p" }, [{ task: "Build", s: "2026-08-01", e: "2026-10-01", p: 0.5 }, { task: "Launch", s: "2026-11-01", e: "2026-11-02", p: 0 }])).toContain("Here, no task is done yet and 1 is under way; the longest, Build, is 50% done.");
     expect(at({ type: "kpi", value: "v" }, [{ v: 10 }, { v: 12 }])).toContain("Here, it is 12, up from 10.");
     expect(at({ type: "list", label: "name", value: "v" }, [{ name: "Aurora", v: 9 }, { name: "Bell", v: 7 }])).toContain("Here, Aurora is at the top, with 9, 2 ahead of Bell.");
@@ -445,8 +445,8 @@ describe("explainChart", () => {
 
   test("goal charts name who reached the goal, or say all or none", () => {
     const at = (rows: Record<string, unknown>[]) => explainChart({ ...spec({ type: "meter", value: "v", target: "t", label: "region" }), locale: "en-US" }, rows);
-    expect(at([{ region: "North", v: 12, t: 10 }, { region: "East", v: 11, t: 10 }])).toContain("Here, all 2 have reached their goal.");
-    expect(at([{ region: "North", v: 2, t: 10 }, { region: "East", v: 1, t: 10 }])).toContain("Here, none of the 2 has reached its goal yet.");
+    expect(at([{ region: "North", v: 12, t: 10 }, { region: "East", v: 11, t: 10 }])).toContain("Here, all 2 regions have reached their goal.");
+    expect(at([{ region: "North", v: 2, t: 10 }, { region: "East", v: 1, t: 10 }])).toContain("Here, none of the 2 regions has reached its goal yet.");
   });
 
   test("split bars say which part leads and by how much, and rings name who reached the goal", () => {
@@ -454,7 +454,7 @@ describe("explainChart", () => {
     const split = [{ region: "East", core: 62, plus: 38 }, { region: "South", core: 70, plus: 30 }, { region: "West", core: 65, plus: 35 }];
     expect(at({ type: "bar", x: "region", y: ["core", "plus"], stacked: "percent" }, split)).toContain("Here, core is the biggest part in every region, from 62% in East to 70% in South.");
     const rings = [{ product: "Analytics", v: 107, t: 100 }, { product: "Platform", v: 92, t: 100 }, { product: "Services", v: 77, t: 100 }];
-    expect(at({ type: "rings", label: "product", value: "v", target: "t" }, rings)).toContain("Here, 1 of 3 has reached its goal: Analytics.");
+    expect(at({ type: "rings", label: "product", value: "v", target: "t" }, rings)).toContain("Here, 1 of 3 products has reached its goal: Analytics.");
     expect(at({ type: "rings", label: "product", value: "v", target: "t" }, rings.slice(1))).toContain("Here, none of the 2 has reached its goal yet; Platform is closest, at 92%.");
   });
 
