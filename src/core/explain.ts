@@ -377,7 +377,20 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
         if (from !== undefined && from - to > best.from - best.to) best = { name, from, to };
       }
       const ordinal = (n: number) => `${n}${n % 10 === 1 && n % 100 !== 11 ? "st" : n % 10 === 2 && n % 100 !== 12 ? "nd" : n % 10 === 3 && n % 100 !== 13 ? "rd" : "th"}`;
-      return best.name ? `Here, ${best.name} moved up the most, from ${ordinal(best.from)} to ${ordinal(best.to)}.` : "";
+      const mover = best.name ? `${best.name} moved up the most, from ${ordinal(best.from)} to ${ordinal(best.to)}` : "";
+      // Who is 1st at the end, first thing anyone wants from a ranking: 1st all along, back in 1st, or when it took the lead.
+      const leaders = periods.map((period) => [...rank(period)].find(([, place]) => place === 1)?.[0]);
+      const top = leaders.at(-1);
+      if (!top || top === best.name) return mover ? `Here, ${mover}.` : "";
+      const since = leaders.findLastIndex((leader) => leader !== top);
+      const taken = rows.find((row) => String(row[x]) === periods[since + 1]);
+      const lead =
+        since === -1
+          ? `${top} is 1st every ${nameOf(x, spec)}`
+          : leaders[0] === top
+            ? `${top} is back in 1st place`
+            : `${top} took 1st place from ${leaders[since]}${taken ? ` ${when(taken, x)}` : ""}`;
+      return `Here, ${lead}${mover ? `, and ${mover}` : ""}.`;
     }
     case "likert": {
       const [label, answers] = [one(view.label), many(view.responses)];

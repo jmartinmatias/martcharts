@@ -83,6 +83,20 @@ describe("explainChart", () => {
     );
   });
 
+  test("a ranking race says who is 1st at the end, and when the lead changed hands", () => {
+    const race = (orders: string[][]) =>
+      explainChart(
+        { ...spec({ type: "bump", x: "month", series: "product", value: "v" }, { month: { format: { type: "date", style: "month" } } }), locale: "en-US" },
+        orders.flatMap((order, i) => order.map((product, place) => ({ month: `2026-0${i + 1}`, product, v: 100 - place * 10 }))),
+      );
+    expect(race([["A", "B", "C", "D"], ["B", "A", "C", "D"], ["B", "A", "D", "C"], ["B", "D", "A", "C"]])).toContain(
+      "Here, B took 1st place from A in Feb 2026, and D moved up the most, from 4th to 2nd.",
+    );
+    expect(race([["A", "B", "C"], ["A", "C", "B"]])).toContain("Here, A is 1st every month, and C moved up the most, from 3rd to 2nd.");
+    expect(race([["A", "B", "C"], ["B", "A", "C"], ["A", "C", "B"]])).toContain("Here, A is back in 1st place, and C moved up the most, from 3rd to 2nd.");
+    expect(race([["A", "B"], ["A", "B"]])).toContain("Here, A is 1st every month.");
+  });
+
   test("still more charts point at their standout, from steps and boxes to gauges, stacks, streams and price days", () => {
     const at = (view: Record<string, unknown>, rows: Record<string, unknown>[]) => explainChart({ ...spec(view), locale: "en-US" }, rows);
     expect(at({ type: "waterfall", label: "step", value: "v" }, [{ step: "Start", v: 100 }, { step: "New deals", v: 40 }, { step: "Churn", v: -55 }])).toContain("Here, it went from 100 (Start) to 85 (the end): New deals added the most, 40, and Churn took the most away, 55.");
