@@ -140,7 +140,7 @@ await widget.ready;
 
 `options.fetch` replaces the global `fetch` for `url` sources (for auth headers, for example). Loads of the same address through the same `fetch` share one request, and the answer is reused for `cache` seconds (default 60; set `"cache": 0` on the source to always fetch), so a dashboard of many widgets fetches each file once and filters redraw without refetching.
 
-`options.actions` offers buttons in the widget's corner, shown on hover and keyboard focus: `"csv"` downloads the rows (labelled headers, raw values), `"image"` downloads the chart as a 2x PNG with its colors baked in (shown only when the view draws a chart), `"copy"` copies the rows as tab-separated text that pastes straight into a spreadsheet, and `"expand"` opens the widget redrawn large in a modal dialog (full screen on phones; Escape, the backdrop or the close button closes it, and focus returns to the button). Inside a dashboard the dialog also steps through the board's widgets: previous and next buttons with a "3 of 44" count, the left and right arrow keys (unless a chart used the arrow to move between its marks), and a sideways swipe on phones. `options.neighbors(widget)` supplies that order for widgets outside a dashboard. None by default: whether people may take the data out is the host's decision. On the tag: `<fft-widget actions="expand csv image copy">`. The building blocks are exported too: `toDelimited(rows, label, separator)`, `download(doc, filename, blob)` and `svgToPng(svg, background, scale)`.
+`options.actions` offers buttons in the widget's corner, shown on hover and keyboard focus: `"csv"` downloads the rows (labelled headers, raw values), `"image"` downloads the chart as a 2x PNG with its colors baked in (shown only when the view draws a chart), `"copy"` copies the rows as tab-separated text that pastes straight into a spreadsheet, `"explain"` (a question mark) opens or closes **How to read it**, a plain guide under the chart from `explainChart` that says what each mark is and what bigger, longer or stronger means, ending with one example from the rows, and `"expand"` opens the widget redrawn large in a modal dialog (with its guide open from the start) (full screen on phones; Escape, the backdrop or the close button closes it, and focus returns to the button). Inside a dashboard the dialog also steps through the board's widgets: previous and next buttons with a "3 of 44" count, the left and right arrow keys (unless a chart used the arrow to move between its marks), and a sideways swipe on phones. `options.neighbors(widget)` supplies that order for widgets outside a dashboard. None by default: whether people may take the data out is the host's decision. On the tag: `<fft-widget actions="expand csv image copy">`. Past three actions (yours from `addAction` included), the first two stay in the toolbar and the rest go into a **More** menu of labelled items, keyboard friendly (arrow keys, Home, End, Escape back to its button), and the title keeps the toolbar's width free so a long title never runs under it. `options.guide: true` shows the guide from the start. The building blocks are exported too: `toDelimited(rows, label, separator)`, `download(doc, filename, blob)` and `svgToPng(svg, background, scale)`.
 
 The returned `Widget`:
 
@@ -154,6 +154,7 @@ The returned `Widget`:
 | `update(override)` | Forks the current spec with `override` and redraws. Returns a promise. |
 | `setSpec(spec)` | Replaces the spec and redraws. |
 | `refresh()` | Reloads the data, skipping the `url` source's cache. The old drawing stays, dimmed, until new rows arrive. |
+| `showGuide(open)` | Opens or closes the How to read it guide, keeping the explain button in step. |
 | `addAction(label, icon, onClick)` | Adds your own button to the hover toolbar, styled like the built-in actions: `label` names it for tooltips and screen readers, `icon` is SVG path data on a 24px grid (drawn as 2px strokes), and `onClick` receives the button (set `data-done` or `data-failed` on it for a moment of green or red feedback). Returns the button. A dashboard's `decorate(cell, id, widget)` is the natural place to call it. |
 | `destroy()` | Removes the widget and stops work in flight. |
 
@@ -221,11 +222,13 @@ const board = createDashboard(document.querySelector("#board")!, dashboardSpec, 
   decorate: (cell, id, widget) => { /* add your own controls to each cell */ },
   sticky: true,                     // pin the filter row while the page scrolls
   hash: true,                       // keep the chosen section in the address (#<section id>)
+  guides: false,                    // true opens every widget's How to read it guide from the start
 });
 await board.ready;
 await board.setFilter("region", "East");                 // null clears it
 await board.setRange("3M");                              // "6M", "12M", "YTD", "All", ...
 board.setSection("Revenue");                             // one section (title or id); null shows them all
+board.setGuides(true);                                   // How to read it under every chart at once
 await board.setOverride({ style: { preset: "glass" } }); // applies to every widget, survives filtering
 ```
 
@@ -267,6 +270,10 @@ Errors mean the widget cannot draw: missing `data` or `view`, unknown block type
 ### `suggestView(type, rows) => ViewSpec`
 
 A view of `type` with every required field option filled from the rows. Each field option declares the kind of field it expects (`kind`: `number`, `category` or `date`, listed in [blocks.md](blocks.md)), so amounts get number fields, names and groups get text fields, and periods get ISO-like dates, with no field used twice while another of its kind remains. Lists and objects are never picked. `suggestView("sankey", rows)` on `{ from, to, visits }` rows gives `{ type: "sankey", source: "from", target: "to", value: "visits" }`. The demo playground uses it to switch any widget to any view type.
+
+### `explainChart(spec, rows?) => string`
+
+A plain reading guide for any of the 40 views, in the chart's own field names, simple enough for a ten-year-old: what each mark is, what bigger, longer, stronger or further right means, and what the options add (series colors, stacks, a forecast fan, bubble sizes, small multiples). Given the rows the chart draws, it ends with one concrete example: `"Each bar is one region. The taller the bar, the more revenue. Here, East is the tallest, with €2,000."` Color scales are described as stronger or weaker, never darker, since a scale flips on a dark card. The `explain` action, the dashboard's `setGuides`, the Taller's cards and the MCP tool `fft_get_widget_data` (as `howToRead`) all use it.
 
 ### `runPipeline(spec, ctx?) => Promise<Row[]>`
 
