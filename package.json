@@ -40,7 +40,8 @@
     "smoke": "node scripts/smoke.ts",
     "mcp:config": "node src/mcp/main.ts --print-config",
     "docs": "node scripts/docs.ts",
-    "catalog": "node scripts/catalog.ts"
+    "catalog": "node scripts/catalog.ts",
+    "prepare": "npm run build:lib"
   },
   "engines": {
     "node": ">=23.6"

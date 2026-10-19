@@ -8,7 +8,7 @@ Open [catalog/index.html](../catalog/index.html) through any static server to se
 ## Use one in any project
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/fft-widgets/dist/fft-widgets.iife.js"></script>  <!-- or your own copy of dist/ -->
+<script src="fft-widgets.iife.js"></script>  <!-- your copy of dist/fft-widgets.iife.js; installing is in frameworks.md -->
 <fft-widget src="catalog/bar.json" actions="csv image"></fft-widget>
 ```
 
