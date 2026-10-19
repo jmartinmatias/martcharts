@@ -9,6 +9,8 @@ export default defineConfig({
     allowedHosts: [".ts.net"],
   },
   build: {
+    // Not dist/: that is the drop-in library (npm run build:lib), and each build empties its folder.
+    outDir: "dist-demo",
     // Three pages: the gallery, the Taller (elBulli's creative workshop for charts) and the selected variations.
     rollupOptions: {
       input: {
