@@ -55,7 +55,7 @@ const index: string[] = [
   "| --- | --- | --- | --- | --- |",
 ];
 const sections: string[] = [];
-const cards: { type: string; title: string }[] = [];
+const cards: { type: string; summary: string; question: string; needs: string }[] = [];
 
 for (const view of views) {
   const example = byView.get(view.type)?.[0];
@@ -82,7 +82,7 @@ for (const view of views) {
   const issues = validateSpec(spec, rows);
   if (hasErrors(issues)) throw new Error(`catalog/${view.type}.json does not validate: ${JSON.stringify(issues)}`);
   await writeFile(root(`catalog/${view.type}.json`), `${stringify(spec)}\n`);
-  cards.push({ type: view.type, title: spec.title ?? view.type });
+  cards.push({ type: view.type, summary: entry.summary, question: entry.question ?? "", needs: entry.needs.filter((n) => n.required).map((n) => `${n.option}: ${n.holds}${n.many ? "+" : ""}`).join(", ") });
 
   index.push(`| [\`${view.type}\`](#${view.type}) | ${cell(entry.summary)} | ${cell(entry.question ?? "")} | ${needs} | [${view.type}.json](../catalog/${view.type}.json) |`);
   sections.push(`**Answers**: ${entry.question}`, "");
@@ -117,6 +117,8 @@ const doc = [
 ].join("\n");
 await writeFile(root("docs/catalog.md"), doc);
 
+const escape = (text: string) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
 const page = `<!doctype html>
 <html lang="en">
 <head>
@@ -128,16 +130,65 @@ const page = `<!doctype html>
   <style>
     :root { color-scheme: light dark; }
     body { font-family: system-ui, sans-serif; margin: 0 auto; max-width: 1200px; padding: 24px 16px; background: Canvas; color: CanvasText; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
-    h2 { font: 600 13px/1.4 ui-monospace, monospace; margin: 0 0 6px; opacity: .7; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr)); gap: 24px 16px; }
+    .card[hidden] { display: none; }
+    .card h2 { font: 600 14px/1.4 ui-monospace, monospace; margin: 0; }
+    .card p { font-size: 13px; line-height: 1.45; margin: 4px 0; opacity: .8; }
+    .needs { font: 12px/1.4 ui-monospace, monospace; }
+    .tools { display: flex; gap: 6px; margin: 6px 0 8px; }
+    button { font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 6px; border: 1px solid color-mix(in srgb, CanvasText 25%, transparent); background: transparent; color: inherit; cursor: pointer; min-height: 28px; }
+    button:hover { background: color-mix(in srgb, CanvasText 8%, transparent); }
+    input { font: inherit; padding: 8px 10px; width: 100%; max-width: 420px; box-sizing: border-box; border-radius: 8px; border: 1px solid color-mix(in srgb, CanvasText 25%, transparent); background: Canvas; color: inherit; }
+    .count { font-size: 13px; opacity: .7; margin-left: 8px; }
   </style>
 </head>
 <body>
   <h1>Chart catalog</h1>
-  <p>${cards.length} views, each one tag: <code>&lt;fft-widget src="&lt;view&gt;.json"&gt;</code>. What each needs: <a href="../docs/catalog.md">docs/catalog.md</a>.</p>
+  <p>${cards.length} chart types. Each is one tag, <code>&lt;fft-widget src="&lt;type&gt;.json"&gt;</code>, with its data built in. Full reference: <a href="../docs/catalog.md">docs/catalog.md</a>.</p>
+  <p><label for="find">Find a chart by name, question or data</label><br><input id="find" type="search" placeholder="trend, share, date, flow…" autocomplete="off"><span class="count" id="count" aria-live="polite"></span></p>
   <div class="grid">
-${cards.map((c) => `    <section id="${c.type}"><h2>${c.type}</h2><fft-widget src="${c.type}.json" actions="csv image copy"></fft-widget></section>`).join("\n")}
+${cards
+  .map(
+    (c) => `    <section class="card" id="${c.type}" data-search="${escape(`${c.type} ${c.summary} ${c.question} ${c.needs}`.toLowerCase())}">
+      <h2>${c.type}</h2>
+      <p>${escape(c.summary)}</p>
+      <p class="needs">needs ${escape(c.needs || "any rows")}</p>
+      <div class="tools"><button type="button" data-copy="spec" data-type="${c.type}">Copy spec</button><button type="button" data-copy="tag" data-type="${c.type}">Copy tag</button></div>
+      <fft-widget src="${c.type}.json" actions="csv image explain expand"></fft-widget>
+    </section>`,
+  )
+  .join("\n")}
   </div>
+  <script>
+    const find = document.getElementById("find");
+    const count = document.getElementById("count");
+    const cards = [...document.querySelectorAll(".card")];
+    find.addEventListener("input", () => {
+      const words = find.value.toLowerCase().split(/\\s+/).filter(Boolean);
+      let shown = 0;
+      for (const card of cards) {
+        card.hidden = !words.every((word) => card.dataset.search.includes(word));
+        if (!card.hidden) shown++;
+      }
+      count.textContent = words.length ? shown + " of " + cards.length : "";
+    });
+    document.addEventListener("click", async (event) => {
+      const button = event.target.closest("button[data-copy]");
+      if (!button) return;
+      const type = button.dataset.type;
+      const text = button.dataset.copy === "tag"
+        ? '<fft-widget src="catalog/' + type + '.json"></fft-widget>'
+        : await (await fetch(type + ".json")).text();
+      const label = button.textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        button.textContent = "Copied";
+      } catch {
+        button.textContent = "Copy failed";
+      }
+      setTimeout(() => (button.textContent = label), 1200);
+    });
+  </script>
 </body>
 </html>
 `;
