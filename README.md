@@ -44,7 +44,7 @@ npm run catalog    # the chart catalog: catalog/*.json, catalog/index.html, docs
 </fft-widget>
 ```
 
-The [chart catalog](docs/catalog.md) has all 40 views, each with what it is for, the data it needs and a self-contained spec in `catalog/` to start from. [examples/drop-in.html](examples/drop-in.html) shows every way in: inline, `src`, and a spec set from JavaScript with live data. [docs/frameworks.md](docs/frameworks.md) has recipes for React, Vue, Svelte and server-rendered apps.
+The [chart catalog](docs/catalog.md) has all 40 views, each with what it is for, the data it needs and a self-contained spec in `catalog/` to start from. [examples/drop-in.html](examples/drop-in.html) shows every way in: inline, `src`, and a spec set from JavaScript with live data. [docs/frameworks.md](docs/frameworks.md) says how to get it into another project (copy one file, or `npm install` from GitHub) and has recipes for React, Vue, Svelte and server-rendered apps.
 
 ## A widget in one object
 

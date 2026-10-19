@@ -2,7 +2,14 @@
 
 A widget is one spec object and one element. Every recipe below does the same three things: load the library once, give it an element and a spec, and destroy the widget when the element goes away. Pick a chart and its data shape from the [chart catalog](catalog.md).
 
-Build the library once with `npm run build:lib`. It writes:
+## Getting it into a project
+
+The package is not on npm. Two ways in:
+
+- **Copy one file.** Run `npm run build:lib` here and copy `dist/fft-widgets.iife.js` (or `dist/fft-widgets.js`) into the other project's static files. Nothing else is needed.
+- **Install from GitHub.** `npm install git+https://github.com/jmartinmatias/martcharts.git` (add `#<branch>` for a branch). npm builds `dist/` on install through the `prepare` script, then `import "fft-widgets/standalone"` works, types included. The repository is private, so the machine needs GitHub access.
+
+`npm run build:lib` writes:
 
 | File | Use it from |
 | --- | --- |
