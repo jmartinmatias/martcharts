@@ -18,7 +18,8 @@ export type {
   TransformBlock,
   ViewBlock,
 } from "./registry.ts";
-export type { FnData, InlineData, UrlData } from "./sources.ts";
+export type { CsvData, FnData, InlineData, UrlData } from "./sources.ts";
+export { parseCsv } from "./sources.ts";
 export type { AggregateStep, BinStep, CalcStep, FilterOp, FilterStep, LimitStep, Measure, PivotStep, SortStep } from "./transforms.ts";
 export type { KpisItem, KpisView } from "./views.ts";
 export type { RidgelineView } from "./views.ts";

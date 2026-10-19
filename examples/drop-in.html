@@ -10,7 +10,7 @@
     :root { color-scheme: light dark; }
     body { font-family: system-ui, sans-serif; margin: 0 auto; max-width: 960px; padding: 24px 16px; background: Canvas; color: CanvasText; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
-    code { background: #f2f2f2; padding: 1px 4px; border-radius: 3px; }
+    code { background: color-mix(in srgb, CanvasText 10%, transparent); padding: 1px 4px; border-radius: 3px; }
   </style>
 </head>
 <body>
@@ -40,7 +40,18 @@
     <fft-widget src="../widgets/revenue-kpi.json"></fft-widget>
     <fft-widget src="../widgets/revenue-by-region.json" actions="csv image copy"></fft-widget>
 
-    <!-- 3. Spec set from JavaScript, with live data. -->
+    <!-- 3. A CSV file, as exported from a spreadsheet: the first row names the fields. -->
+    <fft-widget>
+      <script type="application/json">
+        {
+          "title": "Tickets this week",
+          "data": { "type": "csv", "url": "tickets.csv" },
+          "view": { "type": "bar", "x": "team", "y": ["opened", "closed"] }
+        }
+      </script>
+    </fft-widget>
+
+    <!-- 4. Spec set from JavaScript, with live data. -->
     <fft-widget id="live"></fft-widget>
   </div>
 

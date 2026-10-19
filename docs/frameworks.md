@@ -27,7 +27,7 @@ Both files register `<fft-widget>` on load and have no dependencies. In a projec
 </fft-widget>
 ```
 
-A `url` source fetches JSON from your API. Use `"path": "data.items"` when the rows sit inside the response.
+A `url` source fetches JSON from your API. Use `"path": "data.items"` when the rows sit inside the response. For spreadsheet and BI exports, `{ "type": "csv", "url": "/exports/sales.csv" }` reads CSV with the first row as field names (or `"text"` for CSV written into the spec).
 
 ## Plain JavaScript
 
