@@ -24,7 +24,9 @@ import { HEADLINE_OPTIONS } from "../core/headline.ts";
 import { FACET_OPTIONS } from "../core/validate.ts";
 import { WIDGET_REF, widgetRef } from "../core/ref.ts";
 import { explainChart } from "../core/explain.ts";
-import { describeBlocks } from "../core/registry.ts";
+import { describeChart, describeCharts, needsText } from "../core/catalog.ts";
+import type { ChartEntry } from "../core/catalog.ts";
+import { blockTypes, describeBlocks } from "../core/registry.ts";
 import { questionOf } from "../core/question.ts";
 import { AUDIENCES, createVariants, MOVES } from "../core/taller.ts";
 import type { Audience, Move } from "../core/taller.ts";
@@ -44,6 +46,8 @@ export interface FftServerOptions {
   widgetId?: string;
   /** Where dashboards are read and saved. Without it, the dashboard tools are not offered. */
   dashboards?: WidgetStore;
+  /** The chart catalog: one self-contained starter spec per view, stored by view type (`catalog/` from `npm run catalog`). Without it, the chart tools describe views but hand out no starter spec. */
+  catalog?: WidgetStore;
 }
 
 /** Tool responses stay under this many characters by returning fewer rows. */
@@ -548,6 +552,77 @@ Use it before writing or changing a spec, to pick block types and their option n
     },
   );
 
+  const starter = async (type: string): Promise<WidgetSpec | undefined> => {
+    if (!options.catalog || !(await options.catalog.has(type))) return undefined;
+    return options.catalog.get(type);
+  };
+
+  server.registerTool(
+    "fft_list_charts",
+    {
+      title: "List charts",
+      description: `List every chart type (view) with what it is, the question it typically answers, and the row fields it needs.
+
+Use it to pick the right chart for a question or a dataset, then call fft_get_chart for its full entry and a starter spec.`,
+      inputSchema: z.strictObject({ response_format: ResponseFormat }),
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    },
+    async ({ response_format }) => {
+      const charts: (ChartEntry & { has_starter: boolean })[] = [];
+      for (const chart of describeCharts()) {
+        const spec = await starter(chart.type);
+        charts.push({ ...(spec ? describeChart(chart.type, spec) : chart), has_starter: spec !== undefined });
+      }
+      if (response_format === "json") return asJson({ total: charts.length, charts: charts.map(({ description: _d, howToRead: _h, ...rest }) => rest) });
+      const lines = [`# Charts (${charts.length})`, "", "| Type | What it is | Answers, for example | Needs |", "| --- | --- | --- | --- |"];
+      for (const chart of charts) lines.push(`| \`${chart.type}\` | ${cell(chart.summary)} | ${cell(chart.question ?? "")} | ${cell(needsText(chart))} |`);
+      lines.push("", "Call fft_get_chart with a type for its fields, settings and a starter spec.");
+      return asMarkdown(lines.join("\n"));
+    },
+  );
+
+  server.registerTool(
+    "fft_get_chart",
+    {
+      title: "Get chart",
+      description: `One chart type in full: what it is, every row field it reads (and what each holds), its settings, how to read it, and a self-contained starter spec with inline rows.
+
+To make a widget from it: replace the starter's data with yours (keeping the field names the view options point at, or changing those options), check it with fft_validate_spec, and save it with fft_create_widget. fft_list_blocks has every setting's type and default.`,
+      inputSchema: z.strictObject({
+        type: z.string().describe('A view type, such as "bar" or "sankey". fft_list_charts lists them.'),
+        response_format: ResponseFormat,
+      }),
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    },
+    async ({ type, response_format }) => {
+      if (!blockTypes("view").includes(type)) {
+        return { ...asMarkdown(`No chart type "${type}". Known types: ${blockTypes("view").join(", ")}.`), isError: true };
+      }
+      const spec = await starter(type);
+      const chart = describeChart(type, spec);
+      // A starter too long for one response keeps its first rows; the shape is what matters.
+      const rows = spec?.data.type === "inline" ? (spec.data.rows as Row[]) : [];
+      const trimmed = (count: number) => (spec ? { ...spec, data: { type: "inline", rows: rows.slice(0, count) } } : undefined);
+      let kept = rows.length;
+      while (kept > 1 && JSON.stringify(trimmed(kept), null, 2).length > CHARACTER_LIMIT - 4_000) kept = Math.ceil(kept / 2);
+      const starterSpec = trimmed(kept);
+      const note = spec && kept < rows.length ? `The starter shows ${kept} of its ${rows.length} rows.` : undefined;
+      if (response_format === "json") return asJson({ ...chart, starter: starterSpec ?? null, ...(note ? { note } : {}) });
+      const lines = [`# \`${type}\``, "", chart.description, ""];
+      if (chart.question) lines.push(`**Answers, for example**: ${chart.question}`, "");
+      if (chart.needs.length) {
+        lines.push("## Row fields", "", "| Option | Holds | Required | What it is |", "| --- | --- | --- | --- |");
+        for (const need of chart.needs) lines.push(`| \`${need.option}\` | ${need.holds}${need.many ? " (one or more)" : ""} | ${need.required ? "yes" : ""} | ${cell(need.description)} |`);
+        lines.push("");
+      }
+      if (chart.settings.length) lines.push(`**Settings**: ${chart.settings.map((name) => `\`${name}\``).join(", ")} (fft_list_blocks kind "view" has their types and defaults).`, "");
+      if (chart.howToRead) lines.push("## How to read it", "", chart.howToRead, "");
+      if (starterSpec) lines.push("## Starter spec", "", ...(note ? [note, ""] : []), "```json", JSON.stringify(starterSpec, null, 2), "```");
+      else lines.push("No starter spec in this server's catalog; fft_list_blocks and fft_validate_spec are enough to write one.");
+      return asMarkdown(lines.join("\n"));
+    },
+  );
+
   server.registerTool(
     "fft_check_palette",
     {
@@ -710,6 +785,27 @@ With check_data (default true) it also loads the data and warns about view field
     { title: "Block catalog", description: "Every data source, transform, format and view, with its options.", mimeType: "application/json" },
     async (uri) => json(uri, { ...Object.fromEntries(KINDS.map((kind) => [kind, describeBlocks(kind)])), presets: describePresets(), palettes: describePalettes() }),
   );
+
+  const { catalog } = options;
+  if (catalog) {
+    server.registerResource(
+      "chart",
+      new ResourceTemplate("fft://charts/{type}", {
+        list: async () => ({
+          resources: (await catalog.list())
+            .filter((entry) => entry.spec && blockTypes("view").includes(entry.id))
+            .map((entry) => ({ uri: `fft://charts/${entry.id}`, name: entry.id, title: `${entry.id}: ${describeChart(entry.id).summary}`, mimeType: "application/json" })),
+        }),
+      }),
+      { title: "Chart starter", description: "One chart type's self-contained starter spec, with inline rows: drop it into <fft-widget> or fft_create_widget.", mimeType: "application/json" },
+      async (uri, { type }) => {
+        if (!blockTypes("view").includes(String(type))) throw new ResourceNotFoundError(uri.href);
+        const spec = await starter(String(type));
+        if (!spec) throw new ResourceNotFoundError(uri.href);
+        return json(uri, spec);
+      },
+    );
+  }
 
   return server;
 }

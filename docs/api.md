@@ -162,17 +162,22 @@ States are exposed on `root` as `data-state`: `loading`, `ready`, `empty` or `er
 
 ### `<fft-widget>`
 
-Call `defineWidgetElement()` once (optionally with your own tag name), then:
+Call `defineWidgetElement()` once (optionally with your own tag name), or load the built bundle, which calls it for you. Then:
 
 ```html
 <fft-widget src="/widgets/revenue-kpi.json"></fft-widget>
 <fft-widget spec='{"data":{"type":"inline","rows":[{"a":1}]},"view":{"type":"table"}}'></fft-widget>
+<fft-widget>
+  <script type="application/json">{"data":{"type":"inline","rows":[{"a":1}]},"view":{"type":"table"}}</script>
+</fft-widget>
 ```
 
 | Attribute or property | What it does |
 | --- | --- |
 | `src` attribute | URL of a spec JSON file to load. |
 | `spec` attribute | The spec as JSON. Invalid JSON shows an error in the widget. |
+| `<script type="application/json">` child | The spec as JSON inside the tag, read when neither attribute is set. Invalid JSON shows an error. |
+| `actions` attribute | Space-separated buttons to show: `csv`, `image`, `copy`, `explain`, `expand`. |
 | `spec` property | The spec as an object. Setting it redraws the same widget. |
 | `widget` property | The live `Widget`, once connected. |
 
@@ -489,3 +494,4 @@ Chart helpers for custom charts are exported too: `niceTicks`, `linearScale`, `b
 | `fft-widgets` | Everything, with the built-in renderers attached. | Browser |
 | `fft-widgets/core` | Specs, fork, registry, pipeline, formats, validation. | Browser, Node, workers |
 | `fft-widgets/mcp` | `createFftServer`, plus the store from `src/mcp/store.ts`. | Node |
+| `fft-widgets/standalone` | Built bundle (`dist/fft-widgets.js`, from `npm run build:lib`): everything in `fft-widgets`, compiled, with `<fft-widget>` registered. `dist/fft-widgets.iife.js` is the same as a classic script (`window.FFTWidgets`). Types in `dist/types`, with `HTMLElementTagNameMap["fft-widget"]`. | Browser, no bundler; imports safely in Node |

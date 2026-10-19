@@ -1,0 +1,40 @@
+{
+  "id": "region-targets",
+  "title": "Target attainment",
+  "subtitle": "Q3 2026 revenue against target",
+  "description": "How close each region is to its quarterly revenue target.",
+  "footer": "Source: /data/sales.json",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {"region":"East","revenue":338000,"target":360000},
+      {"region":"North","revenue":278000,"target":270000},
+      {"region":"Central","revenue":259000,"target":250000},
+      {"region":"West","revenue":205000,"target":220000},
+      {"region":"South","revenue":204000,"target":230000}
+    ]
+  },
+  "fields": {
+    "revenue": {
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "target": {
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
+  },
+  "view": {
+    "type": "meter",
+    "value": "revenue",
+    "target": "target",
+    "label": "region"
+  }
+}

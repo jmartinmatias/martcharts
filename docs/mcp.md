@@ -29,6 +29,7 @@ npm run smoke                                 # self-check against the real proc
 | `--dir` | `<project>/widgets` | Widget folder. Also `FFT_WIDGETS_DIR`. |
 | `--public` | `<project>/public` | Folder that relative data URLs (`/data/sales.json`) are read from, as the dev server does in the browser. Also `FFT_PUBLIC_DIR`. |
 | `--dashboards` | `<project>/dashboards` | Dashboard folder. Also `FFT_DASHBOARDS_DIR`. |
+| `--catalog` | `<project>/catalog` | Chart catalog folder: one starter spec per view, named by view type. Also `FFT_CATALOG_DIR`. |
 | `--widget` | none | Link the server to one widget. |
 | `--print-config` | off | Print an `.mcp.json` block and exit. |
 
@@ -74,12 +75,14 @@ All tools validate input; bad input comes back as a tool error that says how to 
 | `fft_create_dashboard` | no | Creates a dashboard (grid of widget cells, spans, filter row). Refuses invalid specs and unknown widget ids. |
 | `fft_update_dashboard` | no (overwrites) | `changes` (merge patch) or `replace`. Same checks as create. |
 | `fft_delete_dashboard` | no (destructive) | Removes the dashboard; its widgets stay. |
+| `fft_list_charts` | yes | The chart catalog: every view with what it is, the question its example answers, the row fields it needs (and what each holds), and whether a starter spec exists. Start here to pick a chart. |
+| `fft_get_chart` | yes | One view in full: every row field, its settings, how to read it, and a self-contained starter spec (inline rows, trimmed to fit) to adapt and save with `fft_create_widget`. Starters come from `catalog/` (`npm run catalog`). |
 | `fft_list_blocks` | yes | Every data source, transform, format and view with its options. Filter with `kind`. |
 | `fft_check_palette` | yes | Checks a palette (a library name or hex colors) for colorblind separation, neighbour separation, lightness, colorfulness and contrast, on a light or dark background. |
 | `fft_validate_spec` | yes | Checks a draft spec without saving. With `check_data` (default true) also loads the data and warns about missing fields. |
 | `fft_create_variants` | yes | The Taller: seeded new versions of a widget, each made by a sales move (`moves`: decompose, reframe, distill, contrast, reveal, combine, reform), optionally for an `audience` (rep, manager, leadership), with the sales question it answers, a plain title, how to read it, five quality scores and its novelty and meaning. Also returns the original's question. Nothing is saved; keep one with `fft_create_widget`. See [taller.md](taller.md). |
 
-A server linked to one widget offers `fft_get_widget`, `fft_get_widget_data`, `fft_update_widget`, `fft_create_variants`, `fft_list_blocks`, `fft_check_palette` and `fft_validate_spec`, without `id` arguments. `fft_list_blocks` and `fft://blocks` also list the style presets and the palette library.
+A server linked to one widget offers `fft_get_widget`, `fft_get_widget_data`, `fft_update_widget`, `fft_create_variants`, `fft_list_charts`, `fft_get_chart`, `fft_list_blocks`, `fft_check_palette` and `fft_validate_spec`, without `id` arguments. `fft_list_blocks` and `fft://blocks` also list the style presets and the palette library.
 
 Merge patch rules for `changes` and forks: objects merge key by key, lists replace, `null` removes a key.
 
@@ -113,6 +116,7 @@ Responses stay under 25,000 characters by returning fewer rows; `next_offset` th
 | `fft://widgets/<id>/data` | The widget's rows after transforms, as JSON. Readable, not listed. |
 | `fft://dashboards/<id>` | A dashboard's spec as JSON. Every dashboard is listed. |
 | `fft://blocks` | The block catalog as JSON. |
+| `fft://charts/<type>` | One chart type's self-contained starter spec (inline rows) from the catalog folder. Every chart with a starter is listed, titled with what it is. |
 
 The server sends `resources/list_changed` after creating or deleting a widget.
 

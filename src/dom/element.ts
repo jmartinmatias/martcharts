@@ -4,6 +4,9 @@
  * ```html
  * <fft-widget src="/widgets/revenue-by-region.json" actions="csv image copy"></fft-widget>
  * <fft-widget spec='{"data":{"type":"inline","rows":[{"a":1}]},"view":{"type":"table"}}'></fft-widget>
+ * <fft-widget>
+ *   <script type="application/json">{"data":{"type":"inline","rows":[{"a":1}]},"view":{"type":"table"}}</script>
+ * </fft-widget>
  * ```
  *
  * @module
@@ -15,7 +18,7 @@ import type { WidgetAction } from "./export.ts";
 
 /** The `<fft-widget>` element. */
 export interface FftWidgetElement extends HTMLElement {
-  /** The spec to draw. Setting it redraws; also settable through the `spec` (JSON) or `src` (URL) attributes. */
+  /** The spec to draw. Setting it redraws; also settable through the `spec` (JSON) or `src` (URL) attributes, or an inline `<script type="application/json">` child. */
   spec: WidgetSpec | undefined;
   /** The live widget, once the element is in the page and has a spec. */
   readonly widget: Widget | undefined;
@@ -48,7 +51,22 @@ export function defineWidgetElement(tag = "fft-widget"): void {
     }
 
     connectedCallback() {
+      if (!this.#spec && !this.hasAttribute("spec") && !this.hasAttribute("src")) this.#readInline();
       this.#draw();
+    }
+
+    // A spec written inside the tag. While the page is still parsing, the child may not exist yet.
+    #readInline() {
+      const script = this.querySelector(':scope > script[type="application/json"]');
+      if (!script) {
+        if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => this.#spec || this.#readInline(), { once: true });
+        return;
+      }
+      try {
+        this.spec = JSON.parse(script.textContent ?? "") as WidgetSpec;
+      } catch (caught) {
+        this.#problem(`The inline spec is not valid JSON: ${caught instanceof Error ? caught.message : String(caught)}`);
+      }
     }
 
     disconnectedCallback() {
@@ -85,7 +103,7 @@ export function defineWidgetElement(tag = "fft-widget"): void {
       if (!this.isConnected || !this.#spec) return;
       if (this.#widget) void this.#widget.setSpec(this.#spec);
       else {
-        const actions = (this.getAttribute("actions") ?? "").split(/\s+/).filter((a): a is WidgetAction => a === "csv" || a === "image" || a === "copy" || a === "expand");
+        const actions = (this.getAttribute("actions") ?? "").split(/\s+/).filter((a): a is WidgetAction => a === "csv" || a === "image" || a === "copy" || a === "explain" || a === "expand");
         this.#widget = createWidget(this, this.#spec, { actions });
       }
     }

@@ -1,0 +1,15 @@
+{
+  // Type declarations for the drop-in bundle (npm run build:lib): dist/types/standalone.d.ts and what it imports.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "rewriteRelativeImportExtensions": true,
+    "types": [],
+    "outDir": "dist/types",
+    "rootDir": "src"
+  },
+  "include": ["src/standalone.ts"],
+  "exclude": ["src/**/*.test.ts"]
+}

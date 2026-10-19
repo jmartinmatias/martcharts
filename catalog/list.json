@@ -1,0 +1,37 @@
+{
+  "id": "top-customers",
+  "title": "Top customers",
+  "subtitle": "By revenue, year to date",
+  "description": "The five customers with the most revenue.",
+  "footer": "Source: /data/customers.json",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {"name":"Aurora Logistics","country":"Luxembourg","segment":"Enterprise","revenue":214000},
+      {"name":"Bellwether Foods","country":"France","segment":"Enterprise","revenue":188500},
+      {"name":"Cobalt Analytics","country":"Germany","segment":"Mid-market","revenue":172300},
+      {"name":"Dunmore Retail","country":"Belgium","segment":"Mid-market","revenue":151900},
+      {"name":"Everline Health","country":"Netherlands","segment":"Enterprise","revenue":139400}
+    ]
+  },
+  "fields": {
+    "revenue": {
+      "format": {
+        "type": "bar",
+        "format": {
+          "type": "currency",
+          "currency": "EUR",
+          "decimals": 0,
+          "compact": true
+        }
+      }
+    }
+  },
+  "view": {
+    "type": "list",
+    "label": "name",
+    "detail": "country",
+    "value": "revenue"
+  }
+}

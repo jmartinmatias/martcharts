@@ -45,6 +45,19 @@ for (const { id } of (boards.structuredContent as { dashboards: { id: string }[]
   console.error(`ok  dashboard ${id}`);
 }
 
+const charts = await client.callTool({ name: "fft_list_charts", arguments: { response_format: "json" } });
+assert.ok(!charts.isError, `chart list failed: ${text(charts)}`);
+const entries = (charts.structuredContent as { charts: { type: string; has_starter: boolean }[] }).charts;
+const missingStarters = entries.filter((c) => !c.has_starter).map((c) => c.type);
+assert.deepEqual(missingStarters, [], "every chart should have a starter in catalog/ (npm run catalog)");
+for (const { type } of entries) {
+  const chart = await client.callTool({ name: "fft_get_chart", arguments: { type, response_format: "json" } });
+  const starter = (chart.structuredContent as { starter: unknown }).starter;
+  const check = await client.callTool({ name: "fft_validate_spec", arguments: { spec: starter } });
+  assert.ok(!chart.isError && !check.isError, `chart ${type}: ${text(chart)} ${text(check)}`);
+}
+console.error(`ok  catalog: ${entries.length} charts, each with a starter that validates`);
+
 const firstId = widgets[0]?.id ?? "";
 const versions = await client.callTool({ name: "fft_create_variants", arguments: { id: firstId, count: 3 } });
 assert.ok(!versions.isError, `variants for ${firstId} failed: ${text(versions)}`);

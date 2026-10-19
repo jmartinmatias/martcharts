@@ -1,0 +1,60 @@
+{
+  "id": "account-portfolio",
+  "title": "Account portfolio",
+  "subtitle": "Growth against margin, sized by revenue",
+  "description": "Each account placed by its revenue growth and gross margin, the bubble sized by its revenue and colored by segment. Top right is where to invest; the big Enterprise accounts grow slowly but earn well.",
+  "footer": "Source: finance ledger, {count} accounts",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {"account":"Aurora Logistics","segment":"Enterprise","growth":0.18,"margin":0.34,"revenue":214000},
+      {"account":"Bellwether Foods","segment":"Enterprise","growth":0.06,"margin":0.29,"revenue":188500},
+      {"account":"Cobalt Analytics","segment":"Mid-market","growth":0.31,"margin":0.41,"revenue":172300},
+      {"account":"Dunmore Retail","segment":"Mid-market","growth":-0.04,"margin":0.22,"revenue":151900},
+      {"account":"Everline Health","segment":"Enterprise","growth":0.12,"margin":0.38,"revenue":139400},
+      {"account":"Fjord Energy","segment":"Mid-market","growth":0.24,"margin":0.27,"revenue":122800},
+      {"account":"Granite Bank","segment":"Enterprise","growth":0.02,"margin":0.31,"revenue":118200},
+      {"account":"Halcyon Travel","segment":"Small business","growth":0.36,"margin":0.19,"revenue":97600},
+      {"account":"Ironwood Labs","segment":"Small business","growth":0.28,"margin":0.44,"revenue":64300},
+      {"account":"Juniper Media","segment":"Small business","growth":-0.08,"margin":0.16,"revenue":52100},
+      {"account":"Kestrel Freight","segment":"Mid-market","growth":0.15,"margin":0.24,"revenue":88900},
+      {"account":"Lumen Studio","segment":"Small business","growth":0.41,"margin":0.33,"revenue":41200}
+    ]
+  },
+  "fields": {
+    "growth": {
+      "label": "Revenue growth",
+      "format": {
+        "type": "percent",
+        "decimals": 0
+      }
+    },
+    "margin": {
+      "label": "Gross margin",
+      "format": {
+        "type": "percent",
+        "decimals": 0
+      }
+    },
+    "revenue": {
+      "label": "Revenue",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "segment": {
+      "label": "Segment"
+    }
+  },
+  "view": {
+    "type": "scatter",
+    "x": "growth",
+    "y": "margin",
+    "size": "revenue",
+    "series": "segment",
+    "label": "account"
+  }
+}

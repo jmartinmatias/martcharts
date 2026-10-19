@@ -7,14 +7,31 @@
   "exports": {
     ".": "./src/index.ts",
     "./core": "./src/core/index.ts",
-    "./mcp": "./src/mcp/server.ts"
+    "./mcp": "./src/mcp/server.ts",
+    "./standalone": {
+      "types": "./dist/types/standalone.d.ts",
+      "default": "./dist/fft-widgets.js"
+    },
+    "./dist/*": "./dist/*"
   },
+  "unpkg": "dist/fft-widgets.iife.js",
+  "jsdelivr": "dist/fft-widgets.iife.js",
+  "files": [
+    "src",
+    "dist",
+    "widgets",
+    "dashboards",
+    "catalog",
+    "docs",
+    "!src/**/*.test.ts"
+  ],
   "bin": {
     "fft-mcp": "src/mcp/main.ts"
   },
   "scripts": {
     "dev": "vite",
     "build:demo": "vite build",
+    "build:lib": "vite build -c vite.lib.config.ts && node scripts/lib-types.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
@@ -22,7 +39,8 @@
     "mcp:inspect": "npx @modelcontextprotocol/inspector node src/mcp/main.ts",
     "smoke": "node scripts/smoke.ts",
     "mcp:config": "node src/mcp/main.ts --print-config",
-    "docs": "node scripts/docs.ts"
+    "docs": "node scripts/docs.ts",
+    "catalog": "node scripts/catalog.ts"
   },
   "engines": {
     "node": ">=23.6"

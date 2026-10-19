@@ -1,0 +1,66 @@
+{
+  "id": "ticket-heatmap",
+  "title": "Support tickets",
+  "subtitle": "By weekday and time of day",
+  "description": "When customers open support tickets, to plan staffing.",
+  "footer": "Source: helpdesk, last 4 weeks",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {"day":"Mon","slot":"8-10","tickets":34},
+      {"day":"Mon","slot":"10-12","tickets":61},
+      {"day":"Mon","slot":"12-14","tickets":48},
+      {"day":"Mon","slot":"14-16","tickets":55},
+      {"day":"Mon","slot":"16-18","tickets":40},
+      {"day":"Tue","slot":"8-10","tickets":38},
+      {"day":"Tue","slot":"10-12","tickets":72},
+      {"day":"Tue","slot":"12-14","tickets":51},
+      {"day":"Tue","slot":"14-16","tickets":63},
+      {"day":"Tue","slot":"16-18","tickets":44},
+      {"day":"Wed","slot":"8-10","tickets":36},
+      {"day":"Wed","slot":"10-12","tickets":68},
+      {"day":"Wed","slot":"12-14","tickets":57},
+      {"day":"Wed","slot":"14-16","tickets":66},
+      {"day":"Wed","slot":"16-18","tickets":47},
+      {"day":"Thu","slot":"8-10","tickets":41},
+      {"day":"Thu","slot":"10-12","tickets":79},
+      {"day":"Thu","slot":"12-14","tickets":62},
+      {"day":"Thu","slot":"14-16","tickets":71},
+      {"day":"Thu","slot":"16-18","tickets":52},
+      {"day":"Fri","slot":"8-10","tickets":29},
+      {"day":"Fri","slot":"10-12","tickets":58},
+      {"day":"Fri","slot":"12-14","tickets":44},
+      {"day":"Fri","slot":"14-16","tickets":49},
+      {"day":"Fri","slot":"16-18","tickets":31},
+      {"day":"Sat","slot":"8-10","tickets":8},
+      {"day":"Sat","slot":"10-12","tickets":14},
+      {"day":"Sat","slot":"12-14","tickets":12},
+      {"day":"Sat","slot":"14-16","tickets":10},
+      {"day":"Sat","slot":"16-18","tickets":6},
+      {"day":"Sun","slot":"8-10","tickets":5},
+      {"day":"Sun","slot":"10-12","tickets":9},
+      {"day":"Sun","slot":"12-14","tickets":11},
+      {"day":"Sun","slot":"14-16","tickets":8},
+      {"day":"Sun","slot":"16-18","tickets":4}
+    ]
+  },
+  "fields": {
+    "tickets": {
+      "label": "Tickets",
+      "format": "number"
+    },
+    "slot": {
+      "label": "Time"
+    },
+    "day": {
+      "label": "Day"
+    }
+  },
+  "view": {
+    "type": "heatmap",
+    "x": "slot",
+    "y": "day",
+    "value": "tickets"
+  }
+}

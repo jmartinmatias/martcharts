@@ -1,0 +1,44 @@
+{
+  "id": "product-compare",
+  "title": "How we compare",
+  "subtitle": "Customer ratings out of 10, against the market average",
+  "description": "Average customer rating per attribute for our product and for the market. We lead on reliability and ease of use and trail only on price.",
+  "footer": "Source: customer survey and analyst panel",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {"attribute":"Speed","us":8.6,"market":6.9},
+      {"attribute":"Reliability","us":9.1,"market":7.8},
+      {"attribute":"Support","us":8.2,"market":6.4},
+      {"attribute":"Price","us":6.1,"market":7.4},
+      {"attribute":"Integrations","us":7.4,"market":6.8},
+      {"attribute":"Ease of use","us":8.8,"market":7.1}
+    ]
+  },
+  "fields": {
+    "us": {
+      "label": "Our product",
+      "format": {
+        "type": "number",
+        "decimals": 1
+      }
+    },
+    "market": {
+      "label": "Market average",
+      "format": {
+        "type": "number",
+        "decimals": 1
+      }
+    }
+  },
+  "view": {
+    "type": "radar",
+    "label": "attribute",
+    "y": [
+      "us",
+      "market"
+    ],
+    "max": 10
+  }
+}

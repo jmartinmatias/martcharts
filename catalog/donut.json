@@ -1,0 +1,31 @@
+{
+  "id": "revenue-by-segment",
+  "title": "Revenue by segment",
+  "subtitle": "Year to date",
+  "description": "How revenue splits across customer segments.",
+  "footer": "Source: /data/customers.json",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {"segment":"Enterprise","revenue":660100},
+      {"segment":"Mid-market","revenue":447000},
+      {"segment":"Small business","revenue":97600}
+    ]
+  },
+  "fields": {
+    "revenue": {
+      "label": "Revenue",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
+  },
+  "view": {
+    "type": "donut",
+    "label": "segment",
+    "value": "revenue"
+  }
+}

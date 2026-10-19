@@ -1,0 +1,90 @@
+{
+  "id": "share-price",
+  "title": "Share price",
+  "subtitle": "Last 30 trading days, with a 5-day average",
+  "description": "Daily open, high, low and close, up days in blue and down days in red, with the 5-day moving average of the close.",
+  "footer": "Source: market data, closing at {last:close}",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {"day":"2026-08-17","open":48.2,"high":48.28,"low":48.1,"close":48.15},
+      {"day":"2026-08-18","open":48.15,"high":48.92,"low":47.48,"close":48.86},
+      {"day":"2026-08-19","open":48.86,"high":49.36,"low":48.76,"close":49.24},
+      {"day":"2026-08-20","open":49.24,"high":49.52,"low":48.72,"close":49.42},
+      {"day":"2026-08-21","open":49.42,"high":50.14,"low":49.09,"close":50.09},
+      {"day":"2026-08-24","open":50.09,"high":50.2,"low":48.67,"close":49.26},
+      {"day":"2026-08-25","open":49.26,"high":49.43,"low":49.02,"close":49.38},
+      {"day":"2026-08-26","open":49.38,"high":49.52,"low":47.93,"close":48.15},
+      {"day":"2026-08-27","open":48.15,"high":49.13,"low":47.98,"close":49.02},
+      {"day":"2026-08-28","open":49.02,"high":49.67,"low":48.52,"close":49.32},
+      {"day":"2026-08-31","open":49.32,"high":50.59,"low":48.14,"close":49.91},
+      {"day":"2026-09-01","open":49.91,"high":50.32,"low":49.05,"close":49.44},
+      {"day":"2026-09-02","open":49.44,"high":50.67,"low":49.06,"close":50.12},
+      {"day":"2026-09-03","open":50.12,"high":50.16,"low":49.17,"close":49.3},
+      {"day":"2026-09-04","open":49.3,"high":49.85,"low":49.01,"close":49.48},
+      {"day":"2026-09-07","open":49.48,"high":50.16,"low":49.26,"close":49.87},
+      {"day":"2026-09-08","open":49.87,"high":50.19,"low":49.18,"close":49.39},
+      {"day":"2026-09-09","open":49.39,"high":50.03,"low":48.34,"close":49.92},
+      {"day":"2026-09-10","open":49.92,"high":50.41,"low":48.91,"close":49.26},
+      {"day":"2026-09-11","open":49.26,"high":50.85,"low":48.88,"close":50.62},
+      {"day":"2026-09-14","open":50.62,"high":52.02,"low":49.98,"close":51.98},
+      {"day":"2026-09-15","open":51.98,"high":52.41,"low":50.93,"close":51.58},
+      {"day":"2026-09-16","open":51.58,"high":51.8,"low":51.44,"close":51.69},
+      {"day":"2026-09-17","open":51.69,"high":52.68,"low":50.65,"close":52.42},
+      {"day":"2026-09-18","open":52.42,"high":53.33,"low":52.17,"close":53.06},
+      {"day":"2026-09-21","open":53.06,"high":53.49,"low":52.13,"close":52.39},
+      {"day":"2026-09-22","open":52.39,"high":52.75,"low":52.06,"close":52.41},
+      {"day":"2026-09-23","open":52.41,"high":53.24,"low":51.74,"close":52.23},
+      {"day":"2026-09-24","open":52.23,"high":52.42,"low":51.26,"close":51.8},
+      {"day":"2026-09-25","open":51.8,"high":51.98,"low":51.72,"close":51.86}
+    ]
+  },
+  "fields": {
+    "day": {
+      "label": "Day",
+      "format": {
+        "type": "date",
+        "style": "medium"
+      }
+    },
+    "open": {
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "decimals": 2
+      }
+    },
+    "high": {
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "decimals": 2
+      }
+    },
+    "low": {
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "decimals": 2
+      }
+    },
+    "close": {
+      "label": "Close",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "decimals": 2
+      }
+    }
+  },
+  "view": {
+    "type": "candlestick",
+    "x": "day",
+    "open": "open",
+    "high": "high",
+    "low": "low",
+    "close": "close",
+    "average": 5
+  }
+}

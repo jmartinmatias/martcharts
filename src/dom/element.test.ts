@@ -47,6 +47,19 @@ describe("<fft-widget>", () => {
     await vi.waitFor(() => expect(el.querySelector(".fft-message")?.textContent).toContain("The spec attribute is not valid JSON"));
   });
 
+  test("renders the JSON in an inline script child", async () => {
+    document.body.innerHTML = `<fft-widget><script type="application/json">${JSON.stringify(spec)}</script></fft-widget>`;
+    const el = document.querySelector("fft-widget") as FftWidgetElement;
+    await settled(el);
+    expect(el.querySelector(".fft-title")?.textContent).toBe("From JSON");
+  });
+
+  test("broken JSON in an inline script child is shown as an error", async () => {
+    document.body.innerHTML = `<fft-widget><script type="application/json">{"title": </script></fft-widget>`;
+    const el = document.querySelector("fft-widget") as FftWidgetElement;
+    await vi.waitFor(() => expect(el.querySelector(".fft-message")?.textContent).toContain("The inline spec is not valid JSON"));
+  });
+
   test("src loads the spec from a URL", async () => {
     const urls: string[] = [];
     vi.stubGlobal("fetch", async (url: string) => {

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Drop-in widgets</title>
+  <!-- The whole library, with <fft-widget> registered. No bundler, no build step, no dependencies. -->
+  <script src="../dist/fft-widgets.iife.js"></script>
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: system-ui, sans-serif; margin: 0 auto; max-width: 960px; padding: 24px 16px; background: Canvas; color: CanvasText; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+    code { background: #f2f2f2; padding: 1px 4px; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <h1>Drop-in widgets</h1>
+  <p>Built with <code>npm run build:lib</code>. Each card below is one tag. Serve this folder from the repo root (for example <code>npm run dev</code>, then open <code>/examples/drop-in.html</code>).</p>
+
+  <div class="grid">
+    <!-- 1. Spec written inside the tag. -->
+    <fft-widget actions="csv image">
+      <script type="application/json">
+        {
+          "title": "Signups by channel",
+          "subtitle": "Last 30 days",
+          "data": { "type": "inline", "rows": [
+            { "channel": "Search", "signups": 1240 },
+            { "channel": "Social", "signups": 860 },
+            { "channel": "Referral", "signups": 610 },
+            { "channel": "Email", "signups": 420 }
+          ] },
+          "fields": { "signups": { "label": "Signups", "format": "number" } },
+          "view": { "type": "hbar", "label": "channel", "value": "signups" }
+        }
+      </script>
+    </fft-widget>
+
+    <!-- 2. Spec loaded from a JSON file (any widget in /widgets works). -->
+    <fft-widget src="../widgets/revenue-kpi.json"></fft-widget>
+    <fft-widget src="../widgets/revenue-by-region.json" actions="csv image copy"></fft-widget>
+
+    <!-- 3. Spec set from JavaScript, with live data. -->
+    <fft-widget id="live"></fft-widget>
+  </div>
+
+  <script>
+    const el = document.getElementById("live");
+    el.spec = {
+      title: "Requests per minute",
+      data: { type: "fn", load: () => Array.from({ length: 12 }, (_, i) => ({ minute: `12:${String(i * 5).padStart(2, "0")}`, requests: 200 + Math.round(80 * Math.sin(i / 2)) })) },
+      view: { type: "line", x: "minute", y: "requests" },
+    };
+    document.addEventListener("fft-select", (event) => console.log("selected", event.detail.row));
+  </script>
+</body>
+</html>

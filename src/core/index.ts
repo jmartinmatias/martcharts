@@ -46,6 +46,8 @@ export { AUDIENCES, balanceOf, createVariants, fillsOf, huePalette, meaningOf, M
 export { explainVariant } from "./taller-explain.ts";
 export type { Audience, Balance, ColorEmphasis, DataProfile, Lineage, Look, Marks, Move, Principle, Qualities, Quality, TallerOptions, Variant } from "./taller.ts";
 export { questionOf } from "./question.ts";
+export { describeChart, describeCharts, firstSentence, needsText } from "./catalog.ts";
+export type { ChartEntry, ChartNeed } from "./catalog.ts";
 export type { Question, QuestionKind } from "./question.ts";
 export { fillTemplate, hasTemplate, templateFields, templateRefs } from "./template.ts";
 export { applyTransforms, runPipeline } from "./pipeline.ts";

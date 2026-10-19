@@ -1,0 +1,30 @@
+{
+  "id": "nps-gauge",
+  "title": "Net promoter score",
+  "subtitle": "September 2026 survey, against a goal of 50",
+  "description": "Share of promoters minus share of detractors, on its full -100 to 100 scale, with the goal marked.",
+  "footer": "Source: customer survey, 1,240 responses",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {"nps":42,"goal":50}
+    ]
+  },
+  "fields": {
+    "nps": {
+      "label": "NPS"
+    },
+    "goal": {
+      "label": "Goal"
+    }
+  },
+  "view": {
+    "type": "gauge",
+    "value": "nps",
+    "target": "goal",
+    "min": -100,
+    "max": 100,
+    "label": "Net promoter score"
+  }
+}

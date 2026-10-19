@@ -1,0 +1,43 @@
+{
+  "id": "product-share",
+  "title": "Product share",
+  "subtitle": "Share of each region's revenue",
+  "description": "Core and Plus as a share of each region's revenue.",
+  "footer": "Source: /data/sales.json",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {"region":"East","Core":220000,"Plus":118000,"total":338000},
+      {"region":"North","Core":182000,"Plus":96000,"total":278000},
+      {"region":"Central","Core":165000,"Plus":94000,"total":259000},
+      {"region":"West","Core":131000,"Plus":74000,"total":205000},
+      {"region":"South","Core":143000,"Plus":61000,"total":204000}
+    ]
+  },
+  "fields": {
+    "Core": {
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "Plus": {
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
+  },
+  "view": {
+    "type": "bar",
+    "x": "region",
+    "y": [
+      "Core",
+      "Plus"
+    ],
+    "stacked": "percent"
+  }
+}

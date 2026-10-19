@@ -23,7 +23,27 @@ npm run dev        # demo gallery at http://localhost:5173; its Playground (head
 npm test           # unit and integration tests
 npm run typecheck
 npm run smoke      # starts the real MCP server and calls it as a client would
+npm run build:lib  # the drop-in bundle in dist/
+npm run catalog    # the chart catalog: catalog/*.json, catalog/index.html, docs/catalog.md
 ```
+
+## Drop it into any page
+
+`npm run build:lib` writes two self-contained files with no dependencies: `dist/fft-widgets.iife.js` (a classic script, exposed as `window.FFTWidgets`) and `dist/fft-widgets.js` (an ES module, also `import "fft-widgets/standalone"`). Both register `<fft-widget>` on load, so a page needs no bundler, no Node and no JavaScript of its own. Type declarations ship in `dist/types` (`fft-widgets/standalone` resolves them under any `moduleResolution`, and `document.querySelector("fft-widget")` comes back typed). The module is safe to import on a server too: it only registers the tag where `customElements` exists.
+
+```html
+<script src="fft-widgets.iife.js"></script>
+
+<fft-widget src="catalog/funnel.json"></fft-widget>          <!-- a spec file -->
+<fft-widget actions="csv image">                              <!-- or the spec inline -->
+  <script type="application/json">
+    { "data": { "type": "inline", "rows": [{ "team": "Ops", "hours": 3 }, { "team": "Sales", "hours": 5 }] },
+      "view": { "type": "hbar", "label": "team", "value": "hours" } }
+  </script>
+</fft-widget>
+```
+
+The [chart catalog](docs/catalog.md) has all 40 views, each with what it is for, the data it needs and a self-contained spec in `catalog/` to start from. [examples/drop-in.html](examples/drop-in.html) shows every way in: inline, `src`, and a spec set from JavaScript with live data. [docs/frameworks.md](docs/frameworks.md) has recipes for React, Vue, Svelte and server-rendered apps.
 
 ## A widget in one object
 
@@ -152,13 +172,15 @@ npm run mcp:config                            # print an .mcp.json with one serv
 npm run mcp:inspect                           # open the MCP Inspector against it
 ```
 
-This folder's `.mcp.json` already registers the all-widgets server, so Claude Code picks it up when opened here. Tools: `fft_list_widgets`, `fft_get_widget`, `fft_get_widget_data`, `fft_create_widget`, `fft_update_widget`, `fft_delete_widget`, `fft_list_blocks`, `fft_validate_spec`, `fft_create_variants` (the Taller). Resources: `fft://widgets/<id>`, `fft://widgets/<id>/data`, `fft://blocks`.
+This folder's `.mcp.json` already registers the all-widgets server, so Claude Code picks it up when opened here. Tools: `fft_list_widgets`, `fft_get_widget`, `fft_get_widget_data`, `fft_create_widget`, `fft_update_widget`, `fft_delete_widget`, `fft_list_charts` and `fft_get_chart` (the chart catalog, with starter specs), `fft_list_blocks`, `fft_validate_spec`, `fft_create_variants` (the Taller). Resources: `fft://widgets/<id>`, `fft://widgets/<id>/data`, `fft://blocks`.
 
 Widgets are stored as `widgets/<id>.json`, the same files the demo page reads. A change made through MCP shows up in the open demo page right away. Details in [docs/mcp.md](docs/mcp.md).
 
 ## Documentation
 
 - [docs/api.md](docs/api.md): the spec format, the JavaScript API, events, styling and extending.
+- [docs/frameworks.md](docs/frameworks.md): recipes for plain HTML, JavaScript, React, Vue, Svelte and server-rendered apps.
+- [docs/catalog.md](docs/catalog.md): every chart, what it answers, the data it needs and a spec to copy (generated).
 - [docs/blocks.md](docs/blocks.md): every block and option (generated).
 - [docs/mcp.md](docs/mcp.md): MCP tools, resources and setup.
 - [docs/accessibility.md](docs/accessibility.md): conformance with EN 301 549 (the European Accessibility Act) and WCAG 2.1 AA, criterion by criterion, and how to test it.
@@ -175,7 +197,9 @@ dashboards/    dashboard specs; gallery.json lays out the demo gallery.
 public/data/   sample data the example widgets load.
 demo/          the gallery and playground page.
 docs/          reference documentation.
-scripts/       smoke test and docs generator.
+catalog/       one self-contained spec per view, and a page that draws them all (generated).
+examples/      drop-in pages that use the built bundle with no build step.
+scripts/       smoke test, docs and catalog generators.
 ```
 
 ## Evaluating the MCP server
