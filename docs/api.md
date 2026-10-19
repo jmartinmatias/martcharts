@@ -177,6 +177,9 @@ Call `defineWidgetElement()` once (optionally with your own tag name), or load t
 | `src` attribute | URL of a spec JSON file to load. |
 | `spec` attribute | The spec as JSON. Invalid JSON shows an error in the widget. |
 | `<script type="application/json">` child | The spec as JSON inside the tag, read when neither attribute is set. Invalid JSON shows an error. |
+| `data` attribute | No spec needed: the address of a data file. Ends in `.csv`: read as CSV; otherwise JSON (with `path` for a list inside the response). The chart is picked from the data with `recommendCharts`. Used when neither `spec` nor `src` is set. |
+| `chart` attribute | With `data`: the view type to draw (`line`, `donut`, ...), its fields filled from the data. `auto` or left out picks one. |
+| `heading` attribute | With `data`: the widget's title. (Not `title`, which would put a browser tooltip over the whole chart.) |
 | `actions` attribute | Space-separated buttons to show: `csv`, `image`, `copy`, `explain`, `expand`. |
 | `spec` property | The spec as an object. Setting it redraws the same widget. |
 | `widget` property | The live `Widget`, once connected. |

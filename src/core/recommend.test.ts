@@ -70,3 +70,8 @@ test("a flow through several steps is a sankey, not a chord: a chain is not a lo
   expect(types(rows)[0]).toBe("sankey");
   expect(types(rows)).not.toContain("chord");
 });
+
+test("series share a chart only on a similar scale: revenue and cost, not churn", () => {
+  const rows = ["2026-01", "2026-02", "2026-03"].map((month, i) => ({ month, revenue: 800_000 + i, cost: 600_000 + i, churn: 0.04 }));
+  expect(recommendCharts(rows)[0]?.view).toEqual({ type: "line", x: "month", y: ["revenue", "cost"] });
+});

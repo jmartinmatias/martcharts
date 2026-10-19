@@ -34,6 +34,7 @@ npm run catalog    # the chart catalog: catalog/*.json, catalog/index.html, docs
 ```html
 <script src="fft-widgets.iife.js"></script>
 
+<fft-widget data="sales.csv"></fft-widget>                   <!-- just data: the chart is picked for you -->
 <fft-widget src="catalog/funnel.json"></fft-widget>          <!-- a spec file -->
 <fft-widget actions="csv image">                              <!-- or the spec inline -->
   <script type="application/json">

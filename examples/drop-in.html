@@ -51,7 +51,11 @@
       </script>
     </fft-widget>
 
-    <!-- 4. Spec set from JavaScript, with live data. -->
+    <!-- 4. No spec at all: point at a data file and the chart is picked from its shape. -->
+    <fft-widget data="tickets.csv" heading="Tickets, chart picked from the data"></fft-widget>
+    <fft-widget data="/data/monthly.json" heading="Monthly data, picked"></fft-widget>
+
+    <!-- 5. Spec set from JavaScript, with live data. -->
     <fft-widget id="live"></fft-widget>
   </div>
 

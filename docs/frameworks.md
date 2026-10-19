@@ -17,6 +17,10 @@ Both files register `<fft-widget>` on load and have no dependencies. In a projec
 ```html
 <script src="fft-widgets.iife.js"></script>
 
+<!-- Quickest: a data file and nothing else. The chart is picked from the data's shape. -->
+<fft-widget data="/exports/sales.csv" heading="Sales"></fft-widget>
+<fft-widget data="/api/orders" path="data.items" chart="line"></fft-widget>
+
 <fft-widget src="/specs/revenue.json" actions="csv image explain"></fft-widget>
 
 <fft-widget>

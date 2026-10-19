@@ -84,6 +84,21 @@ function loops(rows: Row[], source: string, target: string): boolean {
   return [...next.keys()].some(visit);
 }
 
+/** The first number field and the others on a similar scale (typical sizes within 10x), up to `max`: series that can share one axis. */
+function peers(shape: Shape, max: number): string[] {
+  const size = (field: string) => {
+    const sorted = shape.values(field).map(Math.abs).sort((a, b) => a - b);
+    return sorted[Math.floor(sorted.length / 2)] ?? 0;
+  };
+  const [first, ...rest] = shape.numbers.filter((field) => !TARGET.test(field));
+  if (!first) return [];
+  const base = size(first);
+  return [first, ...rest.filter((field) => {
+    const other = size(field);
+    return base === 0 ? other === 0 : other / base <= 10 && other / base >= 0.1;
+  })].slice(0, max);
+}
+
 const falling = (values: number[]) => values.length >= 3 && values.every((value, i) => i === 0 || value <= values[i - 1]!);
 
 /** One rule per view, each returning a score and view when the data suits it. */
@@ -127,10 +142,10 @@ const RULES: Record<string, Rule> = {
     const [a, b] = shape.categories as [string, string];
     return { score: 40, view: { type: "sankey", source: a, target: b, value }, why: `How ${value} flows from each ${a} to each ${b}.` };
   },
-  line: ({ rows, numbers, dates }) => {
-    const [x] = dates;
-    if (!x || !numbers.length || rows.length < 3) return undefined;
-    const y = numbers.slice(0, 3);
+  line: (shape) => {
+    const [x] = shape.dates;
+    const y = peers(shape, 3);
+    if (!x || !y.length || shape.rows.length < 3) return undefined;
     return { score: 90, view: { type: "line", x, y: y.length === 1 ? y[0] : y }, why: `${y.join(", ")} over ${x}: a trend.` };
   },
   area: ({ rows, numbers, dates }) => {
@@ -165,7 +180,7 @@ const RULES: Record<string, Rule> = {
     if (!x || !shape.numbers.length) return undefined;
     const count = shape.distinct(x);
     if (count > 12) return undefined;
-    const y = shape.numbers.slice(0, 3);
+    const y = peers(shape, 3);
     return { score: shape.dates.length ? 70 : 85, view: { type: "bar", x, y: y.length === 1 ? y[0] : y }, why: `${y.join(" and ")} compared across ${count} ${x} values.` };
   },
   hbar: (shape) => {
