@@ -172,7 +172,7 @@ npm run mcp:config                            # print an .mcp.json with one serv
 npm run mcp:inspect                           # open the MCP Inspector against it
 ```
 
-This folder's `.mcp.json` already registers the all-widgets server, so Claude Code picks it up when opened here. Tools: `fft_list_widgets`, `fft_get_widget`, `fft_get_widget_data`, `fft_create_widget`, `fft_update_widget`, `fft_delete_widget`, `fft_list_charts` and `fft_get_chart` (the chart catalog, with starter specs), `fft_list_blocks`, `fft_validate_spec`, `fft_create_variants` (the Taller). Resources: `fft://widgets/<id>`, `fft://widgets/<id>/data`, `fft://blocks`.
+This folder's `.mcp.json` already registers the all-widgets server, so Claude Code picks it up when opened here. Tools: `fft_list_widgets`, `fft_get_widget`, `fft_get_widget_data`, `fft_create_widget`, `fft_update_widget`, `fft_delete_widget`, `fft_list_charts` and `fft_get_chart` (the chart catalog, with starter specs), `fft_recommend_charts` (which chart for this data), `fft_list_blocks`, `fft_validate_spec`, `fft_create_variants` (the Taller). Resources: `fft://widgets/<id>`, `fft://widgets/<id>/data`, `fft://blocks`.
 
 Widgets are stored as `widgets/<id>.json`, the same files the demo page reads. A change made through MCP shows up in the open demo page right away. Details in [docs/mcp.md](docs/mcp.md).
 

@@ -81,6 +81,7 @@ describe("tools", () => {
       "fft_list_blocks",
       "fft_list_charts",
       "fft_list_widgets",
+      "fft_recommend_charts",
       "fft_update_widget",
       "fft_validate_spec",
     ]);
@@ -303,6 +304,27 @@ describe("tools", () => {
     expect(wrong.text).toContain("donut");
   });
 
+  test("fft_recommend_charts ranks charts for CSV text, and each pick saves as a widget", async () => {
+    const { call } = await connect();
+    const csv = "month,revenue\n2026-01,100\n2026-02,120\n2026-03,90\n2026-04,130";
+    const { data } = await call("fft_recommend_charts", { data: { type: "csv", text: csv }, response_format: "json" });
+    const picks = data?.picks as { type: string; why: string; spec: Record<string, unknown> }[];
+    expect(data?.rows).toBe(4);
+    expect(picks[0]?.type).toBe("line");
+    expect(picks[0]?.why).toContain("revenue");
+    expect((await call("fft_create_widget", { id: "revenue-trend", spec: picks[0]!.spec })).isError).toBe(false);
+    expect(await store.has("revenue-trend")).toBe(true);
+  });
+
+  test("fft_recommend_charts reads url data through transforms, and explains a bad source", async () => {
+    const { call } = await connect();
+    const { text } = await call("fft_recommend_charts", { data: { type: "url", url: "/data/sales.json" }, transform: [{ type: "aggregate", groupBy: "region", measures: [{ op: "sum", field: "revenue" }] }] });
+    expect(text).toContain("# Charts for 3 rows");
+    expect(text).toMatch(/`(bar|hbar)`/);
+    const bad = await call("fft_recommend_charts", { data: { type: "nope" } });
+    expect(bad.isError).toBe(true);
+  });
+
   test("fft_list_blocks describes every view and its options", async () => {
     const { data } = await (await connect()).call("fft_list_blocks", { kind: "view", response_format: "json" });
     const views = data?.view as { type: string; options: Record<string, { required?: boolean }> }[];
@@ -459,7 +481,7 @@ describe("a server linked to one widget", () => {
   test("offers only that widget's tools, with no id to pass", async () => {
     const { client } = await connect({ widgetId: "visits" });
     const { tools } = await client.listTools();
-    expect(tools.map((t) => t.name).sort()).toEqual(["fft_check_palette", "fft_create_variants", "fft_get_chart", "fft_get_widget", "fft_get_widget_data", "fft_list_blocks", "fft_list_charts", "fft_update_widget", "fft_validate_spec"]);
+    expect(tools.map((t) => t.name).sort()).toEqual(["fft_check_palette", "fft_create_variants", "fft_get_chart", "fft_get_widget", "fft_get_widget_data", "fft_list_blocks", "fft_list_charts", "fft_recommend_charts", "fft_update_widget", "fft_validate_spec"]);
     const getWidget = tools.find((t) => t.name === "fft_get_widget");
     expect(Object.keys((getWidget?.inputSchema as { properties?: object }).properties ?? {})).not.toContain("id");
   });

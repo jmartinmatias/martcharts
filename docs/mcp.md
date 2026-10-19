@@ -77,12 +77,13 @@ All tools validate input; bad input comes back as a tool error that says how to 
 | `fft_delete_dashboard` | no (destructive) | Removes the dashboard; its widgets stay. |
 | `fft_list_charts` | yes | The chart catalog: every view with what it is, the question its example answers, the row fields it needs (and what each holds), and whether a starter spec exists. Start here to pick a chart. |
 | `fft_get_chart` | yes | One view in full: every row field, its settings, how to read it, and a self-contained starter spec (inline rows, trimmed to fit) to adapt and save with `fft_create_widget`. Starters come from `catalog/` (`npm run catalog`). |
+| `fft_recommend_charts` | yes | Ranks the chart types that suit some data, best first: pass a source block (`inline` rows, `csv` text or file, `url`) and optional `transform` steps. Each pick has a score, why it fits, and a complete spec ready for `fft_create_widget`. |
 | `fft_list_blocks` | yes | Every data source, transform, format and view with its options. Filter with `kind`. |
 | `fft_check_palette` | yes | Checks a palette (a library name or hex colors) for colorblind separation, neighbour separation, lightness, colorfulness and contrast, on a light or dark background. |
 | `fft_validate_spec` | yes | Checks a draft spec without saving. With `check_data` (default true) also loads the data and warns about missing fields. |
 | `fft_create_variants` | yes | The Taller: seeded new versions of a widget, each made by a sales move (`moves`: decompose, reframe, distill, contrast, reveal, combine, reform), optionally for an `audience` (rep, manager, leadership), with the sales question it answers, a plain title, how to read it, five quality scores and its novelty and meaning. Also returns the original's question. Nothing is saved; keep one with `fft_create_widget`. See [taller.md](taller.md). |
 
-A server linked to one widget offers `fft_get_widget`, `fft_get_widget_data`, `fft_update_widget`, `fft_create_variants`, `fft_list_charts`, `fft_get_chart`, `fft_list_blocks`, `fft_check_palette` and `fft_validate_spec`, without `id` arguments. `fft_list_blocks` and `fft://blocks` also list the style presets and the palette library.
+A server linked to one widget offers `fft_get_widget`, `fft_get_widget_data`, `fft_update_widget`, `fft_create_variants`, `fft_list_charts`, `fft_get_chart`, `fft_recommend_charts`, `fft_list_blocks`, `fft_check_palette` and `fft_validate_spec`, without `id` arguments. `fft_list_blocks` and `fft://blocks` also list the style presets and the palette library.
 
 Merge patch rules for `changes` and forks: objects merge key by key, lists replace, `null` removes a key.
 

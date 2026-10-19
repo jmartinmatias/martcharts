@@ -43,6 +43,8 @@ export { fork } from "./fork.ts";
 export { binValues, niceTicks, sturges } from "./scale.ts";
 export type { Bin } from "./scale.ts";
 export { suggestView } from "./suggest.ts";
+export { recommendCharts } from "./recommend.ts";
+export type { ChartPick } from "./recommend.ts";
 export { AUDIENCES, balanceOf, createVariants, fillsOf, huePalette, meaningOf, MOVES, noveltyOf, plainTags, PRINCIPLES, profileData, qualitiesOf, QUALITIES, rankVariants } from "./taller.ts";
 export { explainVariant } from "./taller-explain.ts";
 export type { Audience, Balance, ColorEmphasis, DataProfile, Lineage, Look, Marks, Move, Principle, Qualities, Quality, TallerOptions, Variant } from "./taller.ts";

@@ -26,6 +26,7 @@ import { WIDGET_REF, widgetRef } from "../core/ref.ts";
 import { explainChart } from "../core/explain.ts";
 import { describeChart, describeCharts, needsText } from "../core/catalog.ts";
 import type { ChartEntry } from "../core/catalog.ts";
+import { recommendCharts } from "../core/recommend.ts";
 import { blockTypes, describeBlocks } from "../core/registry.ts";
 import { questionOf } from "../core/question.ts";
 import { AUDIENCES, createVariants, MOVES } from "../core/taller.ts";
@@ -619,6 +620,41 @@ To make a widget from it: replace the starter's data with yours (keeping the fie
       if (chart.howToRead) lines.push("## How to read it", "", chart.howToRead, "");
       if (starterSpec) lines.push("## Starter spec", "", ...(note ? [note, ""] : []), "```json", JSON.stringify(starterSpec, null, 2), "```");
       else lines.push("No starter spec in this server's catalog; fft_list_blocks and fft_validate_spec are enough to write one.");
+      return asMarkdown(lines.join("\n"));
+    },
+  );
+
+  server.registerTool(
+    "fft_recommend_charts",
+    {
+      title: "Recommend charts",
+      description: `Rank the chart types that suit some data, best first. Each pick has a score (0 to 100), why it fits, and a complete spec (your data plus a filled view) ready for fft_create_widget.
+
+Pass the data as a source block: { "type": "inline", "rows": [...] }, { "type": "csv", "text": "region,revenue\\nNorth,120" }, or { "type": "url" | "csv", "url": "..." }. Optional transform steps reshape it first, as in a spec.`,
+      inputSchema: z.strictObject({
+        data: JsonObject.describe('A data source block, for example { "type": "csv", "url": "/exports/sales.csv" }. fft_list_blocks kind "source" lists the types.'),
+        transform: z.array(JsonObject).optional().describe("Transform steps applied before choosing, as in a spec."),
+        limit: z.number().int().min(1).max(20).default(5).describe("How many picks to return."),
+        response_format: ResponseFormat,
+      }),
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    },
+    async ({ data, transform, limit, response_format }, ctx) => {
+      const base = { data, ...(transform ? { transform } : {}) } as unknown as WidgetSpec;
+      const issues = validateSpec({ ...base, view: { type: "table" } }).filter((issue) => issue.level === "error");
+      if (issues.length) return { ...asMarkdown(problems("The data block has problems:", issues)), isError: true };
+      let rows: Row[];
+      try {
+        rows = await runPipeline(base, loadContext(ctx.mcpReq.signal));
+      } catch (caught) {
+        return { ...asMarkdown(`Could not load the data: ${(caught as Error).message}`), isError: true };
+      }
+      const picks = recommendCharts(rows, { limit }).map((pick) => ({ ...pick, spec: { ...base, view: pick.view } }));
+      if (response_format === "json") return asJson({ rows: rows.length, picks });
+      if (!picks.length) return asMarkdown("The data has no rows, so there is nothing to chart.");
+      const lines = [`# Charts for ${rows.length} rows`, ""];
+      for (const [i, pick] of picks.entries()) lines.push(`${i + 1}. **\`${pick.type}\`** (${pick.score}): ${pick.why}`, `   View: \`${JSON.stringify(pick.view)}\``);
+      lines.push("", "Save one with fft_create_widget, passing the data block and that view as the spec. fft_get_chart has each type's settings.");
       return asMarkdown(lines.join("\n"));
     },
   );
