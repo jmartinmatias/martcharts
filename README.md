@@ -24,7 +24,7 @@ npm test           # unit and integration tests
 npm run typecheck
 npm run smoke      # starts the real MCP server and calls it as a client would
 npm run build:lib  # the drop-in bundle in dist/
-npm run catalog    # the chart catalog: catalog/*.json, catalog/index.html, docs/catalog.md
+npm run catalog    # the chart catalog and data guide: catalog/*.json, catalog/index.html, catalog/guide.html, docs/catalog.md, docs/chart-guide.md
 ```
 
 ## Drop it into any page
@@ -173,7 +173,7 @@ npm run mcp:config                            # print an .mcp.json with one serv
 npm run mcp:inspect                           # open the MCP Inspector against it
 ```
 
-This folder's `.mcp.json` already registers the all-widgets server, so Claude Code picks it up when opened here. Tools: `fft_list_widgets`, `fft_get_widget`, `fft_get_widget_data`, `fft_create_widget`, `fft_update_widget`, `fft_delete_widget`, `fft_list_charts` and `fft_get_chart` (the chart catalog, with starter specs), `fft_recommend_charts` (which chart for this data), `fft_list_blocks`, `fft_validate_spec`, `fft_create_variants` (the Taller). Resources: `fft://widgets/<id>`, `fft://widgets/<id>/data`, `fft://blocks`.
+This folder's `.mcp.json` already registers the all-widgets server, so Claude Code picks it up when opened here. Tools: `fft_list_widgets`, `fft_get_widget`, `fft_get_widget_data`, `fft_create_widget`, `fft_update_widget`, `fft_delete_widget`, `fft_list_charts` and `fft_get_chart` (the chart catalog, with starter specs), `fft_chart_guide` and `fft_switch_chart` (the table each chart needs, its data, its uses, and the same data as another chart), `fft_recommend_charts` (which chart for this data), `fft_list_blocks`, `fft_validate_spec`, `fft_create_variants` (the Taller). Resources: `fft://widgets/<id>`, `fft://widgets/<id>/data`, `fft://blocks`.
 
 Widgets are stored as `widgets/<id>.json`, the same files the demo page reads. A change made through MCP shows up in the open demo page right away. Details in [docs/mcp.md](docs/mcp.md).
 
@@ -182,6 +182,7 @@ Widgets are stored as `widgets/<id>.json`, the same files the demo page reads. A
 - [docs/api.md](docs/api.md): the spec format, the JavaScript API, events, styling and extending.
 - [docs/frameworks.md](docs/frameworks.md): recipes for plain HTML, JavaScript, React, Vue, Svelte and server-rendered apps.
 - [docs/catalog.md](docs/catalog.md): every chart, what it answers, the data it needs and a spec to copy (generated).
+- [docs/chart-guide.md](docs/chart-guide.md): which chart for which job, each chart's best and worst uses, the table it needs, and which other charts the same data makes, with an assessment of each switch (generated). One Markdown file per chart with its data in full is in `catalog/guide/`, to hand to another model.
 - [docs/blocks.md](docs/blocks.md): every block and option (generated).
 - [docs/mcp.md](docs/mcp.md): MCP tools, resources and setup.
 - [docs/accessibility.md](docs/accessibility.md): conformance with EN 301 549 (the European Accessibility Act) and WCAG 2.1 AA, criterion by criterion, and how to test it.

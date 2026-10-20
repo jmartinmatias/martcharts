@@ -71,6 +71,7 @@ describe("tools", () => {
     const { client } = await connect();
     const { tools } = await client.listTools();
     expect(tools.map((t) => t.name).sort()).toEqual([
+      "fft_chart_guide",
       "fft_check_palette",
       "fft_create_variants",
       "fft_create_widget",
@@ -82,6 +83,7 @@ describe("tools", () => {
       "fft_list_charts",
       "fft_list_widgets",
       "fft_recommend_charts",
+      "fft_switch_chart",
       "fft_update_widget",
       "fft_validate_spec",
     ]);
@@ -344,6 +346,20 @@ describe("tools", () => {
     expect(missing).toEqual([]);
   });
 
+  test("fft_chart_guide hands over a chart's table, data and switches; fft_switch_chart redraws a spec as another chart", async () => {
+    const { call } = await connect();
+    const guide = await call("fft_chart_guide", { spec: { data: { type: "inline", rows: [{ region: "East", revenue: 5 }, { region: "West", revenue: 3 }, { region: "North", revenue: 4 }] }, view: { type: "bar", x: "region", y: "revenue" } } });
+    const { text } = guide;
+    expect(text).toContain("## The data it needs");
+    expect(text).toContain("region,revenue\nEast,5");
+    expect(text).toContain("`hbar`");
+    const spec = { data: { type: "inline", rows: [{ region: "East", revenue: 5 }, { region: "West", revenue: 3 }] }, view: { type: "bar", x: "region", y: "revenue" } };
+    const one = await call("fft_switch_chart", { spec, to: "hbar" });
+    expect(one.data).toMatchObject({ fit: "fits", verdict: "better", view: { type: "hbar", label: "region", value: "revenue" } });
+    const all = await call("fft_switch_chart", { spec });
+    expect((all.data as { switches: { fit: string }[] }).switches.every((s) => s.fit !== "no")).toBe(true);
+  });
+
   test("fft_check_palette reports colorblind separation and contrast for a list of colors or a library palette", async () => {
     const { call } = await connect();
     const named = await call("fft_check_palette", { palette: "bw", mode: "light" });
@@ -481,7 +497,7 @@ describe("a server linked to one widget", () => {
   test("offers only that widget's tools, with no id to pass", async () => {
     const { client } = await connect({ widgetId: "visits" });
     const { tools } = await client.listTools();
-    expect(tools.map((t) => t.name).sort()).toEqual(["fft_check_palette", "fft_create_variants", "fft_get_chart", "fft_get_widget", "fft_get_widget_data", "fft_list_blocks", "fft_list_charts", "fft_recommend_charts", "fft_update_widget", "fft_validate_spec"]);
+    expect(tools.map((t) => t.name).sort()).toEqual(["fft_chart_guide", "fft_check_palette", "fft_create_variants", "fft_get_chart", "fft_get_widget", "fft_get_widget_data", "fft_list_blocks", "fft_list_charts", "fft_recommend_charts", "fft_switch_chart", "fft_update_widget", "fft_validate_spec"]);
     const getWidget = tools.find((t) => t.name === "fft_get_widget");
     expect(Object.keys((getWidget?.inputSchema as { properties?: object }).properties ?? {})).not.toContain("id");
   });

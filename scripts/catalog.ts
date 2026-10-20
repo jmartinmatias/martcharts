@@ -141,7 +141,7 @@ const page = `<!doctype html>
     .card h2 { font: 600 14px/1.4 ui-monospace, monospace; margin: 0; }
     .card p { font-size: 13px; line-height: 1.45; margin: 0; opacity: .8; }
     .needs { font: 12px/1.4 ui-monospace, monospace; }
-    .tools { display: flex; gap: 8px; margin: 3px 0 0; }
+    .tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 3px 0 0; font-size: 12px; }
     button { font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 6px; border: 1px solid color-mix(in srgb, CanvasText 25%, transparent); background: transparent; color: inherit; cursor: pointer; min-height: 28px; }
     button:hover { background: color-mix(in srgb, CanvasText 8%, transparent); }
     input { font: inherit; padding: 8px 10px; width: 100%; max-width: 420px; box-sizing: border-box; border-radius: 8px; border: 1px solid color-mix(in srgb, CanvasText 25%, transparent); background: Canvas; color: inherit; }
@@ -155,10 +155,11 @@ const page = `<!doctype html>
     <a href="../selected.html" title="New ways to show the same data, picked because they are new and meaningful">Selected</a>
     <a href="../index.html#playground" title="Edit any widget's spec, view and style, with a live preview">Playground</a>
     <a href="../catalog/index.html" aria-current="page" title="Every chart type: what data it needs, when to use it, and a spec to copy">Catalog</a>
+    <a href="../catalog/guide.html" title="What each chart needs, row by row, the data drawing it, when to use it, and which other charts the same data makes">Data guide</a>
     <a href="../examples/drop-in.html" title="Every way to put a chart on a page: one tag, a JSON file, a CSV, or just a data address">Drop-in</a>
   </nav>
   <h1>Chart catalog</h1>
-  <p>${cards.length} chart types. Each is one tag, <code>&lt;fft-widget src="&lt;type&gt;.json"&gt;</code>, with its data built in. Full reference: <a href="../docs/catalog.md">docs/catalog.md</a>.</p>
+  <p>${cards.length} chart types. Each is one tag, <code>&lt;fft-widget src="&lt;type&gt;.json"&gt;</code>, with its data built in. Full reference: <a href="../docs/catalog.md">docs/catalog.md</a>. The table each chart needs, the data drawing it, and which other charts the same data makes: <a href="guide.html">Data guide</a>.</p>
   <p><label for="find">Find a chart by name, question or data</label><br><input id="find" type="search" placeholder="trend, share, date, flow…" autocomplete="off"><span class="count" id="count" aria-live="polite"></span></p>
   <div class="grid">
 ${cards
@@ -167,7 +168,7 @@ ${cards
       <h2>${c.type}</h2>
       <p>${escape(c.summary)}</p>
       <p class="needs">needs ${escape(c.needs || "any rows")}</p>
-      <div class="tools"><button type="button" data-copy="spec" data-type="${c.type}">Copy spec</button><button type="button" data-copy="tag" data-type="${c.type}">Copy tag</button></div>
+      <div class="tools"><button type="button" data-copy="spec" data-type="${c.type}">Copy spec</button><button type="button" data-copy="tag" data-type="${c.type}">Copy tag</button><a href="guide.html#c-${c.type}">Data and switches</a></div>
       <fft-widget src="${c.type}.json" actions="info csv image explain expand"></fft-widget>
     </section>`,
   )

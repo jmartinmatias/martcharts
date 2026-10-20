@@ -282,6 +282,18 @@ Errors mean the widget cannot draw: missing `data` or `view`, unknown block type
 
 A view of `type` with every required field option filled from the rows. Each field option declares the kind of field it expects (`kind`: `number`, `category` or `date`, listed in [blocks.md](blocks.md)), so amounts get number fields, names and groups get text fields, and periods get ISO-like dates, with no field used twice while another of its kind remains. Lists and objects are never picked. `suggestView("sankey", rows)` on `{ from, to, visits }` rows gives `{ type: "sankey", source: "from", target: "to", value: "visits" }`. The demo playground uses it to switch any widget to any view type.
 
+### The chart guide: `dataContract`, `switchChart`, `switchOptions`, `guideMarkdown`
+
+Work on any spec and rows (the spec's inline rows when `rows` is left out). Full output for the catalog is in [chart-guide.md](chart-guide.md) and [catalog/guide.html](../catalog/guide.html).
+
+| Function | Returns |
+| --- | --- |
+| `chartGuide(type)` | `{ purposes, grain, build, rows: { min, max }, positive?, bestFor, avoidFor }`: the jobs a chart does (1 to 3 per job in `PURPOSES`), what one row stands for, how rows become marks, the row counts it reads well with, and when to use it and not. `chartsFor(purpose)` lists the charts for a job, best first. |
+| `dataContract(spec, rows?)` | The table the chart needs: `needs` (every field option, its kind, whether required), `columns` (each column of the data: kind, the options that draw it, distinct count, range, examples), `rowMeans`, `build`, `rowsRead` and `warnings` (what does not fit: repeated categories, text for numbers, negatives in a part-to-whole chart, too few or too many rows). |
+| `switchChart(spec, to, rows?)` | The same data as chart `to`: `view` (filled from the columns the current chart draws first), `fit` (`fits`, `stretch`, `no`), `verdict` on the current chart's main job (`better`, `same`, `trade-off`, `different`, `worse`), `gains`, `losses`, `assessment` and `caveats`. |
+| `switchOptions(spec, rows?)` | `switchChart` for every other chart, those that fit and help first. |
+| `guideMarkdown(spec, rows?, { maxRows? })` | All of the above as Markdown with the data as a table and CSV: ready to hand to another model or system. `rowsToCsv` and `rowsToMarkdown` are exported too. |
+
 ### `recommendCharts(rows, { limit? }) => ChartPick[]`
 
 Which chart for these rows? Reads the data's shape (how many rows; which fields hold numbers, categories or dates; how many distinct values; names such as `target`, `open`/`close`, `from`/`to`, `stage`) and ranks the views that suit it, best first (default 5). Each pick is `{ type, view, score, why }`: a complete view block for the rows, a 0 to 100 score, and one sentence such as `"revenue over month: a trend."`. A one-row table becomes tiles (or a gauge, with a target), dates make lines, start and end dates a timeline, shrinking named steps a funnel, flows a sankey (or a chord when they loop back). Every pick validates against the rows. The MCP tool `fft_recommend_charts` wraps it.

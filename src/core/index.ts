@@ -69,3 +69,5 @@ export {
   setRenderer,
   UnknownBlockError,
 } from "./registry.ts";
+export { chartGuide, chartGuides, chartsFor, dataContract, guideMarkdown, PURPOSES, rowsToCsv, rowsToMarkdown, switchChart, switchOptions } from "./guide.ts";
+export type { ChartGuide, ChartSwitch, ContractColumn, DataContract, Fit, Grain, Purpose, Verdict } from "./guide.ts";

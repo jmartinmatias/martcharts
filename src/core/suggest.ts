@@ -23,11 +23,14 @@ function kindOf(value: unknown): Kind | null {
  * each option gets a field of the kind it expects (numbers for amounts, text
  * for categories, dates for periods), and no field is used twice while
  * another of that kind remains. A date option falls back to a category when
- * the data has no dates, and the other way round.
+ * the data has no dates, and the other way round. Fields named in `prefer` are
+ * taken first, in that order: pass the fields another chart already draws to
+ * keep the same ones when switching.
  */
-export function suggestView(type: string, rows: Row[]): ViewSpec {
+export function suggestView(type: string, rows: Row[], prefer: string[] = []): ViewSpec {
   const sample = rows[0] ?? {};
-  const keys = Object.keys(sample);
+  const rank = (key: string) => (prefer.includes(key) ? prefer.indexOf(key) : prefer.length);
+  const keys = Object.keys(sample).sort((a, b) => rank(a) - rank(b));
   const pools: Record<Kind, string[]> = { number: [], category: [], date: [] };
   for (const key of keys) {
     const kind = kindOf(sample[key]);
