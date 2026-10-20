@@ -1,11 +1,11 @@
 /**
- * The drop-in build: everything in `fft-widgets`, with `<fft-widget>` already registered.
+ * The drop-in build: everything in `martcharts`, with `<fft-widget>` already registered.
  *
- * Built to `dist/fft-widgets.js` (ES module) and `dist/fft-widgets.iife.js` (classic script,
- * exposed as `window.FFTWidgets`) by `npm run build:lib`. Neither needs a bundler or Node:
+ * Built to `dist/martcharts.js` (ES module) and `dist/martcharts.iife.js` (classic script,
+ * exposed as `window.MartCharts`) by `npm run build:lib`. Neither needs a bundler or Node:
  *
  * ```html
- * <script src="fft-widgets.iife.js"></script>
+ * <script src="martcharts.iife.js"></script>
  * <fft-widget src="/widgets/revenue-by-region.json"></fft-widget>
  * ```
  *
@@ -21,8 +21,8 @@ declare global {
     "fft-widget": FftWidgetElement;
   }
   interface Window {
-    /** The classic-script build (`fft-widgets.iife.js`) puts the whole API here. */
-    FFTWidgets?: typeof import("./index.ts");
+    /** The classic-script build (`martcharts.iife.js`) puts the whole API here. */
+    MartCharts?: typeof import("./index.ts");
   }
 }
 

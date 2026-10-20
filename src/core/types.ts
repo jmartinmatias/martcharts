@@ -30,6 +30,8 @@ export interface WidgetSpec {
   footer?: string;
   /** What this widget is for, in plain words. Not rendered; read by people and agents. */
   description?: string;
+  /** Related pages, listed on the widget's Details side (the `info` action): a report, the data's owner, a runbook. */
+  links?: WidgetLink[];
   /** BCP 47 locale used by number and date formats, for example `"en-US"` or `"fr-LU"`. Defaults to the runtime locale. */
   locale?: string;
   /** Where the rows come from. */
@@ -46,6 +48,12 @@ export interface WidgetSpec {
   view: ViewSpec;
   /** Theme, colors and sizing. */
   style?: StyleSpec;
+}
+
+/** A related page: `label` is the link text, `href` its address. */
+export interface WidgetLink {
+  label: string;
+  href: string;
 }
 
 /** `facet: { field, columns?, shared? }`: one panel per value of `field`. */

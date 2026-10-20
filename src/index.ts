@@ -1,12 +1,12 @@
 /**
- * fft-widgets: one universal widget block.
+ * martcharts: one universal widget block.
  *
  * Describe a widget as a spec (data, transform, fields, view, style), draw it
  * with `createWidget` or the `<fft-widget>` tag, and fork it into new widgets
  * with `fork`. Extend it by registering new sources, transforms, formats and views.
  *
  * Importing this module attaches the built-in renderers. In Node, import
- * `fft-widgets/core` instead: it has everything except drawing.
+ * `martcharts/core` instead: it has everything except drawing.
  *
  * @module
  */

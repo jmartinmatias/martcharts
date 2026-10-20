@@ -11,9 +11,9 @@ export default defineConfig({
     sourcemap: true,
     lib: {
       entry: fileURLToPath(new URL("./src/standalone.ts", import.meta.url)),
-      name: "FFTWidgets",
+      name: "MartCharts",
       formats: ["es", "iife"],
-      fileName: (format) => (format === "es" ? "fft-widgets.js" : `fft-widgets.${format}.js`),
+      fileName: (format) => (format === "es" ? "martcharts.js" : `martcharts.${format}.js`),
     },
   },
 });

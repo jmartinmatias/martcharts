@@ -226,7 +226,7 @@ describe("focus not obscured (2.4.11)", () => {
       const page = document.documentElement.style.getPropertyValue("--fft-filters-height");
       board.destroy();
       expect([page, document.documentElement.style.getPropertyValue("--fft-filters-height")]).toEqual(["96px", ""]);
-      expect(styleSheet).toMatch(/:root:has\(\.fft-dashboard\[data-sticky\]\) \{ scroll-padding-top: calc\(var\(--fft-filters-height/);
+      expect(styleSheet).toMatch(/:root:has\(\.fft-dashboard\[data-sticky\]\) \{ scroll-padding-top: calc\(var\(--fft-sticky-top, 0px\) \+ var\(--fft-filters-height/);
     } finally {
       globalThis.ResizeObserver = original;
     }

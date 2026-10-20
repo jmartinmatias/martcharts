@@ -60,7 +60,7 @@ const catalog = createFileStore(resolve(values.catalog ?? process.env.FFT_CATALO
 if (values["print-config"]) {
   const script = fileURLToPath(import.meta.url);
   const servers: Record<string, { command: string; args: string[] }> = {
-    "fft-widgets": { command: "node", args: [script, "--dir", dir, "--public", publicDir] },
+    "martcharts": { command: "node", args: [script, "--dir", dir, "--public", publicDir] },
   };
   for (const entry of await store.list()) {
     if (entry.spec) servers[`fft-${entry.id}`] = { command: "node", args: [script, "--dir", dir, "--public", publicDir, "--widget", entry.id] };

@@ -4,7 +4,7 @@
  *
  * @module
  */
-export type { DataSpec, FacetSpec, FieldSpec, FormatSpec, Issue, Row, StyleSpec, StyleToken, TransformSpec, ViewSpec, WidgetSpec } from "./types.ts";
+export type { DataSpec, FacetSpec, FieldSpec, FormatSpec, Issue, Row, StyleSpec, StyleToken, TransformSpec, ViewSpec, WidgetLink, WidgetSpec } from "./types.ts";
 export type { Tooltip, TooltipItem, ViewContext, ViewRenderer } from "./view-context.ts";
 export type {
   Block,

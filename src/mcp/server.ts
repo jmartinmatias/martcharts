@@ -190,7 +190,7 @@ export function createFftServer(options: FftServerOptions): McpServer {
   const { store, widgetId: linked } = options;
   const loadContext = (signal?: AbortSignal) => ({ fetch: options.fetch, signal });
   const server = new McpServer(
-    { name: linked ? `fft-widget-${linked}` : "fft-widgets", version: VERSION },
+    { name: linked ? `fft-widget-${linked}` : "martcharts", version: VERSION },
     {
       instructions: linked
         ? `This server is linked to the widget "${linked}". Read it with fft_get_widget, query its rows with fft_get_widget_data, and change it with fft_update_widget.`

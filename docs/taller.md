@@ -75,7 +75,7 @@ Every version:
 ## API
 
 ```ts
-import { createVariants, questionOf, rankVariants, runPipeline } from "fft-widgets";
+import { createVariants, questionOf, rankVariants, runPipeline } from "martcharts";
 
 const rows = await runPipeline(spec);
 questionOf(spec, rows).text; // "Which region has the most revenue?"

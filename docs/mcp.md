@@ -35,7 +35,7 @@ npm run smoke                                 # self-check against the real proc
 
 ### Connecting from Claude Code
 
-This folder's `.mcp.json` registers the all-widgets server as `fft-widgets`; Claude Code offers it when you open the folder. To add one server per widget, run `npm run mcp:config` and merge the output into `.mcp.json`, or add a single one:
+This folder's `.mcp.json` registers the all-widgets server as `martcharts`; Claude Code offers it when you open the folder. To add one server per widget, run `npm run mcp:config` and merge the output into `.mcp.json`, or add a single one:
 
 ```bash
 claude mcp add fft-revenue-kpi -- node /absolute/path/to/FFT/src/mcp/main.ts --widget revenue-kpi
@@ -49,7 +49,7 @@ Any MCP client that launches stdio servers can run `node <path>/src/mcp/main.ts`
 
 ```ts
 import { serveStdio } from "@modelcontextprotocol/server/stdio";
-import { createFftServer } from "fft-widgets/mcp";
+import { createFftServer } from "martcharts/mcp";
 import { createFileStore, createLocalFetch } from "./src/mcp/store.ts";
 
 const store = createFileStore("./widgets");

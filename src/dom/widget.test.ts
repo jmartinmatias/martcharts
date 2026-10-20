@@ -788,3 +788,61 @@ describe("more menu", () => {
   });
 });
 
+
+describe("Details side (info action)", () => {
+  const spec = echo(rows(1, 2), {
+    id: "revenue-by-region",
+    title: "Revenue",
+    description: "What each region brought in.",
+    transform: [{ type: "sort", by: "v" }],
+    links: [{ label: "Sales report", href: "https://example.com/report" }],
+  });
+
+  test("the button turns the card to its details and back, keeping focus on the way", async () => {
+    const target = document.createElement("div");
+    document.body.append(target);
+    const widget = createWidget(target, spec, { actions: ["info"] });
+    await widget.ready;
+    const button = target.querySelector<HTMLButtonElement>('.fft-action[data-action="info"]')!;
+    const back = target.querySelector<HTMLElement>(".fft-back")!;
+    expect([back.hidden, button.getAttribute("aria-expanded"), button.getAttribute("aria-label")]).toEqual([true, "false", "Details"]);
+    button.click();
+    await vi.waitFor(() => expect(back.hidden).toBe(false));
+    expect(widget.root.dataset.side).toBe("back");
+    expect(button.getAttribute("aria-expanded")).toBe("true");
+    expect(back.textContent).toContain("What each region brought in.");
+    expect(back.textContent).toContain("Written into the spec");
+    expect(back.textContent).toContain("sort");
+    expect(back.textContent).toContain(widgetRef("revenue-by-region"));
+    const link = back.querySelector<HTMLAnchorElement>(".fft-back-links a")!;
+    expect([link.textContent, link.href, link.rel]).toEqual(["Sales report", "https://example.com/report", "noopener noreferrer"]);
+    expect(document.activeElement?.textContent).toBe("Back to chart");
+    back.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    await vi.waitFor(() => expect(back.hidden).toBe(true));
+    expect(widget.root.dataset.side).toBeUndefined();
+    widget.destroy();
+  });
+
+  test("a click on a plain part of the card turns it; without the info action it does not", async () => {
+    const on = document.createElement("div");
+    const off = document.createElement("div");
+    document.body.append(on, off);
+    const a = createWidget(on, spec, { actions: ["info"] });
+    const b = createWidget(off, spec);
+    await Promise.all([a.ready, b.ready]);
+    on.querySelector<HTMLElement>(".fft-title")!.click();
+    off.querySelector<HTMLElement>(".fft-title")!.click();
+    await vi.waitFor(() => expect(a.root.dataset.side).toBe("back"));
+    expect(b.root.dataset.side).toBeUndefined();
+    await a.showDetails(false);
+    expect(a.root.dataset.side).toBeUndefined();
+    a.destroy();
+    b.destroy();
+  });
+
+  test("links must be a list of label and href", async () => {
+    const { validateSpec } = await import("../core/validate.ts");
+    expect(validateSpec({ ...spec, links: "https://example.com" }).map((issue) => issue.path)).toContain("links");
+    expect(validateSpec(spec).map((issue) => issue.path)).not.toContain("links");
+  });
+});

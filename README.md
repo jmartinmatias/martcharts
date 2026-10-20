@@ -29,10 +29,10 @@ npm run catalog    # the chart catalog: catalog/*.json, catalog/index.html, docs
 
 ## Drop it into any page
 
-`npm run build:lib` writes two self-contained files with no dependencies: `dist/fft-widgets.iife.js` (a classic script, exposed as `window.FFTWidgets`) and `dist/fft-widgets.js` (an ES module, also `import "fft-widgets/standalone"`). Both register `<fft-widget>` on load, so a page needs no bundler, no Node and no JavaScript of its own. Type declarations ship in `dist/types` (`fft-widgets/standalone` resolves them under any `moduleResolution`, and `document.querySelector("fft-widget")` comes back typed). The module is safe to import on a server too: it only registers the tag where `customElements` exists.
+`npm run build:lib` writes two self-contained files with no dependencies: `dist/martcharts.iife.js` (a classic script, exposed as `window.MartCharts`) and `dist/martcharts.js` (an ES module, also `import "martcharts/standalone"`). Both register `<fft-widget>` on load, so a page needs no bundler, no Node and no JavaScript of its own. Type declarations ship in `dist/types` (`martcharts/standalone` resolves them under any `moduleResolution`, and `document.querySelector("fft-widget")` comes back typed). The module is safe to import on a server too: it only registers the tag where `customElements` exists.
 
 ```html
-<script src="fft-widgets.iife.js"></script>
+<script src="martcharts.iife.js"></script>
 
 <fft-widget data="sales.csv"></fft-widget>                   <!-- just data: the chart is picked for you -->
 <fft-widget src="catalog/funnel.json"></fft-widget>          <!-- a spec file -->
@@ -68,7 +68,7 @@ The [chart catalog](docs/catalog.md) has all 40 views, each with what it is for,
 Draw it with JavaScript:
 
 ```ts
-import { createWidget } from "fft-widgets";
+import { createWidget } from "martcharts";
 
 const widget = createWidget(document.querySelector("#slot")!, spec);
 await widget.ready;
@@ -79,7 +79,7 @@ or with the HTML tag:
 
 ```html
 <script type="module">
-  import { defineWidgetElement } from "fft-widgets";
+  import { defineWidgetElement } from "martcharts";
   defineWidgetElement();
 </script>
 <fft-widget src="/widgets/revenue-by-region.json"></fft-widget>
@@ -90,7 +90,7 @@ or with the HTML tag:
 `baseWidget` is the vanilla block: valid, empty, drawn as a table. Every widget is a fork of it, or of another widget. A fork says only what changes, using JSON Merge Patch rules: objects merge, lists replace, `null` removes a key.
 
 ```ts
-import { baseWidget, fork } from "fft-widgets";
+import { baseWidget, fork } from "martcharts";
 
 const topCustomers = fork(baseWidget, {
   title: "Top customers",

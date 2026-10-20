@@ -132,7 +132,7 @@ The title, subtitle, footer and headline caption can name values from the rows t
 Draws `spec` inside the `target` element.
 
 ```ts
-import { createWidget } from "fft-widgets";
+import { createWidget } from "martcharts";
 
 const widget = createWidget(document.querySelector("#slot")!, spec, { fetch: myFetch });
 await widget.ready;
@@ -222,7 +222,7 @@ A dashboard is JSON too: a grid of cells and one filter row that scopes every wi
 ```
 
 ```ts
-import { createDashboard } from "fft-widgets";
+import { createDashboard } from "martcharts";
 
 const board = createDashboard(document.querySelector("#board")!, dashboardSpec, {
   widgets: storedSpecsById,         // or resolve: (id) => spec
@@ -246,7 +246,7 @@ Each filter offers "All" plus every value of its field found in the widgets' dat
 
 ## Working with specs
 
-These need no DOM and work in Node: import them from `fft-widgets/core`.
+These need no DOM and work in Node: import them from `martcharts/core`.
 
 ### `fork(base, ...overrides) => spec`
 
@@ -350,7 +350,7 @@ Every shipped palette reuses the validated hues in an order checked for colorbli
 Add your own with `registerPreset`. In its `css`, `&` stands for the widget root:
 
 ```ts
-import { registerPreset } from "fft-widgets";
+import { registerPreset } from "martcharts";
 
 registerPreset({
   name: "ink",
@@ -387,7 +387,7 @@ Register your own with `registerPalette({ name, label, description, colors, dark
 `createPalettePicker(target, options)` draws a professional color chooser: library chips, one editable swatch per color (color field and hex), an eyedropper per swatch that picks a color from anywhere on screen (in browsers with the EyeDropper API, such as Chrome and Edge), add and remove, and the live `checkPalette` readout.
 
 ```ts
-import { createPalettePicker } from "fft-widgets";
+import { createPalettePicker } from "martcharts";
 
 createPalettePicker(document.querySelector("#colors")!, {
   value: "apple",
@@ -404,7 +404,7 @@ Every block is a descriptor plus code. The descriptor (`type`, `description`, `o
 ### A data source
 
 ```ts
-import { registerSource } from "fft-widgets";
+import { registerSource } from "martcharts";
 
 registerSource({
   type: "csv",
@@ -464,7 +464,7 @@ A renderer gets a `ViewContext` and draws into `ctx.el`. It may return a cleanup
 | `select(row)` | Fires `fft-select` with the row. |
 
 ```ts
-import { registerView, html } from "fft-widgets";
+import { registerView, html } from "martcharts";
 
 registerView({
   type: "progress",
@@ -498,7 +498,7 @@ Chart helpers for custom charts are exported too: `niceTicks`, `linearScale`, `b
 
 | Import | Contents | Runs in |
 | --- | --- | --- |
-| `fft-widgets` | Everything, with the built-in renderers attached. | Browser |
-| `fft-widgets/core` | Specs, fork, registry, pipeline, formats, validation. | Browser, Node, workers |
-| `fft-widgets/mcp` | `createFftServer`, plus the store from `src/mcp/store.ts`. | Node |
-| `fft-widgets/standalone` | Built bundle (`dist/fft-widgets.js`, from `npm run build:lib`): everything in `fft-widgets`, compiled, with `<fft-widget>` registered. `dist/fft-widgets.iife.js` is the same as a classic script (`window.FFTWidgets`). Types in `dist/types`, with `HTMLElementTagNameMap["fft-widget"]`. | Browser, no bundler; imports safely in Node |
+| `martcharts` | Everything, with the built-in renderers attached. | Browser |
+| `martcharts/core` | Specs, fork, registry, pipeline, formats, validation. | Browser, Node, workers |
+| `martcharts/mcp` | `createFftServer`, plus the store from `src/mcp/store.ts`. | Node |
+| `martcharts/standalone` | Built bundle (`dist/martcharts.js`, from `npm run build:lib`): everything in `martcharts`, compiled, with `<fft-widget>` registered. `dist/martcharts.iife.js` is the same as a classic script (`window.MartCharts`). Types in `dist/types`, with `HTMLElementTagNameMap["fft-widget"]`. | Browser, no bundler; imports safely in Node |

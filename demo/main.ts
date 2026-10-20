@@ -5,6 +5,7 @@
  */
 import { baseWidget, createDashboard, createPalettePicker, createWidget, describeBlocks, describePresets, fork, getPalette, resolvePalette, suggestView, validateSpec } from "../src/index.ts";
 import type { DashboardSpec, Issue, Row, SelectDetail, ViewSpec, WidgetSpec } from "../src/index.ts";
+import { look, setLook } from "./look.ts";
 
 const stored = import.meta.glob<WidgetSpec>("../widgets/*.json", { eager: true, import: "default" });
 const boards = import.meta.glob<DashboardSpec>("../dashboards/*.json", { eager: true, import: "default" });
@@ -28,7 +29,7 @@ const button = (label: string, title?: string) => {
 
 const boardOptions: Parameters<typeof createDashboard>[2] = {
   widgets: byId,
-  actions: ["expand", "explain", "csv", "image", "copy"],
+  actions: ["info", "expand", "explain", "csv", "image", "copy"],
   // The filter row (period, region, sections) stays pinned while the long gallery scrolls.
   sticky: true,
   // The chosen section lives in the address, so a link opens the gallery on it.
@@ -122,8 +123,7 @@ segmented($("#explain"), (value) => {
 });
 
 segmented($("#theme"), (theme) => {
-  if (theme === "auto") delete document.documentElement.dataset.theme;
-  else document.documentElement.dataset.theme = theme;
+  setLook({ theme });
   // The color editor shows the palette's steps for the theme on screen and checks them on that background.
   syncStylePanel(current);
 });
@@ -143,6 +143,10 @@ segmented(presetGroup, (preset) => {
   styleAll(patch);
   if (scope === "all") void apply(fork(current, { style: patch }));
 });
+// The look picked on any page (Glass unless changed) styles the board from the start.
+const saved = look().preset;
+if (saved && saved !== "default") styleAll({ preset: saved });
+else syncPage();
 
 /** Styles every chart on the board: the patch merges into the shared style, and the page controls follow it. */
 function styleAll(patch: Record<string, unknown>) {
@@ -154,15 +158,12 @@ function styleAll(patch: Record<string, unknown>) {
 /** The header's Style and Theme controls, and the page backdrop, show the shared style. */
 function syncPage() {
   const preset = typeof shared.preset === "string" ? shared.preset : "default";
-  document.body.dataset.preset = preset;
+  // The page backdrop follows the style, here and on every other page (public/site-look.js).
+  setLook({ preset });
   for (const b of presetGroup.querySelectorAll("button")) b.setAttribute("aria-pressed", String(b.dataset.value === preset));
   // A theme for every chart is the page's theme too, so cards never sit on the opposite background.
   const theme = typeof shared.theme === "string" ? shared.theme : undefined;
-  if (theme) {
-    if (theme === "auto") delete document.documentElement.dataset.theme;
-    else document.documentElement.dataset.theme = theme;
-    for (const b of $("#theme").querySelectorAll("button")) b.setAttribute("aria-pressed", String(b.dataset.value === theme));
-  }
+  if (theme) setLook({ theme });
 }
 
 // ---- Playground ----
@@ -326,8 +327,7 @@ $("#reset-style").addEventListener("click", () => {
     shared = {};
     void board.setOverride({ style: null });
     // Default style is the default page too: the theme goes back to following the system.
-    delete document.documentElement.dataset.theme;
-    for (const b of $("#theme").querySelectorAll("button")) b.setAttribute("aria-pressed", String(b.dataset.value === "auto"));
+    setLook({ theme: "auto" });
     syncPage();
   }
   void apply(fork(current, { style: null }));

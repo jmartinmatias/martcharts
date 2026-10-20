@@ -307,6 +307,8 @@ export const BASE_CSS = `
   /* Room under the content for the stepping pill, so it never covers the footer. */
   .fft-overlay:has(.fft-overlay-nav) .fft-overlay-slot > .fft-widget { padding-bottom: 89px; }
 }
+/* On a phone the card gives its padding to the chart: the page around it already has a gutter. */
+@media (max-width: 480px) { .fft-widget { --fft-pad: 16px; --fft-gap: 8px; } }
 .fft-action[data-failed] { color: var(--fft-negative); }
 .fft-title { margin: 0; font-size: 13px; line-height: 21px; font-weight: 600; letter-spacing: -0.005em; }
 .fft-subtitle { margin: 0; font-size: 13px; line-height: 21px; color: var(--fft-text-secondary); }
@@ -315,6 +317,26 @@ export const BASE_CSS = `
 .fft-guide[hidden] { display: none; }
 .fft-guide-label { display: block; margin-bottom: 2px; font-size: 11px; line-height: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
 .fft-guide-question { display: block; margin-bottom: 3px; font-size: 14px; line-height: 21px; font-weight: 600; color: var(--fft-text); text-wrap: balance; }
+/* The Details side (the info action). While it shows, the front's parts step aside and the back fills the card. */
+.fft-widget[data-side="back"] > :not(.fft-back) { display: none; }
+.fft-widget:has(.fft-action[data-action="info"]) { cursor: pointer; }
+.fft-widget:has(.fft-action[data-action="info"]) :is(a, button, [tabindex]:not([tabindex="-1"])) { cursor: pointer; }
+.fft-back { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 8px; cursor: auto; }
+.fft-back[hidden] { display: none; }
+.fft-back-kicker { margin: 0; font-size: 11px; line-height: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fft-accent); }
+.fft-back-title { margin: 0; font-size: 15px; line-height: 21px; font-weight: 600; color: var(--fft-text); text-wrap: balance; }
+.fft-back-about { margin: 0; font-size: 13px; line-height: 21px; color: var(--fft-text-secondary); }
+.fft-back-list { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 5px 13px; margin: 5px 0; font-size: 13px; line-height: 18px; }
+.fft-back-term { color: var(--fft-muted); }
+.fft-back-value { margin: 0; color: var(--fft-text); overflow-wrap: anywhere; }
+.fft-back-links { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 3px; font-size: 13px; line-height: 18px; }
+.fft-back-link { color: var(--fft-accent); text-decoration: underline; text-underline-offset: 2px; text-decoration-thickness: 1px; }
+.fft-back-link:hover { text-decoration-thickness: 2px; }
+.fft-back-tools { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 8px; }
+.fft-back-button { font: inherit; font-size: 12px; min-height: 30px; padding: 4px 13px; border-radius: 8px; border: 1px solid var(--fft-border); background: transparent; color: var(--fft-text); cursor: pointer; }
+.fft-back-button:hover { background: var(--fft-grid); }
+.fft-back-button:focus-visible, .fft-back-link:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 2px; }
+@media (max-width: 420px) { .fft-back-list { grid-template-columns: minmax(0, 1fr); gap: 0; } .fft-back-value { margin-bottom: 5px; } }
 .fft-footer { margin: 0; font-size: 11px; line-height: 13px; color: var(--fft-muted); }
 /* The bottom row: footer at the left, the ghost ref at the right. */
 .fft-base { display: flex; align-items: baseline; gap: 13px; min-width: 0; }
@@ -554,6 +576,21 @@ export const BASE_CSS = `
 .fft-waffle-name { grid-area: name; font-size: 11px; color: var(--fft-text-secondary); }
 .fft-waffle-value { grid-area: value; font-weight: 600; font-variant-numeric: tabular-nums; }
 .fft-waffle-share { grid-area: share; text-align: right; font-size: 11px; color: var(--fft-muted); font-variant-numeric: tabular-nums; }
+/* Ring, rings and waffle on a narrow card (a phone): the legend drops under the figure, so the figure centers and
+   each legend entry tightens to one line, name then value then share, instead of two loose rows with the share
+   stranded at the far edge. */
+.fft-body:has(.fft-donut, .fft-rings, .fft-waffle) { container-type: inline-size; }
+@container (max-width: 440px) {
+  .fft-donut, .fft-rings, .fft-waffle { justify-content: center; gap: 13px; }
+  .fft-donut-legend, .fft-rings-legend, .fft-waffle-legend { flex: 1 1 100%; max-width: none; gap: 5px; }
+  .fft-donut-legend li, .fft-waffle-legend li { grid-template-columns: 8px minmax(0, 1fr) auto 34px; grid-template-areas: "dot name value share"; align-items: baseline; }
+  .fft-donut-legend .fft-swatch, .fft-waffle-legend .fft-swatch { align-self: center; }
+  .fft-donut-name, .fft-waffle-name { font-size: 13px; line-height: 21px; }
+  .fft-rings-legend li { grid-template-areas: "dot name percent" ". value gap"; row-gap: 0; }
+  .fft-rings-name { font-size: 13px; line-height: 21px; }
+  .fft-rings-percent { font-size: 17px; line-height: 21px; }
+  .fft-rings-gap { justify-self: end; }
+}
 .fft-var { --fft-var-color: var(--fft-muted); transition: opacity 377ms var(--fft-ease); }
 .fft-var[data-tone="good"] { --fft-var-color: var(--fft-up); }
 .fft-var[data-tone="bad"] { --fft-var-color: var(--fft-down); }
@@ -951,9 +988,10 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 13px; }
 .fft-filters[hidden] { display: none; }
 /* Sticky: the row pins to the top, above the cells' hover controls (z 5) and below tooltips (z 10). The host sets
+   --fft-sticky-top to the height of its own pinned header, if it has one, so the row pins just under it. The host sets
    --fft-board-bg to its own background; the negative margin keeps the layout, the padding keeps controls off the edge. */
 .fft-dashboard[data-sticky] .fft-filters {
-  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 8; margin: -8px; padding: 8px;
+  position: sticky; top: calc(var(--fft-sticky-top, 0px) + env(safe-area-inset-top, 0px)); z-index: 8; margin: -8px; padding: 8px;
   background: var(--fft-board-bg, color-mix(in srgb, var(--fft-surface) 92%, transparent));
   -webkit-backdrop-filter: blur(13px) saturate(1.2); backdrop-filter: blur(13px) saturate(1.2);
 }
@@ -1002,9 +1040,9 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-board-section h3 { margin: 0; font-size: 11px; line-height: 21px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fft-text-secondary); }
 .fft-board-section p { margin: 0; font-size: 13px; color: var(--fft-text-secondary); }
 /* A jumped-to section lands clear of the pinned row: its height comes from the runtime, with a fallback until measured. */
-.fft-dashboard[data-sticky] .fft-board-section { scroll-margin-top: calc(var(--fft-filters-height, 89px) + 13px); }
+.fft-dashboard[data-sticky] .fft-board-section { scroll-margin-top: calc(var(--fft-sticky-top, 0px) + var(--fft-filters-height, 89px) + 13px); }
 /* Under a pinned filter row, the page scroll-pads by its height, so whatever takes focus is scrolled clear of it (WCAG 2.4.11). */
-:root:has(.fft-dashboard[data-sticky]) { scroll-padding-top: calc(var(--fft-filters-height, 89px) + 13px); }
+:root:has(.fft-dashboard[data-sticky]) { scroll-padding-top: calc(var(--fft-sticky-top, 0px) + var(--fft-filters-height, 89px) + 13px); }
 .fft-cell-missing { margin: 0; padding: 21px; border: 1px dashed var(--fft-axis); border-radius: 13px; color: var(--fft-text-secondary); text-align: center; }
 @media (max-width: 1100px) {
   .fft-dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -1032,7 +1070,7 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
   .fft-range button { flex: 1 1 0; }
   .fft-filter { flex: 1 1 144px; }
   .fft-filter select { flex: 1; font-size: 16px; }
-  .fft-dashboard[data-sticky] .fft-board-section { scroll-margin-top: calc(var(--fft-filters-height, 144px) + 13px); }
+  .fft-dashboard[data-sticky] .fft-board-section { scroll-margin-top: calc(var(--fft-sticky-top, 0px) + var(--fft-filters-height, 144px) + 13px); }
 }
 /* Touch: every control at least 34px tall, without the grey tap flash. */
 @media (pointer: coarse) {

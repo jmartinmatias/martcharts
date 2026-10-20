@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "fft-widgets": {
+    "martcharts": {
       "command": "node",
       "args": ["src/mcp/main.ts"]
     }

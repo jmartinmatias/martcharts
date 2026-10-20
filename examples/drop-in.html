@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Drop-in widgets</title>
   <!-- The whole library, with <fft-widget> registered. No bundler, no build step, no dependencies. -->
-  <script src="../dist/fft-widgets.iife.js"></script>
+  <script src="../dist/martcharts.iife.js"></script>
+  <link rel="stylesheet" href="../demo/site-nav.css">
+  <link rel="stylesheet" href="../demo/site-look.css">
+  <script src="../site-look.js"></script>
   <style>
     :root { color-scheme: light dark; }
     body { font-family: system-ui, sans-serif; margin: 0 auto; max-width: 960px; padding: 24px 16px; background: Canvas; color: CanvasText; }
@@ -14,6 +17,14 @@
   </style>
 </head>
 <body>
+  <nav class="site-nav" aria-label="Pages">
+    <a href="../index.html" title="Every widget in the library, each the same component fed a different spec">Gallery</a>
+    <a href="../taller.html" title="elBulli's creative method applied to sales charts: new versions of any widget, each answering a sales question">Taller</a>
+    <a href="../selected.html" title="New ways to show the same data, picked because they are new and meaningful">Selected</a>
+    <a href="../index.html#playground" title="Edit any widget's spec, view and style, with a live preview">Playground</a>
+    <a href="../catalog/index.html" title="Every chart type: what data it needs, when to use it, and a spec to copy">Catalog</a>
+    <a href="../examples/drop-in.html" aria-current="page" title="Every way to put a chart on a page: one tag, a JSON file, a CSV, or just a data address">Drop-in</a>
+  </nav>
   <h1>Drop-in widgets</h1>
   <p>Built with <code>npm run build:lib</code>. Each card below is one tag. Serve this folder from the repo root (for example <code>npm run dev</code>, then open <code>/examples/drop-in.html</code>).</p>
 

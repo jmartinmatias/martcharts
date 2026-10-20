@@ -6,23 +6,23 @@ A widget is one spec object and one element. Every recipe below does the same th
 
 The package is not on npm. Two ways in:
 
-- **Copy one file.** Run `npm run build:lib` here and copy `dist/fft-widgets.iife.js` (or `dist/fft-widgets.js`) into the other project's static files. Nothing else is needed.
-- **Install from GitHub.** `npm install git+https://github.com/jmartinmatias/martcharts.git` (add `#<branch>` for a branch). npm builds `dist/` on install through the `prepare` script, then `import "fft-widgets/standalone"` works, types included. The repository is private, so the machine needs GitHub access.
+- **Copy one file.** Run `npm run build:lib` here and copy `dist/martcharts.iife.js` (or `dist/martcharts.js`) into the other project's static files. Nothing else is needed.
+- **Install from GitHub.** `npm install git+https://github.com/jmartinmatias/martcharts.git` (add `#<branch>` for a branch). npm builds `dist/` on install through the `prepare` script, then `import "martcharts/standalone"` works, types included. The repository is private, so the machine needs GitHub access.
 
 `npm run build:lib` writes:
 
 | File | Use it from |
 | --- | --- |
-| `dist/fft-widgets.iife.js` | A plain `<script>` tag. Puts the API on `window.FFTWidgets`. |
-| `dist/fft-widgets.js` | `import` in a bundler or a `<script type="module">`. Also `fft-widgets/standalone`. |
-| `dist/types/` | TypeScript, through `fft-widgets/standalone`. |
+| `dist/martcharts.iife.js` | A plain `<script>` tag. Puts the API on `window.MartCharts`. |
+| `dist/martcharts.js` | `import` in a bundler or a `<script type="module">`. Also `martcharts/standalone`. |
+| `dist/types/` | TypeScript, through `martcharts/standalone`. |
 
-Both files register `<fft-widget>` on load and have no dependencies. In a project that compiles TypeScript itself, `import ... from "fft-widgets"` uses the source instead; that path needs `defineWidgetElement()` for the tag.
+Both files register `<fft-widget>` on load and have no dependencies. In a project that compiles TypeScript itself, `import ... from "martcharts"` uses the source instead; that path needs `defineWidgetElement()` for the tag.
 
 ## Plain HTML
 
 ```html
-<script src="fft-widgets.iife.js"></script>
+<script src="martcharts.iife.js"></script>
 
 <!-- Quickest: a data file and nothing else. The chart is picked from the data's shape. -->
 <fft-widget data="/exports/sales.csv" heading="Sales"></fft-widget>
@@ -43,7 +43,7 @@ A `url` source fetches JSON from your API. Use `"path": "data.items"` when the r
 ## Plain JavaScript
 
 ```js
-import { createWidget } from "fft-widgets/standalone";
+import { createWidget } from "martcharts/standalone";
 
 const widget = createWidget(document.querySelector("#chart"), {
   data: { type: "fn", load: () => fetch("/api/orders").then((r) => r.json()) },
@@ -60,8 +60,8 @@ widget.destroy();                                // when done
 The tag works in JSX. Pass the spec as a property, since React 19 sets properties on custom elements:
 
 ```tsx
-import "fft-widgets/standalone";
-import type { WidgetSpec } from "fft-widgets/standalone";
+import "martcharts/standalone";
+import type { WidgetSpec } from "martcharts/standalone";
 
 export function Chart({ spec }: { spec: WidgetSpec }) {
   return <fft-widget spec={spec} actions="csv image" />;
@@ -72,8 +72,8 @@ For React 18, or to keep a handle on the widget, use a ref:
 
 ```tsx
 import { useEffect, useRef } from "react";
-import { createWidget } from "fft-widgets/standalone";
-import type { Widget, WidgetSpec } from "fft-widgets/standalone";
+import { createWidget } from "martcharts/standalone";
+import type { Widget, WidgetSpec } from "martcharts/standalone";
 
 export function Chart({ spec }: { spec: WidgetSpec }) {
   const host = useRef<HTMLDivElement>(null);
@@ -105,8 +105,8 @@ Tell Vue the tag is a custom element (`compilerOptions.isCustomElement: (tag) =>
 
 ```vue
 <script setup lang="ts">
-import "fft-widgets/standalone";
-import type { WidgetSpec } from "fft-widgets/standalone";
+import "martcharts/standalone";
+import type { WidgetSpec } from "martcharts/standalone";
 defineProps<{ spec: WidgetSpec }>();
 </script>
 
@@ -119,8 +119,8 @@ defineProps<{ spec: WidgetSpec }>();
 
 ```svelte
 <script lang="ts">
-  import "fft-widgets/standalone";
-  import type { WidgetSpec } from "fft-widgets/standalone";
+  import "martcharts/standalone";
+  import type { WidgetSpec } from "martcharts/standalone";
   export let spec: WidgetSpec;
 </script>
 
@@ -131,10 +131,10 @@ Svelte sets `spec` as a property because the element defines it.
 
 ## Server rendering (Next, Nuxt, SvelteKit, Astro)
 
-Importing the bundle on the server is safe: it registers the tag only where `customElements` exists. Widgets draw in the browser, so render the tag on the server and let it upgrade on load. In Next.js, put the component in a `"use client"` file. On the server itself, `fft-widgets/core` validates specs and runs pipelines with no DOM:
+Importing the bundle on the server is safe: it registers the tag only where `customElements` exists. Widgets draw in the browser, so render the tag on the server and let it upgrade on load. In Next.js, put the component in a `"use client"` file. On the server itself, `martcharts/core` validates specs and runs pipelines with no DOM:
 
 ```ts
-import { runPipeline, validateSpec } from "fft-widgets/core";
+import { runPipeline, validateSpec } from "martcharts/core";
 const rows = await runPipeline(spec);
 const issues = validateSpec(spec, rows);
 ```

@@ -56,6 +56,11 @@ export function validateSpec(spec: unknown, rows?: Row[]): Issue[] {
     }
   }
 
+  if (spec.links !== undefined) {
+    const ok = Array.isArray(spec.links) && spec.links.every((link) => isPlainObject(link) && typeof link.label === "string" && typeof link.href === "string");
+    if (!ok) issues.push(error("links", 'Must be a list such as [{ "label": "Sales report", "href": "https://example.com/report" }].'));
+  }
+
   if (spec.headline !== undefined) {
     if (!isPlainObject(spec.headline)) issues.push(error("headline", 'Must be an object such as { "value": "revenue" }.'));
     else issues.push(...checkOptions(HEADLINE_OPTIONS, spec.headline, "headline"));

@@ -13,6 +13,7 @@
  *
  * @module
  */
+import { fork } from "../core/fork.ts";
 import { runPipeline } from "../core/pipeline.ts";
 import { recommendCharts } from "../core/recommend.ts";
 import { blockTypes } from "../core/registry.ts";
@@ -20,6 +21,7 @@ import { suggestView } from "../core/suggest.ts";
 import type { DataSpec, WidgetSpec } from "../core/types.ts";
 import { createWidget } from "./widget.ts";
 import type { Widget } from "./widget.ts";
+import { ACTION_LABELS } from "./export.ts";
 import type { WidgetAction } from "./export.ts";
 
 /** The `<fft-widget>` element. */
@@ -42,7 +44,7 @@ export function defineWidgetElement(tag = "fft-widget"): void {
   if (customElements.get(tag)) return;
 
   class Element extends HTMLElement implements FftWidgetElement {
-    static observedAttributes = ["spec", "src", "data", "chart"];
+    static observedAttributes = ["spec", "src", "data", "chart", "preset"];
     #spec: WidgetSpec | undefined;
     #widget: Widget | undefined;
     #srcRequest = 0;
@@ -85,6 +87,11 @@ export function defineWidgetElement(tag = "fft-widget"): void {
     }
 
     attributeChangedCallback(name: string, _old: string | null, value: string | null) {
+      // A page-wide look (Airy, Glass...) set on the tag wins over the spec's own preset; removing it restores the spec's.
+      if (name === "preset") {
+        this.#draw();
+        return;
+      }
       if (value === null) return;
       if (name === "spec") {
         try {
@@ -130,10 +137,12 @@ export function defineWidgetElement(tag = "fft-widget"): void {
 
     #draw() {
       if (!this.isConnected || !this.#spec) return;
-      if (this.#widget) void this.#widget.setSpec(this.#spec);
+      const preset = this.getAttribute("preset");
+      const spec = preset ? fork(this.#spec, { style: { preset: preset === "default" ? null : preset } }) : this.#spec;
+      if (this.#widget) void this.#widget.setSpec(spec);
       else {
-        const actions = (this.getAttribute("actions") ?? "").split(/\s+/).filter((a): a is WidgetAction => a === "csv" || a === "image" || a === "copy" || a === "explain" || a === "expand");
-        this.#widget = createWidget(this, this.#spec, { actions });
+        const actions = (this.getAttribute("actions") ?? "").split(/\s+/).filter((a): a is WidgetAction => Object.hasOwn(ACTION_LABELS, a));
+        this.#widget = createWidget(this, spec, { actions });
       }
     }
 

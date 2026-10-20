@@ -1,5 +1,5 @@
 {
-  "name": "fft-widgets",
+  "name": "martcharts",
   "version": "0.1.0",
   "description": "One universal widget block. Describe the data, the reshaping, the view and the style; fork it into any chart, table, list or KPI. Ships with an MCP server so agents can read and edit every widget.",
   "type": "module",
@@ -10,12 +10,12 @@
     "./mcp": "./src/mcp/server.ts",
     "./standalone": {
       "types": "./dist/types/standalone.d.ts",
-      "default": "./dist/fft-widgets.js"
+      "default": "./dist/martcharts.js"
     },
     "./dist/*": "./dist/*"
   },
-  "unpkg": "dist/fft-widgets.iife.js",
-  "jsdelivr": "dist/fft-widgets.iife.js",
+  "unpkg": "dist/martcharts.iife.js",
+  "jsdelivr": "dist/martcharts.iife.js",
   "files": [
     "src",
     "dist",

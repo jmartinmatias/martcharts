@@ -8,11 +8,11 @@ Open [catalog/index.html](../catalog/index.html) through any static server to se
 ## Use one in any project
 
 ```html
-<script src="fft-widgets.iife.js"></script>  <!-- your copy of dist/fft-widgets.iife.js; installing is in frameworks.md -->
+<script src="martcharts.iife.js"></script>  <!-- your copy of dist/martcharts.iife.js; installing is in frameworks.md -->
 <fft-widget src="catalog/bar.json" actions="csv image"></fft-widget>
 ```
 
-Not sure which chart? `recommendCharts(rows)` (or MCP `fft_recommend_charts`) ranks the ones that suit your data, each with a filled view. Or swap the data for yours: keep the `view` block, change `data` (`inline` rows, a `url`, or a `fn` in code) so each row has the fields the view names. `validateSpec(spec, rows)` says what is missing. In a bundler, `import { createWidget } from "fft-widgets"` instead. Agents do the same through the MCP server ([mcp.md](mcp.md)): `fft_list_charts` lists this catalog, `fft_get_chart` returns one entry with its starter spec, `fft_validate_spec` checks a spec, `fft_create_widget` saves one.
+Not sure which chart? `recommendCharts(rows)` (or MCP `fft_recommend_charts`) ranks the ones that suit your data, each with a filled view. Or swap the data for yours: keep the `view` block, change `data` (`inline` rows, a `url`, or a `fn` in code) so each row has the fields the view names. `validateSpec(spec, rows)` says what is missing. In a bundler, `import { createWidget } from "martcharts"` instead. Agents do the same through the MCP server ([mcp.md](mcp.md)): `fft_list_charts` lists this catalog, `fft_get_chart` returns one entry with its starter spec, `fft_validate_spec` checks a spec, `fft_create_widget` saves one.
 
 ## Index
 
