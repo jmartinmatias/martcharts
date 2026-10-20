@@ -20,7 +20,8 @@ A `WidgetSpec` is a plain object. Only `data` and `view` are required.
 | `title` | string | Heading at the top. |
 | `subtitle` | string | Smaller line under the title, for example the period covered. |
 | `footer` | string | Small print at the bottom, for example the source. |
-| `description` | string | What the widget is for. Not drawn; read by people and agents. |
+| `description` | string | What the widget is for. Not drawn on the chart; read by people and agents, and shown on the Details side. |
+| `links` | `{ label, href }[]` | Related pages (a report, the data's owner, a runbook), listed on the Details side under **Linked**. |
 | `locale` | string | BCP 47 locale for number and date formats, for example `"en-US"`. Defaults to the runtime's. |
 | `data` | block | Where rows come from. See [data sources](blocks.md#data-sources). |
 | `transform` | block list | Reshaping steps, applied in order. See [transforms](blocks.md#transforms). |
@@ -140,7 +141,7 @@ await widget.ready;
 
 `options.fetch` replaces the global `fetch` for `url` sources (for auth headers, for example). Loads of the same address through the same `fetch` share one request, and the answer is reused for `cache` seconds (default 60; set `"cache": 0` on the source to always fetch), so a dashboard of many widgets fetches each file once and filters redraw without refetching.
 
-`options.actions` offers buttons in the widget's corner, shown on hover and keyboard focus: `"csv"` downloads the rows (labelled headers, raw values), `"image"` downloads the chart as a 2x PNG with its colors baked in (shown only when the view draws a chart), `"copy"` copies the rows as tab-separated text that pastes straight into a spreadsheet, `"explain"` (a question mark) opens or closes **How to read it**, a plain guide under the chart that opens with the sales question it answers (`questionOf`) and then, from `explainChart`, says what each mark is and what bigger, longer or stronger means, ending with one example from the rows, and `"expand"` opens the widget redrawn large in a modal dialog (with its guide open from the start) (full screen on phones; Escape, the backdrop or the close button closes it, and focus returns to the button). Inside a dashboard the dialog also steps through the board's widgets: previous and next buttons with a "3 of 44" count, the left and right arrow keys (unless a chart used the arrow to move between its marks), and a sideways swipe on phones. `options.neighbors(widget)` supplies that order for widgets outside a dashboard. None by default: whether people may take the data out is the host's decision. On the tag: `<fft-widget actions="expand csv image copy">`. Past three actions (yours from `addAction` included), the first two stay in the toolbar and the rest go into a **More** menu of labelled items, keyboard friendly (arrow keys, Home, End, Escape back to its button), and the title keeps the toolbar's width free so a long title never runs under it. `options.guide: true` shows the guide from the start. The building blocks are exported too: `toDelimited(rows, label, separator)`, `download(doc, filename, blob)` and `svgToPng(svg, background, scale)`.
+`options.actions` offers buttons in the widget's corner, shown on hover and keyboard focus: `"csv"` downloads the rows (labelled headers, raw values), `"image"` downloads the chart as a 2x PNG with its colors baked in (shown only when the view draws a chart), `"copy"` copies the rows as tab-separated text that pastes straight into a spreadsheet, `"explain"` (a question mark) opens or closes **How to read it**, a plain guide under the chart that opens with the sales question it answers (`questionOf`) and then, from `explainChart`, says what each mark is and what bigger, longer or stronger means, ending with one example from the rows, `"info"` turns the card round, with a short swirl (none under reduced motion), to its **Details** side: the question it answers, the chart type and what it is for, where the data comes from (a link for `url` and `csv` sources), the transform steps, how many rows and which fields with their formats, the id and ref, any validation notes, the spec's `description` and `links`, and a Copy spec button. With `info` on, a click on any plain part of the card turns it too (marks, buttons and links keep their own clicks); Escape or **Back to chart** turns it back, and `widget.showDetails(open)` does it from code. And `"expand"` opens the widget redrawn large in a modal dialog (with its guide open from the start) (full screen on phones; Escape, the backdrop or the close button closes it, and focus returns to the button). Inside a dashboard the dialog also steps through the board's widgets: previous and next buttons with a "3 of 44" count, the left and right arrow keys (unless a chart used the arrow to move between its marks), and a sideways swipe on phones. `options.neighbors(widget)` supplies that order for widgets outside a dashboard. None by default: whether people may take the data out is the host's decision. On the tag: `<fft-widget actions="expand csv image copy">`. Past three actions (yours from `addAction` included), the first two stay in the toolbar and the rest go into a **More** menu of labelled items, keyboard friendly (arrow keys, Home, End, Escape back to its button), and the title keeps the toolbar's width free so a long title never runs under it. `options.guide: true` shows the guide from the start. The building blocks are exported too: `toDelimited(rows, label, separator)`, `download(doc, filename, blob)` and `svgToPng(svg, background, scale)`.
 
 The returned `Widget`:
 
@@ -155,6 +156,7 @@ The returned `Widget`:
 | `setSpec(spec)` | Replaces the spec and redraws. |
 | `refresh()` | Reloads the data, skipping the `url` source's cache. The old drawing stays, dimmed, until new rows arrive. |
 | `showGuide(open)` | Opens or closes the How to read it guide, keeping the explain button in step. |
+| `showDetails(open)` | Turns the card to its Details side or back to the chart. Settles when the turn ends. |
 | `addAction(label, icon, onClick)` | Adds your own button to the hover toolbar, styled like the built-in actions: `label` names it for tooltips and screen readers, `icon` is SVG path data on a 24px grid (drawn as 2px strokes), and `onClick` receives the button (set `data-done` or `data-failed` on it for a moment of green or red feedback). Returns the button. A dashboard's `decorate(cell, id, widget)` is the natural place to call it. |
 | `destroy()` | Removes the widget and stops work in flight. |
 
@@ -180,7 +182,8 @@ Call `defineWidgetElement()` once (optionally with your own tag name), or load t
 | `data` attribute | No spec needed: the address of a data file. Ends in `.csv`: read as CSV; otherwise JSON (with `path` for a list inside the response). The chart is picked from the data with `recommendCharts`. Used when neither `spec` nor `src` is set. |
 | `chart` attribute | With `data`: the view type to draw (`line`, `donut`, ...), its fields filled from the data. `auto` or left out picks one. |
 | `heading` attribute | With `data`: the widget's title. (Not `title`, which would put a browser tooltip over the whole chart.) |
-| `actions` attribute | Space-separated buttons to show: `csv`, `image`, `copy`, `explain`, `expand`. |
+| `actions` attribute | Space-separated buttons to show: `info`, `csv`, `image`, `copy`, `explain`, `expand`. |
+| `preset` attribute | A style preset (`glass`, `airy`, `paper`, `default`...) that wins over the spec's own, so a page can give every tag one look. Removing it restores the spec's. |
 | `spec` property | The spec as an object. Setting it redraws the same widget. |
 | `widget` property | The live `Widget`, once connected. |
 
@@ -228,7 +231,7 @@ const board = createDashboard(document.querySelector("#board")!, dashboardSpec, 
   widgets: storedSpecsById,         // or resolve: (id) => spec
   actions: ["csv", "image", "copy"],
   decorate: (cell, id, widget) => { /* add your own controls to each cell */ },
-  sticky: true,                     // pin the filter row while the page scrolls
+  sticky: true,                     // pin the filter row while the page scrolls (under a pinned page header: set --fft-sticky-top to its height)
   hash: true,                       // keep the chosen section in the address (#<section id>)
   guides: false,                    // true opens every widget's How to read it guide from the start
 });
