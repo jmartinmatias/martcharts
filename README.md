@@ -13,6 +13,12 @@ A widget is a single plain object, the **spec**. It says where the data comes fr
 
 Every slot takes a **block**: `{ "type": "...", ...options }`. Blocks live in a registry, so adding a new data source, transform, format or view is one `register*` call, and every existing widget can use it.
 
+![A gallery of FFT widgets: forecast line, polar chart, stacked bars, sankey, bubble scatter, marimekko and donut](docs/images/gallery-light.png)
+
+Every card above is the same component fed a different spec from `widgets/`. Each one has a dark look that follows the theme:
+
+![The same widgets in dark mode: revenue and cost lines, candlesticks, a Likert survey, a funnel and feature adoption](docs/images/gallery-dark.png)
+
 ## Quick start
 
 Needs Node 23.6 or later (it runs TypeScript directly, with no build step).
