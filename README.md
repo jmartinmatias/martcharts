@@ -181,3 +181,7 @@ scripts/       smoke test and docs generator.
 ## Evaluating the MCP server
 
 `evals/fft-mcp.xml` holds 10 read-only questions about the sample widgets, with verified answers, for checking how well an agent uses the server. Each needs several tool calls, for example finding the right widget and then reading its data.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
