@@ -1,0 +1,58 @@
+{
+  "id": "health-coverage-key",
+  "locale": "en-US",
+  "source": {
+    "name": "Client health model (fictional)"
+  },
+  "title": "Days since the last meeting, by banker",
+  "subtitle": "Average days since each client was last met: green up to 45, amber up to 90",
+  "description": "The key coverage measure, averaged over each banker's clients, against the thresholds that set its status.",
+  "data": {
+    "type": "url",
+    "url": "/data/client-health.json"
+  },
+  "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": "rm",
+      "measures": [
+        {
+          "op": "avg",
+          "field": "daysSinceMeeting"
+        }
+      ]
+    },
+    {
+      "type": "sort",
+      "field": "daysSinceMeeting",
+      "order": "desc"
+    }
+  ],
+  "fields": {
+    "rm": {
+      "label": "Relationship manager"
+    },
+    "daysSinceMeeting": {
+      "label": "Days since meeting",
+      "format": {
+        "type": "number",
+        "decimals": 0
+      }
+    }
+  },
+  "view": {
+    "type": "bar",
+    "x": "rm",
+    "y": "daysSinceMeeting",
+    "reference": [
+      {
+        "value": 45,
+        "label": "Green up to 45 days"
+      },
+      {
+        "value": 90,
+        "label": "Amber up to 90 days"
+      }
+    ]
+  }
+}

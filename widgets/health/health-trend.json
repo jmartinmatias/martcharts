@@ -1,0 +1,35 @@
+{
+  "id": "health-trend",
+  "locale": "en-US",
+  "source": {
+    "name": "Client health model (fictional)"
+  },
+  "title": "Every client, quarter by quarter",
+  "subtitle": "Overall status from 2025-Q1 to 2026-Q4, with what changed",
+  "description": "One row per client, one cell per quarter in its overall status, and a note where the status moved.",
+  "data": {
+    "type": "url",
+    "url": "/data/client-health-history.json"
+  },
+  "fields": {
+    "client": {
+      "label": "Client"
+    },
+    "quarter": {
+      "label": "Quarter"
+    },
+    "overallRag": {
+      "label": "Overall"
+    },
+    "note": {
+      "label": "What changed"
+    }
+  },
+  "view": {
+    "type": "ragtrend",
+    "label": "client",
+    "period": "quarter",
+    "status": "overallRag",
+    "note": "note"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "id": "health-relationship-by-segment",
+  "locale": "en-US",
+  "source": {
+    "name": "Client health model (fictional)"
+  },
+  "title": "Which relationships are at risk",
+  "subtitle": "Relationship status by segment, clients",
+  "description": "How many clients in each segment are green, amber or red on relationship.",
+  "data": {
+    "type": "url",
+    "url": "/data/client-health.json"
+  },
+  "transform": [
+    {
+      "type": "pivot",
+      "row": "segment",
+      "column": "relationshipStatus",
+      "value": "id",
+      "op": "count",
+      "fill": 0
+    }
+  ],
+  "fields": {
+    "segment": {
+      "label": "Segment"
+    },
+    "Red": {
+      "label": "Off track (red)"
+    },
+    "Amber": {
+      "label": "To watch (amber)"
+    },
+    "Green": {
+      "label": "On track (green)"
+    }
+  },
+  "view": {
+    "type": "hbar",
+    "label": "segment",
+    "value": [
+      "Red",
+      "Amber",
+      "Green"
+    ],
+    "stacked": true
+  },
+  "style": {
+    "palette": [
+      "#D1453B",
+      "#E0A21B",
+      "#2E9D5B"
+    ]
+  }
+}

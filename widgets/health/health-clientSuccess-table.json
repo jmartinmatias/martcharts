@@ -1,0 +1,104 @@
+{
+  "id": "health-clientSuccess-table",
+  "locale": "en-US",
+  "source": {
+    "name": "Client health model (fictional)"
+  },
+  "title": "Client success, client by client",
+  "subtitle": "Worst first; search by client, banker or segment",
+  "description": "Every client's client success measures and status, worst overall status first.",
+  "data": {
+    "type": "url",
+    "url": "/data/client-health.json"
+  },
+  "transform": [
+    {
+      "type": "sort",
+      "field": "priority",
+      "order": "desc"
+    }
+  ],
+  "fields": {
+    "name": {
+      "label": "Client"
+    },
+    "rm": {
+      "label": "Relationship manager"
+    },
+    "segment": {
+      "label": "Segment"
+    },
+    "region": {
+      "label": "Region"
+    },
+    "aum": {
+      "label": "AuM",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "onboarding": {
+      "label": "Onboarding",
+      "format": {
+        "type": "percent"
+      }
+    },
+    "digitalAdoption": {
+      "label": "Digital adoption",
+      "format": {
+        "type": "percent"
+      }
+    },
+    "ticketsOpen": {
+      "label": "Tickets open"
+    },
+    "nps": {
+      "label": "NPS"
+    },
+    "complaints90d": {
+      "label": "Complaints, 90 days"
+    },
+    "clientSuccessStatus": {
+      "label": "Client success",
+      "format": {
+        "type": "badge",
+        "tones": {
+          "Red": "negative",
+          "Amber": "warning",
+          "Green": "positive",
+          "No data": "neutral"
+        }
+      }
+    },
+    "overallStatus": {
+      "label": "Overall",
+      "format": {
+        "type": "badge",
+        "tones": {
+          "Red": "negative",
+          "Amber": "warning",
+          "Green": "positive",
+          "No data": "neutral"
+        }
+      }
+    }
+  },
+  "view": {
+    "type": "table",
+    "columns": [
+      "name",
+      "rm",
+      "onboarding",
+      "digitalAdoption",
+      "ticketsOpen",
+      "nps",
+      "complaints90d",
+      "clientSuccessStatus"
+    ],
+    "search": true,
+    "pageSize": 10,
+    "stickyFirst": true
+  }
+}

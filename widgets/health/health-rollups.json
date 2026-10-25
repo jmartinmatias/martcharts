@@ -1,0 +1,30 @@
+{
+  "id": "health-rollups",
+  "locale": "en-US",
+  "source": {
+    "name": "Client health model (fictional)"
+  },
+  "title": "How statuses roll up",
+  "subtitle": "From measures to a perspective, from perspectives to the client, and per banker",
+  "description": "The roll-up rules: measures into a perspective, perspectives into the client's overall status, and clients into a banker's book.",
+  "data": {
+    "type": "url",
+    "url": "/data/rag-rollups.json"
+  },
+  "fields": {
+    "level": {
+      "label": "Level"
+    },
+    "rule": {
+      "label": "Rule"
+    }
+  },
+  "view": {
+    "type": "table",
+    "columns": [
+      "level",
+      "rule"
+    ],
+    "sortable": false
+  }
+}

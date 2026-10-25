@@ -1,0 +1,157 @@
+{
+  "id": "client-health",
+  "title": "Client health",
+  "subtitle": "Red, amber and green from four perspectives: client success, business development, coverage and the relationship",
+  "description": "Every client's health on one page, scored against written thresholds: who is on track, where it is slipping, what changed this quarter, and who owns the next step.",
+  "columns": 3,
+  "filters": [
+    {
+      "field": "segment",
+      "label": "Segment"
+    },
+    {
+      "field": "rm",
+      "label": "Relationship manager"
+    },
+    {
+      "field": "region",
+      "label": "Region"
+    }
+  ],
+  "widgets": [
+    {
+      "section": "Overview",
+      "description": "The book's health this quarter, and how it moved"
+    },
+    {
+      "widget": "health-on-track",
+      "span": 3
+    },
+    {
+      "widget": "health-status-by-segment",
+      "span": 2
+    },
+    {
+      "widget": "health-status-by-region"
+    },
+    {
+      "section": "Client success",
+      "description": "Onboarding, adoption, service, satisfaction and complaints"
+    },
+    {
+      "widget": "health-clientSuccess-board",
+      "span": 3
+    },
+    {
+      "widget": "health-clientSuccess-by-segment"
+    },
+    {
+      "widget": "health-clientSuccess-key",
+      "span": 2
+    },
+    {
+      "widget": "health-clientSuccess-table",
+      "span": 3
+    },
+    {
+      "section": "Business development",
+      "description": "Pipeline, win rate, new money and products added"
+    },
+    {
+      "widget": "health-bizDev-board",
+      "span": 3
+    },
+    {
+      "widget": "health-bizDev-by-segment"
+    },
+    {
+      "widget": "health-bizDev-key",
+      "span": 2
+    },
+    {
+      "widget": "health-bizDev-table",
+      "span": 3
+    },
+    {
+      "section": "Coverage",
+      "description": "Meetings, cadence, banker load and reviews"
+    },
+    {
+      "widget": "health-coverage-board",
+      "span": 3
+    },
+    {
+      "widget": "health-coverage-by-segment"
+    },
+    {
+      "widget": "health-coverage-key",
+      "span": 2
+    },
+    {
+      "widget": "health-coverage-table",
+      "span": 3
+    },
+    {
+      "section": "Relationship",
+      "description": "Wallet share, attrition risk, fees, KYC and sentiment"
+    },
+    {
+      "widget": "health-relationship-board",
+      "span": 3
+    },
+    {
+      "widget": "health-relationship-by-segment"
+    },
+    {
+      "widget": "health-relationship-key",
+      "span": 2
+    },
+    {
+      "widget": "health-relationship-table",
+      "span": 3
+    },
+    {
+      "section": "Movement",
+      "description": "What changed since last quarter, and where the reds sit"
+    },
+    {
+      "widget": "health-trend",
+      "span": 3
+    },
+    {
+      "widget": "health-moves",
+      "span": 2
+    },
+    {
+      "widget": "health-reds"
+    },
+    {
+      "widget": "health-books",
+      "span": 3
+    },
+    {
+      "section": "Actions",
+      "description": "Every client not on track, with an owner and a next step"
+    },
+    {
+      "widget": "health-actions",
+      "span": 3
+    },
+    {
+      "section": "Thresholds",
+      "description": "The written rules behind every status"
+    },
+    {
+      "widget": "health-thresholds",
+      "span": 3
+    },
+    {
+      "widget": "health-rollups",
+      "span": 3
+    },
+    {
+      "widget": "health-live-rules",
+      "span": 3
+    }
+  ]
+}

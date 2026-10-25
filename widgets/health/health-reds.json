@@ -1,0 +1,31 @@
+{
+  "id": "health-reds",
+  "locale": "en-US",
+  "source": {
+    "name": "Client health model (fictional)"
+  },
+  "title": "Where the reds sit",
+  "subtitle": "Red clients by banker and perspective",
+  "description": "How many of each banker's clients are red on each perspective: the strongest cells are where to step in.",
+  "data": {
+    "type": "url",
+    "url": "/data/rag-by-rm.json"
+  },
+  "fields": {
+    "rm": {
+      "label": "Relationship manager"
+    },
+    "perspective": {
+      "label": "Perspective"
+    },
+    "red": {
+      "label": "Red clients"
+    }
+  },
+  "view": {
+    "type": "heatmap",
+    "x": "perspective",
+    "y": "rm",
+    "value": "red"
+  }
+}

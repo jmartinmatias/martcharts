@@ -1,0 +1,58 @@
+{
+  "id": "health-relationship-key",
+  "locale": "en-US",
+  "source": {
+    "name": "Client health model (fictional)"
+  },
+  "title": "Attrition risk by banker",
+  "subtitle": "Average model score of each banker's clients: green up to 30, amber up to 60",
+  "description": "The key relationship measure, averaged over each banker's clients, against the thresholds that set its status.",
+  "data": {
+    "type": "url",
+    "url": "/data/client-health.json"
+  },
+  "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": "rm",
+      "measures": [
+        {
+          "op": "avg",
+          "field": "attritionRisk"
+        }
+      ]
+    },
+    {
+      "type": "sort",
+      "field": "attritionRisk",
+      "order": "desc"
+    }
+  ],
+  "fields": {
+    "rm": {
+      "label": "Relationship manager"
+    },
+    "attritionRisk": {
+      "label": "Attrition risk",
+      "format": {
+        "type": "number",
+        "decimals": 0
+      }
+    }
+  },
+  "view": {
+    "type": "bar",
+    "x": "rm",
+    "y": "attritionRisk",
+    "reference": [
+      {
+        "value": 30,
+        "label": "Green up to 30"
+      },
+      {
+        "value": 60,
+        "label": "Amber up to 60"
+      }
+    ]
+  }
+}

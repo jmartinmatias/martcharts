@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Client Health</title>
+    <meta name="description" content="Every client in red, amber or green from four perspectives, against written thresholds, with what changed and who owns the next step." />
+    <link rel="stylesheet" href="/demo/site-nav.css" />
+    <link rel="stylesheet" href="/demo/site-look.css" />
+    <script src="/site-look.js"></script>
+    <style>
+      :root {
+        color-scheme: light;
+        --page: #f9f9f7;
+        --ink: #0b0b0b;
+        --ink-2: #52514e;
+        --line: rgba(11, 11, 11, 0.1);
+        --field: #fcfcfb;
+        --accent: #2a78d6;
+        --meter: rgba(11, 11, 11, 0.08);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          color-scheme: dark;
+          --page: #0d0d0d; --ink: #f0efec; --ink-2: #c3c2b7; --line: rgba(255, 255, 255, 0.1); --field: #1a1a19; --accent: #3987e5; --meter: rgba(255, 255, 255, 0.1);
+        }
+      }
+      :root[data-theme="dark"] {
+        color-scheme: dark;
+        --page: #0d0d0d; --ink: #f0efec; --ink-2: #c3c2b7; --line: rgba(255, 255, 255, 0.1); --field: #1a1a19; --accent: #3987e5; --meter: rgba(255, 255, 255, 0.1);
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif; overflow-x: clip; }
+      main {
+        max-width: 1280px; margin: 0 auto;
+        padding: calc(34px + env(safe-area-inset-top, 0px)) calc(16px + env(safe-area-inset-right, 0px))
+          calc(89px + env(safe-area-inset-bottom, 0px)) calc(16px + env(safe-area-inset-left, 0px));
+      }
+      a { color: inherit; }
+      header.page { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 21px; margin: 13px 0 55px; }
+      h1 { margin: 0; font-size: 34px; line-height: 1.15; letter-spacing: -0.02em; font-weight: 650; }
+      .lede { margin: 8px 0 0; max-width: 62ch; color: var(--ink-2); font-size: 17px; line-height: 1.55; }
+      .segmented { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+      .segmented button { border: 0; background: transparent; color: var(--ink-2); padding: 5px 13px; font: inherit; font-size: 13px; cursor: pointer; min-height: 34px; }
+      .segmented button[aria-pressed="true"] { background: var(--field); color: var(--ink); font-weight: 600; }
+      .segmented button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+      .theme-label { font-size: 13px; color: var(--ink-2); margin-right: 8px; }
+
+      #board { margin-top: 8px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <nav class="site-nav" aria-label="Pages">
+        <a href="./index.html" title="Every widget in the library, each the same component fed a different spec">Gallery</a>
+        <a href="./taller.html" title="elBulli's creative method applied to sales charts: new versions of any widget, each answering a sales question">Taller</a>
+        <a href="./selected.html" title="New ways to show the same data, picked because they are new and meaningful">Selected</a>
+        <a href="./index.html#playground" title="Edit any widget's spec, view and style, with a live preview">Playground</a>
+        <a href="./editor.html" title="A chart from a table in four steps: drop the data, describe the columns, pick and refine the chart, publish and embed">Editor</a>
+        <a href="./commercial.html" title="The commercial cockpit: products, coverage, sales, campaigns, adoption, whitespace, clients and anomalies on one page">Commercial</a>
+        <a href="./health.html" aria-current="page" title="Client health in red, amber and green: client success, business development, coverage and the relationship, with who owns the next step">Client health</a>
+        <a href="./catalog/index.html" title="Every chart type: what data it needs, when to use it, and a spec to copy">Catalog</a>
+        <a href="./catalog/guide.html" title="What each chart needs, row by row, the data drawing it, when to use it, and which other charts the same data makes">Data guide</a>
+        <a href="./examples/drop-in.html" title="Every way to put a chart on a page: one tag, a JSON file, a CSV, or just a data address">Drop-in</a>
+      </nav>
+      <header class="page">
+        <div>
+          <h1>Client health</h1>
+          <p class="lede">Every client in red, amber or green from four perspectives: client success, business development, coverage and the relationship. Each status comes from a written threshold, shown at the foot of the page. See who is on track, where it is slipping, what changed this quarter and who owns the next step. Filter by segment, relationship manager or region.</p>
+        </div>
+        <div>
+          <span class="theme-label" id="theme-label">Theme</span>
+          <div class="segmented" id="theme" role="group" aria-labelledby="theme-label">
+            <button type="button" data-value="auto" aria-pressed="true">Auto</button>
+            <button type="button" data-value="light" aria-pressed="false">Light</button>
+            <button type="button" data-value="dark" aria-pressed="false">Dark</button>
+          </div>
+        </div>
+      </header>
+      <div id="board"></div>
+    </main>
+    <script type="module" src="/demo/health.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,104 @@
+{
+  "id": "health-bizDev-table",
+  "locale": "en-US",
+  "source": {
+    "name": "Client health model (fictional)"
+  },
+  "title": "Business development, client by client",
+  "subtitle": "Worst first; search by client, banker or segment",
+  "description": "Every client's business development measures and status, worst overall status first.",
+  "data": {
+    "type": "url",
+    "url": "/data/client-health.json"
+  },
+  "transform": [
+    {
+      "type": "sort",
+      "field": "priority",
+      "order": "desc"
+    }
+  ],
+  "fields": {
+    "name": {
+      "label": "Client"
+    },
+    "rm": {
+      "label": "Relationship manager"
+    },
+    "segment": {
+      "label": "Segment"
+    },
+    "region": {
+      "label": "Region"
+    },
+    "aum": {
+      "label": "AuM",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "pipelineCoverage": {
+      "label": "Pipeline cover",
+      "format": {
+        "type": "number",
+        "decimals": 1
+      }
+    },
+    "winRate": {
+      "label": "Win rate",
+      "format": {
+        "type": "percent"
+      }
+    },
+    "newMoneyVsTarget": {
+      "label": "New money vs target",
+      "format": {
+        "type": "percent"
+      }
+    },
+    "crossSellAdded": {
+      "label": "Products added"
+    },
+    "bizDevStatus": {
+      "label": "Business development",
+      "format": {
+        "type": "badge",
+        "tones": {
+          "Red": "negative",
+          "Amber": "warning",
+          "Green": "positive",
+          "No data": "neutral"
+        }
+      }
+    },
+    "overallStatus": {
+      "label": "Overall",
+      "format": {
+        "type": "badge",
+        "tones": {
+          "Red": "negative",
+          "Amber": "warning",
+          "Green": "positive",
+          "No data": "neutral"
+        }
+      }
+    }
+  },
+  "view": {
+    "type": "table",
+    "columns": [
+      "name",
+      "rm",
+      "pipelineCoverage",
+      "winRate",
+      "newMoneyVsTarget",
+      "crossSellAdded",
+      "bizDevStatus"
+    ],
+    "search": true,
+    "pageSize": 10,
+    "stickyFirst": true
+  }
+}

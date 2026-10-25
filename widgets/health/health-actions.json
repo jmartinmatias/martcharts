@@ -1,0 +1,84 @@
+{
+  "id": "health-actions",
+  "locale": "en-US",
+  "source": {
+    "name": "Client health model (fictional)"
+  },
+  "title": "Who owns the next step",
+  "subtitle": "Every red and amber client, worst first, with the action and how long it has been open",
+  "description": "The action list: one row per client not on track, red before amber, the oldest open action first.",
+  "data": {
+    "type": "url",
+    "url": "/data/client-health.json"
+  },
+  "transform": [
+    {
+      "type": "filter",
+      "field": "overallStatus",
+      "op": "!=",
+      "value": "Green"
+    },
+    {
+      "type": "sort",
+      "field": "priority",
+      "order": "desc"
+    }
+  ],
+  "fields": {
+    "name": {
+      "label": "Client"
+    },
+    "rm": {
+      "label": "Relationship manager"
+    },
+    "segment": {
+      "label": "Segment"
+    },
+    "region": {
+      "label": "Region"
+    },
+    "aum": {
+      "label": "AuM",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "overallStatus": {
+      "label": "Status",
+      "format": {
+        "type": "badge",
+        "tones": {
+          "Red": "negative",
+          "Amber": "warning",
+          "Green": "positive",
+          "No data": "neutral"
+        }
+      }
+    },
+    "owner": {
+      "label": "Owner"
+    },
+    "action": {
+      "label": "Next step"
+    },
+    "daysOpen": {
+      "label": "Days open"
+    }
+  },
+  "view": {
+    "type": "table",
+    "columns": [
+      "name",
+      "overallStatus",
+      "action",
+      "owner",
+      "daysOpen",
+      "rm"
+    ],
+    "search": true,
+    "pageSize": 10,
+    "stickyFirst": true
+  }
+}
