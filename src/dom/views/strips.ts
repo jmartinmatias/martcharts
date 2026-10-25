@@ -47,7 +47,9 @@ export const renderStrips: ViewRenderer<StripsView> = (ctx) => {
     const dense = per && perValue ? `${density.format((totals[i] ?? 0) / perValue)} per ${perName}` : "";
     return { total, part, dense };
   });
-  const endW = Math.max(...endTexts.map((t) => (t.total.length + (t.part ? t.part.length + 3 : 0)) * CHAR_WIDTH)) + 8;
+  // The end column holds the total, the share and the density side by side: room for the longest of the three together.
+  const shareWord = parts.length > 1 ? ctx.label(first).length + 1 : 0;
+  const endW = Math.max(...endTexts.map((t) => (t.total.length + (t.part ? t.part.length + shareWord + 3 : 0) + (t.dense ? t.dense.length + 3 : 0)) * CHAR_WIDTH)) + 13;
   const capacity = Math.max(10, Math.floor((ctx.width - labelW - endW - 16) / PITCH));
   const perSquare = UNITS.find((u) => Math.ceil(maxTotal / u) <= capacity) ?? UNITS.at(-1) ?? 1;
   const squares = Math.max(1, ...totals.map((t) => Math.round(t / perSquare)));

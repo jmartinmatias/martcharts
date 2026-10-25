@@ -55,14 +55,19 @@ export const renderMatrix: ViewRenderer<MatrixView> = (ctx) => {
 
   // Geometry: square cells, as wide as the card allows between 21px and 55px.
   const left = Math.max(34, Math.min(ctx.width * 0.38, Math.max(...rowNames.map((n) => n.length)) * CHAR_WIDTH + 13));
-  const right = 8;
-  const cell = Math.max(MIN_CELL, Math.min(MAX_CELL, Math.floor((ctx.width - left - right) / columns.length)));
-  const width = Math.max(ctx.width, left + cell * columns.length + right);
   const widest = Math.max(...colNames.map((n) => n.length)) * CHAR_WIDTH;
+  // Columns first sized with a hairline margin; if their names must lean, the last one leans past the grid's right edge,
+  // so the grid gives up that room and the cells are sized again.
+  const fit = (right: number) => Math.max(MIN_CELL, Math.min(MAX_CELL, Math.floor((ctx.width - left - right) / columns.length)));
+  const firstCell = fit(8);
+  const wouldLean = widest > firstCell - 4 && !wrapLabels(colNames, firstCell - 4);
+  const right = wouldLean ? Math.max(8, Math.round(Math.min(widest, 120) * 0.72) - firstCell / 2 + 8) : 8;
+  const cell = fit(right);
+  const width = Math.max(ctx.width, left + cell * columns.length + right);
   const wrapped = widest > cell - 4 ? wrapLabels(colNames, cell - 4) : undefined;
   const leaning = widest > cell - 4 && !wrapped;
   const headLines = wrapped ? Math.max(...wrapped.map((w) => w.length)) : 1;
-  const top = leaning ? Math.min(89, Math.round(widest * 0.72) + 13) : 13 * headLines + 8;
+  const top = leaning ? Math.min(98, Math.round(Math.min(widest, 120) * 0.72) + 13) : 13 * headLines + 8;
   const height = top + lines.length * cell + 5;
   const rmax = cell / 2 - 3;
 
