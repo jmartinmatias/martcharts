@@ -169,7 +169,7 @@ const CSS = `
 .fft-cmp-pre { max-height: 233px; overflow: auto; margin: 0; padding: 8px; border-radius: 5px; background: color-mix(in srgb, var(--fft-text) 4%, transparent); font: 12px/1.5 ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace; white-space: pre; }
 .fft-cmp-live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .fft-composer :is(button, select, input, a, [tabindex]):focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 2px; }
-@container (min-width: 960px) { .fft-composer { grid-template-columns: minmax(0, 200px) minmax(260px, 340px) minmax(0, 1fr); grid-template-areas: "tray board preview" "tray board publish"; align-items: start; } }
+@container (min-width: 960px) { .fft-composer { grid-template-columns: minmax(0, 233px) minmax(260px, 340px) minmax(0, 1fr); grid-template-areas: "tray board preview" "tray board publish"; align-items: start; } }
 @container (max-width: 640px) { .fft-composer { grid-template-columns: minmax(0, 1fr); grid-template-areas: "tray" "board" "preview" "publish"; } }
 `;
 const styled = new WeakSet<Document>();
