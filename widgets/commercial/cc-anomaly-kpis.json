@@ -1,7 +1,7 @@
 {
   "id": "cc-anomaly-kpis",
   "title": "Anomaly watch",
-  "subtitle": "As of {first:asOf}; this month means October so far, as on the tracker below",
+  "subtitle": "October to date",
   "description": "How many readings stepped out of line this week and this month, and how long since the last.",
   "locale": "en-US",
   "source": {

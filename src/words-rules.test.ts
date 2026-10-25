@@ -16,7 +16,8 @@ const CATALOG = readdirSync("catalog").filter((f) => f.endsWith(".json")).map((f
 /** Words a title and a subtitle may share without one repeating the other. */
 const STOP = new Set("a an the and or of to in on by for with at as is are its it this that from per each vs than into over under up down out off".split(" "));
 /** Words of a text, templates such as {first:month} counting as one word. */
-const words = (text = "") => text.replace(/\{[^}]*\}/g, "X").split(/\s+/).filter(Boolean);
+/** Words as read once templates are filled: a token such as {first:asOf} becomes a date, three words ("Oct 24, 2026"). */
+const words = (text = "") => text.replace(/\{[^}]*\}/g, "X X X").split(/\s+/).filter(Boolean);
 /** The words that carry meaning, plural and possessive endings dropped, so "client", "clients" and "client's" match. */
 const meaning = (text = "") =>
   new Set(
