@@ -64,6 +64,8 @@ describe("the regulatory landscape dashboard", () => {
     vi.stubGlobal("fetch", fetchLocal);
     const dashboard = createDashboard(target, board, { widgets, fetch: fetchLocal });
     await dashboard.ready;
+    // The national transposition section starts folded; opened, its cards must draw like the rest.
+    for (const toggle of target.querySelectorAll<HTMLButtonElement>('.fft-section-toggle[aria-expanded="false"]')) toggle.click();
     await vi.waitFor(() => {
       for (const id of present) {
         const slot = target.querySelector(`.fft-cell-slot[data-widget="${id}"]`);

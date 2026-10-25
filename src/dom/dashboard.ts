@@ -512,8 +512,8 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       sectionButtons.push(button);
       nav.append(button);
     }
-    // Tabs move with the arrow keys, one stop for the list.
-    if (tabs) roving(sectionButtons);
+    // Tabs and chips alike move with the arrow keys: one stop for the whole list, as a toolbar of choices should be.
+    roving(sectionButtons);
     filterRow.append(nav);
   }
 
@@ -1042,6 +1042,8 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       periodButtons.push(button);
       track.append(button);
     }
+    // The periods are one stop too: arrow keys move between 3M, 6M, 12M and All.
+    roving(periodButtons);
     group.append(label, track);
     controls.append(group);
   }

@@ -56,8 +56,11 @@ describe("the commercial cockpit", () => {
       const drawn = { ...board, widgets: board.widgets.filter((cell) => !cell.widget || drawable(cell.widget)) };
       const dash = createDashboard(target, drawn, { widgets, fetch: createLocalFetch("public") });
       await dash.ready;
+      // Reference sections start folded; open every one, and every card must then draw.
+      for (const toggle of target.querySelectorAll<HTMLButtonElement>('.fft-section-toggle[aria-expanded="false"]')) toggle.click();
+      await vi.waitFor(() => expect(target.querySelectorAll(".fft-widget").length).toBe(drawn.widgets.filter((cell) => cell.widget).length), { timeout: 20_000 });
+      await vi.waitFor(() => expect(target.querySelectorAll('.fft-widget[data-state="loading"]').length).toBe(0), { timeout: 20_000 });
       const cards = [...target.querySelectorAll(".fft-widget")];
-      expect(cards.length).toBe(drawn.widgets.filter((cell) => cell.widget).length);
       const states = cards.map((card) => [card.querySelector(".fft-title")?.textContent, card.getAttribute("data-state"), card.querySelector(".fft-message")?.textContent ?? ""]);
       expect(states.filter(([, state, message]) => state !== "ready" || message)).toEqual([]);
       vi.unstubAllGlobals();

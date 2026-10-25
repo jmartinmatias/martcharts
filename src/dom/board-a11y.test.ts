@@ -295,7 +295,8 @@ describe("tab stops on the worked dashboards", () => {
     await board.ready;
     await Promise.resolve();
     const stops = tabStops(target);
-    const cards = target.querySelectorAll(".fft-cell-slot[role='group']").length;
+    // The cards in view: a board in tabs shows one section at a time, and folded sections hold their cards back.
+    const cards = [...target.querySelectorAll(".fft-cell-slot[role='group']")].filter((slot) => !slot.closest("[hidden]")).length;
     expect(stops.filter((node) => node.closest(".fft-widget"))).toEqual([]);
     expect(stops.filter((node) => node.matches(".fft-cell-slot")).length).toBe(cards);
     expect(stops.length - cards).toBeLessThan(25);
