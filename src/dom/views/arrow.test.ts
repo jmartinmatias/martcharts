@@ -95,6 +95,6 @@ describe("dumbbell with mark arrow (an arrow plot)", () => {
   test("validation knows the mark's two values, and the guide reads the arrow", () => {
     const spec = (view: WidgetSpec["view"]): WidgetSpec => ({ locale: "en-US", data: { type: "inline", rows: regions }, view, fields: years });
     expect(validateSpec(spec({ ...arrows, mark: "dashed" }), regions).some((issue) => issue.level === "error" && issue.path === "view.mark")).toBe(true);
-    expect(explainChart(spec(arrows), regions)).toBe("Each row is an arrow from last year to this year. A blue arrow rose and a red one fell; the longer the arrow, the bigger the change. Here, 1 of 3 regions went up, and North moved the most, from 200 to 278.");
+    expect(explainChart(spec(arrows), regions)).toBe("Each row is an arrow from last year to this year. An arrow pointing right went up and one pointing left went down; the longer the arrow, the bigger the change. Here, 1 of 3 regions went up, and North moved the most, from 200 to 278.");
   });
 });

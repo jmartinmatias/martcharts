@@ -804,12 +804,12 @@ const HIGHLIGHTABLE = new Set(["bar", "hbar", "line", "area"]);
 /** Views whose colors follow the categories rather than the series. */
 const BY_CATEGORY = new Set(["donut", "pie", "waffle", "treemap", "sunburst", "icicle", "marimekko", "pareto"]);
 /** Families of views: a version in another family than the original brings surprise. */
-const FAMILY: Record<string, string> = {
-  bar: "rank", hbar: "rank", list: "rank", pareto: "rank", bullet: "target", variance: "target",
-  line: "time", area: "time", kpi: "number", kpis: "number", calendar: "time", horizon: "time", bump: "time",
+export const FAMILY: Record<string, string> = {
+  bar: "rank", hbar: "rank", list: "rank", pareto: "rank", bullet: "target", variance: "target", meter: "target", gauge: "target", rings: "target",
+  line: "time", area: "time", kpi: "number", kpis: "number", calendar: "time", horizon: "time", bump: "time", timeline: "time", candlestick: "time",
   donut: "whole", pie: "whole", anomalies: "time", waffle: "whole", treemap: "whole", sunburst: "hierarchy", icicle: "hierarchy", marimekko: "whole",
   histogram: "spread", beeswarm: "spread", boxplot: "spread", ridgeline: "spread",
-  scatter: "relation", dumbbell: "relation", slope: "relation", radar: "profile", rose: "cycle",
+  scatter: "relation", dumbbell: "relation", slope: "relation", radar: "profile", rose: "cycle", likert: "survey",
   table: "table", heatmap: "table", sankey: "flow", funnel: "flow", chord: "flow", waterfall: "change", dot: "rank", pyramid: "spread", dual: "time",
   choropleth: "map", symbols: "map", locator: "map",
   matrix: "table", strips: "whole", lifecycle: "time",
@@ -901,12 +901,13 @@ function colorsNeeded(view: ViewSpec, d: DataProfile): number {
   return Array.isArray(y) ? y.length : 1;
 }
 
-/** What a spec draws and the extras it carries, scored on the five qualities from 0 to 1. */
-export function qualitiesOf(spec: WidgetSpec, rows: Row[], source?: WidgetSpec): Qualities {
-  const view = spec.view ?? { type: "table" };
-  const type = String(view.type);
-  const base: Record<string, [number, number, number, number, number]> = {
+/** Each view's base scores on the five qualities (emphasis, surprise, honesty, detail, insight), from 0 to 1. Every registered view has one. */
+export const BASE_QUALITIES: Record<string, [number, number, number, number, number]> = {
     kpi: [0.7, 0.1, 0.1, 0.05, 0.3], kpis: [0.6, 0.15, 0.1, 0.1, 0.35], table: [0.15, 0.05, 0.25, 0.2, 0.35], list: [0.25, 0.05, 0.1, 0.1, 0.2],
+    meter: [0.35, 0.1, 0.35, 0.2, 0.35], gauge: [0.55, 0.15, 0.3, 0.05, 0.3], rings: [0.4, 0.3, 0.3, 0.15, 0.3],
+    funnel: [0.35, 0.15, 0.25, 0.3, 0.45], sankey: [0.2, 0.45, 0.15, 0.55, 0.4], chord: [0.15, 0.5, 0.05, 0.5, 0.3],
+    waterfall: [0.35, 0.2, 0.45, 0.35, 0.5], ridgeline: [0.15, 0.45, 0.25, 0.45, 0.35], likert: [0.3, 0.25, 0.35, 0.4, 0.4],
+    timeline: [0.25, 0.2, 0.2, 0.45, 0.3], candlestick: [0.2, 0.3, 0.3, 0.55, 0.35],
     bar: [0.3, 0.1, 0.1, 0.4, 0.25], hbar: [0.35, 0.1, 0.1, 0.35, 0.25], line: [0.2, 0.15, 0.15, 0.15, 0.35], area: [0.2, 0.15, 0.1, 0.45, 0.3],
     donut: [0.3, 0.15, 0.05, 0.4, 0.2], waffle: [0.3, 0.3, 0.05, 0.45, 0.2], treemap: [0.25, 0.25, 0.05, 0.55, 0.2], pareto: [0.3, 0.25, 0.3, 0.4, 0.45],
     histogram: [0.15, 0.25, 0.25, 0.4, 0.35], beeswarm: [0.15, 0.35, 0.25, 0.3, 0.35], boxplot: [0.15, 0.3, 0.4, 0.2, 0.4],
@@ -921,6 +922,12 @@ export function qualitiesOf(spec: WidgetSpec, rows: Row[], source?: WidgetSpec):
     anomalies: [0.35, 0.4, 0.45, 0.4, 0.5],
     board: [0.2, 0.3, 0.2, 0.5, 0.3],
   };
+
+/** What a spec draws and the extras it carries, scored on the five qualities from 0 to 1. */
+export function qualitiesOf(spec: WidgetSpec, rows: Row[], source?: WidgetSpec): Qualities {
+  const view = spec.view ?? { type: "table" };
+  const type = String(view.type);
+  const base = BASE_QUALITIES;
   const [emphasis, surprise, honesty, detail, insight] = base[type] ?? [0.25, 0.2, 0.1, 0.3, 0.3];
   const t: Qualities = { emphasis, surprise, honesty, detail, insight };
   const headline = spec.headline as { compare?: unknown } | undefined;

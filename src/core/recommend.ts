@@ -115,6 +115,22 @@ function onBasemap(shape: Shape): { id: string; geo: string } | undefined {
   return undefined;
 }
 
+/** Field names that read as answers on one ordered scale: disagree to agree, poor to excellent, never to always. */
+const LIKERT = /disagree|agree|neutral|strongly|somewhat|poor|fair|good|excellent|never|rarely|sometimes|often|always|unlikely|likely|dissatisfied|satisfied/i;
+
+const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+const WEEKDAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+
+/** The cycle a column runs through, when it covers one whole: "day" for 24 hours, "week" for 7 weekdays, "year" for 12 months. */
+function cycleOf(values: unknown[]): string | undefined {
+  const texts = values.map((value) => String(value ?? "").trim().toLowerCase());
+  if (texts.length === 24 && texts.every((text, i) => new RegExp(`^0?${i}(:00)?(h)?$`).test(text))) return "day";
+  const starts = texts.map((text) => text.slice(0, 3));
+  if (texts.length === 12 && starts.every((start, i) => start === MONTHS[i])) return "year";
+  if (texts.length === 7 && starts.every((start, i) => start === WEEKDAYS[i])) return "week";
+  return undefined;
+}
+
 /** One rule per view, each returning a score and view when the data suits it. */
 const RULES: Record<string, Rule> = {
   // With a target among the numbers, a gauge reads the one against the other better than separate tiles.
@@ -212,10 +228,26 @@ const RULES: Record<string, Rule> = {
       why: grouped ? `${y.join(" and ")} side by side for each of ${count} ${label} values, with room for long names.` : `A ranking of ${count} ${label} values by ${value}${long ? ", with room for long names" : ""}.`,
     };
   },
+  // A short set of records with a name and a second line to read (a customer and their country), at most one number on the right.
+  list: (shape) => {
+    const [label, detail] = shape.categories;
+    if (!label || !detail || shape.rows.length < 2 || shape.rows.length > 12 || shape.distinct(label) !== shape.rows.length || shape.numbers.length > 1) return undefined;
+    const [value] = shape.numbers;
+    return { score: value ? 64 : 78, view: { type: "list", label, detail, ...(value ? { value } : {}) }, why: `${shape.rows.length} ${label} records to read, each with its ${detail}${value ? ` and ${value}` : ""}.` };
+  },
   donut: (shape) => {
     const [label] = shape.categories;
     const [value] = shape.numbers;
     return label && value && shape.distinct(label) <= 6 && shape.distinct(label) === shape.rows.length && nonNegative(shape, value) ? { score: 62, view: { type: "donut", label, value }, why: `Each ${label}'s share of the total ${value}.` } : undefined;
+  },
+  // Shares that already add up to about a hundred (percent of one whole), in a handful of parts: a hundred countable squares.
+  waffle: (shape) => {
+    const [label] = shape.categories;
+    const value = shape.numbers.find((field) => /share|percent|pct|ratio|portion/i.test(field)) ?? shape.numbers[0];
+    if (!label || !value || shape.distinct(label) !== shape.rows.length || shape.rows.length < 2 || shape.rows.length > 5 || !nonNegative(shape, value)) return undefined;
+    const sum = shape.values(value).reduce((a, b) => a + b, 0);
+    const whole = Math.abs(sum - 100) <= 1.5 ? 100 : Math.abs(sum - 1) <= 0.015 ? 1 : undefined;
+    return whole ? { score: 70, view: { type: "waffle", label, value }, why: `${value} adds up to ${whole === 1 ? "one whole" : "100%"}: each square is one percent, so the parts can be counted.` } : undefined;
   },
   pie: (shape) => {
     const [label] = shape.categories;
@@ -231,6 +263,13 @@ const RULES: Record<string, Rule> = {
     const [x, y] = shape.categories;
     const [value] = shape.numbers;
     return x && y && value && shape.distinct(x) >= 3 && shape.distinct(y) >= 3 ? { score: 70, view: { type: "heatmap", x, y, value }, why: `${value} for every ${x} and ${y} pair, as a shaded grid.` } : undefined;
+  },
+  // A full cycle (hours of the day, days of the week, months of the year) that comes back to where it started: wedges round a dial.
+  rose: (shape) => {
+    const label = shape.categories.find((field) => cycleOf(shape.rows.map((row) => row[field])));
+    const y = peers(shape, 3).filter((field) => nonNegative(shape, field));
+    if (!label || !y.length || shape.distinct(label) !== shape.rows.length) return undefined;
+    return { score: 74, view: { type: "rose", label, y: y.length === 1 ? y[0] : y }, why: `${y.join(" and ")} round the ${cycleOf(shape.rows.map((row) => row[label]))}, which comes back to where it started.` };
   },
   scatter: ({ rows, numbers, categories }) => {
     const [x, y, size] = numbers;
@@ -291,6 +330,13 @@ const RULES: Record<string, Rule> = {
     return label && y.length >= 2 && shape.rows.length >= 4 && shape.rows.length <= 10 && shape.distinct(label) === shape.rows.length && !shape.dates.length
       ? { score: 60, view: { type: "radar", label, y }, why: `${y.join(" and ")} as profiles across ${shape.rows.length} attributes.` }
       : undefined;
+  },
+  // Answer counts on one ordered scale (disagree to agree, poor to excellent), one row per question.
+  likert: (shape) => {
+    const [label] = shape.categories;
+    const responses = shape.numbers.filter((field) => LIKERT.test(field) && nonNegative(shape, field));
+    if (!label || responses.length < 3 || shape.distinct(label) !== shape.rows.length) return undefined;
+    return { score: 95, view: { type: "likert", label, responses }, why: `Answers from ${responses[0]} to ${responses[responses.length - 1]} for each ${label}, centered on the middle.` };
   },
   waterfall: (shape) => {
     const [label] = shape.categories;
@@ -386,6 +432,13 @@ const RULES: Record<string, Rule> = {
     const placed = onBasemap(shape);
     const [size] = shape.numbers;
     return placed && size && nonNegative(shape, size) ? { score: 62, view: { type: "symbols", geo: placed.geo, id: placed.id, size }, why: `${size} as circles on a map, one per ${placed.id}.` } : undefined;
+  },
+  // Named places that sit on a basemap (offices, branches) with nothing to measure: where they are, named beside their markers.
+  locator: (shape) => {
+    const placed = onBasemap(shape);
+    const label = placed && shape.categories.find((field) => field !== placed.id && shape.distinct(field) === shape.rows.length);
+    if (!placed || !label || shape.rows.length > 30) return undefined;
+    return { score: shape.numbers.length ? 48 : 82, view: { type: "locator", geo: placed.geo, id: placed.id, label }, why: `Where each ${label} is, named beside its marker on the map.` };
   },
   // Two categories crossed, one row per pair: marks sized by a count and shaded by a second measure, or a square per yes.
   matrix: (shape) => {

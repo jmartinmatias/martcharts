@@ -62,6 +62,13 @@ export function suggestView(type: string, rows: Row[], prefer: string[] = []): V
   }
   // The stat row's tiles are its one required option that is not a field: one tile per number field, up to 3.
   if (type === "kpis") view.items = pools.number.slice(0, 3).map((value) => ({ value }));
+  // An x-ray needs something to show beside the name: its first few numbers as facts, and its yes/no columns as holdings.
+  if (type === "xray") {
+    const facts = pools.number.filter((key) => !used.has(key)).slice(0, 4);
+    const holdings = keys.filter((key) => typeof sample[key] === "boolean").slice(0, 8);
+    if (facts.length) view.facts = facts;
+    if (holdings.length) view.holdings = holdings;
+  }
   // A choropleth shades by a number unless a category is named: fill the number when neither is.
   if (type === "choropleth" && view.value === undefined && view.category === undefined) view.value = take("number");
   // A map's geometry cannot be guessed from the rows, except a column of country or state codes that all sit on one built-in basemap.
