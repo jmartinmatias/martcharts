@@ -36,7 +36,7 @@ npm run build:site # the whole site in dist-demo: the demo pages, plus the catal
 
 ## The site
 
-The demo is eleven pages, linked from one row at the top of each:
+The demo is twelve pages, linked from one row at the top of each:
 
 | Page | What it is |
 | --- | --- |
@@ -44,6 +44,7 @@ The demo is eleven pages, linked from one row at the top of each:
 | Taller, Selected | New versions of any widget, and the ones worth keeping |
 | Playground | Edit any widget's spec with a live preview (a panel over the gallery) |
 | Editor | Make a chart from a table without writing JSON |
+| Composer | Lay saved charts out into a dashboard, still without JSON |
 | Commercial, Client health, Regulatory | The three worked dashboards below |
 | Catalog | All chart types, each drawn from its own spec, with what it needs and a spec to copy |
 | Data guide | The table each chart needs, checked against its data, and what changes if you switch chart |
@@ -253,6 +254,16 @@ The editor (`editor.html`, or `createEditor` in any app) follows Datawrapper's f
 ## Make a chart without writing JSON: the editor
 
 The demo's Editor page (`editor.html`) is Datawrapper's flow on this library: **Upload data** (drop a CSV, TSV or JSON file, paste a table from a spreadsheet, type it, or give an address; the columns are told apart as numbers, text and dates), **Check & describe** (labels, formats, drag the columns into order, hide some), **Visualize** (a grid of every chart with the ones that fit this data first and why; a Refine form generated from the chosen chart's own options, with highlight, small multiples and style; an Annotate tab for title, notes, source, byline, headline, reference lines and text notes you can drag on the chart) and **Publish & embed** (the spec, three embed codes, a saved copy). The live chart stays beside you throughout, every change is undoable, and the chart's address can be shared. `createEditor(el, options)` puts the same four steps in any app; see [docs/editor.md](docs/editor.md).
+
+## From a CSV to a dashboard: the composer
+
+In the editor's Publish step, **Add to dashboard** saves the chart and puts it on a dashboard, an existing one or a new one you name, then links to the Composer (`composer.html`). There, your saved charts and some examples sit in a tray:
+- Drag them onto the board, or press Add.
+- Order the cards, set each one's width, and add section headings. Move up, Move down and Remove do the same from the keyboard.
+- Pick filters from the fields two or more cards share, each showing how many cards it reaches.
+- Name the board and give it an as-of line.
+
+The dashboard draws live below as you go, Undo steps back, and the board's address carries it, so it can be shared. Publish gives the dashboard JSON, an embed with no build step, and **Open as page**. Charts and boards live in the browser's localStorage by default; pass `store` (five methods: `charts`, `saveChart`, `removeChart`, `boards`, `saveBoard`) to `createEditor` and `createComposer` to keep them on a server instead.
 
 ## Project layout
 
