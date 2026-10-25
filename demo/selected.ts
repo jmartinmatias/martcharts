@@ -5,7 +5,7 @@
  */
 import { createWidget, explainChart, fork, questionOf } from "../src/index.ts";
 import type { WidgetSpec } from "../src/index.ts";
-import { setLook, withLook } from "./look.ts";
+import { withLook } from "./look.ts";
 
 /** One picked variation, in plain words only. */
 interface Selection {
@@ -114,13 +114,6 @@ function render(selections: Selection[], made?: { variants?: number; charts?: nu
     }
     section.append(chart, notes);
     list.append(section);
-  });
-}
-
-// Theme switch for the page and every chart on it.
-for (const b of document.querySelectorAll<HTMLButtonElement>("#theme button")) {
-  b.addEventListener("click", () => {
-    setLook({ theme: b.dataset.value });
   });
 }
 

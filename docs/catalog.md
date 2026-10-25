@@ -3990,6 +3990,8 @@ A client x-ray: one client on one card, from its first row. The name and a detai
 | `flags` | category |  | Field whose value is a list of short warnings, shown as quiet amber pills: ["No contact in 90 days", "Fee leakage"]. |
 | `actions` | category |  | Field whose value is a list of next best actions, shown as a short checklist. |
 
+**Settings**: `audit`. All options with defaults are in [blocks.md](blocks.md#xray).
+
 **Answers**: How does this client stand right now, and what should we do next?
 
 **How to read it**: This card is one client: the key numbers, the products they hold, their share of wallet with us, the recent trend, what to watch and what to do next. Here, Aldana Holdings holds 3 of 8 products and has a share of wallet of 41%.

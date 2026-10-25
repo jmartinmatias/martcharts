@@ -3,270 +3,71 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>FFT Widgets</title>
+    <title>martcharts</title>
+    <meta name="description" content="Charts and dashboards from plain data, readable by people and agents alike." />
     <link rel="stylesheet" href="/demo/site-nav.css" />
     <link rel="stylesheet" href="/demo/site-look.css" />
+    <link rel="stylesheet" href="/demo/site-page.css" />
     <script src="/site-look.js"></script>
     <style>
-      :root {
-        color-scheme: light;
-        --page: #f9f9f7;
-        --ink: #0b0b0b;
-        --ink-2: #52514e;
-        --line: rgba(11, 11, 11, 0.1);
-        --field: #fcfcfb;
-        --accent: #2a78d6;
-      }
-      @media (prefers-color-scheme: dark) {
-        :root:not([data-theme="light"]) {
-          color-scheme: dark;
-          --page: #0d0d0d;
-          --ink: #f0efec;
-          --ink-2: #c3c2b7;
-          --line: rgba(255, 255, 255, 0.1);
-          --field: #1a1a19;
-          --accent: #3987e5;
-        }
-      }
-      :root[data-theme="dark"] {
-        color-scheme: dark;
-        --page: #0d0d0d;
-        --ink: #f0efec;
-        --ink-2: #c3c2b7;
-        --line: rgba(255, 255, 255, 0.1);
-        --field: #1a1a19;
-        --accent: #3987e5;
-      }
-      * { box-sizing: border-box; }
-      body {
-        margin: 0;
-        background: var(--page);
-        color: var(--ink);
-        font: 15px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
-        /* Clip, not hidden: no sideways page scroll, and sticky children still stick to the viewport. */
-        overflow-x: clip;
-      }
-      /* The gutter grows by the safe-area insets (notch, home bar) that viewport-fit=cover exposes. */
-      main {
-        max-width: 1200px; margin: 0 auto;
-        padding: calc(32px + env(safe-area-inset-top, 0px)) calc(16px + env(safe-area-inset-right, 0px))
-          calc(64px + env(safe-area-inset-bottom, 0px)) calc(16px + env(safe-area-inset-left, 0px));
-      }
-      header.page { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
-      h1 { margin: 0; font-size: 24px; }
-      /* Section titles match the dashboard's own title; a grouping above them is a quiet uppercase label. */
-      h2 { margin: 40px 0 4px; font-size: 21px; line-height: 34px; font-weight: 600; letter-spacing: -0.01em; }
-      h2.eyebrow { margin: 40px 0 4px; font-size: 12px; line-height: 21px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); }
-      p.lede, p.note { margin: 4px 0 0; color: var(--ink-2); max-width: 70ch; }
-      .controls { display: flex; flex-wrap: wrap; gap: 13px; align-items: center; }
-      .controls .label { font-size: 13px; color: var(--ink-2); }
-      /* The way to the Taller: one quiet link among the page controls. */
-      /* The playground opens as a modal over the gallery: a calm sheet with its title row pinned, full screen on phones. */
-      .playground-dialog {
-        width: min(1200px, calc(100vw - 32px)); max-width: none; max-height: calc(100dvh - 32px); margin: auto; padding: 0;
-        border: 1px solid var(--line); border-radius: 13px; background: var(--sheet); color: var(--ink);
-        /* A raised sheet: a step lighter than the page in every theme and preset, so it separates from the dimmed page behind. */
-        --sheet: color-mix(in srgb, var(--page) 93%, #ffffff);
-        box-shadow: 0 21px 55px -13px rgba(0, 0, 0, 0.45); overflow: auto; overscroll-behavior: contain;
-      }
-      .playground-dialog::backdrop { background: rgba(10, 10, 10, 0.5); backdrop-filter: blur(3px); }
-      .playground-dialog[open] { display: block; }
-      .playground-head {
-        position: sticky; top: 0; z-index: 2; display: flex; align-items: flex-start; justify-content: space-between; gap: 21px;
-        padding: 21px 21px 13px; background: var(--sheet); border-bottom: 1px solid var(--line);
-      }
-      .playground-head h2 { margin: 0; }
-      .playground-dialog .playground { margin: 0; padding: 21px; }
-      .playground-close { flex: none; font: inherit; font-size: 13px; color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 5px 13px; min-height: 34px; cursor: pointer; }
-      .playground-close:hover { background: color-mix(in srgb, var(--ink) 6%, transparent); }
-      :root:has(.playground-dialog[open]) { overflow: hidden; }
-      @media (max-width: 700px) {
-        .playground-dialog { width: 100vw; max-height: 100dvh; height: 100dvh; border-radius: 0; border: 0; }
-        .playground-head { padding: calc(13px + env(safe-area-inset-top, 0px)) 16px 13px; }
-        .playground-dialog .playground { padding: 16px; }
-      }
-      /* A group wider than its row scrolls sideways instead of pushing the page wider. */
-      .segmented { display: inline-flex; max-width: 100%; border: 1px solid var(--line); border-radius: 8px; overflow-x: auto; scrollbar-width: none; }
-      .segmented::-webkit-scrollbar { display: none; }
-      .segmented button {
-        flex: none; white-space: nowrap;
-        border: 0; background: transparent; color: var(--ink-2); padding: 5px 13px; font: inherit; font-size: 13px; cursor: pointer;
-      }
-      .segmented button[aria-pressed="true"] { background: var(--field); color: var(--ink); font-weight: 600; }
-
-      .playground button {
-        border: 1px solid var(--line); background: var(--field); color: var(--ink-2);
-        border-radius: 6px; padding: 4px 10px; font: inherit; font-size: 13px; cursor: pointer;
-      }
-      .playground { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 21px; margin-top: 13px; align-items: start; }
-      .preview-col { display: flex; flex-direction: column; gap: 21px; min-width: 0; }
-      .style-panel { display: flex; flex-direction: column; gap: 13px; padding: 21px; border: 1px solid var(--line); border-radius: 13px; }
-      .style-head { display: flex; align-items: center; justify-content: space-between; gap: 13px; }
-      .style-panel h3 { margin: 0; font-size: 13px; }
-      .style-panel h4 { margin: 0; font-size: 11px; font-weight: 600; color: var(--ink-2); letter-spacing: 0.02em; }
-      .style-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(144px, 1fr)); gap: 13px; }
-      .style-grid label { display: flex; flex-direction: column; gap: 5px; font-size: 11px; color: var(--ink-2); }
-      .style-grid .height { grid-column: 1 / -1; }
-      .style-grid .accent, .style-grid .range { display: flex; align-items: center; gap: 8px; }
-      .style-grid input[type="range"] { flex: 1; accent-color: var(--accent); }
-      .style-grid input[type="color"] { width: 34px; height: 21px; padding: 0; border: 1px solid var(--line); border-radius: 5px; background: none; }
-      .style-grid output { min-width: 34px; font-variant-numeric: tabular-nums; color: var(--ink); }
-      .style-panel button, .style-grid button {
-        border: 1px solid var(--line); background: var(--field); color: var(--ink-2);
-        border-radius: 6px; padding: 2px 8px; font: inherit; font-size: 11px; cursor: pointer;
-      }
-      /* The scope switch: a small segmented control between the title and Default style. */
-      .style-head { flex-wrap: wrap; }
-      .style-head h3 { margin-right: auto; }
-      .style-panel .segmented button { border: 0; border-radius: 0; background: transparent; padding: 3px 10px; }
-      .style-panel .segmented button[aria-pressed="true"] { background: var(--field); color: var(--ink); font-weight: 600; }
-      .scope-note { margin: -5px 0 0; font-size: 11px; color: var(--ink-2); }
-      @media (max-width: 800px) { .playground { grid-template-columns: minmax(0, 1fr); } }
-      .editor { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-      .editor-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-      select {
-        max-width: 100%; font: inherit; font-size: 13px; padding: 4px 8px; border-radius: 6px;
-        border: 1px solid var(--line); background: var(--field); color: var(--ink);
-      }
-      textarea {
-        width: 100%; min-height: 420px; resize: vertical; padding: 12px;
-        border: 1px solid var(--line); border-radius: 10px; background: var(--field); color: var(--ink);
-        font: 12.5px/1.5 ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace; tab-size: 2;
-      }
-      .issues { margin: 0; padding: 0; list-style: none; font-size: 13px; color: var(--ink-2); }
-      .issues li { padding: 2px 0; overflow-wrap: anywhere; }
-      .issues li[data-level="error"]::before { content: "Error  "; font-weight: 600; color: #d03b3b; }
-      .issues li[data-level="warning"]::before { content: "Warning  "; font-weight: 600; color: #b87500; }
-      .issues li[data-level="ok"]::before { content: "OK  "; font-weight: 600; color: #0ca30c; }
-      #selection { margin-top: 12px; font-size: 13px; color: var(--ink-2); min-height: 1.5em; overflow-wrap: anywhere; }
-      code { font: 0.92em ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace; }
-
-      /* Phones: everything in one column. Labels and their controls pair up in two-column grids so a
-         label never strands at the end of a row. */
-      @media (max-width: 700px) {
-        main { padding-top: calc(21px + env(safe-area-inset-top, 0px)); }
-        header.page { flex-direction: column; align-items: stretch; gap: 13px; }
-        .controls, .editor-bar { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 13px; }
-        .controls .segmented, .editor-bar button { justify-self: start; }
-        .editor-bar button { grid-column: 1 / -1; }
-        .editor-bar select { width: 100%; min-width: 0; }
-        textarea { min-height: 377px; }
-        .style-panel { padding: 13px; }
-        /* iOS Safari zooms into any focused field under 16px; the library's filter and hex fields included. */
-        input, select, textarea, main .fft-filter select, main .fft-picker-hex { font-size: 16px; }
-      }
-      /* Touch: 34px tall targets for the page controls. */
-      @media (pointer: coarse) {
-        .segmented button, .playground button, .playground select { min-height: 34px; }
-        .playground button { padding: 5px 13px; }
-        .playground select { padding: 5px 8px; }
-        .style-grid input[type="color"] { width: 55px; height: 34px; }
-      }
+      .routes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 13px; margin: 0 0 34px; padding: 0; list-style: none; }
+      .route a { display: block; height: 100%; padding: 21px; border: 1px solid var(--line); border-radius: 13px; background: var(--field); text-decoration: none; transition: border-color 233ms ease; }
+      .route a:hover { border-color: var(--accent); }
+      .route a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+      .route h2 { margin: 0 0 5px; font-size: 17px; font-weight: 600; }
+      .route p { margin: 0; color: var(--ink-2); }
+      .route .go { display: inline-block; margin-top: 13px; color: var(--accent); font-weight: 600; }
+      .strip-label { margin: 0 0 8px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); }
+      .strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 13px; }
     </style>
   </head>
   <body>
     <main>
-      <nav class="site-nav" aria-label="Pages">
-        <a href="./index.html" aria-current="page" title="Every widget in the library, each the same component fed a different spec">Gallery</a>
-        <a href="./taller.html" title="elBulli's creative method applied to sales charts: new versions of any widget, each answering a sales question">Taller</a>
-        <a href="./selected.html" title="New ways to show the same data, picked because they are new and meaningful">Selected</a>
-        <button type="button" id="open-playground" aria-haspopup="dialog" title="Edit any widget's spec, view and style, with a live preview">Playground</button>
-        <a href="./editor.html" title="A chart from a table in four steps: drop the data, describe the columns, pick and refine the chart, publish and embed">Editor</a>
-        <a href="./composer.html" title="Lay saved charts out into a dashboard: drag them in, set widths and sections, pick filters, publish">Composer</a>
-        <a href="./commercial.html" title="The commercial cockpit: products, coverage, sales, campaigns, adoption, whitespace, clients and anomalies on one page">Commercial</a>
-        <a href="./health.html" title="Client health in red, amber and green: client success, business development, coverage and the relationship, with who owns the next step">Client health</a>
-        <a href="./regulatory.html" title="The regulatory landscape: rules by country and topic, pressure and trend, status and lifecycle, who must comply and how binding each rule is">Regulatory</a>
-        <a href="./catalog/index.html" title="Every chart type: what data it needs, when to use it, and a spec to copy">Catalog</a>
-        <a href="./catalog/guide.html" title="What each chart needs, row by row, the data drawing it, when to use it, and which other charts the same data makes">Data guide</a>
-        <a href="./examples/drop-in.html" title="Every way to put a chart on a page: one tag, a JSON file, a CSV, or just a data address">Drop-in</a>
-      </nav>
+      <div class="site-bar">
+        <nav class="site-nav" aria-label="Pages">
+          <a href="./index.html" aria-current="page" title="What martcharts is, and where to start">Home</a>
+          <a href="./dashboards.html" title="Four worked dashboards: sales, commercial, client health and regulatory">Dashboards</a>
+          <a href="./editor.html" title="A chart from a table, without writing JSON; or edit any chart's JSON directly">Editor</a>
+          <a href="./composer.html" title="Lay saved charts out into a dashboard">Composer</a>
+          <a href="./catalog/index.html" title="Every chart type, what it needs, and a spec to copy">Catalog</a>
+          <a href="./examples/drop-in.html" title="Every way to put a chart on a page">Embed</a>
+          <a href="./lab.html" title="Experiments: new versions of any chart, and the ones worth keeping">Lab</a>
+        </nav>
+        <details class="site-look-menu">
+          <summary>Look</summary>
+          <div class="site-look-panel"><div class="site-look-group" role="group" aria-label="Theme" data-look-key="theme"><span class="site-look-label" aria-hidden="true">Theme</span><button type="button" data-look-value="auto" aria-pressed="false">Auto</button><button type="button" data-look-value="light" aria-pressed="false">Light</button><button type="button" data-look-value="dark" aria-pressed="false">Dark</button></div><div class="site-look-group" role="group" aria-label="Style" data-look-key="preset"><span class="site-look-label" aria-hidden="true">Style</span><button type="button" data-look-value="glass" aria-pressed="false">Glass</button><button type="button" data-look-value="default" aria-pressed="false">Plain</button><button type="button" data-look-value="airy" aria-pressed="false">Airy</button><button type="button" data-look-value="paper" aria-pressed="false">Paper</button></div></div>
+        </details>
+      </div>
       <header class="page">
-        <div>
-          <h1>FFT Widgets</h1>
-          <p class="lede">
-            One widget block, many widgets. Each card below is the same component fed a different spec from the
-            <code>widgets/</code> folder: data, transforms, fields, view and style.
-          </p>
-        </div>
-        <div class="controls">
-          <span class="label" id="preset-label">Style</span>
-          <div id="preset" class="segmented" role="group" aria-labelledby="preset-label"></div>
-          <span class="label" id="theme-label">Theme</span>
-          <div id="theme" class="segmented" role="group" aria-labelledby="theme-label">
-            <button type="button" data-value="auto" aria-pressed="true">Auto</button>
-            <button type="button" data-value="light" aria-pressed="false">Light</button>
-            <button type="button" data-value="dark" aria-pressed="false">Dark</button>
-          </div>
-          <span class="label" id="explain-label">How to read</span>
-          <div id="explain" class="segmented" role="group" aria-labelledby="explain-label" title="Show a plain guide under every chart">
-            <button type="button" data-value="off" aria-pressed="true">Off</button>
-            <button type="button" data-value="on" aria-pressed="false">On</button>
-          </div>
-        </div>
+        <h1>martcharts</h1>
+        <p>Charts and dashboards from plain data: every chart says what it shows, works with a keyboard, and reads in English, French or German.</p>
       </header>
-
-      <section aria-labelledby="gallery-title">
-        <h2 id="gallery-title" class="eyebrow">Dashboards</h2>
-        <p class="note">The gallery is itself a dashboard, <code>dashboards/gallery.json</code>: pick a region and every widget with region data follows. Hover or tab through charts for values; click a row, bar or point to fire an <code>fft-select</code> event.</p>
-        <div id="board-pick" class="segmented" role="group" aria-label="Dashboard" style="margin-top: 13px"></div>
-        <div id="gallery" style="margin-top: 13px"></div>
-        <p id="selection" role="status"></p>
-      </section>
-
-      <dialog id="playground" class="playground-dialog" aria-labelledby="playground-title">
-        <header class="playground-head">
-          <div>
-            <h2 id="playground-title">Playground</h2>
-            <p class="note">Pick a widget, or start from the vanilla block. Switch its view type or style preset, or edit the spec directly. The preview redraws as you go.</p>
-          </div>
-          <button type="button" class="playground-close" id="close-playground" aria-label="Close the playground">Close</button>
-        </header>
-        <div class="playground">
-          <div class="editor">
-            <div class="editor-bar">
-              <label for="pick">Start from</label>
-              <select id="pick"></select>
-              <label for="view-pick">View</label>
-              <select id="view-pick"></select>
-              <button type="button" id="reset-all" title="Throw away every edit and reload the widget as saved">Reset to original</button>
-            </div>
-            <textarea id="spec" spellcheck="false" aria-label="Widget spec JSON"></textarea>
-            <ul id="issues" class="issues" aria-live="polite"></ul>
-          </div>
-          <div class="preview-col">
-            <div id="preview"></div>
-            <section class="style-panel" aria-labelledby="style-panel-title">
-              <div class="style-head">
-                <h3 id="style-panel-title">Chart styling</h3>
-                <div id="style-scope" class="segmented" role="group" aria-label="Apply styling to">
-                  <button type="button" data-value="chart" aria-pressed="true">This chart</button>
-                  <button type="button" data-value="all" aria-pressed="false">All charts</button>
-                </div>
-                <button type="button" id="reset-style" title="Remove the style block: default preset, theme, palette, accent, spacing and height">Default style</button>
-              </div>
-              <p class="scope-note" id="scope-note" aria-live="polite">Styles the chart above only.</p>
-              <div class="style-grid">
-                <label>Preset <select id="style-pick"></select></label>
-                <label>Theme
-                  <select id="theme-pick"><option value="auto">auto</option><option value="light">light</option><option value="dark">dark</option></select>
-                </label>
-                <label>Density
-                  <select id="density-pick"><option value="comfortable">comfortable</option><option value="compact">compact</option></select>
-                </label>
-                <label>Accent
-                  <span class="accent"><input type="color" id="accent-pick" aria-label="Accent color" /><button type="button" id="accent-reset" title="Use the preset's accent">auto</button></span>
-                </label>
-                <label class="height">Height
-                  <span class="range"><input type="range" id="height-pick" min="144" max="377" step="1" /><output id="height-out" for="height-pick">auto</output><button type="button" id="height-reset" title="Golden ratio of the width">auto</button></span>
-                </label>
-              </div>
-              <h4>Colors</h4>
-              <div id="palette-picker"></div>
-            </section>
-          </div>
-        </div>
-      </dialog>
+      <ul class="routes">
+        <li class="route">
+          <a href="./dashboards.html">
+            <h2>See the dashboards</h2>
+            <p>Sales, commercial, client health and regulatory, each read top to bottom.</p>
+            <span class="go">Open dashboards</span>
+          </a>
+        </li>
+        <li class="route">
+          <a href="./editor.html">
+            <h2>Make a chart</h2>
+            <p>Drop a table, pick a chart, then lay charts out into a dashboard in the Composer.</p>
+            <span class="go">Open the editor</span>
+          </a>
+        </li>
+        <li class="route">
+          <a href="./catalog/index.html">
+            <h2>Browse the charts</h2>
+            <p>Every chart type, the data it needs, and a spec to copy.</p>
+            <span class="go">Open the catalog</span>
+          </a>
+        </li>
+      </ul>
+      <p class="strip-label" id="strip-label">Three of the charts, live</p>
+      <div class="strip" id="strip" role="group" aria-labelledby="strip-label"></div>
     </main>
-    <script type="module" src="/demo/main.ts"></script>
+    <script type="module" src="/demo/home.ts"></script>
   </body>
 </html>

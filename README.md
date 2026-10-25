@@ -30,15 +30,16 @@ npm run build:site # the whole site in dist-demo/, for any static server
 
 ## The site
 
-The demo is <!-- pages -->12<!-- /pages --> pages, linked from one row at the top of each:
+The demo has <!-- pages -->7<!-- /pages --> pages in its menu, with one Look menu (theme and style) beside it:
 
 | Page | What it is |
 | --- | --- |
-| Gallery, Playground | Every example widget on one dashboard, and a live spec editor over it |
-| Taller, Selected | New versions of any widget, and the ones worth keeping |
-| Editor, Composer | A chart from a table, then a dashboard from charts, without writing JSON |
-| Commercial, Client health, Regulatory | The three worked dashboards below |
-| Catalog, Data guide, Drop-in | Every chart type, the table each needs, and one-tag embeds |
+| Home (`index.html`) | What martcharts is, and three ways in |
+| Dashboards (`dashboards.html`) | Sales, Commercial, Client health, Regulatory as tabs (`?board=`); old addresses redirect |
+| Editor, Composer | A chart from a table or its JSON, then charts laid out into a dashboard |
+| Catalog (`catalog/index.html`) | Every chart type and a spec to copy; the Data guide is its second tab |
+| Embed (`examples/drop-in.html`) | Every way to put a chart on a page |
+| Lab (`lab.html`) | Experiments: the Taller and the selected variations |
 
 ## Drop it into any page
 
@@ -109,9 +110,9 @@ Charts follow fixed rules: a colorblind-checked palette with its own dark set, h
 
 Each board reads as a story: the headline, why it moved, where, and who acts.
 
-- **Regulatory landscape** (`regulatory.html`): rules in force, the next 90 days, pressure, who must comply and where the rules bind.
-- **Commercial cockpit** (`commercial.html`): the book, what needs attention, the pipeline, who could buy what, and who to call.
-- **Client health** (`health.html`): every client in red, amber or green on four perspectives, each status from a written threshold.
+- **Regulatory landscape** (`dashboards.html?board=regulatory`): rules in force, the next 90 days, pressure, who must comply and where the rules bind.
+- **Commercial cockpit** (`dashboards.html?board=commercial`): the book, what needs attention, the pipeline, who could buy what, and who to call.
+- **Client health** (`dashboards.html?board=health`): every client in red, amber or green on four perspectives, each status from a written threshold.
 
 The editor and the composer make the same from a CSV, without writing JSON; see [docs/editor.md](docs/editor.md).
 
@@ -138,7 +139,7 @@ src/dom/       createWidget, <fft-widget>, dashboards, the editor, the composer,
 src/mcp/       widget store, MCP server, command line entry.
 widgets/       stored widget specs; regulatory/, commercial/ and health/ hold the worked dashboards' widgets.
 dashboards/    dashboard specs; gallery.json lays out the gallery.
-demo/          the site's pages: gallery, Taller, selected, editor, composer and the three dashboards.
+demo/          the site's pages: home, dashboards, editor, composer and the Lab's Taller and selected.
 catalog/       one self-contained spec per view, and the pages that draw them (generated).
 examples/      drop-in and embed pages that use the built bundle with no build step.
 scripts/       generators for docs, the catalog and the sample data, and the site build.

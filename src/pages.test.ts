@@ -1,73 +1,124 @@
 // @vitest-environment jsdom
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join, normalize } from "node:path";
 import { describe, expect, test } from "vitest";
 import { STATIC_PATHS } from "../scripts/site-pages.ts";
-
-/** The site's pages, each with the name its navigation gives it, and the prefix its links take from where it sits. */
-const PAGES = [
-  ["index.html", "Gallery", "./"],
-  ["taller.html", "Taller", "./"],
-  ["selected.html", "Selected", "./"],
-  ["editor.html", "Editor", "./"],
-  ["composer.html", "Composer", "./"],
-  ["commercial.html", "Commercial", "./"],
-  ["health.html", "Client health", "./"],
-  ["regulatory.html", "Regulatory", "./"],
-  ["catalog/index.html", "Catalog", "../"],
-  ["catalog/guide.html", "Data guide", "../"],
-  ["examples/drop-in.html", "Drop-in", "../"],
-] as const;
+import { NAV, PAGES, navBar } from "../scripts/site-nav.ts";
 
 const read = (file: string) => new DOMParser().parseFromString(readFileSync(file, "utf8"), "text/html");
+/** The pages vite builds, from its config. */
+const BUILT = [...readFileSync("vite.config.ts", "utf8").matchAll(/new URL\("\.\/([^"]+\.html)"/g)].map((m) => m[1] as string);
+const published = (file: string) => BUILT.includes(file) || STATIC_PATHS.some((path) => file === path || file.startsWith(`${path}/`));
+/** The old addresses that now send a visitor on, each to its Dashboards tab. */
+const MOVED = [
+  ["commercial.html", "./dashboards.html?board=commercial"],
+  ["health.html", "./dashboards.html?board=health"],
+  ["regulatory.html", "./dashboards.html?board=regulatory"],
+] as const;
 
-describe("every page goes to every page", () => {
-  test.each(PAGES)("%s has the same row: Gallery, Taller, Selected, Playground, Editor, Composer, Commercial, Client health, Regulatory, Catalog, Data guide and Drop-in, its own page marked", (file, own, up) => {
+describe("one menu on every page", () => {
+  test("seven items, in order: Home, Dashboards, Editor, Composer, Catalog, Embed, Lab", () => {
+    expect(NAV.map((item) => item.label)).toEqual(["Home", "Dashboards", "Editor", "Composer", "Catalog", "Embed", "Lab"]);
+  });
+
+  test.each(PAGES)("$file carries the bar written for it: the seven links, $current marked, and the Look menu", ({ file, current, up }) => {
+    const html = readFileSync(file, "utf8");
+    // Exactly the bar scripts/site-nav.ts writes (catalog pages from the generators, the rest from the script itself).
+    const written = navBar(current, up, "").replace(/^\s+/gm, "");
+    const bar = /<div class="site-bar">[\s\S]*?<\/details>\s*<\/div>/.exec(html)?.[0].replace(/^\s+/gm, "");
+    expect(bar).toBe(written);
     const doc = read(file);
-    const nav = doc.querySelector('nav.site-nav[aria-label="Pages"]');
-    const items = [...(nav?.querySelectorAll("a, button") ?? [])];
-    expect(items.map((item) => item.textContent?.trim())).toEqual(["Gallery", "Taller", "Selected", "Playground", "Editor", "Composer", "Commercial", "Client health", "Regulatory", "Catalog", "Data guide", "Drop-in"]);
-    // Links go to the other pages; the Playground is a dialog on the gallery, so elsewhere it opens it there.
-    const target = (item: Element) => item.getAttribute("href") ?? `#${item.id}`;
-    expect(items.map(target)).toEqual([
-      `${up}index.html`,
-      `${up}taller.html`,
-      `${up}selected.html`,
-      file === "index.html" ? "#open-playground" : `${up}index.html#playground`,
-      `${up}editor.html`,
-      `${up}composer.html`,
-      `${up}commercial.html`,
-      `${up}health.html`,
-      `${up}regulatory.html`,
-      `${up}catalog/index.html`,
-      `${up}catalog/guide.html`,
-      `${up}examples/drop-in.html`,
-    ]);
-    expect(items.filter((item) => item.getAttribute("aria-current") === "page").map((item) => item.textContent?.trim())).toEqual([own]);
-    // The pinned nav, and the look picked on any page (theme and style, Glass by default), on every page.
+    const links = [...doc.querySelectorAll('nav.site-nav[aria-label="Pages"] a')];
+    expect(links.map((a) => a.textContent?.trim())).toEqual(NAV.map((item) => item.label));
+    expect(links.map((a) => a.getAttribute("href"))).toEqual(NAV.map((item) => `${up}${item.href}`));
+    expect(links.filter((a) => a.getAttribute("aria-current") === "page").map((a) => a.textContent)).toEqual([current]);
+    // One Look menu, theme and style together, the same on every page.
+    expect(doc.querySelectorAll(".site-look-menu").length).toBe(1);
+    expect([...doc.querySelectorAll(".site-look-menu [data-look-key]")].map((g) => g.getAttribute("data-look-key"))).toEqual(["theme", "preset"]);
+    // No page keeps a theme or style switch of its own.
+    expect(doc.querySelectorAll("#theme, #preset").length).toBe(0);
+    // The pinned bar's styles and the look, on every page.
     const root = up === "./" ? "/" : up;
     expect(doc.querySelector(`link[rel="stylesheet"][href="${root}demo/site-nav.css"]`)).not.toBeNull();
     expect(doc.querySelector(`link[rel="stylesheet"][href="${root}demo/site-look.css"]`)).not.toBeNull();
     expect(doc.querySelector(`script[src="${root}site-look.js"]`)).not.toBeNull();
   });
 
-  test("the old one-way back links are gone", () => {
-    for (const [file] of PAGES) expect([file, read(file).querySelectorAll("a.back, a.page-link").length]).toEqual([file, 0]);
+  test.each(PAGES)("$file has one header and the martcharts name", ({ file }) => {
+    const doc = read(file);
+    expect(doc.querySelectorAll("h1").length).toBe(1);
+    expect(doc.title).toMatch(/martcharts/);
+    expect(readFileSync(file, "utf8")).not.toMatch(/FFT Widgets/);
   });
 
-  test("the published site carries every page: built by vite, or copied as a static page with what it loads", () => {
-    const config = readFileSync("vite.config.ts", "utf8");
-    const built = [...config.matchAll(/new URL\("\.\/([^"]+\.html)"/g)].map((m) => m[1]);
-    const published = (file: string) => built.includes(file) || STATIC_PATHS.some((path) => file === path || file.startsWith(`${path}/`));
-    expect(PAGES.map(([file]) => [file, published(file)])).toEqual(PAGES.map(([file]) => [file, true]));
-    // What the static pages load comes along with them.
-    for (const file of ["catalog/index.html", "catalog/guide.html", "examples/drop-in.html"]) {
-      const doc = read(file);
-      const local = [...doc.querySelectorAll("script[src], link[rel=stylesheet][href]")]
-        .map((node) => node.getAttribute("src") ?? node.getAttribute("href") ?? "")
-        .filter((ref) => ref.startsWith("../"))
-        .map((ref) => ref.slice(3));
-      for (const ref of local) expect([file, ref, published(ref) || ref === "site-look.js"]).toEqual([file, ref, true]);
+  test("the Catalog's two pages are its two tabs, each marked on its own page", () => {
+    for (const [file, shown] of [
+      ["catalog/index.html", "Charts"],
+      ["catalog/guide.html", "Data guide"],
+    ] as const) {
+      const tabs = [...read(file).querySelectorAll('nav.site-tabs[aria-label="Catalog"] a')];
+      expect([file, tabs.map((a) => a.getAttribute("href")), tabs.filter((a) => a.getAttribute("aria-current") === "page").map((a) => a.textContent)]).toEqual([file, ["index.html", "guide.html"], [shown]]);
     }
+  });
+});
+
+describe("the published site", () => {
+  test("carries every page: built by vite, or copied as a static page", () => {
+    for (const { file } of PAGES) expect([file, published(file)]).toEqual([file, true]);
+    for (const [file] of MOVED) expect([file, published(file)]).toEqual([file, true]);
+  });
+
+  test("every local link and asset on every page resolves to a file the site serves", () => {
+    const pages = [...PAGES.map((page) => page.file), ...MOVED.map(([file]) => file), "examples/embed.html"];
+    const missing: string[] = [];
+    for (const file of pages) {
+      const refs = [...read(file).querySelectorAll("a[href], link[href], script[src]")].map((node) => node.getAttribute("href") ?? node.getAttribute("src") ?? "");
+      for (const ref of refs) {
+        if (!ref || /^(https?:|mailto:|data:|#)/.test(ref) || ref.includes("${")) continue;
+        const path = ref.split(/[?#]/)[0] as string;
+        if (!path) continue;
+        // A root address (/demo/site-nav.css, /site-look.js) is the repo root or public/; a relative one is the page's folder.
+        const target = path.startsWith("/") ? path.slice(1) : normalize(join(dirname(file), path));
+        // The bundles in dist/ are built by npm run build:lib and published with the static pages.
+        const served = existsSync(target) || existsSync(join("public", target)) || BUILT.includes(target) || (STATIC_PATHS as readonly string[]).includes(target);
+        if (!served) missing.push(`${file} -> ${ref}`);
+      }
+    }
+    expect(missing).toEqual([]);
+  });
+
+  // The built site itself, when npm run build:site has run: every local link and asset in every page is a file there.
+  test.skipIf(!existsSync("dist-demo/index.html"))("in the built site, every page's local links and assets are files it serves", async () => {
+    const { readdirSync, statSync } = await import("node:fs");
+    const walk = (dir: string): string[] => readdirSync(dir).flatMap((name) => (statSync(join(dir, name)).isDirectory() ? (name === "docs" ? [] : walk(join(dir, name))) : name.endsWith(".html") ? [join(dir, name)] : []));
+    const missing: string[] = [];
+    for (const file of walk("dist-demo")) {
+      for (const match of readFileSync(file, "utf8").matchAll(/(?:href|src)="([^"]+)"/g)) {
+        const ref = match[1] as string;
+        if (/^(https?:|mailto:|data:|#|javascript)/.test(ref) || ref.includes("${") || ref.includes("&lt;")) continue;
+        const path = ref.split(/[?#]/)[0] as string;
+        if (!path) continue;
+        const target = path.startsWith("/") ? join("dist-demo", path) : normalize(join(dirname(file), path));
+        if (!existsSync(target)) missing.push(`${file} -> ${ref}`);
+      }
+    }
+    expect(missing).toEqual([]);
+  });
+
+  test.each(MOVED)("%s sends a visitor on to %s, keeping the board's state from the hash", (file, to) => {
+    const doc = read(file);
+    expect(doc.documentElement.dataset.movedTo).toBe(to);
+    expect(doc.querySelector('meta[http-equiv="refresh"]')?.getAttribute("content")).toContain(to);
+    expect(doc.querySelector(`a[href="${to}"]`)).not.toBeNull();
+    expect(doc.querySelector('script[src="/demo/redirect.ts"]')).not.toBeNull();
+    expect(readFileSync("demo/redirect.ts", "utf8")).toContain("location.hash");
+  });
+
+  test("the old gallery address goes on: its sections to the Sales tab, its playground to the Editor's JSON panel", () => {
+    const home = readFileSync("demo/home.ts", "utf8");
+    expect(home).toContain("./dashboards.html?board=sales#");
+    expect(home).toContain("./editor.html?json=1");
+    expect(home).toContain("./editor.html?spec=");
   });
 
   test("pages that only show charts load the lite bundle; the embed page brings French and German in when its chart asks", () => {
@@ -80,7 +131,7 @@ describe("every page goes to every page", () => {
 
   test("no page runs an inline script: the published site's policy allows scripts from the site only", () => {
     // Data blocks (type="application/json") are not scripts and stay; anything that runs must come from a file.
-    const files = [...PAGES.map(([file]) => file), "examples/embed.html"];
+    const files = [...PAGES.map((page) => page.file), ...MOVED.map(([file]) => file), "examples/embed.html"];
     for (const file of files) {
       const inline = [...read(file).querySelectorAll("script:not([src])")].filter((node) => node.getAttribute("type") !== "application/json" && (node.textContent ?? "").trim());
       expect([file, inline.length]).toEqual([file, 0]);
