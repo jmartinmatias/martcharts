@@ -56,6 +56,11 @@ html { overflow-x: clip; }
   pointer-events: none;
 }
 .fft-dashboard[data-sticky] .fft-filters[data-stuck]::before { opacity: 1; }
+/* Pinned, the two bands read as one: the bar gives up its hairline, the filter band's is the only line. */
+.site-bar::before { transition: border-color 233ms ease; }
+:root:has(.fft-dashboard[data-sticky] .fft-filters[data-stuck]) .site-bar::before { border-bottom-color: transparent; }
+/* The library's own pinned-row box (rounded corners, shadow) gives way to the band on the site. */
+.fft-dashboard[data-sticky] .fft-filters, .fft-dashboard[data-sticky] .fft-filters[data-stuck] { border-radius: 0; }
 .site-nav {
   flex: 1;
   min-width: 0;
@@ -121,10 +126,11 @@ html { overflow-x: clip; }
 .site-look-group button:focus-visible { outline: 2px solid var(--accent, AccentColor); outline-offset: 1px; }
 
 /* A page's own tabs under the bar (the Catalog's Charts and Data guide): quiet links, the one shown marked. */
-.site-tabs { display: flex; gap: 2px; margin: 0 0 13px; font: 14px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif; }
-.site-tabs a { padding: 5px 13px; border-radius: 7px; color: var(--ink-2, color-mix(in srgb, CanvasText 70%, transparent)); text-decoration: none; }
+/* The same segmented control as a dashboard's period and board tabs: a rounded track, a lifted rounded thumb. */
+.site-tabs { display: flex; gap: 2px; width: max-content; max-width: 100%; margin: 0 0 13px; padding: 2px; border-radius: 10px; background: color-mix(in srgb, var(--ink, CanvasText) 8%, transparent); font: 14px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+.site-tabs a { padding: 4px 13px; border-radius: 8px; color: var(--ink-2, color-mix(in srgb, CanvasText 70%, transparent)); text-decoration: none; }
 .site-tabs a:hover { color: var(--ink, CanvasText); }
-.site-tabs a[aria-current="page"] { color: var(--ink, CanvasText); font-weight: 600; box-shadow: inset 0 0 0 1px var(--line, color-mix(in srgb, CanvasText 20%, transparent)); }
+.site-tabs a[aria-current="page"] { color: var(--ink, CanvasText); font-weight: 600; background: var(--field, Canvas); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.14), 0 0 0 0.5px var(--line, color-mix(in srgb, CanvasText 14%, transparent)); }
 .site-tabs a:focus-visible { outline: 2px solid var(--accent, AccentColor); outline-offset: 1px; }
 @media (max-width: 480px) { .site-bar, .site-nav { gap: 16px; } }
 @media (prefers-reduced-motion: reduce) { .site-nav a, .site-look-menu summary { transition: none; } }

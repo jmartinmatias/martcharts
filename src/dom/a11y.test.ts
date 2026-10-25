@@ -258,8 +258,24 @@ describe("focus order (2.4.3)", () => {
 describe("a pressed toggle shows its state by more than color (1.4.1, 1.4.11)", () => {
   const rule = (selector: string) => styleSheet.slice(styleSheet.indexOf(`${selector} {`), styleSheet.indexOf("}", styleSheet.indexOf(`${selector} {`)));
 
-  test("the chosen period carries an accent bar along its foot", () => {
-    expect(rule('.fft-range button[aria-pressed="true"]')).toContain("inset 0 -2px 0 var(--fft-accent)");
+  test("the chosen period is a lifted thumb in full ink: its own fill, a shadow and a rounded hairline, no square frame", () => {
+    const chosen = rule('.fft-range button[aria-pressed="true"]');
+    expect([chosen.includes("background: var(--fft-raised"), chosen.includes("0 1px 2px"), chosen.includes("color: var(--fft-text)")]).toEqual([true, true, true]);
+    expect(chosen).not.toContain("inset 0 -2px");
+  });
+
+  test("every control in the filter row shares one shape: rounded, one height, nothing square", () => {
+    expect(rule(".fft-range-track")).toContain("border-radius: calc(var(--fft-radius-l) + 2px)");
+    expect(rule(".fft-range-track")).toContain("height: var(--fft-control-h)");
+    expect(rule(".fft-range button")).toContain("border-radius: var(--fft-radius-l)");
+    expect(rule(".fft-filter select")).toMatch(/appearance: none[\s\S]*height: var\(--fft-control-h\)[\s\S]*border-radius: var\(--fft-radius-l\)/);
+    expect(rule(".fft-board-nav button")).toMatch(/min-height: var\(--fft-control-h\)[\s\S]*border-radius: var\(--fft-radius-pill\)/);
+    expect(rule(".fft-dashboard .fft-filters :is(.fft-board-share, .fft-crossfilter, .fft-filters-toggle)")).toMatch(/height: var\(--fft-control-h\)[\s\S]*border-radius: var\(--fft-radius-pill\)/);
+    // No control in the row gets a square corner (the pinned row itself meets the page edge square at its top).
+    for (const [, selector, body] of styleSheet.matchAll(/([^{}]*\.fft-(?:range|filter|board-nav|board-share|crossfilter)[^{}]*)\{([^{}]*)\}/g)) {
+      if (/\.fft-filters(\[data-stuck\])?$/.test(selector!.trim())) continue;
+      expect([selector!.trim(), /border-radius: 0(?![.\d])/.test(body!)]).toEqual([selector!.trim(), false]);
+    }
   });
 
   test("the chosen section turns semibold, each chip reserving that width so nothing shifts", async () => {

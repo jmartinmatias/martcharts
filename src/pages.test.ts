@@ -163,4 +163,11 @@ describe("the published site", () => {
     const css = readFileSync("demo/site-nav.css", "utf8");
     expect(css).toMatch(/\.site-bar \{[^}]*padding:[^;]*calc\(16px - \(100vw - 100%\) \/ 2\)[^;]*calc\(16px - \(100vw - 100%\) \/ 2\)/);
   });
+
+  test("pinned under the menu, the filter band and the bar read as one: one hairline, and tabs are segmented tracks", () => {
+    const nav = readFileSync("demo/site-nav.css", "utf8");
+    expect(nav).toMatch(/:root:has\(\.fft-dashboard\[data-sticky\] \.fft-filters\[data-stuck\]\) \.site-bar::before \{ border-bottom-color: transparent; \}/);
+    expect(nav).toMatch(/\.site-tabs \{[^}]*border-radius: 10px;[^}]*background:/);
+    expect(readFileSync("dashboards.html", "utf8")).not.toMatch(/\.board-tabs \{[^}]*border: 1px/);
+  });
 });

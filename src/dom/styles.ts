@@ -1044,6 +1044,10 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-dashboard-header { display: flex; flex-direction: column; gap: 3px; }
 .fft-dashboard-title { margin: 0; font-size: var(--fft-fs-l); line-height: 34px; font-weight: 600; letter-spacing: -0.01em; }
 .fft-dashboard-subtitle { margin: 0; color: var(--fft-text-secondary); }
+/* The filter row: one shape language for every control in it. Each is --fft-control-h tall (30px, 34px on touch),
+   a rounded field, a pill or a segmented track; nothing square, nothing with a hard frame. */
+.fft-dashboard { --fft-control-h: 30px; --fft-control-line: color-mix(in srgb, var(--fft-text) 13%, transparent); --fft-control-fill: color-mix(in srgb, var(--fft-text) 5%, transparent); }
+@media (pointer: coarse) { .fft-dashboard { --fft-control-h: 34px; } }
 .fft-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 13px; }
 .fft-filters[hidden] { display: none; }
 /* Sticky: the row pins to the top, above the cells' hover controls (z 5) and below tooltips (z 10). The host sets
@@ -1051,33 +1055,51 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
    --fft-board-bg to its own background; the negative margin keeps the layout, the padding keeps controls off the edge. */
 .fft-dashboard[data-sticky] .fft-filters {
   position: sticky; top: calc(var(--fft-sticky-top, 0px) + env(safe-area-inset-top, 0px)); z-index: 8; margin: -8px; padding: 8px;
+  border-radius: var(--fft-radius-l);
   background: var(--fft-board-bg, color-mix(in srgb, var(--fft-surface) 92%, transparent));
   -webkit-backdrop-filter: blur(13px) saturate(1.2); backdrop-filter: blur(13px) saturate(1.2);
 }
 /* The marker before the row takes no room: its negative margin cancels the column gap it adds. */
 .fft-filters-sentinel { height: 0; margin-bottom: -21px; }
 .fft-dashboard[data-sticky] .fft-filters { transition: box-shadow 233ms var(--fft-ease); }
-.fft-dashboard[data-sticky] .fft-filters[data-stuck] { box-shadow: 0 1px 0 var(--fft-border), 0 13px 21px -13px rgba(0, 0, 0, 0.34); }
+.fft-dashboard[data-sticky] .fft-filters[data-stuck] { border-radius: 0 0 var(--fft-radius-l) var(--fft-radius-l); box-shadow: 0 1px 0 var(--fft-border), 0 13px 21px -13px rgba(0, 0, 0, 0.34); }
 .fft-filter { display: inline-flex; align-items: center; gap: 8px; color: var(--fft-text-secondary); }
+/* A select is a rounded field with a quiet chevron drawn in the secondary ink (two gradients, so it follows the theme). */
 .fft-filter select {
-  font: inherit; color: var(--fft-text); background: var(--fft-surface); border: 1px solid var(--fft-border);
-  border-radius: var(--fft-radius-l); padding: 3px 8px; min-width: 89px;
+  -webkit-appearance: none; appearance: none; box-sizing: border-box;
+  height: var(--fft-control-h); min-width: 89px; padding: 0 29px 0 11px;
+  font: inherit; color: var(--fft-text); border: 1px solid var(--fft-control-line); border-radius: var(--fft-radius-l);
+  background-color: var(--fft-control-fill);
+  background-image: linear-gradient(45deg, transparent 50%, var(--fft-text-secondary) 50%), linear-gradient(135deg, var(--fft-text-secondary) 50%, transparent 50%);
+  background-position: calc(100% - 15px) 50%, calc(100% - 11px) 50%;
+  background-size: 4px 4px, 4px 4px; background-repeat: no-repeat;
+  cursor: pointer; transition: border-color 233ms var(--fft-ease), background-color 233ms var(--fft-ease);
 }
+@media (hover: hover) { .fft-filter select:hover { border-color: color-mix(in srgb, var(--fft-text) 24%, transparent); } }
+.fft-filter select:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 1px; }
+.fft-filter select option { color: initial; background: initial; }
 .fft-range { display: inline-flex; align-items: center; gap: 8px; color: var(--fft-text-secondary); }
-.fft-range-track { display: inline-flex; gap: 2px; padding: 2px; border-radius: var(--fft-radius-l); background: color-mix(in srgb, var(--fft-text) 7%, transparent); }
+/* The period: a segmented control, a rounded track with a rounded thumb that lifts on the chosen period. The track's
+   radius is the thumb's plus its 2px inset, so the two curves run parallel. */
+.fft-range-track {
+  box-sizing: border-box; display: inline-flex; align-items: stretch; gap: 2px; height: var(--fft-control-h); padding: 2px;
+  border-radius: calc(var(--fft-radius-l) + 2px); background: color-mix(in srgb, var(--fft-text) 8%, transparent);
+}
 .fft-range button {
   font: inherit; font-size: var(--fft-fs-s); font-weight: 600; letter-spacing: 0.02em; font-variant-numeric: tabular-nums;
-  padding: 3px 10px; border: 0; border-radius: var(--fft-radius-m); background: transparent; color: var(--fft-text-secondary); cursor: pointer;
+  min-width: 34px; padding: 0 10px; border: 0; border-radius: var(--fft-radius-l); background: transparent; color: var(--fft-text-secondary); cursor: pointer;
   transition: background 233ms var(--fft-ease), color 233ms var(--fft-ease), box-shadow 233ms var(--fft-ease);
 }
 .fft-range button:hover { color: var(--fft-text); }
-/* The chosen period: raised, and an accent bar along its foot, a cue that is not color alone (WCAG 1.4.1, 1.4.11). */
-.fft-range button[aria-pressed="true"] { color: var(--fft-text); background: var(--fft-raised, var(--fft-surface)); box-shadow: inset 0 -2px 0 var(--fft-accent), 0 1px 3px rgba(0, 0, 0, 0.16), 0 0 0 1px var(--fft-border); }
+/* The chosen period: the thumb, its own fill lifted by a soft shadow and a rounded hairline, in full ink; a cue of
+   shape and depth, not color alone (WCAG 1.4.1, 1.4.11). No square frame and no bar along its foot. */
+.fft-range button[aria-pressed="true"] { color: var(--fft-text); background: var(--fft-raised, var(--fft-surface)); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.14), 0 0 0 0.5px var(--fft-control-line); }
 .fft-range button:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 1px; }
 /* Section filter: quiet chips on their own line under the controls, All first, starting at the left edge like everything else. */
-.fft-board-nav { display: flex; flex: 1 0 100%; flex-wrap: wrap; justify-content: flex-start; gap: 2px; min-width: 0; margin-left: -8px; scroll-behavior: smooth; }
+.fft-board-nav { display: flex; flex: 1 0 100%; flex-wrap: wrap; justify-content: flex-start; align-items: center; gap: 2px; min-width: 0; margin-left: -8px; scroll-behavior: smooth; }
+/* Section chips: pills as tall as every other control, quiet until chosen. */
 .fft-board-nav button {
-  display: inline-flex; flex-direction: column; align-items: center; padding: 2px 8px; border: 0; border-radius: var(--fft-radius-pill); background: transparent; cursor: pointer;
+  box-sizing: border-box; display: inline-flex; flex-direction: column; justify-content: center; align-items: center; min-height: var(--fft-control-h); padding: 0 11px; border: 0; border-radius: var(--fft-radius-pill); background: transparent; cursor: pointer;
   font: inherit; font-size: var(--fft-fs-s); line-height: 21px; white-space: nowrap; color: var(--fft-text-secondary);
   transition: background 233ms var(--fft-ease), color 233ms var(--fft-ease);
 }
@@ -1086,6 +1108,21 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-board-nav button[aria-pressed="true"] { color: var(--fft-text); font-weight: 600; background: color-mix(in srgb, var(--fft-text) 8%, transparent); }
 .fft-board-nav button::after { content: attr(data-label); content: attr(data-label) / ""; height: 0; overflow: hidden; visibility: hidden; font-weight: 600; }
 .fft-board-nav button:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: -2px; }
+/* The row's buttons (Share, the click filter, Filters on a phone) are pills of the same height as the other controls. */
+.fft-dashboard .fft-filters :is(.fft-board-share, .fft-crossfilter, .fft-filters-toggle) {
+  box-sizing: border-box; min-height: var(--fft-control-h); height: var(--fft-control-h); border-radius: var(--fft-radius-pill); font-size: var(--fft-fs-m);
+}
+.fft-dashboard .fft-filters .fft-board-share { border-color: var(--fft-control-line); background: var(--fft-control-fill); }
+.fft-dashboard .fft-filters .fft-dashboard-asof-inline { font-size: var(--fft-fs-s); line-height: var(--fft-control-h); color: var(--fft-text-secondary); }
+/* Section chips that run past the row fade over 55px on an eased curve, so a chip at the edge dissolves rather than
+   being sliced; the fade shows only on the side with more to see. */
+.fft-dashboard .fft-filters .fft-board-nav { --fft-fade: 55px; scroll-padding-inline: var(--fft-fade); }
+.fft-dashboard .fft-filters .fft-board-nav[data-scroll="start"] { -webkit-mask-image: linear-gradient(to left, transparent, rgba(0, 0, 0, 0.35) calc(var(--fft-fade) * 0.4), #000 var(--fft-fade)); mask-image: linear-gradient(to left, transparent, rgba(0, 0, 0, 0.35) calc(var(--fft-fade) * 0.4), #000 var(--fft-fade)); }
+.fft-dashboard .fft-filters .fft-board-nav[data-scroll="end"] { -webkit-mask-image: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.35) calc(var(--fft-fade) * 0.4), #000 var(--fft-fade)); mask-image: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.35) calc(var(--fft-fade) * 0.4), #000 var(--fft-fade)); }
+.fft-dashboard .fft-filters .fft-board-nav[data-scroll="middle"] {
+  -webkit-mask-image: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.35) calc(var(--fft-fade) * 0.4), #000 var(--fft-fade), #000 calc(100% - var(--fft-fade)), rgba(0, 0, 0, 0.35) calc(100% - var(--fft-fade) * 0.4), transparent);
+  mask-image: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.35) calc(var(--fft-fade) * 0.4), #000 var(--fft-fade), #000 calc(100% - var(--fft-fade)), rgba(0, 0, 0, 0.35) calc(100% - var(--fft-fade) * 0.4), transparent);
+}
 /* A chosen section: the rest of the grid hides, and its heading leads the board without the divider above it. */
 .fft-dashboard-grid > [hidden] { display: none; }
 .fft-dashboard[data-section] .fft-board-section { margin-top: 0; padding-top: 0; border-top: 0; }
@@ -1133,8 +1170,7 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 }
 /* Touch: every control at least 34px tall, without the grey tap flash. */
 @media (pointer: coarse) {
-  .fft-range button, .fft-board-nav button { min-height: 34px; padding: 5px 13px; -webkit-tap-highlight-color: transparent; }
-  .fft-filter select { min-height: 34px; padding: 5px 13px; }
+  .fft-range button, .fft-board-nav button { padding: 0 13px; -webkit-tap-highlight-color: transparent; }
 }
 @media (prefers-reduced-motion: reduce) {
   .fft-board-nav { scroll-behavior: auto; }
