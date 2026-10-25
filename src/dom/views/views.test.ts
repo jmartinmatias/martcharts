@@ -889,6 +889,28 @@ describe("waterfall view", () => {
     expect(texts(".fft-step-label")).toEqual(["1,000", "+150", "−80", "1,070"]);
   });
 
+  test("in a narrow card, no two value labels overprint: falls are labelled under their bar, close ones step apart", async () => {
+    // The cockpit's revenue bridge: alternating rises and falls of about the same size, in a 330px card.
+    Object.defineProperty(HTMLElement.prototype, "clientWidth", { configurable: true, get: () => 330 });
+    const rows = [
+      { step: "2025", amount: 7_700_000 }, { step: "Growth A", amount: 591_700 }, { step: "Growth B", amount: 507_200 },
+      { step: "Growth C", amount: 253_600 }, { step: "Loss A", amount: -169_100 }, { step: "Loss B", amount: -253_600 },
+      { step: "Loss C", amount: -169_100 },
+    ];
+    try {
+      await draw({ rows, fields: { amount: { format: { type: "currency", currency: "EUR", compact: true } } }, view: { type: "waterfall", label: "step", value: "amount", totals: ["2025"], endLabel: "2026", fit: true } });
+    } finally {
+      Reflect.deleteProperty(HTMLElement.prototype, "clientWidth");
+    }
+    const boxes = all(".fft-step-label").map((t) => {
+      const x = Number(t.getAttribute("x"));
+      const half = (t.textContent ?? "").length * 3.2;
+      return { x0: x - half, x1: x + half, y: Number(t.getAttribute("y")) };
+    });
+    const clashes = boxes.flatMap((a, i) => boxes.slice(i + 1).filter((b) => a.x0 < b.x1 && b.x0 < a.x1 && Math.abs(a.y - b.y) < 12));
+    expect(clashes).toEqual([]);
+  });
+
   test("hairline connectors join each bar to the next", async () => {
     await draw(spec);
     expect(all("line.fft-connector").length).toBe(3);

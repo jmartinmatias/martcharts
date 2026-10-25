@@ -373,11 +373,7 @@ export const BASE_CSS = `
   transition: color 233ms var(--fft-ease), background-color 233ms var(--fft-ease);
 }
 .fft-widget-ref[hidden] { display: none; }
-/* A developer's handle, not a reader's: out of sight until the card is pointed at or reached by keyboard, like the
-   toolbar, and always on paper. It keeps its place in the tab order inside the card. */
-.fft-widget-ref { opacity: 0; transition: opacity 233ms var(--fft-ease), color 233ms var(--fft-ease), background-color 233ms var(--fft-ease); }
-.fft-widget:hover .fft-widget-ref, .fft-widget:focus-within .fft-widget-ref, .fft-widget-ref:focus-visible, .fft-widget-ref[data-done], .fft-widget-ref[data-failed] { opacity: 1; }
-@media print { .fft-widget-ref { opacity: 1 !important; } }
+/* Always in sight: people name a chart by its ref (W-CAV4) when they talk about it, so it never hides behind a hover. */
 .fft-widget-ref:hover, .fft-widget-ref:focus-visible { color: var(--fft-text-secondary); background: color-mix(in srgb, var(--fft-text) 6%, transparent); outline: none; }
 .fft-widget-ref:focus-visible { box-shadow: 0 0 0 2px var(--fft-accent); }
 .fft-widget-ref[data-done]::after { content: " copied"; letter-spacing: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif; }

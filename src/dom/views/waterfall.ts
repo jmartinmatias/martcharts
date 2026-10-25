@@ -2,7 +2,7 @@ import { readNumber } from "../../core/formats.ts";
 import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { WaterfallView } from "../../core/views.ts";
-import { bands, CHAR_WIDTH, layoutWaterfall, linearScale } from "../layout.ts";
+import { bands, CHAR_WIDTH, layoutWaterfall, linearScale, textWidth } from "../layout.ts";
 import { highlights } from "./chart.ts";
 import { hiddenTableOf, html, selectable, svg } from "./shared.ts";
 import { edgeAnchor, edgeX } from "./label-fit.ts";
@@ -67,6 +67,7 @@ export const renderWaterfall: ViewRenderer<WaterfallView & { highlight?: string 
   const every = Math.max(1, Math.ceil((steps.length * widest) / plot.w));
   const marks = svg(doc, "g");
   const overlay = svg(doc, "g");
+  const captions: { node: SVGTextElement; x: number; half: number; up: boolean }[] = [];
   steps.forEach((step, i) => {
     const slot = slots[i];
     if (!slot) return;
@@ -80,8 +81,12 @@ export const renderWaterfall: ViewRenderer<WaterfallView & { highlight?: string 
     marks.append(bar);
 
     const change = step.end - step.start;
-    const caption = svg(doc, "text", { class: "fft-step-label", x: slot.center, y: top - 5, "text-anchor": "middle" });
-    caption.textContent = step.kind === "total" ? ctx.format(step.end, value) : signed(change);
+    // A rise writes its value above its bar, a fall under it (the bar's own direction), so neighbours rarely meet.
+    const words = step.kind === "total" ? ctx.format(step.end, value) : signed(change);
+    const under = step.kind !== "total" && change < 0 && bottom + 15 <= plot.y + plot.h;
+    const caption = svg(doc, "text", { class: "fft-step-label", x: slot.center, y: under ? bottom + 13 : top - 5, "text-anchor": "middle" });
+    caption.textContent = words;
+    captions.push({ node: caption, x: slot.center, half: textWidth(words) / 2 + 2, up: !under });
     marks.append(caption);
 
     const next = slots[i + 1];
@@ -124,6 +129,7 @@ export const renderWaterfall: ViewRenderer<WaterfallView & { highlight?: string 
     if (row) selectable(hit, () => ctx.select(row));
     overlay.append(hit);
   });
+  separateCaptions(captions, plot.y - margin.top + 11, height - 2);
   chart.append(marks, overlay);
   roving([...overlay.children]);
   wrap.append(chart);
@@ -132,3 +138,25 @@ export const renderWaterfall: ViewRenderer<WaterfallView & { highlight?: string 
   wrap.append(hiddenTableOf(ctx, tableRows, [label, value]));
   ctx.el.append(wrap);
 };
+
+/**
+ * Moves a value label that would overprint its left neighbour one line further from its bar (up for a rise, down
+ * for a fall), within the chart. Labels are 11px, so a line is 13px.
+ */
+export function separateCaptions(captions: { node: SVGTextElement; x: number; half: number; up: boolean }[], top: number, bottom: number): void {
+  const line = 13;
+  for (let i = 1; i < captions.length; i++) {
+    const self = captions[i]!;
+    for (let tries = 0; tries < 3; tries++) {
+      const y = Number(self.node.getAttribute("y"));
+      const hit = captions.slice(0, i).some((other) => {
+        const oy = Number(other.node.getAttribute("y"));
+        return Math.abs(other.x - self.x) < other.half + self.half && Math.abs(oy - y) < line;
+      });
+      if (!hit) break;
+      const moved = self.up ? y - line : y + line;
+      if (moved < top || moved > bottom) break;
+      self.node.setAttribute("y", String(moved));
+    }
+  }
+}

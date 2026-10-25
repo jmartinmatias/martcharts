@@ -88,10 +88,8 @@ body .fft-dashboard { --fft-board-bg: var(--page); }
 :root[data-theme="dark"][data-look="glass"] body .fft-dashboard { --fft-board-bg: rgba(29, 43, 39, 0.89); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"])[data-look="glass"] body .fft-dashboard { --fft-board-bg: rgba(29, 43, 39, 0.89); } }
 /* On glass, the pinned nav is frosted too: the backdrop shows through, softly. */
-/* The bar's own backdrop layer (site-nav.css) is frosted here. Never a spread shadow on the nav itself: a shadow
-   spreads every way, and above the page it laid a 78% wash over the whole site. */
-:root[data-look="glass"] .site-bar::before {
+/* Glass frosts the bar's band, and a dashboard's pinned filter band under it, the same way. */
+:root[data-look="glass"] :is(.site-bar, .fft-dashboard[data-sticky] .fft-filters)::before {
   background: color-mix(in srgb, var(--page) 78%, transparent);
-  box-shadow: 0 0 0 100vmax color-mix(in srgb, var(--page) 78%, transparent), 0 1px 0 100vmax var(--line, transparent);
   -webkit-backdrop-filter: blur(13px) saturate(1.2); backdrop-filter: blur(13px) saturate(1.2);
 }

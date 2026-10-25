@@ -138,16 +138,18 @@ describe("the published site", () => {
     }
   });
 
-  test("no site style lays a page-wide wash: an edge-to-edge shadow only on the bar's own clipped backdrop", () => {
-    // A spread shadow reaches every way. On the nav it once laid a 78% wash of the page colour over the whole site.
+  test("no site style lays a page-wide wash, and the bands under the menu are one window-wide box each", () => {
+    // A spread shadow reaches every way: on the nav it once laid a 78% wash over the whole site. A frosted box only as
+    // wide as the column showed square edges with Home and Look against them.
     for (const file of ["demo/site-look.css", "demo/site-nav.css", "demo/site-page.css"]) {
       const css = readFileSync(file, "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
-      for (const [, selector, body] of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
-        if (!/box-shadow:[^;]*\d+vmax/.test(body as string)) continue;
-        expect([file, (selector as string).trim()]).toEqual([file, expect.stringMatching(/\.site-bar::before$/)]);
-      }
+      expect([file, /box-shadow:[^;]*\d+vmax/.test(css)]).toEqual([file, false]);
     }
-    expect(readFileSync("demo/site-nav.css", "utf8")).toMatch(/\.site-bar::before\s*\{[^}]*clip-path: inset\(0 -100vmax -1px -100vmax\)/);
+    const nav = readFileSync("demo/site-nav.css", "utf8");
+    for (const band of [/\.site-bar::before \{[^}]*/, /\.fft-dashboard\[data-sticky\] \.fft-filters::before \{[^}]*/]) {
+      const rule = band.exec(nav)?.[0] ?? "";
+      expect(rule).toMatch(/left: calc\(50% - 50vw\);\s*right: calc\(50% - 50vw\)/);
+    }
   });
 
   test("a grid of examples never grows wider than its page: its column is bounded, so long code scrolls inside its box", () => {

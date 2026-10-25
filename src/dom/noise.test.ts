@@ -131,10 +131,9 @@ describe("chrome that costs attention", () => {
     for (const delay of delays) expect([delay, /^min\(.*, (\d+)ms\)$/.test(delay) && Number(/, (\d+)ms\)$/.exec(delay)?.[1]) <= 610]).toEqual([delay, true]);
   });
 
-  test("the widget ref is out of sight until the card is hovered or focused, and always on paper", () => {
-    expect(BASE_CSS).toMatch(/\.fft-widget-ref \{ opacity: 0;/);
-    expect(BASE_CSS).toMatch(/\.fft-widget:hover \.fft-widget-ref, \.fft-widget:focus-within \.fft-widget-ref[^{]*\{ opacity: 1; \}/);
-    expect(BASE_CSS).toMatch(/@media print \{ \.fft-widget-ref \{ opacity: 1 !important; \} \}/);
+  test("the widget ref is always in sight, never only on hover: people name a chart by it", () => {
+    expect(BASE_CSS).not.toMatch(/\.fft-widget-ref \{[^}]*opacity: 0/);
+    expect(BASE_CSS).not.toMatch(/:hover \.fft-widget-ref[^{]*\{ opacity/);
   });
 
   test.each(["scatter", "line", "bar", "histogram", "area", "beeswarm"])("%s draws at most 5 value gridlines per axis on a card under 480px", async (type) => {
