@@ -129,7 +129,7 @@ Tools list, read, create, update, validate and recommend widgets and charts; see
 
 ## Documentation
 
-Start with [docs/features.md](docs/features.md) (every feature in detail) and [docs/api.md](docs/api.md) (the spec and the JavaScript API). Generated references: [catalog](docs/catalog.md), [chart guide](docs/chart-guide.md) and [blocks](docs/blocks.md). Also: [editor](docs/editor.md), [frameworks](docs/frameworks.md), [MCP](docs/mcp.md), [accessibility](docs/accessibility.md) and the [Taller](docs/taller.md).
+Start with [docs/features.md](docs/features.md) (every feature in detail) and [docs/api.md](docs/api.md) (the spec and the JavaScript API). Generated references: [catalog](docs/catalog.md), [chart guide](docs/chart-guide.md), [blocks](docs/blocks.md) and every chart's ref with where it sits ([refs.json](docs/refs.json)). Also: [editor](docs/editor.md), [frameworks](docs/frameworks.md), [MCP](docs/mcp.md), [accessibility](docs/accessibility.md) and the [Taller](docs/taller.md).
 
 ## Project layout
 
