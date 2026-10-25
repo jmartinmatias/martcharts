@@ -1,30 +1,36 @@
 import { readNumber } from "../../core/formats.ts";
+import { referenceValues, resolveReferences } from "../../core/reference.ts";
 import { sturges } from "../../core/scale.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { HistogramView } from "../../core/views.ts";
-import { barPath, binValues, linearScale, quantile } from "../layout.ts";
+import { barPath, binValues, CHAR_WIDTH, linearScale, quantile } from "../layout.ts";
 import { tickFormatter } from "./chart.ts";
-import { html, selectable, svg } from "./shared.ts";
+import { drawVerticalReferences } from "./reference.ts";
+import { hiddenTable, html, selectable, shareFormat, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
-
-const CHAR_WIDTH = 6;
 
 /**
  * Draws the `histogram` view: the value's range cut into bins on round edges,
  * one bar per bin counting its rows. Bars touch but for a 2px gap, so the
  * distribution reads as one shape, and labels sit on the bin edges rather than
  * under the bars. A dashed line marks the median.
+ *
+ * `reference` marks thresholds on the value axis (a policy limit, a target
+ * size) as dashed verticals or shaded columns; panels of small multiples share
+ * one count axis.
  */
-export const renderHistogram: ViewRenderer<HistogramView> = (ctx) => {
+export const renderHistogram: ViewRenderer<HistogramView & { reference?: unknown }> = (ctx) => {
   const doc = ctx.el.ownerDocument;
   const { value, median = true, countLabel = "Count" } = ctx.view;
   const values = ctx.rows.map((row) => readNumber(row[value])).filter((n): n is number => n !== null);
   const bins = binValues(values, ctx.view.bins ?? sturges(values.length));
   const edges = bins.length ? [bins[0]?.start as number, ...bins.map((bin) => bin.end)] : [];
   const edgeText = tickFormatter(ctx, value, edges);
-  const share = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 0 });
+  const share = shareFormat(ctx.spec.locale);
+  const references = resolveReferences(ctx.view, ctx.rows);
 
-  const counts = bins.map((bin) => bin.count);
+  // Small multiples pass the tallest count of any panel, so every panel's bars stand on one scale.
+  const counts = [...bins.map((bin) => bin.count), ...(ctx.extent ?? [])];
   const yTicks = linearScale(counts, [1, 0], { includeZero: true }).ticks.filter(Number.isInteger);
   const left = Math.max(21, Math.max(...yTicks.map((t) => String(t).length)) * CHAR_WIDTH + 12);
   const margin = { top: 21, right: 13, bottom: 26, left };
@@ -33,8 +39,10 @@ export const renderHistogram: ViewRenderer<HistogramView> = (ctx) => {
   const plot = { x: margin.left, y: margin.top, w: width - margin.left - margin.right, h: height - margin.top - margin.bottom };
   const base = plot.y + plot.h;
   const y = linearScale(counts, [base, plot.y], { includeZero: true });
-  const low = edges[0] ?? 0;
-  const high = edges.at(-1) ?? 1;
+  // The value axis spans the bins, stretched to show any reference mark outside them.
+  const marks = referenceValues(references);
+  const low = Math.min(edges[0] ?? 0, ...marks);
+  const high = Math.max(edges.at(-1) ?? 1, ...marks);
   const xs = (v: number) => plot.x + ((v - low) / (high - low || 1)) * plot.w;
 
   const wrap = html(doc, "div", "fft-chart");
@@ -57,6 +65,9 @@ export const renderHistogram: ViewRenderer<HistogramView> = (ctx) => {
     label.textContent = edgeText(edge);
     chart.append(label);
   });
+  const refsBelow = svg(doc, "g");
+  const refsAbove = svg(doc, "g");
+  chart.append(refsBelow);
 
   const groups: SVGGElement[] = [];
   const hits: Element[] = [];
@@ -118,21 +129,13 @@ export const renderHistogram: ViewRenderer<HistogramView> = (ctx) => {
     label.textContent = `Median ${ctx.format(middle, value)}`;
     chart.append(label);
   }
+  drawVerticalReferences(doc, references, xs, plot, (v) => ctx.format(v, value), refsBelow, refsAbove);
+  chart.append(refsAbove);
 
   roving(hits);
   wrap.append(chart);
+  if (!values.length) wrap.append(html(doc, "p", "fft-empty-note", `No row has a number in ${ctx.label(value)}.`));
   // The bins as a table for assistive technology.
-  const hidden = html(doc, "div", "fft-sr-only");
-  const table = html(doc, "table");
-  const head = html(doc, "tr");
-  head.append(html(doc, "th", undefined, ctx.label(value)), html(doc, "th", undefined, countLabel));
-  table.append(head);
-  for (const bin of bins) {
-    const tr = html(doc, "tr");
-    tr.append(html(doc, "td", undefined, `${edgeText(bin.start)} to ${edgeText(bin.end)}`), html(doc, "td", undefined, String(bin.count)));
-    table.append(tr);
-  }
-  hidden.append(table);
-  wrap.append(hidden);
+  wrap.append(hiddenTable(doc, [ctx.label(value), countLabel], bins.map((bin) => [`${edgeText(bin.start)} to ${edgeText(bin.end)}`, String(bin.count)])));
   ctx.el.append(wrap);
 };

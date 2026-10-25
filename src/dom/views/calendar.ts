@@ -3,7 +3,7 @@ import type { Row } from "../../core/types.ts";
 import type { ViewRenderer } from "../../core/view-context.ts";
 import type { CalendarView } from "../../core/views.ts";
 import { quantize } from "../layout.ts";
-import { DAY, dayOf, hiddenTable, html, selectable, svg } from "./shared.ts";
+import { activeGroup, DAY, dayOf, hiddenTable, html, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
 
 const STEPS = 7;
@@ -22,6 +22,13 @@ export const renderCalendar: ViewRenderer<CalendarView> = (ctx) => {
     if (day !== null) days.set(day, { row, amount: readNumber(row[value]) });
   }
   const keys = [...days.keys()];
+  if (!keys.length) {
+    // No dated row: say what is missing rather than drawing an empty grid of no width.
+    const empty = html(doc, "div", "fft-heat");
+    empty.append(html(doc, "p", "fft-empty-note", `No row has a date in ${ctx.label(date)}.`));
+    ctx.el.append(empty);
+    return;
+  }
   const first = Math.min(...keys);
   const last = Math.max(...keys);
   const numbers = [...days.values()].map((d) => d.amount).filter((n): n is number => n !== null);
@@ -49,6 +56,8 @@ export const renderCalendar: ViewRenderer<CalendarView> = (ctx) => {
   const chart = svg(doc, "svg", { class: "fft-calendar", width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
   chart.setAttribute("aria-label", `Calendar of ${ctx.label(value)} by day`);
+  // While one day is pointed at, the others step back.
+  const group = activeGroup(chart, ctx.tooltip);
   // Weekday labels on Monday, Wednesday and Friday rows (1970-01-05 was a Monday).
   for (const row of [0, 2, 4]) {
     const text = svg(doc, "text", { class: "fft-cal-weekday", x: left - 5, y: top + row * (cellH + gap) + cellH / 2, "text-anchor": "end", "dominant-baseline": "middle" });
@@ -66,7 +75,7 @@ export const renderCalendar: ViewRenderer<CalendarView> = (ctx) => {
       chart.append(label);
     }
     const entry = days.get(day);
-    const rect = svg(doc, "rect", { class: "fft-day", x, y, width: cellW, height: cellH, rx: Math.min(3, cellH / 8), style: `--fft-i: ${column}` });
+    const rect = svg(doc, "rect", { class: "fft-day", x, y, width: cellW, height: cellH, rx: Math.min(2, cellH / 8), style: `--fft-i: ${column}` });
     if (entry && entry.amount !== null) {
       rect.dataset.step = String(quantize(entry.amount, min, max, STEPS));
       const dayText = longDate.format(when);
@@ -74,11 +83,14 @@ export const renderCalendar: ViewRenderer<CalendarView> = (ctx) => {
       rect.setAttribute("tabindex", "0");
       rect.setAttribute("role", "img");
       rect.setAttribute("aria-label", `${dayText}: ${amountText}`);
-      const show = () => ctx.tooltip.show(rect, dayText, [{ label: ctx.label(value), value: amountText }]);
+      const show = () => {
+        group.on(rect);
+        ctx.tooltip.show(rect, dayText, [{ label: ctx.label(value), value: amountText }]);
+      };
       rect.addEventListener("pointerenter", show);
       rect.addEventListener("focus", show);
-      rect.addEventListener("pointerleave", () => ctx.tooltip.hide());
-      rect.addEventListener("blur", () => ctx.tooltip.hide());
+      rect.addEventListener("pointerleave", () => group.off());
+      rect.addEventListener("blur", () => group.off());
       const row = entry.row;
       selectable(rect, () => ctx.select(row));
     } else {

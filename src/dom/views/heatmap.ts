@@ -3,7 +3,7 @@ import type { Row } from "../../core/types.ts";
 import type { ViewRenderer } from "../../core/view-context.ts";
 import type { HeatmapView } from "../../core/views.ts";
 import { quantize } from "../layout.ts";
-import { hiddenTable, html, selectable } from "./shared.ts";
+import { activeGroup, hiddenTable, html, selectable } from "./shared.ts";
 import { roving } from "./focus.ts";
 
 /** Steps in the sequential scale. */
@@ -43,6 +43,9 @@ export const renderHeatmap: ViewRenderer<HeatmapView> = (ctx) => {
     return key;
   };
   for (const column of columns) grid.append(html(doc, "div", "fft-heat-col", sample(column, x)));
+  // While one cell is pointed at, the others step back, as every view's marks do.
+  const group = activeGroup(grid, ctx.tooltip);
+  let order = 0;
   for (const line of lines) {
     const rowName = sample(line, y);
     grid.append(html(doc, "div", "fft-heat-row", rowName));
@@ -50,6 +53,8 @@ export const renderHeatmap: ViewRenderer<HeatmapView> = (ctx) => {
       const row = cells.get(JSON.stringify([line, column]));
       const amount = row ? readNumber(row[value]) : null;
       const cell = html(doc, "div", "fft-cell");
+      // Cells fade in reading order: row by row, left to right.
+      cell.style.setProperty("--fft-i", String(order++));
       const columnName = sample(column, x);
       if (row && amount !== null) {
         const text = ctx.format(row[value], value);
@@ -57,11 +62,14 @@ export const renderHeatmap: ViewRenderer<HeatmapView> = (ctx) => {
         cell.textContent = text;
         cell.tabIndex = 0;
         cell.setAttribute("aria-label", `${rowName}, ${columnName}: ${text}`);
-        const show = () => ctx.tooltip.show(cell, `${rowName}, ${columnName}`, [{ label: ctx.label(value), value: text }]);
+        const show = () => {
+          group.on(cell);
+          ctx.tooltip.show(cell, `${rowName}, ${columnName}`, [{ label: ctx.label(value), value: text }]);
+        };
         cell.addEventListener("pointerenter", show);
         cell.addEventListener("focus", show);
-        cell.addEventListener("pointerleave", () => ctx.tooltip.hide());
-        cell.addEventListener("blur", () => ctx.tooltip.hide());
+        cell.addEventListener("pointerleave", () => group.off());
+        cell.addEventListener("blur", () => group.off());
         selectable(cell, () => ctx.select(row));
       } else {
         cell.classList.add("fft-cell-empty");
@@ -94,6 +102,8 @@ export const renderHeatmap: ViewRenderer<HeatmapView> = (ctx) => {
       }),
     ]),
   );
-  wrap.append(grid, legend, table);
+  // With no number at all there is no range to key: say so instead of a scale from Infinity to -Infinity.
+  if (numbers.length) wrap.append(grid, legend, table);
+  else wrap.append(grid, html(doc, "p", "fft-empty-note", `No cell has a number in ${ctx.label(value)}.`), table);
   ctx.el.append(wrap);
 };

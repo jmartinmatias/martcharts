@@ -1,25 +1,35 @@
 import { readNumber } from "../../core/formats.ts";
 import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
-import type { ScatterView } from "../../core/views.ts";
+import type { Annotation, ScatterView } from "../../core/views.ts";
 import { referenceValues, resolveReferences } from "../../core/reference.ts";
-import { hullPath, linearScale } from "../layout.ts";
+import { CHAR_WIDTH, hullPath, linearScale } from "../layout.ts";
 import { drawReferences } from "./reference.ts";
-import { tickFormatter } from "./chart.ts";
-import { buildTable, html, selectable, svg } from "./shared.ts";
+import { DEEMPHASIS, drawNotes, highlights, pinNotes, tickFormatter } from "./chart.ts";
+import { hiddenTableOf, html, legendList, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
 
-const CHAR_WIDTH = 6;
 /** Radius of the biggest bubble: a Fibonacci step. */
 const MAX_BUBBLE = 21;
+
+/** Options the scatter block declares (and validates) that its core type does not list yet. */
+interface ScatterExtras {
+  highlight?: string | string[];
+  annotations?: Annotation[];
+}
 
 /**
  * Draws the `scatter` view: one dot per row placed by two numbers, with
  * hairline gridlines both ways and a title on each axis, since both are
  * values. Dots are 10px with a surface ring so overlaps stay legible, and each
  * carries a 26px hit area for hover and keyboard focus.
+ *
+ * Dots take their group's color (fixed per category through `colors`, else the
+ * palette in order), `highlight` keeps the named dots or groups in color and
+ * greys the rest, panels of small multiples share one value axis, and
+ * `annotations` pin short notes to dots, named by label or x value.
  */
-export const renderScatter: ViewRenderer<ScatterView> = (ctx) => {
+export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) => {
   const doc = ctx.el.ownerDocument;
   const { x: xField, y: yField, series, label, size, cluster } = ctx.view;
   // Dots take the series' color, or, without a series, their cluster's: the hulls and the dots then say the same thing.
@@ -37,6 +47,13 @@ export const renderScatter: ViewRenderer<ScatterView> = (ctx) => {
     if (!clusters.includes(member)) clusters.push(member);
     points.push({ row, x, y, group: groups.indexOf(name), cluster: clusters.indexOf(member), r: 5 });
   }
+  // A category keeps its fixed color (the spec's colors) wherever it appears; the rest follow the palette in order.
+  const groupColor = (g: number) => (colorField ? ctx.colorOf?.(groups[g]) : undefined) ?? ctx.color(g);
+  const clusterColor = (c: number) => (cluster ? ctx.colorOf?.(clusters[c]) : undefined) ?? ctx.color(c);
+  // Emphasis: a dot stays in color when highlight names its label or its group; the rest step back.
+  const picked = highlights(ctx.view.highlight);
+  const isOn = (point: (typeof points)[number]) =>
+    picked.length === 0 || (label !== undefined && picked.includes(String(point.row[label]))) || (colorField !== undefined && picked.includes(String(point.row[colorField])));
   // Bubbles: area follows the size field (radius by square root), up to 21px; the biggest draw first so small ones stay on top.
   if (size) {
     const largest = Math.max(0, ...points.map((p) => readNumber(p.row[size]) ?? 0)) || 1;
@@ -47,7 +64,8 @@ export const renderScatter: ViewRenderer<ScatterView> = (ctx) => {
   const references = resolveReferences(ctx.view, ctx.rows);
   // Quadrants: the two splits stretch each axis so both lines are always in view.
   const quadrants = ctx.view.quadrants && typeof ctx.view.quadrants.x === "number" && typeof ctx.view.quadrants.y === "number" ? ctx.view.quadrants : undefined;
-  const yValues = [...points.map((p) => p.y), ...referenceValues(references), ...(quadrants ? [quadrants.y] : [])];
+  // Small multiples pass the value axis every panel shares, so the panels compare.
+  const yValues = [...points.map((p) => p.y), ...referenceValues(references), ...(quadrants ? [quadrants.y] : []), ...(ctx.extent ?? [])];
   const xValues = [...points.map((p) => p.x), ...(quadrants ? [quadrants.x] : [])];
   const xTicks = linearScale(xValues, [0, 1], { includeZero: false }).ticks;
   const yTicks = linearScale(yValues, [1, 0], { includeZero: false }).ticks;
@@ -69,20 +87,13 @@ export const renderScatter: ViewRenderer<ScatterView> = (ctx) => {
 
   const wrap = html(doc, "div", "fft-chart");
   if ((colorField && groups.length > 1) || size) {
-    const legend = html(doc, "ul", "fft-legend");
-    if (colorField && groups.length > 1) {
-      groups.forEach((group, i) => {
-        const swatch = html(doc, "span", "fft-swatch");
-        swatch.dataset.shape = "dot";
-        swatch.style.background = ctx.color(i);
-        swatch.setAttribute("aria-hidden", "true");
-        const item = html(doc, "li");
-        item.append(swatch, ctx.format(group, colorField));
-        legend.append(item);
-      });
+    // One legend per chart (none in a small-multiples panel: the widget draws a shared one).
+    const keys = colorField && groups.length > 1 ? groups.map((group, i) => ({ label: ctx.format(group, colorField), color: groupColor(i), shape: "dot" as const })) : [];
+    const legend = legendList(ctx, keys, { min: 0 });
+    if (legend) {
+      if (size) legend.append(html(doc, "li", "fft-scatter-size", `Bubble size: ${ctx.label(size)}`));
+      wrap.append(legend);
     }
-    if (size) legend.append(html(doc, "li", "fft-scatter-size", `Bubble size: ${ctx.label(size)}`));
-    wrap.append(legend);
   }
 
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
@@ -111,8 +122,6 @@ export const renderScatter: ViewRenderer<ScatterView> = (ctx) => {
   const refsBelow = svg(doc, "g");
   const refsAbove = svg(doc, "g");
   const dotBoxes = points.map((p) => ({ x: xs(p.x) - p.r, y: ys(p.y) - p.r, width: p.r * 2, height: p.r * 2 }));
-  drawReferences(doc, references, ys, plot, yText, refsBelow, refsAbove, { boxes: dotBoxes });
-  chart.append(refsBelow);
   if (quadrants) {
     // Two hairlines split the plot; a faint word sits in each corner, clear of the axes.
     const splits = svg(doc, "g", { class: "fft-quadrants" });
@@ -133,8 +142,8 @@ export const renderScatter: ViewRenderer<ScatterView> = (ctx) => {
       text.textContent = word;
       splits.append(text);
     });
-    chart.append(splits);
-  }
+    chart.append(refsBelow, splits);
+  } else chart.append(refsBelow);
 
   // Clusters: a soft hull round each one's dots, in the cluster's color (its own, or a quiet grey when the dots are colored by series), its name at the middle.
   if (cluster) {
@@ -144,7 +153,7 @@ export const renderScatter: ViewRenderer<ScatterView> = (ctx) => {
       if (!members.length) return;
       const placed = members.map((p) => ({ x: xs(p.x), y: ys(p.y) }));
       const pad = Math.max(13, ...members.map((p) => p.r + 8));
-      const color = series ? "var(--fft-text-secondary)" : ctx.color(c);
+      const color = series ? "var(--fft-text-secondary)" : clusterColor(c);
       const hull = svg(doc, "path", { class: "fft-cluster-hull", d: hullPath(placed, pad), "data-cluster": name });
       hull.style.setProperty("fill", color);
       hull.style.setProperty("stroke", color);
@@ -166,11 +175,23 @@ export const renderScatter: ViewRenderer<ScatterView> = (ctx) => {
     for (const mark of marks) mark.removeAttribute("data-active");
     ctx.tooltip.hide();
   };
+  // Notes pinned to dots: by the dot's label, or its x value; a note with y sits at that height over the dot's x.
+  const pinned = pinNotes(
+    ctx.view.annotations,
+    (note: Annotation) => points.findIndex((p) => (label !== undefined && String(p.row[label]) === String(note.x)) || String(p.x) === String(note.x)),
+    (note: Annotation, i) => {
+      const point = points[i] as (typeof points)[number];
+      return { x: xs(point.x), y: typeof note.y === "number" ? ys(note.y) : ys(point.y) };
+    },
+  );
   points.forEach((point, i) => {
     const cx = xs(point.x);
     const cy = ys(point.y);
+    const on = isOn(point);
+    const color = on ? groupColor(point.group) : DEEMPHASIS;
     const dot = svg(doc, "circle", { class: size ? "fft-point fft-point-bubble" : "fft-point", cx, cy, r: Math.round(point.r * 100) / 100, style: `--fft-i: ${i}` });
-    dot.style.setProperty("fill", ctx.color(point.group));
+    dot.style.setProperty("fill", color);
+    if (!on) dot.dataset.muted = "true";
     if (label) dot.setAttribute("data-label", String(point.row[label]));
     marks.push(dot);
     dots.append(dot);
@@ -181,9 +202,10 @@ export const renderScatter: ViewRenderer<ScatterView> = (ctx) => {
       { label: ctx.label(yField), value: ctx.format(point.row[yField], yField) },
     ];
     if (size) items.push({ label: ctx.label(size), value: ctx.format(point.row[size], size) });
-    if (series) items.push({ label: ctx.label(series), value: ctx.format(point.row[series], series), color: ctx.color(point.group) });
-    if (cluster) items.push({ label: ctx.label(cluster), value: ctx.format(point.row[cluster], cluster), ...(series ? {} : { color: ctx.color(point.group) }) });
+    if (series) items.push({ label: ctx.label(series), value: ctx.format(point.row[series], series), color });
+    if (cluster) items.push({ label: ctx.label(cluster), value: ctx.format(point.row[cluster], cluster), ...(series ? {} : { color }) });
     if (quadrants) items.push({ label: "Quadrant", value: quadrantName(point.x, point.y) });
+    for (const pin of pinned) if (pin.i === i) items.push({ label: "Note", value: pin.text });
     const hit = svg(doc, "circle", { class: "fft-point-hit", cx, cy, r: Math.max(13, point.r + 3), tabindex: 0, role: "img" });
     hit.setAttribute("aria-label", `${name ? `${name}: ` : ""}${items.map((item) => `${item.label} ${item.value}`).join(", ")}`);
     const activate = () => {
@@ -199,7 +221,11 @@ export const renderScatter: ViewRenderer<ScatterView> = (ctx) => {
     selectable(hit, () => ctx.select(point.row));
     overlay.append(hit);
   });
-  chart.append(dots, refsAbove);
+  chart.append(dots);
+  // The notes keep clear of the dots; reference labels, drawn after, keep clear of both.
+  const noteList = drawNotes(doc, chart, pinned, plot, ctx.width, dotBoxes);
+  drawReferences(doc, references, ys, plot, yText, refsBelow, refsAbove, { boxes: dotBoxes });
+  chart.append(refsAbove);
   if (label && ctx.view.labels) {
     // Always-on names beside the dots, biggest dots first, each skipped when it would land on an earlier name or a dot.
     const names = svg(doc, "g", { class: "fft-point-labels" });
@@ -234,10 +260,10 @@ export const renderScatter: ViewRenderer<ScatterView> = (ctx) => {
   chart.append(overlay);
   roving([...overlay.children]);
   wrap.append(chart);
+  if (noteList) wrap.append(noteList);
+  if (!points.length) wrap.append(html(doc, "p", "fft-empty-note", `No row has both ${ctx.label(xField)} and ${ctx.label(yField)}.`));
 
-  const hidden = html(doc, "div", "fft-sr-only");
   const columns = [label, xField, yField, size, series, cluster].filter((f): f is string => Boolean(f));
-  hidden.append(buildTable(ctx, quadrants ? points.map((p) => ({ ...p.row, Quadrant: quadrantName(p.x, p.y) })) : points.map((p) => p.row), quadrants ? [...columns, "Quadrant"] : columns, false));
-  wrap.append(hidden);
+  wrap.append(hiddenTableOf(ctx, quadrants ? points.map((p) => ({ ...p.row, Quadrant: quadrantName(p.x, p.y) })) : points.map((p) => p.row), quadrants ? [...columns, "Quadrant"] : columns));
   ctx.el.append(wrap);
 };
