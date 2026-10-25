@@ -6,6 +6,7 @@
  */
 import { getBlock } from "./registry.ts";
 import type { LoadContext } from "./registry.ts";
+import { shapeRows } from "./shape.ts";
 import type { Row, TransformSpec, WidgetSpec } from "./types.ts";
 
 /**
@@ -24,10 +25,12 @@ import type { Row, TransformSpec, WidgetSpec } from "./types.ts";
 /** One stable default fetch, so caches keyed by the fetch function can recognise it from call to call. */
 const defaultFetch: typeof fetch = (input, init) => globalThis.fetch(input, init);
 
-export async function runPipeline(spec: Pick<WidgetSpec, "data" | "transform">, ctx: Partial<LoadContext> = {}): Promise<Row[]> {
+export async function runPipeline(spec: Pick<WidgetSpec, "data" | "transform"> & Partial<Pick<WidgetSpec, "view" | "facet">>, ctx: Partial<LoadContext> = {}): Promise<Row[]> {
   const source = getBlock("source", spec.data.type);
   const loaded: unknown = await source.load(spec.data, { fetch: ctx.fetch ?? defaultFetch, signal: ctx.signal, fresh: ctx.fresh });
-  return applyTransforms(checkRows(loaded, spec.data.type, "path" in source.options), spec.transform);
+  const rows = applyTransforms(checkRows(loaded, spec.data.type, "path" in source.options), spec.transform);
+  // Last, the view's own sort, top N and "Other" (shape.ts), per small-multiples panel: the rows the chart draws.
+  return shapeRows(spec.view, rows, spec.facet?.field);
 }
 
 /** Applies transform steps to rows, in order. Throws `UnknownBlockError` for an unregistered step type. */

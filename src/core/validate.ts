@@ -11,7 +11,7 @@ import { getPalette, paletteNames, resolvePalette } from "./palettes.ts";
 import { getPreset, presetNames } from "./presets.ts";
 import { getBlock, UnknownBlockError } from "./registry.ts";
 import { templateRefs } from "./template.ts";
-import type { Block, BlockKind, OptionSchema } from "./registry.ts";
+import type { Block, BlockKind, OptionSchema, ViewBlock } from "./registry.ts";
 import type { Issue, Row } from "./types.ts";
 
 /**
@@ -93,9 +93,35 @@ export function validateSpec(spec: unknown, rows?: Row[]): Issue[] {
     }
     issues.push(...checkTemplates(spec, rows));
     const check = getBlock("view", view.type as string).checkData;
-    if (check) for (const message of check(view, rows)) issues.push({ level: "warning", path: "view", message });
+    const facetField = isPlainObject(spec.facet) && typeof spec.facet.field === "string" ? spec.facet.field : undefined;
+    if (check) for (const message of checkPerPanel(check, view, rows, facetField)) issues.push({ level: "warning", path: "view", message });
   }
   return issues;
+}
+
+/**
+ * A view's data checks, panel by panel when the widget draws small multiples: each panel is its own chart, so "12
+ * slices" over four regions of three is no warning at all. A message every panel raises is said once; one only some
+ * raise names them ("In East and North: 9 slices...").
+ */
+function checkPerPanel(check: NonNullable<ViewBlock["checkData"]>, view: Record<string, unknown>, rows: Row[], facet?: string): string[] {
+  if (!facet || !rows.some((row) => facet in row)) return check(view, rows);
+  const panels = new Map<string, { name: string; rows: Row[] }>();
+  for (const row of rows) {
+    const key = JSON.stringify(row[facet] ?? null);
+    const panel = panels.get(key);
+    if (panel) panel.rows.push(row);
+    else panels.set(key, { name: String(row[facet] ?? "(blank)"), rows: [row] });
+  }
+  const raisedBy = new Map<string, string[]>();
+  for (const panel of panels.values()) {
+    for (const message of check(view, panel.rows)) raisedBy.set(message, [...(raisedBy.get(message) ?? []), panel.name]);
+  }
+  return [...raisedBy].map(([message, names]) => {
+    if (names.length === panels.size) return message;
+    const who = names.length === 1 ? names[0] : `${names.slice(0, -1).join(", ")} and ${names.at(-1)}`;
+    return `In ${who}: ${message}`;
+  });
 }
 
 /** `colors`: fixed colors for category values, so one value wears one color on every chart of a dashboard. */
