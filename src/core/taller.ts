@@ -810,7 +810,7 @@ const FAMILY: Record<string, string> = {
   donut: "whole", waffle: "whole", treemap: "whole", sunburst: "hierarchy", icicle: "hierarchy", marimekko: "whole",
   histogram: "spread", beeswarm: "spread", boxplot: "spread", ridgeline: "spread",
   scatter: "relation", dumbbell: "relation", slope: "relation", radar: "profile", rose: "cycle",
-  table: "table", heatmap: "table", sankey: "flow", funnel: "flow", chord: "flow", waterfall: "change",
+  table: "table", heatmap: "table", sankey: "flow", funnel: "flow", chord: "flow", waterfall: "change", pyramid: "spread",
 };
 /** Forms that surprise on any table: rare and playful. */
 const RARE = new Set(["rose", "horizon", "icicle", "beeswarm", "waffle", "marimekko", "calendar", "sunburst", "radar", "chord"]);
@@ -909,7 +909,7 @@ export function qualitiesOf(spec: WidgetSpec, rows: Row[], source?: WidgetSpec):
     scatter: [0.15, 0.3, 0.2, 0.25, 0.45], dumbbell: [0.25, 0.3, 0.3, 0.2, 0.45], slope: [0.25, 0.35, 0.3, 0.15, 0.45],
     variance: [0.35, 0.25, 0.6, 0.3, 0.45], bullet: [0.3, 0.2, 0.4, 0.3, 0.45], sunburst: [0.25, 0.35, 0.05, 0.5, 0.3], icicle: [0.25, 0.35, 0.05, 0.5, 0.35],
     heatmap: [0.2, 0.3, 0.2, 0.55, 0.35], marimekko: [0.2, 0.4, 0.1, 0.55, 0.35], horizon: [0.2, 0.45, 0.35, 0.45, 0.4], calendar: [0.2, 0.4, 0.15, 0.5, 0.3],
-    rose: [0.25, 0.5, 0.05, 0.45, 0.25], radar: [0.2, 0.4, 0.1, 0.35, 0.35], bump: [0.25, 0.35, 0.2, 0.2, 0.4],
+    rose: [0.25, 0.5, 0.05, 0.45, 0.25], radar: [0.2, 0.4, 0.1, 0.35, 0.35], bump: [0.25, 0.35, 0.2, 0.2, 0.4], pyramid: [0.3, 0.35, 0.15, 0.4, 0.35],
   };
   const [emphasis, surprise, honesty, detail, insight] = base[type] ?? [0.25, 0.2, 0.1, 0.3, 0.3];
   const t: Qualities = { emphasis, surprise, honesty, detail, insight };
@@ -1239,7 +1239,8 @@ function standoutItem(view: ViewSpec, rows: Row[], d: DataProfile): string | nul
   const type = String(view.type);
   if (type === "bar" || type === "hbar") {
     const label = String(type === "bar" ? view.x : view.label);
-    const value = String(type === "bar" ? (Array.isArray(view.y) ? view.y[0] : view.y) : view.value);
+    const measure = type === "bar" ? view.y : view.value;
+    const value = String(Array.isArray(measure) ? measure[0] : measure);
     if (d.distinct[label] !== rows.length) return null;
     const top = [...rows].sort((a, b) => Number(b[value] ?? 0) - Number(a[value] ?? 0))[0];
     return top ? String(top[label]) : null;

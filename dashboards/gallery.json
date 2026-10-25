@@ -114,6 +114,13 @@
       "widget": "region-yoy"
     },
     {
+      "widget": "region-scorecard",
+      "span": 2
+    },
+    {
+      "widget": "region-revenue-mix"
+    },
+    {
       "widget": "region-panels",
       "span": 2
     },
@@ -138,6 +145,9 @@
     },
     {
       "widget": "top-customers"
+    },
+    {
+      "widget": "leads-wins-by-channel"
     },
     {
       "widget": "lead-pipeline"
@@ -228,6 +238,10 @@
     },
     {
       "widget": "employee-survey",
+      "span": 2
+    },
+    {
+      "widget": "workforce-pyramid",
       "span": 2
     },
     {

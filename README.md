@@ -112,7 +112,7 @@ const asTable = fork(topCustomers, { view: { type: "table", label: null, detail:
 | Views | 40 of them, grouped by the question they answer in [Which view?](#which-view) |
 | Emphasis | `highlight` on bar, hbar, line and area keeps the named categories or series in color and greys the rest |
 | Combo | `"lines": "target"` on a bar chart draws lines over the bars on the same axis (never a second one); under a target line, bars that fall short are drawn outlined and keyed Below target |
-| Part-to-whole | `"stacked": true` or `"percent"` on bar charts; `donut` for up to 6 slices |
+| Part-to-whole | `"stacked": true` or `"percent"` on bar and hbar charts; `donut` for up to 6 slices |
 | Reference marks | `"reference": [{ "value": 1200000, "label": "Target" }]` draws target lines and bands on bar, line, area and scatter charts |
 | Dashboards | `createDashboard(el, spec, { widgets })` lays out widgets from one JSON file, with a filter row that scopes every widget with that field, a Period control (`"range": { "field": "month" }`: 3M, 6M, 12M, YTD, All) and full-width section headings (`{ "section": "Revenue" }`) with a section filter (All, or one section at a time) |
 | Text templates | Titles, subtitles, footers and headline captions can say `{first:month} to {last:month}`, `{count} deals` or `{sum:revenue}`, filled from the rows the chart draws |
@@ -140,6 +140,8 @@ Start from what you want the reader to see. Every view takes plain rows; `sugges
 | One number and how it moved | `kpi`, `kpis` (a row of them), `gauge` (on a known scale), or a `headline` above any chart |
 | Progress to a goal | `meter`, `bullet` (with poor, fair and good bands), `rings` (a few goals at once), `gauge`, or `"target"` on a `kpi` or a `kpis` tile. Each says where it stands in plain words: a check and Target met, or how far it has to go ("€22K to go") |
 | A ranking or a comparison across categories | `hbar`, `bar` (either with `"mark": "lollipop"`: a thin stem and a dot, for many similar values), `dumbbell` (before and after), `slope` (who moved between two periods) |
+| Several measures per row | `hbar` with a list of values: grouped bars (one thin bar per measure), `"stacked": true` or `"percent"`, or `"split": true` (one column of bars per measure, each on its own scale, for measures in different units) |
+| Two groups across ordered bands | `pyramid` (women and men by age group, new and returning customers by tenure: two counts back to back on one axis) |
 | Change over time | `line`, `area`, `bar`, `calendar` (day by day), `heatmap` (two time scales, such as weekday by hour), `candlestick` (prices: open, high, low and close) |
 | What comes next | `line` (or an unstacked `area`) with `"forecast"` and `"band"`: a forecast fan, dashed after the last actual inside a shaded zone, with its low to high range fanning out (dashboard periods count back from the last actual) |
 | Many time series at once | `horizon` (a thin row per series, values folded into bands of deepening color, blue above the baseline and red below) |

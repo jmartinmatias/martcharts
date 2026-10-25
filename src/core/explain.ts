@@ -204,11 +204,49 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       return standout ? `Here, ${standout}.` : "";
     }
     case "hbar": {
-      const [label, amount] = [one(view.label), one(view.value)];
+      const parts = many(view.value);
+      const [label, amount] = [one(view.label), parts[0]];
+      if (label && parts.length > 1 && view.stacked && !view.split) {
+        // Stacked rows: the longest total, and its biggest part; percent stacks point at the biggest share anywhere.
+        const total = (row: Row) => parts.reduce((sum, field) => sum + Math.max(0, value(row, field) ?? 0), 0);
+        if (view.stacked === "percent") {
+          let best: { row: Row; field: string; share: number } | undefined;
+          for (const row of rows) for (const field of parts) {
+            const share = total(row) > 0 ? Math.max(0, value(row, field) ?? 0) / total(row) : 0;
+            if (!best || share > best.share) best = { row, field, share };
+          }
+          return best && best.share > 0 ? `Here, ${nameOf(best.field, spec)} is the biggest share in ${text(best.row, label)}, at ${percent(best.share)}.` : "";
+        }
+        const row = rows.reduce<Row | undefined>((bestRow, r) => (bestRow && total(bestRow) >= total(r) ? bestRow : r), undefined);
+        if (!row || total(row) <= 0) return "";
+        const biggest = parts.reduce((b, field) => ((value(row, field) ?? 0) > (value(row, b) ?? 0) ? field : b), parts[0] as string);
+        return `Here, ${text(row, label)} has the longest bar in all, ${formatValue(total(row), spec.fields?.[amount as string]?.format, spec.locale)}, and ${nameOf(biggest, spec)} is its biggest part.`;
+      }
+      if (label && parts.length > 1) {
+        // Grouped or split: the top of each measure, named when they differ, or the one row that leads them all.
+        const leaders = parts.map((field) => ({ field, row: top(field) })).filter((lead): lead is { field: string; row: Row } => lead.row !== undefined);
+        if (!leaders.length) return "";
+        const same = leaders.every((lead) => lead.row === leaders[0]?.row);
+        if (same) return `Here, ${text(leaders[0]?.row as Row, label)} leads on ${leaders.length === 1 ? nameOf(leaders[0]?.field as string, spec) : "every measure"}, with ${leaders.map((lead) => `${text(lead.row, lead.field)} ${nameOf(lead.field, spec)}`).join(" and ")}.`;
+        return `Here, ${leaders.map((lead) => `${text(lead.row, label)} has the most ${nameOf(lead.field, spec)} (${text(lead.row, lead.field)})`).join(", and ")}.`;
+      }
       const flow = label && amount ? pipeline(label, amount) : "";
       if (flow) return flow;
       const row = label && amount ? top(amount) : undefined;
       return row && label && amount ? `Here, ${text(row, label)} ${view.mark === "lollipop" ? "has the dot furthest right" : "is the longest"}, with ${text(row, amount)}.` : "";
+    }
+    case "pyramid": {
+      const [label, left, right] = [one(view.label), one(view.left), one(view.right)];
+      if (!label || !left || !right) return "";
+      const sum = (field: string) => rows.reduce((total, row) => total + Math.max(0, value(row, field) ?? 0), 0);
+      const [leftSum, rightSum] = [sum(left), sum(right)];
+      const widest = rows.reduce<Row | undefined>((best, row) => {
+        const size = (r: Row) => Math.max(0, value(r, left) ?? 0) + Math.max(0, value(r, right) ?? 0);
+        return best && size(best) >= size(row) ? best : row;
+      }, undefined);
+      if (!widest || leftSum + rightSum === 0) return "";
+      const lead = leftSum === rightSum ? `${nameOf(left, spec)} and ${nameOf(right, spec)} are even in all` : `${nameOf(leftSum > rightSum ? left : right, spec)} outnumber ${nameOf(leftSum > rightSum ? right : left, spec)} in all, ${percent(Math.max(leftSum, rightSum) / (leftSum + rightSum))} to ${percent(Math.min(leftSum, rightSum) / (leftSum + rightSum))}`;
+      return `Here, ${lead}, and ${text(widest, label)} is the widest band.`;
     }
     case "line":
     case "area": {
@@ -998,10 +1036,17 @@ function guide(spec: WidgetSpec): string {
           : ` The line is the ${name(goal)}: a ${mark} that reaches past it beat the ${name(goal)}${outlined}.`;
       return `Each ${mark} is one ${name(one(view.x))}. ${more}, the more ${name(series[0])}.${line}`;
     }
-    case "hbar":
+    case "hbar": {
+      const parts = many(view.value);
+      if (parts.length > 1 && view.split) return `Each row is one ${noun(one(view.label))}, with one column of bars for each of ${both(parts.map((f) => name(f)))}. The longer the bar, the more. ${view.shared ? "Every column shares one scale, so bars compare across columns too." : "Each column has its own scale, so compare bars up and down a column, not across."}`;
+      if (parts.length > 1 && view.stacked) return `Each row is one ${noun(one(view.label))}: its bar is split into colored parts for ${both(parts.map((f) => name(f)))}. ${view.stacked === "percent" ? "Every bar adds up to 100%, so compare the sizes of the parts." : "The parts add up to the total, so the whole bar is the total."}`;
+      if (parts.length > 1) return `Each row is one ${noun(one(view.label))}, with one bar each for ${both(parts.map((f) => name(f)))}. The longer the bar, the more; the key above says which color is which.`;
       return view.mark === "lollipop"
         ? `Each row is one ${noun(one(view.label))}. The further right the dot, the more ${name(one(view.value))}.`
         : `Each row is one ${noun(one(view.label))}. The longer the bar, the more ${name(one(view.value))}.`;
+    }
+    case "pyramid":
+      return `Each row is one ${noun(one(view.label), "band")}. The bar to the left is ${name(one(view.left))} and the bar to the right is ${name(one(view.right))}, both on the same scale, so the longer side has more; the whole shape says where the two differ.`;
     case "line":
       return `The line shows how ${series.length > 1 ? "each value" : name(series[0])} changes ${over(one(view.x))}: going up means more.${colors}${forecast}`;
     case "area":

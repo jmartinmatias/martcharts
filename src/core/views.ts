@@ -374,13 +374,30 @@ export interface BarView {
   goodWhen?: "up" | "down";
 }
 
-/** `{ type: "hbar", label, value, highlight? }`: a ranking with values at the bar ends. */
+/**
+ * `{ type: "hbar", label, value, stacked?, split?, shared?, highlight? }`: a ranking with values at the bar ends.
+ * Several value fields draw grouped bars, stacked bars (`stacked`), or split bars (`split`: one column per measure).
+ */
 export interface HbarView {
   type: "hbar";
   label: string;
-  value: string;
+  value: string | string[];
+  /** true stacks several value fields into one bar per row; "percent" stacks them as shares of 100%. */
+  stacked?: boolean | "percent";
+  /** With several value fields, one small column of bars per measure, side by side, each on its own scale. */
+  split?: boolean;
+  /** Split columns share one scale, so bars compare across columns too. */
+  shared?: boolean;
   highlight?: string | string[];
   mark?: "bar" | "lollipop";
+}
+
+/** `{ type: "pyramid", label, left, right }`: two counts per band, as bars growing out from a center axis. */
+export interface PyramidView {
+  type: "pyramid";
+  label: string;
+  left: string;
+  right: string;
 }
 
 /** The `mark` option shared by bar and hbar. */
@@ -1049,14 +1066,61 @@ const bar: ViewBlock = {
   },
 };
 
+/** Values an hbar's scale must cover: every value, or the row sums when stacked (0 to 1 for percent stacks). */
+function hbarExtent(view: Record<string, unknown>, rows: Row[]): number[] {
+  const fields = Array.isArray(view.value) ? view.value.map(String) : [String(view.value)];
+  if (view.stacked === "percent") return [0, 1];
+  if (view.stacked === true) return rows.map((row) => fields.reduce((sum, f) => sum + Math.max(0, readNumber(row[f]) ?? 0), 0));
+  return rows.flatMap((row) => fields.map((f) => readNumber(row[f]))).filter((n): n is number => n !== null);
+}
+
 const hbar: ViewBlock = {
   type: "hbar",
-  description: "Horizontal bars for rankings and long labels: label on the left, bar, value at the end. Sort the rows first for a ranking.",
+  extent: hbarExtent,
+  description:
+    "Horizontal bars for rankings and long labels: label on the left, bar, value at the end. Sort the rows first for a ranking. Several value fields draw grouped bars, one thin bar per field in each row; stacked joins them into one bar per row, and split gives each field its own column of bars.",
   options: {
     label: { type: "field", kind: "category", required: true, description: "Field naming each bar." },
-    value: { type: "field", kind: "number", required: true, description: "Field with each bar's amount. Bars start at zero." },
+    value: { type: "fields", kind: "number", required: true, description: "Field or fields with each bar's amount. Bars start at zero. Several fields draw one bar per field in each row (grouped), stacked into one bar with stacked, or in separate columns with split." },
+    stacked: {
+      type: "any",
+      default: false,
+      description: 'With several value fields: true stacks them into one bar per row, its total at the end (part-to-whole); "percent" stacks them as shares of 100%.',
+    },
+    split: {
+      type: "boolean",
+      default: false,
+      description: "With several value fields: one small column of bars per field, side by side, the label written once on the left and each column headed by its field. Each column has its own scale, so measures in different units sit together.",
+    },
+    shared: { type: "boolean", default: false, description: "Split columns share one scale, so a bar compares across columns too. Only for fields in the same unit." },
     highlight: highlightCategories,
     mark: MARK_OPTION,
+  },
+  validate(view) {
+    const stacked = view.stacked;
+    const problems = stacked === undefined || stacked === true || stacked === false || stacked === "percent" ? [] : ['stacked must be true, false or "percent".'];
+    if (view.split && stacked) problems.push("Split bars give each field its own column, so they cannot stack: drop split, or drop stacked.");
+    if (view.mark === "lollipop" && Array.isArray(view.value) && view.value.length > 1) problems.push("A lollipop draws one dot per row: give value one field, or use bars for several.");
+    return problems;
+  },
+};
+
+const pyramid: ViewBlock = {
+  type: "pyramid",
+  extent: (view, rows) => rows.flatMap((row) => [readNumber(row[view.left as string]), readNumber(row[view.right as string])]).filter((n): n is number => n !== null),
+  description:
+    "A population pyramid: one row per band (an age group, a tenure band), with two counts as bars growing out from a center axis on one shared scale, the left count leftward and the right count rightward. The shape says where the two sides differ. Rows draw in the order given, top to bottom.",
+  options: {
+    label: { type: "field", kind: "category", required: true, description: "Field naming each band, in order from top to bottom, such as the age group." },
+    left: { type: "field", kind: "number", required: true, description: "Field with the count drawn leftward, such as women." },
+    right: { type: "field", kind: "number", required: true, description: "Field with the count drawn rightward, such as men." },
+  },
+  checkData(view, rows) {
+    const negative = rows.filter((row) => (readNumber(row[view.left as string]) ?? 0) < 0 || (readNumber(row[view.right as string]) ?? 0) < 0).length;
+    const out: string[] = [];
+    if (negative) out.push(`${negative} rows have negative counts; a pyramid draws sizes, so they are drawn as zero.`);
+    if (rows.length > 30) out.push(`${rows.length} bands crowd a pyramid; group them into 30 or fewer.`);
+    return out;
   },
 };
 
@@ -1120,4 +1184,4 @@ const rose: ViewBlock = {
   },
 };
 
-export const builtinViews: ViewBlock[] = [table, list, kpi, kpis, bar, hbar, line, area, meter, bullet, donut, treemap, funnel, waterfall, heatmap, calendar, scatter, beeswarm, ridgeline, sankey, dumbbell, slope, bump, marimekko, histogram, rings, timeline, waffle, variance, gauge, pareto, boxplot, likert, candlestick, sunburst, chord, radar, rose, horizon, icicle];
+export const builtinViews: ViewBlock[] = [table, list, kpi, kpis, bar, hbar, line, area, meter, bullet, donut, treemap, funnel, waterfall, heatmap, calendar, scatter, beeswarm, ridgeline, sankey, dumbbell, slope, bump, marimekko, histogram, rings, timeline, waffle, variance, gauge, pareto, boxplot, likert, candlestick, sunburst, chord, radar, rose, horizon, icicle, pyramid];

@@ -1,0 +1,33 @@
+{
+  "id": "workforce-pyramid",
+  "title": "Workforce by age and gender",
+  "subtitle": "Headcount at the end of September 2026",
+  "description": "The shape of the company: women outnumber men under 35, men outnumber women from 40 up, and the 30 to 34 band is the widest on both sides.",
+  "footer": "Source: HR system",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      { "age": "60-64", "women": 14, "men": 31 },
+      { "age": "55-59", "women": 29, "men": 52 },
+      { "age": "50-54", "women": 48, "men": 77 },
+      { "age": "45-49", "women": 71, "men": 102 },
+      { "age": "40-44", "women": 103, "men": 128 },
+      { "age": "35-39", "women": 142, "men": 146 },
+      { "age": "30-34", "women": 188, "men": 171 },
+      { "age": "25-29", "women": 176, "men": 139 },
+      { "age": "20-24", "women": 92, "men": 64 }
+    ]
+  },
+  "fields": {
+    "age": { "label": "Age" },
+    "women": { "label": "Women", "format": { "type": "number" } },
+    "men": { "label": "Men", "format": { "type": "number" } }
+  },
+  "view": {
+    "type": "pyramid",
+    "label": "age",
+    "left": "women",
+    "right": "men"
+  }
+}

@@ -64,7 +64,8 @@ describe("switchChart", () => {
     const s = switchChart(catalog("bar"), "hbar");
     expect(s.fit).toBe("fits");
     expect(s.verdict).toBe("better");
-    expect(s.view).toMatchObject({ type: "hbar", label: "region", value: "Core" });
+    // Both series come along, as grouped bars.
+    expect(s.view).toMatchObject({ type: "hbar", label: "region", value: ["Core", "Plus"] });
     expect(s.gains).toContain("rank");
   });
 

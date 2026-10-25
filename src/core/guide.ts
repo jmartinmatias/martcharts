@@ -200,9 +200,9 @@ const GUIDES: ChartGuide[] = [
     type: "hbar",
     purposes: { rank: 3, compare: 3, lookup: 1, target: 1 },
     grain: "category",
-    build: "One horizontal bar per row, label on the left and value at the end, sorted as given or by value.",
+    build: "One horizontal bar per row, label on the left and value at the end, sorted as given or by value. Several value fields draw one thin bar each per row, stacked into one bar with stacked (percent for shares), or in one column per field with split.",
     rows: { min: 2, max: 30 },
-    bestFor: ["Rankings with long names: top features, top customers, causes", "Up to about 30 categories, readable on a phone"],
+    bestFor: ["Rankings with long names: top features, top customers, causes", "Up to about 30 categories, readable on a phone", "Two or three measures per row, side by side, stacked, or split into columns when their units differ"],
     avoidFor: ["Time order (use bar or line)", "Share of one whole (use donut or waffle)"],
   },
   {
@@ -448,6 +448,16 @@ const GUIDES: ChartGuide[] = [
     rows: { min: 3, max: 15 },
     bestFor: ["Bridges: what took revenue from Q2 to Q3, a profit and loss walk", "Explaining a move from a start to an end"],
     avoidFor: ["Amounts that are not changes to one total (use bar)"],
+  },
+  {
+    type: "pyramid",
+    purposes: { distribution: 3, compare: 2, mix: 1 },
+    grain: "category",
+    positive: true,
+    build: "One row per band in the order given; the left field's count grows leftward from a center axis and the right field's rightward, both on one shared scale.",
+    rows: { min: 3, max: 30 },
+    bestFor: ["Two groups across ordered bands: women and men by age group, new and returning customers by tenure", "Seeing where two groups differ, from the shape alone"],
+    avoidFor: ["More than two groups (use hbar with several values)", "Bands with no natural order (use hbar)", "Measures in different units"],
   },
 ];
 
@@ -710,6 +720,8 @@ const NOTES: Record<string, string> = {
   "hbar>pareto": "Adds the running total, so the few items behind most of the total stand out.",
   "pareto>hbar": "Drops the running total: simpler, but the 80/20 point is gone.",
   "hbar>list": "Names and exact values come first and sizes are gone; good for a phone or a top-five card.",
+  "hbar>pyramid": "Puts the two measures back to back on one axis, so where they differ reads from the shape; only for two counts across ordered bands.",
+  "pyramid>hbar": "Lays the two measures side by side in each row, which compares exact lengths better; the shape of the whole is gone.",
   "hbar>donut": "Shows the parts as one whole; only worth it with two to six parts.",
   "meter>bullet": "Denser, with qualitative bands; less plain-language than the meter's 'to go' line.",
   "bullet>meter": "Says the gap in words (€22K to go); takes more room per row.",
@@ -872,6 +884,7 @@ const MEANING: Record<string, string> = {
   meter: "needs a target, plan or budget column",
   rings: "needs a target, plan or budget column",
   variance: "needs a target, plan or budget column",
+  pyramid: "needs two counts per ordered band, such as women and men per age group",
 };
 
 const FIT_ORDER: Record<Fit, number> = { fits: 0, stretch: 1, no: 2 };
