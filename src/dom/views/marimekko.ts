@@ -2,10 +2,9 @@ import { readNumber } from "../../core/formats.ts";
 import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { MarimekkoView } from "../../core/views.ts";
-import { buildTable, html, selectable, svg } from "./shared.ts";
+import { hiddenTableOf, html, legendList, selectable, shareFormat, svg, textWidth } from "./shared.ts";
 import { roving } from "./focus.ts";
 
-const CHAR_WIDTH = 6.5;
 const GAP = 2;
 
 interface Column {
@@ -43,22 +42,13 @@ export const renderMarimekko: ViewRenderer<MarimekkoView> = (ctx) => {
     column.total += amount;
   }
   const grand = columns.reduce((sum, c) => sum + c.total, 0);
-  const percent = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 0 });
+  const percent = shareFormat(ctx.spec.locale);
+  // A series keeps its fixed color (the spec's colors) wherever it appears; the rest follow the palette in order.
+  const colorOf = (i: number) => ctx.colorOf?.(names[i]) ?? ctx.color(i);
 
   const wrap = html(doc, "div", "fft-chart");
-  if (names.length > 1) {
-    const legend = html(doc, "ul", "fft-legend");
-    names.forEach((name, i) => {
-      const swatch = html(doc, "span", "fft-swatch");
-      swatch.dataset.shape = "rect";
-      swatch.style.background = ctx.color(i);
-      swatch.setAttribute("aria-hidden", "true");
-      const item = html(doc, "li");
-      item.append(swatch, ctx.format(name, series));
-      legend.append(item);
-    });
-    wrap.append(legend);
-  }
+  const legend = legendList(ctx, names.map((name, i) => ({ label: ctx.format(name, series), color: colorOf(i), shape: "rect" as const })), { min: 2 });
+  if (legend) wrap.append(legend);
 
   const width = ctx.width;
   const height = ctx.height;
@@ -89,14 +79,14 @@ export const renderMarimekko: ViewRenderer<MarimekkoView> = (ctx) => {
       const box = { x: left, y, width: w, height: h };
       const group = svg(doc, "g", { class: "fft-mekko", style: `--fft-i: ${c}` });
       const seg = svg(doc, "rect", { class: "fft-mekko-seg", ...box, rx: 2, "data-column": String(cell.row[x]), "data-series": name });
-      seg.style.setProperty("fill", ctx.color(s));
-      const edge = svg(doc, "rect", { class: "fft-mekko-edge", x: box.x, y: box.y, width: w, height: Math.min(3, h), rx: 1.5 });
-      edge.style.setProperty("fill", ctx.color(s));
+      seg.style.setProperty("fill", colorOf(s));
+      const edge = svg(doc, "rect", { class: "fft-mekko-edge", x: box.x, y: box.y, width: w, height: Math.min(3, h), rx: 2 });
+      edge.style.setProperty("fill", colorOf(s));
       group.append(seg, edge);
 
       const shown = ctx.format(name, series);
       const share = percent.format(cell.amount / column.total);
-      const room = (text: string) => text.length * CHAR_WIDTH + 16;
+      const room = (text: string) => textWidth(text, 11, 600) + 16;
       if (w >= Math.max(room(shown), room(share)) && h >= 39) {
         const nameText = svg(doc, "text", { class: "fft-mekko-name", x: box.x + 8, y: box.y + 19 });
         nameText.textContent = shown;
@@ -111,7 +101,7 @@ export const renderMarimekko: ViewRenderer<MarimekkoView> = (ctx) => {
 
       const title = `${column.text}, ${shown}`;
       const items: TooltipItem[] = [
-        { label: ctx.label(value), value: ctx.format(cell.row[value], value), color: ctx.color(s) },
+        { label: ctx.label(value), value: ctx.format(cell.row[value], value), color: colorOf(s) },
         { label: `Share of ${column.text}`, value: share },
         { label: "Share of total", value: percent.format(cell.amount / grand) },
       ];
@@ -137,7 +127,7 @@ export const renderMarimekko: ViewRenderer<MarimekkoView> = (ctx) => {
     }
     // Column name and total below, centred, when they fit the column.
     const totalText = ctx.format(column.total, value);
-    if (w >= Math.max(column.text.length, totalText.length) * CHAR_WIDTH) {
+    if (w >= Math.max(textWidth(column.text), textWidth(totalText, 11, 600))) {
       const label = svg(doc, "text", { class: "fft-mekko-column", x: left + w / 2, y: plotH + 18, "text-anchor": "middle" });
       const nameSpan = svg(doc, "tspan", { class: "fft-mekko-column-name" });
       nameSpan.textContent = column.text;
@@ -150,8 +140,7 @@ export const renderMarimekko: ViewRenderer<MarimekkoView> = (ctx) => {
   });
   roving(hits);
   wrap.append(chart);
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, ctx.rows, [x, series, value], false));
-  wrap.append(hidden);
+  if (!columns.length) wrap.append(html(doc, "p", "fft-empty-note", `No ${ctx.label(x).toLowerCase()} has a positive ${ctx.label(value).toLowerCase()}.`));
+  wrap.append(hiddenTableOf(ctx, ctx.rows, [x, series, value]));
   ctx.el.append(wrap);
 };

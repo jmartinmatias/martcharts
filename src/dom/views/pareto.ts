@@ -2,13 +2,12 @@ import { readNumber } from "../../core/formats.ts";
 import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { ParetoView } from "../../core/views.ts";
-import { bands, barPath, fitLabels, layoutBars, LINE_HEIGHT, linearScale, linePath, wrapLabels } from "../layout.ts";
+import { bands, barPath, CHAR_WIDTH, fitLabels, layoutBars, LINE_HEIGHT, linearScale, linePath, wrapLabels } from "../layout.ts";
 import { DEEMPHASIS } from "./chart.ts";
 import { drawReferences } from "./reference.ts";
-import { buildTable, categoryLabel, html, selectable, svg } from "./shared.ts";
+import { categoryLabel, hiddenTableOf, html, legendList, selectable, shareFormat, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
 
-const CHAR_WIDTH = 6;
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
 /**
@@ -32,24 +31,15 @@ export const renderPareto: ViewRenderer<ParetoView> = (ctx) => {
   });
   const crossing = shares.findIndex((it) => it.cumulative >= threshold - 1e-9);
   const vital = crossing < 0 ? shares.length : crossing + 1;
-  const percent = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 0 });
+  const percent = shareFormat(ctx.spec.locale);
   const tickText = (v: number) => percent.format(v);
 
   const wrap = html(doc, "div", "fft-chart");
-  const legend = html(doc, "ul", "fft-legend");
-  for (const [name, shape, color] of [
-    ["Share", "rect", ctx.color(0)],
-    ["Running total", "line", "var(--fft-text-secondary)"],
-  ] as const) {
-    const swatch = html(doc, "span", "fft-swatch");
-    swatch.dataset.shape = shape;
-    swatch.style.background = color;
-    swatch.setAttribute("aria-hidden", "true");
-    const item = html(doc, "li");
-    item.append(swatch, name);
-    legend.append(item);
-  }
-  wrap.append(legend);
+  const legend = legendList(ctx, [
+    { label: "Share", shape: "rect", color: ctx.color(0) },
+    { label: "Running total", shape: "line", color: "var(--fft-text-secondary)" },
+  ]);
+  if (legend) wrap.append(legend);
 
   const ticks = linearScale([0, 1], [1, 0], { includeZero: true }).ticks;
   const left = Math.max(28, Math.max(...ticks.map((t) => tickText(t).length)) * CHAR_WIDTH + 12);
@@ -140,8 +130,7 @@ export const renderPareto: ViewRenderer<ParetoView> = (ctx) => {
   chart.append(overlay);
   roving([...overlay.children]);
   wrap.append(chart);
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, shares.map((it) => it.row), [label, value], false));
-  wrap.append(hidden);
+  if (!shares.length) wrap.append(html(doc, "p", "fft-empty-note", `No ${ctx.label(label).toLowerCase()} has a positive ${ctx.label(value).toLowerCase()}.`));
+  wrap.append(hiddenTableOf(ctx, shares.map((it) => it.row), [label, value]));
   ctx.el.append(wrap);
 };

@@ -92,6 +92,8 @@ export const renderTable: ViewRenderer<TableView> = (ctx) => {
     page = Math.min(page, pages - 1);
     const shown = pageSize ? rows.slice(page * pageSize, (page + 1) * pageSize) : rows;
     const table = buildTable(ctx, shown, columns, true);
+    // Rows fade in top to bottom on the first draw, as every view's marks do.
+    table.querySelectorAll<HTMLElement>("tbody tr").forEach((tr, i) => tr.style.setProperty("--fft-i", String(i)));
     if (sortable) {
       table.querySelectorAll("thead th").forEach((th, i) => {
         const field = columns[i] as string;

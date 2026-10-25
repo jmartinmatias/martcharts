@@ -1710,4 +1710,17 @@ ul.fft-map-legend { margin-top: 0; }
 /* Meters and funnels dim the rest while one is pointed at, like every other row view. */
 .fft-meters[data-active] .fft-meter:not([data-active]), .fft-funnel[data-active] .fft-funnel-row:not([data-active]) { opacity: var(--fft-dim); transition: opacity 377ms var(--fft-ease); }
 .fft-widget[data-animate] .fft-meter[style*="--fft-i"] .fft-meter-fill { animation-delay: calc(var(--fft-i, 0) * 55ms); }
+/* WP4: cartesian and grid views on the shared kit. */
+/* A view with nothing to draw says what is missing, quietly, where the marks would be. */
+.fft-empty-note { margin: 8px 0 0; font-size: var(--fft-fs-s); line-height: 18px; color: var(--fft-text-secondary); }
+/* Highlight: the steps it does not name step back to the de-emphasis grey. */
+.fft-step[data-muted] { fill: var(--fft-deemphasis); }
+/* Heat cells and calendar days dim the rest while one is pointed at, as every view's marks do. */
+.fft-heatmap .fft-cell { transition: opacity 377ms var(--fft-ease); }
+.fft-heatmap[data-active] .fft-cell:not([data-active]):not(.fft-cell-empty) { opacity: var(--fft-dim); }
+.fft-day { transition: opacity 377ms var(--fft-ease); }
+.fft-calendar[data-active] .fft-day:not([data-active]) { opacity: var(--fft-dim); }
+/* Staggered entry for heat cells and table rows. */
+.fft-widget[data-animate] .fft-heatmap .fft-cell { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 5ms); }
+.fft-widget[data-animate] .fft-table tbody tr { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(min(var(--fft-i, 0), 21) * 13ms); }
 `;

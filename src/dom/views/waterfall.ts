@@ -2,12 +2,10 @@ import { readNumber } from "../../core/formats.ts";
 import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { WaterfallView } from "../../core/views.ts";
-import { bands, layoutWaterfall, linearScale } from "../layout.ts";
-import { tickFormatter } from "./chart.ts";
-import { buildTable, html, selectable, svg } from "./shared.ts";
+import { bands, CHAR_WIDTH, layoutWaterfall, linearScale } from "../layout.ts";
+import { highlights, tickFormatter } from "./chart.ts";
+import { hiddenTableOf, html, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
-
-const CHAR_WIDTH = 6;
 
 /**
  * Draws the `waterfall` view: totals stand on zero, every other step floats
@@ -15,8 +13,11 @@ const CHAR_WIDTH = 6;
  * running total from one bar to the next. Increases and decreases use the
  * diverging up and down colors, and every bar is labelled, with a sign on
  * changes, so direction never rests on color alone.
+ *
+ * `highlight` keeps the named steps in color and greys the rest; panels of
+ * small multiples share one value axis.
  */
-export const renderWaterfall: ViewRenderer<WaterfallView> = (ctx) => {
+export const renderWaterfall: ViewRenderer<WaterfallView & { highlight?: string | string[] }> = (ctx) => {
   const doc = ctx.el.ownerDocument;
   const { label, value, endLabel } = ctx.view;
   const totals = new Set((Array.isArray(ctx.view.totals) ? ctx.view.totals : ctx.view.totals ? [ctx.view.totals] : []).map(String));
@@ -27,6 +28,9 @@ export const renderWaterfall: ViewRenderer<WaterfallView> = (ctx) => {
   );
   const names = [...rows.map((row) => ctx.format(row[label], label)), ...(endLabel ? [endLabel] : [])];
   const signed = (n: number) => (n > 0 ? `+${ctx.format(n, value)}` : ctx.format(n, value));
+  // Emphasis: the named steps keep their color, the rest step back (the end total follows its own name, endLabel).
+  const picked = highlights(ctx.view.highlight);
+  const isOn = (i: number) => picked.length === 0 || picked.includes(i < rows.length ? String(rows[i]?.[label]) : String(endLabel));
 
   // With fit, the axis spans only the running totals (totals then rise from the axis floor); otherwise it starts at zero.
   const fit = ctx.view.fit === true;
@@ -36,6 +40,8 @@ export const renderWaterfall: ViewRenderer<WaterfallView> = (ctx) => {
     const low = Math.min(...levels);
     levels.push(low - (Math.max(...levels) - low) / 2);
   }
+  // Small multiples pass the levels every panel must cover, so the panels share one scale.
+  if (ctx.extent && !fit) levels.push(...ctx.extent);
   const rough = linearScale(levels, [1, 0], { includeZero: !fit }).ticks;
   const tickText = tickFormatter(ctx, value, rough);
   const left = Math.max(28, Math.max(...rough.map((t) => tickText(t).length)) * CHAR_WIDTH + 12);
@@ -74,6 +80,7 @@ export const renderWaterfall: ViewRenderer<WaterfallView> = (ctx) => {
     const x = slot.center - barWidth / 2;
     const bar = svg(doc, "rect", { class: "fft-step", x, y: top, width: barWidth, height: Math.max(1, bottom - top), rx: 2, style: `--fft-i: ${i}` });
     bar.dataset.kind = step.kind;
+    if (!isOn(i)) bar.dataset.muted = "true";
     marks.append(bar);
 
     const change = step.end - step.start;
@@ -123,9 +130,7 @@ export const renderWaterfall: ViewRenderer<WaterfallView> = (ctx) => {
   roving([...overlay.children]);
   wrap.append(chart);
 
-  const hidden = html(doc, "div", "fft-sr-only");
   const tableRows: Row[] = steps.map((step, i) => ({ [label]: names[i], [value]: step.kind === "total" ? step.end : step.end - step.start }));
-  hidden.append(buildTable(ctx, tableRows, [label, value], false));
-  wrap.append(hidden);
+  wrap.append(hiddenTableOf(ctx, tableRows, [label, value]));
   ctx.el.append(wrap);
 };

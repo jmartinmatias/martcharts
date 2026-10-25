@@ -1,11 +1,11 @@
 import { readNumber } from "../../core/formats.ts";
 import { getPreset } from "../../core/presets.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
-import type { DualMark, DualView } from "../../core/views.ts";
-import { bands, barPath, curveLine, evenLabels, layoutBars, linearScale, spread } from "../layout.ts";
+import type { Annotation, DualMark, DualView } from "../../core/views.ts";
+import { bands, barPath, CHAR_WIDTH, curveLine, evenLabels, layoutBars, linearScale, spread } from "../layout.ts";
 import type { LabelBox, LinearScale } from "../layout.ts";
-import { CHAR_WIDTH, tickFormatter } from "./chart.ts";
-import { buildTable, categoryLabel, html, selectable, svg } from "./shared.ts";
+import { drawNotes, pinNotes, tickFormatter } from "./chart.ts";
+import { categoryLabel, hiddenTableOf, html, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
 
 /** Room above each panel for its caption (the measure's name), and the air between the two panels. */
@@ -21,8 +21,10 @@ const TICKS = 4;
  * fit their own range. One hit area per period spans both panels, so pointing
  * at a month lights it up on both and one tooltip gives both values. The
  * honest form of a dual-axis chart: no second axis, so no false crossings.
+ * `annotations` pin short notes to periods on the top panel, at its measure's
+ * value there (or at the note's own y on that panel's scale).
  */
-export const renderDual: ViewRenderer<DualView> = (ctx) => {
+export const renderDual: ViewRenderer<DualView & { annotations?: Annotation[] }> = (ctx) => {
   const doc = ctx.el.ownerDocument;
   const { rows, view } = ctx;
   const fields = [view.y, view.y2] as const;
@@ -117,6 +119,19 @@ export const renderDual: ViewRenderer<DualView> = (ctx) => {
   for (const i of evenLabels(rows.length, Math.ceil((rows.length * widest) / plotW), box)) {
     chart.append(categoryLabel(doc, { class: "fft-tick fft-tick-x", x: slots[i]?.center ?? 0, y: baseY, "text-anchor": anchorOf(i) }, xLabels[i] ?? ""));
   }
+  // Notes pinned to periods of the top panel: beside their point on a wide card, numbered and listed under it on a narrow one.
+  const top = panels[0];
+  const pinned = top
+    ? pinNotes(
+        view.annotations,
+        (note: Annotation) => rows.findIndex((row, i) => String(row[view.x]) === String(note.x) || xLabels[i] === String(note.x)),
+        (note: Annotation, i) => {
+          const v = typeof note.y === "number" ? note.y : values[0]?.[i];
+          return v === null || v === undefined ? null : { x: slots[i]?.center ?? 0, y: top.scale(v) };
+        },
+      )
+    : [];
+  const noteList = top ? drawNotes(doc, chart, pinned, { x: plotX, y: top.top, w: plotW, h: top.bottom - top.top }, ctx.width) : undefined;
   chart.append(crosshair, hoverDots);
 
   // One hit area per period, spanning both panels: pointing at a month lights it up above and below.
@@ -131,6 +146,7 @@ export const renderDual: ViewRenderer<DualView> = (ctx) => {
   slots.forEach((slot, i) => {
     const row = rows[i] ?? {};
     const items: TooltipItem[] = panels.map((panel) => ({ label: ctx.label(panel.field), value: ctx.format(row[panel.field], panel.field), color: panel.color }));
+    for (const pin of pinned) if (pin.i === i) items.push({ label: "Note", value: pin.text });
     const title = xLabels[i] ?? "";
     const hit = svg(doc, "rect", { class: "fft-hit", x: slot.start, y: panels[0]?.top ?? 0, width: slot.width, height: (panels[1]?.bottom ?? 0) - (panels[0]?.top ?? 0), tabindex: 0, role: "img" });
     hit.setAttribute("aria-label", `${title}: ${items.map((item) => `${item.label} ${item.value || "no value"}`).join(", ")}`);
@@ -160,8 +176,7 @@ export const renderDual: ViewRenderer<DualView> = (ctx) => {
   chart.append(overlay);
   roving([...overlay.querySelectorAll(".fft-hit")]);
   wrap.append(chart);
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, rows, [view.x, view.y, view.y2], false));
-  wrap.append(hidden);
+  if (noteList) wrap.append(noteList);
+  wrap.append(hiddenTableOf(ctx, rows, [view.x, view.y, view.y2]));
   ctx.el.append(wrap);
 };

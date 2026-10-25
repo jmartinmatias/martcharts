@@ -13,9 +13,10 @@ import type { FormatSpec } from "../../core/types.ts";
 import type { TooltipItem, ViewContext, ViewRenderer } from "../../core/view-context.ts";
 import { isForecast } from "../../core/views.ts";
 import type { Annotation, AreaView, BarView, LineView } from "../../core/views.ts";
-import { bandPath, bands, barPath, curveArea, curveLine, evenLabels, layoutBars, layoutStacked, LINE_HEIGHT, linearScale, linePath, logScale, smoothBands, spread, wrapLabels } from "../layout.ts";
+import { bandPath, bands, barPath, CHAR_WIDTH, curveArea, curveLine, evenLabels, layoutBars, layoutStacked, LINE_HEIGHT, linearScale, linePath, logScale, smoothBands, spread, wrapLabels } from "../layout.ts";
 import type { LabelBox } from "../layout.ts";
-import { buildTable, categoryLabel, fieldList, html, selectable, svg } from "./shared.ts";
+import { categoryLabel, fieldList, hiddenTableOf, html, legendList, selectable, svg } from "./shared.ts";
+import type { LegendEntry as KitLegendEntry } from "./shared.ts";
 import { roving } from "./focus.ts";
 
 type Kind = "bar" | "line" | "area";
@@ -27,8 +28,8 @@ const STREAM_LABEL_ROOM = 15;
 /** Gradient ids must be unique in the page, so every chart draw takes a fresh one. */
 let gradients = 0;
 
-/** Rough width of one character of 11px tick text, for spacing labels without measuring. */
-export const CHAR_WIDTH = 6;
+/** The kit's width of one character of 11px text, re-exported for the views that still import it from here. */
+export { CHAR_WIDTH } from "../layout.ts";
 /** The quiet fill of a comparison column behind a bar: a grey that stays a grey on light and dark cards. */
 export const COMPARE_FILL = "color-mix(in srgb, var(--fft-deemphasis) 55%, var(--fft-surface))";
 /** Under this width a chart's notes become numbered markers, their texts listed below (a phone, or a narrow card). */
@@ -86,24 +87,100 @@ interface LegendEntry {
   tone?: "miss";
 }
 
-/** A legend whose keys mirror their marks: a square for bars, a dot for lollipops, a short line for lines. */
-function legend(ctx: ViewContext<{ type: string }>, entries: LegendEntry[]): HTMLElement {
-  const doc = ctx.el.ownerDocument;
-  const list = html(doc, "ul", "fft-legend");
-  for (const entry of entries) {
-    const swatch = html(doc, "span", "fft-swatch");
-    swatch.dataset.shape = entry.shape;
-    if (entry.tone === "miss") {
-      swatch.dataset.tone = "miss";
-      swatch.style.background = missFill(entry.color);
-      swatch.style.boxShadow = `inset 0 0 0 1px ${missEdge(entry.color)}`;
-    } else swatch.style.background = entry.color;
-    swatch.setAttribute("aria-hidden", "true");
-    const item = html(doc, "li");
-    item.append(swatch, entry.label ?? ctx.label(entry.field));
-    list.append(item);
-  }
-  return list;
+/** The kit's legend, keyed by field: a square for bars, a dot for lollipops, a short line for lines, the miss tone for bars short of target. */
+function legend(ctx: ViewContext<{ type: string }>, entries: LegendEntry[]): HTMLElement | undefined {
+  const keys: KitLegendEntry[] = entries.map((entry) => ({ label: entry.label ?? ctx.label(entry.field), color: entry.color, shape: entry.shape, ...(entry.tone ? { tone: entry.tone } : {}) }));
+  return legendList(ctx, keys, { min: 2 });
+}
+
+/** A note pinned to a point of a chart: its words and where its point is drawn. */
+export interface PinnedNote {
+  text: string;
+  x: number;
+  y: number;
+}
+
+/**
+ * Draws notes pinned to points (the `annotations` option of bar, line, area, scatter and dual) into `chart`. On a wide
+ * card each note's words sit beside its point with a dot and a hairline leader, wrapped to a few short lines, kept
+ * inside the plot and shifted clear of earlier notes. Under 480px wide the notes become numbered markers, and their
+ * words come back as a list for the caller to put under the chart. Placed notes are pushed onto `obstacles`, so labels
+ * drawn later (reference lines) keep clear of them.
+ */
+export function drawNotes(
+  doc: Document,
+  chart: SVGSVGElement,
+  pinned: PinnedNote[],
+  plot: { x: number; y: number; w: number; h: number },
+  cardWidth: number,
+  obstacles: { x: number; y: number; width: number; height: number }[] = [],
+): HTMLOListElement | undefined {
+  if (!pinned.length) return undefined;
+  const noteList = cardWidth < NOTE_LIST_WIDTH ? html(doc, "ol", "fft-notes") : undefined;
+  const layer = svg(doc, "g", { class: "fft-note-layer" });
+  const placedNotes: { x: number; y: number; width: number; height: number }[] = [];
+  // Points rounded as the marks are (to the hundredth), so a note's dot sits exactly on its point.
+  const at = (v: number) => Math.round(v * 100) / 100;
+  pinned.forEach((raw, k) => {
+    const pin = { ...raw, x: at(raw.x), y: at(raw.y) };
+    layer.append(svg(doc, "circle", { class: "fft-note-dot", cx: pin.x, cy: pin.y, r: 3 }));
+    if (noteList) {
+      // A numbered marker just above the point (below it at the plot's top); the words wait in the list under the chart.
+      const above = pin.y - 24 >= 0;
+      const cy = above ? pin.y - 16 : pin.y + 16;
+      layer.append(svg(doc, "line", { class: "fft-note-leader", x1: pin.x, y1: pin.y + (above ? -3 : 3), x2: pin.x, y2: cy + (above ? 8 : -8) }));
+      layer.append(svg(doc, "circle", { class: "fft-note-marker", cx: pin.x, cy, r: 8 }));
+      const index = svg(doc, "text", { class: "fft-note-index", x: pin.x, y: cy, "text-anchor": "middle", "dominant-baseline": "central" });
+      index.textContent = String(k + 1);
+      layer.append(index);
+      const item = html(doc, "li");
+      item.append(html(doc, "span", "fft-note-num", String(k + 1)), html(doc, "span", "fft-note-words", pin.text));
+      noteList.append(item);
+      return;
+    }
+    // The words beside the point, wrapped to a few short lines, to its right when there is room and else to its left,
+    // above the point unless that leaves the plot; shifted up when they would cover an earlier note.
+    const maxChars = Math.max(8, Math.floor(Math.min(144, plot.w / 2) / CHAR_WIDTH));
+    const lines: string[] = [];
+    for (const word of pin.text.split(/\s+/).filter(Boolean)) {
+      const line = lines.at(-1);
+      if (line !== undefined && `${line} ${word}`.length <= maxChars) lines[lines.length - 1] = `${line} ${word}`;
+      else lines.push(word);
+    }
+    const width = Math.max(...lines.map((line) => line.length)) * CHAR_WIDTH;
+    const height = lines.length * LINE_HEIGHT;
+    const right = pin.x + 13 + width <= plot.x + plot.w;
+    const tx = right ? pin.x + 13 : pin.x - 13;
+    let top = pin.y - 8 - height;
+    if (top < plot.y) top = pin.y + 10;
+    const box = () => ({ x: right ? tx : tx - width, y: top, width, height });
+    for (let tries = 0; tries < 6 && placedNotes.some((other) => other.x < box().x + width && other.x + other.width > box().x && other.y < top + height && other.y + other.height > top); tries++) top -= LINE_HEIGHT;
+    top = Math.max(plot.y, top);
+    placedNotes.push(box());
+    obstacles.push(box());
+    const nearY = top + height > pin.y ? top + height / 2 : top + height;
+    layer.append(svg(doc, "line", { class: "fft-note-leader", x1: pin.x + (right ? 4 : -4), y1: pin.y + (nearY < pin.y ? -3 : 0), x2: right ? tx - 3 : tx + 3, y2: nearY }));
+    const text = svg(doc, "text", { class: "fft-note-text", x: tx, y: top + 10, "text-anchor": right ? "start" : "end" });
+    lines.forEach((line, l) => {
+      const span = svg(doc, "tspan", { x: tx, dy: l === 0 ? 0 : LINE_HEIGHT });
+      span.textContent = line;
+      text.append(span);
+    });
+    layer.append(text);
+  });
+  chart.append(layer);
+  return noteList;
+}
+
+/** The notes a spec pins to rows: each note's row (by its x value, raw or as shown) and the value its point sits at. */
+export function pinNotes<T>(notes: unknown, rowOf: (note: Annotation) => number, place: (note: Annotation, i: number) => T | null): (T & { i: number; text: string })[] {
+  const list = Array.isArray(notes) ? (notes as Annotation[]) : [];
+  return list.flatMap((note) => {
+    const i = rowOf(note);
+    if (i < 0 || typeof note.text !== "string" || !note.text) return [];
+    const at = place(note, i);
+    return at === null ? [] : [{ ...at, i, text: note.text }];
+  });
 }
 
 function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: Kind): void {
@@ -209,7 +286,8 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
     ...overlayFields.map((field, k) => ({ field, color: overlayColor(k), shape: "line" as const })),
     ...(rows.some((_, i) => missed(i)) ? [{ field: series[0] as string, color: seriesColor(0), shape: markShape, label: `${lowerIsBetter ? "Over" : "Below"} ${goalName}`, tone: "miss" as const }] : []),
   ];
-  if (legendEntries.length > 1 && !ctx.inFacet) wrap.append(legend(ctx, legendEntries));
+  const key = legend(ctx, legendEntries);
+  if (key) wrap.append(key);
 
   // Margins: room for the widest tick label on the left and category labels below.
   const left = stream ? 13 : Math.max(28, Math.max(...labelTicks.map((t) => tickText(t).length)) * CHAR_WIDTH + 12);
@@ -542,58 +620,7 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
     const v = i < 0 ? null : typeof note.y === "number" ? note.y : noteValue(i);
     return i < 0 || v === null || (log && v <= 0) ? [] : [{ n, i, text: note.text, x: slots[i]?.center ?? 0, y: y(v) }];
   });
-  const noteList = pinned.length && ctx.width < NOTE_LIST_WIDTH ? html(doc, "ol", "fft-notes") : undefined;
-  if (pinned.length) {
-    const layer = svg(doc, "g", { class: "fft-note-layer" });
-    const placedNotes: { x: number; y: number; width: number; height: number }[] = [];
-    pinned.forEach((pin, k) => {
-      layer.append(svg(doc, "circle", { class: "fft-note-dot", cx: pin.x, cy: pin.y, r: 3 }));
-      if (noteList) {
-        // A numbered marker just above the point (below it at the plot's top); the words wait in the list under the chart.
-        const above = pin.y - 24 >= 0;
-        const cy = above ? pin.y - 16 : pin.y + 16;
-        layer.append(svg(doc, "line", { class: "fft-note-leader", x1: pin.x, y1: pin.y + (above ? -3 : 3), x2: pin.x, y2: cy + (above ? 8 : -8) }));
-        layer.append(svg(doc, "circle", { class: "fft-note-marker", cx: pin.x, cy, r: 8 }));
-        const index = svg(doc, "text", { class: "fft-note-index", x: pin.x, y: cy, "text-anchor": "middle", "dominant-baseline": "central" });
-        index.textContent = String(k + 1);
-        layer.append(index);
-        const item = html(doc, "li");
-        item.append(html(doc, "span", "fft-note-num", String(k + 1)), html(doc, "span", "fft-note-words", pin.text));
-        noteList.append(item);
-        return;
-      }
-      // The words beside the point, wrapped to a few short lines, to its right when there is room and else to its left,
-      // above the point unless that leaves the plot; shifted up when they would cover an earlier note.
-      const maxChars = Math.max(8, Math.floor(Math.min(144, plot.w / 2) / CHAR_WIDTH));
-      const lines: string[] = [];
-      for (const word of pin.text.split(/\s+/).filter(Boolean)) {
-        const line = lines.at(-1);
-        if (line !== undefined && `${line} ${word}`.length <= maxChars) lines[lines.length - 1] = `${line} ${word}`;
-        else lines.push(word);
-      }
-      const width = Math.max(...lines.map((line) => line.length)) * CHAR_WIDTH;
-      const height = lines.length * LINE_HEIGHT;
-      const right = pin.x + 13 + width <= plot.x + plot.w;
-      const tx = right ? pin.x + 13 : pin.x - 13;
-      let top = pin.y - 8 - height;
-      if (top < plot.y) top = pin.y + 10;
-      const box = () => ({ x: right ? tx : tx - width, y: top, width, height });
-      for (let tries = 0; tries < 6 && placedNotes.some((other) => other.x < box().x + width && other.x + other.width > box().x && other.y < top + height && other.y + other.height > top); tries++) top -= LINE_HEIGHT;
-      top = Math.max(plot.y, top);
-      placedNotes.push(box());
-      obstacles.boxes.push(box());
-      const nearY = top + height > pin.y ? top + height / 2 : top + height;
-      layer.append(svg(doc, "line", { class: "fft-note-leader", x1: pin.x + (right ? 4 : -4), y1: pin.y + (nearY < pin.y ? -3 : 0), x2: right ? tx - 3 : tx + 3, y2: nearY }));
-      const text = svg(doc, "text", { class: "fft-note-text", x: tx, y: top + 10, "text-anchor": right ? "start" : "end" });
-      lines.forEach((line, l) => {
-        const span = svg(doc, "tspan", { x: tx, dy: l === 0 ? 0 : LINE_HEIGHT });
-        span.textContent = line;
-        text.append(span);
-      });
-      layer.append(text);
-    });
-    chart.append(layer);
-  }
+  const noteList = drawNotes(doc, chart, pinned, plot, ctx.width, obstacles.boxes);
   drawReferences(doc, references, y, plot, tickText, refsBelow, refsAbove, obstacles);
   chart.append(refsAbove, overlay);
 
@@ -650,9 +677,7 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
   wrap.append(chart);
   if (noteList) wrap.append(noteList);
   // The same numbers as a table, for screen readers.
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, rows, [view.x, ...series, ...(compareField ? [compareField] : []), ...(band ? [band.low, band.high] : [])], false));
-  wrap.append(hidden);
+  wrap.append(hiddenTableOf(ctx, rows, [view.x, ...series, ...(compareField ? [compareField] : []), ...(band ? [band.low, band.high] : [])]));
   ctx.el.append(wrap);
 }
 

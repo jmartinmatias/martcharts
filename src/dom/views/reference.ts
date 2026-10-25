@@ -114,3 +114,37 @@ export function drawReferences(
     above.append(text);
   }
 }
+
+/**
+ * Reference marks on a value axis that runs across (a histogram's bins): bands as columns behind the bars, lines as
+ * dashed verticals over them, each labelled at the top of the plot on the side with more room. `x` places a value.
+ */
+export function drawVerticalReferences(
+  doc: Document,
+  references: ResolvedReference[],
+  x: (value: number) => number,
+  plot: Plot,
+  format: (value: number) => string,
+  below: SVGGElement,
+  above: SVGGElement,
+): void {
+  for (const ref of references) {
+    if (ref.kind === "band") {
+      const left = x(Math.min(ref.from, ref.to));
+      const right = x(Math.max(ref.from, ref.to));
+      below.append(svg(doc, "rect", { class: "fft-ref-band", x: left, y: plot.y, width: Math.max(1, right - left), height: plot.h }));
+      if (ref.label) {
+        const text = svg(doc, "text", { class: "fft-ref-label", x: left + 5, y: plot.y + 13 });
+        text.textContent = ref.label;
+        below.append(text);
+      }
+      continue;
+    }
+    const at = x(ref.value);
+    above.append(svg(doc, "line", { class: "fft-ref", x1: at, x2: at, y1: plot.y, y2: plot.y + plot.h }));
+    const onLeft = at > plot.x + plot.w / 2;
+    const text = svg(doc, "text", { class: "fft-ref-label", x: onLeft ? at - 5 : at + 5, y: plot.y + 11, "text-anchor": onLeft ? "end" : "start" });
+    text.textContent = ref.label ? `${ref.label} ${format(ref.value)}` : format(ref.value);
+    above.append(text);
+  }
+}

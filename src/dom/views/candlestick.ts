@@ -3,12 +3,11 @@ import { readNumber } from "../../core/formats.ts";
 import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { CandlestickView } from "../../core/views.ts";
-import { bands, fitLabels, linearScale, linePath } from "../layout.ts";
+import { bands, CHAR_WIDTH, fitLabels, linearScale, linePath } from "../layout.ts";
 import { tickFormatter } from "./chart.ts";
-import { buildTable, html, selectable, svg } from "./shared.ts";
+import { hiddenTableOf, html, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
 
-const CHAR_WIDTH = 6;
 /** Widest a candle body gets: a Fibonacci step, so candles stay thin marks. */
 const BODY = 13;
 
@@ -87,9 +86,11 @@ export const renderCandlestick: ViewRenderer<CandlestickView> = (ctx) => {
     item.append(swatch, name);
     legend.append(item);
   }
-  wrap.append(legend);
+  // A small-multiples panel leaves its keys to the widget's one shared legend.
+  if (!ctx.inFacet) wrap.append(legend);
 
-  const extent = periods.flatMap((p) => [p.l, p.h]);
+  // Small multiples pass every panel's lows and highs, so the panels share one price axis.
+  const extent = [...periods.flatMap((p) => [p.l, p.h]), ...(ctx.extent ?? [])];
   const ticks = linearScale(extent, [1, 0], { includeZero: false }).ticks;
   const tickText = tickFormatter(ctx, close, ticks);
   const left = Math.max(28, Math.max(...ticks.map((t) => tickText(t).length)) * CHAR_WIDTH + 12);
@@ -175,8 +176,7 @@ export const renderCandlestick: ViewRenderer<CandlestickView> = (ctx) => {
   chart.append(overlay);
   roving(hits);
   wrap.append(chart);
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, periods.map((p) => p.row), [xField, open, high, low, close], false));
-  wrap.append(hidden);
+  if (!periods.length) wrap.append(html(doc, "p", "fft-empty-note", "No period has all four prices: open, high, low and close."));
+  wrap.append(hiddenTableOf(ctx, periods.map((p) => p.row), [xField, open, high, low, close]));
   ctx.el.append(wrap);
 };
