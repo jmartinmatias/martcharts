@@ -26,7 +26,8 @@ export const renderRose: ViewRenderer<RoseView> = (ctx) => {
   const n = rows.length;
   const values = rows.map((row) => series.map((field) => Math.max(0, readNumber(row[field]) ?? 0)));
   const totals = values.map((list) => list.reduce((a, b) => a + b, 0));
-  const ticks = niceTicks(0, Math.max(ctx.view.max ?? 0, ...totals, 1), 3).filter((t) => t > 0);
+  // Small multiples pass one extent, so every panel's rings stand for the same values.
+  const ticks = niceTicks(0, Math.max(ctx.view.max ?? 0, ...totals, ...(ctx.extent ?? []), 1), 3).filter((t) => t > 0);
   const max = ctx.view.max ?? ticks.at(-1) ?? 1;
   const tickText = tickFormatter(ctx, series[0], ticks);
 
@@ -34,7 +35,10 @@ export const renderRose: ViewRenderer<RoseView> = (ctx) => {
   const height = Math.min(Math.max(ctx.height, 233), 377, width);
   const cx = width / 2;
   const cy = height / 2;
-  const radius = Math.min(cx, cy) - 26;
+  // The names sit outside the rim: the radius leaves room for the widest on the left and right, so 06:00 and 18:00
+  // stay inside a phone-wide card, and 21px above and below.
+  const widestName = Math.max(0, ...rows.map((row) => textWidth(ctx.format(row[label], label))));
+  const radius = Math.max(34, Math.min(cy - 26, cx - widestName - 13 - 4));
   const reach = (value: number) => radius * Math.sqrt(Math.min(value, max) / max);
   const step = FULL / Math.max(1, n);
 

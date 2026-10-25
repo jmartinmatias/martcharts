@@ -23,7 +23,8 @@ export const renderRadar: ViewRenderer<RadarView> = (ctx) => {
   const rows = ctx.rows;
   const n = rows.length;
   const values = rows.flatMap((row) => series.map((field) => readNumber(row[field]) ?? 0));
-  const ticks = niceTicks(0, Math.max(ctx.view.max ?? 0, ...values, 1), 4).filter((t) => t > 0);
+  // Small multiples pass one extent, so every panel's rings stand for the same values.
+  const ticks = niceTicks(0, Math.max(ctx.view.max ?? 0, ...values, ...(ctx.extent ?? []), 1), 4).filter((t) => t > 0);
   const max = ctx.view.max ?? ticks.at(-1) ?? 1;
   const tickText = tickFormatter(ctx, series[0], ticks);
 

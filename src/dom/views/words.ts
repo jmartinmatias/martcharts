@@ -44,6 +44,28 @@ export const WORDS = {
   unknown: "unknown",
   flags: "Flags",
   nextActions: "Next best actions",
+  // Maps against the previous period.
+  previous: "Previous",
+  change: "Change",
+  noChange: "No change",
+  changeScale: (field: string) => `Change in ${field}`,
+  // RAG scorecards and trends.
+  overall: "Overall",
+  now: "Now",
+  count: "Count",
+  status: "Status",
+  was: "Was",
+  why: "Why",
+  noReading: "No reading",
+  lastPeriod: "Last period",
+  better: "Better",
+  worse: "Worse",
+  /** What a cell says to screen readers when it moved: ", better than last period (At risk)". */
+  movedSince: (better: boolean, before: string) => `, ${better ? "better" : "worse"} than last period (${before})`,
+  noStatus: "no data",
+  /** The line under a scorecard showing only some statuses: "and 33 on track", or "and 4 at risk, 33 on track". */
+  andMore: (parts: string[]) => `and ${parts.join(", ")}`,
+  rowsByStatus: (count: number) => `${count} ${count === 1 ? "row" : "rows"} by overall status`,
 } as const;
 
 export type Words = typeof WORDS;

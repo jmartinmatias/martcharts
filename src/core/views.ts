@@ -1636,6 +1636,24 @@ export interface ChoroplethView {
   labels?: boolean;
   min?: number;
   max?: number;
+  /** The same measure in the previous period: the tooltip gives the change, and `show: "change"` shades by it. */
+  previous?: string;
+  /** What the shade says: the value (the default) or its change since `previous`, on a diverging scale. */
+  show?: "value" | "change";
+  /** How a change is told: as a percent of the previous value (the default) or as the difference. */
+  change?: "percent" | "difference";
+}
+
+/**
+ * A region's change since the previous period, as the choropleth tells it: the percent of the previous value, or the
+ * difference. Null without both numbers, or for a percent from zero.
+ */
+export function choroplethChange(view: { value?: unknown; previous?: unknown; change?: unknown }, row: Row): number | null {
+  if (typeof view.value !== "string" || typeof view.previous !== "string") return null;
+  const [now, before] = [readNumber(row[view.value]), readNumber(row[view.previous])];
+  if (now === null || before === null) return null;
+  if (view.change === "difference") return now - before;
+  return before === 0 ? null : (now - before) / Math.abs(before);
 }
 
 /** `{ type: "symbols", geo?, id? | lat? lon?, size, label?, color? }`: circles sized by a value, placed on a map. */
@@ -1703,7 +1721,10 @@ function unplacedRows(view: Record<string, unknown>, rows: Row[]): string[] {
 
 const choropleth: ViewBlock = {
   type: "choropleth",
-  extent: (view, rows) => [...numbersOf(rows, [view.value]), ...[view.min, view.max].filter((n): n is number => typeof n === "number")],
+  extent: (view, rows) =>
+    view.show === "change"
+      ? rows.map((row) => choroplethChange(view, row)).filter((n): n is number => n !== null)
+      : [...numbersOf(rows, [view.value]), ...[view.min, view.max].filter((n): n is number => typeof n === "number")],
   description:
     "A map with each region shaded by its value, from the weakest tint to the strongest, with a scale under it: revenue by country, share by state. Regions with no row stay grey and are keyed No data. Built-in tile grids (europe, us-states) give every region the same size, so small countries read as well as big ones; your own GeoJSON draws true shapes.",
   options: {
@@ -1719,10 +1740,24 @@ const choropleth: ViewBlock = {
     labels: { type: "boolean", default: true, description: 'Write each region\'s code inside it, where it fits. Also takes the words other views use: "codes" (the same as true) or "none".' },
     min: { type: "number", description: "Value of the weakest tint. Defaults to the lowest value." },
     max: { type: "number", description: "Value of the strongest tint. Defaults to the highest value." },
+    previous: {
+      type: "field",
+      kind: "number",
+      description: 'Field with the same measure in the previous period, such as last year\'s revenue. Each region\'s tooltip then gives the change, and show "change" shades by it.',
+    },
+    show: {
+      type: "enum",
+      values: ["value", "change"],
+      default: "value",
+      description: '"change" shades each region by its change since previous on a diverging scale: up one way, down the other, no change in the middle. Needs previous.',
+    },
+    change: { type: "enum", values: ["percent", "difference"], default: "percent", description: "How a change is told: as a percent of the previous value, or as the difference in the value's own unit." },
     highlight: highlightCategories,
   },
   validate(view) {
     const problems = [...placementProblems(view, false)];
+    if (view.show === "change" && !(typeof view.previous === "string" && view.previous !== "")) problems.push('show "change" needs previous: the field with the previous period\'s value.');
+    if (typeof view.previous === "string" && view.previous !== "" && !(typeof view.value === "string" && view.value !== "")) problems.push("previous compares a value: give value, not category.");
     const [byValue, byCategory] = [typeof view.value === "string" && view.value !== "", typeof view.category === "string" && view.category !== ""];
     if (!byValue && !byCategory) problems.push("Say what colors the regions: value (a number, shaded) or category (a name, one color each).");
     if (byValue && byCategory) problems.push("Give value or category, not both: a region is shaded by a number or colored by a category.");
@@ -2189,6 +2224,8 @@ export interface RagboardView {
   sort?: "worst" | "name" | "none";
   group?: string;
   note?: string;
+  /** The statuses to show rows for, such as ["R", "A"]: the rest fold into one line, "and 33 on track". */
+  only?: ("R" | "A" | "G" | "N")[];
   words?: Record<string, string>;
   shapes?: Record<string, string>;
 }
