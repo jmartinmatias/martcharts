@@ -15,6 +15,7 @@ import type { ReferenceMark } from "./reference.ts";
 import type { Row } from "./types.ts";
 import type { OptionSchema, ViewBlock } from "./registry.ts";
 import { isRagValue, ragStepProblems } from "./rag.ts";
+import { SHAPE_OPTIONS, SHAPE_VIEWS, shapeProblems } from "./shape.ts";
 
 /** `{ type: "table", columns? }` */
 export interface TableView {
@@ -864,6 +865,7 @@ const waterfall: ViewBlock = {
 
 const heatmap: ViewBlock = {
   type: "heatmap",
+  extent: (view, rows) => numbersOf(rows, [view.value]),
   description: "A grid of cells shaded on one blue scale from light (low) to dark (high), for patterns across two categories such as weekday by hour.",
   options: {
     x: { type: "field", kind: "category", required: true, description: "Field for the columns." },
@@ -954,6 +956,7 @@ const treemap: ViewBlock = {
 
 const funnel: ViewBlock = {
   type: "funnel",
+  extent: (view, rows) => numbersOf(rows, [view.value]),
   description: "Stages in order as centered bars narrowing from the first, with the conversion rate from each stage to the next and each stage's share of the first.",
   options: {
     label: { type: "field", kind: "category", required: true, description: "Field naming each stage." },
@@ -964,6 +967,7 @@ const funnel: ViewBlock = {
 
 const calendar: ViewBlock = {
   type: "calendar",
+  extent: (view, rows) => numbersOf(rows, [view.value]),
   description: "A calendar heatmap: one cell per day, weeks as columns from Monday, shaded on one blue scale. For daily patterns such as sales or tickets across months.",
   options: {
     date: { type: "field", kind: "date", required: true, description: "Field with each day's date, as YYYY-MM-DD or a timestamp." },
@@ -973,6 +977,7 @@ const calendar: ViewBlock = {
 
 const ridgeline: ViewBlock = {
   type: "ridgeline",
+  extent: (view, rows) => numbersOf(rows, [view.value]),
   description: "One smooth distribution curve per group on a shared axis, overlapping like a mountain range: how values spread in each group, for example deal sizes by region.",
   options: {
     value: { type: "field", kind: "number", required: true, description: "Numeric field whose distribution is drawn." },
@@ -990,6 +995,7 @@ const sankey: ViewBlock = {
   type: "sankey",
   description: "Flows between stages as ribbons as thick as their volume, for example traffic source to landing page to outcome. Each origin's flows keep its color downstream.",
   options: {
+    highlight: highlightCategories,
     source: { type: "field", kind: "category", required: true, description: "Field naming where each flow starts." },
     target: { type: "field", kind: "category", required: true, description: "Field naming where each flow ends." },
     value: { type: "field", kind: "number", required: true, description: "Field with each flow's volume." },
@@ -1150,6 +1156,7 @@ const waffle: ViewBlock = {
   type: "waffle",
   description: "Part to whole as a 10 by 10 grid where each square is one percent, filled category by category in reading order, with a legend of values and shares. Easier to count than a pie. With total, the share of a whole: 62 of 100 squares filled.",
   options: {
+    highlight: highlightCategories,
     label: { type: "field", kind: "category", required: true, description: "Field naming each category." },
     value: { type: "field", kind: "number", required: true, description: "Field with each category's amount. Zero and negative values are left out." },
     total: { type: "number", description: "The whole the values are part of, when they do not add up to it; the rest of the grid stays empty. Example: 100 for percentages." },
@@ -1261,6 +1268,7 @@ const sunburst: ViewBlock = {
   type: "sunburst",
   description: "A hierarchy as rings: the inner ring splits the total by the first level, each outer ring splits its parent's slice by the next level, in lighter tints of the parent's color. The total sits in the middle. For two or three levels of part-to-whole, such as revenue by product and region.",
   options: {
+    highlight: highlightCategories,
     levels: { type: "fields", kind: "category", required: true, description: 'Fields from the top level down, one ring each, for example ["product", "region"]. Up to 3.' },
     value: { type: "field", kind: "number", required: true, description: "Field sizing the slices. Zero and negative values are left out." },
     caption: { type: "string", description: "Text under the total in the middle. Defaults to the value field's label." },
@@ -1281,6 +1289,7 @@ const icicle: ViewBlock = {
   description:
     "A hierarchy laid flat: a column for the total, then one per level left to right, each child splitting its parent's height by value, in lighter tints of its family's color. Rectangles compare and label more easily than rings, so it takes deeper hierarchies than the sunburst. Pointing at a cell lights its family and gives its share of each level.",
   options: {
+    highlight: highlightCategories,
     levels: { type: "fields", kind: "category", required: true, description: 'Fields from the top level down, one column each, for example ["region", "product", "plan"]. Up to 4.' },
     value: { type: "field", kind: "number", required: true, description: "Field sizing the cells. Zero and negative values are left out." },
   },
@@ -1299,6 +1308,7 @@ const chord: ViewBlock = {
   type: "chord",
   description: "Flows between groups around a circle: each group an arc as long as everything it sends and receives, each flow a ribbon from its sender to its receiver, in the sender's color. For exchanges within one set, such as customers moving between plans or staff moving between teams.",
   options: {
+    highlight: highlightCategories,
     source: { type: "field", kind: "category", required: true, description: "Field naming where each flow comes from." },
     target: { type: "field", kind: "category", required: true, description: "Field naming where each flow goes." },
     value: { type: "field", kind: "number", required: true, description: "Field with each flow's size." },
@@ -1311,8 +1321,10 @@ const chord: ViewBlock = {
 
 const radar: ViewBlock = {
   type: "radar",
+  extent: (view, rows) => [...numbersOf(rows, Array.isArray(view.y) ? view.y : [view.y]), ...(typeof view.max === "number" ? [view.max] : [])],
   description: "Profiles across several attributes: one spoke per row, rings for one shared scale from zero, and a soft shape per series. For comparing up to 3 profiles, such as a product against the market on speed, price and support.",
   options: {
+    highlight: highlightCategories,
     label: { type: "field", kind: "category", required: true, description: "Field naming each spoke, such as an attribute." },
     y: { type: "fields", kind: "number", required: true, description: "Field or fields with the scores; each field is one shape. Up to 3 stay readable." },
     max: { type: "number", description: "End of the scale. Defaults to a round number at or above the highest score." },
@@ -1567,6 +1579,7 @@ const dual: ViewBlock = {
 
 const horizon: ViewBlock = {
   type: "horizon",
+  extent: (view, rows) => [...numbersOf(rows, Array.isArray(view.y) ? view.y : [view.y]), ...(typeof view.baseline === "number" ? [view.baseline] : [])],
   description:
     "Many time series at once, each in a thin row: values are measured from a baseline and folded into bands of deepening color, blue above and red below, so a dozen series fit where one line chart would. For spotting which series run hot or cold, and when. Pointing at a period lists every series there.",
   options: {
@@ -1590,6 +1603,7 @@ const horizon: ViewBlock = {
 
 const rose: ViewBlock = {
   type: "rose",
+  extent: (view, rows) => [...numbersOf(rows, Array.isArray(view.y) ? view.y : [view.y]), ...(typeof view.max === "number" ? [view.max] : [])],
   description:
     "A polar area chart (a Nightingale rose) for a cycle that wraps round, such as hours of the day or months of the year: one equal wedge per row, clockwise from twelve o'clock, its area true to its value. Several fields stack outward, each ring adding its own area. For plain ranking, a bar chart reads more exactly.",
   options: {
@@ -1689,6 +1703,7 @@ function unplacedRows(view: Record<string, unknown>, rows: Row[]): string[] {
 
 const choropleth: ViewBlock = {
   type: "choropleth",
+  extent: (view, rows) => [...numbersOf(rows, [view.value]), ...[view.min, view.max].filter((n): n is number => typeof n === "number")],
   description:
     "A map with each region shaded by its value, from the weakest tint to the strongest, with a scale under it: revenue by country, share by state. Regions with no row stay grey and are keyed No data. Built-in tile grids (europe, us-states) give every region the same size, so small countries read as well as big ones; your own GeoJSON draws true shapes.",
   options: {
@@ -1729,9 +1744,11 @@ const choropleth: ViewBlock = {
 
 const symbols: ViewBlock = {
   type: "symbols",
+  extent: (view, rows) => numbersOf(rows, [view.size]),
   description:
     "A map with a circle on each place, its area true to a value: customers by state, volume by port. Places sit on a region of a basemap (by code) or at coordinates on your own GeoJSON; a color field groups them with a key, and a size key shows what the circles mean.",
   options: {
+    highlight: highlightCategories,
     geo: GEO_OPTION(false),
     id: ID_OPTION("circle"),
     lat: LAT_OPTION,
@@ -1823,6 +1840,7 @@ export function isYes(value: unknown): boolean {
 
 const matrix: ViewBlock = {
   type: "matrix",
+  extent: (view, rows) => numbersOf(rows, [view.size ?? view.color]),
   description:
     "A mark matrix (a punchcard): one mark per pair of x and y, sized by a value, shaded by another, or a square where a flag is yes. Rows are the y values, columns the x values; a pair with no row is an empty cell. For regulatory pressure per topic per quarter (size and shade), or who must comply with which rule (a square per yes).",
   options: {
@@ -2197,6 +2215,10 @@ const ragboard: ViewBlock = {
   description:
     "A RAG scorecard: one row per entity (a client, a relationship manager, a deal) and one Red, Amber or Green cell per dimension, worst first, with an overall column holding each row's worst status. Each status has its own shape and words (a filled circle On track, a triangle At risk, a square Off track), so it never rests on color. An arrow in a cell's corner says it improved or got worse since the last period; a strip above counts the statuses and a footer counts them per column.",
   options: {
+    only: {
+      type: "array",
+      description: 'The statuses to show rows for, such as ["R", "A"] for what needs attention: the other rows fold into one line under the table ("and 33 on track"), so the counts still add up.',
+    },
     label: { type: "field", kind: "category", required: true, description: "Field naming each row: the client, the relationship manager or the deal." },
     dimensions: {
       type: "fields",
@@ -2221,6 +2243,10 @@ const ragboard: ViewBlock = {
   },
   validate(view) {
     const problems: string[] = [];
+    const only = view.only;
+    if (only !== undefined && !(Array.isArray(only) && only.length > 0 && only.every((status) => typeof status === "string" && /^(R|A|G|N)$/.test(status)))) {
+      problems.push('only must list statuses to show, from "R", "A", "G" and "N", such as ["R", "A"].');
+    }
     if (view.overall !== undefined && typeof view.overall !== "boolean" && !(typeof view.overall === "string" && view.overall !== "")) problems.push("overall must be true, false or the name of a status field.");
     const prev = view.previous;
     if (prev !== undefined && (!prev || typeof prev !== "object" || Array.isArray(prev) || Object.values(prev).some((v) => typeof v !== "string"))) {
@@ -2282,5 +2308,13 @@ export function periodTime(value: unknown): number | null {
 // Views that took a reference or annotation list check its shape too, on top of their own rules.
 for (const block of [hbar, dot, dumbbell, histogram, boxplot, strips]) withChecks(block, checkReference);
 for (const block of [dual]) withChecks(block, checkAnnotations);
+
+// Sort, top N and "Other" on every category view: declared once here, applied once after the transforms (see shape.ts).
+const SHAPED: Record<string, ViewBlock> = { bar, hbar, dot, dumbbell, slope, donut, pie, treemap, waffle, variance, bullet, meter, rings, strips, list };
+for (const type of SHAPE_VIEWS) {
+  const block = SHAPED[type] as ViewBlock;
+  for (const [name, option] of Object.entries(SHAPE_OPTIONS)) if (!(name in block.options)) block.options[name] = option;
+  withChecks(block, shapeProblems);
+}
 
 export const builtinViews: ViewBlock[] = [table, list, kpi, kpis, bar, hbar, line, area, meter, bullet, donut, treemap, funnel, waterfall, heatmap, calendar, scatter, beeswarm, ridgeline, sankey, dumbbell, slope, bump, marimekko, histogram, rings, timeline, waffle, variance, gauge, pareto, boxplot, likert, candlestick, sunburst, chord, radar, rose, horizon, icicle, dot, pyramid, dual, choropleth, symbols, locator, pie, matrix, strips, lifecycle, whitespace, xray, history, anomalies, board, ragboard, ragtrend];
