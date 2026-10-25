@@ -11,12 +11,13 @@ export default defineConfig({
   build: {
     // Not dist/: that is the drop-in library (npm run build:lib), and each build empties its folder.
     outDir: "dist-demo",
-    // Three pages: the gallery, the Taller (elBulli's creative workshop for charts) and the selected variations.
+    // Four pages: the gallery, the Taller (elBulli's creative workshop for charts), the selected variations and the editor.
     rollupOptions: {
       input: {
         main: fileURLToPath(new URL("./index.html", import.meta.url)),
         taller: fileURLToPath(new URL("./taller.html", import.meta.url)),
         selected: fileURLToPath(new URL("./selected.html", import.meta.url)),
+        editor: fileURLToPath(new URL("./editor.html", import.meta.url)),
       },
     },
   },

@@ -16,6 +16,8 @@ export { createWidget } from "./dom/widget.ts";
 export type { SelectDetail, Widget, WidgetOptions } from "./dom/widget.ts";
 export { defineWidgetElement } from "./dom/element.ts";
 export { createPalettePicker } from "./dom/palette-picker.ts";
+export { createEditor, columnKind, embedCodes, ensureEditorStyles, gridOf, readHash, rowsFromJson, rowsFromTable, STRINGS as EDITOR_STRINGS, writeHash } from "./dom/editor.ts";
+export type { Editor, EditorOptions, EditorSample } from "./dom/editor.ts";
 export { createDashboard } from "./dom/dashboard.ts";
 export type { Dashboard, DashboardOptions } from "./dom/dashboard.ts";
 export { download, svgToPng, toDelimited } from "./dom/export.ts";
