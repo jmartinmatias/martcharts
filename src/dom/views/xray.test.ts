@@ -118,9 +118,10 @@ describe("xray view (one client on one card)", () => {
 
   test("the guide, the question and the recommendation treat the card as one client", () => {
     const spec: WidgetSpec = { data: { type: "inline", rows: [client] }, fields, view };
-    expect(explainChart(spec, [client])).toMatch(/This card is one entry, top to bottom: the key numbers, the products in color are the ones they hold, the bar is how much of their share of wallet is with us/);
+    expect(explainChart(spec, [client])).toMatch(/This card is one client, top to bottom: the key numbers, the products in color are the ones they hold, the bar is how much of their share of wallet is with us/);
     expect(explainChart(spec, [client])).toMatch(/Here, Aldana Holdings holds 2 of 3 products and has a share of wallet of 41%\./);
-    expect(questionOf({ ...spec, title: "Client x-ray" }).text).toBe("How does this entry stand right now, and what should we do next?");
+    // The card's own title names the row: a client, never "entry".
+    expect(questionOf({ ...spec, title: "Client x-ray" }).text).toBe("How does this client stand right now, and what should we do next?");
     const pick = recommendCharts([client]).find((p) => p.type === "xray");
     expect(pick?.view).toEqual({ type: "xray", label: "name", facts: ["aum", "revenue", "products", "sinceYear"], holdings: ["custody", "advisory", "lending"], wallet: "shareOfWallet" });
   });

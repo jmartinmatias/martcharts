@@ -106,7 +106,7 @@ describe("history view (a client's story)", () => {
 
   test("the guide, the question and the recommendation read it as a story", () => {
     const spec: WidgetSpec = { data: { type: "inline", rows: events }, fields, view };
-    expect(explainChart(spec, events)).toMatch(/Each dot is one event for the entry, newest at the top, with its date and what happened and, on the right, the amount\. Each color and letter is one kind\./);
+    expect(explainChart(spec, events)).toMatch(/Each dot is one event for the client, newest at the top, with its date and what happened and, on the right, the amount\. Each color and letter is one kind\./);
     expect(explainChart(spec, events)).toMatch(/Here, there are 5 events, 2 of them calls; the latest is Quarterly check-in on Oct 21, 2026\./);
     expect(questionOf(spec).text).toBe("What happened with the client, and when?");
     const pick = recommendCharts(events).find((p) => p.type === "history");

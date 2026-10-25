@@ -92,7 +92,8 @@ describe("anomalies view", () => {
     const spec: WidgetSpec = { data: { type: "inline", rows: readings }, view };
     const words = explainChart(spec, readings);
     expect(words).toContain("Each thin lane is one metric");
-    expect(words).toContain("Here, 2 readings were flagged across 1 of 2 measures; Fees stepped out most, 2 times");
+    // One measure alone stepped out: named, with its last reading against what was expected, on a calendar date.
+    expect(words).toContain("Here, only Fees stepped out of its band, twice, last on Oct 4, 2026, reading 30 against 50 expected.");
     expect(questionOf(spec, readings).text).toMatch(/stepped out of their expected range, and when\?$/);
   });
 

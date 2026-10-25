@@ -7,9 +7,10 @@
  * Numbers and dates already follow the locale through `Intl`, and names in the data or the spec (titles, field
  * labels, filter labels) are the author's own, so they are never translated here.
  *
- * Not covered yet, and English in every locale: the reading layers (`explainChart`, `questionOf`, the chart guide and
- * the Taller's words), validation and developer messages (a view that failed, a spec that is not valid JSON), and
- * the MCP tools. Those are written for the people who build charts, not the people who read them.
+ * The reading guide and the question (`explainChart`, `questionOf`) speak French and German too, built as sentences in
+ * their own language in `explain-words.ts` rather than from this table. English in every locale: the chart guide and
+ * the Taller's words, validation and developer messages (a view that failed, a spec that is not valid JSON), and the
+ * MCP tools. Those are written for the people who build charts, not the people who read them.
  *
  * Each set is keyed by meaning, and the French and German sets are typed as the English one, so a missing word is a
  * type error, not a gap on screen.

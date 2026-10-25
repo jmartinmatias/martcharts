@@ -139,7 +139,7 @@ describe("matrix view", () => {
     expect(explainChart(spec, pressure)).toContain("Here, the biggest mark is AML in 2026-Q2, with 36 obligations");
     expect(questionOf(spec, pressure).text).toBe("Where does obligations concentrate, by topic and quarter?");
     const markedSpec = { data: { type: "inline", rows: scope }, view: marked.view } as WidgetSpec;
-    expect(explainChart(markedSpec, scope)).toContain("Here, DORA is marked must comply in all 2 stakeholders");
+    expect(explainChart(markedSpec, scope)).toContain("Here, all 2 stakeholders must comply with DORA, more than with any other of the regulations.");
     expect(recommendCharts(scope).map((pick) => pick.type)).toContain("matrix");
     expect(recommendCharts(pressure).find((pick) => pick.type === "matrix")?.view).toEqual({ type: "matrix", x: "quarter", y: "topic", size: "obligations", color: "impact" });
   });
