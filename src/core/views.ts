@@ -170,6 +170,8 @@ export interface WaterfallView {
   totals?: string[];
   endLabel?: string;
   fit?: boolean;
+  /** Step names to keep in color; the other steps step back. */
+  highlight?: string | string[];
 }
 
 /** `{ type: "heatmap", x, y, value }`: one cell per x and y pair, shaded by value. */
@@ -195,6 +197,10 @@ export interface ScatterView {
   labels?: boolean;
   /** Four quadrants split at x and y, each with a faint corner word. */
   quadrants?: Quadrants;
+  /** Dot labels or groups to keep in color; the other dots step back. */
+  highlight?: string | string[];
+  /** Short notes pinned to dots, by label or x value. */
+  annotations?: Annotation[];
 }
 
 /** `{ x, y, labels? }`: the lines that split a scatter into four, and the words in its corners, top-left first then clockwise. */
@@ -562,6 +568,8 @@ export interface DualView {
   marks?: [DualMark, DualMark];
   /** The texture of lines between points. */
   curve?: "linear" | "smooth" | "step";
+  /** Short notes pinned to periods on the top panel. */
+  annotations?: Annotation[];
 }
 
 export type DualMark = "bar" | "line";
@@ -1782,6 +1790,8 @@ export interface MatrixView {
   color?: string;
   mark?: string;
   label?: string;
+  /** Row or column values to keep in color; the other marks step back. */
+  highlight?: string | string[];
 }
 
 /** `{ type: "strips", label, parts, per?, unit? }`: one square per unit in a strip per row, colored by part. */
@@ -1802,6 +1812,8 @@ export interface LifecycleView {
   today?: boolean | string;
   status?: string;
   impact?: string;
+  /** Rows to keep in color, by label; the other rows step back. */
+  highlight?: string | string[];
 }
 
 /** Whether a value reads as a yes: true, 1, "true", "yes", "y", "x", "required" or "must". */
