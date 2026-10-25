@@ -98,12 +98,15 @@ export const renderPie: ViewRenderer<PieView> = (ctx) => {
     disc.append(mark);
   });
 
+  /** Slices whose share is written on them: the legend leaves their share out, so no share is said twice. */
+  const onSlice = new Set<number>();
   if (labels === "inside") {
     // A share goes on its slice only where the slice is wide enough to hold it at the label's radius.
     slices.forEach((slice, i) => {
       const span = (slice.amount / total) * Math.PI * 2;
       const text = shares[i] as string;
       if (span * r * INSIDE_AT < textWidth(text, 10, 600) + 8 || span < 0.3) return;
+      onSlice.add(i);
       const at = polar(c, c, r * INSIDE_AT, mids[i] as number);
       const node = svg(doc, "text", { class: "fft-pie-label", x: at.x, y: at.y, "text-anchor": "middle", "dominant-baseline": "central", style: `--fft-i: ${i}` });
       node.textContent = text;
@@ -142,7 +145,7 @@ export const renderPie: ViewRenderer<PieView> = (ctx) => {
   const hidden = hiddenTableOf(ctx, slices.map((slice) => slice.row), [label, value]);
   roving(marks);
   // Outside labels already name every slice; inside small multiples the widget draws one legend for every panel.
-  const legend = outside || ctx.inFacet ? [] : [sliceLegend(ctx, label, slices, total, color, amountText, share)];
+  const legend = outside || ctx.inFacet ? [] : [sliceLegend(ctx, label, slices, total, color, amountText, share, onSlice)];
   wrap.append(figure, ...legend, hidden);
   ctx.el.append(wrap);
 };

@@ -275,6 +275,9 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
     kind !== "bar" && !stream && (view as LineView).endLabels !== false && series.length <= 4
       ? series.map((field, s) => {
           if (!seriesOn(s)) return null;
+          // A headline that already states this series' last value says it once: no end label repeating it.
+          const headline = ctx.spec.headline;
+          if (headline && headline.value === field && (headline.agg ?? "last") === "last" && !ctx.inFacet) return null;
           const index = raw[s]?.findLastIndex((v) => v !== null) ?? -1;
           return index < 0 ? null : { s, index, text: ctx.format(rows[index]?.[field], field) };
         })

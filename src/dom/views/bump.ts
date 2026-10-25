@@ -119,11 +119,13 @@ export const renderBump: ViewRenderer<BumpView> = (ctx) => {
     line.style.stroke = color;
     group.append(line);
     let end: SVGCircleElement | undefined;
-    for (const at of coords) {
+    // Dots at the two ends, where the ranks are written; the ones between show while the line is pointed at.
+    coords.forEach((at, i) => {
       end = svg(doc, "circle", { class: "fft-bump-dot", cx: at.x, cy: at.y, r: 4 });
+      if (i > 0 && i < coords.length - 1) end.setAttribute("data-mid", "");
       end.style.fill = color;
       group.append(end);
-    }
+    });
     const start = coords[0] as { x: number; y: number };
     const finish = coords.at(-1) as { x: number; y: number };
     const fromLabel = label("fft-bump-label-from", { x: start.x - 10, y: start.y }, "end", compact ? [["fft-bump-rank", String(first.rank)]] : [

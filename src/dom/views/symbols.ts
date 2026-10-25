@@ -59,7 +59,7 @@ export const renderSymbols: ViewRenderer<SymbolsView> = (ctx) =>
     const amountText = evenFormat(ctx, size, sized.map((p) => p.amount));
 
     const wrap = html(doc, "div", "fft-chart fft-map-wrap");
-    const canvas = mapCanvas(doc, width, height, wordsFor(ctx).aria.symbols(ctx.label(size), label ? ctx.label(label) : undefined), collection, projection.shapes);
+    const canvas = mapCanvas(doc, width, height, wordsFor(ctx).aria.symbols(ctx.label(size), label ? ctx.label(label) : undefined), collection, projection.shapes, new Set(placed.flatMap((p) => (p.shape ? [p.shape.id] : []))));
     const layer = svg(doc, "g", { class: "fft-map-symbols" });
     const marks: SVGCircleElement[] = [];
     const deactivate = () => {

@@ -131,7 +131,7 @@ export function placeRows(
 }
 
 /** The map's svg, sized to its frame, with the land drawn muted underneath. */
-export function mapCanvas(doc: Document, width: number, height: number, label: string, collection: GeoCollection | undefined, shapes: ProjectedShape[]): SVGSVGElement {
+export function mapCanvas(doc: Document, width: number, height: number, label: string, collection: GeoCollection | undefined, shapes: ProjectedShape[], marked: ReadonlySet<string> = new Set()): SVGSVGElement {
   const canvas = svg(doc, "svg", { class: "fft-map", width, height, viewBox: `0 0 ${width} ${height}` });
   if (collection?.grid) canvas.classList.add("fft-map-grid");
   canvas.setAttribute("role", "group");
@@ -139,11 +139,13 @@ export function mapCanvas(doc: Document, width: number, height: number, label: s
   const land = svg(doc, "g", { class: "fft-map-landscape" });
   land.setAttribute("aria-hidden", "true");
   for (const shape of shapes) land.append(svg(doc, "path", { class: "fft-map-land", d: shape.path }));
-  // On a tile grid the squares say nothing by themselves, so each wears its code, faintly, under the marks.
+  // On a tile grid the squares say nothing by themselves, so each empty one wears its code, faintly. A tile with a
+  // mark on it (a symbol, a located place) leaves its code out: the mark and its tooltip name it, and two layers of
+  // text on one square read as noise.
   if (collection?.grid) {
     for (const shape of shapes) {
       const code = shape.id || shape.name;
-      if (!code || !labelFits(shape, code)) continue;
+      if (!code || !labelFits(shape, code) || marked.has(shape.id)) continue;
       const text = svg(doc, "text", { class: "fft-map-code", x: shape.centroid[0], y: shape.bounds[3] - 3, "text-anchor": "middle" });
       text.textContent = code;
       land.append(text);

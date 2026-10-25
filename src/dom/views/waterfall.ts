@@ -3,7 +3,7 @@ import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { WaterfallView } from "../../core/views.ts";
 import { bands, CHAR_WIDTH, layoutWaterfall, linearScale } from "../layout.ts";
-import { highlights, tickFormatter } from "./chart.ts";
+import { highlights } from "./chart.ts";
 import { hiddenTableOf, html, selectable, svg } from "./shared.ts";
 import { edgeAnchor, edgeX } from "./label-fit.ts";
 import { roving } from "./focus.ts";
@@ -44,11 +44,10 @@ export const renderWaterfall: ViewRenderer<WaterfallView & { highlight?: string 
   }
   // Small multiples pass the levels every panel must cover, so the panels share one scale.
   if (ctx.extent && !fit) levels.push(...ctx.extent);
-  const rough = linearScale(levels, [1, 0], { includeZero: !fit }).ticks;
-  const tickText = tickFormatter(ctx, value, rough);
-  const left = Math.max(28, Math.max(...rough.map((t) => tickText(t).length)) * CHAR_WIDTH + 12);
-  const margin = { top: 21, right: 5, bottom: 26, left };
-  const width = Math.max(ctx.width, left + 89);
+  // Every bar writes its own value, so a value axis would only say the numbers twice: no tick labels and no
+  // gridlines, a quiet baseline only, and the room an axis would take goes to the bars.
+  const margin = { top: 21, right: 5, bottom: 26, left: 5 };
+  const width = Math.max(ctx.width, margin.left + 89);
   const height = ctx.height;
   const plot = { x: margin.left, y: margin.top, w: width - margin.left - margin.right, h: height - margin.top - margin.bottom };
   const y = linearScale(levels, [plot.y + plot.h, plot.y], { includeZero: !fit });
@@ -61,13 +60,8 @@ export const renderWaterfall: ViewRenderer<WaterfallView & { highlight?: string 
   chart.setAttribute("role", "group");
   chart.setAttribute("aria-label", wordsFor(ctx).aria.waterfall(ctx.label(value), ctx.label(label)));
 
-  for (const tick of y.ticks) {
-    const ty = y(tick);
-    chart.append(svg(doc, "line", { class: tick === (fit ? floor : 0) ? "fft-baseline" : "fft-gridline", x1: plot.x, x2: plot.x + plot.w, y1: ty, y2: ty }));
-    const text = svg(doc, "text", { class: "fft-tick fft-tick-y", x: plot.x - 8, y: ty, "text-anchor": "end", "dominant-baseline": "middle" });
-    text.textContent = tickText(tick);
-    chart.append(text);
-  }
+  const base = y(fit ? floor : Math.max(floor, Math.min(0, y.domain[1])));
+  chart.append(svg(doc, "line", { class: "fft-baseline", x1: plot.x, x2: plot.x + plot.w, y1: base, y2: base }));
 
   const widest = Math.max(...names.map((name) => name.length)) * CHAR_WIDTH + 8;
   const every = Math.max(1, Math.ceil((steps.length * widest) / plot.w));

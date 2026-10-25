@@ -71,9 +71,10 @@ describe("matrix view", () => {
     expect(all(".fft-heat-ramp [data-step]").length).toBe(7);
   });
 
-  test("a mark field draws a square where it is yes and a faint dot where it is no, keyed by the field's label", async () => {
+  // A "no" used to draw a faint dot; the empty cell already says it, so nothing is drawn there now.
+  test("a mark field draws a square where it is yes and nothing where it is no, keyed by the field's label", async () => {
     await draw(marked);
-    expect([all(".fft-mx-yes").length, all(".fft-mx-no").length]).toEqual([3, 1]);
+    expect([all(".fft-mx-yes").length, all(".fft-mx-no").length]).toEqual([3, 0]);
     expect(texts(".fft-legend li")).toEqual(["Must comply"]);
     expect(texts(".fft-sr-only td")).toEqual(["Yes", "Yes", "Yes", "No"]);
   });

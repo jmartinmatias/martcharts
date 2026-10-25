@@ -54,10 +54,11 @@ describe("history view (a client's story)", () => {
     expect(texts(".fft-history-month")[0]).toBe("June 2026");
   });
 
-  test("each kind takes a color and a letter, keyed in a legend", async () => {
+  // The dot used to carry the kind's first letter too; colour and the key say it, so the dot is a plain swatch now.
+  test("each kind takes a color, keyed in a legend, the dot a plain swatch", async () => {
     await draw({ rows: events, fields, view });
     expect(texts(".fft-legend li")).toEqual(["Call", "Trade", "Campaign", "Complaint"]);
-    expect(texts(".fft-history-dot")).toEqual(["C", "T", "C", "C", "C"]);
+    expect(texts(".fft-history-dot")).toEqual(["", "", "", "", ""]);
     const dots = all(".fft-history-dot") as HTMLElement[];
     expect(dots[0]?.style.background).toBe(dots[4]?.style.background);
     expect(dots[0]?.style.background).not.toBe(dots[1]?.style.background);

@@ -53,9 +53,15 @@ export function linearScale(values: number[], range: [number, number], opts: { i
     low = Math.min(low, 0);
     high = Math.max(high, 0);
   }
-  const ticks = niceTicks(low, high, opts.count);
-  const domain: [number, number] = opts.nice === false ? [low, high] : [ticks[0] ?? low, ticks[ticks.length - 1] ?? high];
   const [r0, r1] = range;
+  // A gridline budget from the room the axis has: at most 6 ticks (the baseline and 5 gridlines) under 480px, 8 over.
+  // A unit range ([1, 0], used to measure tick labels before the layout is known) keeps the plain count.
+  const length = Math.abs(r1 - r0);
+  const budget = length < 2 ? Infinity : length < 480 ? 6 : 8;
+  let count = opts.count ?? 5;
+  let ticks = niceTicks(low, high, count);
+  while (ticks.length > budget && count > 2) ticks = niceTicks(low, high, --count);
+  const domain: [number, number] = opts.nice === false ? [low, high] : [ticks[0] ?? low, ticks[ticks.length - 1] ?? high];
   const span = domain[1] - domain[0] || 1;
   const scale = (value: number) => r0 + ((value - domain[0]) / span) * (r1 - r0);
   return Object.assign(scale, { domain, ticks });

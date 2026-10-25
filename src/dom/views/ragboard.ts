@@ -114,8 +114,18 @@ export const renderRagboard: ViewRenderer<RagboardView> = (ctx) => {
   const corner = html(doc, "th", "fft-rag-corner", ctx.label(label));
   corner.scope = "col";
   headRow.append(corner);
+  // Headers wrap at word boundaries, never inside a word. When a column is too narrow for the longest word of any
+  // header ("development" in a 30px column), every header turns upright instead, read bottom to top, whole.
+  const longestWord = Math.max(0, ...columns.flatMap((column) => column.title.split(/\s+/).map((word) => textWidth(word, 11, 500))));
+  const lean = longestWord > cell - 6;
+  if (lean) table.dataset.lean = "";
   columns.forEach((column) => {
-    const th = html(doc, "th", column.key === OVERALL ? "fft-rag-head fft-rag-head-overall" : "fft-rag-head", column.title);
+    const kind = column.key === OVERALL ? "fft-rag-head fft-rag-head-overall" : "fft-rag-head";
+    const th = html(doc, "th", lean ? `${kind} fft-rag-head-lean` : kind);
+    if (lean) {
+      th.append(html(doc, "span", undefined, column.title));
+      th.title = column.title;
+    } else th.textContent = column.title;
     th.scope = "col";
     headRow.append(th);
   });

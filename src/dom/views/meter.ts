@@ -53,7 +53,8 @@ export const renderMeter: ViewRenderer<MeterView> = (ctx) => {
     track.append(fill);
     const foot = html(doc, "div", "fft-meter-foot");
     foot.append(html(doc, "span", "fft-meter-value", wordsFor(ctx).outOf(ctx.format(row[valueField], valueField), ctx.format(row[targetField], targetField))));
-    if (stand) foot.append(html(doc, "span", "fft-meter-gap", stand));
+    // A met target says so once, with its check (the track's aria-label keeps the words). A miss says what is left.
+    if (stand && !met) foot.append(html(doc, "span", "fft-meter-gap", stand));
     meter.append(head, track, foot);
     // The tooltip says what the meter shows in figures: the value, the target, the attainment and what is left.
     const items = [

@@ -18,6 +18,8 @@ const GRID_CSS = `
 .fft-rag-table[data-fixed] { table-layout: fixed; width: auto; }
 .fft-rag-table[data-fixed] .fft-rag-cell { width: var(--fft-rag-cell, 44px); min-width: 0; }
 .fft-rag-table[data-fixed] .fft-rag-head { min-width: 0; max-width: none; }
+.fft-rag-head-lean { vertical-align: bottom; padding: 0 0 5px; }
+.fft-rag-head-lean > span { display: inline-block; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; max-height: 120px; overflow: hidden; text-overflow: ellipsis; text-align: left; }
 .fft-rag-table[data-fixed] .fft-rag-name { min-width: 0; overflow: hidden; }
 .fft-rag-table[data-fixed] .fft-rag-name-text, .fft-rag-table[data-fixed] .fft-rag-note { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .fft-rag-fold { margin: 0; font-size: var(--fft-fs-s); line-height: 21px; color: var(--fft-text-secondary); }

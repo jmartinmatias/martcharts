@@ -156,7 +156,8 @@ export const renderMatrix: ViewRenderer<MatrixView> = (ctx) => {
           node = svg(doc, "rect", { class: "fft-mx-yes", x: cx - side / 2, y: cy - side / 2, width: side, height: side, rx: Math.min(4, side / 4) });
           fillOf(row, node);
           room = side;
-        } else node = svg(doc, "circle", { class: "fft-mx-no", cx, cy, r: 1.5 });
+        }
+        // A "no" cell stays empty: the faint grid already says nothing is there, and the tooltip and aria say "No".
       } else {
         const amount = size ? readNumber(row[size]) : null;
         const r = size ? (amount !== null && amount > 0 && smax > 0 ? Math.max(2, rmax * Math.sqrt(amount / smax)) : 0) : rmax * 0.62;

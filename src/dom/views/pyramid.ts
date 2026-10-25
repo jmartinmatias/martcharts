@@ -3,7 +3,7 @@ import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { PyramidView } from "../../core/views.ts";
 import { linearScale } from "../layout.ts";
-import { highlights, tickFormatter } from "./chart.ts";
+import { highlights } from "./chart.ts";
 import { activeGroup, hiddenTableOf, html, roving, rowHeight, rowHit, svg, textWidth } from "./shared.ts";
 import { fitLabel, writeLabel } from "./label-fit.ts";
 import { wordsFor } from "./words.ts";
@@ -15,8 +15,8 @@ const GUTTER = 8;
  * Draws the `pyramid` view: one row per band, its two counts as bars growing out
  * from a center axis on one shared scale, the left field leftward and the right
  * field rightward. Each half is headed by its field, in its color, so the two
- * sides need no legend; every bar writes its value at its end, and a hairline
- * grid with a few ticks under each half gives the scale.
+ * sides need no legend; every bar writes its value at its end, so there is no
+ * value axis to repeat them.
  */
 export const renderPyramid: ViewRenderer<PyramidView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
@@ -28,8 +28,6 @@ export const renderPyramid: ViewRenderer<PyramidView> = (ctx) => {
   const present = [...lefts, ...rights, ...(ctx.extent ?? []).map((n) => Math.max(0, n))];
   const scale = linearScale(present, [0, 1], { includeZero: true });
   const max = Math.max(...scale.ticks, 1);
-  const ticks = scale.ticks.filter((tick) => tick > 0);
-  const tickText = tickFormatter(ctx, right, scale.ticks);
 
   const names = rows.map((row) => ctx.format(row[label], label));
   const leftText = rows.map((row) => ctx.format(row[left], left));
@@ -44,7 +42,7 @@ export const renderPyramid: ViewRenderer<PyramidView> = (ctx) => {
   // Room for the value at a bar's end: the longest written here, or the largest the shared scale allows, so panels of
   // small multiples keep the same pixels per unit.
   const top = Math.max(0, ...present);
-  const margin = { top: 21, bottom: 26, left: longest([...leftText, ctx.format(top, left)]) + GUTTER + 5, right: longest([...rightText, ctx.format(top, right)]) + GUTTER + 5 };
+  const margin = { top: 21, bottom: 5, left: longest([...leftText, ctx.format(top, left)]) + GUTTER + 5, right: longest([...rightText, ctx.format(top, right)]) + GUTTER + 5 };
   const width = Math.max(ctx.width, margin.left + margin.right + center + 144);
   const half = (width - margin.left - margin.right - center) / 2;
   const height = margin.top + rows.length * LANE + margin.bottom;
@@ -77,18 +75,8 @@ export const renderPyramid: ViewRenderer<PyramidView> = (ctx) => {
 
   const plotTop = margin.top;
   const plotBottom = margin.top + rows.length * LANE;
-  // Gridlines mirror either side of the center, labelled under the plot; the center axis is the baseline.
-  for (const tick of ticks) {
-    for (const [x, anchor] of [
-      [leftEdge - span(tick), "middle"],
-      [rightEdge + span(tick), "middle"],
-    ] as const) {
-      chart.append(svg(doc, "line", { class: "fft-gridline", x1: x, x2: x, y1: plotTop, y2: plotBottom }));
-      const text = svg(doc, "text", { class: "fft-tick fft-tick-x", x, y: plotBottom + 18, "text-anchor": anchor });
-      text.textContent = tickText(tick);
-      chart.append(text);
-    }
-  }
+  // Every bar writes its own count at its end, so ticks and gridlines would only say the numbers twice: the two
+  // centre axes are the only lines.
   chart.append(svg(doc, "line", { class: "fft-baseline", x1: leftEdge, x2: leftEdge, y1: plotTop, y2: plotBottom }), svg(doc, "line", { class: "fft-baseline", x1: rightEdge, x2: rightEdge, y1: plotTop, y2: plotBottom }));
 
   const hits: Element[] = [];

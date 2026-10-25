@@ -75,7 +75,9 @@ export const renderHistory: ViewRenderer<HistoryView> = (ctx) => {
       const color = colorOf(event);
       const item = html(doc, "li", "fft-history-event");
       item.style.setProperty("--fft-i", String(i));
-      const dot = html(doc, "span", "fft-history-dot", kind ? kindText(String(row[kind])).charAt(0).toUpperCase() : "");
+      // The kind is said by the dot's color and the key; its name is in the tooltip and the event's label, not as a
+      // letter on the dot too.
+      const dot = html(doc, "span", "fft-history-dot");
       dot.style.background = color;
       dot.setAttribute("aria-hidden", "true");
       const body = html(doc, "div", "fft-history-body");
