@@ -29,7 +29,7 @@ export function explainChart(spec: WidgetSpec, rows: Row[] = []): string {
   const facet = (spec.facet as { field?: string } | undefined)?.field;
   // A dashed target line says what it is, so the chart reads against it.
   const goal = targetLine(spec);
-  const lined = goal ? `${guide(spec)} The dashed line is the ${goal.name}.${missKey(spec)}` : guide(spec);
+  const lined = `${goal ? `${guide(spec)} The dashed line is the ${goal.name}.${missKey(spec)}` : guide(spec)}${highlighted(spec)}`;
   // Small multiples: one chart per value, so an example across all rows would mix the panels up.
   const general = facet ? `${lined} There is one small chart for each ${nameOf(facet, spec)}, all on the same scale.` : lined;
   const example = rows.length ? (facet ? facetExample(spec, rows, facet) : exampleOf(spec, rows)) : "";
@@ -57,6 +57,20 @@ function facetExample(spec: WidgetSpec, rows: Row[], facet: string): string {
   const entity = nameOf(facet, spec);
   const count = grew.length === runs.length ? `every ${entity}` : `${grew.length} of ${runs.length} ${plural(entity)}`;
   return `Here, ${count} grew from ${show(best.first, x)} to ${show(best.last, x)}, and ${best.name} grew the most, from ${show(best.first, field)} to ${show(best.last, field)}.`;
+}
+
+/**
+ * What `highlight` does, in words: the named marks keep their strength and the rest step back. Read by fill, never
+ * by a named color. Empty when nothing is highlighted, or when the view would only say what its own guide says.
+ */
+function highlighted(spec: WidgetSpec): string {
+  const view = (spec.view ?? { type: "table" }) as View;
+  const picked = (Array.isArray(view.highlight) ? view.highlight : view.highlight === undefined || view.highlight === "" ? [] : [view.highlight]).map(String);
+  if (!picked.length) return "";
+  // Lines and areas name series (fields); the other views name categories (values).
+  const names = ["line", "area"].includes(view.type) ? picked.map((field) => nameOf(field, spec)) : picked;
+  const list = names.length === 1 ? names[0] : `${names.slice(0, -1).join(", ")} and ${names.at(-1)}`;
+  return ` ${list} ${names.length === 1 ? "stands" : "stand"} out; the rest step back.`;
 }
 
 /** A reference line drawn at a fixed target (labelled target, plan, goal, budget or quota), on bars and lines. */
@@ -1236,7 +1250,7 @@ function guide(spec: WidgetSpec): string {
       const lollipop = view.mark === "lollipop";
       const mark = lollipop ? "stick with a dot" : "bar";
       const more = lollipop ? "The higher the dot" : "The taller the bar";
-      const compared = typeof view.compare === "string" ? ` The wider grey bar behind each one is ${name(view.compare)}, to compare against.` : "";
+      const compared = typeof view.compare === "string" ? ` The wider, fainter bar behind each one is ${name(view.compare)}, to compare against.` : "";
       if (series.length > 1 && view.stacked) return `Each bar is one ${name(one(view.x))}, split into colored parts for ${both(series.map((f) => name(f)))}. ${view.stacked === "percent" ? "Every bar adds up to 100%, so compare the sizes of the parts." : "The parts add up to the total, so the whole bar is the total."}`;
       if (series.length > 1) return `Each group of bars is one ${name(one(view.x))}, with one color each for ${both(series.map((f) => name(f)))}. The taller the bar, the more.`;
       const goal = one(view.lines);
@@ -1324,7 +1338,7 @@ function guide(spec: WidgetSpec): string {
       const [from, to] = [one(view.from), one(view.to)];
       const change = from && to && PERIOD.test(from) && PERIOD.test(to);
       if (view.mark === "arrow") {
-        const colored = change ? " A blue arrow rose and a red one fell;" : " The dot is the first value;";
+        const colored = change ? " An arrow pointing right went up and one pointing left went down;" : " The dot is the first value;";
         return `Each row is an arrow from ${name(from, "the first value")} to ${name(to, "the second")}.${colored} the longer the arrow, the bigger the ${change ? "change" : "gap"}.`;
       }
       return `Each row has two dots: ${name(from, "the first value")} and ${name(to, "the second")}. The line between them is the ${change ? "change" : "gap"}.`;
@@ -1386,8 +1400,8 @@ function guide(spec: WidgetSpec): string {
       return `Each row is one ${noun(one(view.label))}. The further right the dot, the more ${name(measures[0])}.`;
     }
     case "choropleth":
-      if (one(view.category)) return `Each region on the map is one ${noun(one(view.id), "region")}, colored by its ${name(one(view.category))}; the key says which color is which, and a grey region has no data.`;
-      return `Each region on the map is one ${noun(one(view.id), "region")}. The stronger its shade, the more ${name(one(view.value))}; a grey region has no data.`;
+      if (one(view.category)) return `Each region on the map is one ${noun(one(view.id), "region")}, colored by its ${name(one(view.category))}; the key says which color is which, and a faded region has no data.`;
+      return `Each region on the map is one ${noun(one(view.id), "region")}. The stronger its shade, the more ${name(one(view.value))}; a faded region has no data.`;
     case "board": {
       const grouped = one(view.group) ? ` The dot on a card tells its ${name(one(view.group))}, as the key says.` : "";
       const valued = one(view.value) ? ` The number on a card is its ${name(one(view.value))}.` : "";

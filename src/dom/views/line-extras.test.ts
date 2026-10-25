@@ -118,7 +118,7 @@ describe("bar compare columns", () => {
     const base = { data: { type: "inline", rows: years }, fields, view: { type: "bar", x: "region", y: ["revenue", "lastYear"], compare: "lastYear" } };
     expect(validateSpec(base, years).map((i) => i.message).join(" ")).toMatch(/compare draws behind one series/);
     expect(validateSpec({ ...base, view: { ...base.view, y: "revenue", stacked: true } }, years).map((i) => i.message).join(" ")).toMatch(/compare draws behind one series/);
-    expect(explainChart({ ...base, view: { ...base.view, y: "revenue" } } as WidgetSpec)).toContain("The wider grey bar behind each one is last year, to compare against.");
+    expect(explainChart({ ...base, view: { ...base.view, y: "revenue" } } as WidgetSpec)).toContain("The wider, fainter bar behind each one is last year, to compare against.");
   });
 });
 
