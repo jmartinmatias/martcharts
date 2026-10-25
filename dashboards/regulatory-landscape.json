@@ -2,7 +2,7 @@
   "id": "regulatory-landscape",
   "title": "Regulatory landscape",
   "subtitle": "What is due, the pressure, whom it hits and where it binds",
-  "description": "The regulatory watch as a story, for the compliance officer: the headline numbers, then what applies next and who owns each deadline, the pressure building by topic, the impact on each kind of firm, where the rules bind, and their volume and density.",
+  "description": "The regulatory watch as a story, for the compliance officer: the headline numbers, then what applies next and who owns each deadline, the pressure building by topic, the impact on each kind of firm, where the rules bind, their volume and density, and, folded away, national transposition.",
   "asOf": "2026-10-25",
   "columns": 4,
   "range": {
@@ -30,10 +30,8 @@
       "widget": "reg-applying-soon-kpi"
     },
     {
-      "widget": "reg-deadlines-kpi"
-    },
-    {
-      "widget": "reg-consultations-kpi"
+      "widget": "reg-consultations-kpi",
+      "span": 2
     },
     {
       "section": "What applies next",
@@ -44,15 +42,8 @@
       "span": 4
     },
     {
-      "widget": "reg-status-board",
-      "span": 4
-    },
-    {
       "widget": "reg-lifecycle",
-      "span": 3
-    },
-    {
-      "widget": "reg-stage-funnel"
+      "span": 4
     },
     {
       "section": "Pressure",
@@ -75,24 +66,16 @@
       "span": 2
     },
     {
-      "widget": "reg-stakeholder-matrix"
-    },
-    {
-      "widget": "reg-stakeholder-sankey"
-    },
-    {
-      "section": "Where the rules bind",
-      "description": "Where do the rules apply, and where does national law lag?"
-    },
-    {
-      "widget": "reg-rules-by-country",
+      "widget": "reg-stakeholder-matrix",
       "span": 2
     },
     {
-      "widget": "reg-transposition-map"
+      "section": "Where the rules bind",
+      "description": "Where do the rules apply?"
     },
     {
-      "widget": "reg-days-late-map"
+      "widget": "reg-rules-by-country",
+      "span": 4
     },
     {
       "section": "Volume and density",
@@ -103,20 +86,28 @@
       "span": 2
     },
     {
-      "widget": "reg-provisions-treemap",
-      "span": 2
-    },
-    {
       "widget": "reg-density-strips",
-      "span": 2
-    },
-    {
-      "widget": "reg-mandatory-dot",
       "span": 2
     },
     {
       "widget": "reg-density-table",
       "span": 4
+    },
+    {
+      "section": "National transposition",
+      "description": "Where does national law lag the EU directives?",
+      "collapsed": true
+    },
+    {
+      "widget": "reg-transposition-map",
+      "span": 2
+    },
+    {
+      "widget": "reg-days-late-map",
+      "span": 2
     }
-  ]
+  ],
+  "source": {
+    "name": "Regulatory watch (fictional)"
+  }
 }

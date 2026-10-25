@@ -36,7 +36,8 @@ const drawable = (id: string) => {
   const spec = widgets[id] as WidgetSpec;
   return hasBlock("view", spec.view.type) && (spec.transform ?? []).every((step) => hasBlock("transform", step.type)) && ragNeeds(spec).every((need) => !need.startsWith("format:") || hasBlock("format", "rag"));
 };
-const FILE_ONLY = ["health-bizDev-board", "health-clientSuccess-board", "health-coverage-board", "health-live-rules", "health-relationship-board", "health-trend"];
+// The live-rules demo left the board (noise plan: the Rules tab shows the thresholds and roll-ups, not a developer demo).
+const FILE_ONLY = ["health-bizDev-board", "health-clientSuccess-board", "health-coverage-board", "health-relationship-board", "health-trend"];
 
 type Rag = "R" | "A" | "G" | "N";
 interface Threshold {
@@ -74,15 +75,15 @@ describe("the client health dashboard", () => {
     expect(hasErrors(validateDashboard(board))).toBe(false);
     expect(board.filters?.map((filter) => filter.field)).toEqual(["segment", "rm", "region"]);
     expect(board.widgets.flatMap((cell) => (cell.section ? [cell.section] : []))).toEqual([
+      // One perspective per tab (noise plan): Movement and Actions are one tab, and the thresholds are the Rules tab.
       "Overview",
       "Client success",
       "Business development",
       "Coverage",
       "Relationship",
-      "Movement",
-      "Actions",
+      "Movement and actions",
       "Every client",
-      "Thresholds",
+      "Rules",
     ]);
   });
 
