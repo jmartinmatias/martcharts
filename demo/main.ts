@@ -7,7 +7,8 @@ import { baseWidget, createDashboard, createPalettePicker, createWidget, describ
 import type { DashboardSpec, Issue, Row, SelectDetail, ViewSpec, WidgetSpec } from "../src/index.ts";
 import { look, setLook } from "./look.ts";
 
-const stored = import.meta.glob<WidgetSpec>("../widgets/*.json", { eager: true, import: "default" });
+const stored = import.meta.glob<WidgetSpec>("../widgets/**/*.json", { eager: true, import: "default" });
+// Every dashboard's widgets, those in sub-folders (commercial/, health/) too, so the switcher draws each board whole.
 const boards = import.meta.glob<DashboardSpec>("../dashboards/*.json", { eager: true, import: "default" });
 const byId: Record<string, WidgetSpec> = {};
 for (const spec of Object.values(stored)) if (spec.id) byId[spec.id] = spec;
