@@ -32,10 +32,6 @@
       "description": "What stepped out of line, and when?"
     },
     {
-      "widget": "cc-anomaly-kpis",
-      "span": 3
-    },
-    {
       "widget": "cc-anomaly-tracker",
       "span": 2
     },
@@ -54,18 +50,11 @@
       "widget": "cc-revenue-bridge"
     },
     {
-      "widget": "cc-revenue-trades",
-      "span": 2
-    },
-    {
-      "widget": "cc-fees-variance"
-    },
-    {
       "widget": "cc-revenue-pareto",
       "span": 2
     },
     {
-      "widget": "cc-product-scorecard"
+      "widget": "cc-fees-variance"
     },
     {
       "section": "Sales pipeline",
@@ -81,11 +70,8 @@
       "widget": "cc-new-money-target"
     },
     {
-      "widget": "cc-deal-funnel"
-    },
-    {
-      "widget": "cc-pipeline-close",
-      "span": 2
+      "widget": "cc-deal-funnel",
+      "span": 3
     },
     {
       "section": "Who could buy what",
@@ -125,12 +111,9 @@
       }
     },
     {
-      "widget": "cc-client-list",
-      "span": 3
-    },
-    {
       "section": "Coverage",
-      "description": "Is every client covered, and how full is each book?"
+      "description": "Is every client covered, and how full is each book?",
+      "collapsed": true
     },
     {
       "widget": "cc-rm-capacity"
@@ -143,7 +126,8 @@
     },
     {
       "section": "Portfolio",
-      "description": "Is the book allocated as the model says, and where do clients cluster?"
+      "description": "Is the book allocated as the model says, and where do clients cluster?",
+      "collapsed": true
     },
     {
       "widget": "cc-risk-return",
@@ -153,11 +137,13 @@
       "widget": "cc-allocation-drift"
     },
     {
-      "widget": "cc-allocation-bands"
+      "widget": "cc-allocation-bands",
+      "span": 3
     },
     {
       "section": "Where clients are",
-      "description": "Where are the assets and the clients?"
+      "description": "Where are the assets and the clients?",
+      "collapsed": true
     },
     {
       "widget": "cc-aum-by-country",
@@ -168,7 +154,8 @@
     },
     {
       "section": "Campaigns",
-      "description": "What ran, what converted, and what paid?"
+      "description": "What ran, what converted, and what paid?",
+      "collapsed": true
     },
     {
       "widget": "cc-campaign-plan",
@@ -178,11 +165,13 @@
       "widget": "cc-campaign-funnel"
     },
     {
-      "widget": "cc-campaign-return"
+      "widget": "cc-campaign-return",
+      "span": 3
     },
     {
       "section": "Adoption",
-      "description": "How fast do new clients take up the digital channel?"
+      "description": "How fast do new clients take up the digital channel?",
+      "collapsed": true
     },
     {
       "widget": "cc-adoption-cohorts",
@@ -191,5 +180,8 @@
     {
       "widget": "cc-adoption-curves"
     }
-  ]
+  ],
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  }
 }

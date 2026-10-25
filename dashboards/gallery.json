@@ -1,6 +1,6 @@
 {
   "id": "gallery",
-  "description": "Every example widget, laid out as a dashboard with one region filter.",
+  "description": "One sales dashboard with one region filter: the headline numbers, revenue and profit, regions and products, customers and pipeline, and operations and sentiment.",
   "columns": 3,
   "range": {
     "field": [
@@ -18,16 +18,7 @@
   "widgets": [
     {
       "section": "Headline numbers",
-      "description": "The month at a glance"
-    },
-    {
-      "widget": "revenue-kpi"
-    },
-    {
-      "widget": "new-customers-kpi"
-    },
-    {
-      "widget": "churn-kpi"
+      "description": "How is the month going?"
     },
     {
       "widget": "q3-at-a-glance",
@@ -35,87 +26,57 @@
     },
     {
       "section": "Revenue and profit",
-      "description": "Trends, targets and where the money comes from"
+      "description": "What came in, against plan, and what comes next?"
     },
     {
       "widget": "monthly-revenue",
       "span": 2
     },
     {
-      "widget": "region-targets"
+      "widget": "revenue-sources"
     },
     {
-      "widget": "gross-profit",
+      "widget": "revenue-vs-target",
       "span": 2
     },
     {
-      "widget": "revenue-sources"
+      "widget": "region-targets"
     },
     {
       "widget": "revenue-bridge",
       "span": 2
     },
     {
-      "widget": "revenue-vs-target"
+      "widget": "opex-variance"
     },
     {
       "widget": "kpi-scorecard",
       "span": 2
     },
     {
-      "widget": "opex-variance"
-    },
-    {
-      "widget": "revenue-forecast",
-      "span": 2
-    },
-    {
       "widget": "cash-forecast"
     },
     {
+      "widget": "revenue-forecast",
+      "span": 3
+    },
+    {
       "section": "Regions and products",
-      "description": "Size, mix, rank and change"
+      "description": "Which regions and products carry the quarter?"
     },
     {
       "widget": "revenue-by-region"
-    },
-    {
-      "widget": "product-share"
-    },
-    {
-      "widget": "revenue-pie"
-    },
-    {
-      "widget": "revenue-donuts-by-region",
-      "span": 2
-    },
-    {
-      "widget": "region-trends"
-    },
-    {
-      "widget": "revenue-mix",
-      "span": 2
-    },
-    {
-      "widget": "region-margins"
     },
     {
       "widget": "region-product-mix",
       "span": 2
     },
     {
+      "widget": "region-scorecard",
+      "span": 2
+    },
+    {
       "widget": "product-targets"
-    },
-    {
-      "widget": "product-ranking",
-      "span": 2
-    },
-    {
-      "widget": "region-win-rate"
-    },
-    {
-      "widget": "product-mix-trend",
-      "span": 2
     },
     {
       "widget": "region-yoy"
@@ -124,25 +85,10 @@
       "widget": "win-rate-arrows"
     },
     {
-      "widget": "region-scorecard",
-      "span": 2
+      "widget": "region-trends"
     },
     {
-      "widget": "region-revenue-mix"
-    },
-    {
-      "widget": "region-panels",
-      "span": 2
-    },
-    {
-      "widget": "product-region-sunburst"
-    },
-    {
-      "widget": "region-heat-table",
-      "span": 3
-    },
-    {
-      "widget": "revenue-icicle",
+      "widget": "product-ranking",
       "span": 3
     },
     {
@@ -151,34 +97,32 @@
     },
     {
       "section": "Customers and pipeline",
-      "description": "Who buys, how they arrive, what is open"
-    },
-    {
-      "widget": "top-customers"
-    },
-    {
-      "widget": "leads-wins-by-channel"
-    },
-    {
-      "widget": "lead-pipeline"
-    },
-    {
-      "widget": "directory-customers",
-      "span": 2
-    },
-    {
-      "widget": "signup-funnel"
+      "description": "Who buys, how they arrive, and what is open?"
     },
     {
       "widget": "customer-treemap",
       "span": 2
     },
     {
-      "widget": "revenue-by-segment"
+      "widget": "leads-wins-by-channel"
     },
     {
       "widget": "account-portfolio",
       "span": 3
+    },
+    {
+      "widget": "lead-pipeline"
+    },
+    {
+      "widget": "deal-pipeline",
+      "span": 2
+    },
+    {
+      "widget": "deal-scatter",
+      "span": 2
+    },
+    {
+      "widget": "signup-funnel"
     },
     {
       "widget": "traffic-stream",
@@ -195,52 +139,15 @@
       "widget": "plan-moves"
     },
     {
-      "widget": "deal-pipeline",
+      "widget": "directory-customers",
       "span": 2
     },
     {
       "widget": "product-compare"
     },
     {
-      "section": "Deals and distributions",
-      "description": "How deal sizes spread, five ways"
-    },
-    {
-      "widget": "deal-scatter",
-      "span": 2
-    },
-    {
-      "widget": "deal-boxplot"
-    },
-    {
-      "widget": "deal-swarm",
-      "span": 2
-    },
-    {
-      "widget": "deal-histogram"
-    },
-    {
-      "widget": "deal-ridgeline",
-      "span": 3
-    },
-    {
-      "section": "Markets",
-      "description": "The share price, day by day"
-    },
-    {
-      "widget": "share-price",
-      "span": 3
-    },
-    {
-      "section": "Elections",
-      "description": "Seats by party, and who reaches a majority"
-    },
-    {
-      "widget": "seats-by-party"
-    },
-    {
       "section": "Operations and sentiment",
-      "description": "Orders, tickets, plans and how people feel"
+      "description": "How do orders, support, plans and people look?"
     },
     {
       "widget": "order-calendar",
@@ -262,10 +169,6 @@
       "span": 2
     },
     {
-      "widget": "workforce-pyramid",
-      "span": 2
-    },
-    {
       "widget": "nps-gauge"
     },
     {
@@ -276,102 +179,17 @@
       "widget": "feature-adoption"
     },
     {
-      "widget": "product-ratings",
+      "widget": "workforce-pyramid",
       "span": 2
     },
     {
-      "section": "Two units, and notes",
-      "description": "Two measures on two panels, and a line that says what happened"
-    },
-    {
-      "widget": "revenue-and-churn",
-      "span": 2
-    },
-    {
-      "widget": "revenue-annotated"
-    },
-    {
-      "section": "Maps",
-      "description": "Where revenue, customers and offices are"
-    },
-    {
-      "widget": "revenue-by-country",
-      "span": 2
-    },
-    {
-      "widget": "offices"
-    },
-    {
-      "widget": "customers-by-state",
-      "span": 2
-    },
-    {
-      "section": "Regulatory landscape (views)",
-      "description": "Pressure, who must comply, how binding each rule is, where each stands"
-    },
-    {
-      "widget": "pressure-matrix",
-      "span": 2
-    },
-    {
-      "widget": "obligation-matrix"
-    },
-    {
-      "widget": "provision-strips",
-      "span": 2
-    },
-    {
-      "widget": "regulation-lifecycle",
-      "span": 3
-    },
-    {
-      "section": "Commercial cockpit (views)",
-      "description": "Where to sell next, one client at a glance, and what happened"
-    },
-    {
-      "widget": "cross-sell-whitespace",
-      "span": 2
-    },
-    {
-      "widget": "client-xray"
-    },
-    {
-      "widget": "client-history",
-      "span": 3
-    },
-    {
-      "section": "Clusters and anomalies",
-      "description": "Where clients gather, and which measures stepped out of line"
-    },
-    {
-      "widget": "risk-clusters",
-      "span": 2
-    },
-    {
-      "widget": "metric-anomalies",
-      "span": 2
-    },
-    {
-      "section": "Lifecycle",
-      "description": "Where everything stands, stage by stage"
-    },
-    {
-      "widget": "deal-board",
-      "span": 3
-    },
-    {
-      "section": "RAG reporting (views)",
-      "description": "Who is on track, on what, and how each status moved"
-    },
-    {
-      "widget": "rag-scorecard",
-      "span": 2
-    },
-    {
-      "widget": "rag-status-trend"
+      "widget": "product-ratings"
     }
   ],
   "title": "Gallery",
-  "subtitle": "Every example widget",
-  "asOf": "Data to {latest}"
+  "subtitle": "One sales dashboard: revenue, regions, customers and operations",
+  "asOf": "2026-09-30",
+  "source": {
+    "name": "Fictional sales data"
+  }
 }

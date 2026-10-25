@@ -2,7 +2,7 @@
   "id": "client-health",
   "title": "Client health",
   "subtitle": "Every client on four perspectives, what changed, and who acts",
-  "description": "Every client's health as a story: the overview, then each perspective in turn (client success, business development, coverage and the relationship), the movement since last quarter, the actions and who owns them, every client on all four perspectives, and the thresholds behind every status.",
+  "description": "Every client's health as a story, one tab at a time: the overview, then each perspective in turn (client success, business development, coverage and the relationship), then movement and actions, every client on all four perspectives, and the rules behind every status.",
   "asOf": "2026-10-25",
   "columns": 3,
   "filters": [
@@ -30,10 +30,7 @@
     },
     {
       "widget": "health-status-by-segment",
-      "span": 2
-    },
-    {
-      "widget": "health-status-by-region"
+      "span": 3
     },
     {
       "section": "Client success",
@@ -96,30 +93,19 @@
       "span": 2
     },
     {
-      "section": "Movement",
-      "description": "What changed since last quarter, and where do the reds sit?"
+      "section": "Movement and actions",
+      "description": "What changed, where the reds sit, and who owns the next step?"
     },
     {
       "widget": "health-trend",
       "span": 3
     },
     {
-      "widget": "health-moves",
-      "span": 2
-    },
-    {
-      "widget": "health-reds"
-    },
-    {
-      "widget": "health-books",
+      "widget": "health-actions",
       "span": 3
     },
     {
-      "section": "Actions",
-      "description": "Who owns the next step for every client not on track?"
-    },
-    {
-      "widget": "health-actions",
+      "widget": "health-reds",
       "span": 3
     },
     {
@@ -131,7 +117,7 @@
       "span": 3
     },
     {
-      "section": "Thresholds",
+      "section": "Rules",
       "description": "Which written rules set every status?"
     },
     {
@@ -141,10 +127,10 @@
     {
       "widget": "health-rollups",
       "span": 3
-    },
-    {
-      "widget": "health-live-rules",
-      "span": 3
     }
-  ]
+  ],
+  "sections": "tabs",
+  "source": {
+    "name": "Client health model (fictional)"
+  }
 }

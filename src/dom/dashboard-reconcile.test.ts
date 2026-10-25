@@ -39,12 +39,7 @@ describe("commercial cockpit: the numbers agree", () => {
     near(sum(data("client-activity.json").filter((r) => String(r.month).startsWith("2026")), "revenue"), book);
   });
 
-  test("the twelve-month chart says it runs longer than year to date", async () => {
-    const rows = await card("cc-revenue-trades");
-    expect(rows).toHaveLength(12);
-    expect(sum(rows, "revenue")).toBeGreaterThan(book);
-    expect(widgets["cc-revenue-trades"]?.subtitle).toMatch(/twelve months/);
-  });
+  // The twelve-month revenue-and-trades chart left the board (noise plan: four revenue cards at most), and its test with it.
 
   test("assets under management are summed from the clients, on the headline, the map and the books", async () => {
     const aum = sum(clients, "aum");
@@ -64,7 +59,7 @@ describe("commercial cockpit: the numbers agree", () => {
     const deals = data("deals.json");
     const open = deals.filter((d) => d.open === 1);
     near(sum(await card("cc-pipeline-target"), "weighted"), sum(open, "weighted"));
-    near(sum(await card("cc-pipeline-close"), "weighted"), sum(open, "weighted"));
+    // The close-month bar left the board (noise plan: one pipeline view by banker, not two).
     const rates = await card("cc-win-rate");
     const books = data("pipeline-by-book.json");
     expect(sum(books, "won")).toBe(deals.filter((d) => d.stage === "Won").length);
@@ -84,11 +79,11 @@ describe("commercial cockpit: the numbers agree", () => {
     for (const row of list) expect([row.name, Boolean(row.callReason), Boolean(row.nextAction)]).toEqual([row.name, true, true]);
   });
 
-  test("anomalies this month are counted one way, the calendar month, on the watch and the tracker; the headline leaves them to the watch", async () => {
+  test("anomalies this month are counted once, by the tracker; the headline leaves them to it", async () => {
+    // The anomaly watch tiles left the board (noise plan: they repeated the tracker and showed zeros).
     const daily = data("metrics-daily.json");
     const month = String(last(daily.map((r) => String(r.date)).sort())).slice(0, 7);
     const flagged = daily.filter((r) => r.flag === true && String(r.date).startsWith(month)).length;
-    expect(Number((await card("cc-anomaly-kpis"))[0]?.anomaliesMonth)).toBe(flagged);
     expect((await card("cc-anomaly-tracker")).filter((r) => r.flag === true && String(r.date).startsWith(month)).length).toBe(flagged);
     const items = (widgets["cc-headline-kpis"]?.view.items ?? []) as { value: string }[];
     expect(items.map((item) => item.value)).not.toContain("anomalies");
@@ -109,19 +104,11 @@ describe("regulatory landscape: the numbers agree, or say why they differ", () =
   const rules = data("regulations.json");
   const TODAY = "2026-10-25";
 
-  test("rules in force: the KPI counts status today, the funnel counts stages reached, and both say so", async () => {
+  test("rules in force: the KPI counts status today", async () => {
+    // The stage funnel left the board (noise plan: the lifecycle shows the same stages), so there is no second count to reconcile.
     const kpi = Number((await card("reg-in-force-kpi"))[0]?.count);
     expect(kpi).toBe(rules.filter((r) => ["In force", "Applies"].includes(String(r.status))).length);
-    const funnel = Object.fromEntries((await card("reg-stage-funnel")).map((r) => [r.stage, r.regulations]));
-    const reached = rules.filter((r) => typeof r.inForce === "string" && String(r.inForce) <= TODAY);
-    expect(funnel["In force"]).toBe(reached.length);
-    expect(funnel.Proposed).toBe(rules.length);
-    // The gap is exactly the rules that reached force and are now under review or repealed.
-    expect(Number(funnel["In force"]) - kpi).toBe(reached.filter((r) => !["In force", "Applies"].includes(String(r.status))).length);
-    // A subtitle states period and scope only: the reason for the gap moved to the description.
-    expect(widgets["reg-in-force-kpi"]?.description).toMatch(/funnel/);
-    // The subtitle was shortened to fourteen words; it still says status does not matter.
-    expect(widgets["reg-stage-funnel"]?.subtitle).toMatch(/whatever the status now/);
+    expect(TODAY).toBe("2026-10-25");
   });
 
   test("the split series add back up to the landscape's own", async () => {
@@ -132,10 +119,10 @@ describe("regulatory landscape: the numbers agree, or say why they differ", () =
     near(sum(await card("reg-pressure-matrix"), "obligations"), sum(activity, "obligations"));
   });
 
-  test("the next 90 days: the tile counts the deadlines the list shows, each with an owner and its readiness", async () => {
+  test("the next 90 days: the list shows every deadline, each with an owner and its readiness", async () => {
+    // The deadlines tile left the board (noise plan: the 90-day calendar is shown once, as the list).
     const list = await card("reg-next-90");
     const due = data("regulatory-deadlines.json").filter((d) => Number(d.daysLeft) >= 0 && Number(d.daysLeft) <= 90);
-    expect(Number((await card("reg-deadlines-kpi"))[0]?.count)).toBe(due.length);
     expect(list.map((r) => r.date)).toEqual([...list.map((r) => r.date)].sort());
     expect(list).toHaveLength(due.length);
     for (const row of list) expect([row.regulation, Boolean(row.owner), ["Done", "In progress", "Not started"].includes(String(row.readiness))]).toEqual([row.regulation, true, true]);
@@ -143,14 +130,12 @@ describe("regulatory landscape: the numbers agree, or say why they differ", () =
     for (const row of due) expect([row.regulation, rules.find((r) => r.id === row.id)?.topic]).toEqual([row.regulation, row.topic]);
   });
 
-  test("the country map and the stakeholder views count the tracked rules", async () => {
+  test("the country map and the stakeholder matrix count the tracked rules", async () => {
     const eu = rules.filter((r) => r.jurisdiction === "EU").length;
     const map = Object.fromEntries((await card("reg-rules-by-country")).map((r) => [r.country, r.regulations]));
     for (const country of ["FR", "DE", "LU", "IT"]) expect(map[country]).toBe(eu);
     expect(map.GB).toBe(19 + rules.filter((r) => r.jurisdiction === "GB").length);
-    const flows = await card("reg-stakeholder-sankey");
-    const binds = rules.reduce((total, r) => total + ["banks", "insurers", "assetManagers", "paymentInstitutions", "cryptoProviders"].filter((f) => r[f] === true).length, 0);
-    expect(sum(flows, "regulations")).toBe(binds);
+    // The stakeholder sankey left the board (noise plan: one "who must comply" card).
     expect(new Set((await card("reg-stakeholder-matrix")).map((r) => r.regulation)).size).toBe(15);
   });
 });
@@ -159,14 +144,10 @@ describe("client health: the counts agree", () => {
   const health = data("client-health.json");
   const count = (status: string) => health.filter((r) => r.overallRag === status).length;
 
-  test("the overview, the bankers' books, the moves and the reds all count the same clients", async () => {
+  test("the overview and the reds count the same clients", async () => {
+    // The bankers' books and the moves sankey left the board (noise plan: the reds heatmap and the quarter trail say it).
     const quarter = last(await card("health-on-track"));
     expect([quarter.Red, quarter.Amber, quarter.Green]).toEqual([count("R"), count("A"), count("G")]);
-    const books = await card("health-books");
-    expect([sum(books, "red"), sum(books, "amber"), sum(books, "green"), sum(books, "clients")]).toEqual([count("R"), count("A"), count("G"), health.length]);
-    const moves = await card("health-moves");
-    expect(sum(moves, "clients")).toBe(health.length);
-    expect(sum(moves.filter((r) => String(r.movedTo).startsWith("Red")), "clients")).toBe(count("R"));
     const reds = await card("health-reds");
     const perspectives = ["clientSuccess", "bizDev", "coverage", "relationship"];
     expect(sum(reds, "red")).toBe(perspectives.reduce((total, p) => total + health.filter((r) => r[`${p}Rag`] === "R").length, 0));
@@ -201,7 +182,7 @@ describe("filters reach the cards", () => {
   // The cards no filter can reach, and why: each holds firm-wide or reference data with no client, segment or rule in it.
   const EXEMPT: Record<string, string[]> = {
     // Digital adoption cohorts, the model allocation and the daily anomaly metrics are firm-wide.
-    "commercial-cockpit": ["cc-adoption-cohorts", "cc-adoption-curves", "cc-allocation-drift", "cc-allocation-bands", "cc-anomaly-kpis", "cc-anomaly-tracker", "cc-complaints-calendar"],
+    "commercial-cockpit": ["cc-adoption-cohorts", "cc-adoption-curves", "cc-allocation-drift", "cc-allocation-bands", "cc-anomaly-tracker", "cc-complaints-calendar"],
     // Every card carries topic and jurisdiction: the pressure index now rides on the obligations card, which does.
     "regulatory-landscape": [],
     // The thresholds and the roll-up rules are reference tables.

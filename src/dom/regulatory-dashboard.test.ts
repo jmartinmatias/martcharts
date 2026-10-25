@@ -43,7 +43,7 @@ describe("the regulatory landscape dashboard", () => {
   test("is a valid dashboard with four columns, a period on month, and filters on topic and jurisdiction", () => {
     expect(hasErrors(validateDashboard(board))).toBe(false);
     expect([board.columns, board.range, board.filters?.map((f) => f.field)]).toEqual([4, { field: "month" }, ["topic", "jurisdiction"]]);
-    expect(board.widgets.filter((cell) => cell.section).map((cell) => cell.section)).toEqual(["Headline numbers", "What applies next", "Pressure", "Impact", "Where the rules bind", "Volume and density"]);
+    expect(board.widgets.filter((cell) => cell.section).map((cell) => cell.section)).toEqual(["Headline numbers", "What applies next", "Pressure", "Impact", "Where the rules bind", "Volume and density", "National transposition"]);
   });
 
   test("every widget it names exists, including the matrix, strips and lifecycle specs", () => {
@@ -56,7 +56,8 @@ describe("the regulatory landscape dashboard", () => {
       const spec = widgets[id] as WidgetSpec;
       expect([id, spec.source?.name, typeof spec.byline]).toEqual([id, "Regulatory watch (fictional)", "string"]);
     }
-    expect(present.length).toBeGreaterThanOrEqual(19);
+    // Fifteen cards after the noise plan's cuts (from 21), every one drawable.
+    expect(present.length).toBe(15);
   });
 
   test("draws every widget to the ready state with no error message", async () => {
@@ -75,9 +76,9 @@ describe("the regulatory landscape dashboard", () => {
     }
     expect(present).toHaveLength(named.length);
     expect(target.querySelectorAll(".fft-cell-missing")).toHaveLength(0);
-    // The maps, the board, the scatter's quadrants and the table's search are all on the page.
-    expect(target.querySelectorAll(".fft-map").length).toBe(3);
-    expect(target.querySelectorAll(".fft-board-column").length).toBe(8);
+    // The country map, the scatter's quadrants and the table's search are on the page. The two transposition maps sit
+    // in a collapsed section (noise plan), so they draw only once it is opened; the status board left the board.
+    expect(target.querySelectorAll(".fft-map").length).toBeGreaterThanOrEqual(1);
     expect(target.querySelectorAll(".fft-quadrant-label").length).toBe(4);
     expect(target.querySelectorAll(".fft-table-search").length).toBe(1);
     // The views another branch added draw here too: two matrices, the strips and the lifecycle.
@@ -94,11 +95,11 @@ describe("the regulatory landscape dashboard", () => {
     expect([...select.options].map((o) => o.textContent)).toContain("Payments");
     await dashboard.setFilter("topic", "Payments");
     await vi.waitFor(() => {
-      const boardSlot = target.querySelector('.fft-cell-slot[data-widget="reg-status-board"]') as Element;
-      const names = [...boardSlot.querySelectorAll(".fft-board-name")].map((n) => n.textContent);
-      expect(names.length).toBeGreaterThan(0);
-      expect(names).toContain("PSD3");
-      expect(names).not.toContain("DORA");
+      // The status board left the board (noise plan: it repeated the lifecycle); the lifecycle shows the same filter.
+      const slot = target.querySelector('.fft-cell-slot[data-widget="reg-lifecycle"]') as Element;
+      const text = slot.textContent ?? "";
+      expect(text).toContain("PSD3");
+      expect(text).not.toContain("DORA");
     }, { timeout: 15000 });
     const mapSlot = target.querySelector('.fft-cell-slot[data-widget="reg-rules-by-country"]') as Element;
     expect(mapSlot.querySelectorAll(".fft-map-region[data-step]").length).toBeGreaterThan(20);
