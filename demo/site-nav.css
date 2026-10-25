@@ -20,7 +20,9 @@ html { overflow-x: clip; }
   box-sizing: border-box;
   height: calc(var(--site-nav-height) + env(safe-area-inset-top, 0px));
   margin: 0 0 21px;
-  padding: env(safe-area-inset-top, 0px) 0 0;
+  /* At least 16px between the links and the window's edge. A padding percentage is the column's width, so
+     (100vw - 100%) / 2 is the room the centred column already leaves; the bar adds only what is missing. */
+  padding: env(safe-area-inset-top, 0px) max(env(safe-area-inset-right, 0px), calc(16px - (100vw - 100%) / 2)) 0 max(env(safe-area-inset-left, 0px), calc(16px - (100vw - 100%) / 2));
   font: 13px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 /* The bar's backdrop runs edge to edge of the window, behind the page's own margins, without clipping the Look menu. */

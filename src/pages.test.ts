@@ -156,4 +156,9 @@ describe("the published site", () => {
     expect(css).toMatch(/\.examples \{[^}]*grid-template-columns: minmax\(0, 1fr\)/);
     expect(css).toMatch(/\.snippet pre \{[^}]*overflow-x: auto/);
   });
+
+  test("the menu bar keeps Home and Look off the window's edges, even when the page column fills the window", () => {
+    const css = readFileSync("demo/site-nav.css", "utf8");
+    expect(css).toMatch(/\.site-bar \{[^}]*padding:[^;]*calc\(16px - \(100vw - 100%\) \/ 2\)[^;]*calc\(16px - \(100vw - 100%\) \/ 2\)/);
+  });
 });

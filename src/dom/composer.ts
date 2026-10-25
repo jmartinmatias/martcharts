@@ -157,7 +157,7 @@ const CSS = `
 .fft-cmp-button:hover { background: color-mix(in srgb, var(--fft-text) 6%, transparent); }
 .fft-cmp-button:disabled { opacity: 0.4; cursor: default; }
 .fft-cmp-input, .fft-cmp-select { min-height: 30px; padding: 0 8px; border: 1px solid var(--fft-grid); border-radius: 5px; background: var(--fft-surface); color: inherit; font: inherit; font-size: 13px; }
-.fft-cmp-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(144px, 1fr)); gap: 8px; }
+.fft-cmp-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(144px, 100%), 1fr)); gap: 8px; }
 .fft-cmp-meta label, .fft-cmp-field { display: flex; flex-direction: column; gap: 3px; min-width: 0; color: var(--fft-text-secondary); font-size: 12px; }
 .fft-cmp-meta .fft-cmp-input, .fft-cmp-field .fft-cmp-input, .fft-cmp-field .fft-cmp-select { width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; }
 .fft-cmp-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
