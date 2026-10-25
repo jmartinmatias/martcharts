@@ -50,399 +50,399 @@
   </header>
   <p><label for="find">Find a chart by name, question or data</label><br><input id="find" type="search" placeholder="trend, share, date, flow…" autocomplete="off"><span class="count" id="count" aria-live="polite"></span></p>
   <div class="grid">
-    <section class="card" id="anomalies" data-search="anomalies an anomaly tracker: one thin lane per metric over time, the band it was expected to stay in as a faint fill, the expected value as a hairline, the actual as a line, and every day it stepped outside the band as a flagged dot. which measures stepped out of their expected range, and when? x: date, metric: category, value: number">
+    <section class="card" id="anomalies" data-search="anomalies an anomaly tracker: one thin lane per metric over time, the band it was expected to stay in as a faint fill, the expected value as a hairline, the actual as a line, and every day it stepped outside the band as a flagged dot. which measures stepped out of their expected range, and when? x: date, metric: category, value: number outliers alerts exceptions monitoring">
       <h2>anomalies</h2>
       <p>An anomaly tracker: one thin lane per metric over time, the band it was expected to stay in as a faint fill, the expected value as a hairline, the actual as a line, and every day it stepped outside the band as a flagged dot.</p>
       <p class="needs">needs x: date, metric: category, value: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="anomalies">Copy spec</button><button type="button" data-copy="tag" data-type="anomalies">Copy tag</button><a href="guide.html#c-anomalies">Data and switches</a></div>
       <fft-widget src="anomalies.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="area" data-search="area a line with a soft filled area down to zero, for a trend where the amount itself matters. where is cash heading next? x: date, y: number+">
+    <section class="card" id="area" data-search="area a line with a soft filled area down to zero, for a trend where the amount itself matters. where is cash heading next? x: date, y: number+ trend volume over time cumulative stacked">
       <h2>area</h2>
       <p>A line with a soft filled area down to zero, for a trend where the amount itself matters.</p>
       <p class="needs">needs x: date, y: number+</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="area">Copy spec</button><button type="button" data-copy="tag" data-type="area">Copy tag</button><a href="guide.html#c-area">Data and switches</a></div>
       <fft-widget src="area.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="bar" data-search="bar vertical bars comparing amounts across categories. how is each region split between core and plus? x: category, y: number+">
+    <section class="card" id="bar" data-search="bar vertical bars comparing amounts across categories. how is each region split between core and plus? x: category, y: number+ column chart compare categories">
       <h2>bar</h2>
       <p>Vertical bars comparing amounts across categories.</p>
       <p class="needs">needs x: category, y: number+</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="bar">Copy spec</button><button type="button" data-copy="tag" data-type="bar">Copy tag</button><a href="guide.html#c-bar">Data and switches</a></div>
       <fft-widget src="bar.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="beeswarm" data-search="beeswarm a distribution: one dot per row along a value axis, nudged apart so none overlap, optionally one row per group. how spread out is deal value in each region? value: number">
+    <section class="card" id="beeswarm" data-search="beeswarm a distribution: one dot per row along a value axis, nudged apart so none overlap, optionally one row per group. how spread out is deal value in each region? value: number distribution spread every point">
       <h2>beeswarm</h2>
       <p>A distribution: one dot per row along a value axis, nudged apart so none overlap, optionally one row per group.</p>
       <p class="needs">needs value: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="beeswarm">Copy spec</button><button type="button" data-copy="tag" data-type="beeswarm">Copy tag</button><a href="guide.html#c-beeswarm">Data and switches</a></div>
       <fft-widget src="beeswarm.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="board" data-search="board a status board: one column per stage with its count in the header, and the items in it as quiet cards, so where everything stands reads at a glance. where is each deal right now, and how many are at each stage? label: category, stage: category">
+    <section class="card" id="board" data-search="board a status board: one column per stage with its count in the header, and the items in it as quiet cards, so where everything stands reads at a glance. where is each deal right now, and how many are at each stage? label: category, stage: category kanban status columns stages">
       <h2>board</h2>
       <p>A status board: one column per stage with its count in the header, and the items in it as quiet cards, so where everything stands reads at a glance.</p>
       <p class="needs">needs label: category, stage: category</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="board">Copy spec</button><button type="button" data-copy="tag" data-type="board">Copy tag</button><a href="guide.html#c-board">Data and switches</a></div>
       <fft-widget src="board.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="boxplot" data-search="boxplot a box plot per group on one shared axis: a box over the middle half of the values (first to third quartile), a line at the median, whiskers to the furthest values within 1.5 box-widths, and dots for outliers beyond. how spread out is deal value in each region? value: number">
+    <section class="card" id="boxplot" data-search="boxplot a box plot per group on one shared axis: a box over the middle half of the values (first to third quartile), a line at the median, whiskers to the furthest values within 1.5 box-widths, and dots for outliers beyond. how spread out is deal value in each region? value: number distribution quartiles outliers spread">
       <h2>boxplot</h2>
       <p>A box plot per group on one shared axis: a box over the middle half of the values (first to third quartile), a line at the median, whiskers to the furthest values within 1.5 box-widths, and dots for outliers beyond.</p>
       <p class="needs">needs value: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="boxplot">Copy spec</button><button type="button" data-copy="tag" data-type="boxplot">Copy tag</button><a href="guide.html#c-boxplot">Data and switches</a></div>
       <fft-widget src="boxplot.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="bullet" data-search="bullet actual against target, one compact row per item: a value bar and a target tick over three qualitative bands (poor, fair, good). which kpi is above or below target? label: category, value: number, target: number">
+    <section class="card" id="bullet" data-search="bullet actual against target, one compact row per item: a value bar and a target tick over three qualitative bands (poor, fair, good). which kpi is above or below target? label: category, value: number, target: number target actual goal progress">
       <h2>bullet</h2>
       <p>Actual against target, one compact row per item: a value bar and a target tick over three qualitative bands (poor, fair, good).</p>
       <p class="needs">needs label: category, value: number, target: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="bullet">Copy spec</button><button type="button" data-copy="tag" data-type="bullet">Copy tag</button><a href="guide.html#c-bullet">Data and switches</a></div>
       <fft-widget src="bullet.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="bump" data-search="bump rank over time: in every period the series are ranked by value (highest first), and each series is one smooth line through its ranks, named at both ends. how does the ranking of products change, month by month? x: date, series: category, value: number">
+    <section class="card" id="bump" data-search="bump rank over time: in every period the series are ranked by value (highest first), and each series is one smooth line through its ranks, named at both ends. how does the ranking of products change, month by month? x: date, series: category, value: number rank over time position">
       <h2>bump</h2>
       <p>Rank over time: in every period the series are ranked by value (highest first), and each series is one smooth line through its ranks, named at both ends.</p>
       <p class="needs">needs x: date, series: category, value: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="bump">Copy spec</button><button type="button" data-copy="tag" data-type="bump">Copy tag</button><a href="guide.html#c-bump">Data and switches</a></div>
       <fft-widget src="bump.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="calendar" data-search="calendar a calendar heatmap: one cell per day, weeks as columns from monday, shaded on one blue scale. which days have the most orders? date: date, value: number">
+    <section class="card" id="calendar" data-search="calendar a calendar heatmap: one cell per day, weeks as columns from monday, shaded on one blue scale. which days have the most orders? date: date, value: number daily days activity pattern">
       <h2>calendar</h2>
       <p>A calendar heatmap: one cell per day, weeks as columns from Monday, shaded on one blue scale.</p>
       <p class="needs">needs date: date, value: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="calendar">Copy spec</button><button type="button" data-copy="tag" data-type="calendar">Copy tag</button><a href="guide.html#c-calendar">Data and switches</a></div>
       <fft-widget src="calendar.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="candlestick" data-search="candlestick prices per period as candles: a thin wick from low to high around a body from open to close, in the up color when the period closed higher and the down color when lower. how did share price move each day, from open to close? x: date, open: number, high: number, low: number, close: number">
+    <section class="card" id="candlestick" data-search="candlestick prices per period as candles: a thin wick from low to high around a body from open to close, in the up color when the period closed higher and the down color when lower. how did share price move each day, from open to close? x: date, open: number, high: number, low: number, close: number price stock ohlc trading">
       <h2>candlestick</h2>
       <p>Prices per period as candles: a thin wick from low to high around a body from open to close, in the up color when the period closed higher and the down color when lower.</p>
       <p class="needs">needs x: date, open: number, high: number, low: number, close: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="candlestick">Copy spec</button><button type="button" data-copy="tag" data-type="candlestick">Copy tag</button><a href="guide.html#c-candlestick">Data and switches</a></div>
       <fft-widget src="candlestick.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="chord" data-search="chord flows between groups around a circle: each group an arc as long as everything it sends and receives, each flow a ribbon from its sender to its receiver, in the sender's color. where do customers flow, and how much goes each way? source: category, target: category, value: number">
+    <section class="card" id="chord" data-search="chord flows between groups around a circle: each group an arc as long as everything it sends and receives, each flow a ribbon from its sender to its receiver, in the sender's color. where do customers flow, and how much goes each way? source: category, target: category, value: number flows between exchange matrix">
       <h2>chord</h2>
       <p>Flows between groups around a circle: each group an arc as long as everything it sends and receives, each flow a ribbon from its sender to its receiver, in the sender's color.</p>
       <p class="needs">needs source: category, target: category, value: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="chord">Copy spec</button><button type="button" data-copy="tag" data-type="chord">Copy tag</button><a href="guide.html#c-chord">Data and switches</a></div>
       <fft-widget src="chord.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="choropleth" data-search="choropleth a map with each region shaded by its value, from the weakest tint to the strongest, with a scale under it: revenue by country, share by state. which countries have the most revenue, on the map? id: category">
+    <section class="card" id="choropleth" data-search="choropleth a map with each region shaded by its value, from the weakest tint to the strongest, with a scale under it: revenue by country, share by state. which countries have the most revenue, on the map? id: category map country region geography shaded">
       <h2>choropleth</h2>
       <p>A map with each region shaded by its value, from the weakest tint to the strongest, with a scale under it: revenue by country, share by state.</p>
       <p class="needs">needs id: category</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="choropleth">Copy spec</button><button type="button" data-copy="tag" data-type="choropleth">Copy tag</button><a href="guide.html#c-choropleth">Data and switches</a></div>
       <fft-widget src="choropleth.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="donut" data-search="donut part-to-whole at a glance: a ring of up to 6 slices with the total in the middle and a legend of values and shares. what share of revenue comes from each segment? label: category, value: number">
+    <section class="card" id="donut" data-search="donut part-to-whole at a glance: a ring of up to 6 slices with the total in the middle and a legend of values and shares. what share of revenue comes from each segment? label: category, value: number share split breakdown part of whole ring">
       <h2>donut</h2>
       <p>Part-to-whole at a glance: a ring of up to 6 slices with the total in the middle and a legend of values and shares.</p>
       <p class="needs">needs label: category, value: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="donut">Copy spec</button><button type="button" data-copy="tag" data-type="donut">Copy tag</button><a href="guide.html#c-donut">Data and switches</a></div>
       <fft-widget src="donut.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="dot" data-search="dot a dot plot: one row per item and one dot per measure on one shared axis, with a hairline across each row. how do ease of use, value for money and support compare for each product? label: category, value: number+">
+    <section class="card" id="dot" data-search="dot a dot plot: one row per item and one dot per measure on one shared axis, with a hairline across each row. how do ease of use, value for money and support compare for each product? label: category, value: number+ ratings scores compare measures">
       <h2>dot</h2>
       <p>A dot plot: one row per item and one dot per measure on one shared axis, with a hairline across each row.</p>
       <p class="needs">needs label: category, value: number+</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="dot">Copy spec</button><button type="button" data-copy="tag" data-type="dot">Copy tag</button><a href="guide.html#c-dot">Data and switches</a></div>
       <fft-widget src="dot.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="dual" data-search="dual two measures with different units, such as revenue and churn, one above the other on two panels that share one time axis, each on its own scale. do revenue and churn move together, month by month? x: date, y: number, y2: number">
+    <section class="card" id="dual" data-search="dual two measures with different units, such as revenue and churn, one above the other on two panels that share one time axis, each on its own scale. do revenue and churn move together, month by month? x: date, y: number, y2: number two units two axes revenue and rate">
       <h2>dual</h2>
       <p>Two measures with different units, such as revenue and churn, one above the other on two panels that share one time axis, each on its own scale.</p>
       <p class="needs">needs x: date, y: number, y2: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="dual">Copy spec</button><button type="button" data-copy="tag" data-type="dual">Copy tag</button><a href="guide.html#c-dual">Data and switches</a></div>
       <fft-widget src="dual.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="dumbbell" data-search="dumbbell before and after per item on one shared axis: a muted dot for before, an accent dot for after, joined by a line (a range plot). how did each region change from q3 2025 to q3 2026? label: category, from: number, to: number">
+    <section class="card" id="dumbbell" data-search="dumbbell before and after per item on one shared axis: a muted dot for before, an accent dot for after, joined by a line (a range plot). how did each region change from q3 2025 to q3 2026? label: category, from: number, to: number before after change gap two values">
       <h2>dumbbell</h2>
       <p>Before and after per item on one shared axis: a muted dot for before, an accent dot for after, joined by a line (a range plot).</p>
       <p class="needs">needs label: category, from: number, to: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="dumbbell">Copy spec</button><button type="button" data-copy="tag" data-type="dumbbell">Copy tag</button><a href="guide.html#c-dumbbell">Data and switches</a></div>
       <fft-widget src="dumbbell.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="funnel" data-search="funnel stages in order as centered bars narrowing from the first, with the conversion rate from each stage to the next and each stage's share of the first. where do people drop out, step by step? label: category, value: number">
+    <section class="card" id="funnel" data-search="funnel stages in order as centered bars narrowing from the first, with the conversion rate from each stage to the next and each stage's share of the first. where do people drop out, step by step? label: category, value: number pipeline conversion stages drop-off sales">
       <h2>funnel</h2>
       <p>Stages in order as centered bars narrowing from the first, with the conversion rate from each stage to the next and each stage's share of the first.</p>
       <p class="needs">needs label: category, value: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="funnel">Copy spec</button><button type="button" data-copy="tag" data-type="funnel">Copy tag</button><a href="guide.html#c-funnel">Data and switches</a></div>
       <fft-widget src="funnel.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="gauge" data-search="gauge one headline number on a half-circle scale: an arc filled from min to the value, a tick at the target, the number large inside the arc and the scale's ends below; with a target, a line under the arc says where it stands (target met, or how far to go). is nps above or below goal? value: number">
+    <section class="card" id="gauge" data-search="gauge one headline number on a half-circle scale: an arc filled from min to the value, a tick at the target, the number large inside the arc and the scale's ends below; with a target, a line under the arc says where it stands (target met, or how far to go). is nps above or below goal? value: number dial speedometer score">
       <h2>gauge</h2>
       <p>One headline number on a half-circle scale: an arc filled from min to the value, a tick at the target, the number large inside the arc and the scale's ends below; with a target, a line under the arc says where it stands (Target met, or how far to go).</p>
       <p class="needs">needs value: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="gauge">Copy spec</button><button type="button" data-copy="tag" data-type="gauge">Copy tag</button><a href="guide.html#c-gauge">Data and switches</a></div>
       <fft-widget src="gauge.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="hbar" data-search="hbar horizontal bars for rankings and long labels: label on the left, bar, value at the end. which feature has the most accounts using it? label: category, value: number+">
+    <section class="card" id="hbar" data-search="hbar horizontal bars for rankings and long labels: label on the left, bar, value at the end. which feature has the most accounts using it? label: category, value: number+ ranking top leaderboard compare horizontal">
       <h2>hbar</h2>
       <p>Horizontal bars for rankings and long labels: label on the left, bar, value at the end.</p>
       <p class="needs">needs label: category, value: number+</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="hbar">Copy spec</button><button type="button" data-copy="tag" data-type="hbar">Copy tag</button><a href="guide.html#c-hbar">Data and switches</a></div>
       <fft-widget src="hbar.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="heatmap" data-search="heatmap a grid of cells shaded on one blue scale from light (low) to dark (high), for patterns across two categories such as weekday by hour. which time and day have the most tickets? x: category, y: category, value: number">
+    <section class="card" id="heatmap" data-search="heatmap a grid of cells shaded on one blue scale from light (low) to dark (high), for patterns across two categories such as weekday by hour. which time and day have the most tickets? x: category, y: category, value: number grid intensity weekday hour pattern">
       <h2>heatmap</h2>
       <p>A grid of cells shaded on one blue scale from light (low) to dark (high), for patterns across two categories such as weekday by hour.</p>
       <p class="needs">needs x: category, y: category, value: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="heatmap">Copy spec</button><button type="button" data-copy="tag" data-type="heatmap">Copy tag</button><a href="guide.html#c-heatmap">Data and switches</a></div>
       <fft-widget src="heatmap.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="histogram" data-search="histogram a distribution as touching bars: the value's range is cut into bins on round edges, and each bar counts the rows in its bin. how spread out is deal value? value: number">
+    <section class="card" id="histogram" data-search="histogram a distribution as touching bars: the value's range is cut into bins on round edges, and each bar counts the rows in its bin. how spread out is deal value? value: number distribution frequency bins spread">
       <h2>histogram</h2>
       <p>A distribution as touching bars: the value's range is cut into bins on round edges, and each bar counts the rows in its bin.</p>
       <p class="needs">needs value: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="histogram">Copy spec</button><button type="button" data-copy="tag" data-type="histogram">Copy tag</button><a href="guide.html#c-histogram">Data and switches</a></div>
       <fft-widget src="histogram.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="history" data-search="history a client's story as a vertical timeline: one event per row with its date, title, an optional second line and an amount, newest first, a dot per event colored by kind with a key, and the month written wherever it changes. what happened with the client, and when? date: date, title: category">
+    <section class="card" id="history" data-search="history a client's story as a vertical timeline: one event per row with its date, title, an optional second line and an amount, newest first, a dot per event colored by kind with a key, and the month written wherever it changes. what happened with the client, and when? date: date, title: category events story touchpoints log timeline">
       <h2>history</h2>
       <p>A client's story as a vertical timeline: one event per row with its date, title, an optional second line and an amount, newest first, a dot per event colored by kind with a key, and the month written wherever it changes.</p>
       <p class="needs">needs date: date, title: category</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="history">Copy spec</button><button type="button" data-copy="tag" data-type="history">Copy tag</button><a href="guide.html#c-history">Data and switches</a></div>
       <fft-widget src="history.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="horizon" data-search="horizon many time series at once, each in a thin row: values are measured from a baseline and folded into bands of deepening color, blue above and red below, so a dozen series fit where one line chart would. how is each of the 6 rows doing against plan, day by day? x: date, y: number+">
+    <section class="card" id="horizon" data-search="horizon many time series at once, each in a thin row: values are measured from a baseline and folded into bands of deepening color, blue above and red below, so a dozen series fit where one line chart would. how is each of the 6 rows doing against plan, day by day? x: date, y: number+ many time series compact">
       <h2>horizon</h2>
       <p>Many time series at once, each in a thin row: values are measured from a baseline and folded into bands of deepening color, blue above and red below, so a dozen series fit where one line chart would.</p>
       <p class="needs">needs x: date, y: number+</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="horizon">Copy spec</button><button type="button" data-copy="tag" data-type="horizon">Copy tag</button><a href="guide.html#c-horizon">Data and switches</a></div>
       <fft-widget src="horizon.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="icicle" data-search="icicle a hierarchy laid flat: a column for the total, then one per level left to right, each child splitting its parent's height by value, in lighter tints of its family's color. which region brings the most revenue, and from which product? levels: category+, value: number">
+    <section class="card" id="icicle" data-search="icicle a hierarchy laid flat: a column for the total, then one per level left to right, each child splitting its parent's height by value, in lighter tints of its family's color. which region brings the most revenue, and from which product? levels: category+, value: number hierarchy nested breakdown">
       <h2>icicle</h2>
       <p>A hierarchy laid flat: a column for the total, then one per level left to right, each child splitting its parent's height by value, in lighter tints of its family's color.</p>
       <p class="needs">needs levels: category+, value: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="icicle">Copy spec</button><button type="button" data-copy="tag" data-type="icicle">Copy tag</button><a href="guide.html#c-icicle">Data and switches</a></div>
       <fft-widget src="icicle.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="kpi" data-search="kpi one headline number with its change against a comparison. is monthly churn going up or down? value: number">
+    <section class="card" id="kpi" data-search="kpi one headline number with its change against a comparison. is monthly churn going up or down? value: number number metric tile headline figure">
       <h2>kpi</h2>
       <p>One headline number with its change against a comparison.</p>
       <p class="needs">needs value: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="kpi">Copy spec</button><button type="button" data-copy="tag" data-type="kpi">Copy tag</button><a href="guide.html#c-kpi">Data and switches</a></div>
       <fft-widget src="kpi.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="kpis" data-search="kpis a row of stat tiles in one widget, each with a label, value and change: the calm way to show a handful of headline numbers. where do the key numbers stand right now? ">
+    <section class="card" id="kpis" data-search="kpis a row of stat tiles in one widget, each with a label, value and change: the calm way to show a handful of headline numbers. where do the key numbers stand right now?  numbers metrics tiles headline figures scorecard">
       <h2>kpis</h2>
       <p>A row of stat tiles in one widget, each with a label, value and change: the calm way to show a handful of headline numbers.</p>
       <p class="needs">needs any rows</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="kpis">Copy spec</button><button type="button" data-copy="tag" data-type="kpis">Copy tag</button><a href="guide.html#c-kpis">Data and switches</a></div>
       <fft-widget src="kpis.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="lifecycle" data-search="lifecycle stage swimlanes: one row per item on a shared date axis, each stage drawn from its date to the next in a deepening tint of one hue, a tick at every stage date, and the last reached stage running on faintly while its next date is unknown. where does each regulation stand, from proposed to applies? label: category, stages: date+">
+    <section class="card" id="lifecycle" data-search="lifecycle stage swimlanes: one row per item on a shared date axis, each stage drawn from its date to the next in a deepening tint of one hue, a tick at every stage date, and the last reached stage running on faintly while its next date is unknown. where does each regulation stand, from proposed to applies? label: category, stages: date+ stages deadlines phases status timeline">
       <h2>lifecycle</h2>
       <p>Stage swimlanes: one row per item on a shared date axis, each stage drawn from its date to the next in a deepening tint of one hue, a tick at every stage date, and the last reached stage running on faintly while its next date is unknown.</p>
       <p class="needs">needs label: category, stages: date+</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="lifecycle">Copy spec</button><button type="button" data-copy="tag" data-type="lifecycle">Copy tag</button><a href="guide.html#c-lifecycle">Data and switches</a></div>
       <fft-widget src="lifecycle.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="likert" data-search="likert survey answers as diverging stacked bars: one bar per question, its responses in order from one pole to the other, centered on the neutral middle so disagreement grows left and agreement right. how do people answer each question? label: category, value: number+">
+    <section class="card" id="likert" data-search="likert survey answers as diverging stacked bars: one bar per question, its responses in order from one pole to the other, centered on the neutral middle so disagreement grows left and agreement right. how do people answer each question? label: category, value: number+ survey agree disagree answers">
       <h2>likert</h2>
       <p>Survey answers as diverging stacked bars: one bar per question, its responses in order from one pole to the other, centered on the neutral middle so disagreement grows left and agreement right.</p>
       <p class="needs">needs label: category, value: number+</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="likert">Copy spec</button><button type="button" data-copy="tag" data-type="likert">Copy tag</button><a href="guide.html#c-likert">Data and switches</a></div>
       <fft-widget src="likert.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="line" data-search="line lines showing change over an ordered axis, usually time. is revenue on track to hit target? x: date, y: number+">
+    <section class="card" id="line" data-search="line lines showing change over an ordered axis, usually time. is revenue on track to hit target? x: date, y: number+ trend over time time series evolution">
       <h2>line</h2>
       <p>Lines showing change over an ordered axis, usually time.</p>
       <p class="needs">needs x: date, y: number+</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="line">Copy spec</button><button type="button" data-copy="tag" data-type="line">Copy tag</button><a href="guide.html#c-line">Data and switches</a></div>
       <fft-widget src="line.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="list" data-search="list a stacked list: one line per row with a label, optional detail underneath, and an optional value on the right. which customer has the most revenue? label: category">
+    <section class="card" id="list" data-search="list a stacked list: one line per row with a label, optional detail underneath, and an optional value on the right. which customer has the most revenue? label: category records ranking names top">
       <h2>list</h2>
       <p>A stacked list: one line per row with a label, optional detail underneath, and an optional value on the right.</p>
       <p class="needs">needs label: category</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="list">Copy spec</button><button type="button" data-copy="tag" data-type="list">Copy tag</button><a href="guide.html#c-list">Data and switches</a></div>
       <fft-widget src="list.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="locator" data-search="locator a small, clean map that says where things are: a marker and an always-on name for each place, such as offices, stores or sites, with a second line of detail if there is one. where are the offices? label: category">
+    <section class="card" id="locator" data-search="locator a small, clean map that says where things are: a marker and an always-on name for each place, such as offices, stores or sites, with a second line of detail if there is one. where are the offices? label: category map places offices locations">
       <h2>locator</h2>
       <p>A small, clean map that says where things are: a marker and an always-on name for each place, such as offices, stores or sites, with a second line of detail if there is one.</p>
       <p class="needs">needs label: category</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="locator">Copy spec</button><button type="button" data-copy="tag" data-type="locator">Copy tag</button><a href="guide.html#c-locator">Data and switches</a></div>
       <fft-widget src="locator.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="marimekko" data-search="marimekko a mosaic: one column per category, as wide as its total, split into segments by each series' share of that column. how big is each region, and how is it split by product? x: category, series: category, value: number">
+    <section class="card" id="marimekko" data-search="marimekko a mosaic: one column per category, as wide as its total, split into segments by each series' share of that column. how big is each region, and how is it split by product? x: category, series: category, value: number market map share and size mekko">
       <h2>marimekko</h2>
       <p>A mosaic: one column per category, as wide as its total, split into segments by each series' share of that column.</p>
       <p class="needs">needs x: category, series: category, value: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="marimekko">Copy spec</button><button type="button" data-copy="tag" data-type="marimekko">Copy tag</button><a href="guide.html#c-marimekko">Data and switches</a></div>
       <fft-widget src="marimekko.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="matrix" data-search="matrix a mark matrix (a punchcard): one mark per pair of x and y, sized by a value, shaded by another, or a square where a flag is yes. which stakeholders must comply with each regulation? x: category, y: category">
+    <section class="card" id="matrix" data-search="matrix a mark matrix (a punchcard): one mark per pair of x and y, sized by a value, shaded by another, or a square where a flag is yes. which stakeholders must comply with each regulation? x: category, y: category punchcard grid who must comply pressure">
       <h2>matrix</h2>
       <p>A mark matrix (a punchcard): one mark per pair of x and y, sized by a value, shaded by another, or a square where a flag is yes.</p>
       <p class="needs">needs x: category, y: category</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="matrix">Copy spec</button><button type="button" data-copy="tag" data-type="matrix">Copy tag</button><a href="guide.html#c-matrix">Data and switches</a></div>
       <fft-widget src="matrix.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="meter" data-search="meter progress against a target, one meter per row: attainment as a percentage, a bar that fills to the target, and where it stands in plain words: a check and target met, or how far it has to go (€22k to go). which region is above or below target? value: number, target: number">
+    <section class="card" id="meter" data-search="meter progress against a target, one meter per row: attainment as a percentage, a bar that fills to the target, and where it stands in plain words: a check and target met, or how far it has to go (€22k to go). which region is above or below target? value: number, target: number progress target goal attainment">
       <h2>meter</h2>
       <p>Progress against a target, one meter per row: attainment as a percentage, a bar that fills to the target, and where it stands in plain words: a check and Target met, or how far it has to go (€22K to go).</p>
       <p class="needs">needs value: number, target: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="meter">Copy spec</button><button type="button" data-copy="tag" data-type="meter">Copy tag</button><a href="guide.html#c-meter">Data and switches</a></div>
       <fft-widget src="meter.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="pareto" data-search="pareto the 80/20 view: categories sorted largest first as bars of their share of the total, a line through the running total, and a dashed line at the threshold. which few causes drive most of the tickets? label: category, value: number">
+    <section class="card" id="pareto" data-search="pareto the 80/20 view: categories sorted largest first as bars of their share of the total, a line through the running total, and a dashed line at the threshold. which few causes drive most of the tickets? label: category, value: number 80/20 vital few causes">
       <h2>pareto</h2>
       <p>The 80/20 view: categories sorted largest first as bars of their share of the total, a line through the running total, and a dashed line at the threshold.</p>
       <p class="needs">needs label: category, value: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="pareto">Copy spec</button><button type="button" data-copy="tag" data-type="pareto">Copy tag</button><a href="guide.html#c-pareto">Data and switches</a></div>
       <fft-widget src="pareto.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="pie" data-search="pie part-to-whole as a full disc: up to 6 slices from twelve o'clock clockwise, each wide in proportion to its share, with the shares written on the slices and a legend of values. what share of revenue comes from each segment? label: category, value: number">
+    <section class="card" id="pie" data-search="pie part-to-whole as a full disc: up to 6 slices from twelve o'clock clockwise, each wide in proportion to its share, with the shares written on the slices and a legend of values. what share of revenue comes from each segment? label: category, value: number share split breakdown part of whole">
       <h2>pie</h2>
       <p>Part-to-whole as a full disc: up to 6 slices from twelve o'clock clockwise, each wide in proportion to its share, with the shares written on the slices and a legend of values.</p>
       <p class="needs">needs label: category, value: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="pie">Copy spec</button><button type="button" data-copy="tag" data-type="pie">Copy tag</button><a href="guide.html#c-pie">Data and switches</a></div>
       <fft-widget src="pie.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="pyramid" data-search="pyramid a population pyramid: one row per band (an age group, a tenure band), with two counts as bars growing out from a center axis on one shared scale, the left count leftward and the right count rightward. how do women and men compare, age by age? label: category, left: number, right: number">
+    <section class="card" id="pyramid" data-search="pyramid a population pyramid: one row per band (an age group, a tenure band), with two counts as bars growing out from a center axis on one shared scale, the left count leftward and the right count rightward. how do women and men compare, age by age? label: category, left: number, right: number age population two groups back to back">
       <h2>pyramid</h2>
       <p>A population pyramid: one row per band (an age group, a tenure band), with two counts as bars growing out from a center axis on one shared scale, the left count leftward and the right count rightward.</p>
       <p class="needs">needs label: category, left: number, right: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="pyramid">Copy spec</button><button type="button" data-copy="tag" data-type="pyramid">Copy tag</button><a href="guide.html#c-pyramid">Data and switches</a></div>
       <fft-widget src="pyramid.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="radar" data-search="radar profiles across several attributes: one spoke per row, rings for one shared scale from zero, and a soft shape per series. how do our product and market average compare, attribute by attribute? label: category, y: number+">
+    <section class="card" id="radar" data-search="radar profiles across several attributes: one spoke per row, rings for one shared scale from zero, and a soft shape per series. how do our product and market average compare, attribute by attribute? label: category, y: number+ profile spider attributes">
       <h2>radar</h2>
       <p>Profiles across several attributes: one spoke per row, rings for one shared scale from zero, and a soft shape per series.</p>
       <p class="needs">needs label: category, y: number+</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="radar">Copy spec</button><button type="button" data-copy="tag" data-type="radar">Copy tag</button><a href="guide.html#c-radar">Data and switches</a></div>
       <fft-widget src="radar.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="ragboard" data-search="ragboard a rag scorecard: one row per entity (a client, a relationship manager, a deal) and one red, amber or green cell per dimension, worst first, with an overall column holding each row's worst status. which clients are off track, on what, and which need action first? label: category, dimensions: category+">
+    <section class="card" id="ragboard" data-search="ragboard a rag scorecard: one row per entity (a client, a relationship manager, a deal) and one red, amber or green cell per dimension, worst first, with an overall column holding each row's worst status. which clients are off track, on what, and which need action first? label: category, dimensions: category+ rag red amber green traffic light scorecard status">
       <h2>ragboard</h2>
       <p>A RAG scorecard: one row per entity (a client, a relationship manager, a deal) and one Red, Amber or Green cell per dimension, worst first, with an overall column holding each row's worst status.</p>
       <p class="needs">needs label: category, dimensions: category+</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="ragboard">Copy spec</button><button type="button" data-copy="tag" data-type="ragboard">Copy tag</button><a href="guide.html#c-ragboard">Data and switches</a></div>
       <fft-widget src="ragboard.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="ragtrend" data-search="ragtrend rag status over time: one row per entity and one small mark per period, shaped and colored by its status (a filled circle on track, a triangle at risk, a square off track). whose status got worse, when, and why? label: category, period: date, status: category">
+    <section class="card" id="ragtrend" data-search="ragtrend rag status over time: one row per entity and one small mark per period, shaped and colored by its status (a filled circle on track, a triangle at risk, a square off track). whose status got worse, when, and why? label: category, period: date, status: category rag status over time traffic light history">
       <h2>ragtrend</h2>
       <p>RAG status over time: one row per entity and one small mark per period, shaped and colored by its status (a filled circle On track, a triangle At risk, a square Off track).</p>
       <p class="needs">needs label: category, period: date, status: category</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="ragtrend">Copy spec</button><button type="button" data-copy="tag" data-type="ragtrend">Copy tag</button><a href="guide.html#c-ragtrend">Data and switches</a></div>
       <fft-widget src="ragtrend.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="ridgeline" data-search="ridgeline one smooth distribution curve per group on a shared axis, overlapping like a mountain range: how values spread in each group, for example deal sizes by region. how spread out is deal value in each region? value: number, group: category">
+    <section class="card" id="ridgeline" data-search="ridgeline one smooth distribution curve per group on a shared axis, overlapping like a mountain range: how values spread in each group, for example deal sizes by region. how spread out is deal value in each region? value: number, group: category distribution shape groups">
       <h2>ridgeline</h2>
       <p>One smooth distribution curve per group on a shared axis, overlapping like a mountain range: how values spread in each group, for example deal sizes by region.</p>
       <p class="needs">needs value: number, group: category</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="ridgeline">Copy spec</button><button type="button" data-copy="tag" data-type="ridgeline">Copy tag</button><a href="guide.html#c-ridgeline">Data and switches</a></div>
       <fft-widget src="ridgeline.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="rings" data-search="rings concentric progress rings, one per row from the outside in, each filled to its share of target; past the target a second lap shows how far over. which product is above or below target? label: category, value: number, target: number">
+    <section class="card" id="rings" data-search="rings concentric progress rings, one per row from the outside in, each filled to its share of target; past the target a second lap shows how far over. which product is above or below target? label: category, value: number, target: number progress goals targets activity rings">
       <h2>rings</h2>
       <p>Concentric progress rings, one per row from the outside in, each filled to its share of target; past the target a second lap shows how far over.</p>
       <p class="needs">needs label: category, value: number, target: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="rings">Copy spec</button><button type="button" data-copy="tag" data-type="rings">Copy tag</button><a href="guide.html#c-rings">Data and switches</a></div>
       <fft-widget src="rings.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="rose" data-search="rose a polar area chart (a nightingale rose) for a cycle that wraps round, such as hours of the day or months of the year: one equal wedge per row, clockwise from twelve o'clock, its area true to its value. which hours are busiest? label: category, y: number+">
+    <section class="card" id="rose" data-search="rose a polar area chart (a nightingale rose) for a cycle that wraps round, such as hours of the day or months of the year: one equal wedge per row, clockwise from twelve o'clock, its area true to its value. which hours are busiest? label: category, y: number+ cycle hours months polar seasonal">
       <h2>rose</h2>
       <p>A polar area chart (a Nightingale rose) for a cycle that wraps round, such as hours of the day or months of the year: one equal wedge per row, clockwise from twelve o'clock, its area true to its value.</p>
       <p class="needs">needs label: category, y: number+</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="rose">Copy spec</button><button type="button" data-copy="tag" data-type="rose">Copy tag</button><a href="guide.html#c-rose">Data and switches</a></div>
       <fft-widget src="rose.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="sankey" data-search="sankey flows between stages as ribbons as thick as their volume, for example traffic source to landing page to outcome. where do visits flow, and how much goes each way? source: category, target: category, value: number">
+    <section class="card" id="sankey" data-search="sankey flows between stages as ribbons as thick as their volume, for example traffic source to landing page to outcome. where do visits flow, and how much goes each way? source: category, target: category, value: number flow paths from to journey">
       <h2>sankey</h2>
       <p>Flows between stages as ribbons as thick as their volume, for example traffic source to landing page to outcome.</p>
       <p class="needs">needs source: category, target: category, value: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="sankey">Copy spec</button><button type="button" data-copy="tag" data-type="sankey">Copy tag</button><a href="guide.html#c-sankey">Data and switches</a></div>
       <fft-widget src="sankey.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="scatter" data-search="scatter one dot per row placed by two numbers, to show how they relate. does gross margin go up as revenue growth goes up? x: number, y: number">
+    <section class="card" id="scatter" data-search="scatter one dot per row placed by two numbers, to show how they relate. does gross margin go up as revenue growth goes up? x: number, y: number correlation relationship two measures bubble">
       <h2>scatter</h2>
       <p>One dot per row placed by two numbers, to show how they relate.</p>
       <p class="needs">needs x: number, y: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="scatter">Copy spec</button><button type="button" data-copy="tag" data-type="scatter">Copy tag</button><a href="guide.html#c-scatter">Data and switches</a></div>
       <fft-widget src="scatter.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="slope" data-search="slope each item's move between two points in time, as a line from a left column to a right one on one shared scale. how did each region change from h1 2026 to h2 2026? label: category, from: number, to: number">
+    <section class="card" id="slope" data-search="slope each item's move between two points in time, as a line from a left column to a right one on one shared scale. how did each region change from h1 2026 to h2 2026? label: category, from: number, to: number change two periods before after">
       <h2>slope</h2>
       <p>Each item's move between two points in time, as a line from a left column to a right one on one shared scale.</p>
       <p class="needs">needs label: category, from: number, to: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="slope">Copy spec</button><button type="button" data-copy="tag" data-type="slope">Copy tag</button><a href="guide.html#c-slope">Data and switches</a></div>
       <fft-widget src="slope.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="strips" data-search="strips unit strips: one row per item with a strip of small squares, one per unit, colored part by part in order (mandatory, recommended, optional), the total and the first part's share at the end. how many provisions does each regulation have, and how many are mandatory? label: category, value: number+">
+    <section class="card" id="strips" data-search="strips unit strips: one row per item with a strip of small squares, one per unit, colored part by part in order (mandatory, recommended, optional), the total and the first part's share at the end. how many provisions does each regulation have, and how many are mandatory? label: category, value: number+ count units provisions squares density">
       <h2>strips</h2>
       <p>Unit strips: one row per item with a strip of small squares, one per unit, colored part by part in order (mandatory, recommended, optional), the total and the first part's share at the end.</p>
       <p class="needs">needs label: category, value: number+</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="strips">Copy spec</button><button type="button" data-copy="tag" data-type="strips">Copy tag</button><a href="guide.html#c-strips">Data and switches</a></div>
       <fft-widget src="strips.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="sunburst" data-search="sunburst a hierarchy as rings: the inner ring splits the total by the first level, each outer ring splits its parent's slice by the next level, in lighter tints of the parent's color. which product brings the most revenue, and from which region? levels: category+, value: number">
+    <section class="card" id="sunburst" data-search="sunburst a hierarchy as rings: the inner ring splits the total by the first level, each outer ring splits its parent's slice by the next level, in lighter tints of the parent's color. which product brings the most revenue, and from which region? levels: category+, value: number hierarchy nested breakdown">
       <h2>sunburst</h2>
       <p>A hierarchy as rings: the inner ring splits the total by the first level, each outer ring splits its parent's slice by the next level, in lighter tints of the parent's color.</p>
       <p class="needs">needs levels: category+, value: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="sunburst">Copy spec</button><button type="button" data-copy="tag" data-type="sunburst">Copy tag</button><a href="guide.html#c-sunburst">Data and switches</a></div>
       <fft-widget src="sunburst.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="symbols" data-search="symbols a map with a circle on each place, its area true to a value: customers by state, volume by port. where are the most customers? size: number">
+    <section class="card" id="symbols" data-search="symbols a map with a circle on each place, its area true to a value: customers by state, volume by port. where are the most customers? size: number map bubbles where how much locations">
       <h2>symbols</h2>
       <p>A map with a circle on each place, its area true to a value: customers by state, volume by port.</p>
       <p class="needs">needs size: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="symbols">Copy spec</button><button type="button" data-copy="tag" data-type="symbols">Copy tag</button><a href="guide.html#c-symbols">Data and switches</a></div>
       <fft-widget src="symbols.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="table" data-search="table rows and columns. what are the exact numbers for each deal, and which has the highest amount? ">
+    <section class="card" id="table" data-search="table rows and columns. what are the exact numbers for each deal, and which has the highest amount?  grid records list rows lookup spreadsheet">
       <h2>table</h2>
       <p>Rows and columns.</p>
       <p class="needs">needs any rows</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="table">Copy spec</button><button type="button" data-copy="tag" data-type="table">Copy tag</button><a href="guide.html#c-table">Data and switches</a></div>
       <fft-widget src="table.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="timeline" data-search="timeline a gantt-style timeline: one row per task with a bar from its start to its end date, a diamond for milestones (no end), month ticks along the top and an optional today line. when does each task start and end? label: category, start: date">
+    <section class="card" id="timeline" data-search="timeline a gantt-style timeline: one row per task with a bar from its start to its end date, a diamond for milestones (no end), month ticks along the top and an optional today line. when does each task start and end? label: category, start: date gantt plan schedule project">
       <h2>timeline</h2>
       <p>A Gantt-style timeline: one row per task with a bar from its start to its end date, a diamond for milestones (no end), month ticks along the top and an optional today line.</p>
       <p class="needs">needs label: category, start: date</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="timeline">Copy spec</button><button type="button" data-copy="tag" data-type="timeline">Copy tag</button><a href="guide.html#c-timeline">Data and switches</a></div>
       <fft-widget src="timeline.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="treemap" data-search="treemap part-to-whole for many categories: tiles sized by value, kept close to square. what share of revenue comes from each customer? label: category, value: number">
+    <section class="card" id="treemap" data-search="treemap part-to-whole for many categories: tiles sized by value, kept close to square. what share of revenue comes from each customer? label: category, value: number share hierarchy breakdown nested">
       <h2>treemap</h2>
       <p>Part-to-whole for many categories: tiles sized by value, kept close to square.</p>
       <p class="needs">needs label: category, value: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="treemap">Copy spec</button><button type="button" data-copy="tag" data-type="treemap">Copy tag</button><a href="guide.html#c-treemap">Data and switches</a></div>
       <fft-widget src="treemap.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="variance" data-search="variance variance against plan, as in financial reporting: per row a bar from a zero line to actual minus plan, right when over and left when under, colored good or bad and labelled with its sign. which departments stayed within budget? label: category, value: number, target: number">
+    <section class="card" id="variance" data-search="variance variance against plan, as in financial reporting: per row a bar from a zero line to actual minus plan, right when over and left when under, colored good or bad and labelled with its sign. which departments stayed within budget? label: category, value: number, target: number budget plan versus actual over under">
       <h2>variance</h2>
       <p>Variance against plan, as in financial reporting: per row a bar from a zero line to actual minus plan, right when over and left when under, colored good or bad and labelled with its sign.</p>
       <p class="needs">needs label: category, value: number, target: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="variance">Copy spec</button><button type="button" data-copy="tag" data-type="variance">Copy tag</button><a href="guide.html#c-variance">Data and switches</a></div>
       <fft-widget src="variance.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="waffle" data-search="waffle part to whole as a 10 by 10 grid where each square is one percent, filled category by category in reading order, with a legend of values and shares. what share of revenue comes from each source? label: category, value: number">
+    <section class="card" id="waffle" data-search="waffle part to whole as a 10 by 10 grid where each square is one percent, filled category by category in reading order, with a legend of values and shares. what share of revenue comes from each source? label: category, value: number share percent squares part of whole">
       <h2>waffle</h2>
       <p>Part to whole as a 10 by 10 grid where each square is one percent, filled category by category in reading order, with a legend of values and shares.</p>
       <p class="needs">needs label: category, value: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="waffle">Copy spec</button><button type="button" data-copy="tag" data-type="waffle">Copy tag</button><a href="guide.html#c-waffle">Data and switches</a></div>
       <fft-widget src="waffle.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="waterfall" data-search="waterfall a bridge: how a total moves to another through increases and decreases, each floating from the running total, with totals standing on zero. what took q2 revenue to q3 revenue? label: category, value: number">
+    <section class="card" id="waterfall" data-search="waterfall a bridge: how a total moves to another through increases and decreases, each floating from the running total, with totals standing on zero. what took q2 revenue to q3 revenue? label: category, value: number bridge walk change drivers">
       <h2>waterfall</h2>
       <p>A bridge: how a total moves to another through increases and decreases, each floating from the running total, with totals standing on zero.</p>
       <p class="needs">needs label: category, value: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="waterfall">Copy spec</button><button type="button" data-copy="tag" data-type="waterfall">Copy tag</button><a href="guide.html#c-waterfall">Data and switches</a></div>
       <fft-widget src="waterfall.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="whitespace" data-search="whitespace the cross-sell map (whitespace analysis): one cell per client and product, filled where the client holds the product, outlined where it is an opportunity (tinted by how likely), blank where the client is not eligible. which clients could take more products, and which ones first? row: category, column: category, state: category">
+    <section class="card" id="whitespace" data-search="whitespace the cross-sell map (whitespace analysis): one cell per client and product, filled where the client holds the product, outlined where it is an opportunity (tinted by how likely), blank where the client is not eligible. which clients could take more products, and which ones first? row: category, column: category, state: category cross-sell upsell opportunities gaps products">
       <h2>whitespace</h2>
       <p>The cross-sell map (whitespace analysis): one cell per client and product, filled where the client holds the product, outlined where it is an opportunity (tinted by how likely), blank where the client is not eligible.</p>
       <p class="needs">needs row: category, column: category, state: category</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="whitespace">Copy spec</button><button type="button" data-copy="tag" data-type="whitespace">Copy tag</button><a href="guide.html#c-whitespace">Data and switches</a></div>
       <fft-widget src="whitespace.json" actions="info csv image explain expand"></fft-widget>
     </section>
-    <section class="card" id="xray" data-search="xray a client x-ray: one client on one card, from its first row. how does this client stand right now, and what should we do next? label: category">
+    <section class="card" id="xray" data-search="xray a client x-ray: one client on one card, from its first row. how does this client stand right now, and what should we do next? label: category client profile 360 wallet card">
       <h2>xray</h2>
       <p>A client x-ray: one client on one card, from its first row.</p>
       <p class="needs">needs label: category</p>

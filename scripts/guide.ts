@@ -11,6 +11,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { blockTypes, chartGuide, chartsFor, dataContract, describeChart, guideMarkdown, PURPOSES, switchOptions } from "../src/core/index.ts";
 import type { ChartSwitch, Purpose, Row, WidgetSpec } from "../src/core/index.ts";
+import { SEARCH_WORDS } from "../src/core/search-words.ts";
 import { catalogTabs, navBar } from "./site-nav.ts";
 
 const root = (path: string) => fileURLToPath(new URL(`../${path}`, import.meta.url));
@@ -132,7 +133,7 @@ const section = ({ type, spec, rows, switches }: Built) => {
   views[type] = Object.fromEntries(ok.map((s) => [s.to, s.view]));
   const { min, max } = contract.rowsRead;
   return `
-  <section class="chart" id="c-${type}" aria-labelledby="h-${type}" data-search="${escape([type, entry.summary, ...Object.keys(guide?.purposes ?? {}).map((p) => PURPOSES[p as Purpose])].join(" ").toLowerCase())}">
+  <section class="chart" id="c-${type}" aria-labelledby="h-${type}" data-search="${escape([type, entry.summary, SEARCH_WORDS[type] ?? "", ...Object.keys(guide?.purposes ?? {}).map((p) => PURPOSES[p as Purpose])].join(" ").toLowerCase())}">
     <header>
       <h2 id="h-${type}"><code>${type}</code></h2>
       <p class="summary">${escape(entry.summary)}</p>

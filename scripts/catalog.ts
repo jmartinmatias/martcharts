@@ -9,6 +9,7 @@ import { fileURLToPath } from "node:url";
 import { describeBlocks, describeChart, hasErrors, needsText, runPipeline, validateSpec } from "../src/core/index.ts";
 import type { Row, WidgetSpec } from "../src/core/index.ts";
 import { createLocalFetch } from "../src/mcp/store.ts";
+import { SEARCH_WORDS } from "../src/core/search-words.ts";
 import { catalogTabs, navBar } from "./site-nav.ts";
 
 const root = (path: string) => fileURLToPath(new URL(`../${path}`, import.meta.url));
@@ -160,7 +161,7 @@ ${catalogTabs("charts")}
   <div class="grid">
 ${cards
   .map(
-    (c) => `    <section class="card" id="${c.type}" data-search="${escape(`${c.type} ${c.summary} ${c.question} ${c.needs}`.toLowerCase())}">
+    (c) => `    <section class="card" id="${c.type}" data-search="${escape(`${c.type} ${c.summary} ${c.question} ${c.needs} ${SEARCH_WORDS[c.type] ?? ""}`.toLowerCase())}">
       <h2>${c.type}</h2>
       <p>${escape(c.summary)}</p>
       <p class="needs">needs ${escape(c.needs || "any rows")}</p>
