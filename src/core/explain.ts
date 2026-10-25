@@ -16,6 +16,8 @@ import { isYes, periodTime, timeOf } from "./views.ts";
 import { ragOf, ragRank, ragTrend, ragWord, worstOf } from "./rag.ts";
 import type { Rag } from "./rag.ts";
 import { readable } from "./canonical.ts";
+import { cardNoun, distinctLabel, entityNoun, explainIn } from "./explain-words.ts";
+import { langOf } from "./words.ts";
 
 type View = Record<string, unknown> & { type: string };
 
@@ -31,6 +33,9 @@ const many = (value: unknown): string[] => (Array.isArray(value) ? value.filter(
 export function explainChart(written: WidgetSpec, rows: Row[] = []): string {
   // Canonical or older option names, the guide reads one set: the renderer's.
   const spec = readable(written);
+  // French and German are built in their own words, from the same facts (explain-words.ts).
+  const lang = langOf(spec.locale);
+  if (lang !== "en") return explainIn(lang, spec, rows);
   const facet = (spec.facet as { field?: string } | undefined)?.field;
   // A dashed target line says what it is, so the chart reads against it.
   const goal = targetLine(spec);
@@ -583,7 +588,7 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
     }
     case "anomalies": {
       // Which metric stepped out of its band most often, and when it last did.
-      const [x, metric, amount, low, high, flag] = [one(view.x), one(view.metric), one(view.value), one(view.low), one(view.high), one(view.flag)];
+      const [x, metric, amount, low, high, flag, expected] = [one(view.x), one(view.metric), one(view.value), one(view.low), one(view.high), one(view.flag), one(view.expected)];
       if (!x || !metric || !amount) return "";
       const flagged = (row: Row) => {
         if (flag) return [true, 1, "true", "yes"].includes(row[flag] as never);
@@ -595,10 +600,28 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       if (!hits.length) return `Here, none of the ${metrics} measures stepped outside its expected band.`;
       const counts = new Map<string, Row[]>();
       for (const row of hits) counts.set(String(row[metric]), [...(counts.get(String(row[metric])) ?? []), row]);
-      const [top, list] = [...counts.entries()].sort((a, b) => b[1].length - a[1].length)[0] as [string, Row[]];
-      const last = list.reduce((a, b) => (String(b[x]) > String(a[x]) ? b : a));
-      const many = list.length === 1 ? "once" : `${list.length} times`;
-      return `Here, ${hits.length} reading${hits.length === 1 ? " was" : "s were"} flagged across ${counts.size} of ${metrics} measures; ${text(last, metric)} stepped out most, ${many}, last ${when(last, x)} at ${text(last, amount)}.`;
+      const ranked = [...counts.entries()].sort((a, b) => b[1].length - a[1].length);
+      const [, list] = ranked[0] as [string, Row[]];
+      const times = (n: number) => (n === 1 ? "once" : n === 2 ? "twice" : `${n} times`);
+      const across = counts.size === metrics ? `every one of the ${metrics} measures` : `${counts.size} of the ${metrics} measures`;
+      // The reading against what was expected, so a compact figure ("1M") has its scale beside it.
+      const against = (row: Row) => (expected && value(row, expected) !== null ? `, reading ${text(row, amount)} against ${text(row, expected)} expected` : `, reading ${text(row, amount)}`);
+      // A bare ISO day reads as a calendar date (Oct 4, 2026), unless the field has its own format.
+      const on = (row: Row) => (spec.fields?.[x]?.format === undefined && /^\d{4}-\d{2}-\d{2}/.test(String(row[x] ?? "")) ? `on ${formatValue(row[x], { type: "date" }, spec.locale)}` : when(row, x));
+      const latestOf = (list_: Row[]) => list_.reduce((a, b) => (String(b[x]) > String(a[x]) ? b : a));
+      // One measure alone stepped out: say so by name.
+      if (counts.size === 1) {
+        const last = latestOf(list);
+        return `Here, only ${text(last, metric)} stepped out of its band, ${times(list.length)}, last ${on(last)}${against(last)}.`;
+      }
+      // When every flagged measure stepped out as often, none "stepped out most": name the latest one instead.
+      const tied = ranked.every(([, rows_]) => rows_.length === list.length);
+      if (tied) {
+        const latest = latestOf(hits);
+        return `Here, ${across} stepped out ${times(list.length)}; the latest was ${text(latest, metric)} ${on(latest)}${against(latest)}.`;
+      }
+      const last = latestOf(list);
+      return `Here, ${hits.length} readings stepped out across ${across}; ${text(last, metric)} did most often, ${times(list.length)}, last ${on(last)}${against(last)}.`;
     }
     case "board": {
       // Where most things stand: the fullest column, and the one standout by value when a value is given.
@@ -1121,7 +1144,13 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
         for (const row of rows) if (isYes(row[mark])) yes.set(text(row, y), (yes.get(text(row, y)) ?? 0) + 1);
         const [most, k] = [...yes.entries()].sort((a, b) => b[1] - a[1])[0] ?? [];
         if (!most) return `Here, no cell is marked ${nameOf(mark, spec)}.`;
-        return `Here, ${most} is marked ${nameOf(mark, spec)} in ${k === columns ? `all ${columns}` : `${k} of ${columns}`} ${plural(nameOf(x, spec))}, the most of any ${nameOf(y, spec)}.`;
+        // The columns by their own name when their label is the flag's ("Must comply" on both): stakeholders.
+        const across = `${k === columns ? `all ${columns}` : `${k} of ${columns}`} ${plural(distinctLabel(x, spec, [y, mark]) ?? nameOf(x, spec))}`;
+        const rows_ = plural(distinctLabel(y, spec, [x, mark]) ?? nameOf(y, spec));
+        // A flag that says who must comply reads as a duty; any other flag as a yes.
+        return /comply|must|requir|bind|apply/i.test(`${mark} ${nameOf(mark, spec)}`)
+          ? `Here, ${across} must comply with ${most}, more than with any other of the ${rows_}.`
+          : `Here, ${most} has a yes for ${nameOf(mark, spec)} in ${across}, more than any other of the ${rows_}.`;
       }
       const measure = size ?? (color && rows.some((row) => value(row, color) !== null) ? color : undefined);
       if (!measure) return `Here, ${rows.length} of ${columns * new Set(rows.map((row) => text(row, y))).size} cells are filled.`;
@@ -1149,13 +1178,16 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const last = stages.at(-1);
       if (!label || !last || stages.length < 2) return "";
       const reached = rows.filter((row) => timeOf(row[last]) !== null);
-      const entity = nameOf(label, spec);
+      // The same noun the guide uses: a field called name is its label or the card's own word ("regulations"), else entries.
+      const entity = entityNoun(label, spec);
       const count = reached.length === rows.length ? `all ${rows.length}` : `${reached.length} of ${rows.length}`;
       // The latest move of all: the row whose most recent stage date is the newest.
       const lastDate = (row: Row) => Math.max(...stages.map((field) => timeOf(row[field]) ?? -Infinity));
       const mover = rows.reduce<Row | undefined>((best, r) => (best && lastDate(best) >= lastDate(r) ? best : r), undefined);
       const stage = mover ? stages.filter((field) => timeOf(mover[field]) !== null).at(-1) : undefined;
-      const moved = mover && stage && Number.isFinite(lastDate(mover)) ? ` ${text(mover, label)} moved last, to ${nameOf(stage, spec).toLowerCase()} on ${text(mover, stage)}.` : "";
+      // A bare ISO day reads as a calendar date (Jul 10, 2027), unless the field has its own format.
+      const on = (row: Row, field: string) => (spec.fields?.[field]?.format !== undefined ? text(row, field) : formatValue(row[field], { type: "date" }, spec.locale));
+      const moved = mover && stage && Number.isFinite(lastDate(mover)) ? ` ${text(mover, label)} moved last, to ${nameOf(stage, spec).toLowerCase()} on ${on(mover, stage)}.` : "";
       return `Here, ${count} ${plural(entity)} ${reached.length === 1 ? "has" : "have"} reached ${nameOf(last, spec).toLowerCase()}.${moved}`;
     }
     case "whitespace": {
@@ -1292,14 +1324,16 @@ function guide(spec: WidgetSpec): string {
     const plain = /^[a-z]/.test(field) && /^[A-Z][a-z]+\b/.test(label);
     return plain ? label[0]?.toLowerCase() + label.slice(1) : label;
   };
-  // A field called name, title or label says nothing about what the marks are: they are entries.
-  const noun = (field: string | undefined, fallback = "item") => (/^(name|title|label)$/i.test(field ?? "") ? "entry" : name(field, fallback));
+  // A field called name, title or label says nothing about what the marks are: its label, or the card's own words,
+  // say it ("regulation", "client"), and only failing those is a row an entry.
+  const noun = (field: string | undefined, fallback = "item") => (/^(name|title|label|id|item|key)$/i.test(field ?? "") ? entityNoun(field, spec, fallback === "item" ? "entry" : fallback) : name(field, fallback));
   const either = (list: string[]) => (list.length < 2 ? list.join("") : `${list.slice(0, -1).join(", ")} or ${list.at(-1)}`);
   const both = (list: string[]) => (list.length < 2 ? list.join("") : `${list.slice(0, -1).join(", ")} and ${list.at(-1)}`);
   // How time passes in words: "month by month" for a month field, "over time" for an unknown date.
   const over = (field: string | undefined) => {
-    const unit = /^(day|week|month|quarter|year|hour)s?$/i.exec(field ?? "")?.[1]?.toLowerCase();
-    return unit ? `${unit} by ${unit}` : field ? `along ${name(field)}` : "over time";
+    // timeStep reads "date" as days, so a date field goes "day by day", never "along date".
+    const unit = field ? timeStep(field) : undefined;
+    return unit ? `${unit} by ${unit}` : field && !/^(time|timestamp|period|when)$/i.test(field) ? `along ${name(field)}` : "over time";
   };
   const series = many(view.y);
   const colors = series.length > 1 ? ` Each color is one line: ${either(series.map((f) => name(f)))}.` : "";
@@ -1484,7 +1518,9 @@ function guide(spec: WidgetSpec): string {
         mark ? `a square means yes for ${name(mark)}, a faint dot means no` : "",
       ].filter(Boolean);
       const reading = marks.length ? `${marks.join("; ")}.` : "";
-      return `Each row is one ${noun(one(view.y))} and each column one ${noun(one(view.x))}; a mark sits where the two meet. ${reading ? `${reading.charAt(0).toUpperCase()}${reading.slice(1)} ` : ""}An empty cell means there is nothing for that pair.`;
+      // A label two fields share ("Must comply" on the stakeholder and on the flag) names neither: the field's own name does.
+      const axis = (field: string | undefined) => (field ? (distinctLabel(field, spec, [one(view.x), one(view.y), size, color, mark]) ?? noun(field)) : noun(field));
+      return `Each row is one ${axis(one(view.y))} and each column one ${axis(one(view.x))}; a mark sits where the two meet. ${reading ? `${reading.charAt(0).toUpperCase()}${reading.slice(1)} ` : ""}An empty cell means there is nothing for that pair.`;
     }
     case "strips": {
       const parts = many(view.parts);
@@ -1506,9 +1542,10 @@ function guide(spec: WidgetSpec): string {
     case "whitespace":
       return `Each row is one ${noun(one(view.row), "client")} and each column one ${noun(one(view.column), "product")}. A filled square means they already have it, an outlined square means they could (the stronger its tint, the more likely), and a small dot means it is not for them. The end of each row counts what they hold and what is still to win.`;
     case "xray":
-      return `This card is one ${noun(one(view.label), "client")}, top to bottom: the key numbers${many(view.holdings).length ? ", the products in color are the ones they hold" : ""}${one(view.wallet) ? `, the bar is how much of their ${name(one(view.wallet))} is with us` : ""}${one(view.trend) ? ", the small line is the recent trend" : ""}${one(view.flags) ? ", the amber pills are things to watch" : ""}${one(view.actions) ? ", and the list is what to do next" : ""}.`;
+      return `This card is one ${noun(one(view.label), "client")}, top to bottom: the key numbers${many(view.holdings).length ? ", the products in color are the ones they hold" : ""}${one(view.wallet) ? `, the bar is how much of their ${name(one(view.wallet))} is with us` : ""}${one(view.trend) ? ", the small line is the recent trend" : ""}${one(view.flags) ? ", the pills are things to watch" : ""}${one(view.actions) ? ", and the list is what to do next" : ""}.`;
     case "history":
-      return `Each dot is one event for the ${noun(one(view.group) ?? one(view.title), "client")}, ${view.order === "asc" ? "oldest first" : "newest at the top"}, with its date and what happened${one(view.amount) ? ` and, on the right, the ${name(one(view.amount))}` : ""}.${one(view.kind) ? ` Each color and letter is one ${name(one(view.kind))}.` : ""}`;
+      // Whose story it is comes from the group, else the card's own words ("A client's events"), never the event field's label.
+      return `Each dot is one event for the ${one(view.group) ? noun(one(view.group), "client") : cardNoun(spec, "client")}, ${view.order === "asc" ? "oldest first" : "newest at the top"}, with its date and what happened${one(view.amount) ? ` and, on the right, the ${name(one(view.amount))}` : ""}.${one(view.kind) ? ` Each color and letter is one ${name(one(view.kind))}.` : ""}`;
     case "anomalies":
       return `Each thin lane is one ${noun(one(view.metric), "measure")}, ${over(one(view.x))}. The line is what happened${one(view.low) && one(view.high) ? "; the faint band is where it was expected to stay" : ""}${one(view.expected) ? ", with a thin line for the expected value" : ""}. A filled dot marks an anomaly, a reading that stepped out of line. The lanes with the most anomalies come first, and each ends with its latest value and its count.`;
     case "ragboard": {
@@ -1525,7 +1562,7 @@ function guide(spec: WidgetSpec): string {
     }
     case "list":
       // A field called name, title or label says nothing about what the lines are: they are entries.
-      return `Each line is one ${/^(name|title|label)$/i.test(one(view.label) ?? "") ? "entry" : name(one(view.label))}${one(view.value) ? `, with its ${name(one(view.value))} on the right` : ""}.`;
+      return `Each line is one ${noun(one(view.label))}${one(view.value) ? `, with its ${name(one(view.value))} on the right` : ""}.`;
     case "table": {
       // Months laid sideways and shaded cells say more than "records and details".
       const columns = many(view.columns);

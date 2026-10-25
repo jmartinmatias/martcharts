@@ -9,6 +9,8 @@
 import { humanize } from "./display.ts";
 import type { Row, WidgetSpec } from "./types.ts";
 import { readable } from "./canonical.ts";
+import { distinctLabel, entityNoun, questionIn } from "./explain-words.ts";
+import { langOf } from "./words.ts";
 
 /** What kind of question a chart answers. */
 export type QuestionKind =
@@ -66,17 +68,15 @@ function nameOf(field: string, spec: WidgetSpec): string {
   return /^[a-z]/.test(field) && /^[A-Z][a-z]*\b/.test(label) ? label.charAt(0).toLowerCase() + label.slice(1) : label;
 }
 
-/** What each row is: the field's own name, or for a generic field ("name"), the noun in the title ("Revenue by customer", "Top customers"). */
-function entityOf(field: string, spec: WidgetSpec): string {
-  if (!GENERIC.test(field)) return nameOf(field, spec);
-  const title = String(spec.title ?? "").toLowerCase();
-  const by = /\bby ([a-z]+)$/.exec(title)?.[1];
-  if (by) return by;
-  const last = /([a-z]+)$/.exec(title)?.[1];
-  return last && last.length > 3 ? singular(last) : "entry";
+/**
+ * What each row is: the field's own name, or for a generic field ("name"), its label or the noun the card's own words
+ * use ("Where each regulation stands", "Top customers"), shared with the reading guide so both say the same thing.
+ * A label two fields share names neither ("Must comply" on the stakeholder and on the flag): the field's name does.
+ */
+function entityOf(field: string, spec: WidgetSpec, others: (string | undefined)[] = []): string {
+  if (!GENERIC.test(field)) return distinctLabel(field, spec, others) ?? nameOf(field, spec);
+  return entityNoun(field, spec);
 }
-
-const singular = (noun: string) => (/ies$/.test(noun) ? `${noun.slice(0, -3)}y` : /(ch|sh|x|ss)es$/.test(noun) ? noun.slice(0, -2) : /[^s]s$/.test(noun) ? noun.slice(0, -1) : noun);
 /** The plural of a one-word noun ("region" to "regions"); undefined for several words, which read badly forced into a plural. */
 const plural = (noun: string): string | undefined => (/\s/.test(noun) ? undefined : /[^aeiou]y$/.test(noun) ? `${noun.slice(0, -1)}ies` : /(s|x|ch|sh)$/.test(noun) ? `${noun}es` : `${noun}s`);
 /** Whether a measure reads as plural: "orders", "people", "customers won", but not "revenue", "NPS" or "deal value". */
@@ -111,6 +111,13 @@ const stayedWithin = (entity: string, goal: string) => {
  * table's columns when the spec does not list them.
  */
 export function questionOf(written: WidgetSpec, rows: Row[] = []): Question {
+  const english = questionEn(written, rows);
+  // French and German ask the same kind of question in their own words (explain-words.ts).
+  const lang = langOf(written.locale);
+  return lang === "en" ? english : { kind: english.kind, text: questionIn(lang, readable(written), rows, english.kind) };
+}
+
+function questionEn(written: WidgetSpec, rows: Row[]): Question {
   // Canonical or older option names, the question reads one set: the renderer's.
   const spec = readable(written);
   const view = (spec.view ?? { type: "table" }) as View;
@@ -372,7 +379,12 @@ export function questionOf(written: WidgetSpec, rows: Row[] = []): Question {
     case "matrix": {
       const [x, y, size, color, mark] = [one(view.x), one(view.y), one(view.size), one(view.color), one(view.mark)];
       if (!x || !y) break;
-      if (mark) return ask("detail", `which ${plural(entityOf(x, spec)) ?? entityOf(x, spec)} does each ${entityOf(y, spec)} ${/comply|must|apply|require|bind/i.test(mark) ? "bind" : "mark"}?`);
+      if (mark) {
+        const [cols, each] = [entityOf(x, spec, [y, mark]), entityOf(y, spec, [x, mark])];
+        return /comply|must|apply|require|bind/i.test(mark)
+          ? ask("detail", `which ${plural(cols) ?? cols} must comply with each ${each}?`)
+          : ask("detail", `which ${plural(cols) ?? cols} does each ${each} have a yes for, on ${name(mark)}?`);
+      }
       const measure = size ?? color;
       if (measure) return ask("compare", `where does ${name(measure)} concentrate, by ${name(y)} and ${name(x)}?`);
       return ask("detail", `which ${name(y)} goes with which ${name(x)}?`);
