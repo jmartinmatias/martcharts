@@ -304,6 +304,20 @@
     {
       "widget": "customers-by-state",
       "span": 2
+    },
+    {
+      "section": "Commercial cockpit (views)",
+      "description": "Where to sell next, one client at a glance, and what happened"
+    },
+    {
+      "widget": "cross-sell-whitespace",
+      "span": 2
+    },
+    {
+      "widget": "client-xray"
+    },
+    {
+      "widget": "client-history"
     }
   ],
   "title": "Gallery",

@@ -1,0 +1,60 @@
+{
+  "id": "client-xray",
+  "title": "Client x-ray",
+  "subtitle": "Before Thursday's review",
+  "description": "One client on one card: the key facts, the products held, the share of wallet, the revenue trend, what to watch and what to do next.",
+  "source": { "name": "CRM, custody and billing (fictional)" },
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {
+        "name": "Aldana Holdings",
+        "segment": "Corporate · Relationship manager: L. Vandermeer",
+        "aum": 48200000,
+        "revenue": 302000,
+        "products": 3,
+        "sinceYear": 2014,
+        "custody": true,
+        "advisory": true,
+        "discretionary": false,
+        "lending": false,
+        "fx": true,
+        "structured": false,
+        "insurance": false,
+        "pension": false,
+        "shareOfWallet": 0.41,
+        "revenueByMonth": [21000, 22500, 24100, 23200, 25800, 26400, 25100, 27300, 28900, 27600, 29800, 30100],
+        "flags": ["No meeting in 94 days", "Fee leakage on FX", "Lending enquiry open since June"],
+        "actions": ["Propose discretionary mandate (propensity 82)", "Review FX pricing before renewal", "Book the annual review with the CFO"]
+      }
+    ]
+  },
+  "fields": {
+    "aum": { "label": "Assets", "format": { "type": "currency", "currency": "EUR", "compact": true } },
+    "revenue": { "label": "Revenue, 12 months", "format": { "type": "currency", "currency": "EUR", "compact": true } },
+    "products": { "label": "Products held" },
+    "sinceYear": { "label": "Client since" },
+    "custody": { "label": "Custody" },
+    "advisory": { "label": "Advisory" },
+    "discretionary": { "label": "Discretionary" },
+    "lending": { "label": "Lending" },
+    "fx": { "label": "FX" },
+    "structured": { "label": "Structured" },
+    "insurance": { "label": "Insurance" },
+    "pension": { "label": "Pension" },
+    "shareOfWallet": { "label": "Share of wallet", "format": { "type": "percent", "decimals": 0 } },
+    "revenueByMonth": { "label": "Revenue by month", "format": { "type": "currency", "currency": "EUR", "compact": true } }
+  },
+  "view": {
+    "type": "xray",
+    "label": "name",
+    "detail": "segment",
+    "facts": ["aum", "revenue", "products", "sinceYear"],
+    "holdings": ["custody", "advisory", "discretionary", "lending", "fx", "structured", "insurance", "pension"],
+    "wallet": "shareOfWallet",
+    "trend": "revenueByMonth",
+    "flags": "flags",
+    "actions": "actions"
+  }
+}

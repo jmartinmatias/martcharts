@@ -514,6 +514,33 @@ const GUIDES: ChartGuide[] = [
     bestFor: ["Where the offices, stores or sites are, by name", "A handful of named places for a report or a page header"],
     avoidFor: ["Amounts per place (use symbols)", "More than about 30 places, where names collide (use symbols or a table)"],
   },
+  {
+    type: "whitespace",
+    purposes: { mix: 3, lookup: 2, compare: 1 },
+    grain: "pair",
+    build: "One cell per row and column pair, read from its state: a filled square where held, an outlined square tinted by score where open, a faint dot where not eligible; each row ends with its penetration and the potential still open, each column with how many hold it and how many could; rows sort by potential.",
+    rows: { min: 4, max: 480 },
+    bestFor: ["Cross-sell and upsell: which clients could take which products, and where to start", "Product penetration across a book, with the money still on the table", "A relationship manager's weekly whitespace review"],
+    avoidFor: ["Amounts without a held, open or not eligible state (use heatmap)", "More than about 16 products or 30 clients at once (filter or group first)", "One client alone (use xray)"],
+  },
+  {
+    type: "xray",
+    purposes: { headline: 3, lookup: 2, profile: 1 },
+    grain: "single",
+    build: "The first row's name and detail line, up to six facts as labelled figures, true/false product fields as pills (held in color), a share-of-wallet meter, a list of numbers as a small trend, and lists of flags and next best actions.",
+    rows: { min: 1, max: 1 },
+    bestFor: ["One client on one card: a pre-meeting brief, a client page, a relationship manager's cockpit", "Seeing holdings, share of wallet, trend and next steps at one glance"],
+    avoidFor: ["Several clients (use whitespace or table)", "One number alone (use kpi)", "A history of events (use history)"],
+  },
+  {
+    type: "history",
+    purposes: { schedule: 3, lookup: 2, trend: 1 },
+    grain: "observation",
+    build: "One event per row sorted by date, newest first, each a dot colored by kind on a vertical rail with its date, title, note and amount; the month is written where it changes, and a group field makes one rail per value.",
+    rows: { min: 3, max: 400 },
+    bestFor: ["A client's story: meetings, calls, trades, campaigns and complaints in one scroll", "What happened before a churn, a complaint or a big trade", "Several clients' recent activity side by side"],
+    avoidFor: ["Amounts over time, where the shape matters (use line)", "Tasks with a start and an end (use timeline)", "Counting events per period (use bar or calendar)"],
+  },
 ];
 
 const BY_TYPE = new Map(GUIDES.map((guide) => [guide.type, guide]));
@@ -801,6 +828,14 @@ const NOTES: Record<string, string> = {
   "donut>pie": "Fills the middle and writes each share on its slice; the total moves out of the picture.",
   "pie>hbar": "Easier to compare close shares and to rank them; the sense of one whole is weaker.",
   "hbar>pie": "Shows the parts as one whole; only worth it with two to six parts.",
+  "whitespace>heatmap": "Shades every cell by one number, which suits amounts; the held, open and not eligible states are lost.",
+  "heatmap>whitespace": "Reads each cell as held, open or not for them, with the potential summed per row; needs a state per pair, not an amount.",
+  "whitespace>table": "Exact values per pair and sorting by any column; the map's shape, where the open cells cluster, is gone.",
+  "history>timeline": "Draws each item as a bar from start to end on one date axis; better for plans with durations, worse for a stream of moments.",
+  "timeline>history": "Reads as a story, newest first, with notes and amounts; durations are lost.",
+  "history>table": "Sortable and searchable; the sense of a story in time is weaker.",
+  "xray>kpis": "A row of numbers with their changes; the holdings, flags and next steps are gone.",
+  "kpis>xray": "Puts one client's numbers, holdings, wallet and next steps on one card; only for one row.",
   "funnel>hbar": "Drops the step-to-step conversion rates; only better if the stages have no order.",
   "waterfall>bar": "Shows each amount on its own but no longer how they add up from start to end.",
   "heatmap>table": "Exact numbers instead of the pattern.",
@@ -958,6 +993,9 @@ const MEANING: Record<string, string> = {
   choropleth: "needs a column of country or state codes that sit on a basemap",
   symbols: "needs a column of country or state codes that sit on a basemap, or coordinates",
   locator: "needs named places with region codes on a basemap, or coordinates",
+  whitespace: "needs one row per client and product with a state: held, an opportunity, or not eligible",
+  xray: "needs one row: one client with its facts, holdings and share of wallet",
+  history: "needs dated events with a short title each",
 };
 
 const FIT_ORDER: Record<Fit, number> = { fits: 0, stretch: 1, no: 2 };

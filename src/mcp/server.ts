@@ -152,6 +152,7 @@ const VIEW_GUIDE = [
   "Plans and dates: timeline (milestones, progress, a today line).",
   "Where things are: choropleth (regions shaded by a value), symbols (circles sized by a value on their regions or at coordinates), locator (named markers); geo takes a built-in tile grid (europe, us-states) or your own GeoJSON.",
   "Records to read: table (with spark and badge cells), list.",
+  "Clients and cross-sell: whitespace (the cross-sell map: one cell per client and product, held, open or not eligible, with the potential per row), xray (one client on one card: facts, holdings, share of wallet, trend, flags, next best actions), history (a client's events as a vertical timeline, newest first).",
 ];
 
 function blocksMarkdown(kinds: BlockKind[]): string {

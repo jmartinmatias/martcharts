@@ -172,6 +172,7 @@ Start from what you want the reader to see. Every view takes plain rows; `sugges
 | Plans and dates | `timeline` (with milestones, progress and a today line) |
 | Where things are | `choropleth` (regions shaded by a value), `symbols` (circles sized by a value, on their regions or at coordinates), `locator` (named markers). Two built-in tile-grid basemaps, `europe` and `us-states`, keyed by country or state code, or your own GeoJSON by object or address |
 | Records to read | `table` (with `spark` and `badge` cells), `list` |
+| Clients and cross-sell | `whitespace` (the cross-sell map: one cell per client and product, filled where held, outlined where open and tinted by propensity, with the potential summed per row), `xray` (one client on one card: facts, holdings as pills, share of wallet, trend, flags, next best actions), `history` (a client's story: events on a vertical timeline, newest first, colored by kind) |
 
 Charts follow fixed rules: a validated, colorblind-checked 8-color palette with its own dark-mode set, bars at most 21px wide with rounded data ends, 2px lines, hairline gridlines, a legend only when there are two or more series, a tooltip on hover and keyboard focus, and a hidden data table for screen readers.
 

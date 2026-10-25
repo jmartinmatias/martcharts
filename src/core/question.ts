@@ -345,6 +345,23 @@ export function questionOf(spec: WidgetSpec, rows: Row[] = []): Question {
       const plurals = plural(entity);
       return ask("detail", plurals ? `where are the ${plurals}?` : `where is each ${entity}?`);
     }
+    case "whitespace": {
+      const [client, product] = [one(view.row), one(view.column)];
+      if (!client || !product) break;
+      const clients = plural(entityOf(client, spec)) ?? entityOf(client, spec);
+      return ask("mix", `which ${clients} could take more ${plural(entityOf(product, spec)) ?? entityOf(product, spec)}, and which ones first?`);
+    }
+    case "xray": {
+      const label = one(view.label);
+      if (!label) break;
+      return ask("detail", `how does this ${entityOf(label, spec)} stand right now, and what should we do next?`);
+    }
+    case "history": {
+      const [title, group] = [one(view.title), one(view.group)];
+      if (!title) break;
+      const entity = group ? entityOf(group, spec) : "client";
+      return ask("detail", `what happened with ${group ? `each ${entity}` : `the ${entity}`}, and when?`);
+    }
     case "table": {
       const columns = many(view.columns).length ? many(view.columns) : Object.keys(rows[0] ?? {});
       const first = columns[0];

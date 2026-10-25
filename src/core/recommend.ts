@@ -383,6 +383,40 @@ const RULES: Record<string, Rule> = {
     const [size] = shape.numbers;
     return placed && size && nonNegative(shape, size) ? { score: 62, view: { type: "symbols", geo: placed.geo, id: placed.id, size }, why: `${size} as circles on a map, one per ${placed.id}.` } : undefined;
   },
+  // Long rows of client, product and a held / opportunity / not eligible state: the cross-sell map.
+  whitespace: (shape) => {
+    const state = shape.categories.find((field) => {
+      const values = new Set(shape.rows.map((row) => String(row[field])));
+      return values.size >= 2 && values.size <= 3 && [...values].every((v) => /^(holds?|held|opportunity|open|not eligible|ineligible)$/i.test(v));
+    });
+    if (!state) return undefined;
+    const [row, column] = shape.categories.filter((field) => field !== state);
+    if (!row || !column || shape.rows.length < 4) return undefined;
+    const score = named(shape.numbers, /propensity|score|likelihood|probability/i);
+    const value = shape.numbers.find((field) => field !== score && /potential|revenue|value|fees/i.test(field)) ?? shape.numbers.find((field) => field !== score);
+    return { score: 88, view: { type: "whitespace", row, column, state, ...(score ? { score } : {}), ...(value ? { value } : {}) }, why: `Which ${row} could take which ${column}, held cells filled and open ones outlined.` };
+  },
+  // One row with a name, a few numbers and true/false product columns: a client's card.
+  xray: (shape) => {
+    if (shape.rows.length !== 1) return undefined;
+    const row = shape.rows[0] as Row;
+    const [label] = shape.categories;
+    const booleans = Object.keys(row).filter((key) => typeof row[key] === "boolean");
+    const facts = shape.numbers.filter((field) => !/share|wallet|propensity/i.test(field)).slice(0, 6);
+    if (!label || facts.length < 2) return undefined;
+    const wallet = named(shape.numbers, /share.?of.?wallet|wallet/i);
+    return { score: 66, view: { type: "xray", label, facts, ...(booleans.length ? { holdings: booleans } : {}), ...(wallet ? { wallet } : {}) }, why: `${label}'s card: the key numbers${booleans.length ? ", the products held" : ""}${wallet ? " and the share of wallet" : ""}.` };
+  },
+  // Dated events with a short text each: a story, newest first.
+  history: (shape) => {
+    const [date] = shape.dates.filter((field) => shape.rows.every((row) => DAY.test(String(row[field] ?? ""))));
+    const title = shape.categories.find((field) => /^(title|event|what|summary|subject|activity)$/i.test(field)) ?? shape.categories.find((field) => shape.distinct(field) >= shape.rows.length * 0.8);
+    if (!date || !title || shape.rows.length < 3 || shape.rows.length > 400) return undefined;
+    const kind = shape.categories.find((field) => field !== title && /^(kind|type|category|channel)$/i.test(field));
+    const amount = shape.numbers.find((field) => /amount|value|revenue|fees|volume/i.test(field)) ?? shape.numbers[0];
+    const note = shape.categories.find((field) => field !== title && field !== kind && /^(note|notes|detail|details|comment|description)$/i.test(field));
+    return { score: 74, view: { type: "history", date, title, ...(kind ? { kind } : {}), ...(note ? { note } : {}), ...(amount ? { amount } : {}) }, why: `What happened and when, newest first${kind ? `, each ${kind} in its color` : ""}.` };
+  },
 };
 
 /**
