@@ -31,7 +31,25 @@ npm run typecheck
 npm run smoke      # starts the real MCP server and calls it as a client would
 npm run build:lib  # the drop-in bundle in dist/
 npm run catalog    # the chart catalog and data guide: catalog/*.json, catalog/index.html, catalog/guide.html, docs/catalog.md, docs/chart-guide.md
+npm run build:site # the whole site in dist-demo: the demo pages, plus the catalog, data guide and drop-in pages with what they load
 ```
+
+## The site
+
+The demo is eleven pages, linked from one row at the top of each:
+
+| Page | What it is |
+| --- | --- |
+| Gallery (`index.html`) | Every example widget on one dashboard, with filters, sections and cross-filtering |
+| Taller, Selected | New versions of any widget, and the ones worth keeping |
+| Playground | Edit any widget's spec with a live preview (a panel over the gallery) |
+| Editor | Make a chart from a table without writing JSON |
+| Commercial, Client health, Regulatory | The three worked dashboards below |
+| Catalog | All chart types, each drawn from its own spec, with what it needs and a spec to copy |
+| Data guide | The table each chart needs, checked against its data, and what changes if you switch chart |
+| Drop-in | Every way to put a chart on a page with one tag and no build step |
+
+`npm run dev` serves them all. `npm run build:site` builds them into `dist-demo/` for any static server: Vite builds the demo pages, and `scripts/site-pages.ts` copies the catalog, data guide and drop-in pages with the specs, docs, styles and bundle they load. A test checks that every page in the navigation, and everything it loads, is published.
 
 ## Drop it into any page
 
@@ -238,17 +256,17 @@ The demo's Editor page (`editor.html`) is Datawrapper's flow on this library: **
 
 ```
 src/core/      spec types, fork, registry, pipeline, formats, validation. No DOM: runs in Node too.
-src/dom/       createWidget, <fft-widget>, styles, chart geometry, the five built-in views.
+src/dom/       createWidget, <fft-widget>, dashboards, the editor, export, styles, the drawing kit and every view.
 src/mcp/       widget store, MCP server, command line entry.
 widgets/       stored widget specs (one JSON file each), shared by the demo and the MCP server; regulatory/, commercial/
                and health/ hold the three worked dashboards' widgets.
 dashboards/    dashboard specs; gallery.json lays out the demo gallery.
 public/data/   sample data the example widgets load.
-demo/          the gallery and playground page, the Taller, the selected variations and the editor page.
+demo/          the gallery and playground, the Taller, the selected variations, the editor and the three dashboard pages.
 docs/          reference documentation.
 catalog/       one self-contained spec per view, and a page that draws them all (generated).
 examples/      drop-in pages that use the built bundle with no build step.
-scripts/       smoke test, docs and catalog generators.
+scripts/       smoke test, docs and catalog generators, the data generators, and site-pages.ts for the published site.
 ```
 
 ## Evaluating the MCP server
