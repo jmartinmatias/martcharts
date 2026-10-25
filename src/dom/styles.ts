@@ -1760,4 +1760,7 @@ ul.fft-map-legend { margin-top: 0; }
 .fft-ws[data-scrolls] { overflow-x: auto; scrollbar-width: thin; }
 .fft-ws[data-scrolls] .fft-ws-grid { width: max-content; }
 .fft-ws-more { margin: 8px 0 0; font-size: var(--fft-fs-s); color: var(--fft-muted); }
+.fft-state-action { margin-top: 8px; min-height: 34px; padding: 0 13px; border: 1px solid color-mix(in srgb, var(--fft-text) 14%, transparent); border-radius: var(--fft-radius-pill); background: transparent; color: var(--fft-text); font: inherit; font-size: var(--fft-fs-m); cursor: pointer; }
+.fft-state-action:hover { background: color-mix(in srgb, var(--fft-text) 6%, transparent); }
+.fft-state-action:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 2px; }
 `;

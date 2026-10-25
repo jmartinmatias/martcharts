@@ -68,7 +68,7 @@ describe("every radial, hierarchy and map view keeps the shared behaviours", () 
     expect(all("[style*='--fft-i']").length).toBeGreaterThan(0);
   });
 
-  test.each(["donut", "pie", "waffle", "treemap", "sunburst", "icicle", "chord", "sankey", "radar", "rose", "rings", "choropleth", "symbols", "locator"])(
+  test.each(["donut", "pie", "waffle", "treemap", "sunburst", "icicle", "chord", "sankey", "radar", "rose", "rings"])(
     "%s draws without a row: an empty state, never an error",
     async (type) => {
       const spec = catalog(type);
@@ -76,6 +76,16 @@ describe("every radial, hierarchy and map view keeps the shared behaviours", () 
       expect(target.querySelector(".fft-widget")?.getAttribute("data-state")).toBe("empty");
     },
   );
+
+  // A map with no rows still draws its land, every region greyed and keyed "No data", so a filter that empties it
+  // leaves a map that says so rather than an empty card.
+  test.each(["choropleth", "symbols", "locator"])("%s draws its land greyed when there is no row, with no scale to misread", async (type) => {
+    const spec = catalog(type);
+    await createWidget(target, { ...spec, data: { type: "inline", rows: [] } } as WidgetSpec).ready;
+    expect(target.querySelector(".fft-widget")?.getAttribute("data-state")).toBe("ready");
+    expect(target.querySelectorAll(".fft-map-land, .fft-map-region").length).toBeGreaterThan(20);
+    expect(target.textContent).not.toMatch(/Infinity|NaN/);
+  });
 
   test.each(["donut", "pie", "waffle", "treemap", "rings", "radar", "rose", "symbols", "locator"])("%s draws a single row", async (type) => {
     const spec = catalog(type);

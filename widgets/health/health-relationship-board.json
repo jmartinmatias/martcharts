@@ -5,7 +5,7 @@
     "name": "Client health model (fictional)"
   },
   "title": "Relationship health, measure by measure",
-  "subtitle": "The clients off track or at risk on relationship health, worst first, with the move since last quarter. Clients on track are left out; the table below lists everyone.",
+  "subtitle": "The clients off track or at risk on relationship health, worst first, with the move since last quarter. Clients on track are counted under the scorecard; the table below lists everyone.",
   "description": "The relationship scorecard: one row per client, one status per measure, the perspective's status and its move since last quarter, and the next step.",
   "data": {
     "type": "url",
@@ -70,17 +70,10 @@
     },
     "sort": "worst",
     "group": "segment",
-    "note": "action"
-  },
-  "transform": [
-    {
-      "type": "filter",
-      "field": "relationshipRag",
-      "op": "in",
-      "value": [
-        "R",
-        "A"
-      ]
-    }
-  ]
+    "note": "action",
+    "only": [
+      "R",
+      "A"
+    ]
+  }
 }

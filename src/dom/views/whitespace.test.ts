@@ -141,4 +141,17 @@ describe("whitespace view (the cross-sell map)", () => {
     await draw({ rows: holdings, view });
     expect((target.querySelector(".fft-ws-grid") as HTMLElement).hasAttribute("data-tight")).toBe(false);
   });
+  test("limit keeps the rows with the most to win and says how many more there are", async () => {
+    const rows = ["Ash", "Birch", "Cedar"].flatMap((client, i) => [
+      { client, product: "FX", state: "Opportunity", potential: (i + 1) * 100 },
+      { client, product: "Lending", state: "Holds", potential: 0 },
+    ]);
+    const el = document.createElement("div");
+    document.body.append(el);
+    await createWidget(el, { locale: "en-US", data: { type: "inline", rows }, view: { type: "whitespace", row: "client", column: "product", state: "state", value: "potential", limit: 2 } } as WidgetSpec).ready;
+    expect(el.textContent).toContain("Cedar");
+    expect(el.textContent).toContain("Birch");
+    expect(el.querySelector(".fft-ws-more")?.textContent).toBe("and 1 more client, with less to win");
+    el.remove();
+  });
 });

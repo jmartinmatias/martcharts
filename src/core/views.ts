@@ -14,7 +14,7 @@ import { checkReference, REFERENCE_OPTION } from "./reference.ts";
 import type { ReferenceMark } from "./reference.ts";
 import type { Row } from "./types.ts";
 import type { OptionSchema, ViewBlock } from "./registry.ts";
-import { isRagValue, ragStepProblems } from "./rag.ts";
+import { isRagValue, ragOf, ragStepProblems, worstOf } from "./rag.ts";
 import { SHAPE_OPTIONS, SHAPE_VIEWS, shapeProblems } from "./shape.ts";
 
 /** `{ type: "table", columns? }` */
@@ -1721,6 +1721,7 @@ function unplacedRows(view: Record<string, unknown>, rows: Row[]): string[] {
 
 const choropleth: ViewBlock = {
   type: "choropleth",
+  drawsEmpty: true,
   extent: (view, rows) =>
     view.show === "change"
       ? rows.map((row) => choroplethChange(view, row)).filter((n): n is number => n !== null)
@@ -1779,6 +1780,7 @@ const choropleth: ViewBlock = {
 
 const symbols: ViewBlock = {
   type: "symbols",
+  drawsEmpty: true,
   extent: (view, rows) => numbersOf(rows, [view.size]),
   description:
     "A map with a circle on each place, its area true to a value: customers by state, volume by port. Places sit on a region of a basemap (by code) or at coordinates on your own GeoJSON; a color field groups them with a key, and a size key shows what the circles mean.",
@@ -1807,6 +1809,7 @@ const symbols: ViewBlock = {
 
 const locator: ViewBlock = {
   type: "locator",
+  drawsEmpty: true,
   description:
     "A small, clean map that says where things are: a marker and an always-on name for each place, such as offices, stores or sites, with a second line of detail if there is one. Places sit on a region of a basemap (by code) or at coordinates on your own GeoJSON; a kind field colors the markers with a key.",
   options: {
@@ -2302,7 +2305,11 @@ const ragboard: ViewBlock = {
       if (count) warnings.push(`${count} value${count === 1 ? "" : "s"} in "${field}" ${count === 1 ? "is" : "are"} not a status (${sample.join(", ")}): use R, A, G or N, or turn numbers into statuses with the rag transform. They show as no data.`);
     }
     if (dims.length > 10) warnings.push(`${dims.length} dimensions make a wide scorecard: keep about 8 that matter.`);
-    if (rows.length > 40) warnings.push(`${rows.length} rows make a long scorecard: filter to the ones that need attention, or group them.`);
+    // With only, the scorecard lists just those statuses and folds the rest into one line: count the rows it lists.
+    const only = Array.isArray(view.only) ? view.only.map(String) : undefined;
+    const overallOf = (row: Row) => (typeof view.overall === "string" && view.overall ? ragOf(row[view.overall]) : worstOf(dims.map((field) => ragOf(row[field]))));
+    const listed = only ? rows.filter((row) => only.includes(overallOf(row))).length : rows.length;
+    if (listed > 40) warnings.push(`${listed} rows make a long scorecard: filter to the ones that need attention, show only some statuses, or group them.`);
     return warnings;
   },
 };

@@ -141,6 +141,8 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   /** Each widget's slot by cell id, for the "Not filtered by" note. */
   const slots = new Map<string, HTMLElement>();
   const rawFields = new Map<string, Promise<Set<string>>>();
+  /** Each widget's fields once known, for what has to be answered at once, such as why a card came out empty. */
+  const knownFields = new Map<string, Set<string>>();
   const rawRows = new Map<string, Promise<Row[]>>();
   const active = new Map<string, unknown>();
   let override: Record<string, unknown> = {};
@@ -236,7 +238,8 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     const rows = runPipeline({ data: found.data }, { fetch: options.fetch }).catch(() => [] as Row[]);
     rawRows.set(id, rows);
     rawFields.set(id, rows.then((list) => new Set(list.flatMap((row) => Object.keys(row)))));
-    const widget = createWidget(mount, found, { actions: options.actions, fetch: options.fetch, neighbors, guide: options.guides });
+    void rawFields.get(id)?.then((fields) => knownFields.set(id, fields));
+    const widget = createWidget(mount, found, { actions: options.actions, fetch: options.fetch, neighbors, guide: options.guides, emptyNote: () => emptyNote(id) });
     widgets.set(id, widget);
     slotOf.set(widget, slot);
     options.decorate?.(mount, id, widget);
@@ -691,6 +694,35 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   function shareLink(): string {
     writeHash();
     return doc.defaultView?.location.href ?? "";
+  }
+
+  /**
+   * Why a card came out empty, when the board's own filters did it: "Nothing for Topic: Prudential", with a button
+   * that clears just those filters. Undefined when no filter reaches the card, so its own empty message stands.
+   */
+  function emptyNote(id: string): { text: string; action: { label: string; run: () => void } } | undefined {
+    const fields = knownFields.get(id);
+    if (!fields) return undefined;
+    const said: string[] = [];
+    const clears: (() => Promise<void>)[] = [];
+    for (const [field, value] of active) {
+      if (value === null || value === undefined || !fields.has(field)) continue;
+      said.push(`${filterName(field)}: ${formatValue(value, undefined, undefined)}`);
+      clears.push(() => setFilter(field, null));
+    }
+    if (range && period !== "All" && rangeFields.some((field) => fields.has(field))) {
+      said.push(`${range.label ?? "Period"}: ${period}`);
+      clears.push(() => setRange("All"));
+    }
+    if (cross && cross.source !== id && fields.has(cross.field)) {
+      said.push(`${fieldLabel(cross.field)}: ${formatValue(cross.value, undefined, undefined)}`);
+      clears.push(() => setCrossFilter(null));
+    }
+    if (!said.length) return undefined;
+    return {
+      text: `Nothing for ${said.join(" and ")}`,
+      action: { label: said.length === 1 ? "Clear filter" : "Clear these filters", run: () => void (async () => { for (const clear of clears) await clear(); })() },
+    };
   }
 
   async function setFilter(field: string, value: unknown) {

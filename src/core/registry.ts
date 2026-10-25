@@ -83,6 +83,11 @@ export interface FormatBlock extends Block {
 /** Draws rows. `render` is optional so Node can know about a view (to validate it) without drawing it. */
 export interface ViewBlock extends Block {
   render?: ViewRenderer;
+  /**
+   * True when the view still draws with no rows: a map keeps its land, greyed, so a filter that empties it leaves a
+   * map that says "no data" rather than an empty card.
+   */
+  drawsEmpty?: boolean;
   /** The values a view's value axis must cover for these rows. Small multiples use it to give every panel the same scale. */
   extent?(view: Record<string, unknown>, rows: Row[]): number[];
   /**

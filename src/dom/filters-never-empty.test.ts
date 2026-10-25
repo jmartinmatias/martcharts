@@ -9,8 +9,9 @@ import { createDashboard } from "./dashboard.ts";
 import "./views/index.ts";
 
 /**
- * Every value of every filter on every worked dashboard leaves every card with something to show. A card a filter
- * empties is a dead end: a client card pinned to one client, a map of a fixed list of names.
+ * No filter leaves a dead end on a worked dashboard. Maps keep drawing, greyed, with "No data". Any other card a
+ * filter empties says which filter did it and offers to clear it, and clearing brings its data back. Client cards that
+ * follow a selection move to a client still in view instead of going blank.
  */
 const fetch = createLocalFetch("public");
 const walk = (dir: string): string[] => readdirSync(dir).flatMap((f) => (statSync(`${dir}/${f}`).isDirectory() ? walk(`${dir}/${f}`) : f.endsWith(".json") ? [`${dir}/${f}`] : []));
@@ -40,13 +41,13 @@ async function cases(): Promise<[string, string, string][]> {
   return out;
 }
 
-describe("filters never leave a card empty", async () => {
+describe("filters never leave a dead end", async () => {
   const all = await cases();
   test("there are filter values to try on every board", () => {
     for (const name of BOARDS) expect([name, all.some(([board]) => board === name)]).toEqual([name, true]);
   });
 
-  test.each(all)("%s, %s = %s: every card has rows", async (name, field, value) => {
+  test.each(all)("%s, %s = %s: no dead end", async (name, field, value) => {
     vi.stubGlobal("ResizeObserver", class { observe() {} unobserve() {} disconnect() {} });
     const board = JSON.parse(readFileSync(`dashboards/${name}.json`, "utf8")) as DashboardSpec;
     const target = document.createElement("div");
@@ -55,8 +56,20 @@ describe("filters never leave a card empty", async () => {
     await dash.ready;
     await dash.setFilter(field, value);
     await vi.waitFor(() => expect(target.querySelectorAll('.fft-widget[data-state="loading"]').length).toBe(0), { timeout: 20_000 });
-    const empty = [...target.querySelectorAll(".fft-widget")].filter((card) => card.getAttribute("data-state") === "empty" || /No data to show/.test(card.querySelector(".fft-message")?.textContent ?? "")).map((card) => card.closest(".fft-cell-slot")?.getAttribute("data-widget"));
-    expect(empty).toEqual([]);
+    const cards = [...target.querySelectorAll(".fft-widget")];
+    const blank = cards.filter((card) => card.getAttribute("data-state") === "empty");
+    // No card says the generic "No data to show": an empty card names the filter that emptied it.
+    expect(blank.filter((card) => !/^Nothing for /.test(card.querySelector(".fft-state-title")?.textContent ?? "")).map((card) => card.closest(".fft-cell-slot")?.getAttribute("data-widget"))).toEqual([]);
+    // Maps and the cards that follow a client never go blank.
+    const neverBlank = (card: Element) => card.querySelector(".fft-map") !== null || card.closest(".fft-cell-slot")?.hasAttribute("data-follows");
+    expect(cards.filter((card) => card.getAttribute("data-state") !== "ready" && neverBlank(card)).map((card) => card.closest(".fft-cell-slot")?.getAttribute("data-widget"))).toEqual([]);
+    // And the way back works: clearing from an empty card leaves it with its data.
+    const first = blank[0];
+    if (first) {
+      const slot = first.closest(".fft-cell-slot")?.getAttribute("data-widget");
+      (first.querySelector(".fft-state-action") as HTMLButtonElement).click();
+      await vi.waitFor(() => expect(target.querySelector(`.fft-cell-slot[data-widget="${slot}"] .fft-widget`)?.getAttribute("data-state")).toBe("ready"), { timeout: 20_000 });
+    }
     dash.destroy();
     target.remove();
     vi.unstubAllGlobals();

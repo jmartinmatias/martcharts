@@ -136,9 +136,12 @@ describe("client health: the counts agree", () => {
 
   test("the scorecards show only the clients off track or at risk, and say so", async () => {
     for (const p of ["clientSuccess", "bizDev", "coverage", "relationship"]) {
+      // Every client stays in the data, so the summary counts the whole book; the scorecard lists the reds and ambers
+      // and folds the rest into "and 33 on track".
       const rows = await card(`health-${p}-board`);
-      expect([p, rows.length]).toEqual([p, health.filter((r) => r[`${p}Rag`] === "R" || r[`${p}Rag`] === "A").length]);
-      expect(widgets[`health-${p}-board`]?.subtitle).toMatch(/on track are left out/);
+      expect([p, rows.length]).toEqual([p, health.length]);
+      expect(widgets[`health-${p}-board`]?.view.only).toEqual(["R", "A"]);
+      expect(widgets[`health-${p}-board`]?.subtitle).toMatch(/on track are counted under the scorecard/);
     }
   });
 });

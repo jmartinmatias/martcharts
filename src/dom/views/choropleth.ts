@@ -181,7 +181,8 @@ export const renderChoropleth: ViewRenderer<ChoroplethView> = (ctx) =>
       }
       legend.setAttribute("aria-label", WORDS.changeScale(ctx.label(value as string)));
       legend.append(html(doc, "span", "fft-map-legend-min", changeText(-reach)), ramp, html(doc, "span", "fft-map-legend-max", changeText(reach)));
-    } else if (value) {
+    } else if (value && Number.isFinite(min) && Number.isFinite(max)) {
+      // With no numbers at all (a filter left the map empty) there is no scale to show: only the "No data" key.
       const ramp = html(doc, "div", "fft-heat-ramp");
       ramp.setAttribute("aria-hidden", "true");
       for (let step = 1; step <= SEQUENTIAL_STEPS; step++) {

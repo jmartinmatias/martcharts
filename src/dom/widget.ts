@@ -32,6 +32,11 @@ export interface WidgetOptions {
   /** `fetch` used by `url` sources. Defaults to the global `fetch`. */
   fetch?: typeof fetch;
   /**
+   * Why there are no rows, when a host knows: a dashboard says which of its filters emptied the card ("Nothing for
+   * Topic: Prudential") and offers to clear them, instead of the generic "No data to show".
+   */
+  emptyNote?: () => { text: string; action?: { label: string; run: () => void } } | undefined;
+  /**
    * Buttons offered in the widget's corner: `csv` downloads the rows, `image`
    * downloads the chart as a PNG (shown only when the view draws a chart),
    * `copy` copies the rows as tab-separated text for spreadsheets, `explain`
@@ -725,12 +730,23 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
   function draw() {
     clearBody();
     root.setAttribute("aria-busy", "false");
-    if (rows.length === 0) {
+    const block = getBlock("view", drawView().type);
+    if (rows.length === 0 && !block.drawsEmpty) {
       drawn = false;
-      showMessage("empty", "No data to show", [], "The source returned no rows, or every row was filtered out.");
+      const note = options.emptyNote?.();
+      if (note) {
+        showMessage("empty", note.text, [], "Clear the filter to see this card's data again.");
+        if (note.action) {
+          const button = doc.createElement("button");
+          button.type = "button";
+          button.className = "fft-state-action";
+          button.textContent = note.action.label;
+          button.addEventListener("click", note.action.run);
+          message.append(button);
+        }
+      } else showMessage("empty", "No data to show", [], "The source returned no rows, or every row was filtered out.");
       return;
     }
-    const block = getBlock("view", drawView().type);
     const render = block.render;
     if (!render) {
       showError([`View "${drawView().type}" has no renderer in this page. Import "martcharts" or call setRenderer() before drawing it.`]);
