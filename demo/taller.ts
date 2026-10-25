@@ -5,7 +5,7 @@
  */
 import { AUDIENCES, balanceOf, createVariants, createWidget, explainChart, fillsOf, fork, MOVES, plainTags, PRINCIPLES, qualitiesOf, QUALITIES, questionOf, runPipeline } from "../src/index.ts";
 import type { Audience, Move, Qualities, Row, Variant, Widget, WidgetAction, WidgetSpec } from "../src/index.ts";
-import { setLook, withLook } from "./look.ts";
+import { withLook } from "./look.ts";
 
 const stored = import.meta.glob<WidgetSpec>("../widgets/*.json", { eager: true, import: "default" });
 const charts = Object.values(stored)
@@ -20,15 +20,6 @@ const el = <K extends keyof HTMLElementTagNameMap>(tag: K, className?: string, t
   return node;
 };
 const sentence = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
-
-// ---- Theme ----
-
-const themeGroup = $("#theme");
-for (const b of themeGroup.querySelectorAll<HTMLButtonElement>("button")) {
-  b.addEventListener("click", () => {
-    setLook({ theme: b.dataset.value });
-  });
-}
 
 // ---- Steering: chart, audience, moves, color, marks ----
 
@@ -135,8 +126,8 @@ function card(variant: Variant): HTMLElement {
   const qualities = el("div", "qualities");
   const balance = el("p", "balance", sentence(variant.balance.note));
   const actions = el("div", "version-actions");
-  const open = el("a", undefined, "Open in playground");
-  open.href = `./index.html#taller=${encodeURIComponent(JSON.stringify(variant.spec))}`;
+  const open = el("a", undefined, "Open in editor");
+  open.href = `./editor.html?spec=${encodeURIComponent(JSON.stringify(variant.spec))}`;
   const copy = el("button", undefined, "Copy spec");
   copy.type = "button";
   copy.addEventListener("click", async () => {

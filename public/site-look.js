@@ -42,8 +42,8 @@
   };
   /** Marks the page's own Theme and Style switches, where it has them. */
   const mark = (look) => {
-    for (const [id, value] of [["theme", look.theme || "auto"], ["preset", look.preset || "default"]]) {
-      for (const b of document.querySelectorAll(`#${id} button[data-value]`)) b.setAttribute("aria-pressed", String(b.dataset.value === value));
+    for (const [key, value] of [["theme", look.theme || "auto"], ["preset", look.preset || "default"]]) {
+      for (const b of document.querySelectorAll(`[data-look-key="${key}"] button[data-look-value]`)) b.setAttribute("aria-pressed", String(b.dataset.lookValue === value));
     }
   };
   const apply = (look) => {
@@ -71,8 +71,37 @@
       return next;
     },
   };
+  /**
+   * The Look menu in the site bar: a theme applies at once (the page and its charts follow the root's data-theme). A
+   * style changes how charts are drawn: the page hears it as a cancelable "martcharts:look" event and restyles its
+   * charts in place (calling preventDefault); a page that does not, and has no <fft-widget> tags, reloads in the new style.
+   */
+  const wireMenu = () => {
+    for (const b of document.querySelectorAll("[data-look-key] button[data-look-value]")) {
+      b.addEventListener("click", () => {
+        const key = b.closest("[data-look-key]").dataset.lookKey;
+        const before = read();
+        const next = window.siteLook.set({ [key]: b.dataset.lookValue });
+        if (key !== "preset" || before.preset === next.preset) return;
+        const handled = !window.dispatchEvent(new CustomEvent("martcharts:look", { detail: next, cancelable: true }));
+        if (!handled && !document.querySelector("fft-widget")) location.reload();
+      });
+    }
+    // Escape or a click elsewhere closes the menu.
+    const menu = document.querySelector(".site-look-menu");
+    if (!menu) return;
+    document.addEventListener("click", (event) => {
+      if (menu.open && !menu.contains(event.target)) menu.removeAttribute("open");
+    });
+    menu.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape" || !menu.open) return;
+      menu.removeAttribute("open");
+      menu.querySelector("summary").focus();
+    });
+  };
   const start = () => {
     apply(read());
+    wireMenu();
     showCurrent();
   };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, { once: true });

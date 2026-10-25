@@ -101,7 +101,7 @@ for (const file of ["../README.md", "../docs/api.md", "../docs/accessibility.md"
   }
 }
 
-/** How many pages the site has: the links and buttons in the navigation row of the gallery page. */
+/** How many pages the site's menu has: the links in the navigation row of the home page (the Look menu sits outside it). */
 function sitePageCount(html: string): number {
   const nav = /<nav class="site-nav"[^>]*>([\s\S]*?)<\/nav>/.exec(html)?.[1] ?? "";
   return (nav.match(/<(a|button)\b/g) ?? []).length;

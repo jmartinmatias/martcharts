@@ -11,14 +11,18 @@ export default defineConfig({
   build: {
     // Not dist/: that is the drop-in library (npm run build:lib), and each build empties its folder.
     outDir: "dist-demo",
-    // Four pages: the gallery, the Taller (elBulli's creative workshop for charts), the selected variations and the editor.
+    // The site's pages (scripts/site-nav.ts lists them): Home, Dashboards, Editor, Composer and Lab with its two
+    // experiments; the Catalog and Embed pages are static (scripts/site-pages.ts). The three old dashboard addresses
+    // are built as small pages that send a visitor on to their Dashboards tab.
     rollupOptions: {
       input: {
         main: fileURLToPath(new URL("./index.html", import.meta.url)),
-        taller: fileURLToPath(new URL("./taller.html", import.meta.url)),
-        selected: fileURLToPath(new URL("./selected.html", import.meta.url)),
+        dashboards: fileURLToPath(new URL("./dashboards.html", import.meta.url)),
         editor: fileURLToPath(new URL("./editor.html", import.meta.url)),
         composer: fileURLToPath(new URL("./composer.html", import.meta.url)),
+        lab: fileURLToPath(new URL("./lab.html", import.meta.url)),
+        taller: fileURLToPath(new URL("./taller.html", import.meta.url)),
+        selected: fileURLToPath(new URL("./selected.html", import.meta.url)),
         commercial: fileURLToPath(new URL("./commercial.html", import.meta.url)),
         health: fileURLToPath(new URL("./health.html", import.meta.url)),
         regulatory: fileURLToPath(new URL("./regulatory.html", import.meta.url)),
