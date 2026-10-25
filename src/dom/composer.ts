@@ -132,10 +132,15 @@ function filterable(rows: Row[], field: string): boolean {
 }
 
 const CSS = `
-.fft-composer { --fft-cmp-gap: 21px; display: grid; grid-template-columns: minmax(0, 233px) minmax(0, 1fr); gap: var(--fft-cmp-gap); container-type: inline-size; color: var(--fft-text); font-size: 13px; }
+.fft-composer { --fft-cmp-gap: 21px; display: grid; grid-template-columns: minmax(0, 233px) minmax(0, 1fr); grid-template-areas: "tray board" "preview preview" "publish publish"; gap: var(--fft-cmp-gap); container-type: inline-size; color: var(--fft-text); font-size: 13px; }
+.fft-cmp-tray { grid-area: tray; }
+.fft-cmp-board { grid-area: board; }
+.fft-cmp-publish { grid-area: publish; display: flex; flex-direction: column; gap: 13px; min-width: 0; }
+.fft-cmp-more > summary { cursor: pointer; padding: 5px 0; font-weight: 600; color: var(--fft-text-secondary); }
+.fft-cmp-more[open] > summary { margin-bottom: 8px; }
 .fft-composer h3 { margin: 0 0 8px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--fft-text-secondary); }
 .fft-cmp-tray, .fft-cmp-board { display: flex; flex-direction: column; gap: 13px; min-width: 0; }
-.fft-cmp-preview { grid-column: 1 / -1; min-width: 0; }
+.fft-cmp-preview { grid-area: preview; min-width: 0; }
 .fft-cmp-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 5px; }
 .fft-cmp-item { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border: 1px solid var(--fft-grid); border-radius: 8px; background: var(--fft-surface); cursor: grab; min-height: 34px; }
 .fft-cmp-item[data-dragging] { opacity: 0.5; }
@@ -159,7 +164,8 @@ const CSS = `
 .fft-cmp-pre { max-height: 233px; overflow: auto; margin: 0; padding: 8px; border-radius: 5px; background: color-mix(in srgb, var(--fft-text) 4%, transparent); font: 12px/1.5 ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace; white-space: pre; }
 .fft-cmp-live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .fft-composer :is(button, select, input, a, [tabindex]):focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 2px; }
-@container (max-width: 640px) { .fft-composer { grid-template-columns: minmax(0, 1fr); } }
+@container (min-width: 960px) { .fft-composer { grid-template-columns: minmax(0, 200px) minmax(260px, 340px) minmax(0, 1fr); grid-template-areas: "tray board preview" "tray board publish"; align-items: start; } }
+@container (max-width: 640px) { .fft-composer { grid-template-columns: minmax(0, 1fr); grid-template-areas: "tray" "board" "preview" "publish"; } }
 `;
 const styled = new WeakSet<Document>();
 
@@ -176,6 +182,12 @@ export function createComposer(target: HTMLElement, options: ComposerOptions = {
     styled.add(doc);
   }
   const w = wordsFor(options.locale ?? doc.documentElement.lang).composer;
+  const sw = wordsFor(options.locale ?? doc.documentElement.lang).surface;
+  /** How many filters show before Show all: the ones with the widest reach. */
+  const FILTERS_SHOWN = 5;
+  let allFilters = false;
+  /** Which folds in Publish the user opened, kept across repaints. */
+  const foldOpen = new Set<string>();
   const store = options.store ?? localBoardStore(win?.localStorage);
   const useHash = options.hash ?? Boolean(win && win.location);
 
@@ -214,7 +226,10 @@ export function createComposer(target: HTMLElement, options: ComposerOptions = {
   const previewWrap = el("section", "fft-cmp-preview");
   previewWrap.setAttribute("aria-label", w.preview);
   const previewEl = el("div");
-  root.append(live, tray, panel, previewWrap);
+  // Publish comes after the preview: the dashboard is what the user came for; the JSON is a developer export.
+  const publishWrap = el("section", "fft-cmp-publish");
+  publishWrap.setAttribute("aria-label", w.publish);
+  root.append(live, tray, panel, previewWrap, publishWrap);
   target.append(root);
 
   const say = (text: string) => {
@@ -397,7 +412,10 @@ export function createComposer(target: HTMLElement, options: ComposerOptions = {
       if (!filters.isConnected) return;
       filters.replaceChildren();
       if (!choices.length) filters.append(el("p", "fft-cmp-empty", w.noFilters));
-      for (const choice of choices) {
+      // The widest reach first (and any set), five in view; Show all for the rest.
+      const shown = allFilters ? choices : choices.filter((choice, i) => i < FILTERS_SHOWN || choice.on);
+      const rest = choices.length - shown.length;
+      for (const choice of shown) {
         const row = el("label", "fft-cmp-filter");
         const box = el("input");
         box.type = "checkbox";
@@ -407,10 +425,18 @@ export function createComposer(target: HTMLElement, options: ComposerOptions = {
         row.append(box, el("span", undefined, choice.label), el("span", "fft-cmp-reach", w.reach(choice.reach, choice.total)));
         filters.append(row);
       }
+      if (rest > 0 || allFilters) {
+        const toggle = button(allFilters ? sw.showFewer : sw.showAll(rest), () => {
+          allFilters = !allFilters;
+          paintBoard();
+        });
+        toggle.dataset.filters = allFilters ? "fewer" : "all";
+        filters.append(toggle);
+      }
     });
 
-    // Publish.
-    panel.append(el("h3", undefined, w.publish));
+    // Publish, in its own section after the preview.
+    publishWrap.replaceChildren(el("h3", undefined, w.publish));
     const json = JSON.stringify(board, null, 2);
     const code = (title: string, text: string, file?: string) => {
       const section = el("div", "fft-cmp-field");
@@ -451,7 +477,15 @@ export function createComposer(target: HTMLElement, options: ComposerOptions = {
     // The frame embed sizes itself in any page, where the script embed needs the page to run the library.
     const frame = code(wordsFor(options.locale ?? doc.documentElement.lang).dw2.embedFrame, frameEmbed("board", board, options.embedHref ?? "embed.html", board.title ?? w.untitledBoard));
     frame.querySelector("pre")?.setAttribute("data-code", "frame");
-    panel.append(code(w.json, json, `${board.id ?? "dashboard"}.json`), code(w.embed, dashboardEmbed(board)), frame, open);
+    const fold = (key: string, label: string, ...content: HTMLElement[]) => {
+      const box = el("details", "fft-cmp-more");
+      box.dataset.disclosure = key;
+      box.open = foldOpen.has(key);
+      box.addEventListener("toggle", () => (box.open ? foldOpen.add(key) : foldOpen.delete(key)));
+      box.append(el("summary", undefined, label), ...content);
+      return box;
+    };
+    publishWrap.append(frame, open, fold("embeds", sw.otherEmbeds, code(w.embed, dashboardEmbed(board))), fold("json", w.json, code(w.json, json, `${board.id ?? "dashboard"}.json`)));
   }
 
   // ---- The live preview ----

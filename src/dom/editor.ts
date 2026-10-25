@@ -136,6 +136,8 @@ const FORMATS = ["number", "currency", "percent", "date", "badge", "bar", "heat"
 const DATE_STYLES = ["short", "medium", "long", "day", "month", "year"];
 /** View options the Refine form leaves to other places: highlight has its own picker, references and annotations live under Annotate. */
 const ELSEWHERE = new Set(["highlight", "reference", "annotations"]);
+/** The options most people reach for, in order: at most three show beside the data fields, the rest under More options. */
+const COMMON_TOGGLES = ["stacked", "sort", "limit", "labels", "showLabels", "endLabels", "arc", "only"];
 
 /** A cell of text as a value: numbers become numbers (grouped ones too), blanks null, the rest stays text. */
 function typedCell(text: string): unknown {
@@ -350,6 +352,16 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
   // Saved charts and dashboards: the host's store, else this browser's, which the composer reads too.
   const store: BoardStore = options.store ?? localBoardStore(local);
   const cw = wordsFor(options.locale ?? doc.documentElement.lang).composer;
+  const sw = wordsFor(options.locale ?? doc.documentElement.lang).surface;
+  /** Which disclosures the user left open (More options, Style, Other ways to embed), kept across repaints and visits. */
+  const OPEN_KEY = "martcharts:editor:open";
+  const opened: Record<string, boolean> = (() => {
+    try {
+      return JSON.parse(local?.getItem(OPEN_KEY) ?? "{}") as Record<string, boolean>;
+    } catch {
+      return {};
+    }
+  })();
   let savedCache: SavedChart[] = [];
   let boardsCache: SavedBoard[] = [];
   const refreshSaved = async () => {
@@ -395,8 +407,32 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
   const field = (label: string, control: HTMLElement, hint?: string): HTMLLabelElement => {
     const wrap = el("label", "fft-ed-field");
     wrap.append(el("span", "fft-ed-field-label", label), control);
-    if (hint) wrap.append(el("span", "fft-ed-hint", hint));
+    if (hint) {
+      const note = el("span", "fft-ed-hint fft-ed-hint-line", hint);
+      note.title = hint;
+      note.addEventListener("click", (event) => {
+        event.preventDefault();
+        note.toggleAttribute("data-open");
+      });
+      wrap.append(note);
+    }
     return wrap;
+  };
+  /** A disclosure that remembers being open: the rarely needed controls, a click away. */
+  const disclosure = (key: string, label: string, className = "fft-ed-more"): HTMLDetailsElement => {
+    const box = el("details", className);
+    box.dataset.disclosure = key;
+    box.open = opened[key] === true;
+    box.append(el("summary", "fft-ed-more-title", label));
+    box.addEventListener("toggle", () => {
+      opened[key] = box.open;
+      try {
+        local?.setItem(OPEN_KEY, JSON.stringify(opened));
+      } catch {
+        /* a private window: remembered for this visit only */
+      }
+    });
+    return box;
   };
   const segmented = (name: string, values: { value: string; label: string; title?: string }[], current: string, onPick: (value: string) => void): HTMLElement => {
     const group = el("div", "fft-ed-segmented");
@@ -1196,12 +1232,23 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
     };
     const form = el("div", "fft-ed-form");
     pane.append(el("h3", "fft-ed-subtitle", `${t("options")}: ${spec.view.type}`), form);
-    const viewOf = (): Record<string, unknown> => spec.view;
-    for (const [name, option] of Object.entries(viewOptions())) {
+    // The common first: the view's data fields, then at most three toggles most people reach for. The rest waits
+    // behind More options, which remembers being open.
+    const more = disclosure("refine", sw.moreOptions);
+    const moreForm = el("div", "fft-ed-form");
+    more.append(moreForm);
+    const declared = viewOptions();
+    const toggles = COMMON_TOGGLES.filter((name) => name in declared && !ELSEWHERE.has(name) && declared[name]?.type !== "field" && declared[name]?.type !== "fields");
+    const shownToggles = new Set(toggles.slice(0, "highlight" in declared ? 2 : 3));
+    for (const [name, option] of Object.entries(declared)) {
       if (ELSEWHERE.has(name)) continue;
       const value = readOpt(name);
       const control = controlFor(name, option, value, ofKind, current);
-      if (control) form.append(control);
+      if (!control) continue;
+      // A data field shows when the chart needs it or already uses it; an unused optional one (a bar's overlay lines,
+      // its comparison column) waits under More options with the rest.
+      const data = (option.type === "field" || option.type === "fields") && (option.required || (value !== undefined && value !== null && value !== ""));
+      (data || option.required || shownToggles.has(name) ? form : moreForm).append(control);
     }
     // Emphasis: the categories of the chart's category field, each a chip.
     const key = categoryField();
@@ -1222,7 +1269,7 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
         chip.setAttribute("aria-pressed", String(picked.includes(v)));
         chips.append(chip);
       }
-      form.append(field(t("highlight"), chips, t("highlightHint")));
+      (values.length <= 8 ? form : moreForm).append(field(t("highlight"), chips, t("highlightHint")));
     }
     // Small multiples: one panel per value of a category with few values.
     const facetable = shown.filter((f) => kindOf.get(f) === "category" && new Set(current.map((row) => String(row[f]))).size <= 12);
@@ -1232,15 +1279,18 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
       for (const f of facetable) facet.add(new Option(labelOf(f), f));
       facet.value = spec.facet?.field ?? "";
       facet.addEventListener("change", () => commit({ facet: facet.value ? { field: facet.value } : null }));
-      form.append(field(t("facet"), facet));
+      moreForm.append(field(t("facet"), facet));
     }
     // Statuses: the rag transform's rules, one per measure, turning numbers into red, amber and green columns.
     const numbers = shown.filter((f) => kindOf.get(f) === "number");
-    if (numbers.length) form.append(ragRules(numbers));
+    if (numbers.length) moreForm.append(ragRules(numbers));
+    if (moreForm.childElementCount) pane.append(more);
 
-    // Style: the look, the theme, the colors, the height.
+    // Style: the look, the theme, the colors, the height, folded until asked for.
+    const styleBox = disclosure("style", t("style"));
     const style = el("div", "fft-ed-form");
-    pane.append(el("h3", "fft-ed-subtitle", t("style")), style);
+    styleBox.append(style);
+    pane.append(styleBox);
     const presets = describePresets().sort((a, b) => Number(b.name === "default") - Number(a.name === "default"));
     style.append(field(t("preset"), segmented(t("preset"), presets.map((p) => ({ value: p.name, label: p.name[0]?.toUpperCase() + p.name.slice(1), title: p.description })), spec.style?.preset ?? "default", (value) => commit({ style: { preset: value === "default" ? null : value } }))));
     style.append(field(t("theme"), segmented(t("theme"), ["auto", "light", "dark"].map((v) => ({ value: v, label: t("themes")[v] ?? v })), spec.style?.theme ?? "auto", (value) => commit({ style: { theme: value === "auto" ? null : value } }))));
@@ -1571,7 +1621,10 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
       }
       // Two or more picked: their order is how they are drawn (stages, levels, series), so it can be set.
       if (picked.length < 2) return field(label, describe(chips), option.description);
-      return field(label, describe(group(chips, orderList(label, picked, write))), `${option.description} ${t("orderHint")}`);
+      // Reordering is rarely needed: the arrows fold under Order, one click away.
+      const order = disclosure("order", sw.order, "fft-ed-more fft-ed-order");
+      order.append(orderList(label, picked, write));
+      return field(label, describe(group(chips, order)), `${option.description} ${t("orderHint")}`);
     }
     if (option.type === "boolean") {
       const on = value === undefined ? option.default === true : value === true;
@@ -1644,18 +1697,23 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
 
   /** Annotate: the words around the chart, the headline, reference lines and text notes. */
   function paintAnnotate(pane: HTMLElement) {
+    const main = el("div", "fft-ed-form");
+    pane.append(main);
+    // Title, subtitle, notes and source stay in view; tooltip, byline, headline, reference lines and notes on the
+    // chart wait behind More options.
+    const more = disclosure("annotate", sw.moreOptions);
     const form = el("div", "fft-ed-form");
-    pane.append(form);
-    const textField = (label: string, key: "title" | "subtitle" | "footer" | "byline", multiline = false) => {
-      const input = multiline ? el("textarea", "fft-ed-json") : el("input", "fft-ed-input");
-      if (input instanceof HTMLInputElement) input.type = "text";
+    more.append(form);
+    const textField = (label: string, key: "title" | "subtitle" | "footer" | "byline", into: HTMLElement = form) => {
+      const input = el("input", "fft-ed-input");
+      input.type = "text";
       input.value = typeof loose()[key] === "string" ? String(loose()[key]) : "";
       input.addEventListener("change", () => commit({ [key]: input.value || null }));
-      form.append(field(label, input));
+      into.append(field(label, input));
     };
-    textField(t("title"), "title");
-    textField(t("subtitle"), "subtitle");
-    textField(t("footer"), "footer");
+    textField(t("title"), "title", main);
+    textField(t("subtitle"), "subtitle", main);
+    textField(t("footer"), "footer", main);
     // The tooltip: a template filled from the mark's row, with the fields a click away.
     {
       const area = el("textarea", "fft-ed-json fft-ed-tooltip");
@@ -1702,7 +1760,8 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
     const commitSource = () => commit({ source: sourceName.value ? { name: sourceName.value, url: sourceUrl.value || null } : null });
     sourceName.addEventListener("change", commitSource);
     sourceUrl.addEventListener("change", commitSource);
-    form.append(field(t("sourceName"), sourceName), field(t("sourceUrl"), sourceUrl));
+    main.append(field(t("sourceName"), sourceName), field(t("sourceUrl"), sourceUrl));
+    pane.append(more);
     textField(t("byline"), "byline");
 
     // The headline: one number above the chart.
@@ -1828,56 +1887,51 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
       section.append(head, pre);
       return section;
     };
-    panel.append(block(t("json"), json, `${spec.id ?? "chart"}.json`));
+    // One embed in view: the frame, which works in any page and sizes itself. The script, file and JavaScript embeds
+    // wait behind Other ways to embed; the spec behind its own fold.
     panel.append(el("h3", "fft-ed-subtitle", t("embed")));
-    panel.append(block(t("embedInline"), codes.inline), block(t("embedSrc"), codes.src), block(t("embedJs"), codes.js));
-    // A frame for pages that cannot run the library's script inline (a CMS, a newsletter page): it sizes itself.
     panel.append(block(wordsFor(options.locale ?? doc.documentElement.lang).dw2.embedFrame, frameEmbed("widget", spec, options.embedHref ?? "embed.html", spec.title ?? spec.id ?? cw.untitledChart)));
-    panel.append(
-      button(t("save"), async (b) => {
-        try {
-          await saveChart();
-          say(b, t("saved"));
-        } catch {
-          say(b, t("saveFailed"), true);
-        }
-      }, "fft-ed-button fft-ed-primary"),
-    );
+    const others = disclosure("embeds", sw.otherEmbeds);
+    others.append(block(t("embedInline"), codes.inline), block(t("embedSrc"), codes.src), block(t("embedJs"), codes.js));
+    const specBox = disclosure("spec", sw.spec);
+    specBox.append(block(t("json"), json, `${spec.id ?? "chart"}.json`));
+    panel.append(others, specBox);
 
-    // Add to dashboard: the chart saved, then added as a card to a board kept in the store (an existing one, or a
-    // new one under the name given), with a link to the composer to lay it out.
-    const adder = el("section", "fft-ed-addboard");
-    adder.append(el("h3", "fft-ed-subtitle", cw.addToBoard));
+    // One Save, asking where: My charts (this browser, or the host's save), an existing dashboard, or a new one under
+    // the name given. A dashboard save adds the chart as a card and links to the composer to lay it out.
+    const saver = el("section", "fft-ed-addboard");
+    saver.append(el("h3", "fft-ed-subtitle", sw.save));
+    const CHARTS = "";
+    const NEW = "\u0000new";
     const choose = el("select", "fft-ed-input");
-    choose.setAttribute("aria-label", cw.board);
-    const fresh = el("option", undefined, cw.newBoard);
-    fresh.value = "";
-    choose.append(fresh);
-    for (const board of boardsCache) {
-      const option = el("option", undefined, board.spec.title || board.id);
-      option.value = board.id;
-      choose.append(option);
-    }
-    if (boardsCache[0]) choose.value = boardsCache[0].id;
+    choose.setAttribute("aria-label", sw.saveTo);
+    choose.append(new Option(options.save ? sw.hostCharts : sw.myCharts, CHARTS));
+    for (const board of boardsCache) choose.append(new Option(board.spec.title || board.id, board.id));
+    choose.append(new Option(sw.newBoard, NEW));
+    choose.value = CHARTS;
     const name = el("input", "fft-ed-input");
     name.type = "text";
     name.placeholder = cw.untitledBoard;
     name.setAttribute("aria-label", cw.boardName);
     const nameField = field(cw.boardName, name);
     const sync = () => {
-      nameField.hidden = choose.value !== "";
+      nameField.hidden = choose.value !== NEW;
     };
     choose.addEventListener("change", sync);
     sync();
     const result = el("p", "fft-ed-addboard-result");
     result.setAttribute("role", "status");
-    adder.append(
-      field(cw.board, choose),
+    saver.append(
+      field(sw.saveTo, choose),
       nameField,
-      button(cw.addToBoard, async (b) => {
+      button(sw.save, async (b) => {
         try {
           await saveChart();
-          const board = await addChartToBoard(store, spec, choose.value ? { id: choose.value } : { title: name.value.trim() || cw.untitledBoard });
+          if (choose.value === CHARTS) {
+            say(b, t("saved"));
+            return;
+          }
+          const board = await addChartToBoard(store, spec, choose.value !== NEW ? { id: choose.value } : { title: name.value.trim() || cw.untitledBoard });
           await refreshSaved();
           say(b, cw.addedToBoard(board.spec.title || board.id));
           const link = el("a", "fft-ed-link", cw.openComposer);
@@ -1887,10 +1941,10 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
         } catch {
           say(b, t("saveFailed"), true);
         }
-      }, "fft-ed-button"),
+      }, "fft-ed-button fft-ed-primary"),
       result,
     );
-    panel.append(adder);
+    panel.append(saver);
   }
 
   /** The chart kept: through the host's save when there is one, else in the store "My charts" reads. */
@@ -2001,6 +2055,11 @@ export const EDITOR_CSS = `
 .fft-ed-title { margin: 0; font-size: 21px; font-weight: 600; letter-spacing: -0.01em; outline: none; }
 .fft-ed-subtitle { margin: 13px 0 0; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--fft-text-secondary); }
 .fft-ed-hint { margin: 0; font-size: 12px; line-height: 1.45; color: var(--fft-text-secondary); }
+.fft-ed-hint-line { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; overflow: hidden; cursor: help; }
+.fft-ed-hint-line[data-open] { -webkit-line-clamp: unset; }
+.fft-ed-more { margin: 8px 0 0; }
+.fft-ed-more > summary { cursor: pointer; padding: 5px 0; font-size: 13px; font-weight: 600; color: var(--fft-text-secondary); list-style-position: inside; }
+.fft-ed-more[open] > summary { margin-bottom: 8px; }
 .fft-ed-nav { display: flex; gap: 13px; align-items: center; margin-top: 21px; padding-top: 13px; border-top: 1px solid var(--fft-border); }
 .fft-ed-nav .fft-ed-primary { margin-left: auto; }
 .fft-ed-button, .fft-ed-chip, .fft-ed-segment, .fft-ed-icon, .fft-ed-tab { font: inherit; font-size: 13px; color: var(--fft-text); background: transparent; border: 1px solid var(--fft-border); border-radius: 8px; padding: 6px 13px; cursor: pointer; min-height: 34px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
