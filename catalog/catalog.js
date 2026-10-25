@@ -11,7 +11,8 @@ async function findRef(text) {
     return false;
   }
   index = index || (await fetch("../docs/refs.json").then((r) => r.json()).catch(() => []));
-  const found = index.filter((entry) => entry.ref === ref);
+  const found = index.filter((entry) => entry.ref === ref || entry.formerly === ref);
+  count.textContent = "";
   hits.replaceChildren(...(found.length ? found.map((entry) => {
     const item = document.createElement("li");
     const link = document.createElement("a");
@@ -20,6 +21,7 @@ async function findRef(text) {
     const code = document.createElement("code");
     code.textContent = entry.ref + " ";
     item.append(code, link);
+    if (entry.ref !== ref) item.prepend(ref + " is now ");
     return item;
   }) : [Object.assign(document.createElement("li"), { textContent: "No chart on the site has the ref " + ref + "." })]));
   hits.hidden = false;

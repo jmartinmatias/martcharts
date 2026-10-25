@@ -129,3 +129,17 @@ describe("every card on a dashboard shows its ref", () => {
     dashboard.destroy();
   }, 60_000);
 });
+
+test("a catalog chart's old code (W-AM22 for Product share) still leads to it, and is never a code another chart carries now", () => {
+  const index = buildRefIndex();
+  const current = new Set(index.map((entry) => entry.ref));
+  const moved = index.find((entry) => entry.formerly === "W-AM22");
+  expect([moved?.title, moved?.where]).toEqual(["Product share", "Catalog › bar"]);
+  for (const entry of index) if (entry.formerly) expect(current.has(entry.formerly)).toBe(false);
+});
+
+test("the catalog search's example ref is one the site shows today", () => {
+  const html = readFileSync("catalog/index.html", "utf8");
+  const example = /placeholder="trend, share, date, (W-[0-9A-Z]{4})…"/.exec(html)?.[1];
+  expect(buildRefIndex().some((entry) => entry.ref === example)).toBe(true);
+});

@@ -11,6 +11,11 @@ import type { Row, WidgetSpec } from "../src/core/index.ts";
 import { createLocalFetch } from "../src/mcp/store.ts";
 import { SEARCH_WORDS } from "../src/core/search-words.ts";
 import { catalogTabs, navBar } from "./site-nav.ts";
+import { placedRef } from "../src/core/ref.ts";
+import { PLACES } from "../demo/routes.ts";
+
+/** A ref the search box offers as an example: one the catalog shows today (its bar chart's). */
+const EXAMPLE_REF = placedRef(PLACES.catalog, "product-share");
 
 const root = (path: string) => fileURLToPath(new URL(`../${path}`, import.meta.url));
 const fetchLocal = createLocalFetch(root("public"));
@@ -159,7 +164,7 @@ ${catalogTabs("charts")}
     <h1>Catalog</h1>
     <p>${cards.length} chart types. Each is one tag, <code>&lt;fft-widget src="&lt;type&gt;.json"&gt;</code>, with its data built in and a spec to copy.</p>
   </header>
-  <p><label for="find">Find a chart by name, question, data or ref (W-…)</label><br><input id="find" type="search" placeholder="trend, share, date, W-AM22…" autocomplete="off"><span class="count" id="count" aria-live="polite"></span></p>
+  <p><label for="find">Find a chart by name, question, data or ref (W-…)</label><br><input id="find" type="search" placeholder="trend, share, date, ${EXAMPLE_REF}…" autocomplete="off"><span class="count" id="count" aria-live="polite"></span></p>
   <ul class="ref-hits" id="ref-hits" aria-live="polite" hidden></ul>
   <div class="grid">
 ${cards
@@ -188,7 +193,8 @@ ${cards
         return false;
       }
       index = index || (await fetch("../docs/refs.json").then((r) => r.json()).catch(() => []));
-      const found = index.filter((entry) => entry.ref === ref);
+      const found = index.filter((entry) => entry.ref === ref || entry.formerly === ref);
+      count.textContent = "";
       hits.replaceChildren(...(found.length ? found.map((entry) => {
         const item = document.createElement("li");
         const link = document.createElement("a");
@@ -197,6 +203,7 @@ ${cards
         const code = document.createElement("code");
         code.textContent = entry.ref + " ";
         item.append(code, link);
+        if (entry.ref !== ref) item.prepend(ref + " is now ");
         return item;
       }) : [Object.assign(document.createElement("li"), { textContent: "No chart on the site has the ref " + ref + "." })]));
       hits.hidden = false;

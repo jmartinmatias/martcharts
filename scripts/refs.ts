@@ -11,7 +11,7 @@
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { placedRef, refKey } from "../src/core/ref.ts";
+import { placedRef, refKey, widgetRef } from "../src/core/ref.ts";
 import { BOARD_TABS, HOME_STRIP, PLACES } from "../demo/routes.ts";
 
 /** One chart on the site. */
@@ -29,6 +29,8 @@ export interface RefEntry {
   url: string;
   board?: string;
   section?: string;
+  /** The code a catalog chart carried before refs named their place (its id's own hash): still found, never reused. */
+  formerly?: string;
 }
 
 // Paths from the repo's root, by node:path (a page-like test environment swaps in its own URL).
@@ -72,7 +74,7 @@ export function buildRefIndex(): RefEntry[] {
   const catalog = new Map(types.map((type) => [type, json(`catalog/${type}.json`)]));
   for (const [type, spec] of catalog) {
     const key = refKey(spec) as string;
-    entries.push({ ref: placedRef(PLACES.catalog, key), title: spec.title, key, place: PLACES.catalog, where: `Catalog › ${type}`, url: `catalog/index.html#${type}` });
+    entries.push({ ref: placedRef(PLACES.catalog, key), title: spec.title, key, place: PLACES.catalog, where: `Catalog › ${type}`, url: `catalog/index.html#${type}`, formerly: widgetRef(key) });
   }
   for (const [type, spec] of catalog) {
     const key = refKey(spec) as string;
@@ -100,6 +102,9 @@ export function buildRefIndex(): RefEntry[] {
     const ref = placedRef(PLACES.embed, key as string);
     entries.push({ ref, title: spec?.title ?? heading, key: key as string, place: PLACES.embed, where: `Embed › ${heading}`, url: `examples/drop-in.html#${ref}` });
   }
+  // An old code stays findable only while no chart carries it now.
+  const current = new Set(entries.map((entry) => entry.ref));
+  for (const entry of entries) if (entry.formerly && current.has(entry.formerly)) delete entry.formerly;
   return entries;
 }
 

@@ -1075,7 +1075,8 @@
     "key": "metric-anomalies",
     "place": "catalog",
     "where": "Catalog › anomalies",
-    "url": "catalog/index.html#anomalies"
+    "url": "catalog/index.html#anomalies",
+    "formerly": "W-HY24"
   },
   {
     "ref": "W-4YR8",
@@ -1091,7 +1092,8 @@
     "key": "product-share",
     "place": "catalog",
     "where": "Catalog › bar",
-    "url": "catalog/index.html#bar"
+    "url": "catalog/index.html#bar",
+    "formerly": "W-AM22"
   },
   {
     "ref": "W-E3T0",
@@ -1099,7 +1101,8 @@
     "key": "deal-swarm",
     "place": "catalog",
     "where": "Catalog › beeswarm",
-    "url": "catalog/index.html#beeswarm"
+    "url": "catalog/index.html#beeswarm",
+    "formerly": "W-2VKH"
   },
   {
     "ref": "W-AYAK",
@@ -1107,7 +1110,8 @@
     "key": "deal-board",
     "place": "catalog",
     "where": "Catalog › board",
-    "url": "catalog/index.html#board"
+    "url": "catalog/index.html#board",
+    "formerly": "W-YPQW"
   },
   {
     "ref": "W-8DSX",
@@ -1115,7 +1119,8 @@
     "key": "deal-boxplot",
     "place": "catalog",
     "where": "Catalog › boxplot",
-    "url": "catalog/index.html#boxplot"
+    "url": "catalog/index.html#boxplot",
+    "formerly": "W-WYSJ"
   },
   {
     "ref": "W-M9C7",
@@ -1147,7 +1152,8 @@
     "key": "share-price",
     "place": "catalog",
     "where": "Catalog › candlestick",
-    "url": "catalog/index.html#candlestick"
+    "url": "catalog/index.html#candlestick",
+    "formerly": "W-85VY"
   },
   {
     "ref": "W-H3T4",
@@ -1163,7 +1169,8 @@
     "key": "revenue-by-country",
     "place": "catalog",
     "where": "Catalog › choropleth",
-    "url": "catalog/index.html#choropleth"
+    "url": "catalog/index.html#choropleth",
+    "formerly": "W-89RF"
   },
   {
     "ref": "W-ZHRD",
@@ -1171,7 +1178,8 @@
     "key": "revenue-by-segment",
     "place": "catalog",
     "where": "Catalog › donut",
-    "url": "catalog/index.html#donut"
+    "url": "catalog/index.html#donut",
+    "formerly": "W-KQCT"
   },
   {
     "ref": "W-F9NG",
@@ -1187,7 +1195,8 @@
     "key": "revenue-and-churn",
     "place": "catalog",
     "where": "Catalog › dual",
-    "url": "catalog/index.html#dual"
+    "url": "catalog/index.html#dual",
+    "formerly": "W-4WXG"
   },
   {
     "ref": "W-BSVY",
@@ -1235,7 +1244,8 @@
     "key": "deal-histogram",
     "place": "catalog",
     "where": "Catalog › histogram",
-    "url": "catalog/index.html#histogram"
+    "url": "catalog/index.html#histogram",
+    "formerly": "W-4WAB"
   },
   {
     "ref": "W-ZHB8",
@@ -1243,7 +1253,8 @@
     "key": "client-history",
     "place": "catalog",
     "where": "Catalog › history",
-    "url": "catalog/index.html#history"
+    "url": "catalog/index.html#history",
+    "formerly": "W-VSTG"
   },
   {
     "ref": "W-97B7",
@@ -1259,7 +1270,8 @@
     "key": "revenue-icicle",
     "place": "catalog",
     "where": "Catalog › icicle",
-    "url": "catalog/index.html#icicle"
+    "url": "catalog/index.html#icicle",
+    "formerly": "W-N09Z"
   },
   {
     "ref": "W-2ZFX",
@@ -1267,7 +1279,8 @@
     "key": "churn-kpi",
     "place": "catalog",
     "where": "Catalog › kpi",
-    "url": "catalog/index.html#kpi"
+    "url": "catalog/index.html#kpi",
+    "formerly": "W-PDBB"
   },
   {
     "ref": "W-EK7M",
@@ -1283,7 +1296,8 @@
     "key": "regulation-lifecycle",
     "place": "catalog",
     "where": "Catalog › lifecycle",
-    "url": "catalog/index.html#lifecycle"
+    "url": "catalog/index.html#lifecycle",
+    "formerly": "W-GBZA"
   },
   {
     "ref": "W-PV3Y",
@@ -1307,7 +1321,8 @@
     "key": "top-customers",
     "place": "catalog",
     "where": "Catalog › list",
-    "url": "catalog/index.html#list"
+    "url": "catalog/index.html#list",
+    "formerly": "W-WCD3"
   },
   {
     "ref": "W-TPTM",
@@ -1315,7 +1330,8 @@
     "key": "offices",
     "place": "catalog",
     "where": "Catalog › locator",
-    "url": "catalog/index.html#locator"
+    "url": "catalog/index.html#locator",
+    "formerly": "W-6FDY"
   },
   {
     "ref": "W-4V4H",
@@ -1331,7 +1347,8 @@
     "key": "obligation-matrix",
     "place": "catalog",
     "where": "Catalog › matrix",
-    "url": "catalog/index.html#matrix"
+    "url": "catalog/index.html#matrix",
+    "formerly": "W-NBBT"
   },
   {
     "ref": "W-24VZ",
@@ -1355,7 +1372,8 @@
     "key": "revenue-pie",
     "place": "catalog",
     "where": "Catalog › pie",
-    "url": "catalog/index.html#pie"
+    "url": "catalog/index.html#pie",
+    "formerly": "W-RF0N"
   },
   {
     "ref": "W-2GHT",
@@ -1379,7 +1397,8 @@
     "key": "rag-scorecard",
     "place": "catalog",
     "where": "Catalog › ragboard",
-    "url": "catalog/index.html#ragboard"
+    "url": "catalog/index.html#ragboard",
+    "formerly": "W-W2E0"
   },
   {
     "ref": "W-8MVW",
@@ -1387,7 +1406,8 @@
     "key": "rag-status-trend",
     "place": "catalog",
     "where": "Catalog › ragtrend",
-    "url": "catalog/index.html#ragtrend"
+    "url": "catalog/index.html#ragtrend",
+    "formerly": "W-CAV4"
   },
   {
     "ref": "W-KCQG",
@@ -1395,7 +1415,8 @@
     "key": "deal-ridgeline",
     "place": "catalog",
     "where": "Catalog › ridgeline",
-    "url": "catalog/index.html#ridgeline"
+    "url": "catalog/index.html#ridgeline",
+    "formerly": "W-76AC"
   },
   {
     "ref": "W-VN8V",
@@ -1435,7 +1456,8 @@
     "key": "region-win-rate",
     "place": "catalog",
     "where": "Catalog › slope",
-    "url": "catalog/index.html#slope"
+    "url": "catalog/index.html#slope",
+    "formerly": "W-VHM6"
   },
   {
     "ref": "W-0FEE",
@@ -1443,7 +1465,8 @@
     "key": "provision-strips",
     "place": "catalog",
     "where": "Catalog › strips",
-    "url": "catalog/index.html#strips"
+    "url": "catalog/index.html#strips",
+    "formerly": "W-MXYM"
   },
   {
     "ref": "W-600T",
@@ -1451,7 +1474,8 @@
     "key": "product-region-sunburst",
     "place": "catalog",
     "where": "Catalog › sunburst",
-    "url": "catalog/index.html#sunburst"
+    "url": "catalog/index.html#sunburst",
+    "formerly": "W-JZ55"
   },
   {
     "ref": "W-C7GD",
@@ -1459,7 +1483,8 @@
     "key": "customers-by-state",
     "place": "catalog",
     "where": "Catalog › symbols",
-    "url": "catalog/index.html#symbols"
+    "url": "catalog/index.html#symbols",
+    "formerly": "W-0GYX"
   },
   {
     "ref": "W-MJ8K",
@@ -1515,7 +1540,8 @@
     "key": "cross-sell-whitespace",
     "place": "catalog",
     "where": "Catalog › whitespace",
-    "url": "catalog/index.html#whitespace"
+    "url": "catalog/index.html#whitespace",
+    "formerly": "W-R0T0"
   },
   {
     "ref": "W-9S74",
@@ -1523,7 +1549,8 @@
     "key": "client-xray",
     "place": "catalog",
     "where": "Catalog › xray",
-    "url": "catalog/index.html#xray"
+    "url": "catalog/index.html#xray",
+    "formerly": "W-DXKV"
   },
   {
     "ref": "W-00JQ",
