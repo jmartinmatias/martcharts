@@ -816,9 +816,17 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     const sentinel = el("div", "fft-filters-sentinel");
     sentinel.setAttribute("aria-hidden", "true");
     root.insertBefore(sentinel, filterRow);
-    stuckSpy = new IntersectionObserver(([entry]) => {
-      if (entry) filterRow.toggleAttribute("data-stuck", !entry.isIntersecting && (entry.boundingClientRect?.top ?? -1) < 0);
-    });
+    // The row pins at its sticky top (under a host's own bar), so that line is the root's top edge; the root reaches far
+    // below the window, so the marker only ever leaves it upward. A jump (a ref link, a restored scroll) that carries
+    // the marker from below the window to above it still crosses that edge, so the row is always marked.
+    const pinTop = Math.max(0, Math.round(parseFloat(getComputedStyle(filterRow).top) || 0));
+    stuckSpy = new IntersectionObserver(
+      ([entry]) => {
+        if (entry) filterRow.toggleAttribute("data-stuck", !entry.isIntersecting && (entry.boundingClientRect?.top ?? -1) < pinTop + 1);
+      },
+      // Its own document as the root: inside an iframe embed, the implicit root would be the outer window.
+      { root: filterRow.ownerDocument, rootMargin: `-${pinTop}px 0px 100000px 0px` },
+    );
     stuckSpy.observe(sentinel);
   }
 

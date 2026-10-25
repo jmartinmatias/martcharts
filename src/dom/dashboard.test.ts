@@ -364,6 +364,24 @@ describe("section filter", () => {
     expect((target.querySelector(".fft-filters") as HTMLElement).hidden).toBe(true);
   });
 
+  test("the pinned-row watch starts at the line the row pins to and reaches far below the window, so a jump past it still marks the row", async () => {
+    const options: { rootMargin?: string; root?: unknown }[] = [];
+    vi.stubGlobal("IntersectionObserver", class {
+      constructor(_callback: unknown, opts?: { rootMargin?: string; root?: unknown }) {
+        options.push(opts ?? {});
+      }
+      observe() {}
+      disconnect() {}
+    });
+    try {
+      const board = createDashboard(target, spec, { widgets, sticky: true });
+      await board.ready;
+      expect(options.some((o) => /^-\d+px 0px 100000px 0px$/.test(o.rootMargin ?? "") && o.root === document)).toBe(true);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   test("once the pinned row has left its place, it is marked stuck, so it can show an edge", async () => {
     const observed: { callback: (entries: { isIntersecting: boolean }[]) => void; targets: Element[] }[] = [];
     vi.stubGlobal("IntersectionObserver", class {
