@@ -1567,7 +1567,7 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 }
 /* Clusters on a scatter: soft hulls, quiet enough that the dots stay in front. */
 .fft-cluster-hull { fill-opacity: 0.08; stroke-opacity: 0.35; stroke-width: 1; pointer-events: none; }
-.fft-cluster-label { font-size: 11px; font-weight: 600; letter-spacing: 0.02em; pointer-events: none; paint-order: stroke; stroke: var(--fft-surface); stroke-width: 3px; stroke-linejoin: round; opacity: 0.85; }
+.fft-cluster-label { font-size: var(--fft-fs-s); font-weight: 600; letter-spacing: 0.02em; pointer-events: none; paint-order: stroke; stroke: var(--fft-surface); stroke-width: 3px; stroke-linejoin: round; opacity: 0.85; }
 .fft-widget[data-animate] .fft-cluster-hull { animation: fft-fade 610ms var(--fft-ease) both; }
 
 /* Anomaly tracker: thin lanes, the band faint, the expected a hairline, anomalies in the alert color with a halo. */
@@ -1579,10 +1579,10 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-anom-flag { fill: var(--fft-down); stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 1.5; pointer-events: none; }
 .fft-anom-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-anom-hit:hover, .fft-anom-hit:focus-visible { fill: color-mix(in srgb, var(--fft-down) 14%, transparent); stroke: var(--fft-down); stroke-width: 1.5; }
-.fft-anom-name { fill: var(--fft-text); font-size: 12px; font-weight: 600; }
-.fft-anom-latest { fill: var(--fft-text-secondary); font-size: 11px; font-variant-numeric: tabular-nums; }
+.fft-anom-name { fill: var(--fft-text); font-size: var(--fft-fs-s); font-weight: 600; }
+.fft-anom-latest { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); font-variant-numeric: tabular-nums; }
 .fft-anom-count rect { fill: color-mix(in srgb, var(--fft-down) 14%, transparent); }
-.fft-anom-count text { fill: var(--fft-down); font-size: 10px; font-weight: 600; }
+.fft-anom-count text { fill: var(--fft-down); font-size: var(--fft-fs-xs); font-weight: 600; }
 .fft-anom-count[data-none="true"] rect { fill: transparent; }
 .fft-anom-count[data-none="true"] text { fill: var(--fft-muted); font-weight: 400; }
 .fft-anomalies[data-active] .fft-anom-flag { opacity: 0.55; }
@@ -1591,8 +1591,8 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-widget[data-animate] .fft-anom-lane { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 34ms); }
 /* Scatter quadrants and always-on names: two hairlines, four faint words in the corners, names clear of the dots. */
 .fft-quadrant-line { stroke: var(--fft-axis); stroke-width: 1; stroke-dasharray: 2 3; pointer-events: none; }
-.fft-quadrant-label { fill: var(--fft-muted); font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; pointer-events: none; }
-.fft-point-label { fill: var(--fft-text-secondary); font-size: 11px; pointer-events: none; paint-order: stroke; stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 3; stroke-linejoin: round; }
+.fft-quadrant-label { fill: var(--fft-muted); font-size: var(--fft-fs-s); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; pointer-events: none; }
+.fft-point-label { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); pointer-events: none; paint-order: stroke; stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 3; stroke-linejoin: round; }
 .fft-chart[data-active] .fft-point-label { fill: var(--fft-muted); }
 
 /* Categorical choropleth: regions in series colors, labels in the text color over a halo. */
@@ -1605,21 +1605,21 @@ ul.fft-map-legend { margin-top: 0; }
 .fft-board-scroll[data-more] { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 34px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 34px), transparent); }
 .fft-board { display: grid; grid-template-columns: repeat(var(--fft-columns, 3), minmax(144px, 1fr)); gap: 13px; align-items: start; min-width: calc(var(--fft-columns, 3) * 144px + (var(--fft-columns, 3) - 1) * 13px); }
 .fft-board-column { min-width: 0; }
-.fft-board-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin: 0 0 8px; padding: 0 2px 5px; border-bottom: 1px solid var(--fft-grid); font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fft-text-secondary); }
+.fft-board-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin: 0 0 8px; padding: 0 2px 5px; border-bottom: 1px solid var(--fft-grid); font-size: var(--fft-fs-s); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fft-text-secondary); }
 .fft-board-stage { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .fft-board-count { font-variant-numeric: tabular-nums; color: var(--fft-muted); font-weight: 500; }
 .fft-board-cards { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 5px; }
-.fft-board-card { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 8px; background: color-mix(in srgb, var(--fft-muted) 9%, var(--fft-surface)); box-shadow: inset 0 0 0 1px var(--fft-grid); font-size: 12px; line-height: 15px; cursor: pointer; outline: none; transition: opacity 377ms var(--fft-ease), box-shadow 233ms var(--fft-ease); }
+.fft-board-card { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: var(--fft-radius-l); background: color-mix(in srgb, var(--fft-muted) 9%, var(--fft-surface)); box-shadow: inset 0 0 0 1px var(--fft-grid); font-size: var(--fft-fs-s); line-height: 15px; cursor: pointer; outline: none; transition: opacity 377ms var(--fft-ease), box-shadow 233ms var(--fft-ease); }
 .fft-board-card[hidden] { display: none; }
 .fft-board-card:hover, .fft-board-card[data-active] { box-shadow: inset 0 0 0 1px var(--fft-axis); }
 .fft-board-card:focus-visible { box-shadow: 0 0 0 2px var(--fft-ring, var(--fft-surface)), 0 0 0 3px var(--fft-accent); }
-.fft-board[data-active] .fft-board-card:not([data-active]) { opacity: 0.55; }
+.fft-board[data-active] .fft-board-card:not([data-active]) { opacity: var(--fft-dim); }
 .fft-board-title { display: flex; align-items: center; gap: 6px; min-width: 0; }
 .fft-board-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; box-shadow: 0 0 0 1px var(--fft-ring, var(--fft-surface)); }
 .fft-board-name { flex: 1; min-width: 0; font-weight: 600; color: var(--fft-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .fft-board-value { flex: none; font-variant-numeric: tabular-nums; color: var(--fft-text-secondary); }
-.fft-board-detail { color: var(--fft-muted); font-size: 11px; line-height: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.fft-board-more { margin: 5px 0 0; padding: 3px 2px; border: 0; background: none; color: var(--fft-text-secondary); font: inherit; font-size: 11px; line-height: 13px; cursor: pointer; border-radius: 5px; min-height: 24px; }
+.fft-board-detail { color: var(--fft-muted); font-size: var(--fft-fs-s); line-height: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fft-board-more { margin: 5px 0 0; padding: 3px 2px; border: 0; background: none; color: var(--fft-text-secondary); font: inherit; font-size: var(--fft-fs-s); line-height: 13px; cursor: pointer; border-radius: var(--fft-radius-m); min-height: 24px; }
 .fft-board-more:hover { color: var(--fft-text); }
 .fft-board-more:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 2px; }
 .fft-widget[data-animate] .fft-board-card { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 13ms); }
