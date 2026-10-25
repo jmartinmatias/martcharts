@@ -562,7 +562,7 @@ export const BASE_CSS = `
 .fft-donut-figure[data-arc="half"] .fft-donut-center { justify-content: flex-end; padding-bottom: 1px; }
 .fft-donut-majority { stroke: var(--fft-text); stroke-width: 1.5; pointer-events: none; }
 .fft-donut-majority-label { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); }
-.fft-pie-slice { stroke: var(--fft-surface); stroke-width: 2; stroke-linejoin: round; cursor: pointer; outline: none; transition: opacity 377ms var(--fft-ease); }
+.fft-pie-slice { stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 2; stroke-linejoin: round; cursor: pointer; outline: none; transition: opacity 377ms var(--fft-ease); }
 .fft-pie[data-active] .fft-pie-slice:not([data-active]) { opacity: var(--fft-dim); }
 .fft-pie-slice:focus-visible { stroke: var(--fft-accent); stroke-width: 3; }
 .fft-pie-label { fill: #fff; font-size: var(--fft-fs-s); font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; paint-order: stroke; stroke: rgba(0, 0, 0, 0.35); stroke-width: 2px; stroke-linejoin: round; }
