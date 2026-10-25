@@ -97,7 +97,8 @@
     },
     {
       "section": "Customers and pipeline",
-      "description": "Who buys, how they arrive, and what is open?"
+      "description": "Who buys, how they arrive, and what is open?",
+      "collapsed": true
     },
     {
       "widget": "customer-treemap",
@@ -147,7 +148,8 @@
     },
     {
       "section": "Operations and sentiment",
-      "description": "How do orders, support, plans and people look?"
+      "description": "How do orders, support, plans and people look?",
+      "collapsed": true
     },
     {
       "widget": "order-calendar",

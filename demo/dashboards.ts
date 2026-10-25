@@ -8,6 +8,7 @@
 import { createDashboard } from "../src/index.ts";
 import type { Dashboard, DashboardSpec, WidgetSpec } from "../src/index.ts";
 import { lookStyle } from "./look.ts";
+import { cleanHash } from "./routes.ts";
 
 const files = import.meta.glob<DashboardSpec>("../dashboards/*.json", { eager: true, import: "default" });
 const stored = import.meta.glob<WidgetSpec>("../widgets/**/*.json", { eager: true, import: "default" });
@@ -66,6 +67,13 @@ function show(key: string, keepHash: boolean) {
   board = createDashboard(mount, boardOf(tab.board) as DashboardSpec, options);
   const style = lookStyle();
   if (style) void board.setOverride({ style });
+  // An old address may name a section this board no longer has (#maps): once the board is drawn, drop that part.
+  const drawn = board;
+  void drawn.ready.then(() => {
+    if (drawn !== board) return;
+    const cleaned = cleanHash(location.hash, (id) => mount.querySelector(`[id="${CSS.escape(id)}"]`) !== null);
+    if (cleaned !== location.hash) history.replaceState(history.state, "", `${location.pathname}${location.search}${cleaned}`);
+  });
 }
 
 for (const tab of TABS) {

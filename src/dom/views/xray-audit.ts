@@ -157,6 +157,11 @@ export function auditTools(ctx: ViewContext<XrayView>, row: Row): HTMLElement {
   panel.id = `fft-xray-audit-${++panels}`;
   panel.hidden = true;
   panel.tabIndex = -1;
+  // A capped height that scrolls inside, so an open audit never stretches the card and its row: the tools above stay
+  // in view, and the panel (a labelled, focusable region) takes the keyboard's scroll.
+  panel.style.maxHeight = "min(55vh, 520px)";
+  panel.style.overflowY = "auto";
+  panel.style.overscrollBehavior = "contain";
   const key = ctx.view.audit?.key ?? ctx.view.label;
   const name = String(row[key] ?? "");
   panel.setAttribute("aria-label", w.panel(name));
