@@ -6,7 +6,7 @@ FFT widgets are built to meet the European Accessibility Act. The Act applies th
 
 - **Standard:** EN 301 549 v3.2.1, clause 9, which is WCAG 2.1 level AA. These WCAG 2.2 level AA criteria are met too: 2.4.11 Focus Not Obscured (Minimum), 2.5.7 Dragging Movements and 2.5.8 Target Size (Minimum).
 - **Status:** conforms, for the scope below, as of 17 October 2026.
-- **Scope:** all 40 built-in views, the widget card (title, subtitle, headline, toolbar actions, footer, ghost ref, tooltip, expanded view), and dashboards (period control, filters, section filter, pinned filter row). It covers both themes (light and dark) and every style preset (default, glass, airy, paper), from phone width (320 CSS px) up.
+- **Scope:** all <!-- views -->57<!-- /views --> built-in views, the widget card (title, subtitle, headline, toolbar actions, footer, ghost ref, tooltip, expanded view), and dashboards (period control, filters, section filter, pinned filter row). It covers both themes (light and dark) and every style preset (default, glass, airy, paper), from phone width (320 CSS px) up.
 - **Method:**
   - Automated checks with axe-core against the WCAG 2.0, 2.1 and 2.2 A and AA rules: every stored widget in jsdom, and the whole demo page in Chrome with real layout, in both themes, every preset and at 320 px. No violations.
   - Contrast computed from the theme tokens in every theme and preset.

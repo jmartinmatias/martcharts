@@ -50,7 +50,7 @@ npm run catalog    # the chart catalog and data guide: catalog/*.json, catalog/i
 </fft-widget>
 ```
 
-The [chart catalog](docs/catalog.md) has all 40 views, each with what it is for, the data it needs and a self-contained spec in `catalog/` to start from. [examples/drop-in.html](examples/drop-in.html) shows every way in: inline, `src`, and a spec set from JavaScript with live data. [docs/frameworks.md](docs/frameworks.md) says how to get it into another project (copy one file, or `npm install` from GitHub) and has recipes for React, Vue, Svelte and server-rendered apps.
+The [chart catalog](docs/catalog.md) has all <!-- views -->57<!-- /views --> views, each with what it is for, the data it needs and a self-contained spec in `catalog/` to start from. [examples/drop-in.html](examples/drop-in.html) shows every way in: inline, `src`, and a spec set from JavaScript with live data. [docs/frameworks.md](docs/frameworks.md) says how to get it into another project (copy one file, or `npm install` from GitHub) and has recipes for React, Vue, Svelte and server-rendered apps.
 
 ## A widget in one object
 
@@ -116,8 +116,8 @@ const asTable = fork(topCustomers, { view: { type: "table", label: null, detail:
 | Data sources | `inline`, `url`, `fn` |
 | Transforms | `filter`, `sort`, `limit`, `aggregate` (including `list`, for spark columns), `pivot` (long to wide), `calc`, `bin` (value bands with counts), `rag` (numbers to Red, Amber, Green statuses against thresholds, with an overall worst-of column) |
 | Formats | `number`, `currency`, `percent`, `date`, `badge` (status pills), `spark` (mini trends in table and list cells), `bar` (in-cell data bars scaled to the column), `delta` (signed changes with an arrow, good or bad), `heat` (cells tinted on one shared scale, for heat tables), `rag` (a status pill with its shape and words: On track, At risk, Off track), `text` |
-| Views | 40 of them, grouped by the question they answer in [Which view?](#which-view) |
-| Emphasis | `highlight` on bar, hbar, line and area keeps the named categories or series in color and greys the rest |
+| Views | <!-- views -->57<!-- /views --> of them, grouped by the question they answer in [Which view?](#which-view) |
+| Emphasis | `highlight` keeps the named categories or series in color and greys the rest, on every view that has categories or series to name; `colors` fixes a category's color on every chart |
 | Combo | `"lines": "target"` on a bar chart draws lines over the bars on the same axis (never a second one); under a target line, bars that fall short are drawn outlined and keyed Below target; `"compare": "lastYear"` stands a wider, quieter column behind each bar |
 | Two units | `dual`: two measures in different units (revenue and churn) on two panels sharing one time axis, each on its own scale, as bars or lines. The honest form of a dual-axis chart: no second axis, so no false crossings |
 | Notes | `"annotations": [{ "x": "2026-03", "text": "Price rise" }]` on bar, line and area pins short notes to points, each a few words beside a dot with a thin leader; on a narrow card they become numbered markers with the texts listed under the chart |
@@ -127,7 +127,7 @@ const asTable = fork(topCustomers, { view: { type: "table", label: null, detail:
 | Dashboards | `createDashboard(el, spec, { widgets })` lays out widgets from one JSON file, with a filter row that scopes every widget with that field, a Period control (`"range": { "field": "month" }`: 3M, 6M, 12M, YTD, All) and full-width section headings (`{ "section": "Revenue" }`) with a section filter (All, or one section at a time) |
 | Text templates | Titles, subtitles, footers and headline captions can say `{first:month} to {last:month}`, `{count} deals` or `{sum:revenue}`, filled from the rows the chart draws |
 | Export | `createWidget(el, spec, { actions: ["csv", "image", "copy"] })` adds download CSV, download PNG and copy-for-Excel buttons. Past three actions, the first two stay in the toolbar and the rest go into a labelled More menu (arrow keys, Escape) |
-| How to read it | The `explain` action (a question mark in the toolbar) shows a plain guide under any chart, and the expanded view shows it from the start; `board.setGuides(true)` (or the `guides` option) opens every guide on a dashboard at once. `explainChart(spec, rows)` gives every one of the 40 views a plain reading guide in the chart's own field names, simple enough for a ten-year-old: "Each dot is one account. Further right means more revenue growth; higher means more gross margin. Bigger dots mean more revenue." |
+| How to read it | The `explain` action (a question mark in the toolbar) shows a plain guide under any chart, and the expanded view shows it from the start; `board.setGuides(true)` (or the `guides` option) opens every guide on a dashboard at once. `explainChart(spec, rows)` gives every one of the <!-- views -->57<!-- /views --> views a plain reading guide in the chart's own field names, simple enough for a ten-year-old: "Each dot is one account. Further right means more revenue growth; higher means more gross margin. Bigger dots mean more revenue." |
 | Accessibility | Conforms to EN 301 549 v3.2.1 (European Accessibility Act), that is WCAG 2.1 AA, plus WCAG 2.2 target size and focus not obscured: keyboard reach for every mark, a data table behind every chart, 4.5:1 text and 3:1 marks in every theme and preset, color never the only signal, Escape-dismissable tooltips. See [docs/accessibility.md](docs/accessibility.md) |
 | Taller | `createVariants(spec, rows, { seed, moves, audience, color, marks })` applies elBulli's creative method, abstracted and aimed at sales, to any widget: seeded new versions with the same numbers, each saying which sales question it answers ("Which region has the most revenue?") and made by one of seven sales moves (decompose, reframe, distill, contrast, reveal, combine, reform). Each is valid, colorblind safe, never a copy, scored on emphasis, surprise, honesty, detail and insight, with a plain title and how to read it. `rankVariants` sorts them by novelty or meaning; `questionOf(spec)` words any chart's sales question. The demo has its own page, `taller.html`; see [docs/taller.md](docs/taller.md) |
 | Line texture | `"curve": "smooth"` (never swings past a point) or `"step"` on line and area charts |
@@ -144,42 +144,38 @@ Every option of every block is listed in [docs/blocks.md](docs/blocks.md), gener
 
 ## Which view?
 
-Start from what you want the reader to see. Every view takes plain rows; `suggestView(type, rows)` fills a view's options from the data, so switching between candidates costs nothing.
+Start from what you want the reader to see. Every view takes plain rows; `suggestView(type, rows)` fills a view's options from the data, so switching between candidates costs nothing. Each of the <!-- views -->57<!-- /views --> views appears once below.
 
 | You want to show | Views |
 | --- | --- |
-| One number and how it moved | `kpi`, `kpis` (a row of them), `gauge` (on a known scale), or a `headline` above any chart |
-| Progress to a goal | `meter`, `bullet` (with poor, fair and good bands), `rings` (a few goals at once), `gauge`, or `"target"` on a `kpi` or a `kpis` tile. Each says where it stands in plain words: a check and Target met, or how far it has to go ("€22K to go") |
-| A ranking or a comparison across categories | `hbar`, `bar` (either with `"mark": "lollipop"`: a thin stem and a dot, for many similar values), `dumbbell` (before and after, or `"mark": "arrow"` for arrows that point the way each moved), `slope` (who moved between two periods), `dot` (several measures per item as dots on one axis: scores, rates, prices) |
-| Several measures per row | `hbar` with a list of values: grouped bars (one thin bar per measure), `"stacked": true` or `"percent"`, or `"split": true` (one column of bars per measure, each on its own scale, for measures in different units) |
-| Two groups across ordered bands | `pyramid` (women and men by age group, new and returning customers by tenure: two counts back to back on one axis) |
-| Change over time | `line`, `area`, `bar`, `calendar` (day by day), `heatmap` (two time scales, such as weekday by hour), `candlestick` (prices: open, high, low and close) |
-| Two measures in different units | `dual` (revenue and churn, one panel each, sharing the time axis) |
-| What comes next | `line` (or an unstacked `area`) with `"forecast"` and `"band"`: a forecast fan, dashed after the last actual inside a shaded zone, with its low to high range fanning out (dashboard periods count back from the last actual) |
-| Many time series at once | `horizon` (a thin row per series, values folded into bands of deepening color, blue above the baseline and red below) |
+| One number and how it moved | `kpi` (one figure, its change and a sparkline), `kpis` (a row of them), `gauge` (one figure on a known scale). Any tile takes `"rag"` thresholds for an On track, At risk or Off track pill; any chart takes a `headline` |
+| Progress to a goal | `meter` (one bar per goal), `bullet` (with poor, fair and good bands), `rings` (a few goals at once). Each says where it stands: Target met, or how far it has to go |
+| A ranking or a comparison | `hbar` (labels on the left; several values make grouped, stacked or split bars; `"mark": "lollipop"` for many similar values), `dot` (several measures per item on one axis), `dumbbell` (a before and an after; `"mark": "arrow"` points the way each moved), `slope` (who moved between two periods) |
+| Change over time | `line`, `area` (`"stacked": "stream"` for a streamgraph; `"forecast"` and `"band"` for a forecast fan), `bar` (`"compare"` stands last year behind each bar), `calendar` (day by day), `candlestick` (open, high, low and close) |
+| Two measures in different units | `dual` (one panel each, sharing the time axis: the honest dual-axis chart) |
+| Many time series at once | `horizon` (a thin row per series, values folded into bands of deepening color) |
 | Rank over time | `bump` |
-| A cycle that wraps round | `rose` (a polar area chart for hours of the day or months of the year: wedges true to their values by area, series stacked outward) |
-| Parts of a whole | `pie` (shares written on the slices; `"labels": "outside"` names them beside the disc), `donut` (up to 6 parts, the total in the middle; `"arc": "half"` with `"majority": true` is an election donut), multiple pies or donuts with `facet` (the same part in the same color in every panel), `waffle` (in 100 countable squares), `treemap` (many parts), `sunburst` (two or three levels), `icicle` (a hierarchy laid flat in columns, up to four levels, easier to label), `bar` or `area` with `"stacked": "percent"` |
-| How a mix flows over time | `area` with `"stacked": "stream"` (a streamgraph: smooth layers around a center line, each named inside itself) |
+| A cycle that wraps round | `rose` (hours of the day or months of the year, wedges true to their values by area) |
+| Patterns across two dimensions | `heatmap` (one shaded cell per pair, such as weekday by hour), `matrix` (a mark per pair, sized and shaded; or a square where a flag is yes, such as who must comply) |
+| Parts of a whole | `pie` (shares on the slices), `donut` (up to 6 parts, the total in the middle; `"arc": "half"` for seats and a majority line), `waffle` (100 countable squares), `treemap` (many parts), `sunburst` (two or three levels), `icicle` (a hierarchy laid flat, easier to label) |
 | Size and mix at once | `marimekko` |
 | What makes up a change | `waterfall` (a bridge from one total to the next), `variance` (actual against plan, good or bad) |
 | Where the bulk is | `pareto` (the vital few behind 80%) |
-| How values spread | `histogram`, `boxplot` (quartiles and outliers), `beeswarm` (every point), `ridgeline` (shapes side by side); the `bin` transform turns any field into bands for a table or bar |
-| How two measures relate | `scatter` (add `"size"` for a bubble chart: a third measure as area; `"quadrants": { "x", "y", "labels" }` cuts it into a priority grid such as Monitor, Act now, Prepare, Watch; `"labels": true` names the standouts on the chart) |
+| How values spread | `histogram`, `boxplot` (quartiles and outliers), `beeswarm` (every point), `ridgeline` (shapes side by side) |
+| Two groups across ordered bands | `pyramid` (women and men by age group, two counts back to back) |
+| How two measures relate | `scatter` (`"size"` for bubbles; `"quadrants"` names four corners; `"cluster"` draws soft areas round each group) |
 | Profiles across several attributes | `radar` (up to 3 profiles on one shared scale) |
-| Flows between stages | `sankey` (branching), `funnel` (one path), `chord` (exchange within one set, such as moves between plans) |
+| Flows between stages | `sankey` (branching), `funnel` (one path), `chord` (exchange within one set) |
 | Survey answers | `likert` |
-| Plans and dates | `timeline` (with milestones, progress and a today line) |
-| Where things are | `choropleth` (regions shaded by a value), `symbols` (circles sized by a value, on their regions or at coordinates), `locator` (named markers). Two built-in tile-grid basemaps, `europe` and `us-states`, keyed by country or state code, or your own GeoJSON by object or address |
-| Which measures stepped out of line | `anomalies` (one thin lane per metric, its expected band behind the line, anomalies as alert dots, the lanes with the most first); on a `scatter`, `"cluster"` draws a soft hull round each cluster's dots |
-| Where everything stands in a lifecycle | `board` (one column per stage or status, each item a card with its group dot and value: regulations by status, deals by stage) |
-| RAG reporting: who is on track | `ragboard` (a Red, Amber, Green scorecard: one row per client, relationship manager or deal, one status cell per dimension such as health, coverage, pipeline and relationship, the worst first, arrows for better or worse since last period, counts per column) |
-| RAG reporting: how status moved | `ragtrend` (each entity's status period by period, a tick where it changed and why in the tooltip, the current status as a pill); the `rag` transform turns numbers into statuses against thresholds, the `rag` format shows a status pill in any table, and `"rag": { "green": 40, "amber": 20 }` on a `kpi` or `kpis` tile adds a status pill beside the number. Every status has its own shape and words, never color alone |
-| Records to read | `table` (with `spark` and `badge` cells), `list` |
-| Regulatory pressure, or who must comply | `matrix` (one mark per topic and quarter, sized by new obligations and shaded by impact; or a square per stakeholder that must comply with each rule) |
-| Provisions and how binding they are | `strips` (one square per provision, colored mandatory, recommended, optional, with the mandatory share and the density per page at the end) |
-| Where each rule stands | `lifecycle` (every regulation's stages from proposal to application on one date axis, a today line, a status pill, thicker rows for higher impact) |
-| Clients and cross-sell | `whitespace` (the cross-sell map: one cell per client and product, filled where held, outlined where open and tinted by propensity, with the potential summed per row), `xray` (one client on one card: facts, holdings as pills, share of wallet, trend, flags, next best actions), `history` (a client's story: events on a vertical timeline, newest first, colored by kind) |
+| Plans, stages and status | `timeline` (tasks and milestones, a today line), `lifecycle` (each item's stages from proposal to application on one date axis), `board` (one column per stage, each item a card) |
+| Where things are | `choropleth` (regions shaded by a value, or colored by a category), `symbols` (circles sized by a value), `locator` (named places with their labels), on the built-in `europe` or `us-states` grids or your GeoJSON |
+| Counted units and how binding they are | `strips` (one square per provision, colored by part, with the density per page) |
+| What stepped out of line | `anomalies` (one lane per metric, its expected band behind it, the days outside it flagged) |
+| Who is on track, red, amber or green | `ragboard` (a scorecard, worst first, with the move since last period), `ragtrend` (each status period by period, and why it changed) |
+| One client, and where to sell next | `whitespace` (the cross-sell map: held, open by propensity, not eligible), `xray` (one client on one card), `history` (every touchpoint, newest first) |
+| Records to read | `table` (sortable; search, pages, a pinned first column, and sparkline, status pill, in-cell bar, heat and RAG cells), `list` |
+
+Clicking a mark on a dashboard filters every other chart that shares its field, with a chip to clear it. Every card exports whole, title to credit line, as PNG or SVG. Option names are the same across views (`value` for the measure, `color` for color by category, `flag` for a yes/no field); older spellings still work and say once what they are now called.
 
 Charts follow fixed rules: a validated, colorblind-checked 8-color palette with its own dark-mode set, bars at most 21px wide with rounded data ends, 2px lines, hairline gridlines, a legend only when there are two or more series, a tooltip on hover and keyboard focus, and a hidden data table for screen readers.
 
@@ -212,13 +208,27 @@ Widgets are stored as `widgets/<id>.json`, the same files the demo page reads. A
 - [docs/taller.md](docs/taller.md): the Taller, elBulli's creative method abstracted and applied to sales: seven sales moves that make new, balanced versions of any widget, each with the sales question it answers.
 - [docs/editor.md](docs/editor.md): the editor, a chart from a table in four steps, and how to embed it with `createEditor`.
 
-## A regulatory landscape on one page
+## Four worked examples
 
-`dashboards/regulatory-landscape.json` (a dashboard in the demo's switcher) shows what the library does with a regulatory watch: headline numbers (rules in force, applying within a year, open consultations, a pressure index with its trend), where the rules bind (`choropleth` of rules in scope per country, a categorical `choropleth` of transposition status, `symbols` of days late), volume per topic (stacked `hbar` by status, a `treemap` of provisions), pressure (`dual` of new obligations against the index, an annotated `line` with a forecast fan, `bump` of topic ranks, `horizon` of events per topic), status and lifecycle (`board` by status grouped by topic, a `funnel` of counts per stage), impact and stakeholders (`scatter` of pressure against impact sized by who must comply, with quadrants, a `sankey` from topic to stakeholder type) and density (a heat `table` of provisions, mandatory share and provisions per page). The data in `public/data/regulatory-*.json` is fictional.
+**Regulatory landscape.** `regulatory.html` draws `dashboards/regulatory-landscape.json` over `widgets/regulatory/*.json`. It covers the rules in force and applying soon, where they bind (maps by country and transposition status), volume and pressure per topic, what applies next (`lifecycle`, `board`), who must comply (`matrix`), and how binding each rule is (`strips`). Filter by topic or jurisdiction. The data in `public/data/regulatory-*.json` is fictional.
 
-## Client health (RAG)
+**Commercial cockpit.** `commercial.html` draws `dashboards/commercial-cockpit.json` over `widgets/commercial/*.json`. It shows products, coverage by relationship manager, sales and billing, campaigns, adoption, portfolio clusters, where to sell next (`whitespace`), where clients are, one client's card and story (`xray`, `history`), and the measures that stepped out of line (`anomalies`). Filter by segment or relationship manager.
 
-`health.html` draws `dashboards/client-health.json` over `widgets/health/*.json`: every client in red, amber or green from four perspectives (client success, business development, coverage and the relationship). Every status comes from a written threshold in `public/data/rag-thresholds.json` (green from, amber from, which way is good, and why), and the roll-up rules are in `rag-rollups.json`, so a reader can check any status. The page shows who is on track against last quarter (`kpis`), where each perspective slips by segment (stacked `hbar` in red, amber and green), the key measure per banker against its thresholds (`bar` with reference lines), every client's measures with status pills (a searchable `table`), what changed this quarter (`sankey`), where the reds sit (`heatmap`), each banker's book, and the action list with an owner and days open. Filter by segment, relationship manager or region. `scripts/client-health-data.ts` writes the fictional data from a seed; the scorecards and the quarter-by-quarter trail use the `ragboard` and `ragtrend` views.
+**Client health (RAG).** `health.html` draws `dashboards/client-health.json` over `widgets/health/*.json`. It puts every client in red, amber or green from four perspectives: client success, business development, coverage and the relationship. Every status comes from a written threshold in `public/data/rag-thresholds.json`, and the roll-up rules are in `rag-rollups.json`, so a reader can check any status. The page shows who is on track against last quarter, scorecards per perspective (`ragboard`), what changed (`ragtrend`, `sankey`), and who owns the next step.
+
+**Datawrapper parity.** Every chart type Datawrapper offers has a counterpart here:
+- grouped, stacked and split bars, and the population pyramid
+- dot, range and arrow plots
+- pie, donut, multiple pies and donuts, and the election donut
+- the dual-axis chart as two panels, with text annotations, line symbols, peak labels, background comparison columns and a log scale
+- choropleth, symbol and locator maps
+- tables with search, pages, a pinned first column, and source and byline lines
+
+The editor (`editor.html`, or `createEditor` in any app) follows Datawrapper's four steps:
+1. Drop or paste the data.
+2. Describe the columns.
+3. Pick a chart from those that fit, refine it from its own options, and annotate it.
+4. Copy the spec or the embed code.
 
 ## Make a chart without writing JSON: the editor
 
@@ -230,7 +240,8 @@ The demo's Editor page (`editor.html`) is Datawrapper's flow on this library: **
 src/core/      spec types, fork, registry, pipeline, formats, validation. No DOM: runs in Node too.
 src/dom/       createWidget, <fft-widget>, styles, chart geometry, the five built-in views.
 src/mcp/       widget store, MCP server, command line entry.
-widgets/       stored widget specs (one JSON file each), shared by the demo and the MCP server.
+widgets/       stored widget specs (one JSON file each), shared by the demo and the MCP server; regulatory/, commercial/
+               and health/ hold the three worked dashboards' widgets.
 dashboards/    dashboard specs; gallery.json lays out the demo gallery.
 public/data/   sample data the example widgets load.
 demo/          the gallery and playground page, the Taller, the selected variations and the editor page.

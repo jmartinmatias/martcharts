@@ -1,9 +1,11 @@
 /**
  * Writes docs/blocks.md from the block registry, so the reference always
- * matches the code. Run with: npm run docs
+ * matches the code, and sets the view count wherever the docs say it
+ * (between <!-- views --> and <!-- /views --> markers). Run with: npm run docs
  */
-import { writeFile } from "node:fs/promises";
-import { checkPalette, describeBlocks, describePalettes, describePresets, FACET_OPTIONS, HEADLINE_OPTIONS } from "../src/core/index.ts";
+import { readFile, writeFile } from "node:fs/promises";
+import { canonicalName, checkPalette, describeBlocks, describePalettes, describePresets, FACET_OPTIONS, HEADLINE_OPTIONS } from "../src/core/index.ts";
+import { alsoAccepts } from "../src/core/canonical.ts";
 import type { BlockKind, OptionSchema } from "../src/core/index.ts";
 
 const SECTIONS: { kind: BlockKind; title: string; slot: string }[] = [
@@ -44,7 +46,11 @@ for (const { kind, title, slot } of SECTIONS) {
     lines.push("| Option | Type | Required | Default | Description |", "| --- | --- | --- | --- | --- |");
     for (const [name, option] of options) {
       const fallback = option.default === undefined ? "" : `\`${JSON.stringify(option.default)}\``;
-      lines.push(`| \`${name}\` | ${kindText(option)} | ${option.required ? "yes" : ""} | ${fallback} | ${cell(option.description)} |`);
+      // Views list each option by its canonical name; an older spelling that still works is noted after the description.
+      const shown = kind === "view" ? canonicalName(block.type, name) : name;
+      const older = kind === "view" ? [...new Set([...alsoAccepts(block.type, shown), ...(shown !== name ? [name] : [])])] : [];
+      const note = older.length ? ` Also accepts ${older.map((o) => `\`${o}\``).join(", ")}, the older name.` : "";
+      lines.push(`| \`${shown}\` | ${kindText(option)} | ${option.required ? "yes" : ""} | ${fallback} | ${cell(option.description)}${note} |`);
     }
   }
 }
@@ -78,3 +84,15 @@ for (const palette of describePalettes()) {
 
 await writeFile(new URL("../docs/blocks.md", import.meta.url), `${lines.join("\n")}\n`);
 console.error("Wrote docs/blocks.md");
+
+// The view count, wherever the hand-written docs give it: the number between the markers follows the registry.
+const VIEW_COUNT = describeBlocks("view").length;
+for (const file of ["../README.md", "../docs/api.md", "../docs/accessibility.md"]) {
+  const url = new URL(file, import.meta.url);
+  const text = await readFile(url, "utf8");
+  const next = text.replace(/<!-- views -->\d+<!-- \/views -->/g, `<!-- views -->${VIEW_COUNT}<!-- /views -->`);
+  if (next !== text) {
+    await writeFile(url, next);
+    console.error(`Set the view count in ${file.slice(3)} to ${VIEW_COUNT}`);
+  }
+}

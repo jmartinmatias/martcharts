@@ -12,7 +12,10 @@
  *
  * @module
  */
+import { canonicalName } from "../core/aliases.ts";
+import { canonicalSpec, canonicalView } from "../core/canonical.ts";
 import { formatValue, humanize } from "../core/display.ts";
+import { basemapNames } from "../core/geo.ts";
 import { fork } from "../core/fork.ts";
 import { switchChart } from "../core/guide.ts";
 import { describePresets } from "../core/presets.ts";
@@ -174,6 +177,33 @@ export const STRINGS = {
   loadFailed: "Could not load {what}",
   notATable: "This does not read as a table.",
   moreColumns: "and {n} more",
+  order: "Order",
+  orderHint: "Drag a field, or use its arrows, to set the order it is drawn in.",
+  basemap: "Map",
+  basemapAddress: "A GeoJSON address…",
+  basemapUrl: "GeoJSON address",
+  todayLine: "Today line",
+  todayDate: "On this date (blank for today)",
+  labelModes: { codes: "Codes", none: "None" } as Record<string, string>,
+  quadrantX: "Split at x",
+  quadrantY: "Split at y",
+  quadrantWords: ["Top left", "Top right", "Bottom right", "Bottom left"],
+  ragGreen: "On track from",
+  ragAmber: "At risk from",
+  ragGoodWhen: "Good when",
+  ragDirections: { up: "Higher", down: "Lower" } as Record<string, string>,
+  ragRules: "Statuses (red, amber, green)",
+  ragRulesHint: "Each rule turns a number into a status column: on track from one value, at risk from another.",
+  ragField: "Measure",
+  ragOverall: "Overall status column",
+  overallWorst: "Worst of the columns",
+  previousOf: "Last period of {field}",
+  colors: "Fixed colors",
+  colorsHint: "Give a category the same color on every chart.",
+  clearColor: "Clear",
+  tooltip: "Tooltip",
+  tooltipHint: "Write the tooltip; {field} is filled from the mark's row. Leave blank for the chart's own.",
+  insertField: "Insert",
 };
 
 type Strings = typeof STRINGS;
@@ -560,16 +590,29 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
   const categoryField = (): string | undefined => {
     const view = spec.view;
     for (const [name, option] of Object.entries(viewOptions())) {
-      if (option.type === "field" && option.kind === "category" && typeof view[name] === "string") return view[name] as string;
+      const value = view[canonicalName(view.type, name)] ?? view[name];
+      if (option.type === "field" && option.kind === "category" && typeof value === "string") return value;
     }
     for (const [name, option] of Object.entries(viewOptions())) {
-      if (option.type === "field" && typeof view[name] === "string" && option.kind !== "number") return view[name] as string;
+      const value = view[canonicalName(view.type, name)] ?? view[name];
+      if (option.type === "field" && typeof value === "string" && option.kind !== "number") return value;
     }
     return undefined;
   };
   /** The spec with any key readable: the words around a chart (source, byline) may be newer than the typed spec. */
   const loose = (): Record<string, unknown> => spec as unknown as Record<string, unknown>;
   const seriesOption = (): string | undefined => Object.entries(viewOptions()).find(([, option]) => option.type === "fields")?.[0];
+  // Options by their canonical names: the schema keeps the names renderers read (a dot's `values`), the form shows and
+  // writes the canonical one (`value`), and a spec in either spelling opens with its fields filled.
+  /** An option's canonical name on the current view. */
+  const keyOf = (name: string) => canonicalName(spec.view.type, name);
+  /** An option's value, whichever spelling the spec used. */
+  const readOpt = (name: string): unknown => spec.view[keyOf(name)] ?? spec.view[name];
+  /** A view patch that writes an option under its canonical name and drops the older spelling. */
+  const putOpt = (name: string, value: unknown): Record<string, unknown> => {
+    const key = keyOf(name);
+    return key === name ? { [name]: value } : { [key]: value, [name]: null };
+  };
 
   // ---- History and commits ----
   const snapshot = (): Snapshot => ({ spec: JSON.parse(JSON.stringify(spec)) as WidgetSpec, order: [...order], hidden: [...hidden] });
@@ -646,7 +689,7 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
   function wireLegend() {
     const option = seriesOption();
     if (!option) return;
-    const series = fieldList(spec.view[option]);
+    const series = fieldList(readOpt(option));
     if (series.length < 2) return;
     previewSlot.querySelectorAll<HTMLElement>(".fft-legend li").forEach((item, i) => {
       if (i >= series.length || item.dataset.edWired) return;
@@ -656,7 +699,7 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
       item.title = t("legendHint");
       const drop = () => {
         const rest = series.filter((_, k) => k !== i);
-        if (rest.length) commit({ view: { [option]: rest.length === 1 ? rest[0] : rest } }, { paint: step === 3 && tab === 1 });
+        if (rest.length) commit({ view: putOpt(option, rest.length === 1 ? rest[0] : rest) }, { paint: step === 3 && tab === 1 });
       };
       item.addEventListener("click", drop);
       item.addEventListener("keydown", (event) => {
@@ -975,7 +1018,7 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
     const shown = shownFields();
     return Object.entries(viewOptions()).every(([name, option]) => {
       if (option.type !== "field" && option.type !== "fields") return true;
-      const value = spec.view[name];
+      const value = readOpt(name);
       if (value === undefined) return !option.required;
       return fieldList(value).every((f) => shown.includes(f));
     });
@@ -1209,7 +1252,7 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
         } catch {
           view = { type: card.type };
         }
-        commit({ view: { ...Object.fromEntries(Object.keys(spec.view).map((k) => [k, null])), ...view } });
+        commit({ view: { ...Object.fromEntries(Object.keys(spec.view).map((k) => [k, null])), ...canonicalView(view) } });
         pane.querySelectorAll<HTMLButtonElement>(".fft-ed-type").forEach((other) => other.setAttribute("aria-pressed", String(other === b)));
       });
       groups[card.group]?.[1].append(b);
@@ -1254,8 +1297,8 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
     const viewOf = (): Record<string, unknown> => spec.view;
     for (const [name, option] of Object.entries(viewOptions())) {
       if (ELSEWHERE.has(name)) continue;
-      const value = viewOf()[name];
-      const control = controlFor(name, option, value, ofKind);
+      const value = readOpt(name);
+      const control = controlFor(name, option, value, ofKind, current);
       if (control) form.append(control);
     }
     // Emphasis: the categories of the chart's category field, each a chip.
@@ -1289,6 +1332,9 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
       facet.addEventListener("change", () => commit({ facet: facet.value ? { field: facet.value } : null }));
       form.append(field(t("facet"), facet));
     }
+    // Statuses: the rag transform's rules, one per measure, turning numbers into red, amber and green columns.
+    const numbers = shown.filter((f) => kindOf.get(f) === "number");
+    if (numbers.length) form.append(ragRules(numbers));
 
     // Style: the look, the theme, the colors, the height.
     const style = el("div", "fft-ed-form");
@@ -1303,6 +1349,30 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
     });
     paletteCleanup = () => picker.destroy();
     style.append(field(t("palette"), paletteSlot));
+    // Fixed colors: a color per value of the chart's category field, the same on every chart that names it.
+    const colorKey = categoryField();
+    if (colorKey) {
+      const values = [...new Set(current.map((row) => String(row[colorKey] ?? "")))].filter(Boolean).slice(0, 12);
+      const fixed = (loose().colors ?? {}) as Record<string, string>;
+      const swatches = el("div", "fft-ed-colors");
+      swatches.setAttribute("role", "group");
+      swatches.setAttribute("aria-label", t("colors"));
+      for (const v of values) {
+        const item = el("div", "fft-ed-color");
+        const input = el("input", "fft-ed-color-input");
+        input.type = "color";
+        input.value = /^#[0-9a-f]{6}$/i.test(fixed[v] ?? "") ? (fixed[v] as string) : "#888888";
+        input.setAttribute("aria-label", `${t("colors")}: ${v}`);
+        if (!fixed[v]) input.dataset.unset = "";
+        input.addEventListener("change", () => commit({ colors: { [v]: input.value } }));
+        const clear = button(t("clearColor"), () => commit({ colors: { [v]: null } }, { paint: true }), "fft-ed-chip fft-ed-color-clear");
+        clear.setAttribute("aria-label", `${t("clearColor")}: ${v}`);
+        clear.hidden = !fixed[v];
+        item.append(input, el("span", "fft-ed-color-name", v), clear);
+        swatches.append(item);
+      }
+      style.append(field(t("colors"), swatches, t("colorsHint")));
+    }
     const height = el("input", "fft-ed-input fft-ed-short");
     height.type = "number";
     height.min = "120";
@@ -1314,20 +1384,264 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
     style.append(field(t("density"), segmented(t("density"), ["comfortable", "compact"].map((v) => ({ value: v, label: t("densities")[v] ?? v })), spec.style?.density ?? "comfortable", (value) => commit({ style: { density: value === "comfortable" ? null : value } }))));
   }
 
-  /** One control for a view option, from its schema. */
-  function controlFor(name: string, option: OptionSchema, value: unknown, ofKind: (kind: Kind | undefined) => string[]): HTMLElement | undefined {
-    const label = humanize(name);
+  /** The rag transform's rules: a measure, on track from, at risk from, which way is good; and an overall column. */
+  function ragRules(numbers: string[]): HTMLElement {
+    type Rule = { field: string; as?: string; green: number; amber: number; goodWhen?: "up" | "down" };
+    const steps = spec.transform ?? [];
+    const at = steps.findIndex((step) => step.type === "rag");
+    const step = (at >= 0 ? steps[at] : { type: "rag", rules: [] }) as { type: "rag"; rules: Rule[]; overall?: string };
+    const rules = Array.isArray(step.rules) ? step.rules : [];
+    const write = (next: Rule[], overall = step.overall) => {
+      const others = steps.filter((_, i) => i !== at);
+      const rag = next.length ? [{ type: "rag", rules: next, ...(overall ? { overall } : {}) }] : [];
+      commit({ transform: [...others, ...rag].length ? [...others, ...rag] : null }, { paint: true });
+    };
+    const box = el("details", "fft-ed-rag");
+    box.open = rules.length > 0;
+    box.append(el("summary", "fft-ed-rag-title", t("ragRules")), el("p", "fft-ed-hint", t("ragRulesHint")));
+    rules.forEach((rule, i) => {
+      const row = el("div", "fft-ed-rag-rule");
+      row.dataset.rule = String(i);
+      const update = (patch: Partial<Rule>) => write(rules.map((r, k) => (k === i ? { ...r, ...patch } : r)));
+      const select = el("select", "fft-ed-select");
+      for (const f of numbers) select.add(new Option(labelOf(f), f));
+      select.value = rule.field;
+      select.addEventListener("change", () => update({ field: select.value }));
+      row.append(
+        field(t("ragField"), select),
+        numberInput(t("ragGreen"), rule.green, (n) => n !== null && update({ green: n })),
+        numberInput(t("ragAmber"), rule.amber, (n) => n !== null && update({ amber: n })),
+        field(t("ragGoodWhen"), segmented(`${t("ragGoodWhen")} ${i + 1}`, ["up", "down"].map((v) => ({ value: v, label: t("ragDirections")[v] ?? v })), rule.goodWhen === "down" ? "down" : "up", (v) => update({ goodWhen: v === "down" ? "down" : undefined }))),
+        button(t("remove"), () => write(rules.filter((_, k) => k !== i)), "fft-ed-chip"),
+      );
+      box.append(row);
+    });
+    const add = button(t("add"), () => {
+      const used = new Set(rules.map((r) => r.field));
+      const f = numbers.find((n) => !used.has(n)) ?? (numbers[0] as string);
+      const values = rows().map((row) => Number(row[f])).filter(Number.isFinite).sort((a, b) => a - b);
+      const q = (p: number) => values[Math.floor(p * (values.length - 1))] ?? 0;
+      write([...rules, { field: f, green: q(0.66), amber: q(0.33) }]);
+    }, "fft-ed-button fft-ed-rag-add");
+    box.append(add);
+    if (rules.length > 1) {
+      const overall = el("input", "fft-ed-input");
+      overall.type = "text";
+      overall.placeholder = "status";
+      overall.value = step.overall ?? "";
+      overall.addEventListener("change", () => write(rules, overall.value || undefined));
+      box.append(field(t("ragOverall"), overall));
+    }
+    return box;
+  }
+
+  /** One control for a view option, from its schema, tagged with the option's canonical name so hosts and tests can find it. */
+  function controlFor(name: string, option: OptionSchema, value: unknown, ofKind: (kind: Kind | undefined) => string[], current: Row[]): HTMLElement | undefined {
+    const control = controlOf(name, option, value, ofKind, current);
+    if (control) control.dataset.option = keyOf(name);
+    return control;
+  }
+
+  /** An ordered list of the picked fields: drag one onto another, or use its arrows, to set the order they are drawn in. */
+  function orderList(label: string, picked: string[], write: (next: string[]) => void): HTMLElement {
+    const list = el("ol", "fft-ed-order");
+    list.setAttribute("aria-label", `${label}: ${t("order")}`);
+    let dragging: string | undefined;
+    const move = (from: number, to: number) => {
+      if (from < 0 || to < 0 || to >= picked.length || from === to) return;
+      const next = [...picked];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved as string);
+      write(next);
+      const again = [...panel.querySelectorAll<HTMLElement>(".fft-ed-order")].find((node) => node.getAttribute("aria-label") === list.getAttribute("aria-label"));
+      again?.querySelectorAll<HTMLElement>(".fft-ed-order-item")[to]?.querySelector<HTMLButtonElement>(`.fft-ed-move-${to < from ? "up" : "down"}`)?.focus();
+    };
+    picked.forEach((f, i) => {
+      const item = el("li", "fft-ed-order-item");
+      item.draggable = true;
+      item.dataset.field = f;
+      item.addEventListener("dragstart", (event) => {
+        dragging = f;
+        event.dataTransfer?.setData("text/plain", f);
+        item.setAttribute("data-dragging", "");
+      });
+      item.addEventListener("dragend", () => item.removeAttribute("data-dragging"));
+      item.addEventListener("dragover", (event) => event.preventDefault());
+      item.addEventListener("drop", (event) => {
+        event.preventDefault();
+        const from = dragging ?? event.dataTransfer?.getData("text/plain");
+        if (from) move(picked.indexOf(from), i);
+        dragging = undefined;
+      });
+      const handle = el("span", "fft-ed-handle", "⋮⋮");
+      handle.setAttribute("aria-hidden", "true");
+      const up = button("↑", () => move(i, i - 1), "fft-ed-icon fft-ed-move-up");
+      up.setAttribute("aria-label", `${t("moveUp")}: ${labelOf(f)}`);
+      up.disabled = i === 0;
+      const down = button("↓", () => move(i, i + 1), "fft-ed-icon fft-ed-move-down");
+      down.setAttribute("aria-label", `${t("moveDown")}: ${labelOf(f)}`);
+      down.disabled = i === picked.length - 1;
+      item.append(handle, el("span", "fft-ed-order-name", labelOf(f)), up, down);
+      list.append(item);
+    });
+    return list;
+  }
+
+  /** A small group of labelled inputs inside one option. */
+  const group = (...children: HTMLElement[]) => {
+    const box = el("div", "fft-ed-group");
+    box.append(...children);
+    return box;
+  };
+  const numberInput = (label: string, value: unknown, onChange: (n: number | null) => void) => {
+    const input = el("input", "fft-ed-input fft-ed-short");
+    input.type = "number";
+    input.step = "any";
+    input.value = typeof value === "number" ? String(value) : "";
+    input.addEventListener("change", () => onChange(input.value === "" ? null : Number(input.value)));
+    return field(label, input);
+  };
+  const textInput = (label: string, value: unknown, onChange: (text: string) => void) => {
+    const input = el("input", "fft-ed-input");
+    input.type = "text";
+    input.value = typeof value === "string" ? value : "";
+    input.addEventListener("change", () => onChange(input.value));
+    return field(label, input);
+  };
+
+  function controlOf(name: string, option: OptionSchema, value: unknown, ofKind: (kind: Kind | undefined) => string[], current: Row[]): HTMLElement | undefined {
+    const type = spec.view.type;
+    const label = humanize(keyOf(name));
+    const put = (next: unknown) => putOpt(name, next);
     const describe = (node: HTMLElement) => {
       node.title = option.description;
       return node;
     };
+    // Map geometry: a built-in basemap, or the address of a GeoJSON file.
+    if (name === "geo") {
+      const select = el("select", "fft-ed-select");
+      if (!option.required) select.add(new Option(t("none"), ""));
+      for (const map of basemapNames()) select.add(new Option(map, map));
+      select.add(new Option(t("basemapAddress"), "\u0000url"));
+      const isAddress = typeof value === "string" && value !== "" && !basemapNames().includes(value);
+      select.value = isAddress ? "\u0000url" : typeof value === "string" ? value : "";
+      const url = el("input", "fft-ed-input fft-ed-geo-url");
+      url.type = "url";
+      url.placeholder = "https://…/regions.geojson";
+      url.setAttribute("aria-label", t("basemapUrl"));
+      url.value = isAddress ? String(value) : "";
+      url.hidden = !isAddress;
+      select.addEventListener("change", () => {
+        url.hidden = select.value !== "\u0000url";
+        if (select.value === "\u0000url") return url.focus();
+        commit({ view: put(select.value || null) }, { paint: true });
+      });
+      url.addEventListener("change", () => commit({ view: put(url.value || null) }, { paint: true }));
+      return field(t("basemap"), describe(group(select, url)), option.description);
+    }
+    // A today line: a switch, and a date when the line should sit somewhere else.
+    if (name === "today") {
+      const on = value !== undefined && value !== false;
+      const date = el("input", "fft-ed-input fft-ed-short");
+      date.type = "date";
+      date.setAttribute("aria-label", t("todayDate"));
+      date.value = typeof value === "string" ? value.slice(0, 10) : "";
+      date.disabled = !on;
+      date.addEventListener("change", () => commit({ view: put(date.value || true) }));
+      const sw = toggle(t("todayLine"), on, (next) => {
+        date.disabled = !next;
+        commit({ view: put(next ? date.value || true : null) });
+      });
+      return field(t("todayLine"), describe(group(sw, date)), option.description);
+    }
+    // Labels as a word: a choropleth writes its codes, or nothing.
+    if (name === "labels" && type === "choropleth") {
+      const current = value === false || value === "none" ? "none" : "codes";
+      return field(label, describe(segmented(label, ["codes", "none"].map((v) => ({ value: v, label: t("labelModes")[v] ?? v })), current, (v) => commit({ view: put(v === "codes" ? null : v) }))), option.description);
+    }
+    // Quadrants: where the plot splits, and a word in each corner.
+    if (name === "quadrants") {
+      const q = (value && typeof value === "object" ? value : {}) as { x?: number; y?: number; labels?: string[] };
+      const write = (patch: Partial<typeof q>) => {
+        const next = { ...q, ...patch };
+        const words = (next.labels ?? []).map((w) => w ?? "");
+        const keep = typeof next.x === "number" && typeof next.y === "number";
+        commit({ view: put(keep ? { x: next.x, y: next.y, ...(words.some(Boolean) ? { labels: words } : {}) } : null) }, { paint: !keep });
+        Object.assign(q, next);
+      };
+      const words = t("quadrantWords") as string[];
+      return field(
+        label,
+        describe(
+          group(
+            numberInput(t("quadrantX"), q.x, (n) => write({ x: n ?? undefined })),
+            numberInput(t("quadrantY"), q.y, (n) => write({ y: n ?? undefined })),
+            ...words.map((word, i) =>
+              textInput(word, q.labels?.[i], (text) => {
+                const labels = [0, 1, 2, 3].map((k) => (k === i ? text : (q.labels?.[k] ?? "")));
+                write({ labels });
+              }),
+            ),
+          ),
+        ),
+        option.description,
+      );
+    }
+    // RAG thresholds on a KPI: on track from one value, at risk from another, and which way is good.
+    if (name === "rag" && option.type === "object") {
+      const r = (value && typeof value === "object" ? value : {}) as { green?: number; amber?: number; goodWhen?: string };
+      const write = (patch: Partial<typeof r>) => {
+        Object.assign(r, patch);
+        const keep = typeof r.green === "number" && typeof r.amber === "number";
+        commit({ view: put(keep ? { green: r.green, amber: r.amber, ...(r.goodWhen === "down" ? { goodWhen: "down" } : {}) } : null) });
+      };
+      return field(
+        label,
+        describe(
+          group(
+            numberInput(t("ragGreen"), r.green, (n) => write({ green: n ?? undefined })),
+            numberInput(t("ragAmber"), r.amber, (n) => write({ amber: n ?? undefined })),
+            field(t("ragGoodWhen"), segmented(t("ragGoodWhen"), ["up", "down"].map((v) => ({ value: v, label: t("ragDirections")[v] ?? v })), r.goodWhen === "down" ? "down" : "up", (v) => write({ goodWhen: v }))),
+          ),
+        ),
+        option.description,
+      );
+    }
+    // A scorecard's last-period columns: one select per dimension.
+    if (name === "previous" && type === "ragboard") {
+      const map = (value && typeof value === "object" ? value : {}) as Record<string, string>;
+      const dims = fieldList(readOpt("dimensions"));
+      const selects = dims.map((dim) => {
+        const select = el("select", "fft-ed-select");
+        select.add(new Option(t("none"), ""));
+        for (const f of ofKind("category")) if (f !== dim) select.add(new Option(labelOf(f), f));
+        select.value = map[dim] ?? "";
+        select.addEventListener("change", () => {
+          const next = { ...map, [dim]: select.value };
+          if (!select.value) delete next[dim];
+          commit({ view: put(Object.keys(next).length ? next : null) });
+        });
+        return field(fill(t("previousOf"), { field: labelOf(dim) }), select);
+      });
+      return field(label, describe(group(...selects)), option.description);
+    }
+    // A scorecard's overall column: the worst of its columns, none, or a stored roll-up.
+    if (name === "overall" && type === "ragboard") {
+      const select = el("select", "fft-ed-select");
+      select.add(new Option(t("overallWorst"), "\u0000worst"));
+      select.add(new Option(t("none"), "\u0000none"));
+      for (const f of ofKind("category")) select.add(new Option(labelOf(f), f));
+      select.value = value === false ? "\u0000none" : typeof value === "string" ? value : "\u0000worst";
+      select.addEventListener("change", () => commit({ view: put(select.value === "\u0000worst" ? null : select.value === "\u0000none" ? false : select.value) }));
+      return field(t("ragOverall"), describe(select), option.description);
+    }
     if (option.type === "field") {
       const select = el("select", "fft-ed-select");
       if (!option.required) select.add(new Option(t("none"), ""));
       for (const f of ofKind(option.kind)) select.add(new Option(labelOf(f), f));
       if (typeof value === "string" && !ofKind(option.kind).includes(value)) select.add(new Option(labelOf(value), value));
       select.value = typeof value === "string" ? value : "";
-      select.addEventListener("change", () => commit({ view: { [name]: select.value || null } }, { paint: true }));
+      select.addEventListener("change", () => commit({ view: put(select.value || null) }, { paint: true }));
       return field(label, describe(select), option.description);
     }
     if (option.type === "fields") {
@@ -1335,46 +1649,49 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
       chips.setAttribute("role", "group");
       chips.setAttribute("aria-label", label);
       const picked = fieldList(value);
-      for (const f of ofKind(option.kind)) {
+      const write = (next: string[]) => commit({ view: put(next.length === 0 ? null : next.length === 1 ? next[0] : next) }, { paint: true });
+      for (const f of [...picked.filter((p) => !ofKind(option.kind).includes(p)), ...ofKind(option.kind)]) {
         const chip = el("label", "fft-ed-check");
         const box = el("input");
         box.type = "checkbox";
         box.checked = picked.includes(f);
         box.addEventListener("change", () => {
-          const now = fieldList(spec.view[name]);
+          const now = fieldList(readOpt(name));
           const next = box.checked ? [...now, f] : now.filter((x) => x !== f);
           if (option.required && !next.length) {
             box.checked = true;
             return;
           }
-          commit({ view: { [name]: next.length === 0 ? null : next.length === 1 ? next[0] : next } });
+          commit({ view: put(next.length === 0 ? null : next.length === 1 ? next[0] : next) });
         });
         chip.append(box, el("span", undefined, labelOf(f)));
         chips.append(chip);
       }
-      return field(label, describe(chips), option.description);
+      // Two or more picked: their order is how they are drawn (stages, levels, series), so it can be set.
+      if (picked.length < 2) return field(label, describe(chips), option.description);
+      return field(label, describe(group(chips, orderList(label, picked, write))), `${option.description} ${t("orderHint")}`);
     }
     if (option.type === "boolean") {
       const on = value === undefined ? option.default === true : value === true;
-      return field(label, describe(toggle(label, on, (next) => commit({ view: { [name]: next === (option.default === true) ? null : next } }))), option.description);
+      return field(label, describe(toggle(label, on, (next) => commit({ view: put(next === (option.default === true) ? null : next) }))), option.description);
     }
     if (option.type === "enum" && option.values) {
       const current = typeof value === "string" ? value : String(option.default ?? option.values[0] ?? "");
-      return field(label, describe(segmented(label, option.values.map((v) => ({ value: v, label: v })), current, (v) => commit({ view: { [name]: v === String(option.default) ? null : v } }))), option.description);
+      return field(label, describe(segmented(label, option.values.map((v) => ({ value: v, label: v })), current, (v) => commit({ view: put(v === String(option.default) ? null : v) }))), option.description);
     }
     if (option.type === "number") {
       const input = el("input", "fft-ed-input fft-ed-short");
       input.type = "number";
       input.value = typeof value === "number" ? String(value) : "";
       input.placeholder = option.default !== undefined ? String(option.default) : "";
-      input.addEventListener("change", () => commit({ view: { [name]: input.value === "" ? null : Number(input.value) } }));
+      input.addEventListener("change", () => commit({ view: put(input.value === "" ? null : Number(input.value)) }));
       return field(label, describe(input), option.description);
     }
     if (option.type === "string") {
       const input = el("input", "fft-ed-input");
       input.type = "text";
       input.value = typeof value === "string" ? value : "";
-      input.addEventListener("change", () => commit({ view: { [name]: input.value || null } }));
+      input.addEventListener("change", () => commit({ view: put(input.value || null) }));
       return field(label, describe(input), option.description);
     }
     if (option.type === "function") return undefined;
@@ -1383,13 +1700,13 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
       const words: Record<string, string> = { false: "Grouped", true: "Stacked", percent: "Percent", stream: "Stream" };
       const values = ["false", "true", "percent", ...(/stream/.test(option.description) ? ["stream"] : [])];
       const current = value === true ? "true" : typeof value === "string" ? value : "false";
-      return field(label, describe(segmented(label, values.map((v) => ({ value: v, label: words[v] ?? v })), current, (v) => commit({ view: { [name]: v === "false" ? null : v === "true" ? true : v } }))), option.description);
+      return field(label, describe(segmented(label, values.map((v) => ({ value: v, label: words[v] ?? v })), current, (v) => commit({ view: put(v === "false" ? null : v === "true" ? true : v) }))), option.description);
     }
     // A list of words with a meaning per position (a dual's marks: top panel, bottom panel): one segmented control each.
     if (option.type === "array" && option.values && option.itemLabels?.length) {
       const fallback = Array.isArray(option.default) ? option.default.map(String) : [];
       const current = Array.isArray(value) ? value.map(String) : fallback;
-      const group = el("div", "fft-ed-positions");
+      const positions = el("div", "fft-ed-positions");
       option.itemLabels.forEach((itemLabel, i) => {
         const picked = current[i] ?? fallback[i] ?? option.values?.[0] ?? "";
         const row = el("div", "fft-ed-position");
@@ -1397,24 +1714,25 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
         row.append(
           segmented(`${label}: ${itemLabel}`, (option.values ?? []).map((v) => ({ value: v, label: v })), picked, (v) => {
             const next = option.itemLabels!.map((_, k) => (k === i ? v : current[k] ?? fallback[k] ?? v));
-            commit({ view: { [name]: JSON.stringify(next) === JSON.stringify(fallback) ? null : next } });
+            commit({ view: put(JSON.stringify(next) === JSON.stringify(fallback) ? null : next) });
           }),
         );
-        group.append(row);
+        positions.append(row);
       });
-      return field(label, describe(group), option.description);
+      return field(label, describe(positions), option.description);
     }
+    void current;
     // Lists and objects: a small JSON field, applied when it parses.
     const area = el("textarea", "fft-ed-json");
     area.rows = 2;
     area.value = value === undefined ? "" : JSON.stringify(value);
     area.spellcheck = false;
     area.addEventListener("change", () => {
-      if (area.value.trim() === "") return commit({ view: { [name]: null } });
+      if (area.value.trim() === "") return commit({ view: put(null) });
       try {
         const parsed: unknown = JSON.parse(area.value);
         area.removeAttribute("aria-invalid");
-        commit({ view: { [name]: parsed } });
+        commit({ view: put(parsed) });
       } catch {
         area.setAttribute("aria-invalid", "true");
       }
@@ -1436,6 +1754,42 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
     textField(t("title"), "title");
     textField(t("subtitle"), "subtitle");
     textField(t("footer"), "footer");
+    // The tooltip: a template filled from the mark's row, with the fields a click away.
+    {
+      const area = el("textarea", "fft-ed-json fft-ed-tooltip");
+      area.rows = 2;
+      const tip = loose().tooltip;
+      area.value = typeof tip === "string" ? tip : tip && typeof tip === "object" ? JSON.stringify(tip) : "";
+      area.placeholder = "{region}: {revenue}";
+      const apply = () => {
+        const text = area.value.trim();
+        if (!text) return commit({ tooltip: null });
+        if (text.startsWith("{") && text.endsWith("}") && /"(title|body)"/.test(text)) {
+          try {
+            return commit({ tooltip: JSON.parse(text) });
+          } catch {
+            /* falls through: a plain template that happens to start with a brace */
+          }
+        }
+        commit({ tooltip: area.value });
+      };
+      area.addEventListener("change", apply);
+      const inserts = el("div", "fft-ed-chips");
+      inserts.setAttribute("role", "group");
+      inserts.setAttribute("aria-label", `${t("tooltip")}: ${t("insertField")}`);
+      for (const f of shownFields().slice(0, 16)) {
+        inserts.append(
+          button(`{${f}}`, () => {
+            const at = area.selectionStart ?? area.value.length;
+            area.value = `${area.value.slice(0, at)}{${f}}${area.value.slice(area.selectionEnd ?? at)}`;
+            apply();
+          }, "fft-ed-chip fft-ed-insert"),
+        );
+      }
+      const box = el("div", "fft-ed-group");
+      box.append(area, inserts);
+      form.append(field(t("tooltip"), box, t("tooltipHint")));
+    }
     const source = (loose().source ?? {}) as { name?: string; url?: string };
     const sourceName = el("input", "fft-ed-input");
     sourceName.type = "text";
@@ -1806,4 +2160,24 @@ export const EDITOR_CSS = `
   .fft-ed-column-grid { grid-template-columns: minmax(0, 1fr); }
 }
 @media (prefers-reduced-motion: reduce) { .fft-editor * { transition: none !important; } }
+/* Ordered fields, grouped inputs, fixed colors and status rules. */
+.fft-ed-group { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 13px; }
+.fft-ed-group > .fft-ed-chips { flex-basis: 100%; }
+.fft-ed-order { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; flex-basis: 100%; }
+.fft-ed-order-item { display: flex; align-items: center; gap: 8px; padding: 3px 5px 3px 8px; border: 1px solid var(--fft-border); border-radius: 8px; background: var(--fft-ed-field); cursor: grab; }
+.fft-ed-order-item[data-dragging] { opacity: 0.5; }
+.fft-ed-order-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+.fft-ed-order-item .fft-ed-icon { min-height: 28px; padding: 2px 8px; }
+.fft-ed-geo-url { min-width: 220px; flex: 1; }
+.fft-ed-colors { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 5px 13px; }
+.fft-ed-color { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.fft-ed-color-input { inline-size: 28px; block-size: 28px; padding: 0; border: 1px solid var(--fft-border); border-radius: 8px; background: none; cursor: pointer; }
+.fft-ed-color-input[data-unset] { opacity: 0.45; }
+.fft-ed-color-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+.fft-ed-color-clear { min-height: 28px; padding: 2px 8px; }
+.fft-ed-rag { border: 1px solid var(--fft-border); border-radius: 13px; padding: 8px 13px; }
+.fft-ed-rag-title { cursor: pointer; font-weight: 600; font-size: 13px; padding: 5px 0; }
+.fft-ed-rag-rule { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 13px; padding: 8px 0; border-top: 1px solid var(--fft-border); }
+.fft-ed-rag-add { margin-top: 8px; }
+.fft-ed-insert { font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace; font-size: 12px; min-height: 28px; padding: 2px 8px; }
 `;

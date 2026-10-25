@@ -45,7 +45,7 @@
   "view": {
     "type": "dot",
     "label": "product",
-    "values": [
+    "value": [
       "ease",
       "value",
       "support"

@@ -32,16 +32,16 @@ A dot plot: one row per item and one dot per measure on one shared axis, with a 
 | Option | Holds | Required | What it does |
 | --- | --- | --- | --- |
 | `label` | category | yes | Field naming each row. |
-| `values` | number (one or more) | yes | Field or fields placed as dots on the axis. Each field is one series with its own color; one field writes its value beside the dot. |
+| `value` | number (one or more) | yes | Field or fields placed as dots on the axis. Each field is one series with its own color; one field writes its value beside the dot. Also accepts `values`, the older name. |
 
 ## This example's columns (4 columns, 6 rows)
 
 | Column | Holds | Drawn as | Values |
 | --- | --- | --- | --- |
 | `product` (Product) | category | `label` | 6 different, e.g. "Enterprise", "Plus", "Core" |
-| `ease` (Ease of use) | number | `values` | 6.5 to 8.9 |
-| `value` (Value for money) | number | `values` | 6.2 to 8.8 |
-| `support` (Support) | number | `values` | 6.4 to 9.1 |
+| `ease` (Ease of use) | number | `value` | 6.5 to 8.9 |
+| `value` (Value for money) | number | `value` | 6.2 to 8.8 |
+| `support` (Support) | number | `value` | 6.4 to 9.1 |
 
 ## The data drawing it now
 
@@ -130,7 +130,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "view": {
     "type": "dot",
     "label": "product",
-    "values": [
+    "value": [
       "ease",
       "value",
       "support"
@@ -148,6 +148,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
 | `radar` | fits | trade-off | Better for profiles across several attributes; weaker for comparing amounts across categories. | `{"type":"radar","label":"product","y":["ease","value"]}` |
 | `donut` | fits | different | Answers a different question: better for share of one whole, but gives up comparing amounts across categories. | `{"type":"donut","label":"product","value":"ease"}` |
 | `list` | fits | different | Answers a different question: better for exact values and lookup, but gives up comparing amounts across categories. | `{"type":"list","label":"product"}` |
+| `pie` | fits | different | Answers a different question: better for share of one whole, but gives up comparing amounts across categories. | `{"type":"pie","label":"product","value":"ease"}` |
 | `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up comparing amounts across categories. | `{"type":"table"}` |
 | `icicle` | fits | worse | Gives up comparing amounts across categories, and this data gives it nothing better to do. | `{"type":"icicle","levels":"product","value":"ease"}` |
 | `kpi` | fits | worse | Gives up comparing amounts across categories, and this data gives it nothing better to do. | `{"type":"kpi","value":"ease"}` |
@@ -167,4 +168,4 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
 | `ridgeline` | stretch: 6 rows: this chart says little with fewer than 20. | worse | Weaker for comparing amounts across categories, with nothing gained for this data. | `{"type":"ridgeline","value":"ease","group":"product"}` |
 | `waffle` | stretch: 6 rows: this chart crowds past about 5. | worse | Gives up comparing amounts across categories, and this data gives it nothing better to do. | `{"type":"waffle","label":"product","value":"ease"}` |
 
-Not possible with this data: `bullet` (It needs a target, plan or budget column.); `bump` (needs a separate column for series (it would reuse "product", already the x)); `calendar` (needs a date column for date); `candlestick` (needs a separate column for close (it would reuse "ease", already the open)); `chord` (needs a separate column for target (it would reuse "product", already the source)); `choropleth` (needs a column of country or state codes that sit on a basemap); `dual` (It needs two measures over the same periods, in two columns.); `dumbbell` (It needs the same measure at two points in time, in two columns.); `funnel` (It needs ordered stages that narrow, such as visits to sign-ups to sales.); `heatmap` (needs a separate column for y (it would reuse "product", already the x)); `lifecycle` (view: stages needs at least two date fields in order, such as ["proposed", "adopted"].); `likert` (It needs answer counts on one ordered scale, such as disagree to agree.); `locator` (needs named places with region codes on a basemap, or coordinates); `marimekko` (needs a separate column for series (it would reuse "product", already the x)); `matrix` (needs a separate column for y (it would reuse "product", already the x)); `meter` (It needs a target, plan or budget column.); `pyramid` (It needs two counts per ordered band, such as women and men per age group.); `rings` (It needs a target, plan or budget column.); `sankey` (needs a separate column for target (it would reuse "product", already the source)); `slope` (It needs the same measure at two points in time, in two columns.); `strips` (It needs whole counts per row, in one or more part columns.); `symbols` (needs a column of country or state codes that sit on a basemap, or coordinates); `timeline` (needs a date column for start); `variance` (It needs a target, plan or budget column.); `waterfall` (It needs changes that add up from one total to another.).
+Not possible with this data: `anomalies` (needs a separate column for metric (it would reuse "product", already the x)); `board` (needs a separate column for stage (it would reuse "product", already the label)); `bullet` (It needs a target, plan or budget column.); `bump` (needs a separate column for series (it would reuse "product", already the x)); `calendar` (needs a date column for date); `candlestick` (needs a separate column for close (it would reuse "ease", already the open)); `chord` (needs a separate column for target (it would reuse "product", already the source)); `choropleth` (needs a column of country or state codes that sit on a basemap); `dual` (It needs two measures over the same periods, in two columns.); `dumbbell` (It needs the same measure at two points in time, in two columns.); `funnel` (It needs ordered stages that narrow, such as visits to sign-ups to sales.); `heatmap` (needs a separate column for y (it would reuse "product", already the x)); `history` (needs a separate column for title (it would reuse "product", already the date)); `lifecycle` (view: stages needs at least two date fields in order, such as ["proposed", "adopted"].); `likert` (It needs answer counts on one ordered scale, such as disagree to agree.); `locator` (needs named places with region codes on a basemap, or coordinates); `marimekko` (needs a separate column for series (it would reuse "product", already the x)); `matrix` (needs a separate column for y (it would reuse "product", already the x)); `meter` (It needs a target, plan or budget column.); `pyramid` (It needs two counts per ordered band, such as women and men per age group.); `ragboard` (It needs status columns holding R, A, G (or red, amber, green), one row per client or deal; the rag transform makes them from numbers.); `ragtrend` (needs a separate column for period (it would reuse "product", already the label)); `rings` (It needs a target, plan or budget column.); `sankey` (needs a separate column for target (it would reuse "product", already the source)); `slope` (It needs the same measure at two points in time, in two columns.); `strips` (It needs whole counts per row, in one or more part columns.); `symbols` (needs a column of country or state codes that sit on a basemap, or coordinates); `timeline` (needs a date column for start); `variance` (It needs a target, plan or budget column.); `waterfall` (It needs changes that add up from one total to another.); `whitespace` (needs a separate column for column (it would reuse "product", already the row)); `xray` (It needs one row: one client with its facts, holdings and share of wallet.).

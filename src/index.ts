@@ -29,6 +29,9 @@ export { arcPath, areaPath, bands, barPath, goldenHeight, layoutBars, layoutStac
 export type { Band, BarOptions, BarRect, LinearScale } from "./dom/layout.ts";
 export { renderKpis, renderRidgeline } from "./dom/views/index.ts";
 export { renderArea, renderBar, renderBeeswarm, renderBoxplot, renderBullet, renderBump, renderCalendar, renderCandlestick, renderChord, renderDonut, renderDumbbell, renderSankey, renderFunnel, renderGauge, renderTreemap, renderHbar, renderHeatmap, renderHistogram, renderHorizon, renderIcicle, renderKpi, renderLikert, renderLine, renderList, renderMarimekko, renderMeter, renderPareto, renderRadar, renderRings, renderRose, renderScatter, renderSlope, renderSunburst, renderTable, renderTimeline, renderVariance, renderWaffle, renderWaterfall } from "./dom/views/index.ts";
-export { buildTable, html, selectable, svg } from "./dom/views/shared.ts";
+export { activeGroup, buildTable, hiddenTableOf, html, legendList, rowHit, selectable, shareFormat, svg } from "./dom/views/shared.ts";
+export type { ActiveGroup, LegendEntry, RowHitOptions, SwatchShape } from "./dom/views/shared.ts";
+export { CHAR_WIDTH, DIM, endRoom, GAP, LABEL_COLUMN, labelColumn, ROW, rowHeight, textWidth } from "./dom/layout.ts";
+export { alsoAccepts, canonicalSpec, canonicalView, readable, shownName } from "./core/canonical.ts";
 export { WIDGET_REF, widgetRef } from "./core/ref.ts";
 export { explainChart } from "./core/explain.ts";

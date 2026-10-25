@@ -111,6 +111,15 @@ Spreads one field's values into columns: one row per row key, one column per dis
 | `op` | `sum`, `avg`, `min`, `max`, `count`, `list` |  | `"sum"` | How several rows landing in one cell are combined. |
 | `fill` | any |  |  | Value for cells with no data. Left out, empty cells are left out of the row. |
 
+### `rag`
+
+Turns numbers into RAG statuses (R, A, G, or N for no data) against thresholds: one status column per rule, named <field>Rag unless as says otherwise, and optionally an overall column holding the worst of them. With goodWhen up (the default) a value at or past green is G, at or past amber is A, and lower is R; with goodWhen down, less is better.
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `rules` | array | yes |  | One rule per measure: { "field": "nps", "green": 40, "amber": 20 } or, when less is better, { "field": "daysSinceContact", "green": 30, "amber": 60, "goodWhen": "down", "as": "contact" }. |
+| `overall` | string |  |  | Name of a column holding the worst status of all the rules: the row's overall RAG. |
+
 ### `sort`
 
 Orders rows by one field. Missing values always go last.
@@ -196,6 +205,16 @@ A ratio shown as a percentage: 0.25 becomes 25%.
 | --- | --- | --- | --- | --- |
 | `decimals` | number |  | `0` | Decimal places in the percentage. |
 
+### `rag`
+
+A RAG status (R, A, G, or N for no data; red, amber, green and grey also read) as a pill with its shape, its words and its color: On track with a filled circle, At risk with a triangle, Off track with a square, No data with a hollow circle. compact keeps only the shape, with the words in its label. Plain words elsewhere.
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `compact` | boolean |  | `false` | Only the shape, for dense tables; the words stay in its label and tooltip. |
+| `words` | object |  |  | Words per status, keyed R, A, G, N. Example: { "G": "Healthy", "A": "Watch", "R": "Escalate" }. |
+| `shapes` | object |  |  | Shape per status, keyed R, A, G, N: circle, triangle, square, ring or diamond. |
+
 ### `spark`
 
 A tiny trend drawn in a table or list cell from a list of numbers, latest point marked. Plain text elsewhere: first → last.
@@ -214,6 +233,20 @@ No options.
 
 Slot: `view: { type, ...options }`.
 
+### `anomalies`
+
+An anomaly tracker: one thin lane per metric over time, the band it was expected to stay in as a faint fill, the expected value as a hairline, the actual as a line, and every day it stepped outside the band as a flagged dot. The lanes with the most anomalies come first, each ending with its latest value and a count. For watching a dozen measures at once and seeing which ones need a look.
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `x` | field name (date) | yes |  | Field with the date or period of each reading. |
+| `metric` | field name (category) | yes |  | Field naming the measure each row belongs to; each measure is one lane. |
+| `value` | field name (number) | yes |  | Field with the reading. |
+| `expected` | field name (number) |  |  | Field with the value expected that day, drawn as a hairline through the band. |
+| `low` | field name (number) |  |  | Field with the bottom of the expected band. Needs high too. |
+| `high` | field name (number) |  |  | Field with the top of the expected band. Needs low too. |
+| `flag` | field name (category) |  |  | Field that is true on anomalous readings (true, 1, "yes"). Flagged readings draw as filled dots in the alert color. Without it, readings outside the band are flagged. |
+
 ### `area`
 
 A line with a soft filled area down to zero, for a trend where the amount itself matters. Best with one or two series, or stacked: composition over time, each series a band on top of the ones before. As a stream, the bands flow around a center line, for how a mix shifts over time.
@@ -229,6 +262,7 @@ A line with a soft filled area down to zero, for a trend where the amount itself
 | `forecast` | field name (category) |  |  | Field that is true on forecast rows. From the last actual on, lines draw dashed in a softly shaded zone labelled Forecast, and the tooltip marks those rows. On an area the forecast's wash is fainter too. Unstacked areas only. |
 | `band` | any |  |  | A shaded range behind the first line, for a forecast fan or any low to high spread: { "low": "p10", "high": "p90", "label": "80% range" }. Give the last actual row low and high equal to its value, so the fan opens from it. The ends are labelled and the tooltip gives the range. |
 | `curve` | `linear`, `smooth`, `step` |  | `"linear"` | "smooth" curves through every point without ever swinging past one (a monotone curve), for a soft, calm trend; "step" holds each value until halfway to the next, for amounts that change in jumps such as prices or headcount. Stacked and stream areas keep their own shapes. |
+| `annotations` | array |  |  | Short notes pinned to points of the chart, each { "x": <category or period>, "y"?: <value>, "text": "…" }. Without y the note sits on the value there. Each note is a few words beside a small dot, with a thin leader to it; on a narrow card the notes become numbered markers with the texts listed under the chart. Example: [{ "x": "2026-03", "text": "Price rise" }]. |
 
 ### `bar`
 
@@ -244,6 +278,8 @@ Vertical bars comparing amounts across categories. Several y fields draw grouped
 | `reference` | array |  |  | Target lines and bands across the value axis. Each item is { value, label }, { field, agg, label } (agg: last, first, sum, avg, min, max; default avg), or { from, to, label } for a band. Example: [{ "value": 1200000, "label": "Target" }]. |
 | `mark` | `bar`, `lollipop` |  | `"bar"` | "lollipop" draws a thin stem from the baseline and a dot at the value in place of each bar: the same reading with far less ink, for rankings of many similar values. |
 | `goodWhen` | `up`, `down` |  | `"up"` | Which side of a target is good news: "up" for revenue, "down" for wait times and costs. Under one target (a lines field or a reference line labeled target, plan, goal, budget or quota), a bar on the wrong side is drawn outlined and keyed Below or Over the target. |
+| `compare` | field name (number) |  |  | Field drawn as a wider, quieter column behind each bar, on the same axis, for a comparison such as last year or the plan. The key names it by its label and the tooltip gives its value. One y series, unstacked. |
+| `annotations` | array |  |  | Short notes pinned to points of the chart, each { "x": <category or period>, "y"?: <value>, "text": "…" }. Without y the note sits on the value there. Each note is a few words beside a small dot, with a thin leader to it; on a narrow card the notes become numbered markers with the texts listed under the chart. Example: [{ "x": "2026-03", "text": "Price rise" }]. |
 
 ### `beeswarm`
 
@@ -255,6 +291,20 @@ A distribution: one dot per row along a value axis, nudged apart so none overlap
 | `group` | field name (category) |  |  | Field giving each group its own labelled row. |
 | `label` | field name (category) |  |  | Field naming each dot in its tooltip. |
 
+### `board`
+
+A status board: one column per stage with its count in the header, and the items in it as quiet cards, so where everything stands reads at a glance. For things moving through a lifecycle: regulations by status, deals by stage, tickets by state. A group field colors a dot on each card with a key; a value field writes a number on each card; past the limit a column folds the rest into one line that opens on a click.
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `label` | field name (category) | yes |  | Field naming each card. |
+| `stage` | field name (category) | yes |  | Field with each item's stage: one column per distinct value, in the order of stages or of first appearance. |
+| `stages` | array |  |  | The columns in order, such as ["Proposal", "Adopted", "In force"]. A listed stage with no item still shows, empty; an item whose stage is not listed goes to a last column named Other. |
+| `group` | field name (category) |  |  | Field that colors a dot on each card by group, with a key. Up to 8 groups stay distinct. |
+| `value` | field name (number) |  |  | Field written on each card, such as impact or amount, in the field's format. |
+| `detail` | field name (category) |  |  | Field for a smaller line under the card's name, such as the issuer or the owner. |
+| `limit` | number |  | `8` | How many cards a column shows before folding the rest into a + n more line. The line opens the rest in place. |
+
 ### `boxplot`
 
 A box plot per group on one shared axis: a box over the middle half of the values (first to third quartile), a line at the median, whiskers to the furthest values within 1.5 box-widths, and dots for outliers beyond. For comparing spreads compactly, such as deal size by region.
@@ -263,6 +313,7 @@ A box plot per group on one shared axis: a box over the middle half of the value
 | --- | --- | --- | --- | --- |
 | `value` | field name (number) | yes |  | Numeric field whose spread is drawn. |
 | `group` | field name (category) |  |  | Field giving each group its own box. Without it, all rows make one box. |
+| `reference` | array |  |  | Target lines and bands across the value axis. Each item is { value, label }, { field, agg, label } (agg: last, first, sum, avg, min, max; default avg), or { from, to, label } for a band. Example: [{ "value": 1200000, "label": "Target" }]. |
 
 ### `bullet`
 
@@ -274,6 +325,7 @@ Actual against target, one compact row per item: a value bar and a target tick o
 | `value` | field name (number) | yes |  | Field with the actual amount. |
 | `target` | field name (number) | yes |  | Field with the target amount. |
 | `ranges` | array |  | `[0.6,0.9,1.2]` | Where the three bands end, as multiples of the target: poor up to the first, fair up to the second, good up to the third. |
+| `goodWhen` | `up`, `down` |  | `"up"` | Whether more is better ("up", as for revenue) or less is better ("down", as for wait times and costs). It decides which side of the target reads as met. |
 
 ### `bump`
 
@@ -318,6 +370,22 @@ Flows between groups around a circle: each group an arc as long as everything it
 | `target` | field name (category) | yes |  | Field naming where each flow goes. |
 | `value` | field name (number) | yes |  | Field with each flow's size. |
 
+### `choropleth`
+
+A map with each region shaded by its value, from the weakest tint to the strongest, with a scale under it: revenue by country, share by state. Regions with no row stay grey and are keyed No data. Built-in tile grids (europe, us-states) give every region the same size, so small countries read as well as big ones; your own GeoJSON draws true shapes.
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `geo` | any | yes |  | The map's geometry: a built-in basemap by name (europe, us-states: tile grids keyed by country or state code), an inline GeoJSON FeatureCollection whose features carry an id, or the address of a GeoJSON file to fetch. |
+| `id` | field name (category) | yes |  | Field with each row's region code: a country or state code on a built-in basemap (FR, TX), or the feature id in your GeoJSON. |
+| `value` | field name (number) |  |  | Field that shades each region on the sequential scale. Rows with no number stay grey. Give value or category, not both. |
+| `category` | field name (category) |  |  | Field that colors each region by its category instead, one series color per value with a key: a transposition status, a supervisor, a regime. Up to 8 categories stay distinct. |
+| `key` | string |  | `"id"` | The feature property that holds each region's id in your own GeoJSON (feature.id is read too). Built-in basemaps use their codes. |
+| `labels` | boolean |  | `true` | Write each region's code inside it, where it fits. Also takes the words other views use: "codes" (the same as true) or "none". |
+| `min` | number |  |  | Value of the weakest tint. Defaults to the lowest value. |
+| `max` | number |  |  | Value of the strongest tint. Defaults to the highest value. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+
 ### `donut`
 
 Part-to-whole at a glance: a ring of up to 6 slices with the total in the middle and a legend of values and shares. Compare close values with a bar chart instead.
@@ -326,17 +394,47 @@ Part-to-whole at a glance: a ring of up to 6 slices with the total in the middle
 | --- | --- | --- | --- | --- |
 | `label` | field name (category) | yes |  | Field naming each slice. |
 | `value` | field name (number) | yes |  | Field with each slice's amount. Zero, negative and missing values are left out. |
-| `caption` | string |  |  | Text under the total in the middle. Defaults to the value field's label. |
+| `caption` | string |  |  | Text under the total in the middle. Defaults to the value field's label, or to "seats" when the value field is seats. |
+| `arc` | `full`, `half` |  | `"full"` | "half" draws a semicircle open at the bottom with the slices from left to right in the order given: an election donut, seats by party in the order they sit. |
+| `majority` | boolean |  | `false` | On a half ring, a thin tick at the halfway point labelled Majority and the seats it takes (more than half of the total); the slice that crosses it says so in its tooltip. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+
+### `dot`
+
+A dot plot: one row per item and one dot per measure on one shared axis, with a hairline across each row. Several measures sit side by side in their series colors, so a row's spread and the ranking on any measure both read at once. For scores, rates or prices by item, with far less ink than bars.
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `label` | field name (category) | yes |  | Field naming each row. |
+| `value` | field name or list (number) | yes |  | Field or fields placed as dots on the axis. Each field is one series with its own color; one field writes its value beside the dot. Also accepts `values`, the older name. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `reference` | array |  |  | Target lines and bands across the value axis. Each item is { value, label }, { field, agg, label } (agg: last, first, sum, avg, min, max; default avg), or { from, to, label } for a band. Example: [{ "value": 1200000, "label": "Target" }]. |
+
+### `dual`
+
+Two measures with different units, such as revenue and churn, one above the other on two panels that share one time axis, each on its own scale. The honest form of a dual-axis chart: a second axis invites false crossings, where two lines meet only because of how the axes were drawn; two panels let the reader compare the shapes and read each value against its own axis. Pointing at a period lights it up on both panels.
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `x` | field name (date) | yes |  | Field for the shared axis, usually a date or period. |
+| `y` | field name (number) | yes |  | Measure on the top panel. |
+| `y2` | field name (number) | yes |  | Measure on the bottom panel, in its own unit. |
+| `marks` | array |  | `["bar","line"]` | How each panel draws its measure, top then bottom: "bar" for amounts (from zero) or "line" for rates and levels. Example: ["bar", "line"]. |
+| `curve` | `linear`, `smooth`, `step` |  | `"linear"` | "smooth" curves through every point without ever swinging past one (a monotone curve), for a soft, calm trend; "step" holds each value until halfway to the next, for amounts that change in jumps such as prices or headcount. Stacked and stream areas keep their own shapes. |
+| `annotations` | array |  |  | Short notes pinned to points of the chart, each { "x": <category or period>, "y"?: <value>, "text": "…" }. Without y the note sits on the value there. Each note is a few words beside a small dot, with a thin leader to it; on a narrow card the notes become numbered markers with the texts listed under the chart. Example: [{ "x": "2026-03", "text": "Price rise" }]. |
 
 ### `dumbbell`
 
-Before and after per item on one shared axis: a muted dot for before, an accent dot for after, joined by a line. For this year against last year, by region.
+Before and after per item on one shared axis: a muted dot for before, an accent dot for after, joined by a line (a range plot). With mark "arrow" the line becomes an arrow from the first value to the second (an arrow plot), blue when it rose and red when it fell. For this year against last year, by region.
 
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
 | `label` | field name (category) | yes |  | Field naming each row. |
 | `from` | field name (number) | yes |  | Field with the before value. |
 | `to` | field name (number) | yes |  | Field with the after value. |
+| `mark` | `range`, `arrow` |  | `"range"` | "range" joins the two dots with a plain line, the gap between them. "arrow" points from the from value to the to value, so direction reads at a glance; between two periods a rise takes the up color and a fall the down color, keyed Rose and Fell. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `reference` | array |  |  | Target lines and bands across the value axis. Each item is { value, label }, { field, agg, label } (agg: last, first, sum, avg, min, max; default avg), or { from, to, label } for a band. Example: [{ "value": 1200000, "label": "Target" }]. |
 
 ### `funnel`
 
@@ -346,6 +444,7 @@ Stages in order as centered bars narrowing from the first, with the conversion r
 | --- | --- | --- | --- | --- |
 | `label` | field name (category) | yes |  | Field naming each stage. |
 | `value` | field name (number) | yes |  | Field with how many reached each stage. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
 
 ### `gauge`
 
@@ -358,17 +457,22 @@ One headline number on a half-circle scale: an arc filled from min to the value,
 | `min` | number |  | `0` | Start of the scale. |
 | `max` | number |  |  | End of the scale. Defaults to a round number above the value and the target. |
 | `label` | string |  |  | Caption under the number. Defaults to the value field's label. |
+| `goodWhen` | `up`, `down` |  | `"up"` | Whether more is better ("up", as for revenue) or less is better ("down", as for wait times and costs). It decides which side of the target reads as met. |
 
 ### `hbar`
 
-Horizontal bars for rankings and long labels: label on the left, bar, value at the end. Sort the rows first for a ranking.
+Horizontal bars for rankings and long labels: label on the left, bar, value at the end. Sort the rows first for a ranking. Several value fields draw grouped bars, one thin bar per field in each row; stacked joins them into one bar per row, and split gives each field its own column of bars.
 
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
 | `label` | field name (category) | yes |  | Field naming each bar. |
-| `value` | field name (number) | yes |  | Field with each bar's amount. Bars start at zero. |
+| `value` | field name or list (number) | yes |  | Field or fields with each bar's amount. Bars start at zero. Several fields draw one bar per field in each row (grouped), stacked into one bar with stacked, or in separate columns with split. |
+| `stacked` | any |  | `false` | With several value fields: true stacks them into one bar per row, its total at the end (part-to-whole); "percent" stacks them as shares of 100%. |
+| `split` | boolean |  | `false` | With several value fields: one small column of bars per field, side by side, the label written once on the left and each column headed by its field. Each column has its own scale, so measures in different units sit together. |
+| `shared` | boolean |  | `false` | Split columns share one scale, so a bar compares across columns too. Only for fields in the same unit. |
 | `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
 | `mark` | `bar`, `lollipop` |  | `"bar"` | "lollipop" draws a thin stem from the baseline and a dot at the value in place of each bar: the same reading with far less ink, for rankings of many similar values. |
+| `reference` | array |  |  | Target lines and bands across the value axis. Each item is { value, label }, { field, agg, label } (agg: last, first, sum, avg, min, max; default avg), or { from, to, label } for a band. Example: [{ "value": 1200000, "label": "Target" }]. |
 
 ### `heatmap`
 
@@ -390,6 +494,22 @@ A distribution as touching bars: the value's range is cut into bins on round edg
 | `bins` | number |  |  | About how many bins to use; edges snap to round numbers, so the exact count can differ. Defaults to Sturges' rule (1 + log2 of the row count). |
 | `median` | boolean |  | `true` | Draw a dashed line at the median. |
 | `countLabel` | string |  | `"Count"` | Name for the counts in the tooltip, for example "Deals". |
+| `reference` | array |  |  | Target lines and bands across the value axis. Each item is { value, label }, { field, agg, label } (agg: last, first, sum, avg, min, max; default avg), or { from, to, label } for a band. Example: [{ "value": 1200000, "label": "Target" }]. |
+
+### `history`
+
+A client's story as a vertical timeline: one event per row with its date, title, an optional second line and an amount, newest first, a dot per event colored by kind with a key, and the month written wherever it changes. With a group field, one list per client under its own heading. For meetings, calls, trades, campaigns and complaints in one scroll.
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `date` | field name (date) | yes |  | Field with when the event happened. |
+| `title` | field name (category) | yes |  | Field with the event in a few words. |
+| `kind` | field name (category) |  |  | Field with the kind of event (Meeting, Call, Trade); each kind takes a color and a letter, keyed. |
+| `note` | field name (category) |  |  | Field with a second, smaller line under the title. |
+| `amount` | field name (number) |  |  | Field with an amount to write at the right of the event, where there is one. |
+| `group` | field name (category) |  |  | Field that splits the events into one list per value (one per client), each under its own heading. |
+| `limit` | number |  | `30` | Events shown per list before a line says how many more there are. |
+| `order` | `desc`, `asc` |  | `"desc"` | "desc" puts the newest event first (the default), "asc" tells the story from the start. |
 
 ### `horizon`
 
@@ -427,6 +547,7 @@ One headline number with its change against a comparison. Reads the first row, o
 | `x` | field name (date) |  |  | With series, the field naming each period, used to label the comparison ("vs Aug 2026"). |
 | `icon` | `activity`, `alert`, `bolt`, `cart`, `check`, `clock`, `droplet`, `heart`, `mail`, `pin`, `revenue`, `target`, `trend`, `users` |  |  | A line icon on a soft tile beside the number. |
 | `target` | field name (number) |  |  | Field holding the target. A line under the number says where the latest stands: a check and Target met, or how far it has to go (with goodWhen down, how far above the target it is). |
+| `rag` | object |  |  | Thresholds that give the number a Red, Amber or Green status, shown as a small pill with its shape and words (On track, At risk, Off track) beside it: { "green": 40, "amber": 20 }, or { "green": 2, "amber": 5, "goodWhen": "down" } when less is better. |
 
 ### `kpis`
 
@@ -434,8 +555,22 @@ A row of stat tiles in one widget, each with a label, value and change: the calm
 
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `items` | array | yes |  | Tiles, each { value, label?, compare?, compareLabel?, goodWhen?, target? }. compare is a field or "previous" (the row before); target is a field, and the tile then says where it stands (Target met, or how far to go). Example: [{ "value": "revenue", "compare": "previous", "target": "target" }]. |
+| `items` | array | yes |  | Tiles, each { value, label?, compare?, compareLabel?, goodWhen?, target?, rag? }. compare is a field or "previous" (the row before); target is a field, and the tile then says where it stands (Target met, or how far to go); rag is { green, amber, goodWhen? } and adds a Red, Amber or Green status pill. Example: [{ "value": "revenue", "compare": "previous", "target": "target" }]. |
 | `series` | boolean |  | `false` | Read the rows as a time series: values from the last row, compared with the row before, plus a sparkline per tile. |
+
+### `lifecycle`
+
+Stage swimlanes: one row per item on a shared date axis, each stage drawn from its date to the next in a deepening tint of one hue, a tick at every stage date, and the last reached stage running on faintly while its next date is unknown. A today line, a status pill at the row's end, and an impact that sets the row's thickness. For where each regulation stands, from proposal to application.
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `label` | field name (category) | yes |  | Field naming each row. |
+| `stages` | field name or list (date) | yes |  | Date fields in lifecycle order, such as proposed, adopted, inForce, applies. A later date may be missing: the row then runs on from its last known stage. |
+| `group` | field name (category) |  |  | Field that gathers rows under a heading, such as topic. |
+| `today` | any |  |  | true for a line at today's date, or a YYYY-MM-DD date for the line. Shown when it falls inside the span. |
+| `status` | field name (category) |  |  | Field written as a small pill at the row's end, such as In force or Consultation. |
+| `impact` | field name (number) |  |  | Field from 1 to 5 that sets each row's thickness: the higher the impact, the thicker the row. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
 
 ### `likert`
 
@@ -444,7 +579,7 @@ Survey answers as diverging stacked bars: one bar per question, its responses in
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
 | `label` | field name (category) | yes |  | Field with each question. |
-| `responses` | field name or list (number) | yes |  | Count fields for the responses, in order from the negative pole to the positive, for example ["strongly_disagree", "disagree", "neutral", "agree", "strongly_agree"]. An odd count puts the middle one at the center. |
+| `value` | field name or list (number) | yes |  | Count fields for the responses, in order from the negative pole to the positive, for example ["strongly_disagree", "disagree", "neutral", "agree", "strongly_agree"]. An odd count puts the middle one at the center. Also accepts `responses`, the older name. |
 
 ### `line`
 
@@ -460,6 +595,10 @@ Lines showing change over an ordered axis, usually time. Several y fields draw s
 | `forecast` | field name (category) |  |  | Field that is true on forecast rows. From the last actual on, lines draw dashed in a softly shaded zone labelled Forecast, and the tooltip marks those rows. |
 | `band` | any |  |  | A shaded range behind the first line, for a forecast fan or any low to high spread: { "low": "p10", "high": "p90", "label": "80% range" }. Give the last actual row low and high equal to its value, so the fan opens from it. The ends are labelled and the tooltip gives the range. |
 | `curve` | `linear`, `smooth`, `step` |  | `"linear"` | "smooth" curves through every point without ever swinging past one (a monotone curve), for a soft, calm trend; "step" holds each value until halfway to the next, for amounts that change in jumps such as prices or headcount. Stacked and stream areas keep their own shapes. |
+| `points` | boolean |  | `false` | A small symbol at every data point, in the line's color, so each reading is a mark of its own. Left out where points would sit closer than 8px. |
+| `labels` | `none`, `peaks` |  | `"none"` | "peaks" marks the first series' highest and lowest points with a dot and writes their values beside them, clear of the end label. |
+| `scale` | `linear`, `log` |  | `"linear"` | "log" draws the value axis logarithmically, ticks at powers of ten (with 2 and 5 steps when it spans little), so steady growth reads as a straight line and small and large series share one chart. Positive values only: others are left out. |
+| `annotations` | array |  |  | Short notes pinned to points of the chart, each { "x": <category or period>, "y"?: <value>, "text": "…" }. Without y the note sits on the value there. Each note is a few words beside a small dot, with a thin leader to it; on a narrow card the notes become numbered markers with the texts listed under the chart. Example: [{ "x": "2026-03", "text": "Price rise" }]. |
 
 ### `list`
 
@@ -471,6 +610,21 @@ A stacked list: one line per row with a label, optional detail underneath, and a
 | `detail` | field name (category) |  |  | Field for the smaller line under the label. |
 | `value` | field name (number) |  |  | Field for the number on the right. |
 
+### `locator`
+
+A small, clean map that says where things are: a marker and an always-on name for each place, such as offices, stores or sites, with a second line of detail if there is one. Places sit on a region of a basemap (by code) or at coordinates on your own GeoJSON; a kind field colors the markers with a key.
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `geo` | any |  |  | The map's geometry: a built-in basemap by name (europe, us-states: tile grids keyed by country or state code), an inline GeoJSON FeatureCollection whose features carry an id, or the address of a GeoJSON file to fetch. |
+| `id` | field name (category) |  |  | Field with the region code that places each marker: a country or state code on a built-in basemap, or the feature id in your GeoJSON. Use lat and lon instead for coordinates. |
+| `lat` | field name (number) |  |  | Field with each row's latitude, for placing by coordinates on your own GeoJSON (not on a built-in grid). |
+| `lon` | field name (number) |  |  | Field with each row's longitude, paired with lat. |
+| `label` | field name (category) | yes |  | Field with each place's name, written beside its marker. |
+| `note` | field name (category) |  |  | Field with a second, smaller line under the name, such as a city or a headcount. |
+| `color` | field name (category) |  |  | Field that colors the markers by kind, with a key. Also accepts `kind`, the older name. |
+| `key` | string |  | `"id"` | The feature property that holds each region's id in your own GeoJSON (feature.id is read too). Built-in basemaps use their codes. |
+
 ### `marimekko`
 
 A mosaic: one column per category, as wide as its total, split into segments by each series' share of that column. Shows market size and mix at once, for example revenue by region and product. Takes long data: one row per column and series.
@@ -481,6 +635,20 @@ A mosaic: one column per category, as wide as its total, split into segments by 
 | `series` | field name (category) | yes |  | Field naming the segments inside each column, such as a product. |
 | `value` | field name (number) | yes |  | Numeric field sizing the segments; a column's width is the sum of its values. |
 
+### `matrix`
+
+A mark matrix (a punchcard): one mark per pair of x and y, sized by a value, shaded by another, or a square where a flag is yes. Rows are the y values, columns the x values; a pair with no row is an empty cell. For regulatory pressure per topic per quarter (size and shade), or who must comply with which rule (a square per yes).
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `x` | field name (category) | yes |  | Field for the columns: quarters, stakeholders, stages. |
+| `y` | field name (category) | yes |  | Field for the rows: topics, regulations, teams. |
+| `size` | field name (number) |  |  | Field that sizes each circle, by area, against the largest value. |
+| `color` | field name (category) |  |  | Field that shades each mark: a number takes the seven-step scale from lowest to highest (with a scale under the grid), a category takes one color per value (with a key). |
+| `flag` | field name (category) |  |  | A yes/no field (true, 1, "yes", "x"): a filled square where it is yes, a faint dot where it is no. For who must comply. Also accepts `mark`, the older name. |
+| `label` | field name (category) |  |  | Field (text or a number) written inside marks big enough to hold it; always in the tooltip. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+
 ### `meter`
 
 Progress against a target, one meter per row: attainment as a percentage, a bar that fills to the target, and where it stands in plain words: a check and Target met, or how far it has to go (€22K to go).
@@ -490,6 +658,7 @@ Progress against a target, one meter per row: attainment as a percentage, a bar 
 | `value` | field name (number) | yes |  | Field holding the current amount. |
 | `target` | field name (number) | yes |  | Field holding the target amount. |
 | `label` | field name (category) |  |  | Field naming each meter, for example a region. Defaults to the value field's label. |
+| `goodWhen` | `up`, `down` |  | `"up"` | Whether more is better ("up", as for revenue) or less is better ("down", as for wait times and costs). It decides which side of the target reads as met. |
 
 ### `pareto`
 
@@ -501,6 +670,28 @@ The 80/20 view: categories sorted largest first as bars of their share of the to
 | `value` | field name (number) | yes |  | Field with each category's count or amount. Zero and negative values are left out. |
 | `threshold` | number |  | `0.8` | Running-total share that marks the vital few, from 0 to 1. |
 
+### `pie`
+
+Part-to-whole as a full disc: up to 6 slices from twelve o'clock clockwise, each wide in proportion to its share, with the shares written on the slices and a legend of values. Use a donut when the total matters too, and a bar chart to compare close shares.
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `label` | field name (category) | yes |  | Field naming each slice. |
+| `value` | field name (number) | yes |  | Field with each slice's amount. Zero, negative and missing values are left out. |
+| `labels` | `inside`, `outside`, `legend` |  | `"inside"` | "inside" writes each share on its slice (thin slices skip theirs) with a legend of names and values; "outside" writes names and shares beside the disc on short leader lines, with no legend; "legend" leaves the disc bare. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+
+### `pyramid`
+
+A population pyramid: one row per band (an age group, a tenure band), with two counts as bars growing out from a center axis on one shared scale, the left count leftward and the right count rightward. The shape says where the two sides differ. Rows draw in the order given, top to bottom.
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `label` | field name (category) | yes |  | Field naming each band, in order from top to bottom, such as the age group. |
+| `left` | field name (number) | yes |  | Field with the count drawn leftward, such as women. |
+| `right` | field name (number) | yes |  | Field with the count drawn rightward, such as men. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+
 ### `radar`
 
 Profiles across several attributes: one spoke per row, rings for one shared scale from zero, and a soft shape per series. For comparing up to 3 profiles, such as a product against the market on speed, price and support.
@@ -510,6 +701,35 @@ Profiles across several attributes: one spoke per row, rings for one shared scal
 | `label` | field name (category) | yes |  | Field naming each spoke, such as an attribute. |
 | `y` | field name or list (number) | yes |  | Field or fields with the scores; each field is one shape. Up to 3 stay readable. |
 | `max` | number |  |  | End of the scale. Defaults to a round number at or above the highest score. |
+
+### `ragboard`
+
+A RAG scorecard: one row per entity (a client, a relationship manager, a deal) and one Red, Amber or Green cell per dimension, worst first, with an overall column holding each row's worst status. Each status has its own shape and words (a filled circle On track, a triangle At risk, a square Off track), so it never rests on color. An arrow in a cell's corner says it improved or got worse since the last period; a strip above counts the statuses and a footer counts them per column.
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `label` | field name (category) | yes |  | Field naming each row: the client, the relationship manager or the deal. |
+| `dimensions` | field name or list (category) | yes |  | Status fields, one column each, holding R, A, G or N (or red, amber, green, grey). The rag transform turns numbers into them. |
+| `previous` | object |  |  | Each dimension's previous-period status field, for the trend arrows: { "health": "healthLast", "pipeline": "pipelineLast" }. |
+| `overall` | any |  | `true` | A first column with each row's overall status, the one to act on: true for the worst of its dimensions, false for none, or a status field holding a roll-up your model already worked out (for example "two reds make red"). |
+| `sort` | `worst`, `name`, `none` |  | `"worst"` | Rows worst first (by overall status, then the number of reds and ambers), by name, or as given. |
+| `group` | field name (category) |  |  | Field that gathers rows under headings, such as segment or perspective. |
+| `note` | field name (category) |  |  | Field written small under each name, such as the action owner or the next step. |
+| `words` | object |  |  | Words per status, keyed R, A, G, N, in place of Off track, At risk, On track and No data. Example: { "G": "Healthy", "A": "Watch", "R": "Escalate" }. |
+| `shapes` | object |  |  | Shape per status, keyed R, A, G, N: circle, triangle, square, ring or diamond. Keep them different, so status never rests on color. |
+
+### `ragtrend`
+
+RAG status over time: one row per entity and one small mark per period, shaped and colored by its status (a filled circle On track, a triangle At risk, a square Off track). A tick marks each period where the status changed, and the note of why it moved sits in the tooltip; the current status ends the row as a pill. Rows come worst-current first.
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `label` | field name (category) | yes |  | Field naming each row: the client, the relationship manager or the deal. |
+| `period` | field name (date) | yes |  | Field with each row's period: a month, a quarter or a review date, in order. |
+| `status` | field name (category) | yes |  | Field with the status in that period: R, A, G or N (or red, amber, green, grey). |
+| `note` | field name (category) |  |  | Field saying why the status moved, shown in the tooltip of the period where it changed. |
+| `words` | object |  |  | Words per status, keyed R, A, G, N, in place of Off track, At risk, On track and No data. Example: { "G": "Healthy", "A": "Watch", "R": "Escalate" }. |
+| `shapes` | object |  |  | Shape per status, keyed R, A, G, N: circle, triangle, square, ring or diamond. Keep them different, so status never rests on color. |
 
 ### `ridgeline`
 
@@ -529,6 +749,7 @@ Concentric progress rings, one per row from the outside in, each filled to its s
 | `label` | field name (category) | yes |  | Field naming each goal. |
 | `value` | field name (number) | yes |  | Field with the amount reached. |
 | `target` | field name (number) | yes |  | Field with the goal amount. |
+| `goodWhen` | `up`, `down` |  | `"up"` | Whether more is better ("up", as for revenue) or less is better ("down", as for wait times and costs). It decides which side of the target reads as met. |
 
 ### `rose`
 
@@ -559,9 +780,14 @@ One dot per row placed by two numbers, to show how they relate. An optional grou
 | `x` | field name (number) | yes |  | Numeric field along the horizontal axis. |
 | `y` | field name (number) | yes |  | Numeric field along the vertical axis. |
 | `size` | field name (number) |  |  | Field sizing each dot by area, making a bubble chart: four times the value, twice the radius. Bigger bubbles are drawn first. |
-| `series` | field name (category) |  |  | Field that groups the dots by color. Up to 3 groups stay distinct. |
+| `color` | field name (category) |  |  | Field that groups the dots by color. Up to 3 groups stay distinct. Also accepts `series`, the older name. |
 | `label` | field name (category) |  |  | Field naming each dot in its tooltip. |
 | `reference` | array |  |  | Target lines and bands across the value axis. Each item is { value, label }, { field, agg, label } (agg: last, first, sum, avg, min, max; default avg), or { from, to, label } for a band. Example: [{ "value": 1200000, "label": "Target" }]. |
+| `cluster` | field name (category) |  |  | Field naming each dot's cluster, such as a segment found by analysis. A soft, rounded hull gathers each cluster's dots and carries its name at the middle, so the areas read as regions of the plot; the dots take the cluster's color unless series is set. Up to 6 clusters. |
+| `labels` | boolean |  | `false` | Write each dot's label beside it, skipping names that would land on another, so the standouts are named on the chart itself. |
+| `quadrants` | object |  |  | Splits the plot into four at a value of x and of y, with a faint word in each corner: { "x": 50, "y": 3, "labels": ["Monitor", "Act now", "Prepare", "Watch"] } (top-left first, then clockwise). For priority grids such as pressure against impact. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `annotations` | array |  |  | Short notes pinned to points of the chart, each { "x": <category or period>, "y"?: <value>, "text": "…" }. Without y the note sits on the value there. Each note is a few words beside a small dot, with a thin leader to it; on a narrow card the notes become numbered markers with the texts listed under the chart. Example: [{ "x": "2026-03", "text": "Price rise" }]. |
 
 ### `slope`
 
@@ -574,6 +800,19 @@ Each item's move between two points in time, as a line from a left column to a r
 | `to` | field name (number) | yes |  | Field with the later value (right column). |
 | `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
 
+### `strips`
+
+Unit strips: one row per item with a strip of small squares, one per unit, colored part by part in order (mandatory, recommended, optional), the total and the first part's share at the end. When totals run long, one square stands for a round number of units, said under the chart. A per field adds a density: provisions per page. For how many provisions a regulation has and how binding they are.
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `label` | field name (category) | yes |  | Field naming each row. |
+| `value` | field name or list (number) | yes |  | Field or fields with each part's count, in the order they are drawn. The first part's share of the total is written at the end. Also accepts `parts`, the older name. |
+| `per` | field name (number) |  |  | Field with a denominator, such as pages: the density (units per one of them) is written at the end and in the tooltip. |
+| `unit` | string |  | `"provision"` | What one unit is, in the singular, for the note under the chart and the tooltip. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `reference` | array |  |  | Target lines and bands across the value axis. Each item is { value, label }, { field, agg, label } (agg: last, first, sum, avg, min, max; default avg), or { from, to, label } for a band. Example: [{ "value": 1200000, "label": "Target" }]. |
+
 ### `sunburst`
 
 A hierarchy as rings: the inner ring splits the total by the first level, each outer ring splits its parent's slice by the next level, in lighter tints of the parent's color. The total sits in the middle. For two or three levels of part-to-whole, such as revenue by product and region.
@@ -584,6 +823,21 @@ A hierarchy as rings: the inner ring splits the total by the first level, each o
 | `value` | field name (number) | yes |  | Field sizing the slices. Zero and negative values are left out. |
 | `caption` | string |  |  | Text under the total in the middle. Defaults to the value field's label. |
 
+### `symbols`
+
+A map with a circle on each place, its area true to a value: customers by state, volume by port. Places sit on a region of a basemap (by code) or at coordinates on your own GeoJSON; a color field groups them with a key, and a size key shows what the circles mean.
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `geo` | any |  |  | The map's geometry: a built-in basemap by name (europe, us-states: tile grids keyed by country or state code), an inline GeoJSON FeatureCollection whose features carry an id, or the address of a GeoJSON file to fetch. |
+| `id` | field name (category) |  |  | Field with the region code that places each circle: a country or state code on a built-in basemap, or the feature id in your GeoJSON. Use lat and lon instead for coordinates. |
+| `lat` | field name (number) |  |  | Field with each row's latitude, for placing by coordinates on your own GeoJSON (not on a built-in grid). |
+| `lon` | field name (number) |  |  | Field with each row's longitude, paired with lat. |
+| `size` | field name (number) | yes |  | Field that sizes each circle, by area. Zero and missing values draw nothing. |
+| `label` | field name (category) |  |  | Field naming each place in its tooltip. Defaults to the region's name, or the id. |
+| `color` | field name (category) |  |  | Field that colors the circles by group, with a key. |
+| `key` | string |  | `"id"` | The feature property that holds each region's id in your own GeoJSON (feature.id is read too). Built-in basemaps use their codes. |
+
 ### `table`
 
 Rows and columns. The default view, and the one to use when people need exact values.
@@ -592,7 +846,11 @@ Rows and columns. The default view, and the one to use when people need exact va
 | --- | --- | --- | --- | --- |
 | `columns` | field name or list |  |  | Fields to show, in order. Defaults to every field in the rows. |
 | `sortable` | boolean |  | `true` | Headers become buttons that sort the rows: ascending, then descending. Missing values stay last. |
-| `totals` | boolean |  | `false` | Adds a footer row summing each number column in its own format. Percent columns stay blank, since summed shares mean nothing. |
+| `totals` | boolean |  | `false` | Adds a footer row summing each number column in its own format, over every row whatever the page or search shows. Percent columns stay blank, since summed shares mean nothing. |
+| `search` | boolean |  | `false` | A small search field above the table: typing keeps only the rows whose shown text matches, in any column, and says how many remain. For directories and long lists. |
+| `pageSize` | number |  |  | Rows shown at a time, with Previous and Next under the table (hidden while the rows fit on one page). Sorting or searching goes back to the first page. Leave out to show every row. |
+| `stickyFirst` | boolean |  | `false` | Keeps the first column in place while a wide table scrolls sideways, so every row keeps its name in view. |
+| `align` | object |  |  | Text alignment per column, overriding the default of numbers right and text left: { "status": "center" }. Values: left, center, right. |
 
 ### `timeline`
 
@@ -616,6 +874,7 @@ Part-to-whole for many categories: tiles sized by value, kept close to square. U
 | `label` | field name (category) | yes |  | Field naming each tile. |
 | `value` | field name (number) | yes |  | Field sizing each tile. Zero and negative values are left out. |
 | `group` | field name (category) |  |  | Field that colors related tiles alike, up to 8 groups. Without it every tile shares one color. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
 
 ### `variance`
 
@@ -650,6 +909,36 @@ A bridge: how a total moves to another through increases and decreases, each flo
 | `totals` | any |  |  | Labels of rows that are totals (drawn from zero, resetting the running total), for example ["Q2 revenue"]. |
 | `endLabel` | string |  |  | Adds a final total bar with this label, for example "Q3 revenue". |
 | `fit` | boolean |  | `false` | Fit the axis to the running totals instead of starting at zero, so small changes stay visible. Totals then rise from the axis floor. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+
+### `whitespace`
+
+The cross-sell map (whitespace analysis): one cell per client and product, filled where the client holds the product, outlined where it is an opportunity (tinted by how likely), blank where the client is not eligible. Each row ends with its penetration (3 of 8) and the revenue still to win; each column ends with how many hold it and how many could. Rows sort with the most to sell first.
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `row` | field name (category) | yes |  | Field naming each row, usually the client. |
+| `column` | field name (category) | yes |  | Field naming each column, usually the product. |
+| `state` | field name (category) | yes |  | Field saying whether the row holds the column, could (an opportunity), or is not eligible. See states. |
+| `states` | array |  | `["Holds","Opportunity","Not eligible"]` | The three values the state field uses, in order: held, opportunity, not eligible. Default ["Holds", "Opportunity", "Not eligible"]. |
+| `score` | field name (number) |  |  | Field with how likely each opportunity is, 0 to 100 (a propensity). An opportunity cell's tint strengthens with it. |
+| `value` | field name (number) |  |  | Field with the money in each cell: revenue where held, potential where open. Written in the tooltip; the open cells' sum ends each row. |
+| `sort` | `potential`, `penetration`, `none` |  | `"potential"` | Row order: "potential" puts the rows with the most to win first, "penetration" the least covered first, "none" keeps the rows as given. |
+
+### `xray`
+
+A client x-ray: one client on one card, from its first row. The name and a detail line, a grid of key facts, the products it holds as pills (held in color, not held outlined), a share-of-wallet meter, a small trend, quiet warning flags and a short list of next best actions. For a client page, a pre-meeting brief or a relationship manager's cockpit.
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `label` | field name (category) | yes |  | Field with the client's name. |
+| `detail` | field name (category) |  |  | Field for the line under the name, such as the segment or the relationship manager. |
+| `facts` | field name or list (number) |  |  | Up to six fields shown as small labelled figures: assets, revenue, products held, client since. |
+| `holdings` | field name or list (category) |  |  | True/false fields, one per product, drawn as a strip of named pills: held in color, not held outlined. |
+| `wallet` | field name (number) |  |  | Field with the share of wallet, 0 to 1, drawn as a meter with its percent. |
+| `trend` | field name (category) |  |  | Field whose value is a list of numbers (revenue by month, say), drawn as a small trend with its first and last values written. |
+| `flags` | field name (category) |  |  | Field whose value is a list of short warnings, shown as quiet amber pills: ["No contact in 90 days", "Fee leakage"]. |
+| `actions` | field name (category) |  |  | Field whose value is a list of next best actions, shown as a short checklist. |
 
 ## Headline
 

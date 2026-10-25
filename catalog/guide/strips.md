@@ -31,7 +31,7 @@ Unit strips: one row per item with a strip of small squares, one per unit, color
 | Option | Holds | Required | What it does |
 | --- | --- | --- | --- |
 | `label` | category | yes | Field naming each row. |
-| `parts` | number (one or more) | yes | Field or fields with each part's count, in the order they are drawn. The first part's share of the total is written at the end. |
+| `value` | number (one or more) | yes | Field or fields with each part's count, in the order they are drawn. The first part's share of the total is written at the end. Also accepts `parts`, the older name. |
 | `per` | number |  | Field with a denominator, such as pages: the density (units per one of them) is written at the end and in the tooltip. |
 
 ## This example's columns (7 columns, 12 rows)
@@ -39,9 +39,9 @@ Unit strips: one row per item with a strip of small squares, one per unit, color
 | Column | Holds | Drawn as | Values |
 | --- | --- | --- | --- |
 | `name` (Regulation) | category | `label` | 12 different, e.g. "CRR3", "AI Act", "AMLR" |
-| `mandatory` (Mandatory) | number | `parts` | 39 to 351 |
-| `recommended` (Recommended) | number | `parts` | 5 to 89 |
-| `optional` (Optional) | number | `parts` | 2 to 46 |
+| `mandatory` (Mandatory) | number | `value` | 39 to 351 |
+| `recommended` (Recommended) | number | `value` | 5 to 89 |
+| `optional` (Optional) | number | `value` | 2 to 46 |
 | `pages` (Pages) | number | `per` | 23 to 420 |
 | `topic` | category | not drawn | 9 different, e.g. "Prudential", "AI & digital", "AML & sanctions" |
 | `provisions` | number | not drawn | 48 to 412 |
@@ -148,7 +148,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "view": {
     "type": "strips",
     "label": "name",
-    "parts": [
+    "value": [
       "mandatory",
       "recommended",
       "optional"
@@ -176,7 +176,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
 | `scatter` | fits | different | Answers a different question: better for how two measures relate, but gives up how each group or period splits. | `{"type":"scatter","x":"mandatory","y":"recommended","label":"name"}` |
 | `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up how each group or period splits. | `{"type":"table"}` |
 | `beeswarm` | fits | worse | Gives up how each group or period splits, and this data gives it nothing better to do. | `{"type":"beeswarm","value":"mandatory","label":"name"}` |
-| `dot` | fits | worse | Gives up how each group or period splits, and this data gives it nothing better to do. | `{"type":"dot","label":"name","values":["mandatory","recommended"]}` |
+| `dot` | fits | worse | Gives up how each group or period splits, and this data gives it nothing better to do. | `{"type":"dot","label":"name","value":["mandatory","recommended"]}` |
 | `kpi` | fits | worse | Gives up how each group or period splits, and this data gives it nothing better to do. | `{"type":"kpi","value":"mandatory"}` |
 | `kpis` | fits | worse | Gives up how each group or period splits, and this data gives it nothing better to do. | `{"type":"kpis","items":[{"value":"mandatory"},{"value":"recommended"},{"value":"optional"}]}` |
 | `pareto` | fits | worse | Gives up how each group or period splits, and this data gives it nothing better to do. | `{"type":"pareto","label":"name","value":"mandatory"}` |
@@ -189,7 +189,8 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
 | `histogram` | stretch: 12 rows: this chart says little with fewer than 20. | worse | Gives up how each group or period splits, and this data gives it nothing better to do. | `{"type":"histogram","value":"mandatory"}` |
 | `horizon` | stretch: x expects dates; "name" is text, so its rows are drawn in the order given. | worse | Gives up how each group or period splits, and this data gives it nothing better to do. | `{"type":"horizon","x":"name","y":["mandatory","recommended"]}` |
 | `line` | stretch: x expects dates; "name" is text, so its rows are drawn in the order given. | worse | Gives up how each group or period splits, and this data gives it nothing better to do. | `{"type":"line","x":"name","y":["mandatory","recommended"]}` |
+| `pie` | stretch: 12 rows: this chart crowds past about 6. | worse | Gives up how each group or period splits, and this data gives it nothing better to do. | `{"type":"pie","label":"name","value":"mandatory"}` |
 | `ridgeline` | stretch: 12 rows: this chart says little with fewer than 20. | worse | Gives up how each group or period splits, and this data gives it nothing better to do. | `{"type":"ridgeline","value":"mandatory","group":"name"}` |
 | `waffle` | stretch: 12 rows: this chart crowds past about 5. | worse | Gives up how each group or period splits, and this data gives it nothing better to do. | `{"type":"waffle","label":"name","value":"mandatory"}` |
 
-Not possible with this data: `bullet` (It needs a target, plan or budget column.); `bump` (It needs one value per series in each period, to rank.); `calendar` (needs a date column for date); `candlestick` (It needs open, high, low and close prices per period.); `chord` (It needs flows that go both ways between the same groups.); `choropleth` (needs a column of country or state codes that sit on a basemap); `dual` (It needs two measures over the same periods, in two columns.); `dumbbell` (It needs the same measure at two points in time, in two columns.); `funnel` (It needs ordered stages that narrow, such as visits to sign-ups to sales.); `lifecycle` (view: stages needs at least two date fields in order, such as ["proposed", "adopted"].); `likert` (It needs answer counts on one ordered scale, such as disagree to agree.); `locator` (needs named places with region codes on a basemap, or coordinates); `meter` (It needs a target, plan or budget column.); `pyramid` (It needs two counts per ordered band, such as women and men per age group.); `rings` (It needs a target, plan or budget column.); `slope` (It needs the same measure at two points in time, in two columns.); `symbols` (needs a column of country or state codes that sit on a basemap, or coordinates); `timeline` (needs a date column for start); `variance` (It needs a target, plan or budget column.); `waterfall` (It needs changes that add up from one total to another.).
+Not possible with this data: `anomalies` (It needs readings over time per metric, with a yes/no flag or a low and high band.); `board` (It needs a stage or status column with a handful of values, and a name per row.); `bullet` (It needs a target, plan or budget column.); `bump` (It needs one value per series in each period, to rank.); `calendar` (needs a date column for date); `candlestick` (It needs open, high, low and close prices per period.); `chord` (It needs flows that go both ways between the same groups.); `choropleth` (needs a column of country or state codes that sit on a basemap); `dual` (It needs two measures over the same periods, in two columns.); `dumbbell` (It needs the same measure at two points in time, in two columns.); `funnel` (It needs ordered stages that narrow, such as visits to sign-ups to sales.); `history` (It needs dated events with a short title each.); `lifecycle` (view: stages needs at least two date fields in order, such as ["proposed", "adopted"].); `likert` (It needs answer counts on one ordered scale, such as disagree to agree.); `locator` (needs named places with region codes on a basemap, or coordinates); `meter` (It needs a target, plan or budget column.); `pyramid` (It needs two counts per ordered band, such as women and men per age group.); `ragboard` (It needs status columns holding R, A, G (or red, amber, green), one row per client or deal; the rag transform makes them from numbers.); `ragtrend` (needs a separate column for status (it would reuse "name", already the label)); `rings` (It needs a target, plan or budget column.); `slope` (It needs the same measure at two points in time, in two columns.); `symbols` (needs a column of country or state codes that sit on a basemap, or coordinates); `timeline` (needs a date column for start); `variance` (It needs a target, plan or budget column.); `waterfall` (It needs changes that add up from one total to another.); `whitespace` (needs a separate column for state (it would reuse "name", already the row)); `xray` (It needs one row: one client with its facts, holdings and share of wallet.).
