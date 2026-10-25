@@ -3,8 +3,8 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { RidgelineView } from "../../core/views.ts";
 import { density, linearScale, quantile } from "../layout.ts";
 import { tickFormatter } from "./chart.ts";
-import { roving } from "./focus.ts";
-import { CHAR_WIDTH, hiddenTable, html, ROW, selectable, svg } from "./shared.ts";
+import { activeGroup, hiddenTable, html, ROW, roving, rowHit, svg } from "./shared.ts";
+import { nameColumn, writeLabel } from "./label-fit.ts";
 
 const LANE: number = ROW.tall;
 const GRID = 89;
@@ -46,7 +46,9 @@ export const renderRidgeline: ViewRenderer<RidgelineView> = (ctx) => {
   const labels = groups.map((name) => ctx.format(name, group));
   const ticks = linearScale(grid, [0, 1], { includeZero: low >= 0 && start === 0 }).ticks;
   const tickText = tickFormatter(ctx, value, ticks);
-  const left = Math.max(34, Math.max(...labels.map((l) => l.length)) * CHAR_WIDTH + 13);
+  // Group names in a measured column, cut with an ellipsis past a third of the card.
+  const column = nameColumn(labels, ctx.width);
+  const left = column.width + 8;
   const margin = { top: Math.ceil(ridgeHeight - LANE) + 5, right: 13, bottom: 39, left };
   const width = Math.max(ctx.width, left + 144);
   const height = margin.top + groups.length * LANE + margin.bottom;
@@ -70,11 +72,8 @@ export const renderRidgeline: ViewRenderer<RidgelineView> = (ctx) => {
 
   const overlay = svg(doc, "g");
   const ridges: SVGGElement[] = [];
-  const deactivate = () => {
-    wrap.removeAttribute("data-active");
-    for (const r of ridges) r.removeAttribute("data-active");
-    ctx.tooltip.hide();
-  };
+  const active = activeGroup(wrap, ctx.tooltip);
+  const hits: Element[] = [];
   const summary: string[][] = [];
   groups.forEach((name, g) => {
     const base = margin.top + (g + 1) * LANE;
@@ -90,8 +89,8 @@ export const renderRidgeline: ViewRenderer<RidgelineView> = (ctx) => {
     ridge.append(wash, stroke, svg(doc, "line", { class: "fft-baseline", x1: margin.left, x2: width - margin.right, y1: base, y2: base }));
     ridges.push(ridge);
     chart.append(ridge);
-    const label = svg(doc, "text", { class: "fft-ridge-label", x: margin.left - 13, y: base - 5, "text-anchor": "end" });
-    label.textContent = labels[g] ?? "";
+    const label = svg(doc, "text", { class: "fft-ridge-label", x: column.end, y: base - 5, "text-anchor": "end" });
+    writeLabel(label, column.shown[g] ?? "", labels[g] ?? "");
     chart.append(label);
 
     const list = values.get(name) ?? [];
@@ -101,24 +100,14 @@ export const renderRidgeline: ViewRenderer<RidgelineView> = (ctx) => {
       { label: "Count", value: String(list.length) },
     ];
     summary.push([labels[g] ?? name, ...items.map((it) => it.value)]);
-    const hit = svg(doc, "rect", { class: "fft-ridge-hit", x: 0, y: base - LANE, width, height: LANE, role: "img" });
-    hit.setAttribute("aria-label", `${labels[g]}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
-    const activate = () => {
-      wrap.setAttribute("data-active", "");
-      for (const r of ridges) r.removeAttribute("data-active");
-      ridge.setAttribute("data-active", "");
-      ctx.tooltip.show(hit, labels[g] ?? "", items);
-    };
-    hit.addEventListener("pointerenter", activate);
-    hit.addEventListener("focus", activate);
-    hit.addEventListener("pointerleave", deactivate);
-    hit.addEventListener("blur", deactivate);
-    const firstRow = ctx.rows.find((row) => String(row[group]) === name);
-    if (firstRow) selectable(hit, () => ctx.select(firstRow));
+    const hit = svg(doc, "rect", { class: "fft-ridge-hit", x: 0, y: base - LANE, width, height: LANE });
+    // Picking a ridge reports its group's first row.
+    const firstRow = ctx.rows.find((row) => String(row[group]) === name) ?? {};
+    hits.push(rowHit(ctx, { node: hit, row: firstRow, name: labels[g] ?? "", items, active: ridge, group: active }));
     overlay.append(hit);
   });
   chart.append(overlay);
-  roving([...overlay.children]);
+  roving(hits);
   wrap.append(chart, hiddenTable(doc, [ctx.label(group), "Median", "Middle half", "Count"], summary));
   ctx.el.append(wrap);
 };

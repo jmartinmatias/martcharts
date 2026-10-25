@@ -3,7 +3,7 @@ import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewContext, ViewRenderer } from "../../core/view-context.ts";
 import type { HbarView } from "../../core/views.ts";
 import { DEEMPHASIS, highlights } from "./chart.ts";
-import { buildTable, endRoom, fieldList, hiddenTableOf, html, legendList, selectable, shareFormat } from "./shared.ts";
+import { activeGroup, endRoom, fieldList, hiddenTableOf, html, legendList, rowHit, shareFormat, textWidth } from "./shared.ts";
 import { roving } from "./focus.ts";
 
 /** A bar's share of the track, as a CSS width: 0% for nothing, missing values or a zero scale. */
@@ -43,12 +43,8 @@ function renderSingle(ctx: ViewContext<HbarView>, value: string): void {
   const lollipop = ctx.view.mark === "lollipop";
   const list = html(doc, "ol", "fft-hbars");
   if (lollipop) list.dataset.mark = "lollipop";
-  const rows: HTMLElement[] = [];
-  const deactivate = () => {
-    list.removeAttribute("data-active");
-    for (const row of rows) row.removeAttribute("data-active");
-    ctx.tooltip.hide();
-  };
+  const rows: Element[] = [];
+  const active = activeGroup(list, ctx.tooltip);
   ctx.rows.forEach((row, i) => {
     const amount = amounts[i] ?? null;
     const name = ctx.format(row[label], label);
@@ -56,9 +52,7 @@ function renderSingle(ctx: ViewContext<HbarView>, value: string): void {
     const on = picked.length === 0 || picked.includes(String(row[label]));
 
     const item = html(doc, "li", "fft-hbar");
-    item.tabIndex = 0;
     item.style.setProperty("--fft-i", String(i));
-    item.setAttribute("aria-label", `${name}: ${valueText || "no value"}`);
     const track = html(doc, "div", "fft-hbar-track");
     const fill = html(doc, "div", "fft-hbar-fill");
     const share = widthOf(amount, max);
@@ -72,20 +66,10 @@ function renderSingle(ctx: ViewContext<HbarView>, value: string): void {
       dot.style.background = on ? ctx.color(0) : DEEMPHASIS;
       track.append(dot);
     }
-    item.append(html(doc, "span", "fft-hbar-label", name), track, html(doc, "span", "fft-hbar-value", valueText));
-
-    const activate = () => {
-      list.setAttribute("data-active", "");
-      for (const other of rows) other.removeAttribute("data-active");
-      item.setAttribute("data-active", "");
-      ctx.tooltip.show(track, name, [{ label: ctx.label(value), value: valueText, color: on ? ctx.color(0) : DEEMPHASIS }]);
-    };
-    item.addEventListener("pointerenter", activate);
-    item.addEventListener("focus", activate);
-    item.addEventListener("pointerleave", deactivate);
-    item.addEventListener("blur", deactivate);
-    selectable(item, () => ctx.select(row));
-    rows.push(item);
+    item.append(nameLabel(doc, name), track, html(doc, "span", "fft-hbar-value", valueText));
+    rows.push(rowHit(ctx, { node: item, row, name, items: [{ label: ctx.label(value), value: valueText, color: on ? ctx.color(0) : DEEMPHASIS }], anchor: track, group: active }));
+    // One measure is read as the name and its figure alone: "North: €1,200".
+    item.setAttribute("aria-label", `${name}: ${valueText || "no value"}`);
     list.append(item);
   });
   roving(rows);
@@ -111,6 +95,13 @@ function endBar(doc: Document, share: string, background: string, text: string, 
   return bar;
 }
 
+/** A row's name: it ends in an ellipsis when longer than its column (CSS), and the pointer's title keeps it whole. */
+function nameLabel(doc: Document, name: string): HTMLElement {
+  const node = html(doc, "span", "fft-hbar-label", name);
+  node.title = name;
+  return node;
+}
+
 /** What the rows of a grouped, stacked or split chart share: emphasis, the active-row dance, and the hidden table. */
 function frame(ctx: ViewContext<HbarView>, series: string[], mode: "grouped" | "stacked" | "split") {
   const doc = ctx.el.ownerDocument;
@@ -123,32 +114,28 @@ function frame(ctx: ViewContext<HbarView>, series: string[], mode: "grouped" | "
   if (key) wrap.append(key);
   const list = html(doc, "ol", "fft-hbars");
   list.dataset.mode = mode;
-  const items: HTMLElement[] = [];
-  const deactivate = () => {
-    list.removeAttribute("data-active");
-    for (const item of items) item.removeAttribute("data-active");
-    ctx.tooltip.hide();
-  };
-  const activate = (item: HTMLElement, anchor: Element, title: string, lines: TooltipItem[]) => {
-    list.setAttribute("data-active", "");
-    for (const other of items) other.removeAttribute("data-active");
-    item.setAttribute("data-active", "");
+  const items: Element[] = [];
+  const group = activeGroup(list, ctx.tooltip);
+  /** Lights `item` and points the tooltip at one part of it: a stacked segment names itself alone. */
+  const activate = (item: Element, anchor: Element, title: string, lines: TooltipItem[]) => {
+    group.on(item);
     ctx.tooltip.show(anchor, title, lines);
+  };
+  /** Wires one row: focus, tooltip, dimming and select, through the kit. */
+  const wire = (item: HTMLElement, row: Row, name: string, lines: TooltipItem[], anchor: Element, said?: string) => {
+    items.push(rowHit(ctx, { node: item, row, name, items: lines, anchor, group, said }));
   };
   const finish = () => {
     roving(items);
-    wrap.append(list);
-    const hidden = html(doc, "div", "fft-sr-only");
-    hidden.append(buildTable(ctx, ctx.rows, [ctx.view.label, ...series], false));
-    wrap.append(hidden);
+    wrap.append(list, hiddenTableOf(ctx, ctx.rows, [ctx.view.label, ...series]));
     ctx.el.append(wrap);
   };
-  return { doc, on, color, list, items, activate, deactivate, finish };
+  return { doc, on, color, list, activate, wire, finish };
 }
 
 /** Grouped bars: in every row, one thin bar per series, its value at its end, all on one shared scale. */
 function renderGrouped(ctx: ViewContext<HbarView>, series: string[]): void {
-  const { doc, on, color, list, items, activate, deactivate, finish } = frame(ctx, series, "grouped");
+  const { doc, on, color, list, wire, finish } = frame(ctx, series, "grouped");
   const { label } = ctx.view;
   const amounts = ctx.rows.map((row) => series.map((field) => readNumber(row[field])));
   const max = Math.max(0, ...amounts.flat().filter((n): n is number => n !== null), ...(ctx.extent ?? []));
@@ -167,15 +154,8 @@ function renderGrouped(ctx: ViewContext<HbarView>, series: string[]): void {
       group.append(endBar(doc, widthOf(amount, max), color(s, lit), text, room));
       lines.push({ label: ctx.label(field), value: text, color: color(s, lit) });
     });
-    item.setAttribute("aria-label", `${name}: ${lines.map((line) => `${line.label} ${line.value || "no value"}`).join(", ")}`);
-    item.append(html(doc, "span", "fft-hbar-label", name), group);
-    const show = () => activate(item, group, name, lines);
-    item.addEventListener("pointerenter", show);
-    item.addEventListener("focus", show);
-    item.addEventListener("pointerleave", deactivate);
-    item.addEventListener("blur", deactivate);
-    selectable(item, () => ctx.select(row));
-    items.push(item);
+    item.append(nameLabel(doc, name), group);
+    wire(item, row, name, lines, group);
     list.append(item);
   });
   finish();
@@ -183,7 +163,7 @@ function renderGrouped(ctx: ViewContext<HbarView>, series: string[]): void {
 
 /** Stacked bars: one bar per row made of colored parts, the total at its end; percent stacks are shares of 100%. */
 function renderStacked(ctx: ViewContext<HbarView>, series: string[]): void {
-  const { doc, on, color, list, items, activate, deactivate, finish } = frame(ctx, series, "stacked");
+  const { doc, on, color, list, activate, wire, finish } = frame(ctx, series, "stacked");
   const { label } = ctx.view;
   const percent = ctx.view.stacked === "percent";
   const share = shareFormat(ctx.spec.locale);
@@ -209,7 +189,7 @@ function renderStacked(ctx: ViewContext<HbarView>, series: string[]): void {
       // Percent stacks write each share inside its part, where the part is wide enough to hold the figure.
       if (percent && total > 0) {
         const shareText = share.format(amount / total);
-        if ((amount / total) * trackPx >= shareText.length * 6.5 + 8) seg.append(html(doc, "span", "fft-hbar-seg-text", shareText));
+        if ((amount / total) * trackPx >= textWidth(shareText, 10, 600) + 8) seg.append(html(doc, "span", "fft-hbar-seg-text", shareText));
       }
       const line: TooltipItem = { label: ctx.label(field), value: `${ctx.format(row[field], field)}${total > 0 ? ` (${share.format(amount / total)})` : ""}`, color: color(s, lit) };
       lines.push(line);
@@ -222,16 +202,9 @@ function renderStacked(ctx: ViewContext<HbarView>, series: string[]): void {
       track.append(seg);
     });
     const totalText = ctx.format(total, series[0]);
-    item.setAttribute("aria-label", `${name}: ${lines.map((line) => `${line.label} ${line.value}`).join(", ")}${percent ? "" : `, total ${totalText}`}`);
     // A percent stack's end would only ever say 100%, so the shares are written inside the parts instead.
-    item.append(html(doc, "span", "fft-hbar-label", name), track, ...(percent ? [] : [html(doc, "span", "fft-hbar-value", totalText)]));
-    const show = () => activate(item, track, name, lines);
-    item.addEventListener("pointerenter", show);
-    item.addEventListener("focus", show);
-    item.addEventListener("pointerleave", deactivate);
-    item.addEventListener("blur", deactivate);
-    selectable(item, () => ctx.select(row));
-    items.push(item);
+    item.append(nameLabel(doc, name), track, ...(percent ? [] : [html(doc, "span", "fft-hbar-value", totalText)]));
+    wire(item, row, name, lines, track, percent ? "" : `, total ${totalText}`);
     list.append(item);
   });
   finish();
@@ -239,7 +212,7 @@ function renderStacked(ctx: ViewContext<HbarView>, series: string[]): void {
 
 /** Split bars: one column of bars per series, each headed by its label and scaled on its own largest value. */
 function renderSplit(ctx: ViewContext<HbarView>, series: string[]): void {
-  const { doc, on, color, list, items, activate, deactivate, finish } = frame(ctx, series, "split");
+  const { doc, on, color, list, wire, finish } = frame(ctx, series, "split");
   const { label } = ctx.view;
   const amounts = ctx.rows.map((row) => series.map((field) => readNumber(row[field])));
   const own = series.map((_, s) => Math.max(0, ...amounts.map((values) => values[s]).filter((n): n is number => n !== null)));
@@ -266,7 +239,7 @@ function renderSplit(ctx: ViewContext<HbarView>, series: string[]): void {
     const lit = on(row);
     const item = html(doc, "li", "fft-hbar");
     item.style.setProperty("--fft-i", String(i));
-    item.append(html(doc, "span", "fft-hbar-label", name));
+    item.append(nameLabel(doc, name));
     const lines: TooltipItem[] = [];
     series.forEach((field, s) => {
       const amount = amounts[i]?.[s] ?? null;
@@ -274,14 +247,7 @@ function renderSplit(ctx: ViewContext<HbarView>, series: string[]): void {
       item.append(endBar(doc, widthOf(amount, maxOf(s)), color(s, lit), text, rooms[s] ?? 0));
       lines.push({ label: ctx.label(field), value: text, color: color(s, lit) });
     });
-    item.setAttribute("aria-label", `${name}: ${lines.map((line) => `${line.label} ${line.value || "no value"}`).join(", ")}`);
-    const show = () => activate(item, item, name, lines);
-    item.addEventListener("pointerenter", show);
-    item.addEventListener("focus", show);
-    item.addEventListener("pointerleave", deactivate);
-    item.addEventListener("blur", deactivate);
-    selectable(item, () => ctx.select(row));
-    items.push(item);
+    wire(item, row, name, lines, item);
     list.append(item);
   });
   finish();

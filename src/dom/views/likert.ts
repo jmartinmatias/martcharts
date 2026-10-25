@@ -2,8 +2,9 @@ import { readNumber } from "../../core/formats.ts";
 import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { LikertView } from "../../core/views.ts";
-import { buildTable, fieldList, html, ROW, selectable, shareFormat, svg } from "./shared.ts";
-import { roving } from "./focus.ts";
+import { fieldList, hiddenTableOf, html, ROW, roving, rowHit, shareFormat, svg } from "./shared.ts";
+import type { ActiveGroup } from "./shared.ts";
+import { fitLabel, writeLabel } from "./label-fit.ts";
 
 const LANE: number = ROW.tall;
 const BAR = 21;
@@ -66,15 +67,26 @@ export const renderLikert: ViewRenderer<LikertView> = (ctx) => {
 
   const segments: SVGRectElement[] = [];
   const hits: Element[] = [];
-  const deactivate = () => {
-    wrap.removeAttribute("data-active");
-    for (const seg of segments) seg.removeAttribute("data-active");
-    ctx.tooltip.hide();
+  // The same response lights up in every question, for comparing down the column: an active group whose "on" lights
+  // every segment of the pointed one's response.
+  const column: ActiveGroup = {
+    on(seg) {
+      wrap.setAttribute("data-active", "");
+      const index = (seg as SVGElement).dataset.index;
+      for (const other of segments) other.toggleAttribute("data-active", other.dataset.index === index);
+    },
+    off() {
+      wrap.removeAttribute("data-active");
+      for (const seg of segments) seg.removeAttribute("data-active");
+      ctx.tooltip.hide();
+    },
   };
   questions.forEach((q, r) => {
     const top = r * LANE;
     const question = svg(doc, "text", { class: "fft-likert-question", x: 13, y: top + 13 });
-    question.textContent = ctx.format(q.row[label], label);
+    // A question longer than the card is cut with an ellipsis; its tooltip and aria-label keep it whole.
+    const full = ctx.format(q.row[label], label);
+    writeLabel(question, fitLabel(full, width - 26, 11, 600), full);
     chart.append(question);
     const barTop = top + 21;
     let cursor = center - q.left * scale;
@@ -97,21 +109,9 @@ export const renderLikert: ViewRenderer<LikertView> = (ctx) => {
         { label: ctx.label(field), value: ctx.format(q.row[field], field), color: colorOf(i) },
         { label: "Share", value: percent.format(share) },
       ];
-      const hit = svg(doc, "rect", { class: "fft-likert-hit", x: x0, y: top, width: Math.max(1, w), height: LANE, tabindex: 0, role: "img" });
-      hit.setAttribute("aria-label", `${name}, ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
-      const activate = () => {
-        wrap.setAttribute("data-active", "");
-        // The same response lights up in every question, for comparing down the column.
-        for (const other of segments) other.toggleAttribute("data-active", other.dataset.index === String(i));
-        ctx.tooltip.show(seg, name, items);
-      };
-      hit.addEventListener("pointerenter", activate);
-      hit.addEventListener("focus", activate);
-      hit.addEventListener("pointerleave", deactivate);
-      hit.addEventListener("blur", deactivate);
+      const hit = svg(doc, "rect", { class: "fft-likert-hit", x: x0, y: top, width: Math.max(1, w), height: LANE });
       const row: Row = q.row;
-      selectable(hit, () => ctx.select(row));
-      hits.push(hit);
+      hits.push(rowHit(ctx, { node: hit, row, name, items, anchor: seg, active: seg, group: column }));
     });
     const neg = svg(doc, "text", { class: "fft-likert-end fft-likert-neg", x: start - 6, y: barTop + BAR / 2, "text-anchor": "end", "dominant-baseline": "middle" });
     neg.textContent = percent.format(q.neg);
@@ -125,8 +125,6 @@ export const renderLikert: ViewRenderer<LikertView> = (ctx) => {
   chart.append(overlay);
   roving(hits);
   wrap.append(chart);
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, ctx.rows, [label, ...responses], false));
-  wrap.append(hidden);
+  wrap.append(hiddenTableOf(ctx, ctx.rows, [label, ...responses]));
   ctx.el.append(wrap);
 };

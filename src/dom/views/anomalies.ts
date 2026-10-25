@@ -5,8 +5,8 @@ import { isForecast } from "../../core/views.ts";
 import type { AnomaliesView } from "../../core/views.ts";
 import { bandPath, evenLabels, linearScale, linePath, spread } from "../layout.ts";
 import type { LabelBox } from "../layout.ts";
-import { buildTable, CHAR_WIDTH, html, ROW, selectable, svg } from "./shared.ts";
-import { roving } from "./focus.ts";
+import { activeGroup, hiddenTableOf, html, ROW, roving, rowHit, svg, textWidth } from "./shared.ts";
+import { fitLabel, writeLabel } from "./label-fit.ts";
 
 const LANE: number = ROW.roomy;
 const GAP = 5;
@@ -62,8 +62,11 @@ export const renderAnomalies: ViewRenderer<AnomaliesView> = (ctx) => {
   // The right column: the longest name or "latest · n anomalies", within two fifths of the card.
   const countText = (n: number) => (n === 0 ? "none" : n === 1 ? "1 anomaly" : `${n} anomalies`);
   const latestText = (lane: Lane) => (lane.latest ? ctx.format(lane.latest[value], value) : "");
-  const widest = Math.max(...lanes.map((lane) => Math.max(lane.text.length, latestText(lane).length + countText(lane.flagged).length + 3)));
-  const side = Math.min(Math.max(89, widest * CHAR_WIDTH + 21), Math.floor(ctx.width * 0.4));
+  // Measured: the name in bold, or the latest value beside its count pill, whichever is wider.
+  const pillWidth = (words: string) => textWidth(words, 10, 600) + 10;
+  const latestRoom = (lane: Lane) => (latestText(lane) ? textWidth(latestText(lane)) + 8 : 0) + pillWidth(countText(lane.flagged));
+  const widest = Math.max(...lanes.map((lane) => Math.max(textWidth(lane.text, 11, 600), latestRoom(lane))));
+  const side = Math.min(Math.max(89, widest + 21), Math.floor(ctx.width * 0.4));
   const width = Math.max(ctx.width, side + 144);
   const plot = { x: 0, w: width - side - 13 };
   const lanesHeight = lanes.length * LANE + Math.max(0, lanes.length - 1) * GAP;
@@ -75,7 +78,9 @@ export const renderAnomalies: ViewRenderer<AnomaliesView> = (ctx) => {
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
   chart.setAttribute("aria-label", `Anomaly tracker of ${lanes.length} ${lanes.length === 1 ? "metric" : "metrics"} by ${ctx.label(x)}`);
-  const hits: SVGElement[] = [];
+  const hits: Element[] = [];
+  // Pointing at a flagged reading lights its lane and steps the others back.
+  const active = activeGroup(wrap, ctx.tooltip);
   const flaggedRows: Row[] = [];
 
   lanes.forEach((lane, l) => {
@@ -117,37 +122,24 @@ export const renderAnomalies: ViewRenderer<AnomaliesView> = (ctx) => {
       const hi = reading(row, high);
       const side = lo !== null && v < lo ? "Below the band" : hi !== null && v > hi ? "Above the band" : "Flagged";
       items.push({ label: "Anomaly", value: side });
-      const hit = svg(doc, "circle", { class: "fft-anom-hit", cx, cy, r: 11, tabindex: 0, role: "img" });
-      hit.setAttribute("aria-label", `${lane.text}, ${dateText}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
-      const show = () => {
-        wrap.setAttribute("data-active", "");
-        ctx.tooltip.show(hit, `${lane.text}, ${dateText}`, items);
-      };
-      const hide = () => {
-        wrap.removeAttribute("data-active");
-        ctx.tooltip.hide();
-      };
-      hit.addEventListener("pointerenter", show);
-      hit.addEventListener("focus", show);
-      hit.addEventListener("pointerleave", hide);
-      hit.addEventListener("blur", hide);
-      selectable(hit, () => ctx.select(row));
-      hits.push(hit);
+      const hit = svg(doc, "circle", { class: "fft-anom-hit", cx, cy, r: 11 });
+      hits.push(rowHit(ctx, { node: hit, row, name: `${lane.text}, ${dateText}`, items, active: group, group: active }));
       group.append(hit);
     });
 
     // The lane's words: its name, then its latest value and how many readings were flagged.
     const textX = plot.x + plot.w + 13;
     const name = svg(doc, "text", { class: "fft-anom-name", x: textX, y: top + 13 });
-    name.textContent = lane.text;
+    // A name longer than the column ends in an ellipsis; its aria-label keeps it whole.
+    writeLabel(name, fitLabel(lane.text, side - 21, 11, 600), lane.text);
     const latest = svg(doc, "text", { class: "fft-anom-latest", x: textX, y: top + 27 });
     latest.textContent = latestText(lane);
-    const pillX = textX + latestText(lane).length * CHAR_WIDTH + (latestText(lane) ? 8 : 0);
+    const pillX = textX + (latestText(lane) ? textWidth(latestText(lane)) + 8 : 0);
     const words = countText(lane.flagged);
     const pill = svg(doc, "g", { class: "fft-anom-count", "data-none": lane.flagged === 0 ? "true" : "false" });
-    const pillWidth = words.length * 5.5 + 10;
-    pill.append(svg(doc, "rect", { x: pillX, y: top + 18, width: Math.round(pillWidth), height: 13, rx: 6.5 }));
-    const pillText = svg(doc, "text", { x: pillX + pillWidth / 2, y: top + 24.5, "text-anchor": "middle", "dominant-baseline": "middle" });
+    const wide = pillWidth(words);
+    pill.append(svg(doc, "rect", { x: pillX, y: top + 18, width: Math.round(wide), height: 13, rx: 6.5 }));
+    const pillText = svg(doc, "text", { x: pillX + wide / 2, y: top + 24.5, "text-anchor": "middle", "dominant-baseline": "middle" });
     pillText.textContent = words;
     pill.append(pillText);
     group.append(name, latest, pill);
@@ -157,8 +149,8 @@ export const renderAnomalies: ViewRenderer<AnomaliesView> = (ctx) => {
   // Period labels under the lanes, thinned to an even rhythm, the first and last always named.
   const xLabels = dates.map((d) => ctx.format(lanes[0]?.rows[dateIndex.get(d) ?? -1]?.[x] ?? d, x));
   const anchorOf = (i: number) => (dates.length < 2 ? "middle" : i === 0 ? "start" : i === dates.length - 1 ? "end" : "middle");
-  const widestLabel = Math.max(...xLabels.map((text) => text.length)) * CHAR_WIDTH + 8;
-  const box = (i: number): LabelBox => ({ x: at(i), width: (xLabels[i] ?? "").length * CHAR_WIDTH, anchor: anchorOf(i) });
+  const widestLabel = Math.max(...xLabels.map((text) => textWidth(text))) + 8;
+  const box = (i: number): LabelBox => ({ x: at(i), width: textWidth(xLabels[i] ?? ""), anchor: anchorOf(i) });
   for (const i of evenLabels(dates.length, Math.ceil((dates.length * widestLabel) / Math.max(1, plot.w)), box)) {
     const text = svg(doc, "text", { class: "fft-tick fft-tick-x", x: at(i), y: lanesHeight + 18, "text-anchor": anchorOf(i) });
     text.textContent = xLabels[i] ?? "";
@@ -187,9 +179,7 @@ export const renderAnomalies: ViewRenderer<AnomaliesView> = (ctx) => {
   // Inside a small-multiples panel the widget draws one shared legend.
   if (!ctx.inFacet) wrap.prepend(key);
 
-  const hidden = html(doc, "div", "fft-sr-only");
   const columns = [x, metric, value, expected, low, high].filter((f): f is string => Boolean(f));
-  hidden.append(buildTable(ctx, flaggedRows.length ? flaggedRows : ctx.rows, columns, false));
-  wrap.append(hidden);
+  wrap.append(hiddenTableOf(ctx, flaggedRows.length ? flaggedRows : ctx.rows, columns));
   ctx.el.append(wrap);
 };

@@ -3,7 +3,7 @@ import type { Row } from "../../core/types.ts";
 import type { ViewRenderer } from "../../core/view-context.ts";
 import { highlights } from "./chart.ts";
 import type { FunnelView } from "../../core/views.ts";
-import { activeGroup, hiddenTableOf, html, roving, selectable, shareFormat } from "./shared.ts";
+import { activeGroup, hiddenTableOf, html, roving, rowHit, shareFormat } from "./shared.ts";
 
 /**
  * Draws the `funnel` view: one centered bar per stage, as wide as its share
@@ -24,6 +24,7 @@ export const renderFunnel: ViewRenderer<FunnelView> = (ctx) => {
   const funnel = html(doc, "div", "fft-funnel");
   funnel.setAttribute("role", "list");
   const group = activeGroup(funnel, ctx.tooltip);
+  const hits: Element[] = [];
   ctx.rows.forEach((row, i) => {
     const amount = amounts[i] ?? null;
     const name = ctx.format(row[label], label);
@@ -33,7 +34,6 @@ export const renderFunnel: ViewRenderer<FunnelView> = (ctx) => {
     const item = html(doc, "div", "fft-funnel-row");
     if (muted(row)) item.dataset.muted = "";
     item.setAttribute("role", "listitem");
-    item.tabIndex = 0;
     item.style.setProperty("--fft-i", String(i));
     const track = html(doc, "div", "fft-funnel-track");
     const bar = html(doc, "div", "fft-funnel-bar");
@@ -41,7 +41,10 @@ export const renderFunnel: ViewRenderer<FunnelView> = (ctx) => {
     track.append(bar);
     const numbers = html(doc, "span", "fft-funnel-nums");
     numbers.append(html(doc, "span", "fft-funnel-value", valueText), html(doc, "span", "fft-funnel-share", ofFirst));
-    item.append(html(doc, "span", "fft-funnel-label", name), track, numbers);
+    const nameNode = html(doc, "span", "fft-funnel-label", name);
+    // A name longer than its column ends in an ellipsis (CSS); the pointer's title and the row's aria-label keep it whole.
+    nameNode.title = name;
+    item.append(nameNode, track, numbers);
 
     const previous = i > 0 ? (amounts[i - 1] ?? null) : null;
     const ofPrevious = amount !== null && previous ? pct.format(amount / previous) : "";
@@ -50,16 +53,7 @@ export const renderFunnel: ViewRenderer<FunnelView> = (ctx) => {
       ...(ofPrevious ? [{ label: "Of previous stage", value: ofPrevious }] : []),
       { label: "Of first stage", value: ofFirst },
     ];
-    item.setAttribute("aria-label", `${name}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
-    const show = () => {
-      group.on(item);
-      ctx.tooltip.show(bar, name, items);
-    };
-    item.addEventListener("pointerenter", show);
-    item.addEventListener("focus", show);
-    item.addEventListener("pointerleave", () => group.off());
-    item.addEventListener("blur", () => group.off());
-    selectable(item, () => ctx.select(row));
+    hits.push(rowHit(ctx, { node: item, row, name, items, anchor: bar, group }));
     funnel.append(item);
 
     const next = amounts[i + 1];
@@ -70,6 +64,6 @@ export const renderFunnel: ViewRenderer<FunnelView> = (ctx) => {
       funnel.append(step);
     }
   });
-  roving([...funnel.querySelectorAll(".fft-funnel-row")]);
+  roving(hits);
   ctx.el.append(funnel, hiddenTableOf(ctx, ctx.rows, [label, value]));
 };

@@ -4,8 +4,8 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { BoxplotView } from "../../core/views.ts";
 import { fitLabels, linearScale, quantile } from "../layout.ts";
 import { tickFormatter } from "./chart.ts";
-import { buildTable, CHAR_WIDTH, html, ROW, selectable, svg } from "./shared.ts";
-import { roving } from "./focus.ts";
+import { activeGroup, hiddenTableOf, html, ROW, roving, rowHit, svg, textWidth } from "./shared.ts";
+import { nameColumn, writeLabel } from "./label-fit.ts";
 
 /** Row height and box height: Fibonacci steps. */
 const LANE: number = ROW.tall;
@@ -49,7 +49,9 @@ export const renderBoxplot: ViewRenderer<BoxplotView> = (ctx) => {
   all.push(...(ctx.extent ?? []));
   const ticks = linearScale(all, [0, 1], { includeZero: false }).ticks;
   const tickText = tickFormatter(ctx, value, ticks);
-  const left = group ? Math.max(34, Math.max(...names.map((n) => ctx.format(n, group).length)) * CHAR_WIDTH + 21) : 13;
+  // Group names in a measured column, cut with an ellipsis past a third of the card.
+  const column = group ? nameColumn(names.map((n) => ctx.format(n, group)), ctx.width) : undefined;
+  const left = column ? column.width + 13 : 13;
   const width = Math.max(ctx.width, left + 144);
   const height = boxes.length * LANE + 26;
   const plotBottom = boxes.length * LANE;
@@ -61,7 +63,7 @@ export const renderBoxplot: ViewRenderer<BoxplotView> = (ctx) => {
   chart.setAttribute("role", "group");
   chart.setAttribute("aria-label", `Box plot of ${ctx.label(value)}${group ? ` by ${ctx.label(group)}` : ""}`);
   for (const tick of x.ticks) chart.append(svg(doc, "line", { class: "fft-gridline", x1: x(tick), x2: x(tick), y1: 0, y2: plotBottom }));
-  for (const i of fitLabels(x.ticks.map((tick) => ({ x: x(tick), width: tickText(tick).length * CHAR_WIDTH })))) {
+  for (const i of fitLabels(x.ticks.map((tick) => ({ x: x(tick), width: textWidth(tickText(tick)) })))) {
     const tick = x.ticks[i] as number;
     const text = svg(doc, "text", { class: "fft-tick fft-tick-x", x: x(tick), y: plotBottom + 18, "text-anchor": "middle" });
     text.textContent = tickText(tick);
@@ -70,18 +72,15 @@ export const renderBoxplot: ViewRenderer<BoxplotView> = (ctx) => {
 
   const groups: SVGGElement[] = [];
   const hits: Element[] = [];
-  const deactivate = () => {
-    wrap.removeAttribute("data-active");
-    for (const g of groups) g.removeAttribute("data-active");
-    ctx.tooltip.hide();
-  };
+  const active = activeGroup(wrap, ctx.tooltip);
   const color = ctx.color(0);
   boxes.forEach((b, i) => {
     const cy = i * LANE + LANE / 2;
     const g = svg(doc, "g", { class: "fft-box", style: `--fft-i: ${i}; --fft-box-color: ${color}` });
-    if (group) {
-      const label = svg(doc, "text", { class: "fft-box-label", x: left - 21, y: cy, "text-anchor": "end", "dominant-baseline": "middle" });
-      label.textContent = ctx.format(b.name, group);
+    if (group && column) {
+      const label = svg(doc, "text", { class: "fft-box-label", x: column.end, y: cy, "text-anchor": "end", "dominant-baseline": "middle" });
+      const full = ctx.format(b.name, group);
+      writeLabel(label, column.shown[i] ?? full, full);
       g.append(label);
     }
     g.append(
@@ -102,31 +101,15 @@ export const renderBoxplot: ViewRenderer<BoxplotView> = (ctx) => {
       ...(b.outliers.length ? [{ label: "Outliers", value: String(b.outliers.length) }] : []),
     ];
     const title = group ? ctx.format(b.name, group) : ctx.label(value);
-    const hit = svg(doc, "rect", { class: "fft-box-hit", x: 0, y: i * LANE, width, height: LANE, tabindex: 0, role: "img" });
-    hit.setAttribute("aria-label", `${title}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
-    const activate = () => {
-      wrap.setAttribute("data-active", "");
-      for (const other of groups) other.removeAttribute("data-active");
-      g.setAttribute("data-active", "");
-      ctx.tooltip.show(body, title, items);
-    };
-    hit.addEventListener("pointerenter", activate);
-    hit.addEventListener("focus", activate);
-    hit.addEventListener("pointerleave", deactivate);
-    hit.addEventListener("blur", deactivate);
-    const first = b.rows[0];
-    selectable(hit, () => {
-      if (first) ctx.select(first);
-    });
+    const hit = svg(doc, "rect", { class: "fft-box-hit", x: 0, y: i * LANE, width, height: LANE });
+    // Picking a box reports its first row: the box stands for all of them.
+    hits.push(rowHit(ctx, { node: hit, row: b.rows[0] ?? {}, name: title, items, anchor: body, active: g, group: active }));
     g.append(hit);
     chart.append(g);
     groups.push(g);
-    hits.push(hit);
   });
   roving(hits);
   wrap.append(chart);
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, ctx.rows, [...(group ? [group] : []), value], false));
-  wrap.append(hidden);
+  wrap.append(hiddenTableOf(ctx, ctx.rows, [...(group ? [group] : []), value]));
   ctx.el.append(wrap);
 };

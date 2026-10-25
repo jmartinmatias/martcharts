@@ -4,8 +4,8 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { PyramidView } from "../../core/views.ts";
 import { linearScale } from "../layout.ts";
 import { highlights, tickFormatter } from "./chart.ts";
-import { buildTable, CHAR_WIDTH, html, rowHeight, selectable, svg } from "./shared.ts";
-import { roving } from "./focus.ts";
+import { activeGroup, hiddenTableOf, html, roving, rowHeight, rowHit, svg, textWidth } from "./shared.ts";
+import { fitLabel, writeLabel } from "./label-fit.ts";
 
 /** The gap between the two halves and their labels. */
 const GUTTER = 8;
@@ -33,10 +33,13 @@ export const renderPyramid: ViewRenderer<PyramidView> = (ctx) => {
   const names = rows.map((row) => ctx.format(row[label], label));
   const leftText = rows.map((row) => ctx.format(row[left], left));
   const rightText = rows.map((row) => ctx.format(row[right], right));
-  const longest = (texts: string[]) => Math.max(0, ...texts.map((text) => text.length)) * CHAR_WIDTH;
+  // Values at the bar ends are bold; names in the middle are not.
+  const longest = (texts: string[], weight = 600) => Math.max(0, ...texts.map((text) => textWidth(text, 11, weight)));
   // Dense pyramids (many age bands) take thinner rows, so twenty bands still fit a card.
   const LANE = rowHeight(rows.length, "regular");
-  const center = Math.max(34, longest(names) + GUTTER * 2);
+  // The middle column holds the names: as wide as the longest, at most a quarter of the card; longer names are cut.
+  const center = Math.max(34, Math.min(longest(names, 400) + GUTTER * 2, Math.max(55, ctx.width * 0.25)));
+  const shown = names.map((name) => fitLabel(name, center - GUTTER * 2 + 0.5));
   // Room for the value at a bar's end: the longest written here, or the largest the shared scale allows, so panels of
   // small multiples keep the same pixels per unit.
   const top = Math.max(0, ...present);
@@ -86,12 +89,8 @@ export const renderPyramid: ViewRenderer<PyramidView> = (ctx) => {
   }
   chart.append(svg(doc, "line", { class: "fft-baseline", x1: leftEdge, x2: leftEdge, y1: plotTop, y2: plotBottom }), svg(doc, "line", { class: "fft-baseline", x1: rightEdge, x2: rightEdge, y1: plotTop, y2: plotBottom }));
 
-  const hits: SVGElement[] = [];
-  const deactivate = () => {
-    wrap.removeAttribute("data-active");
-    for (const hit of hits) hit.parentElement?.removeAttribute("data-active");
-    ctx.tooltip.hide();
-  };
+  const hits: Element[] = [];
+  const active = activeGroup(wrap, ctx.tooltip);
   // highlight keeps the named rows in color and steps the rest back to grey, as on hbar and dot.
   const picked = highlights((ctx.view as { highlight?: unknown }).highlight);
   const muted = (row: Row) => picked.length > 0 && !picked.includes(String(row[label]));
@@ -103,7 +102,7 @@ export const renderPyramid: ViewRenderer<PyramidView> = (ctx) => {
     const group = svg(doc, "g", { class: "fft-pyr-row", style: `--fft-i: ${i}` });
     if (muted(row)) group.dataset.muted = "";
     const name = svg(doc, "text", { class: "fft-pyr-label", x: mid, y: cy, "text-anchor": "middle", "dominant-baseline": "middle" });
-    name.textContent = names[i] ?? "";
+    writeLabel(name, shown[i] ?? "", names[i] ?? "");
     group.append(name);
     const l = span(lefts[i] ?? 0);
     const r = span(rights[i] ?? 0);
@@ -123,27 +122,13 @@ export const renderPyramid: ViewRenderer<PyramidView> = (ctx) => {
       { label: ctx.label(right), value: rightText[i] ?? "", color: rightColor },
       { label: "Total", value: ctx.format(total, right) },
     ];
-    const hit = svg(doc, "rect", { class: "fft-pyr-hit", x: 0, y: top, width, height: LANE, tabindex: 0, role: "img" });
-    hit.setAttribute("aria-label", `${names[i] ?? ""}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
-    const show = () => {
-      wrap.setAttribute("data-active", "");
-      for (const other of hits) other.parentElement?.removeAttribute("data-active");
-      group.setAttribute("data-active", "");
-      ctx.tooltip.show(name, names[i] ?? "", items);
-    };
-    hit.addEventListener("pointerenter", show);
-    hit.addEventListener("focus", show);
-    hit.addEventListener("pointerleave", deactivate);
-    hit.addEventListener("blur", deactivate);
-    selectable(hit, () => ctx.select(row));
+    const hit = svg(doc, "rect", { class: "fft-pyr-hit", x: 0, y: top, width, height: LANE });
+    hits.push(rowHit(ctx, { node: hit, row, name: names[i] ?? "", items, anchor: name, active: group, group: active }));
     group.append(hit);
-    hits.push(hit);
     chart.append(group);
   });
   roving(hits);
   wrap.append(chart);
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, rows, [label, left, right], false));
-  wrap.append(hidden);
+  wrap.append(hiddenTableOf(ctx, rows, [label, left, right]));
   ctx.el.append(wrap);
 };

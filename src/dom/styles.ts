@@ -1728,4 +1728,18 @@ ul.fft-map-legend { margin-top: 0; }
 :is(.fft-kpi-value, .fft-stat-value)[data-empty] { color: var(--fft-muted); }
 .fft-sparkline[data-empty] { visibility: hidden; }
 .fft-stats-empty { margin: 0; font-size: var(--fft-fs-m); color: var(--fft-text-secondary); }
+
+/* WP3b: the row views that had no dimming step back like the rest while one row is pointed at. */
+.fft-dumbbell[data-active] .fft-db-row:not([data-active]),
+.fft-bullets[data-active] .fft-bullet:not([data-active]),
+.fft-history-wrap[data-active] .fft-history-event:not([data-active]),
+.fft-anomalies[data-active] .fft-anom-lane:not([data-active]) { opacity: var(--fft-dim); }
+:is(.fft-db-row, .fft-bullet, .fft-history-event, .fft-anom-lane) { transition: opacity 377ms var(--fft-ease); }
+/* The pointed lane's own flags stay full strength. */
+.fft-anomalies[data-active] .fft-anom-lane[data-active] .fft-anom-flag { opacity: 1; }
+/* A meter's name ends in an ellipsis when longer than its line, as every row view's does. */
+.fft-meter-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Highlight on lifecycle and matrix: the rows not named step back to grey. */
+.fft-lc-lane[data-muted] :is(.fft-lc-label, .fft-lc-status-text) { fill: var(--fft-muted); }
+.fft-mx-row[data-muted] { fill: var(--fft-muted); }
 `;

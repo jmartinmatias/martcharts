@@ -1,7 +1,7 @@
 import { readNumber } from "../../core/formats.ts";
 import type { ViewRenderer } from "../../core/view-context.ts";
 import type { MeterView } from "../../core/views.ts";
-import { activeGroup, hiddenTableOf, html, roving, selectable, shareFormat } from "./shared.ts";
+import { activeGroup, hiddenTableOf, html, roving, rowHit, shareFormat } from "./shared.ts";
 import { checkMark, standing } from "./target.ts";
 
 /**
@@ -18,6 +18,7 @@ export const renderMeter: ViewRenderer<MeterView> = (ctx) => {
   const list = html(doc, "div", "fft-meters");
   list.setAttribute("role", "list");
   const group = activeGroup(list, ctx.tooltip);
+  const hits: Element[] = [];
   ctx.rows.forEach((row, i) => {
     const value = readNumber(row[valueField]);
     const target = readNumber(row[targetField]);
@@ -34,7 +35,10 @@ export const renderMeter: ViewRenderer<MeterView> = (ctx) => {
     const head = html(doc, "div", "fft-meter-head");
     const percentEl = html(doc, "span", "fft-meter-percent", percentText);
     if (met) percentEl.prepend(checkMark(doc));
-    head.append(html(doc, "span", "fft-meter-label", name), percentEl);
+    const nameNode = html(doc, "span", "fft-meter-label", name);
+    // A name longer than its line ends in an ellipsis (CSS); the pointer's title and the meter's aria-label keep it whole.
+    nameNode.title = name;
+    head.append(nameNode, percentEl);
     const track = html(doc, "div", "fft-meter-track");
     track.setAttribute("role", "meter");
     track.setAttribute("aria-valuemin", "0");
@@ -48,7 +52,6 @@ export const renderMeter: ViewRenderer<MeterView> = (ctx) => {
     foot.append(html(doc, "span", "fft-meter-value", `${ctx.format(row[valueField], valueField)} of ${ctx.format(row[targetField], targetField)}`));
     if (stand) foot.append(html(doc, "span", "fft-meter-gap", stand));
     meter.append(head, track, foot);
-    meter.tabIndex = 0;
     // The tooltip says what the meter shows in figures: the value, the target, the attainment and what is left.
     const items = [
       { label: ctx.label(valueField), value: ctx.format(row[valueField], valueField) },
@@ -56,17 +59,9 @@ export const renderMeter: ViewRenderer<MeterView> = (ctx) => {
       ...(percentText ? [{ label: "Of target", value: percentText }] : []),
       ...(stand && !met ? [{ label: "Where it stands", value: stand }] : []),
     ];
-    const show = () => {
-      group.on(meter);
-      ctx.tooltip.show(track, name, items);
-    };
-    meter.addEventListener("pointerenter", show);
-    meter.addEventListener("focus", show);
-    meter.addEventListener("pointerleave", () => group.off());
-    meter.addEventListener("blur", () => group.off());
-    selectable(meter, () => ctx.select(row));
+    hits.push(rowHit(ctx, { node: meter, row, name, items, anchor: track, group }));
     list.append(meter);
   });
-  roving([...list.children]);
+  roving(hits);
   ctx.el.append(list, hiddenTableOf(ctx, ctx.rows, [labelField ?? "", valueField, targetField]));
 };

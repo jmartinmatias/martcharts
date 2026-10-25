@@ -1,7 +1,7 @@
 import { readNumber } from "../../core/formats.ts";
 import type { ViewRenderer } from "../../core/view-context.ts";
 import type { BulletView } from "../../core/views.ts";
-import { hiddenTableOf, html, roving, selectable, shareFormat, svg } from "./shared.ts";
+import { activeGroup, hiddenTableOf, html, roving, rowHit, shareFormat, svg } from "./shared.ts";
 import { checkMark, standing } from "./target.ts";
 
 const DEFAULT_RANGES = [0.6, 0.9, 1.2];
@@ -20,6 +20,9 @@ export const renderBullet: ViewRenderer<BulletView> = (ctx) => {
   const share = shareFormat(ctx.spec.locale);
   const list = html(doc, "div", "fft-bullets");
   list.setAttribute("role", "list");
+  // Pointing at a bullet steps the others back, as every row view does.
+  const active = activeGroup(list, ctx.tooltip);
+  const hits: Element[] = [];
   ctx.rows.forEach((row, i) => {
     const actual = readNumber(row[value]);
     const goal = readNumber(row[target]);
@@ -28,7 +31,6 @@ export const renderBullet: ViewRenderer<BulletView> = (ctx) => {
 
     const item = html(doc, "div", "fft-bullet");
     item.setAttribute("role", "listitem");
-    item.tabIndex = 0;
     item.style.setProperty("--fft-i", String(i));
     const chart = svg(doc, "svg", { height: 21, preserveAspectRatio: "none" });
     chart.setAttribute("aria-hidden", "true");
@@ -50,7 +52,10 @@ export const renderBullet: ViewRenderer<BulletView> = (ctx) => {
       item.dataset.met = "true";
       number.prepend(checkMark(doc));
     }
-    item.append(html(doc, "span", "fft-bullet-label", name), chart, number);
+    const nameNode = html(doc, "span", "fft-bullet-label", name);
+    // A name longer than its column ends in an ellipsis (CSS); the pointer's title and the row's aria-label keep it whole.
+    nameNode.title = name;
+    item.append(nameNode, chart, number);
     const attainment = actual !== null && goal ? share.format(actual / goal) : "";
     const items = [
       { label: ctx.label(value), value: valueText },
@@ -58,16 +63,12 @@ export const renderBullet: ViewRenderer<BulletView> = (ctx) => {
       ...(attainment ? [{ label: "Of target", value: attainment }] : []),
       ...(stand && !met && actual !== null && goal !== null ? [{ label: "To go", value: ctx.format(goal - actual, value) }] : []),
     ];
+    hits.push(rowHit(ctx, { node: item, row, name, items, anchor: chart, group: active }));
+    // Read aloud: the figures, then where it stands in words ("€22K to go" is said by the standing, not twice).
     const said = items.filter((it) => it.label !== "To go").map((it) => `${it.label} ${it.value}`);
     item.setAttribute("aria-label", `${name}: ${[...said, ...(stand ? [`${stand.charAt(0).toLowerCase()}${stand.slice(1)}`] : [])].join(", ")}`);
-    const show = () => ctx.tooltip.show(chart, name, items);
-    item.addEventListener("pointerenter", show);
-    item.addEventListener("focus", show);
-    item.addEventListener("pointerleave", () => ctx.tooltip.hide());
-    item.addEventListener("blur", () => ctx.tooltip.hide());
-    selectable(item, () => ctx.select(row));
     list.append(item);
   });
-  roving([...list.children]);
+  roving(hits);
   ctx.el.append(list, hiddenTableOf(ctx, ctx.rows, [label, value, target]));
 };

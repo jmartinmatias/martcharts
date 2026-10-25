@@ -5,8 +5,8 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { DumbbellView } from "../../core/views.ts";
 import { linearScale } from "../layout.ts";
 import { highlights, tickFormatter } from "./chart.ts";
-import { buildTable, CHAR_WIDTH, html, rowHeight, selectable, svg } from "./shared.ts";
-import { roving } from "./focus.ts";
+import { activeGroup, hiddenTableOf, html, roving, rowHeight, rowHit, svg } from "./shared.ts";
+import { nameColumn, writeLabel } from "./label-fit.ts";
 
 /** Field names that read as a moment in time (q3_2025, h1, last, before): such a pair is a before and an after. */
 const PERIOD = /(19|20)\d\d|\b[qh][1-4]\b|before|after|previous|prior|last|current|start|end/i;
@@ -44,7 +44,9 @@ export const renderDumbbell: ViewRenderer<DumbbellView> = (ctx) => {
   const ticks = linearScale(values, [0, 1], { includeZero: false }).ticks;
   const tickText = tickFormatter(ctx, to, ticks);
   const names = rows.map((row) => ctx.format(row[label], label));
-  const left = Math.max(34, Math.max(...names.map((n) => n.length)) * CHAR_WIDTH + 13);
+  // The names' measured column, cut with an ellipsis past a third of the card.
+  const column = nameColumn(names, ctx.width);
+  const left = column.width + 8;
   const margin = { top: 5, right: 13, bottom: 26, left };
   const width = Math.max(ctx.width, left + 144);
   const height = margin.top + rows.length * LANE + margin.bottom;
@@ -91,6 +93,10 @@ export const renderDumbbell: ViewRenderer<DumbbellView> = (ctx) => {
   // highlight keeps the named rows in color and steps the rest back to grey, as on hbar and dot.
   const picked = highlights((ctx.view as { highlight?: unknown }).highlight);
   const muted = (row: Row) => picked.length > 0 && !picked.includes(String(row[label]));
+  // Pointing at a row lights it and steps the others back.
+  wrap.classList.add("fft-dumbbell");
+  const active = activeGroup(wrap, ctx.tooltip);
+  const hits: Element[] = [];
   rows.forEach((row, i) => {
     const cy = margin.top + i * LANE + LANE / 2;
     const a = readNumber(row[from]) as number;
@@ -100,8 +106,8 @@ export const renderDumbbell: ViewRenderer<DumbbellView> = (ctx) => {
     const group = svg(doc, "g", { class: "fft-db-row", style: `--fft-i: ${i}` });
     if (arrow) group.dataset.direction = direction;
     if (muted(row)) group.dataset.muted = "";
-    const text = svg(doc, "text", { class: "fft-db-label", x: margin.left - 13, y: cy, "text-anchor": "end", "dominant-baseline": "middle" });
-    text.textContent = name;
+    const text = svg(doc, "text", { class: "fft-db-label", x: column.end, y: cy, "text-anchor": "end", "dominant-baseline": "middle" });
+    writeLabel(text, column.shown[i] ?? name, name);
     group.append(text);
     let anchor: SVGElement;
     if (arrow) {
@@ -142,22 +148,14 @@ export const renderDumbbell: ViewRenderer<DumbbellView> = (ctx) => {
       { label: ctx.label(to), value: ctx.format(row[to], to), ...(arrow && periods ? {} : { color: toColor }) },
       ...(periods ? (a !== 0 ? [{ label: "Change", value: change.format((b - a) / Math.abs(a)) }] : []) : [{ label: "Gap", value: ctx.format(Math.abs(a - b), to) }]),
     ];
-    const hit = svg(doc, "rect", { class: "fft-db-hit", x: 0, y: cy - LANE / 2, width, height: LANE, tabindex: 0, role: "img" });
+    const hit = svg(doc, "rect", { class: "fft-db-hit", x: 0, y: cy - LANE / 2, width, height: LANE });
     const said = arrow && periods && direction !== "flat" ? `, ${direction === "up" ? "rose" : "fell"}` : "";
-    hit.setAttribute("aria-label", `${name}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}${said}`);
-    const show = () => ctx.tooltip.show(anchor, name, items);
-    hit.addEventListener("pointerenter", show);
-    hit.addEventListener("focus", show);
-    hit.addEventListener("pointerleave", () => ctx.tooltip.hide());
-    hit.addEventListener("blur", () => ctx.tooltip.hide());
-    selectable(hit, () => ctx.select(row));
+    hits.push(rowHit(ctx, { node: hit, row, name, items, anchor, active: group, group: active, said }));
     group.append(hit);
     chart.append(group);
   });
-  roving([...chart.querySelectorAll(".fft-db-hit")]);
+  roving(hits);
   wrap.append(chart);
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, rows, [label, from, to], false));
-  wrap.append(hidden);
+  wrap.append(hiddenTableOf(ctx, rows, [label, from, to]));
   ctx.el.append(wrap);
 };
