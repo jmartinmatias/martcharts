@@ -1785,4 +1785,14 @@ ul.fft-map-legend { margin-top: 0; }
 .fft-heat-probe { fill: none; stroke: var(--fft-text); stroke-width: 1.5; pointer-events: none; }
 .fft-heat-layer { fill: transparent; cursor: crosshair; outline: none; }
 .fft-heat-layer:focus-visible { stroke: var(--fft-accent); stroke-width: 2; }
+
+/* Datawrapper, second wave: colour rules in words, rich tooltips, the live-data stamp. */
+.fft-rule-key { margin-bottom: 8px; }
+.fft-tooltip-rich { display: block; gap: 0; font-size: var(--fft-fs-m); line-height: 18px; font-variant-numeric: tabular-nums; }
+.fft-tooltip-rich strong { font-weight: 600; }
+.fft-tooltip-bar { display: inline-block; vertical-align: middle; width: 55px; height: 6px; margin: 0 5px; border-radius: var(--fft-radius-s); background: color-mix(in srgb, var(--fft-text) 10%, transparent); overflow: hidden; }
+.fft-tooltip-bar-fill { display: block; height: 100%; border-radius: var(--fft-radius-s); background: var(--fft-accent); }
+.fft-tooltip-bar-fill[data-negative] { background: var(--fft-down); }
+.fft-updated { margin: 0; font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-muted); font-variant-numeric: tabular-nums; }
+.fft-updated[data-stale="true"] { color: var(--fft-text-secondary); }
 `;

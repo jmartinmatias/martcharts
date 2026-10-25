@@ -37,4 +37,6 @@ createEditor($("#editor"), {
     { label: "Sales by region and product", url: "/data/sales.json" },
   ],
   srcOf: (spec) => `widgets/${spec.id ?? "chart"}.json`,
+  // The published site serves the embed page with the drop-in examples; a full address, so the code works anywhere.
+  embedHref: new URL("examples/embed.html", location.href).href,
 });

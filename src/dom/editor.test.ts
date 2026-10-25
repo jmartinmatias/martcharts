@@ -338,7 +338,7 @@ describe("step 3: the chart", () => {
 });
 
 describe("step 4: publish", () => {
-  test("shows the chart with its actions, the spec, three embed codes, and saves to the browser when the host has no store", async () => {
+  test("shows the chart with its actions, the spec, four embed codes (the last an iframe that sizes itself), and saves to the browser when the host has no store", async () => {
     const ed = open();
     ed.setData(TSV);
     ed.setSpec({ ...ed.spec, id: "regions", title: "Regions", view: { type: "hbar", label: "region", value: "revenue" } });
@@ -346,11 +346,13 @@ describe("step 4: publish", () => {
     await vi.waitFor(() => expect(one(".fft-ed-published .fft-widget")).not.toBeNull());
     expect(one(".fft-ed-published .fft-action[data-action='csv']")).not.toBeNull();
     const codes = texts(".fft-ed-pre");
-    expect(codes).toHaveLength(4);
+    expect(codes).toHaveLength(5);
     expect(codes[0]).toContain('"id": "regions"');
     expect(codes[1]).toContain("<fft-widget actions=");
     expect(codes[2]).toContain('src="widgets/regions.json"');
     expect(codes[3]).toContain("createWidget(");
+    expect(codes[4]).toMatch(/^<iframe src="embed\.html\?spec=[\w-]+" title="Regions"/);
+    expect(codes[4]).toContain('<script src="embed-host.js"></script>');
     (all(".fft-ed-primary").find((b) => b.textContent === "Save to this gallery") as HTMLButtonElement).click();
     await vi.waitFor(() => expect(JSON.parse(localStorage.getItem("martcharts:editor:charts") ?? "[]")).toHaveLength(1));
     // Back on the data step, the saved chart is offered and reopens.

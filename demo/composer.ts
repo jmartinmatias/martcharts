@@ -34,5 +34,5 @@ if (address.view && address.spec) {
   document.title = `${address.spec.title || "Dashboard"}: FFT Widgets`;
   createDashboard($("#page-view"), address.spec, { actions: ["info", "expand", "explain", "csv", "image"] });
 } else {
-  createComposer($("#composer"), { examples });
+  createComposer($("#composer"), { examples, embedHref: new URL("examples/embed.html", location.href).href });
 }

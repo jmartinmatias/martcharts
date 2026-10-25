@@ -20,6 +20,7 @@ import { localBoardStore, slugOf } from "./board-store.ts";
 import type { BoardStore, SavedBoard, SavedChart } from "./board-store.ts";
 import { createDashboard } from "./dashboard.ts";
 import type { Dashboard } from "./dashboard.ts";
+import { frameEmbed } from "./embed.ts";
 import { ensureStyles } from "./styles.ts";
 
 export interface ComposerOptions {
@@ -37,6 +38,8 @@ export interface ComposerOptions {
   locale?: string;
   /** The address "Open as page" goes to. Default: this page with `#view=1&spec=…`. */
   pageHref?(spec: DashboardSpec): string;
+  /** The address of `embed.html`, for the iframe embed code (a frame that sizes itself). Default: `embed.html`. */
+  embedHref?: string;
 }
 
 /** A live composer on the page. */
@@ -445,7 +448,10 @@ export function createComposer(target: HTMLElement, options: ComposerOptions = {
     open.href = options.pageHref?.(board) ?? boardToHash(board, { view: "1" });
     open.target = "_blank";
     open.rel = "noopener";
-    panel.append(code(w.json, json, `${board.id ?? "dashboard"}.json`), code(w.embed, dashboardEmbed(board)), open);
+    // The frame embed sizes itself in any page, where the script embed needs the page to run the library.
+    const frame = code(wordsFor(options.locale ?? doc.documentElement.lang).dw2.embedFrame, frameEmbed("board", board, options.embedHref ?? "embed.html", board.title ?? w.untitledBoard));
+    frame.querySelector("pre")?.setAttribute("data-code", "frame");
+    panel.append(code(w.json, json, `${board.id ?? "dashboard"}.json`), code(w.embed, dashboardEmbed(board)), frame, open);
   }
 
   // ---- The live preview ----

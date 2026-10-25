@@ -5,6 +5,7 @@
  * @module
  */
 import { normalizeView } from "./aliases.ts";
+import type { RichRun } from "./rich.ts";
 import type { Row, ViewSpec, WidgetSpec } from "./types.ts";
 
 /** One line in a tooltip: a value and the series it belongs to. */
@@ -15,6 +16,11 @@ export interface TooltipItem {
   value: string;
   /** Series color for the short line key beside the label. */
   color?: string;
+  /**
+   * A rich line (from a `spec.tooltip` with markup): runs of text, bold or not, and small bars, written in place of
+   * label and value. Text runs are inserted as text only.
+   */
+  rich?: RichRun[];
 }
 
 /** The single tooltip each widget owns. */
@@ -54,6 +60,11 @@ export interface ViewContext<V extends { type: string } = ViewSpec> {
    * means no fixed color: the view falls back to `color(i)`.
    */
   colorOf?(category: unknown): string | undefined;
+  /**
+   * The colour `spec.colorRules` give one row: the first rule it matches, else its category's fixed colour. Undefined
+   * when no rule and no fixed colour applies. For views whose marks stand for single rows (a dot, a bar, a cell).
+   */
+  colorForRow?(row: Row): string | undefined;
   /** The widget's tooltip. */
   tooltip: Tooltip;
   /** Reports that the viewer picked a row. The widget fires an `fft-select` event with it. */

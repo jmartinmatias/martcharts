@@ -20,6 +20,7 @@ Comma-separated values (CSV), from a file or written into the spec, with the fir
 | `delimiter` | string |  |  | Column separator. Leave out to pick a comma, semicolon or tab from the header row. |
 | `typed` | boolean |  | `true` | Turn number-looking cells into numbers (ids with leading zeros stay text) and empty cells into null. False keeps every cell as text. |
 | `cache` | number |  | `60` | Seconds a fetched file is shared with other loads of the same address. 0 always fetches. |
+| `refresh` | number |  |  | Seconds between reloads for live data, at least 5. The chart redraws with the new rows and says when it was last updated; a failed reload keeps the last rows, and reloads pause while the page is hidden. |
 
 ### `fn`
 
@@ -37,6 +38,17 @@ Rows written directly into the spec. Best for small, fixed data and for trying t
 | --- | --- | --- | --- | --- |
 | `rows` | array | yes |  | The rows, for example `[{ "region": "North", "revenue": 120 }]`. |
 
+### `sheet`
+
+A Google Sheet, read through its CSV export: paste the sheet's address as you see it, or as published to the web (File, Share, Publish to web). The sheet must be published or shared so anyone with the link can view it. The first row names the fields.
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `url` | string | yes |  | The sheet's address, for example https://docs.google.com/spreadsheets/d/<id>/edit#gid=0, or its published address. |
+| `gid` | any |  |  | Which tab, by the gid in its address. Defaults to the one in the address, else the first tab. |
+| `cache` | number |  | `60` | Seconds a fetched sheet is shared with other loads of the same address. 0 always fetches. |
+| `refresh` | number |  |  | Seconds between reloads for live data, at least 5. The chart redraws with the new rows and says when it was last updated; a failed reload keeps the last rows, and reloads pause while the page is hidden. |
+
 ### `url`
 
 Fetches JSON over HTTP. The response must be a list of rows, or contain one at `path`.
@@ -46,6 +58,7 @@ Fetches JSON over HTTP. The response must be a list of rows, or contain one at `
 | `url` | string | yes |  | Address of the JSON. Relative addresses resolve against the page (or, in the MCP server, the public folder). |
 | `path` | string |  |  | Dot path to the list inside the response, for example "data.items". |
 | `cache` | number |  | `60` | Seconds a loaded answer is shared with other loads of the same address, so a dashboard fetches each file once. 0 always fetches. A widget's refresh always fetches. |
+| `refresh` | number |  |  | Seconds between reloads for live data, at least 5. The chart redraws with the new rows and says when it was last updated; a failed reload keeps the last rows, and reloads pause while the page is hidden. |
 
 ## Transforms
 
@@ -274,7 +287,7 @@ Vertical bars comparing amounts across categories. Several y fields draw grouped
 | `y` | field name or list (number) | yes |  | Field or fields for bar heights. Each field is one series. |
 | `lines` | field name or list (number) |  |  | Field or fields drawn as lines over the bars, on the same axis, for example a target. Never a second axis. Under one target line (a field named target, plan, goal, budget or quota), bars on the wrong side of it (see goodWhen) are drawn outlined and keyed Below target. |
 | `stacked` | any |  | `false` | true stacks the series into one column per category (part-to-whole); "percent" stacks them as shares of 100%. |
-| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |
 | `reference` | array |  |  | Target lines and bands across the value axis. Each item is { value, label }, { field, agg, label } (agg: last, first, sum, avg, min, max; default avg), or { from, to, label } for a band. Example: [{ "value": 1200000, "label": "Target" }]. |
 | `mark` | `bar`, `lollipop` |  | `"bar"` | "lollipop" draws a thin stem from the baseline and a dot at the value in place of each bar: the same reading with far less ink, for rankings of many similar values. |
 | `goodWhen` | `up`, `down` |  | `"up"` | Which side of a target is good news: "up" for revenue, "down" for wait times and costs. Under one target (a lines field or a reference line labeled target, plan, goal, budget or quota), a bar on the wrong side is drawn outlined and keyed Below or Over the target. |
@@ -374,7 +387,7 @@ Flows between groups around a circle: each group an arc as long as everything it
 
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |
 | `source` | field name (category) | yes |  | Field naming where each flow comes from. |
 | `target` | field name (category) | yes |  | Field naming where each flow goes. |
 | `value` | field name (number) | yes |  | Field with each flow's size. |
@@ -396,7 +409,7 @@ A map with each region shaded by its value, from the weakest tint to the stronge
 | `previous` | field name (number) |  |  | Field with the same measure in the previous period, such as last year's revenue. Each region's tooltip then gives the change, and show "change" shades by it. |
 | `show` | `value`, `change` |  | `"value"` | "change" shades each region by its change since previous on a diverging scale: up one way, down the other, no change in the middle. Needs previous. |
 | `change` | `percent`, `difference` |  | `"percent"` | How a change is told: as a percent of the previous value, or as the difference in the value's own unit. |
-| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |
 
 ### `donut`
 
@@ -409,7 +422,7 @@ Part-to-whole at a glance: a ring of up to 6 slices with the total in the middle
 | `caption` | string |  |  | Text under the total in the middle. Defaults to the value field's label, or to "seats" when the value field is seats. |
 | `arc` | `full`, `half` |  | `"full"` | "half" draws a semicircle open at the bottom with the slices from left to right in the order given: an election donut, seats by party in the order they sit. |
 | `majority` | boolean |  | `false` | On a half ring, a thin tick at the halfway point labelled Majority and the seats it takes (more than half of the total); the slice that crosses it says so in its tooltip. |
-| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |
 | `sort` | `value`, `label`, `none` |  | `"none"` | Orders the rows before drawing: "value" ranks them by their number (largest first), "label" by name (A to Z), "none" keeps the data's order. Stacked bars and strips rank by their total. |
 | `order` | `desc`, `asc` |  |  | Turns the sort around: "asc" puts the smallest first, "desc" names Z to A. Defaults to largest first for value, A to Z for label. |
 | `limit` | number |  |  | Keeps the first N rows after sorting: the top 10, say. The rest are left out, or folded into one row with other. |
@@ -423,7 +436,7 @@ A dot plot: one row per item and one dot per measure on one shared axis, with a 
 | --- | --- | --- | --- | --- |
 | `label` | field name (category) | yes |  | Field naming each row. |
 | `value` | field name or list (number) | yes |  | Field or fields placed as dots on the axis. Each field is one series with its own color; one field writes its value beside the dot. Also accepts `values`, the older name. |
-| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |
 | `reference` | array |  |  | Target lines and bands across the value axis. Each item is { value, label }, { field, agg, label } (agg: last, first, sum, avg, min, max; default avg), or { from, to, label } for a band. Example: [{ "value": 1200000, "label": "Target" }]. |
 | `sort` | `value`, `label`, `none` |  | `"none"` | Orders the rows before drawing: "value" ranks them by their number (largest first), "label" by name (A to Z), "none" keeps the data's order. Stacked bars and strips rank by their total. |
 | `order` | `desc`, `asc` |  |  | Turns the sort around: "asc" puts the smallest first, "desc" names Z to A. Defaults to largest first for value, A to Z for label. |
@@ -453,7 +466,7 @@ Before and after per item on one shared axis: a muted dot for before, an accent 
 | `from` | field name (number) | yes |  | Field with the before value. |
 | `to` | field name (number) | yes |  | Field with the after value. |
 | `mark` | `range`, `arrow` |  | `"range"` | "range" joins the two dots with a plain line, the gap between them. "arrow" points from the from value to the to value, so direction reads at a glance; between two periods a rise takes the up color and a fall the down color, keyed Rose and Fell. |
-| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |
 | `reference` | array |  |  | Target lines and bands across the value axis. Each item is { value, label }, { field, agg, label } (agg: last, first, sum, avg, min, max; default avg), or { from, to, label } for a band. Example: [{ "value": 1200000, "label": "Target" }]. |
 | `sort` | `value`, `label`, `none` |  | `"none"` | Orders the rows before drawing: "value" ranks them by their number (largest first), "label" by name (A to Z), "none" keeps the data's order. Stacked bars and strips rank by their total. |
 | `order` | `desc`, `asc` |  |  | Turns the sort around: "asc" puts the smallest first, "desc" names Z to A. Defaults to largest first for value, A to Z for label. |
@@ -468,7 +481,7 @@ Stages in order as centered bars narrowing from the first, with the conversion r
 | --- | --- | --- | --- | --- |
 | `label` | field name (category) | yes |  | Field naming each stage. |
 | `value` | field name (number) | yes |  | Field with how many reached each stage. |
-| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |
 
 ### `gauge`
 
@@ -494,7 +507,7 @@ Horizontal bars for rankings and long labels: label on the left, bar, value at t
 | `stacked` | any |  | `false` | With several value fields: true stacks them into one bar per row, its total at the end (part-to-whole); "percent" stacks them as shares of 100%. |
 | `split` | boolean |  | `false` | With several value fields: one small column of bars per field, side by side, the label written once on the left and each column headed by its field. Each column has its own scale, so measures in different units sit together. |
 | `shared` | boolean |  | `false` | Split columns share one scale, so a bar compares across columns too. Only for fields in the same unit. |
-| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |
 | `mark` | `bar`, `lollipop` |  | `"bar"` | "lollipop" draws a thin stem from the baseline and a dot at the value in place of each bar: the same reading with far less ink, for rankings of many similar values. |
 | `reference` | array |  |  | Target lines and bands across the value axis. Each item is { value, label }, { field, agg, label } (agg: last, first, sum, avg, min, max; default avg), or { from, to, label } for a band. Example: [{ "value": 1200000, "label": "Target" }]. |
 | `sort` | `value`, `label`, `none` |  | `"none"` | Orders the rows before drawing: "value" ranks them by their number (largest first), "label" by name (A to Z), "none" keeps the data's order. Stacked bars and strips rank by their total. |
@@ -557,7 +570,7 @@ A hierarchy laid flat: a column for the total, then one per level left to right,
 
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |
 | `levels` | field name or list (category) | yes |  | Fields from the top level down, one column each, for example ["region", "product", "plan"]. Up to 4. |
 | `value` | field name (number) | yes |  | Field sizing the cells. Zero and negative values are left out. |
 
@@ -599,7 +612,7 @@ Stage swimlanes: one row per item on a shared date axis, each stage drawn from i
 | `today` | any |  |  | true for a line at today's date, or a YYYY-MM-DD date for the line. Shown when it falls inside the span. |
 | `status` | field name (category) |  |  | Field written as a small pill at the row's end, such as In force or Consultation. |
 | `impact` | field name (number) |  |  | Field from 1 to 5 that sets each row's thickness: the higher the impact, the thicker the row. |
-| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |
 
 ### `likert`
 
@@ -680,7 +693,7 @@ A mark matrix (a punchcard): one mark per pair of x and y, sized by a value, sha
 | `color` | field name (category) |  |  | Field that shades each mark: a number takes the seven-step scale from lowest to highest (with a scale under the grid), a category takes one color per value (with a key). |
 | `flag` | field name (category) |  |  | A yes/no field (true, 1, "yes", "x"): a filled square where it is yes, a faint dot where it is no. For who must comply. Also accepts `mark`, the older name. |
 | `label` | field name (category) |  |  | Field (text or a number) written inside marks big enough to hold it; always in the tooltip. |
-| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |
 
 ### `meter`
 
@@ -716,7 +729,7 @@ Part-to-whole as a full disc: up to 6 slices from twelve o'clock clockwise, each
 | `label` | field name (category) | yes |  | Field naming each slice. |
 | `value` | field name (number) | yes |  | Field with each slice's amount. Zero, negative and missing values are left out. |
 | `labels` | `inside`, `outside`, `legend` |  | `"inside"` | "inside" writes each share on its slice (thin slices skip theirs) with a legend of names and values; "outside" writes names and shares beside the disc on short leader lines, with no legend; "legend" leaves the disc bare. |
-| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |
 | `sort` | `value`, `label`, `none` |  | `"none"` | Orders the rows before drawing: "value" ranks them by their number (largest first), "label" by name (A to Z), "none" keeps the data's order. Stacked bars and strips rank by their total. |
 | `order` | `desc`, `asc` |  |  | Turns the sort around: "asc" puts the smallest first, "desc" names Z to A. Defaults to largest first for value, A to Z for label. |
 | `limit` | number |  |  | Keeps the first N rows after sorting: the top 10, say. The rest are left out, or folded into one row with other. |
@@ -731,7 +744,7 @@ A population pyramid: one row per band (an age group, a tenure band), with two c
 | `label` | field name (category) | yes |  | Field naming each band, in order from top to bottom, such as the age group. |
 | `left` | field name (number) | yes |  | Field with the count drawn leftward, such as women. |
 | `right` | field name (number) | yes |  | Field with the count drawn rightward, such as men. |
-| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |
 
 ### `radar`
 
@@ -739,7 +752,7 @@ Profiles across several attributes: one spoke per row, rings for one shared scal
 
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |
 | `label` | field name (category) | yes |  | Field naming each spoke, such as an attribute. |
 | `y` | field name or list (number) | yes |  | Field or fields with the scores; each field is one shape. Up to 3 stay readable. |
 | `max` | number |  |  | End of the scale. Defaults to a round number at or above the highest score. |
@@ -814,7 +827,7 @@ Flows between stages as ribbons as thick as their volume, for example traffic so
 
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |
 | `source` | field name (category) | yes |  | Field naming where each flow starts. |
 | `target` | field name (category) | yes |  | Field naming where each flow ends. |
 | `value` | field name (number) | yes |  | Field with each flow's volume. |
@@ -834,7 +847,7 @@ One dot per row placed by two numbers, to show how they relate. An optional grou
 | `cluster` | field name (category) |  |  | Field naming each dot's cluster, such as a segment found by analysis. A soft, rounded hull gathers each cluster's dots and carries its name at the middle, so the areas read as regions of the plot; the dots take the cluster's color unless series is set. Up to 6 clusters. |
 | `labels` | boolean |  | `false` | Write each dot's label beside it, skipping names that would land on another, so the standouts are named on the chart itself. |
 | `quadrants` | object |  |  | Splits the plot into four at a value of x and of y, with a faint word in each corner: { "x": 50, "y": 3, "labels": ["Monitor", "Act now", "Prepare", "Watch"] } (top-left first, then clockwise). For priority grids such as pressure against impact. |
-| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |
 | `annotations` | array |  |  | Short notes pinned to points of the chart, each { "x": <category or period>, "y"?: <value>, "text": "…" }. Without y the note sits on the value there. Each note is a few words beside a small dot, with a thin leader to it; on a narrow card the notes become numbered markers with the texts listed under the chart. Example: [{ "x": "2026-03", "text": "Price rise" }]. |
 
 ### `slope`
@@ -846,7 +859,7 @@ Each item's move between two points in time, as a line from a left column to a r
 | `label` | field name (category) | yes |  | Field naming each row. |
 | `from` | field name (number) | yes |  | Field with the earlier value (left column). |
 | `to` | field name (number) | yes |  | Field with the later value (right column). |
-| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |
 | `sort` | `value`, `label`, `none` |  | `"none"` | Orders the rows before drawing: "value" ranks them by their number (largest first), "label" by name (A to Z), "none" keeps the data's order. Stacked bars and strips rank by their total. |
 | `order` | `desc`, `asc` |  |  | Turns the sort around: "asc" puts the smallest first, "desc" names Z to A. Defaults to largest first for value, A to Z for label. |
 | `limit` | number |  |  | Keeps the first N rows after sorting: the top 10, say. The rest are left out, or folded into one row with other. |
@@ -862,7 +875,7 @@ Unit strips: one row per item with a strip of small squares, one per unit, color
 | `value` | field name or list (number) | yes |  | Field or fields with each part's count, in the order they are drawn. The first part's share of the total is written at the end. Also accepts `parts`, the older name. |
 | `per` | field name (number) |  |  | Field with a denominator, such as pages: the density (units per one of them) is written at the end and in the tooltip. |
 | `unit` | string |  | `"provision"` | What one unit is, in the singular, for the note under the chart and the tooltip. |
-| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |
 | `reference` | array |  |  | Target lines and bands across the value axis. Each item is { value, label }, { field, agg, label } (agg: last, first, sum, avg, min, max; default avg), or { from, to, label } for a band. Example: [{ "value": 1200000, "label": "Target" }]. |
 | `sort` | `value`, `label`, `none` |  | `"none"` | Orders the rows before drawing: "value" ranks them by their number (largest first), "label" by name (A to Z), "none" keeps the data's order. Stacked bars and strips rank by their total. |
 | `order` | `desc`, `asc` |  |  | Turns the sort around: "asc" puts the smallest first, "desc" names Z to A. Defaults to largest first for value, A to Z for label. |
@@ -875,7 +888,7 @@ A hierarchy as rings: the inner ring splits the total by the first level, each o
 
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |
 | `levels` | field name or list (category) | yes |  | Fields from the top level down, one ring each, for example ["product", "region"]. Up to 3. |
 | `value` | field name (number) | yes |  | Field sizing the slices. Zero and negative values are left out. |
 | `caption` | string |  |  | Text under the total in the middle. Defaults to the value field's label. |
@@ -886,7 +899,7 @@ A map with a circle on each place, its area true to a value: customers by state,
 
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |
 | `geo` | any |  |  | The map's geometry: a built-in basemap by name (europe, us-states: tile grids keyed by country or state code), an inline GeoJSON FeatureCollection whose features carry an id, or the address of a GeoJSON file to fetch. |
 | `id` | field name (category) |  |  | Field with the region code that places each circle: a country or state code on a built-in basemap, or the feature id in your GeoJSON. Use lat and lon instead for coordinates. |
 | `lat` | field name (number) |  |  | Field with each row's latitude, for placing by coordinates on your own GeoJSON (not on a built-in grid). |
@@ -933,7 +946,7 @@ Part-to-whole for many categories: tiles sized by value, kept close to square. U
 | `label` | field name (category) | yes |  | Field naming each tile. |
 | `value` | field name (number) | yes |  | Field sizing each tile. Zero and negative values are left out. |
 | `group` | field name (category) |  |  | Field that colors related tiles alike, up to 8 groups. Without it every tile shares one color. |
-| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |
 | `sort` | `value`, `label`, `none` |  | `"none"` | Orders the rows before drawing: "value" ranks them by their number (largest first), "label" by name (A to Z), "none" keeps the data's order. Stacked bars and strips rank by their total. |
 | `order` | `desc`, `asc` |  |  | Turns the sort around: "asc" puts the smallest first, "desc" names Z to A. Defaults to largest first for value, A to Z for label. |
 | `limit` | number |  |  | Keeps the first N rows after sorting: the top 10, say. The rest are left out, or folded into one row with other. |
@@ -961,7 +974,7 @@ Part to whole as a 10 by 10 grid where each square is one percent, filled catego
 
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |
 | `label` | field name (category) | yes |  | Field naming each category. |
 | `value` | field name (number) | yes |  | Field with each category's amount. Zero and negative values are left out. |
 | `total` | number |  |  | The whole the values are part of, when they do not add up to it; the rest of the grid stays empty. Example: 100 for percentages. |
@@ -981,7 +994,7 @@ A bridge: how a total moves to another through increases and decreases, each flo
 | `totals` | any |  |  | Labels of rows that are totals (drawn from zero, resetting the running total), for example ["Q2 revenue"]. |
 | `endLabel` | string |  |  | Adds a final total bar with this label, for example "Q3 revenue". |
 | `fit` | boolean |  | `false` | Fit the axis to the running totals instead of starting at zero, so small changes stay visible. Totals then rise from the axis floor. |
-| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |
 
 ### `whitespace`
 

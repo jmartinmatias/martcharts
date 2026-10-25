@@ -244,6 +244,12 @@ Each board reads top to bottom as a story: the headline, why it moved, where, an
 - the dual-axis chart as two panels, with text annotations, line symbols, peak labels, background comparison columns and a log scale
 - choropleth, symbol and locator maps
 - tables with search, pages, a pinned first column, and source and byline lines
+- colour by rules: `"colorRules": [{ "field": "change", "op": "<", "value": 0, "color": "down" }]` colours each matching mark, with the rules written in words above the chart
+- highlight by number: `"highlight": { "field": "revenue", "op": ">", "value": 1000000 }` or `{ "top": 3 }` on any view that highlights categories
+- rich tooltips: `"tooltip": "**{region}**\nShare {share|percent} {revenue|bar}"`, bold, named formats and a small bar, never HTML from the data
+- live data: `"refresh": 60` on a url, csv or sheet source reloads every minute, keeps the last good rows on an error, says "Updated 12:04", and pauses while the page is hidden; `{ "type": "sheet", "url": "<a Google Sheet's address>" }` reads a published sheet
+- embeds that size themselves: `examples/embed.html?spec=…` (or `?src=`, `?board=`) in an iframe posts its height, and the drop-in bundle or `examples/embed-host.js` sets the frame's height; the editor and composer offer the iframe code
+- breakpoints: `"responsive": [{ "maxWidth": 480, "override": { "view": { "limit": 5 } } }]` changes the view on a narrow card, re-evaluated on every resize
 
 The editor (`editor.html`, or `createEditor` in any app) follows Datawrapper's four steps:
 1. Drop or paste the data.

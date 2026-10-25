@@ -4,7 +4,7 @@
  *
  * @module
  */
-export type { DataSpec, FacetSpec, FieldSpec, FormatSpec, Issue, Row, StyleSpec, StyleToken, TransformSpec, ViewSpec, WidgetLink, WidgetSpec } from "./types.ts";
+export type { DataSpec, FacetSpec, FieldSpec, FormatSpec, Issue, ResponsiveRule, Row, StyleSpec, StyleToken, TransformSpec, ViewSpec, WidgetLink, WidgetSpec } from "./types.ts";
 export type { Tooltip, TooltipItem, ViewContext, ViewRenderer } from "./view-context.ts";
 export type {
   Block,
@@ -18,8 +18,13 @@ export type {
   TransformBlock,
   ViewBlock,
 } from "./registry.ts";
-export type { CsvData, FnData, InlineData, UrlData } from "./sources.ts";
-export { parseCsv } from "./sources.ts";
+export type { CsvData, FnData, InlineData, SheetData, UrlData } from "./sources.ts";
+export { MIN_REFRESH, parseCsv, sheetCsvUrl } from "./sources.ts";
+export { colorRuleProblems, highlightedNames, highlightRuleProblems, isHighlightRule, matchRule, ruleColor, ruleColors, rowRuleColor, RULE_OPS, THEME_COLORS } from "./rules.ts";
+export type { ColorRule, HighlightRule, RuleOp, ValueRule } from "./rules.ts";
+export { activeBreakpoints, atWidth, breakpointKey, responsiveProblems } from "./responsive.ts";
+export { isRich, richLines } from "./rich.ts";
+export type { RichContext, RichRun } from "./rich.ts";
 export type { AggregateStep, BinStep, CalcStep, FilterOp, FilterStep, LimitStep, Measure, PivotStep, SortStep } from "./transforms.ts";
 export type { KpisItem, KpisView } from "./views.ts";
 export type { RidgelineView } from "./views.ts";

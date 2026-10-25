@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chart</title>
+  <!--
+    One chart or dashboard, alone, for an iframe in any page. The address says what to draw:
+      embed.html?spec=<widget spec in base64url>
+      embed.html?src=<address of a widget spec>
+      embed.html?board=<dashboard spec in base64url>
+    and &actions=csv,image offers actions. The page posts its height to the parent, on load and on every resize, as
+    { type: "martcharts:height", height }; embed-host.js (or the drop-in bundle) in the parent sets the iframe's height.
+  -->
+  <style>
+    html, body { margin: 0; background: transparent; }
+    body { padding: 1px; }
+  </style>
+  <script src="../dist/martcharts.iife.js"></script>
+</head>
+<body>
+  <script>
+    MartCharts.mountEmbed(document, location.search);
+  </script>
+</body>
+</html>

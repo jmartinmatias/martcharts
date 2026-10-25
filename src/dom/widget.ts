@@ -27,6 +27,13 @@ import { goldenHeight } from "./layout.ts";
 import { buildSkeleton, skeletonShape, stateIcon } from "./states.ts";
 import { wordsFor } from "../core/words.ts";
 import type { Words } from "../core/words.ts";
+import { highlightedNames, isHighlightRule, matchRule, ruleColor, ruleColors, rowRuleColor } from "../core/rules.ts";
+import type { ColorRule } from "../core/rules.ts";
+import { atWidth, breakpointKey } from "../core/responsive.ts";
+import { shapeRows } from "../core/shape.ts";
+import { isRich, richLines } from "../core/rich.ts";
+import { MIN_REFRESH } from "../core/sources.ts";
+import { readNumber } from "../core/formats.ts";
 import { applyStyle, ensureStyles, paletteSize } from "./styles.ts";
 
 /** Options for `createWidget`. */
@@ -142,6 +149,9 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
   // The bottom row: the footer and credit, and the widget's ghost ref (W-7Q2K) faintly at the right, a click away from the clipboard.
   const base = make("div", "fft-base");
   const smallPrint = make("div", "fft-small-print");
+  // Live data says when it was last true: "Updated 12:04", quietly, under the footer. In the card only while a source refreshes.
+  const stamp = make("p", "fft-updated");
+  stamp.hidden = true;
   smallPrint.append(footer, credit);
   const refButton = make("button", "fft-widget-ref");
   refButton.type = "button";
@@ -293,11 +303,40 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
   target.append(root);
 
   let current = spec;
-  /** The view as its renderer reads it: canonical option names (value, color, flag) moved onto the renderer's own. Same object when nothing is renamed. */
-  let normalized: { from: unknown; view: WidgetSpec["view"] } | undefined;
+  /**
+   * The view as its renderer reads it at the card's width: the breakpoints (`spec.responsive`) for that width merged
+   * in, canonical option names (value, color, flag) moved onto the renderer's own, and a highlight given as a rule
+   * (`{ field, op, value }` or `{ top }`) turned into the names of the categories it picks. Recomputed only when the
+   * spec, a crossed breakpoint or the rows change.
+   */
+  let normalized: { from: unknown; key: string; rows: Row[]; view: WidgetSpec["view"] } | undefined;
+  const cardWidth = () => body.clientWidth || FALLBACK_WIDTH;
   const drawView = (): WidgetSpec["view"] => {
-    if (normalized?.from !== current.view) normalized = { from: current.view, view: normalizeView(current.view) };
+    const width = cardWidth();
+    const key = breakpointKey(current.responsive, width);
+    if (normalized?.from !== current.view || normalized.key !== key || normalized.rows !== rows) {
+      let view = normalizeView(atWidth(current, width).view);
+      if (isHighlightRule(view.highlight)) {
+        const first = rows[0];
+        const category = first ? categoryField(view, first) : undefined;
+        const names = category ? highlightedNames(view.highlight, rows, category) : [];
+        // A rule that picks nothing lights nothing: every mark steps back, rather than every mark staying in colour.
+        view = { ...view, highlight: names.length ? names : ["\u0000none"] };
+      }
+      normalized = { from: current.view, key, rows, view };
+    }
     return normalized.view;
+  };
+  /** The spec as drawn at the card's width: its breakpoints' view and style merged in. */
+  const shownSpec = (): WidgetSpec => atWidth(current, cardWidth());
+  /**
+   * The rows the view draws: the loaded rows, shaped again (sort, top N, Other) when a breakpoint changed the view's
+   * shaping, so "limit 5 on a phone" holds.
+   */
+  const viewRows = (): Row[] => {
+    const shaping = (view: Record<string, unknown>) => JSON.stringify([view.sort, view.order, view.limit, view.other]);
+    const view = drawView();
+    return shaping(view) === shaping(normalizeView(current.view)) ? rows : shapeRows(view, rows, current.facet?.field);
   };
   let rows: Row[] = [];
   let issues: Issue[] = [];
@@ -589,7 +628,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     } else {
       delete root.dataset.fftRef;
     }
-    smallPrint.hidden = footer.hidden && credit.hidden;
+    smallPrint.hidden = footer.hidden && credit.hidden && stamp.hidden;
     base.hidden = smallPrint.hidden && !ref;
   }
   refButton.addEventListener("click", async () => {
@@ -693,6 +732,18 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       show(anchor, title, items, options) {
         const row = rowFor(title);
         if (!row) return tooltip.show(anchor, title, items, options);
+        // Rich markup (**bold**, {field|format}, {field|bar}): the template is read once into runs, which the row
+        // fills as text only. The title, too, is written as plain text.
+        if (typeof body === "string" && isRich(body)) {
+          const runs = richLines(body, row, {
+            format,
+            formatAs: (value, name) => formatValue(value, name, current.locale),
+            max: (field) => Math.max(0, ...rows.map((r) => Math.abs(readNumber(r[field]) ?? 0))),
+            summarize: (token) => fillTemplate(token, rows, current.fields, current.locale),
+          });
+          const plainHead = typeof head === "string" ? fill(head, row).split("**").join("") : title;
+          return tooltip.show(anchor, plainHead, runs.map((rich) => ({ label: "", value: "", rich })), options);
+        }
         const lines = typeof body === "string" ? fill(body, row).split("\n").filter((line) => line.trim() !== "") : undefined;
         const filled = lines?.map((line) => {
           const at = line.indexOf(": ");
@@ -704,17 +755,70 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     };
   }
 
+  /** The colour rules in force, as written: `spec.colorRules`, or none. */
+  const colorRules = (): ColorRule[] => (Array.isArray(current.colorRules) ? current.colorRules : []);
+
+  /**
+   * Colours by rule and by name together: a category's colour is the first rule one of its rows matches, else its
+   * fixed colour in `spec.colors`, else none (the view's palette). `category` is the field that names each mark.
+   */
+  function colorsFor(drawRows: Row[]): { colorOf?: (category: unknown) => string | undefined; colorForRow?: (row: Row) => string | undefined } {
+    const rules = colorRules();
+    const fixed = current.colors;
+    if (!rules.length && !fixed) return {};
+    const first = drawRows[0];
+    const category = first ? categoryField(drawView(), first) : undefined;
+    const byRule = rules.length ? ruleColors(rules, drawRows, category) : undefined;
+    return {
+      colorOf: (value: unknown) => byRule?.get(String(value)) ?? fixed?.[String(value)],
+      colorForRow: (row: Row) => rowRuleColor(rules, row, category) ?? (category ? fixed?.[String(row[category])] : undefined),
+    };
+  }
+
+  /**
+   * The colour rules in words, above the chart, for the rules that colour at least one mark: "Revenue below 0", in the
+   * rule's colour. The colour never carries the meaning alone. Nothing when no rule matched.
+   */
+  function ruleKey(drawRows: Row[]): HTMLElement | undefined {
+    const rules = colorRules();
+    if (!rules.length) return undefined;
+    const first = drawRows[0];
+    const category = first ? categoryField(drawView(), first) : undefined;
+    const used = rules.filter((rule) => drawRows.some((row) => matchRule(rule, row, category)));
+    if (!used.length) return undefined;
+    const words = W().dw2;
+    const list = make("ul", "fft-legend fft-rule-key");
+    list.setAttribute("aria-label", words.rulesKey);
+    for (const rule of used) {
+      const field = rule.field ?? category ?? "";
+      const show = (value: unknown) => formatValue(value, current.fields?.[field]?.format, current.locale);
+      const op: Record<string, string> = { ">": words.above, ">=": words.atLeast, "<": words.below, "<=": words.atMost, "==": words.is, "!=": words.isNot, in: words.isOneOf, "not in": words.isNoneOf };
+      const value = Array.isArray(rule.value) ? rule.value.map(show).join(`, `).replace(/, ([^,]*)$/, ` ${words.or} $1`) : show(rule.value);
+      const text = typeof rule.label === "string" && rule.label ? rule.label : `${fieldLabel(field, current.fields)} ${op[rule.op] ?? rule.op} ${value}`;
+      const item = make("li", "fft-rule");
+      const swatch = make("span", "fft-swatch");
+      swatch.dataset.shape = "rect";
+      swatch.style.background = ruleColor(rule.color);
+      swatch.setAttribute("aria-hidden", "true");
+      item.append(swatch, text);
+      list.append(item);
+    }
+    return list;
+  }
+
   function context(): ViewContext {
     const fields = current.fields;
     const size = paletteSize(current.style);
     const width = body.clientWidth || FALLBACK_WIDTH;
+    const drawRows = viewRows();
+    const shown = shownSpec();
     return {
       el: body,
-      rows,
+      rows: drawRows,
       view: drawView(),
       spec: drawView() === current.view ? current : { ...current, view: drawView() },
       width,
-      height: current.style?.height ?? goldenHeight(width),
+      height: shown.style?.height ?? goldenHeight(width),
       label: (field) => fieldLabel(field, fields),
       format: (value, field) => formatValue(value, field ? fields?.[field]?.format : undefined, current.locale),
       cell: (value, field, extra) => {
@@ -725,8 +829,9 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
         return formatNode(value, { ...extra, ...spec }, current.locale, doc);
       },
       color: (index) => `var(--fft-series-${(index % size) + 1})`,
-      // Fixed colors for named category values (spec.colors), for views that color by category.
-      ...(current.colors ? { colorOf: (category: unknown) => current.colors?.[String(category)] } : {}),
+      // Fixed colors for named category values (spec.colors) and colours by rule (spec.colorRules), for views that
+      // color by category or by row.
+      ...colorsFor(drawRows),
       tooltip: templatedTooltip(),
       select: (row) => root.dispatchEvent(new CustomEvent<SelectDetail>("fft-select", { bubbles: true, detail: { row, spec: current } })),
     };
@@ -770,6 +875,9 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
         const result = render(ctx);
         cleanup = typeof result === "function" ? result : undefined;
       }
+      // The colour rules in words go above the chart, as every legend does.
+      const key = ruleKey(ctx.rows);
+      if (key) body.prepend(key);
       drawn = true;
       paintGuide();
       // Pictures of the card are offered whenever the view drew something to see: an SVG chart, or HTML marks (bars,
@@ -831,8 +939,9 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       }
       const order = [...categories.keys()];
       const palette = ctx.color;
-      // A value named in spec.colors keeps its color; the others take the palette in order of first appearance.
-      const fixed = (category: unknown) => current.colors?.[String(category)];
+      // A value a colour rule or spec.colors names keeps that colour; the others take the palette in order of first appearance.
+      const own = ctx.colorOf;
+      const fixed = (category: unknown) => own?.(category);
       const byOrder = (category: unknown) => palette(Math.max(0, order.indexOf(JSON.stringify(category ?? null))));
       ctx = { ...ctx, colorOf: (category) => fixed(category) ?? byOrder(category) };
       [...categories.values()].forEach((category) => key("dot", fixed(category) ?? byOrder(category), ctx.format(category, categoryField)));
@@ -1060,10 +1169,85 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       paintText();
       issues = validateSpec(current, rows);
       draw();
+      liveAt = refreshSeconds() ? new Date() : undefined;
+      liveFailed = false;
     } catch (caught) {
       if (mine !== generation || destroyed) return;
       showError([errorMessage(caught)]);
     }
+    paintStamp();
+    scheduleLive();
+  }
+
+  // ---- Live data: a source with refresh: seconds reloads on that beat, quietly ----
+  let liveTimer: ReturnType<typeof setTimeout> | undefined;
+  /** When the rows were last loaded, for the "Updated 12:04" stamp. */
+  let liveAt: Date | undefined;
+  /** True when the last reload failed: the chart keeps its rows and says it could not update. */
+  let liveFailed = false;
+  /** A beat that fell while the page was hidden, owed when it shows again. */
+  let liveOwed = false;
+
+  /** Seconds between reloads, from the source's `refresh`: 0 for none, never under the minimum. */
+  function refreshSeconds(): number {
+    const seconds = (current.data as { refresh?: unknown } | undefined)?.refresh;
+    return typeof seconds === "number" && seconds > 0 ? Math.max(MIN_REFRESH, seconds) : 0;
+  }
+
+  function scheduleLive() {
+    clearTimeout(liveTimer);
+    liveTimer = undefined;
+    const seconds = refreshSeconds();
+    if (!seconds || destroyed) return;
+    liveTimer = setTimeout(() => void liveBeat(), seconds * 1000);
+  }
+
+  /** One beat: reload unless the page is hidden (then owe it), keep the last good rows on an error, and set the next. */
+  async function liveBeat() {
+    if (destroyed) return;
+    if (doc.visibilityState === "hidden") {
+      liveOwed = true;
+      return;
+    }
+    const mine = ++generation;
+    try {
+      const loadedRows = await runPipeline(current, { fetch: options.fetch, fresh: true });
+      if (mine !== generation || destroyed) return;
+      rows = loadedRows;
+      paintText();
+      issues = validateSpec(current, rows);
+      draw();
+      liveAt = new Date();
+      liveFailed = false;
+    } catch {
+      if (mine !== generation || destroyed) return;
+      liveFailed = true;
+    }
+    paintStamp();
+    scheduleLive();
+  }
+
+  const onVisible = () => {
+    if (doc.visibilityState === "hidden" || !liveOwed) return;
+    liveOwed = false;
+    void liveBeat();
+  };
+  doc.addEventListener("visibilitychange", onVisible);
+
+  /** The stamp under the footer: when the live rows were last true, in the widget's language and locale. */
+  function paintStamp() {
+    if (!refreshSeconds() || !liveAt) {
+      stamp.hidden = true;
+      stamp.textContent = "";
+      stamp.remove();
+    } else {
+      const time = new Intl.DateTimeFormat(current.locale, { hour: "2-digit", minute: "2-digit" }).format(liveAt);
+      stamp.textContent = liveFailed ? W().dw2.stale(time) : W().dw2.updated(time);
+      stamp.hidden = false;
+      stamp.dataset.stale = String(liveFailed);
+      if (!stamp.isConnected) smallPrint.append(stamp);
+    }
+    paintRef();
   }
 
   const ready = load();
@@ -1102,6 +1286,8 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       if (destroyed) return;
       destroyed = true;
       generation++;
+      clearTimeout(liveTimer);
+      doc.removeEventListener("visibilitychange", onVisible);
       resize?.disconnect();
       doc.removeEventListener("pointerover", release, true);
       doc.removeEventListener("pointerdown", press, true);
@@ -1161,6 +1347,26 @@ function createTooltip(root: HTMLElement, tip: HTMLElement): Tooltip {
       const lines = items.map((item) => {
         const row = doc.createElement("div");
         row.className = "fft-tooltip-row";
+        // A rich line: its runs as nodes, text as text only (bold in <strong>), bars as two spans. Never HTML.
+        if (item.rich) {
+          row.classList.add("fft-tooltip-rich");
+          for (const run of item.rich) {
+            if ("bar" in run) {
+              const bar = span("fft-tooltip-bar");
+              bar.setAttribute("aria-hidden", "true");
+              const fill = span("fft-tooltip-bar-fill");
+              fill.style.width = `${Math.round(Math.max(0, Math.min(1, run.bar)) * 1000) / 10}%`;
+              if (run.negative) fill.dataset.negative = "";
+              bar.append(fill);
+              row.append(bar);
+            } else if (run.bold) {
+              const strong = doc.createElement("strong");
+              strong.textContent = run.text;
+              row.append(strong);
+            } else row.append(doc.createTextNode(run.text));
+          }
+          return row;
+        }
         if (item.color) {
           const key = span("fft-tooltip-key");
           key.style.background = item.color;

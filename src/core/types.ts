@@ -14,6 +14,13 @@
  */
 
 import type { HeadlineSpec } from "./headline.ts";
+import type { ColorRule } from "./rules.ts";
+
+/** One breakpoint: below `maxWidth` pixels of card, `override` (its `view` and `style`) is merged into the spec. */
+export interface ResponsiveRule {
+  maxWidth: number;
+  override: { view?: Record<string, unknown>; style?: Record<string, unknown> };
+}
 
 /** One record of data. Keys are field names, values are anything JSON can hold. */
 export type Row = Record<string, unknown>;
@@ -55,6 +62,18 @@ export interface WidgetSpec {
    * the view's own tooltip.
    */
   tooltip?: string | { title?: string; body?: string };
+  /**
+   * Colour by rules: `[{ "field": "revenue", "op": "<", "value": 0, "color": "down" }]`. Each mark whose row matches a
+   * rule wears its colour, the first matching rule winning, over `colors`. A rule with no field reads the mark's own
+   * category. The chart writes the rules in words in a key above it, so the colour never carries the meaning alone.
+   */
+  colorRules?: ColorRule[];
+  /**
+   * Breakpoints: `[{ "maxWidth": 480, "override": { "view": { "limit": 5, "labels": false } } }]`. On a card narrower
+   * than `maxWidth`, the override's `view` and `style` are merged in, the narrowest matching rule last. Re-evaluated
+   * whenever the card is resized.
+   */
+  responsive?: ResponsiveRule[];
   /** One big number above the view, with its change and a caption. See `HeadlineSpec`. */
   headline?: HeadlineSpec;
   /** Small multiples: draw the view once per value of a field, in a grid of panels sharing one scale. */
