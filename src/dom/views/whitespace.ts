@@ -29,6 +29,11 @@ interface Line {
  * penetration and the potential still open; each column with how many hold it and how
  * many could. Built from HTML, so names stay crisp and the grid reflows with the card.
  */
+/** A plain English plural for a row noun: client to clients, company to companies. */
+function plural(word: string): string {
+  return /[^aeiou]y$/.test(word) ? `${word.slice(0, -1)}ies` : /s$/.test(word) ? word : `${word}s`;
+}
+
 export const renderWhitespace: ViewRenderer<WhitespaceView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
   const { row: rowField, column: columnField, state: stateField, score: scoreField, value: valueField } = ctx.view;
@@ -72,6 +77,9 @@ export const renderWhitespace: ViewRenderer<WhitespaceView> = (ctx) => {
   const sort = ctx.view.sort ?? "potential";
   if (sort === "potential") lines.sort((a, b) => b.potential - a.potential || b.open - a.open);
   else if (sort === "penetration") lines.sort((a, b) => (eligible(a) ? a.holds / eligible(a) : 1) - (eligible(b) ? b.holds / eligible(b) : 1) || b.open - a.open);
+  // limit keeps the first rows in that order (the most to win, by default), whatever a filter leaves, and says how many more.
+  const limit = typeof ctx.view.limit === "number" && ctx.view.limit > 0 ? Math.floor(ctx.view.limit) : 0;
+  const hidden = limit && lines.length > limit ? lines.splice(limit).length : 0;
 
   const scores = ctx.rows.map((row) => (scoreField ? readNumber(row[scoreField]) : null)).filter((n): n is number => n !== null);
   const [low, high] = scores.length ? [Math.min(...scores), Math.max(...scores)] : [0, 100];
@@ -173,6 +181,7 @@ export const renderWhitespace: ViewRenderer<WhitespaceView> = (ctx) => {
   // A complete grid moves by rows with up and down; a sparse one moves cell to cell.
   roving(cells, cells.length === lines.length * columns.length ? { down: columns.length } : {});
   wrap.append(grid);
+  if (hidden) wrap.append(html(doc, "p", "fft-ws-more", `and ${hidden} more ${hidden === 1 ? ctx.label(rowField).toLowerCase() : plural(ctx.label(rowField).toLowerCase())}, with less to win`));
 
   wrap.append(
     hiddenTable(

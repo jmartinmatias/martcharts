@@ -426,10 +426,10 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
    * A following widget's spec: its own filter on the key replaced by the value picked (or the cell's default), and its
    * title, subtitle and description naming that value where they named the one written in the spec.
    */
-  function followed(id: string, base: WidgetSpec): WidgetSpec {
+  function followed(id: string, base: WidgetSpec, fallback?: unknown): WidgetSpec {
     const entry = follows.get(id);
     if (!entry) return base;
-    const value = followedValue(id) ?? entry.authored;
+    const value = fallback !== undefined ? fallback : (followedValue(id) ?? entry.authored);
     if (value === undefined || value === null) return base;
     const steps = (base.transform ?? []).filter((step) => !(step.type === "filter" && step.field === entry.key && (step.op === undefined || step.op === "==")));
     const was = entry.authored === undefined || entry.authored === null ? "" : String(entry.authored);
@@ -439,8 +439,23 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     return fork(base, { ...words, transform: [{ type: "filter", field: entry.key, op: "==", value }, ...steps] });
   }
 
+  /**
+   * For a card that follows a selection: the value to show when the one it would show is filtered out of its own rows
+   * (Aldana Holdings is Corporate, so under Segment: Affluent), the first value still in view; undefined when the
+   * chosen one is there, or nothing is left at all.
+   */
+  async function followFallback(id: string, steps: TransformSpec[]): Promise<unknown> {
+    const entry = follows.get(id);
+    if (!entry) return undefined;
+    const value = followedValue(id) ?? entry.authored;
+    const own = fork(originals.get(id) as WidgetSpec, override);
+    const free = { ...own, transform: [...steps, ...(own.transform ?? []).filter((step) => !(step.type === "filter" && step.field === entry.key && (step.op === undefined || step.op === "==")))] };
+    const rows = await runPipeline(free, { fetch: options.fetch }).catch(() => [] as Row[]);
+    if (!rows.length || rows.some((row) => String(row[entry.key]) === String(value))) return undefined;
+    return rows[0]?.[entry.key];
+  }
+
   async function specFor(id: string): Promise<WidgetSpec> {
-    const base = followed(id, fork(originals.get(id) as WidgetSpec, override));
     const fields = (await rawFields.get(id)) ?? new Set<string>();
     const steps: TransformSpec[] = [...active.entries()]
       .filter(([field, value]) => value !== null && value !== undefined && fields.has(field))
@@ -448,6 +463,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     const field = rangeFields.find((f) => fields.has(f));
     const from = field ? rangeStart(period, await latest()) : null;
     if (field && from) steps.push({ type: "filter", field, op: ">=", value: from });
+    const base = followed(id, fork(originals.get(id) as WidgetSpec, override), follows.has(id) && steps.length ? await followFallback(id, steps) : undefined);
     // The click filter: the clicked widget keeps its rows and lights the value up; every other widget with the field keeps only its rows.
     let shaped = base;
     if (cross && fields.has(cross.field)) {

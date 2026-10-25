@@ -1759,4 +1759,5 @@ ul.fft-map-legend { margin-top: 0; }
 .fft-heatmap .fft-cell { min-width: 0; overflow: hidden; }
 .fft-ws[data-scrolls] { overflow-x: auto; scrollbar-width: thin; }
 .fft-ws[data-scrolls] .fft-ws-grid { width: max-content; }
+.fft-ws-more { margin: 8px 0 0; font-size: var(--fft-fs-s); color: var(--fft-muted); }
 `;

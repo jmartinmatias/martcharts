@@ -1951,6 +1951,8 @@ export interface WhitespaceView {
   value?: string;
   /** Row order: by potential (most to sell first), by penetration (least covered first), or as given. */
   sort?: "potential" | "penetration" | "none";
+  /** Show only this many rows, the first in the sort order, and say how many more there are. */
+  limit?: number;
 }
 
 /** `{ type: "xray", label, detail?, facts?, holdings?, wallet?, trend?, flags?, actions? }`: one client on one card. */
@@ -2000,6 +2002,7 @@ const whitespace: ViewBlock = {
       default: "potential",
       description: 'Row order: "potential" puts the rows with the most to win first, "penetration" the least covered first, "none" keeps the rows as given.',
     },
+    limit: { type: "number", description: "Show only this many rows, the first in the sort order, with a line saying how many more there are. Applied after filters, so a filtered book still shows its own top rows." },
   },
   validate(view) {
     const states = view.states;
