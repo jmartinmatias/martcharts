@@ -26,8 +26,12 @@ export interface WidgetSpec {
   title?: string;
   /** Smaller line under the title, for example the period covered. */
   subtitle?: string;
-  /** Small print at the bottom, for example the data source or refresh time. */
+  /** Small print at the bottom, for example a note on the data or its refresh time. */
   footer?: string;
+  /** Where the data came from: "Source: Eurostat" in the small print under the footer, the name a link when `url` is set. See `SourceSpec`. */
+  source?: SourceSpec;
+  /** Who made the chart, a name or a team: "Chart: Marta" in the same small print. Takes the text templates titles do. */
+  byline?: string;
   /** What this widget is for, in plain words. Not rendered; read by people and agents. */
   description?: string;
   /** Related pages, listed on the widget's Details side (the `info` action): a report, the data's owner, a runbook. */
@@ -48,6 +52,14 @@ export interface WidgetSpec {
   view: ViewSpec;
   /** Theme, colors and sizing. */
   style?: StyleSpec;
+}
+
+/** `source: { name, url? }`: who published the data, named in the small print and linked when it has an address. */
+export interface SourceSpec {
+  /** The publisher or system, as readers should see it: "Eurostat", "Finance ledger". */
+  name: string;
+  /** Where to find the data, opened in a new tab from the source name. */
+  url?: string;
 }
 
 /** A related page: `label` is the link text, `href` its address. */

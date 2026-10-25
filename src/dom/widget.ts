@@ -125,11 +125,15 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
   const body = make("div", "fft-body");
   const message = make("div", "fft-message");
   const footer = make("p", "fft-footer");
-  // The bottom row: the footer, and the widget's ghost ref (W-7Q2K) faintly at the right, a click away from the clipboard.
+  // The credit under the footer: "Source: Eurostat · Chart: Marta", the source a link when it has an address.
+  const credit = make("p", "fft-credit");
+  // The bottom row: the footer and credit, and the widget's ghost ref (W-7Q2K) faintly at the right, a click away from the clipboard.
   const base = make("div", "fft-base");
+  const smallPrint = make("div", "fft-small-print");
+  smallPrint.append(footer, credit);
   const refButton = make("button", "fft-widget-ref");
   refButton.type = "button";
-  base.append(footer, refButton);
+  base.append(smallPrint, refButton);
   const tip = make("div", "fft-tooltip");
   title.id = `${id}-title`;
   message.setAttribute("role", "status");
@@ -530,7 +534,29 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       setText(node, text === undefined ? undefined : fillTemplate(text, rows, current.fields, current.locale));
       node.style.visibility = !loaded && text && hasTemplate(text) ? "hidden" : "";
     }
+    paintCredit();
     paintRef();
+  }
+
+  /** The credit line: the source (linked when it has an address) and the byline, as text nodes, a middle dot between them. */
+  function paintCredit() {
+    credit.replaceChildren();
+    const source = current.source;
+    if (source && typeof source.name === "string" && source.name) {
+      credit.append("Source: ");
+      if (source.url) {
+        const link = make("a", "fft-credit-link");
+        link.href = source.url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = source.name;
+        credit.append(link);
+      } else credit.append(source.name);
+    }
+    const byline = typeof current.byline === "string" && current.byline ? fillTemplate(current.byline, rows, current.fields, current.locale) : "";
+    if (byline) credit.append(`${credit.childNodes.length ? " · " : ""}Chart: ${byline}`);
+    credit.hidden = credit.childNodes.length === 0;
+    credit.style.visibility = !loaded && current.byline && hasTemplate(current.byline) ? "hidden" : "";
   }
 
   /** The ghost ref: shown for widgets with an id, and on the root as data-fft-ref for scripts and tests. */
@@ -545,7 +571,8 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     } else {
       delete root.dataset.fftRef;
     }
-    base.hidden = footer.hidden && !ref;
+    smallPrint.hidden = footer.hidden && credit.hidden;
+    base.hidden = smallPrint.hidden && !ref;
   }
   refButton.addEventListener("click", async () => {
     try {

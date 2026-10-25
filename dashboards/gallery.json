@@ -156,6 +156,10 @@
       "widget": "lead-pipeline"
     },
     {
+      "widget": "directory-customers",
+      "span": 2
+    },
+    {
       "widget": "signup-funnel"
     },
     {

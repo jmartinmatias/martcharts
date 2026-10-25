@@ -3,7 +3,8 @@
   "title": "Revenue by region and month",
   "subtitle": "April to September 2026, shaded on one scale across the table",
   "description": "Monthly revenue per region as a heat table: every month shares one color scale, so East's strong row and the late-summer climb stand out at a glance.",
-  "footer": "Source: finance ledger",
+  "source": { "name": "Finance ledger" },
+  "byline": "Finance team",
   "locale": "en-US",
   "data": {
     "type": "inline",

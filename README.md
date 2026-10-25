@@ -13,6 +13,12 @@ A widget is a single plain object, the **spec**. It says where the data comes fr
 
 Every slot takes a **block**: `{ "type": "...", ...options }`. Blocks live in a registry, so adding a new data source, transform, format or view is one `register*` call, and every existing widget can use it.
 
+![A gallery of FFT widgets: forecast line, polar chart, stacked bars, sankey, bubble scatter, marimekko and donut](docs/images/gallery-light.png)
+
+Every card above is the same component fed a different spec from `widgets/`. Each one has a dark look that follows the theme:
+
+![The same widgets in dark mode: revenue and cost lines, candlesticks, a Likert survey, a funnel and feature adoption](docs/images/gallery-dark.png)
+
 ## Quick start
 
 Needs Node 23.6 or later (it runs TypeScript directly, with no build step).
@@ -53,6 +59,7 @@ The [chart catalog](docs/catalog.md) has all 40 views, each with what it is for,
   "id": "revenue-by-region",
   "title": "Revenue by region",
   "subtitle": "Q3 2026, all products",
+  "source": { "name": "Finance ledger" },
   "locale": "en-US",
   "data": { "type": "url", "url": "/data/sales.json", "path": "data.items" },
   "transform": [
@@ -209,3 +216,7 @@ scripts/       smoke test, docs and catalog generators.
 ## Evaluating the MCP server
 
 `evals/fft-mcp.xml` holds 10 read-only questions about the sample widgets, with verified answers, for checking how well an agent uses the server. Each needs several tool calls, for example finding the right widget and then reading its data.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
