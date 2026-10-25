@@ -9,9 +9,48 @@
   },
   "data": {
     "type": "url",
-    "url": "/data/products.json"
+    "url": "/data/holdings.json"
   },
   "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": "product",
+      "measures": [
+        {
+          "op": "sum",
+          "field": "held",
+          "as": "holders"
+        },
+        {
+          "op": "count",
+          "as": "clients"
+        },
+        {
+          "op": "sum",
+          "field": "revenue",
+          "as": "revenue"
+        },
+        {
+          "op": "sum",
+          "field": "marginAmount",
+          "as": "marginAmount"
+        }
+      ]
+    },
+    {
+      "type": "calc",
+      "as": "penetration",
+      "op": "divide",
+      "left": "holders",
+      "right": "clients"
+    },
+    {
+      "type": "calc",
+      "as": "margin",
+      "op": "divide",
+      "left": "marginAmount",
+      "right": "revenue"
+    },
     {
       "type": "sort",
       "field": "penetration",

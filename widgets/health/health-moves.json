@@ -9,7 +9,7 @@
   "description": "Each band is a group of clients moving from last quarter's overall status to this quarter's; a band that stays level held its status.",
   "data": {
     "type": "url",
-    "url": "/data/rag-transitions.json"
+    "url": "/data/client-health.json"
   },
   "fields": {
     "from": {
@@ -24,8 +24,8 @@
   },
   "view": {
     "type": "sankey",
-    "source": "from",
-    "target": "to",
+    "source": "movedFrom",
+    "target": "movedTo",
     "value": "clients"
   },
   "style": {
@@ -34,5 +34,25 @@
       "#E0A21B",
       "#D1453B"
     ]
-  }
+  },
+  "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": [
+        "movedFrom",
+        "movedTo"
+      ],
+      "measures": [
+        {
+          "op": "count",
+          "as": "clients"
+        }
+      ]
+    },
+    {
+      "type": "sort",
+      "field": "clients",
+      "order": "desc"
+    }
+  ]
 }

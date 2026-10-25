@@ -5,13 +5,58 @@
     "name": "Client health model (fictional)"
   },
   "title": "Each banker's book at a glance",
-  "subtitle": "Clients, load against capacity, and each perspective's status",
-  "description": "One row per relationship manager: how many clients, how loaded the book is, and its status on each perspective.",
+  "subtitle": "Clients, how many are off track, at risk and on track overall, and how many are off track on each perspective",
+  "description": "One row per relationship manager, counted from the clients themselves, so the segment and region filters reach it.",
   "data": {
     "type": "url",
-    "url": "/data/rm-health.json"
+    "url": "/data/client-health.json"
   },
   "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": "rm",
+      "measures": [
+        {
+          "op": "count",
+          "as": "clients"
+        },
+        {
+          "op": "sum",
+          "field": "overallRed",
+          "as": "red"
+        },
+        {
+          "op": "sum",
+          "field": "overallAmber",
+          "as": "amber"
+        },
+        {
+          "op": "sum",
+          "field": "overallGreen",
+          "as": "green"
+        },
+        {
+          "op": "sum",
+          "field": "clientSuccessRed",
+          "as": "clientSuccessRed"
+        },
+        {
+          "op": "sum",
+          "field": "bizDevRed",
+          "as": "bizDevRed"
+        },
+        {
+          "op": "sum",
+          "field": "coverageRed",
+          "as": "coverageRed"
+        },
+        {
+          "op": "sum",
+          "field": "relationshipRed",
+          "as": "relationshipRed"
+        }
+      ]
+    },
     {
       "type": "sort",
       "field": "red",
@@ -22,71 +67,29 @@
     "rm": {
       "label": "Relationship manager"
     },
-    "region": {
-      "label": "Region"
-    },
     "clients": {
       "label": "Clients"
     },
-    "load": {
-      "label": "Load",
-      "format": {
-        "type": "bar",
-        "format": {
-          "type": "percent"
-        }
-      }
-    },
     "red": {
-      "label": "Red clients"
+      "label": "Off track"
     },
-    "clientSuccessStatus": {
-      "label": "Client success",
-      "format": {
-        "type": "badge",
-        "tones": {
-          "Red": "negative",
-          "Amber": "warning",
-          "Green": "positive",
-          "No data": "neutral"
-        }
-      }
+    "amber": {
+      "label": "At risk"
     },
-    "bizDevStatus": {
-      "label": "Business development",
-      "format": {
-        "type": "badge",
-        "tones": {
-          "Red": "negative",
-          "Amber": "warning",
-          "Green": "positive",
-          "No data": "neutral"
-        }
-      }
+    "green": {
+      "label": "On track"
     },
-    "coverageStatus": {
-      "label": "Coverage",
-      "format": {
-        "type": "badge",
-        "tones": {
-          "Red": "negative",
-          "Amber": "warning",
-          "Green": "positive",
-          "No data": "neutral"
-        }
-      }
+    "clientSuccessRed": {
+      "label": "Off track: client success"
     },
-    "relationshipStatus": {
-      "label": "Relationship",
-      "format": {
-        "type": "badge",
-        "tones": {
-          "Red": "negative",
-          "Amber": "warning",
-          "Green": "positive",
-          "No data": "neutral"
-        }
-      }
+    "bizDevRed": {
+      "label": "Off track: business development"
+    },
+    "coverageRed": {
+      "label": "Off track: coverage"
+    },
+    "relationshipRed": {
+      "label": "Off track: relationship"
     }
   },
   "view": {
@@ -94,12 +97,13 @@
     "columns": [
       "rm",
       "clients",
-      "load",
       "red",
-      "clientSuccessStatus",
-      "bizDevStatus",
-      "coverageStatus",
-      "relationshipStatus"
+      "amber",
+      "green",
+      "clientSuccessRed",
+      "bizDevRed",
+      "coverageRed",
+      "relationshipRed"
     ],
     "stickyFirst": true
   }

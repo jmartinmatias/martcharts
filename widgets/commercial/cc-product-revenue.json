@@ -1,7 +1,7 @@
 {
   "id": "cc-product-revenue",
   "title": "Revenue by product",
-  "subtitle": "2026 year to date",
+  "subtitle": "2026 year to date; the products add up to the book's revenue",
   "description": "Each product's revenue as a tile: the bigger the tile, the more it brings.",
   "locale": "en-US",
   "source": {
@@ -9,7 +9,7 @@
   },
   "data": {
     "type": "url",
-    "url": "/data/products.json"
+    "url": "/data/holdings.json"
   },
   "fields": {
     "product": {
@@ -28,5 +28,23 @@
     "type": "treemap",
     "label": "product",
     "value": "revenue"
-  }
+  },
+  "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": "product",
+      "measures": [
+        {
+          "op": "sum",
+          "field": "revenue",
+          "as": "revenue"
+        }
+      ]
+    },
+    {
+      "type": "sort",
+      "field": "revenue",
+      "order": "desc"
+    }
+  ]
 }

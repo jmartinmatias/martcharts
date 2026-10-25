@@ -9,9 +9,25 @@
   },
   "data": {
     "type": "url",
-    "url": "/data/rm-coverage.json"
+    "url": "/data/clients.json"
   },
   "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": "rm",
+      "measures": [
+        {
+          "op": "sum",
+          "field": "meetingsYtd",
+          "as": "meetingsYtd"
+        },
+        {
+          "op": "sum",
+          "field": "meetingTarget",
+          "as": "target"
+        }
+      ]
+    },
     {
       "type": "sort",
       "field": "meetingsYtd",

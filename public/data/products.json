@@ -1,10 +1,10 @@
 [
-  {"product":"Custody","clients":57,"revenue":2530735,"margin":0.42,"growth":0.04,"penetration":0.95,"penetrationTarget":0.97,"nps":48},
-  {"product":"Advisory","clients":35,"revenue":773082,"margin":0.55,"growth":0.11,"penetration":0.58,"penetrationTarget":0.7,"nps":41},
-  {"product":"Discretionary","clients":22,"revenue":630793,"margin":0.61,"growth":0.18,"penetration":0.37,"penetrationTarget":0.52,"nps":55},
-  {"product":"Lending","clients":23,"revenue":478961,"margin":0.33,"growth":0.07,"penetration":0.38,"penetrationTarget":0.48,"nps":37},
-  {"product":"FX","clients":16,"revenue":609482,"margin":0.47,"growth":0.15,"penetration":0.27,"penetrationTarget":0.35,"nps":44},
-  {"product":"Structured","clients":14,"revenue":245286,"margin":0.58,"growth":-0.03,"penetration":0.23,"penetrationTarget":0.28,"nps":29},
-  {"product":"Insurance","clients":16,"revenue":151135,"margin":0.36,"growth":0.09,"penetration":0.27,"penetrationTarget":0.37,"nps":39},
-  {"product":"Pension","clients":17,"revenue":178606,"margin":0.44,"growth":0.21,"penetration":0.28,"penetrationTarget":0.42,"nps":46}
+  {"product":"Custody","clients":57,"revenue":3892810,"margin":0.42,"growth":0.04,"penetration":0.95,"penetrationTarget":0.97,"nps":48},
+  {"product":"Advisory","clients":35,"revenue":1135941,"margin":0.55,"growth":0.11,"penetration":0.58,"penetrationTarget":0.7,"nps":41},
+  {"product":"Discretionary","clients":22,"revenue":776310,"margin":0.61,"growth":0.18,"penetration":0.37,"penetrationTarget":0.52,"nps":55},
+  {"product":"Lending","clients":23,"revenue":879001,"margin":0.33,"growth":0.07,"penetration":0.38,"penetrationTarget":0.48,"nps":37},
+  {"product":"FX","clients":16,"revenue":856757,"margin":0.47,"growth":0.15,"penetration":0.27,"penetrationTarget":0.35,"nps":44},
+  {"product":"Structured","clients":14,"revenue":343596,"margin":0.58,"growth":-0.03,"penetration":0.23,"penetrationTarget":0.28,"nps":29},
+  {"product":"Insurance","clients":16,"revenue":284203,"margin":0.36,"growth":0.09,"penetration":0.27,"penetrationTarget":0.37,"nps":39},
+  {"product":"Pension","clients":17,"revenue":284917,"margin":0.44,"growth":0.21,"penetration":0.28,"penetrationTarget":0.42,"nps":46}
 ]

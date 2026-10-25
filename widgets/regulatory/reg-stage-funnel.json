@@ -1,29 +1,12 @@
 {
   "id": "reg-stage-funnel",
   "title": "From proposal to application",
-  "subtitle": "How many of the 40 tracked rules have reached each stage",
+  "subtitle": "How many of the 40 tracked rules have reached each stage by 25 October 2026, whatever their status today",
   "description": "The lifecycle as a funnel: every rule was proposed; fewer are adopted, in force, and applying today.",
   "locale": "en-US",
   "data": {
-    "type": "inline",
-    "rows": [
-      {
-        "stage": "Proposed",
-        "regulations": 40
-      },
-      {
-        "stage": "Adopted",
-        "regulations": 36
-      },
-      {
-        "stage": "In force",
-        "regulations": 30
-      },
-      {
-        "stage": "Applying",
-        "regulations": 20
-      }
-    ]
+    "type": "url",
+    "url": "/data/regulation-stages.json"
   },
   "fields": {
     "stage": {
@@ -41,5 +24,18 @@
   "source": {
     "name": "Regulatory watch (fictional)"
   },
-  "byline": "Compliance office"
+  "byline": "Compliance office",
+  "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": "stage",
+      "measures": [
+        {
+          "op": "sum",
+          "field": "regulations",
+          "as": "regulations"
+        }
+      ]
+    }
+  ]
 }

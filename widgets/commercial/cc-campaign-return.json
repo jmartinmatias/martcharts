@@ -9,9 +9,25 @@
   },
   "data": {
     "type": "url",
-    "url": "/data/campaigns.json"
+    "url": "/data/campaign-reach.json"
   },
   "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": "campaign",
+      "measures": [
+        {
+          "op": "sum",
+          "field": "revenue",
+          "as": "revenue"
+        },
+        {
+          "op": "sum",
+          "field": "cost",
+          "as": "cost"
+        }
+      ]
+    },
     {
       "type": "calc",
       "as": "return",

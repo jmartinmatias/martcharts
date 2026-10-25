@@ -6,7 +6,7 @@
   "locale": "en-US",
   "data": {
     "type": "url",
-    "url": "/data/regulatory-activity.json"
+    "url": "/data/regulatory-activity-split.json"
   },
   "transform": [
     {

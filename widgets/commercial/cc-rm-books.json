@@ -9,9 +9,37 @@
   },
   "data": {
     "type": "url",
-    "url": "/data/rm-coverage.json"
+    "url": "/data/clients.json"
   },
   "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": [
+        "rm",
+        "office"
+      ],
+      "measures": [
+        {
+          "op": "count",
+          "as": "clients"
+        },
+        {
+          "op": "sum",
+          "field": "aum",
+          "as": "aum"
+        },
+        {
+          "op": "sum",
+          "field": "revenue",
+          "as": "revenue"
+        },
+        {
+          "op": "sum",
+          "field": "meetingsYtd",
+          "as": "meetingsYtd"
+        }
+      ]
+    },
     {
       "type": "sort",
       "field": "aum",

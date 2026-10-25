@@ -189,6 +189,17 @@ const holdings = clients.flatMap((client) =>
   }),
 );
 
+// Each client's revenue is split across the products it holds, so the products add up to the book exactly.
+for (const client of clients) {
+  const held = holdings.filter((h) => h.client === client.name && h.state === "Holds");
+  const raw = held.reduce((sum, h) => sum + h.revenue, 0);
+  let left = client.revenue;
+  held.forEach((h, i) => {
+    h.revenue = i === held.length - 1 ? left : round((h.revenue / (raw || 1)) * client.revenue);
+    left -= h.revenue;
+  });
+}
+
 // Cross-sell paths: a product held, and the opportunity most often beside it.
 const pathCounts = new Map<string, number>();
 for (const client of clients) {
@@ -411,12 +422,147 @@ const segmentTargets = Object.keys(SEGMENTS).map((segment) => {
   return { segment, fees: round(fees), target: round(fees * ({ Private: 0.96, Affluent: 1.08, Corporate: 1.02, Institutional: 0.93 }[segment] ?? 1)) };
 });
 
+// ---- Rows the cockpit aggregates with transforms, so its segment and banker filters reach every card that can carry them ----
+// (Deterministic: nothing below draws from the random generator, so every file above stays as it was.)
+const clientOf = new Map(clients.map((c) => [c.name, c]));
+const MARGINS: Record<string, number> = Object.fromEntries(products.map((p) => [p.product, p.margin]));
+const TARGETS: Record<string, number> = Object.fromEntries(products.map((p) => [p.product, p.penetrationTarget]));
+
+/** Splits a whole number across weights so the parts add up to it exactly (largest remainder). */
+function split(total: number, weights: number[]): number[] {
+  const sum = weights.reduce((a, b) => a + b, 0) || 1;
+  const exact = weights.map((w) => (total * w) / sum);
+  const parts = exact.map(Math.floor);
+  let left = total - parts.reduce((a, b) => a + b, 0);
+  const order = exact.map((e, i) => [e - Math.floor(e), i] as const).sort((a, b) => b[0] - a[0] || a[1] - b[1]);
+  for (const [, i] of order) {
+    if (left <= 0) break;
+    parts[i] = (parts[i] as number) + 1;
+    left--;
+  }
+  return parts;
+}
+
+// Holdings carry the client's segment and banker, a held flag and the margin earned, for product cards built from them.
+const holdingRows = holdings.map((h) => {
+  const c = clientOf.get(h.client) as Client;
+  return { ...h, segment: c.segment, rm: c.rm, held: h.state === "Holds" ? 1 : 0, marginAmount: round(h.revenue * (MARGINS[h.product] ?? 0)), penetrationTarget: TARGETS[h.product] ?? null };
+});
+
+// Clients carry their banker's office, a share of the banker's meetings and meeting target, and the book's capacity.
+const clientRows = clients.map((c) => ({ ...c }));
+for (const [i, rm] of RMS.entries()) {
+  const book = clientRows.filter((c) => c.rm === rm);
+  const cover = rmCoverage[i] as (typeof rmCoverage)[number];
+  const weights = book.map((c) => 1 + c.products / 4);
+  const meetings = split(cover.meetingsYtd ?? 0, weights);
+  const targets = split(cover.target, weights);
+  book.forEach((c, k) => Object.assign(c, { office: cover.office, meetingsYtd: meetings[k], meetingTarget: targets[k], rmCapacity: cover.capacity }));
+}
+
+// Monthly activity: revenue scaled so January to October 2026 adds up to each client's revenue (year to date), with
+// the month's assets, revenue so far this year, net new money, an open-opportunity flag and the cross-sell potential.
+const MONTHS_2026 = months.filter((m) => m.startsWith("2026"));
+const openClients = clients.filter((c) => holdings.some((h) => h.client === c.name && h.state === "Opportunity" && h.propensity >= 45));
+const potentialOf = new Map(clients.map((c) => [c.name, holdings.filter((h) => h.client === c.name && h.state === "Opportunity").reduce((sum, h) => sum + h.potential, 0)]));
+const nnmByMonth = new Map(commercialSummary.map((r) => [r.month, r.netNewMoney]));
+const activityRows = activity.map((r) => ({ ...r })) as (typeof activity[number] & Record<string, number | string>)[];
+for (const c of clients) {
+  const rows = activityRows.filter((r) => r.client === c.name);
+  const ytdRaw = rows.filter((r) => MONTHS_2026.includes(r.month)).reduce((sum, r) => sum + r.revenue, 0);
+  const factor = c.revenue / (ytdRaw || 1);
+  let left = c.revenue;
+  const last2026 = rows.filter((r) => MONTHS_2026.includes(r.month)).at(-1);
+  for (const r of rows) {
+    if (r === last2026) r.revenue = left;
+    else {
+      r.revenue = round(r.revenue * factor);
+      if (MONTHS_2026.includes(r.month)) left -= r.revenue;
+    }
+  }
+  const openAt = openClients.indexOf(c);
+  rows.forEach((r, i) => {
+    const year = r.month.slice(0, 4);
+    r.revenueYtd = rows.filter((o, j) => j <= i && o.month.startsWith(year)).reduce((sum, o) => sum + o.revenue, 0);
+    r.aum = i === rows.length - 1 ? c.aum : round((c.aum * (1 - (11 - i) * 0.012)) / 10_000) * 10_000;
+    // Open opportunities grow through the year: the first open clients are open from the start, the last ones by October.
+    r.openOpportunity = openAt >= 0 && openAt < Math.round(openClients.length * Math.min(1, 0.8 + i * 0.02)) ? 1 : 0;
+    r.potential = round(((potentialOf.get(c.name) ?? 0) * (0.85 + i * 0.015)) / (0.85 + 11 * 0.015));
+  });
+}
+// Net new money: each month's book figure, shared across clients by their assets that month.
+for (const month of months) {
+  const rows = activityRows.filter((r) => r.month === month);
+  const total = nnmByMonth.get(month) ?? 0;
+  const aum = rows.reduce((sum, r) => sum + Number(r.aum), 0);
+  let left = total;
+  rows.forEach((r, k) => {
+    r.netNewMoney = k === rows.length - 1 ? left : round((total * Number(r.aum)) / aum);
+    left -= Number(r.netNewMoney);
+  });
+}
+// The summary is now the sum of those rows, so it agrees with every card built from them.
+const flagsIn = (month: string) => metricsDaily.filter((r) => r.flag && r.date.startsWith(month)).length;
+for (const row of commercialSummary) {
+  const rows = activityRows.filter((r) => r.month === row.month);
+  const sum = (field: string) => rows.reduce((acc, r) => acc + Number(r[field] ?? 0), 0);
+  Object.assign(row, { aum: sum("aum"), revenueYtd: sum("revenueYtd"), netNewMoney: sum("netNewMoney"), openOpportunities: sum("openOpportunity"), potential: sum("potential"), anomalies: flagsIn(row.month) });
+}
+// "This month" is the calendar month, as on the anomaly tracker: October so far.
+(anomalySummary[0] as Record<string, unknown>).anomaliesMonth = flagsIn(months.at(-1) as string);
+
+// The revenue bridge per client: each step is the same share of the client's revenue as of the book's, and a
+// client's steps add up to its revenue, so the bridge ends on the book's revenue under any filter.
+const BRIDGE: [string, number][] = [["Revenue 2025, January to October", 0.91], ["New clients", 0.07], ["Deepening", 0.06], ["Market effect", 0.03], ["Pricing", -0.02], ["Outflows", -0.03], ["Lost clients", -0.02]];
+const bridgeRows = BRIDGE.flatMap(([step]) => clients.map((c) => ({ step, client: c.name, segment: c.segment, rm: c.rm, amount: 0 })));
+for (const c of clients) {
+  let left = c.revenue;
+  BRIDGE.forEach(([step, share], k) => {
+    const row = bridgeRows.find((r) => r.step === step && r.client === c.name) as (typeof bridgeRows)[number];
+    row.amount = k === BRIDGE.length - 1 ? left : round(c.revenue * share);
+    left -= row.amount;
+  });
+}
+
+// Cross-sell paths per client: one row per product held and opportunity beside it.
+const pathRows = clients.flatMap((c) => {
+  const held = PRODUCTS.filter((p) => c[p]);
+  const open = holdings.filter((h) => h.client === c.name && h.state === "Opportunity" && h.propensity >= 45).map((h) => h.product);
+  return held.flatMap((from) => open.map((to) => ({ client: c.name, segment: c.segment, rm: c.rm, from: `${PRODUCT_NAMES[from]} held`, to: `${to} opportunity`, clients: 1 })));
+});
+
+// Fees against target per segment and banker; the target keeps each segment's ratio.
+const feeRows = Object.keys(SEGMENTS).flatMap((segment) =>
+  RMS.map((rm) => {
+    const fees = round(clients.filter((c) => c.segment === segment && c.rm === rm).reduce((sum, c) => sum + c.fees, 0));
+    return { segment, rm, fees, target: round(fees * ({ Private: 0.96, Affluent: 1.08, Corporate: 1.02, Institutional: 0.93 }[segment] ?? 1)) };
+  }),
+).filter((r) => r.fees > 0);
+
+// Campaigns per segment and banker: each campaign's numbers shared across the books it reached, weighted by how many
+// clients there could take its product, every part a whole number that adds up to the campaign's total.
+const PRODUCT_KEY = Object.fromEntries(Object.entries(PRODUCT_NAMES).map(([k, v]) => [v, k])) as Record<string, Product>;
+const cells = Object.keys(SEGMENTS).flatMap((segment) => RMS.map((rm) => ({ segment, rm })));
+const campaignRows = campaigns.flatMap((camp) => {
+  const key = PRODUCT_KEY[String(camp.product)] as Product;
+  const weights = cells.map(({ segment, rm }) => clients.filter((c) => c.segment === segment && c.rm === rm && FIT[segment]?.[key] !== undefined).length * (FIT[segment]?.[key] ?? 0));
+  const parts = Object.fromEntries((["targeted", "contacted", "responded", "converted", "revenue", "cost"] as const).map((f) => [f, split(Number(camp[f]), weights)]));
+  return cells
+    .map(({ segment, rm }, i) => ({ campaign: camp.campaign, product: camp.product, start: camp.start, end: camp.end, segment, rm, targeted: parts.targeted?.[i] ?? 0, contacted: parts.contacted?.[i] ?? 0, responded: parts.responded?.[i] ?? 0, converted: parts.converted?.[i] ?? 0, revenue: parts.revenue?.[i] ?? 0, cost: parts.cost?.[i] ?? 0 }))
+    .filter((r) => r.targeted > 0);
+});
+const STAGES = [["Targeted", "targeted"], ["Contacted", "contacted"], ["Responded", "responded"], ["Converted", "converted"]] as const;
+const stageRows = STAGES.flatMap(([stage, field]) => campaignRows.map((r) => ({ stage, campaign: r.campaign, segment: r.segment, rm: r.rm, clients: r[field] })));
+
+// History rows carry the client's segment beside its banker, so the story follows the segment filter too.
+const historyRows = history.map((h) => ({ ...h, segment: clientOf.get(h.client)?.segment ?? null }));
+
 await mkdir(out(""), { recursive: true });
 const files: Record<string, unknown> = {
-  "clients.json": clients,
-  "holdings.json": holdings,
-  "client-history.json": history,
-  "client-activity.json": activity,
+  "clients.json": clientRows,
+  "holdings.json": holdingRows,
+  "client-history.json": historyRows,
+  "client-activity.json": activityRows,
   "metrics-daily.json": metricsDaily,
   "anomaly-summary.json": anomalySummary,
   "campaigns.json": campaigns,
@@ -430,6 +576,11 @@ const files: Record<string, unknown> = {
   "commercial-bridge.json": commercialBridge,
   "commercial-summary.json": commercialSummary,
   "segment-targets.json": segmentTargets,
+  "bridge-by-client.json": bridgeRows,
+  "cross-sell-by-client.json": pathRows,
+  "fees-by-book.json": feeRows,
+  "campaign-reach.json": campaignRows,
+  "campaign-stages.json": stageRows,
 };
 for (const [name, rows] of Object.entries(files)) {
   const list = rows as Record<string, unknown>[];

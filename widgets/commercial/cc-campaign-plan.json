@@ -9,7 +9,7 @@
   },
   "data": {
     "type": "url",
-    "url": "/data/campaigns.json"
+    "url": "/data/campaign-reach.json"
   },
   "fields": {
     "campaign": {
@@ -38,5 +38,27 @@
     "end": "end",
     "group": "product",
     "today": "2026-10-25"
-  }
+  },
+  "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": [
+        "campaign",
+        "product",
+        "start",
+        "end"
+      ],
+      "measures": [
+        {
+          "op": "sum",
+          "field": "targeted",
+          "as": "targeted"
+        }
+      ]
+    },
+    {
+      "type": "sort",
+      "field": "start"
+    }
+  ]
 }

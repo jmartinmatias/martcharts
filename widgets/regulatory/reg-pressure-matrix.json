@@ -6,7 +6,7 @@
   "locale": "en-US",
   "data": {
     "type": "url",
-    "url": "/data/regulatory-activity.json"
+    "url": "/data/regulatory-activity-split.json"
   },
   "fields": {
     "quarter": {
@@ -36,5 +36,33 @@
   "source": {
     "name": "Regulatory watch (fictional)"
   },
-  "byline": "Compliance office"
+  "byline": "Compliance office",
+  "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": [
+        "quarter",
+        "topic"
+      ],
+      "measures": [
+        {
+          "op": "sum",
+          "field": "obligations",
+          "as": "obligations"
+        },
+        {
+          "op": "sum",
+          "field": "impactPoints",
+          "as": "impactPoints"
+        }
+      ]
+    },
+    {
+      "type": "calc",
+      "as": "impact",
+      "op": "divide",
+      "left": "impactPoints",
+      "right": "obligations"
+    }
+  ]
 }

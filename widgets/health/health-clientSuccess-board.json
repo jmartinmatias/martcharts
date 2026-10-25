@@ -5,7 +5,7 @@
     "name": "Client health model (fictional)"
   },
   "title": "Client success, measure by measure",
-  "subtitle": "Every client's status on each measure, worst first, with the move since last quarter",
+  "subtitle": "The clients off track or at risk on client success, worst first, with the move since last quarter. Clients on track are left out; the table below lists everyone.",
   "description": "The client success scorecard: one row per client, one status per measure, the perspective's status and its move since last quarter, and the next step.",
   "data": {
     "type": "url",
@@ -71,5 +71,16 @@
     "sort": "worst",
     "group": "segment",
     "note": "action"
-  }
+  },
+  "transform": [
+    {
+      "type": "filter",
+      "field": "clientSuccessRag",
+      "op": "in",
+      "value": [
+        "R",
+        "A"
+      ]
+    }
+  ]
 }

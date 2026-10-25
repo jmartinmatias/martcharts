@@ -1,7 +1,7 @@
 {
   "id": "cc-revenue-trades",
   "title": "Revenue and trades",
-  "subtitle": "{first:month} to {last:month}, each on its own scale",
+  "subtitle": "{first:month} to {last:month}: twelve months, so it runs longer than the year-to-date revenue above, each on its own scale",
   "description": "Monthly revenue and the number of trades behind it.",
   "locale": "en-US",
   "source": {

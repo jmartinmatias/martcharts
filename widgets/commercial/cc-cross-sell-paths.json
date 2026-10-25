@@ -9,7 +9,7 @@
   },
   "data": {
     "type": "url",
-    "url": "/data/cross-sell-paths.json"
+    "url": "/data/cross-sell-by-client.json"
   },
   "fields": {
     "from": {
@@ -27,5 +27,30 @@
     "source": "from",
     "target": "to",
     "value": "clients"
-  }
+  },
+  "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": [
+        "from",
+        "to"
+      ],
+      "measures": [
+        {
+          "op": "sum",
+          "field": "clients",
+          "as": "clients"
+        }
+      ]
+    },
+    {
+      "type": "sort",
+      "field": "clients",
+      "order": "desc"
+    },
+    {
+      "type": "limit",
+      "count": 14
+    }
+  ]
 }

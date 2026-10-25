@@ -9,7 +9,7 @@
   "description": "How many of each banker's clients are red on each perspective: the strongest cells are where to step in.",
   "data": {
     "type": "url",
-    "url": "/data/rag-by-rm.json"
+    "url": "/data/client-health-perspectives.json"
   },
   "fields": {
     "rm": {
@@ -27,5 +27,21 @@
     "x": "perspective",
     "y": "rm",
     "value": "red"
-  }
+  },
+  "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": [
+        "rm",
+        "perspective"
+      ],
+      "measures": [
+        {
+          "op": "sum",
+          "field": "red",
+          "as": "red"
+        }
+      ]
+    }
+  ]
 }

@@ -1,14 +1,14 @@
 [
-  {"month":"2025-11","aum":1562000000,"revenueYtd":704461,"netNewMoney":-1501266,"openOpportunities":28,"potential":3061080,"anomalies":3},
-  {"month":"2025-12","aum":1584000000,"revenueYtd":1408923,"netNewMoney":-1799956,"openOpportunities":29,"potential":3115099,"anomalies":2},
-  {"month":"2026-01","aum":1605000000,"revenueYtd":2113384,"netNewMoney":8084587,"openOpportunities":29,"potential":3169118,"anomalies":2},
-  {"month":"2026-02","aum":1627000000,"revenueYtd":2817845,"netNewMoney":4699751,"openOpportunities":30,"potential":3223137,"anomalies":1},
-  {"month":"2026-03","aum":1649000000,"revenueYtd":3522306,"netNewMoney":-1031620,"openOpportunities":31,"potential":3277156,"anomalies":3},
-  {"month":"2026-04","aum":1670000000,"revenueYtd":4226768,"netNewMoney":5169065,"openOpportunities":32,"potential":3331175,"anomalies":2},
-  {"month":"2026-05","aum":1692000000,"revenueYtd":4931229,"netNewMoney":13707339,"openOpportunities":32,"potential":3385194,"anomalies":3},
-  {"month":"2026-06","aum":1713000000,"revenueYtd":5635690,"netNewMoney":10744655,"openOpportunities":33,"potential":3439213,"anomalies":3},
-  {"month":"2026-07","aum":1735000000,"revenueYtd":6340151,"netNewMoney":6408315,"openOpportunities":34,"potential":3493232,"anomalies":1},
-  {"month":"2026-08","aum":1757000000,"revenueYtd":7044613,"netNewMoney":335331,"openOpportunities":34,"potential":3547251,"anomalies":3},
-  {"month":"2026-09","aum":1778000000,"revenueYtd":7749074,"netNewMoney":8225121,"openOpportunities":35,"potential":3601270,"anomalies":1},
-  {"month":"2026-10","aum":1800000000,"revenueYtd":8453535,"netNewMoney":10455225,"openOpportunities":36,"potential":3655289,"anomalies":0}
+  {"month":"2025-11","aum":1562250000,"revenueYtd":837267,"netNewMoney":-1501266,"openOpportunities":28,"potential":3015841,"anomalies":0},
+  {"month":"2025-12","aum":1583770000,"revenueYtd":1694254,"netNewMoney":-1799956,"openOpportunities":29,"potential":3069059,"anomalies":0},
+  {"month":"2026-01","aum":1605410000,"revenueYtd":879318,"netNewMoney":8084587,"openOpportunities":29,"potential":3122283,"anomalies":0},
+  {"month":"2026-02","aum":1627040000,"revenueYtd":1723979,"netNewMoney":4699751,"openOpportunities":30,"potential":3175506,"anomalies":0},
+  {"month":"2026-03","aum":1648620000,"revenueYtd":2546385,"netNewMoney":-1031620,"openOpportunities":31,"potential":3228725,"anomalies":0},
+  {"month":"2026-04","aum":1670210000,"revenueYtd":3395010,"netNewMoney":5169065,"openOpportunities":32,"potential":3281948,"anomalies":0},
+  {"month":"2026-05","aum":1691830000,"revenueYtd":4242324,"netNewMoney":13707339,"openOpportunities":32,"potential":3335164,"anomalies":0},
+  {"month":"2026-06","aum":1713420000,"revenueYtd":5092828,"netNewMoney":10744655,"openOpportunities":33,"potential":3388383,"anomalies":0},
+  {"month":"2026-07","aum":1735020000,"revenueYtd":5958708,"netNewMoney":6408315,"openOpportunities":34,"potential":3441607,"anomalies":5},
+  {"month":"2026-08","aum":1756590000,"revenueYtd":6778578,"netNewMoney":335331,"openOpportunities":34,"potential":3494830,"anomalies":8},
+  {"month":"2026-09","aum":1778190000,"revenueYtd":7599193,"netNewMoney":8225121,"openOpportunities":35,"potential":3548048,"anomalies":5},
+  {"month":"2026-10","aum":1799810000,"revenueYtd":8453535,"netNewMoney":10455225,"openOpportunities":35,"potential":3601270,"anomalies":6}
 ]

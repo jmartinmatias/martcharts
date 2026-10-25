@@ -9,9 +9,20 @@
   },
   "data": {
     "type": "url",
-    "url": "/data/products.json"
+    "url": "/data/holdings.json"
   },
   "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": "product",
+      "measures": [
+        {
+          "op": "sum",
+          "field": "revenue",
+          "as": "revenue"
+        }
+      ]
+    },
     {
       "type": "sort",
       "field": "revenue",
