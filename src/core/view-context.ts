@@ -104,8 +104,23 @@ export function categoryField(view: { type: string; [option: string]: unknown },
     const field = named[option];
     if (typeof field === "string" && field in row && isCategoryValue(row[field])) return field;
   }
-  return Object.keys(row).find((key) => isCategoryValue(row[key]));
+  // No category option (a table, a list): the name a reader sees, never an internal key. The columns shown come first,
+  // then a field named like a name, then any other text; an id ("c39") only when nothing else names the row.
+  const shown = Array.isArray(named.columns) ? named.columns.map(String) : [];
+  const keys = [...new Set([...shown, ...Object.keys(row)])].filter((key) => key in row && isCategoryValue(row[key]));
+  const readable = keys.filter((key) => !ID_LIKE.test(key));
+  return (
+    readable.find((key) => shown.includes(key)) ??
+    readable.find((key) => NAME_LIKE.test(key)) ??
+    readable[0] ??
+    keys[0]
+  );
 }
+
+/** Field names that hold an internal key, not a name: id, clientId, client_id, uuid. */
+const ID_LIKE = /^(id|uuid|guid)$|Id$|_id$/;
+/** Field names that hold what a row is called. */
+const NAME_LIKE = /^(name|label|title|client|customer|account|company|entity|full_?name)$/i;
 
 const ROW_TOKEN = /\{([^{}:]+)\}/g;
 

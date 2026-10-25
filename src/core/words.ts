@@ -372,6 +372,8 @@ const EN = {
     done: "Done",
     doesNotApply: (name: string, n: number) => `${name} does not apply to ${n} ${n === 1 ? "card" : "cards"}`,
     cardsList: (names: string[]) => `Not reached: ${names.join(", ")}`,
+    /** The printed state line: what the printout holds when it opens what the screen folds or tabs away. */
+    printedAll: "Printed: every section",
   },
 
   // ---- RAG statuses: words that read without the color ----
@@ -730,6 +732,7 @@ const FR: Words = {
     done: "Terminé",
     doesNotApply: (name, n) => `${name} ne s'applique pas à ${n} ${n === 1 ? "carte" : "cartes"}`,
     cardsList: (names) => `Non concernées : ${names.join(", ")}`,
+    printedAll: "Imprimé : toutes les sections",
   },
   rag: { G: "Conforme", A: "À surveiller", R: "Hors trajectoire", N: "Aucune donnée" },
   dw2: {
@@ -1077,6 +1080,7 @@ const DE: Words = {
     done: "Fertig",
     doesNotApply: (name, n) => `${name} gilt nicht für ${n} ${n === 1 ? "Karte" : "Karten"}`,
     cardsList: (names) => `Nicht betroffen: ${names.join(", ")}`,
+    printedAll: "Gedruckt: alle Abschnitte",
   },
   rag: { G: "Im Plan", A: "Gefährdet", R: "Nicht im Plan", N: "Keine Daten" },
   dw2: {
