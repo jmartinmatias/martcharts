@@ -3,7 +3,7 @@ import { readNumber } from "../../core/formats.ts";
 import type { ViewRenderer } from "../../core/view-context.ts";
 import type { KpisView } from "../../core/views.ts";
 import { deltaElement } from "./delta.ts";
-import { figure, sparkline, trendColor } from "./kpi.ts";
+import { figure, noChange, quietZero, sparkline, trendColor } from "./kpi.ts";
 import { hiddenTableOf, html } from "./shared.ts";
 import { targetLine } from "./target.ts";
 import { ragFromValue } from "../../core/rag.ts";
@@ -35,13 +35,16 @@ export const renderKpis: ViewRenderer<KpisView> = (ctx) => {
     const hasFormat = ctx.spec.fields?.[field]?.format !== undefined;
     const value = row[field];
     const show = (v: unknown) => (hasFormat ? ctx.format(v, field) : formatValue(v, { type: "number", compact: true }, ctx.spec.locale));
-    tile.append(html(doc, "div", "fft-stat-label", item.label ?? ctx.label(field)), figure(doc, "fft-stat-value", value, show, wordsFor(ctx)));
     const compare = item.compare ?? (series ? "previous" : undefined);
     const now = readNumber(value);
+    const then = compare === "previous" ? (before ? readNumber(before[field]) : null) : compare ? readNumber(row[compare]) : null;
+    // Zero now and zero before: a quiet dash, not a hero zero.
+    const quiet = now === 0 && then === 0;
+    tile.append(html(doc, "div", "fft-stat-label", item.label ?? ctx.label(field)), quiet ? quietZero(doc, "fft-stat-value", show(value)) : figure(doc, "fft-stat-value", value, show, wordsFor(ctx)));
+    if (quiet) tile.dataset.quiet = "";
     // With RAG thresholds, a pill says where the tile stands: its shape and its words, never color alone.
     if (item.rag && now !== null) tile.append(ragPill(doc, ragFromValue(now, item.rag), { locale: ctx.spec.locale }, "fft-stat-rag"));
-    const then = compare === "previous" ? (before ? readNumber(before[field]) : null) : compare ? readNumber(row[compare]) : null;
-    if (now !== null && then !== null && then !== 0) {
+    if (now !== null && then !== null && then !== 0 && !noChange((now - then) / Math.abs(then))) {
       tile.append(deltaElement(doc, (now - then) / Math.abs(then), item.goodWhen ?? "up", item.compareLabel, ctx.spec.locale));
     }
     // With a target, the same plain line as a single headline number: met, or how far to go.

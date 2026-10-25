@@ -363,6 +363,17 @@ const EN = {
     allSectionsShown: (cards: number) => `All sections: ${cards} cards shown.`,
   },
 
+  // ---- Board chrome: collapsed sections, the board's source, the Share menu, the phone filters sheet ----
+  boardChrome: {
+    showCards: (n: number) => `Show ${n} ${n === 1 ? "card" : "cards"}`,
+    hideCards: "Hide cards",
+    filters: "Filters",
+    filtersCount: (n: number) => (n ? `Filters (${n})` : "Filters"),
+    done: "Done",
+    doesNotApply: (name: string, n: number) => `${name} does not apply to ${n} ${n === 1 ? "card" : "cards"}`,
+    cardsList: (names: string[]) => `Not reached: ${names.join(", ")}`,
+  },
+
   // ---- RAG statuses: words that read without the color ----
   rag: { G: "On track", A: "At risk", R: "Off track", N: "No data" } as Readonly<Record<"R" | "A" | "G" | "N", string>>,
 
@@ -711,6 +722,15 @@ const FR: Words = {
     sectionShown: (name, cards) => `${name} : ${cards} ${cards === 1 ? "carte affichée" : "cartes affichées"}.`,
     allSectionsShown: (cards) => `Toutes les sections : ${cards} cartes affichées.`,
   },
+  boardChrome: {
+    showCards: (n) => `Afficher ${n} ${n === 1 ? "carte" : "cartes"}`,
+    hideCards: "Masquer les cartes",
+    filters: "Filtres",
+    filtersCount: (n) => (n ? `Filtres (${n})` : "Filtres"),
+    done: "Terminé",
+    doesNotApply: (name, n) => `${name} ne s'applique pas à ${n} ${n === 1 ? "carte" : "cartes"}`,
+    cardsList: (names) => `Non concernées : ${names.join(", ")}`,
+  },
   rag: { G: "Conforme", A: "À surveiller", R: "Hors trajectoire", N: "Aucune donnée" },
   dw2: {
     rulesKey: "Ce que disent les couleurs",
@@ -1048,6 +1068,15 @@ const DE: Words = {
     cleared: (what) => `Filter ${what} aufgehoben.`,
     sectionShown: (name, cards) => `${name}: ${cards} ${cards === 1 ? "Karte" : "Karten"} angezeigt.`,
     allSectionsShown: (cards) => `Alle Bereiche: ${cards} Karten angezeigt.`,
+  },
+  boardChrome: {
+    showCards: (n) => `${n} ${n === 1 ? "Karte" : "Karten"} zeigen`,
+    hideCards: "Karten ausblenden",
+    filters: "Filter",
+    filtersCount: (n) => (n ? `Filter (${n})` : "Filter"),
+    done: "Fertig",
+    doesNotApply: (name, n) => `${name} gilt nicht für ${n} ${n === 1 ? "Karte" : "Karten"}`,
+    cardsList: (names) => `Nicht betroffen: ${names.join(", ")}`,
   },
   rag: { G: "Im Plan", A: "Gefährdet", R: "Nicht im Plan", N: "Keine Daten" },
   dw2: {

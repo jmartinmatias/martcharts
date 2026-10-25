@@ -1731,7 +1731,7 @@ ul.fft-map-legend { margin-top: 0; }
 .fft-widget[data-animate] .fft-table tbody tr { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: min(calc(min(var(--fft-i, 0), 21) * 13ms), 610ms); }
 
 /* KPI kit: a missing number is a quiet dash, never an empty box; a strip with no tiles says so in one line. */
-:is(.fft-kpi-value, .fft-stat-value)[data-empty] { color: var(--fft-muted); }
+:is(.fft-kpi-value, .fft-stat-value):is([data-empty], [data-zero]) { color: var(--fft-muted); }
 .fft-sparkline[data-empty] { visibility: hidden; }
 .fft-stats-empty { margin: 0; font-size: var(--fft-fs-m); color: var(--fft-text-secondary); }
 

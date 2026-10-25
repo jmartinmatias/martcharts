@@ -249,6 +249,21 @@ Each filter offers "All" plus every value of its field found in the widgets' dat
 
 `range` adds a **Period** control at the head of the filter row: a segmented control of `options` (default `["3M", "6M", "12M", "All"]`; any count of months or years such as `"2Y"`, plus `"YTD"`), starting at `default` (`"All"` when offered). A period keeps the latest months in every widget whose data has the range `field`, counting back from the latest date across those widgets and including its month, and combines with the other filters. The field holds ISO months or dates (`"2026-09"`, `"2026-09-30"`); name several (`"field": ["month", "day"]`) so monthly and daily widgets share one window. Widget subtitles and captions are fixed text, so word them to suit any period or leave the period out. `rangeStart(period, latest)` gives the first month a period keeps: `rangeStart("3M", "2026-09")` is `"2026-07"`.
 
+#### Board chrome
+
+The board keeps its frame quiet so the cards carry the page.
+
+- **`"source": { "name": "CRM", "url": "https://…" }`** writes one "Source: CRM" line under the grid. A card whose own source has the same name drops it from its credit line, and a credit line left empty disappears. The `url` must be a web address.
+- **`"collapsed": true`** on a section cell starts that section folded behind its heading. Its widgets are drawn only when it is first opened, with the current filters applied. With `hash: true` the open sections are kept in the address (`o=<ids>`).
+- **`"sections": "tabs"`** turns the section filter into tabs with no All: the board opens on the first section, and only a section other than the first is written to the address.
+- **`header: false`** (an option of `createDashboard`) leaves out the title block, for a page that already has one. The "Data to …" line then sits at the end of the filter row.
+- **Share** is one button in the filter row. It opens a small menu with Copy link (when `hash` is on) and Print, run by the arrow keys, Home, End and Escape.
+- **On a phone** (below 640px) the filters fold into one "Filters" button that names how many are set, including a period other than All. It opens them as a sheet with a Done button, and Escape closes it.
+- **When a filter cannot reach a card**, the row says so in one line ("Region does not apply to 2 cards"). Each item names its cards on hover or focus. The per-card pill shows only on hover.
+- **"Data to …"** names the latest date the cards actually draw, read from each card's own rows. Forecast rows are left out.
+
+A KPI whose value and comparison are both zero shows a muted dash, read aloud as the zero. A change that rounds to nothing shows no delta.
+
 ## Working with specs
 
 These need no DOM and work in Node: import them from `martcharts/core`.

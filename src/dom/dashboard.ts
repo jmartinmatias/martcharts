@@ -59,6 +59,11 @@ export interface DashboardOptions {
    * card's toolbar, ref and marks are tab stops of their own, about five per card.
    */
   cardStops?: boolean;
+  /**
+   * Draws the board's own title and subtitle (default true). A page that already says them in its own header passes
+   * false: the board then starts with its filter row, and the as-of line moves into that row.
+   */
+  header?: boolean;
 }
 
 /** The filter a click on a mark set: the field, its value, and the widget clicked (which keeps its data and highlights the value). */
@@ -128,12 +133,16 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   const B = wordsFor(boardLocale).board;
   // The words a keyboard and screen-reader user meets: skip links, card stops, and what each change did.
   const A = wordsFor(boardLocale).boardA11y;
+  // The board's chrome: folded sections, the phone filters sheet, the one-line scope note.
+  const C = wordsFor(boardLocale).boardChrome;
+  const withHeader = options.header !== false;
+  const tabs = spec.sections === "tabs";
   /** True once the board has drawn: what a link or the first load sets is not news to announce. */
   let settled = false;
   let lastSaid = "";
   let sayTimer: ReturnType<typeof setTimeout> | undefined;
   if (asOf) asOf.textContent = asOfText(spec.asOf as string, "", boardLocale);
-  if (spec.title || spec.subtitle || asOf) {
+  if (withHeader && (spec.title || spec.subtitle || asOf)) {
     const header = el("header", "fft-dashboard-header");
     if (spec.title) header.append(el("h2", "fft-dashboard-title", spec.title));
     if (spec.subtitle) header.append(el("p", "fft-dashboard-subtitle", spec.subtitle));
@@ -168,8 +177,34 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   // The hint every card stop carries, written once.
   const cardHint = el("p", "fft-sr-only", A.cardHint);
   cardHint.id = `fft-card-hint-${Math.random().toString(36).slice(2, 8)}`;
-  root.append(skip, filterRow, grid, live, cardHint);
+  // The period and the filters, together: a sheet behind a "Filters (n)" button on a phone, inline on wider screens.
+  const controls = el("div", "fft-filter-controls");
+  controls.id = `fft-filter-controls-${Math.random().toString(36).slice(2, 8)}`;
+  filterRow.append(controls);
+  const filtersToggle = el("button", "fft-filters-toggle", C.filters);
+  filtersToggle.type = "button";
+  filtersToggle.setAttribute("aria-expanded", "false");
+  // One line under the filter row says what a filter cannot reach ("Segment does not apply to 7 cards"), instead of a
+  // pill on every card.
+  const unreached = el("p", "fft-unreached");
+  unreached.hidden = true;
+  // The board's source, said once under it.
+  const footer = spec.source?.name ? boardFooter(spec.source) : undefined;
+  root.append(skip, filterRow, unreached, grid, ...(footer ? [footer] : []), live, cardHint);
   target.append(root);
+
+  function boardFooter(source: { name: string; url?: string }): HTMLElement {
+    const node = el("footer", "fft-board-footer");
+    node.append(wordsFor(boardLocale).widget.source);
+    if (source.url) {
+      const link = el("a", "fft-credit-link", source.name);
+      link.href = source.url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      node.append(link);
+    } else node.append(source.name);
+    return node;
+  }
 
   const widgets = new Map<string, Widget>();
   const originals = new Map<string, WidgetSpec>();
@@ -211,6 +246,31 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     return max;
   })());
 
+  /**
+   * The latest date the cards actually draw, for the as-of line: each card's rows after its own steps (a card that
+   * stops at September says September, though its file runs on), forecast rows left out. Never later than the period
+   * a card itself names, unlike `latest`, which reads the raw files to count periods back from.
+   */
+  let drawnDate: Promise<string> | undefined;
+  const drawnLatest = () => (drawnDate ??= (async () => {
+    let max = "";
+    await Promise.all(
+      [...originals.entries()].map(async ([id, original]) => {
+        const fields = await rawFields.get(id);
+        const field = rangeFields.find((f) => fields?.has(f));
+        if (!field) return;
+        const forecast = original.view?.forecast;
+        const rows = await runPipeline(original, { fetch: options.fetch }).catch(() => [] as Row[]);
+        for (const row of rows) {
+          if (typeof forecast === "string" && isForecast(row[forecast])) continue;
+          const value = row[field];
+          if (typeof value === "string" && /^\d{4}-\d{2}/.test(value) && value > max) max = value;
+        }
+      }),
+    );
+    return max || (await latest());
+  })());
+
   const sections: { node: HTMLElement; title: string }[] = [];
   const usedIds = new Set<string>();
   /** A section's id: the board id and the title in lowercase words joined by hyphens, counted up when taken on the page. */
@@ -225,6 +285,14 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   /** The grid items each section shows: its heading and the cells after it, up to the next heading. */
   const members = new Map<HTMLElement, Set<HTMLElement>>();
   let opened: Set<HTMLElement> | undefined;
+  /** Each card's section heading, when it sits under one. */
+  const sectionOf = new Map<HTMLElement, HTMLElement>();
+  /** Sections the spec folds (collapsed), and those of them folded right now. */
+  const foldable = new Set<HTMLElement>();
+  const folded = new Set<HTMLElement>();
+  const toggles = new Map<HTMLElement, HTMLButtonElement>();
+  /** Cards of a folded section, by id, drawn the first time it opens. */
+  const waiting = new Map<string, () => Widget>();
   /** Each widget's slot, so stepping can skip the ones a section filter hides. */
   const slotOf = new Map<Widget, HTMLElement>();
   /** The expanded view steps through the board's widgets in grid order, sections skipped, and only those in view. */
@@ -241,6 +309,8 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   const cardStops = options.cardStops !== false;
   const INNER = "a[href], button, input, select, textarea, [tabindex]";
   const observers: MutationObserver[] = [];
+  /** Listeners on the page, removed when the board goes. */
+  const cleanups: (() => void)[] = [];
   const inside = (slot: HTMLElement) => {
     const active = doc.activeElement;
     return Boolean(active && active !== slot && slot.contains(active));
@@ -337,6 +407,17 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       sections.push({ node: section, title: cell.section });
       opened = new Set([section]);
       members.set(section, opened);
+      if (cell.collapsed) {
+        // A folded section: its heading, and a button that draws its cards the first time it opens.
+        folded.add(section);
+        foldable.add(section);
+        const toggle = el("button", "fft-section-toggle");
+        toggle.type = "button";
+        toggle.setAttribute("aria-expanded", "false");
+        toggle.addEventListener("click", () => void setFolded(section, !folded.has(section)));
+        section.append(toggle);
+        toggles.set(section, toggle);
+      }
       return;
     }
     const id = cell.widget ?? `cell-${index}`;
@@ -349,6 +430,8 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     slot.append(mount);
     grid.append(slot);
     opened?.add(slot);
+    const inSection = sections.at(-1)?.node;
+    if (inSection) sectionOf.set(slot, inSection);
     const found = cell.spec ?? (cell.widget ? (options.widgets?.[cell.widget] ?? options.resolve?.(cell.widget)) : undefined);
     if (!found) {
       mount.append(el("p", "fft-cell-missing", B.noWidget(String(cell.widget ?? index))));
@@ -363,16 +446,26 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       follows.set(id, { follow: cell.follow, key, authored: own ? own.value : cell.follow.default });
       slot.dataset.follows = cell.follow.field;
     }
+    // The card's data loads now, whether or not it draws yet: filters, scope notes and the as-of line read it.
     const rows = runPipeline({ data: found.data }, { fetch: options.fetch }).catch(() => [] as Row[]);
     rawRows.set(id, rows);
     rawFields.set(id, rows.then((list) => new Set(list.flatMap((row) => Object.keys(row)))));
     void rawFields.get(id)?.then((fields) => knownFields.set(id, fields));
-    const widget = createWidget(mount, found, { actions: options.actions, fetch: options.fetch, neighbors, guide: options.guides, emptyNote: () => emptyNote(id) });
-    widgets.set(id, widget);
-    slotOf.set(widget, slot);
-    options.decorate?.(mount, id, widget);
-    if (cardStops) cardStop(slot);
+    // Said once under the board: a card from the same source stops repeating it on its own credit line.
+    if (spec.source?.name && found.source?.name === spec.source.name) slot.dataset.boardSource = "";
+    const draw = () => {
+      const widget = createWidget(mount, found, { actions: options.actions, fetch: options.fetch, neighbors, guide: options.guides, emptyNote: () => emptyNote(id) });
+      widgets.set(id, widget);
+      slotOf.set(widget, slot);
+      options.decorate?.(mount, id, widget);
+      if (cardStops) cardStop(slot);
+      return widget;
+    };
+    // In a folded section the card is not drawn until the section opens.
+    if (inSection && folded.has(inSection)) waiting.set(id, draw);
+    else draw();
   });
+  for (const section of foldable) paintToggle(section);
 
   // The section list of the skip links: one roving stop (arrow keys move), each link focusing its section's heading.
   if (sections.length) {
@@ -385,7 +478,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       link.addEventListener("click", (event) => {
         event.preventDefault();
         // A section the section filter hides is shown again with the rest, then its heading takes focus.
-        if (node.hidden) choose(null);
+        if (node.hidden) choose(tabs ? node : null);
         node.querySelector<HTMLElement>("h3")?.focus();
       });
       item.append(link);
@@ -397,23 +490,78 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   }
 
   // Section filter: with two or more sections, the filter row offers All and each section, like the period control.
+  // With `sections: "tabs"` they are tabs instead, one section at a time, with no All.
   const nav = sections.length > 1 ? el("div", "fft-board-nav") : undefined;
   const sectionButtons: HTMLButtonElement[] = [];
   if (nav) {
-    nav.setAttribute("role", "group");
+    nav.setAttribute("role", tabs ? "tablist" : "group");
     nav.setAttribute("aria-label", B.sections);
-    for (const entry of [null, ...sections]) {
+    if (tabs) nav.dataset.tabs = "";
+    for (const entry of tabs ? sections : [null, ...sections]) {
       const button = el("button", "", entry ? entry.title : B.all);
       // The label again, for the stylesheet to reserve its semibold width, so choosing a chip never shifts the row.
       button.dataset.label = button.textContent ?? "";
       button.type = "button";
       if (entry) button.dataset.section = entry.node.id;
-      button.setAttribute("aria-pressed", String(entry === null));
+      if (tabs && entry) {
+        button.setAttribute("role", "tab");
+        button.setAttribute("aria-controls", entry.node.id);
+        button.setAttribute("aria-selected", String(entry === sections[0]));
+      } else button.setAttribute("aria-pressed", String(entry === null));
       button.addEventListener("click", () => choose(entry?.node ?? null));
       sectionButtons.push(button);
       nav.append(button);
     }
+    // Tabs move with the arrow keys, one stop for the list.
+    if (tabs) roving(sectionButtons);
     filterRow.append(nav);
+  }
+
+  /** A folded section's button: "Show 4 cards", or "Hide cards" once open. */
+  function paintToggle(section: HTMLElement) {
+    const toggle = toggles.get(section);
+    if (!toggle) return;
+    const count = [...(members.get(section) ?? [])].filter((node) => node.classList.contains("fft-cell-slot")).length;
+    const shut = folded.has(section);
+    toggle.textContent = shut ? C.showCards(count) : C.hideCards;
+    toggle.setAttribute("aria-expanded", String(!shut));
+    section.toggleAttribute("data-folded", shut);
+  }
+
+  /** Each grid item shown or hidden: by the section filter (or tab) in force, and by its section being folded. */
+  function applyVisibility() {
+    const shown = sections.find(({ node }) => node.id === shownSection)?.node;
+    const keep = shown ? members.get(shown) : undefined;
+    for (const child of grid.children) {
+      const node = child as HTMLElement;
+      const bySection = keep ? !keep.has(node) : false;
+      const parent = sectionOf.get(node);
+      node.hidden = bySection || Boolean(parent && folded.has(parent));
+    }
+  }
+
+  /** Opens or folds a section the spec folds. Its cards draw the first time it opens, with the filters in force. */
+  async function setFolded(section: HTMLElement, shut: boolean) {
+    if (!foldable.has(section)) return;
+    if (shut) folded.add(section);
+    else folded.delete(section);
+    const drawn: [string, Widget][] = [];
+    if (!shut) {
+      for (const slot of members.get(section) ?? []) {
+        const id = slot.dataset.widget;
+        const draw = id ? waiting.get(id) : undefined;
+        if (!id || !draw) continue;
+        waiting.delete(id);
+        drawn.push([id, draw()]);
+      }
+    }
+    paintToggle(section);
+    applyVisibility();
+    writeHash();
+    // Drawn after the board settled: they take the filters, period and click filter already in force.
+    if (settled) await Promise.all(drawn.map(async ([id, widget]) => widget.setSpec(await specFor(id))));
+    else await Promise.all(drawn.map(([, widget]) => widget.ready));
+    await writeState();
   }
   // When the section links scroll sideways, the edge with more to see fades out: a cue to swipe, and no chip cut hard.
   const edges = () => {
@@ -429,13 +577,19 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
 
   /** Shows one section's heading and cards, or everything for null; the board starts again from its top. */
   function choose(section: HTMLElement | null) {
-    const keep = section ? members.get(section) : undefined;
-    for (const child of grid.children) (child as HTMLElement).hidden = keep ? !keep.has(child as HTMLElement) : false;
+    // Tabs show one section at a time: "every section" means the first.
+    if (tabs && nav && !section) section = sections[0]?.node ?? null;
+    const changed = shownSection !== (section?.id ?? null);
+    shownSection = section?.id ?? null;
+    applyVisibility();
     if (section) root.dataset.section = section.id;
     else delete root.dataset.section;
     sectionButtons.forEach((button) => {
       const on = (button.dataset.section ?? null) === (section?.id ?? null);
-      button.setAttribute("aria-pressed", String(on));
+      if (button.getAttribute("role") === "tab") {
+        button.setAttribute("aria-selected", String(on));
+        button.tabIndex = on ? 0 : -1;
+      } else button.setAttribute("aria-pressed", String(on));
       // On narrow screens the buttons scroll sideways: center the chosen one. CSS owns the motion (scroll-behavior).
       if (on && nav && nav.scrollWidth > nav.clientWidth) {
         const box = nav.getBoundingClientRect();
@@ -443,8 +597,6 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
         nav.scrollBy({ left: chip.left - box.left - (box.width - chip.width) / 2 });
       }
     });
-    const changed = shownSection !== (section?.id ?? null);
-    shownSection = section?.id ?? null;
     writeHash();
     void writeState();
     if (changed) {
@@ -469,24 +621,32 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     const view = doc.defaultView;
     if (!view) return;
     const filters = chosenFilters();
+    // Folded sections the reader opened, by id; the first tab is the default, so it needs no mention.
+    const openIds = [...foldable].filter((section) => !folded.has(section)).map((section) => section.id);
     const parts = [
-      shownSection,
+      tabs && shownSection === sections[0]?.node.id ? null : shownSection,
       cross ? `cf=${encodeURIComponent(JSON.stringify([cross.field, cross.value, cross.source ?? null]))}` : null,
       Object.keys(filters).length ? `f=${encodeURIComponent(JSON.stringify(filters))}` : null,
       period !== firstPeriod ? `p=${encodeURIComponent(period)}` : null,
+      openIds.length ? `o=${encodeURIComponent(openIds.join(","))}` : null,
     ].filter(Boolean);
     view.history.replaceState(view.history.state, "", parts.length ? `#${parts.join("&")}` : `${view.location.pathname}${view.location.search}`);
   }
 
   /** The parts of the address: the section named, and the click filter, filters and period written there. */
-  function readHash(): { section: string; cross?: CrossFilter; filters?: Record<string, unknown>; period?: string } {
+  function readHash(): { section: string; cross?: CrossFilter; filters?: Record<string, unknown>; period?: string; open: string[] } {
     const parts = (doc.defaultView?.location.hash.slice(1) ?? "").split("&");
     let found: CrossFilter | undefined;
     let filters: Record<string, unknown> | undefined;
     let chosen: string | undefined;
+    let open: string[] = [];
     const named = parts.filter((part) => {
       // A part that does not read is ignored, like an unknown section.
       try {
+        if (part.startsWith("o=")) {
+          open = decodeURIComponent(part.slice(2)).split(",").filter(Boolean);
+          return false;
+        }
         if (part.startsWith("cf=")) {
           const [field, value, source] = JSON.parse(decodeURIComponent(part.slice(3))) as [unknown, unknown, unknown];
           if (typeof field === "string" && field) found = { field, value, ...(typeof source === "string" ? { source } : {}) };
@@ -507,7 +667,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       }
       return true;
     });
-    return { section: named[0] ?? "", ...(found ? { cross: found } : {}), ...(filters ? { filters } : {}), ...(chosen ? { period: chosen } : {}) };
+    return { section: named[0] ?? "", ...(found ? { cross: found } : {}), ...(filters ? { filters } : {}), ...(chosen ? { period: chosen } : {}), open };
   }
 
   // An address naming one of this board's sections opens the board on it, and the board follows the address as it
@@ -515,11 +675,16 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   let pendingCross: CrossFilter | undefined;
   let pendingFilters: Record<string, unknown> | undefined;
   const fromAddress = (initial: boolean) => {
-    const { section: named, cross: wanted, filters, period: chosen } = readHash();
+    const { section: named, cross: wanted, filters, period: chosen, open } = readHash();
     if (nav) {
       const match = sections.find(({ node }) => node.id === named);
       if (match) choose(match.node);
       else if (!named && !initial) choose(null);
+    }
+    // Folded sections the link opened open again; those it does not name fold back.
+    for (const section of foldable) {
+      const wantOpen = open.includes(section.id);
+      if (wantOpen === folded.has(section)) void setFolded(section, !wantOpen);
     }
     // Filters and the period: on first load they are set before anything draws; later, only what changed redraws.
     if (initial) {
@@ -548,6 +713,9 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     fromAddress(true);
     doc.defaultView?.addEventListener("hashchange", onHash);
   }
+  // Tabs start on the first section when the address names none.
+  if (tabs && nav && !shownSection) choose(null);
+  applyVisibility();
 
   // A pinned filter row wraps to several lines on a phone: track its height so a jumped-to section scrolls clear of it.
   // The page gets the height too: it scroll-pads by it, so a card brought into view by Tab never hides beneath the row (WCAG 2.4.11).
@@ -714,6 +882,9 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
    */
   async function markUnreached() {
     const filters = chosenFilters();
+    /** Per filter name, the cards it cannot reach, by title: the one line under the filter row says how many, and which on hover or focus. */
+    const missedBy = new Map<string, string[]>();
+    const cardName = (id: string, slot: HTMLElement) => slot.querySelector(".fft-title")?.textContent?.trim() || originals.get(id)?.title || id;
     await Promise.all(
       [...slots.entries()].map(async ([id, slot]) => {
         const fields = (await rawFields.get(id)) ?? new Set<string>();
@@ -733,8 +904,28 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
         const names = [...new Set(missed)];
         note.textContent = B.notFilteredBy(names);
         slot.dataset.unfiltered = "";
+        for (const name of names) missedBy.set(name, [...(missedBy.get(name) ?? []), id]);
       }),
     );
+    // One line, in filter order: "Segment does not apply to 7 cards · Period does not apply to 3 cards".
+    unreached.replaceChildren();
+    const order = [...Object.keys(filters).map(filterName), range?.label ?? B.period, ...(cross ? [fieldLabel(cross.field)] : [])];
+    const rank = (name: string) => (order.indexOf(name) < 0 ? order.length : order.indexOf(name));
+    const ids = [...slots.keys()];
+    for (const [name, missing] of [...missedBy].sort((a, b) => rank(a[0]) - rank(b[0]))) {
+      // Cards in board order, by their titles.
+      const cards = missing.sort((a, b) => ids.indexOf(a) - ids.indexOf(b)).map((id) => cardName(id, slots.get(id) as HTMLElement));
+      if (unreached.childNodes.length) unreached.append(" · ");
+      const item = el("span", "fft-unreached-item", C.doesNotApply(name, cards.length));
+      const list = C.cardsList(cards);
+      // The card names on hover or focus: a title for the pointer, the whole list for screen readers.
+      item.tabIndex = 0;
+      item.title = list;
+      item.dataset.cards = list;
+      item.setAttribute("aria-label", `${C.doesNotApply(name, cards.length)}. ${list}`);
+      unreached.append(item);
+    }
+    unreached.hidden = missedBy.size === 0;
   }
 
   /** The printed state line and the as-of date: what the page shows, in words. */
@@ -745,7 +936,8 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     for (const [field, value] of Object.entries(chosenFilters())) parts.push(`${filterName(field)}: ${formatValue(value, undefined, undefined)}`);
     if (range) parts.push(`${range.label ?? B.period}: ${period === "All" ? B.all : period}`);
     if (cross) parts.push(`${fieldLabel(cross.field)}: ${formatValue(cross.value, undefined, undefined)}`);
-    const asOfLine = asOf ? asOfText(spec.asOf as string, range ? await latest() : "", boardLocale) : "";
+    const asOfLine = asOf ? asOfText(spec.asOf as string, range ? await drawnLatest() : "", boardLocale) : "";
+    paintFiltersToggle();
     if (asOf) asOf.textContent = asOfLine;
     printState.textContent = [spec.title, parts.length ? parts.join(" · ") : B.unfiltered, asOfLine].filter(Boolean).join(" · ");
     await markUnreached();
@@ -781,7 +973,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       chip.title = B.clearThis;
       if (chip.hidden) rowHiddenBefore = filterRow.hidden === true;
       // The chip joins the filter row the first time a click sets a filter, after the period and filters, before the sections.
-      if (!chip.isConnected) filterRow.insertBefore(chip, nav ?? null);
+      if (!chip.isConnected) filterRow.insertBefore(chip, nav ?? filterRow.querySelector(":scope > .fft-board-tools"));
       chip.hidden = false;
       filterRow.hidden = false;
     } else if (!chip.hidden) {
@@ -851,7 +1043,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       track.append(button);
     }
     group.append(label, track);
-    filterRow.insertBefore(group, nav ?? null);
+    controls.append(group);
   }
 
   async function setRange(option: string) {
@@ -888,25 +1080,94 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       select.addEventListener("change", () => void setFilter(filter.field, select.value === "" ? null : seen[Number(select.value)]));
       selects.set(filter.field, { select, values: seen });
       wrap.append(label, select);
-      filterRow.insertBefore(wrap, nav ?? null);
+      controls.append(wrap);
     }
-    filterRow.insertBefore(buildTools(), nav ?? null);
+    // On a phone the controls fold into a sheet behind one button that counts what is set: "Filters (2)".
+    if (controls.childElementCount) {
+      filtersToggle.setAttribute("aria-controls", controls.id);
+      filtersToggle.addEventListener("click", () => openSheet(!filterRow.hasAttribute("data-sheet")));
+      const done = el("button", "fft-sheet-done", C.done);
+      done.type = "button";
+      done.addEventListener("click", () => {
+        openSheet(false);
+        filtersToggle.focus();
+      });
+      controls.append(done);
+      controls.addEventListener("keydown", (event) => {
+        if ((event as KeyboardEvent).key !== "Escape" || !filterRow.hasAttribute("data-sheet")) return;
+        event.preventDefault();
+        openSheet(false);
+        filtersToggle.focus();
+      });
+      filterRow.insertBefore(filtersToggle, controls);
+      paintFiltersToggle();
+    } else controls.remove();
+    // Share sits at the row's end; with no header, the as-of line joins it there.
+    filterRow.append(buildTools());
+    if (asOf && !withHeader) {
+      asOf.classList.add("fft-dashboard-asof-inline");
+      filterRow.append(asOf);
+    }
     rowHiddenBefore = !(spec.filters?.length || range || nav);
     filterRow.hidden = rowHiddenBefore && chip.hidden;
   }
 
-  /** Copy link (when the board keeps its state in the address) and Print, at the end of the filter row. */
+  /** The phone's "Filters (n)" button: how many filters are set, the period counting when it is not All. */
+  function paintFiltersToggle() {
+    const set = Object.keys(chosenFilters()).length + (range && period !== "All" ? 1 : 0);
+    filtersToggle.textContent = C.filtersCount(set);
+  }
+
+  /** Opens or closes the filters sheet (a phone's view of the controls). */
+  function openSheet(open: boolean) {
+    filterRow.toggleAttribute("data-sheet", open);
+    filtersToggle.setAttribute("aria-expanded", String(open));
+    if (open) controls.querySelector<HTMLElement>("button, select")?.focus();
+  }
+
+  /**
+   * One Share button at the end of the filter row, opening a small menu: Copy link (when the board keeps its state in
+   * the address) and Print. Arrow keys move in the menu; Escape, Tab or a click elsewhere closes it.
+   */
   function buildTools(): HTMLElement {
     const tools = el("div", "fft-board-tools");
-    tools.setAttribute("role", "group");
-    tools.setAttribute("aria-label", B.share);
     const status = el("span", "fft-sr-only");
     status.setAttribute("aria-live", "polite");
+    const button = el("button", "fft-board-share", B.share);
+    button.type = "button";
+    button.setAttribute("aria-haspopup", "menu");
+    button.setAttribute("aria-expanded", "false");
+    const menu = el("div", "fft-share-menu");
+    menu.id = `fft-share-${Math.random().toString(36).slice(2, 8)}`;
+    menu.setAttribute("role", "menu");
+    menu.setAttribute("aria-label", B.share);
+    menu.hidden = true;
+    button.setAttribute("aria-controls", menu.id);
+    const items: HTMLButtonElement[] = [];
+    const item = (text: string, title: string, run: (self: HTMLButtonElement) => void | Promise<void>) => {
+      const node = el("button", "fft-board-tool", text);
+      node.type = "button";
+      node.title = title;
+      node.setAttribute("role", "menuitem");
+      node.tabIndex = -1;
+      node.addEventListener("click", () => void run(node));
+      items.push(node);
+      menu.append(node);
+      return node;
+    };
+    const close = (refocus: boolean) => {
+      if (menu.hidden) return;
+      menu.hidden = true;
+      button.setAttribute("aria-expanded", "false");
+      if (refocus) button.focus();
+    };
+    const open = () => {
+      menu.hidden = false;
+      button.setAttribute("aria-expanded", "true");
+      items[0]?.focus();
+    };
     if (options.hash) {
-      const copy = el("button", "fft-board-tool", B.copyLink);
-      copy.type = "button";
-      copy.title = B.copyLinkTitle;
-      copy.addEventListener("click", async () => {
+      item(B.copyLink, B.copyLinkTitle, async (self) => {
         const url = shareLink();
         let done = false;
         try {
@@ -915,17 +1176,17 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
         } catch {
           done = false;
         }
-        copy.textContent = done ? B.linkCopied : B.copyFailed;
+        self.textContent = done ? B.linkCopied : B.copyFailed;
         status.textContent = done ? B.linkCopiedSaid : B.linkFailedSaid;
         root.dispatchEvent(new CustomEvent<{ url: string; copied: boolean }>("fft-share", { bubbles: true, detail: { url, copied: done } }));
-        setTimeout(() => (copy.textContent = B.copyLink), 1597);
+        setTimeout(() => {
+          self.textContent = B.copyLink;
+          close(doc.activeElement === self);
+        }, 1597);
       });
-      tools.append(copy);
     }
-    const print = el("button", "fft-board-tool", B.print);
-    print.type = "button";
-    print.title = B.printTitle;
-    print.addEventListener("click", () => {
+    item(B.print, B.printTitle, () => {
+      close(true);
       void writeState();
       try {
         doc.defaultView?.print();
@@ -933,7 +1194,38 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
         // No print dialog here (a test page, a locked-down browser): nothing to do.
       }
     });
-    tools.append(print, status);
+    button.addEventListener("click", () => (menu.hidden ? open() : close(false)));
+    button.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowDown" && menu.hidden) {
+        event.preventDefault();
+        open();
+      }
+    });
+    menu.addEventListener("keydown", (event) => {
+      const at = items.indexOf(doc.activeElement as HTMLButtonElement);
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        items[(at + (event.key === "ArrowDown" ? 1 : items.length - 1)) % items.length]?.focus();
+      } else if (event.key === "Home" || event.key === "End") {
+        event.preventDefault();
+        (event.key === "Home" ? items[0] : items.at(-1))?.focus();
+      } else if (event.key === "Escape") {
+        // The menu takes Escape first, so it does not also clear a click filter.
+        event.preventDefault();
+        event.stopPropagation();
+        close(true);
+      } else if (event.key === "Tab") close(false);
+    });
+    tools.addEventListener("focusout", (event) => {
+      const next = (event as FocusEvent).relatedTarget as Node | null;
+      if (next && !tools.contains(next)) close(false);
+    });
+    const outside = (event: Event) => {
+      if (!tools.contains(event.target as Node)) close(false);
+    };
+    doc.addEventListener("pointerdown", outside);
+    cleanups.push(() => doc.removeEventListener("pointerdown", outside));
+    tools.append(button, menu, status);
     return tools;
   }
 
@@ -1037,6 +1329,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       grid.removeEventListener("pointerdown", pressed, true);
       grid.removeEventListener("click", pressed, true);
       for (const watch of observers) watch.disconnect();
+      for (const run of cleanups) run();
       if (sayTimer) clearTimeout(sayTimer);
       barSize?.disconnect();
       navSize?.disconnect();
@@ -1078,9 +1371,54 @@ const BOARD_CSS = `
 .fft-board-tool:hover { background: color-mix(in srgb, var(--fft-text, #1d1d1f) 6%, transparent); }
 .fft-board-tool:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 2px; }
 .fft-dashboard .fft-cell-slot { position: relative; }
-.fft-unfiltered { position: absolute; top: 8px; right: 13px; z-index: 1; margin: 0; padding: 2px 8px; border-radius: 999px; font-size: 11px; line-height: 15px; color: var(--fft-muted, #6e6e73); background: color-mix(in srgb, var(--fft-text, #1d1d1f) 5%, transparent); pointer-events: none; transition: opacity 233ms ease; }
-.fft-cell-slot:is(:hover, :focus-within) > .fft-unfiltered { opacity: 0; }
-@media (hover: none) { .fft-unfiltered { position: static; align-self: flex-end; margin: 0 0 5px; } }
+/* What a filter cannot reach: one line under the row; a card's own pill only while a pointer rests on it. */
+.fft-unfiltered { display: none; position: absolute; top: 8px; right: 13px; z-index: 1; margin: 0; padding: 2px 8px; border-radius: 999px; font-size: 11px; line-height: 15px; color: var(--fft-muted, #6e6e73); background: color-mix(in srgb, var(--fft-text, #1d1d1f) 5%, transparent); pointer-events: none; }
+@media (hover: hover) { .fft-cell-slot:hover > .fft-unfiltered { display: block; } }
+.fft-unreached { margin: 5px 0 0; font-size: 12px; line-height: 18px; color: var(--fft-muted, #6e6e73); }
+.fft-unreached[hidden] { display: none; }
+.fft-unreached-item { position: relative; border-bottom: 1px dotted currentColor; cursor: help; outline: none; }
+.fft-unreached-item:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 2px; border-radius: 3px; }
+.fft-unreached-item:is(:hover, :focus-visible)::after { content: attr(data-cards); position: absolute; left: 0; top: calc(100% + 5px); z-index: 5; width: max-content; max-width: min(420px, 80vw); padding: 5px 8px; border-radius: 8px; background: var(--fft-raised, var(--fft-surface, #fff)); color: var(--fft-text, #1d1d1f); box-shadow: 0 0 0 1px var(--fft-border, rgba(0,0,0,.1)), 0 8px 21px rgba(0,0,0,.18); white-space: normal; }
+/* The filter row on one line on wide screens: controls, the click filter, the sections (scrolling sideways), Share. */
+.fft-dashboard .fft-filters { flex-wrap: nowrap; }
+.fft-filter-controls { display: flex; flex: none; align-items: center; gap: 13px; }
+.fft-dashboard .fft-board-nav { flex: 1 1 auto; flex-wrap: nowrap; margin-left: 0; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; scroll-padding-inline: 34px; }
+.fft-dashboard .fft-board-nav::-webkit-scrollbar { display: none; }
+.fft-dashboard .fft-board-nav button { flex: none; }
+.fft-dashboard .fft-board-nav[data-scroll="start"] { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 34px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 34px), transparent); }
+.fft-dashboard .fft-board-nav[data-scroll="middle"] { -webkit-mask-image: linear-gradient(to right, transparent, #000 34px, #000 calc(100% - 34px), transparent); mask-image: linear-gradient(to right, transparent, #000 34px, #000 calc(100% - 34px), transparent); }
+.fft-dashboard .fft-board-nav[data-scroll="end"] { -webkit-mask-image: linear-gradient(to right, transparent, #000 34px); mask-image: linear-gradient(to right, transparent, #000 34px); }
+.fft-dashboard .fft-board-nav[data-tabs] button[aria-selected="true"] { color: var(--fft-text); font-weight: 600; background: color-mix(in srgb, var(--fft-text) 8%, transparent); }
+.fft-dashboard-asof-inline { margin: 0; flex: none; white-space: nowrap; }
+.fft-filters-toggle, .fft-sheet-done { display: none; }
+/* Share: one button, a small menu. */
+.fft-board-share { min-height: 34px; padding: 0 13px; border: 1px solid color-mix(in srgb, var(--fft-text, #1d1d1f) 14%, transparent); border-radius: 999px; background: transparent; color: inherit; font: inherit; font-size: 13px; cursor: pointer; white-space: nowrap; }
+.fft-board-share:hover { background: color-mix(in srgb, var(--fft-text, #1d1d1f) 6%, transparent); }
+.fft-board-share:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 2px; }
+.fft-board-tools { position: relative; flex: none; }
+.fft-share-menu { position: absolute; right: 0; top: calc(100% + 5px); z-index: 10; display: flex; flex-direction: column; gap: 2px; min-width: 144px; padding: 5px; border-radius: 13px; background: var(--fft-raised, var(--fft-surface, #fff)); box-shadow: 0 0 0 1px var(--fft-border, rgba(0,0,0,.1)), 0 13px 34px rgba(0,0,0,.2); }
+.fft-share-menu[hidden] { display: none; }
+.fft-share-menu .fft-board-tool { border: 0; border-radius: 8px; text-align: left; }
+/* A folded section: its heading, and a button that opens it. */
+.fft-section-toggle { margin: 5px 0 0; min-height: 34px; padding: 0 13px; border: 1px solid color-mix(in srgb, var(--fft-text, #1d1d1f) 14%, transparent); border-radius: 999px; background: transparent; color: inherit; font: inherit; font-size: 13px; cursor: pointer; }
+.fft-section-toggle:hover { background: color-mix(in srgb, var(--fft-text, #1d1d1f) 6%, transparent); }
+.fft-section-toggle:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 2px; }
+/* The board's source, once, under it; a card from the same source keeps only its byline. */
+.fft-board-footer { margin: 21px 0 0; font-size: 12px; color: var(--fft-muted, #6e6e73); }
+.fft-cell-slot[data-board-source] .fft-credit-source { display: none; }
+.fft-cell-slot[data-board-source] .fft-credit:not(:has(.fft-credit-byline)) { display: none; }
+/* Phones: the controls fold into a sheet behind "Filters (n)". */
+@media (max-width: 639px) {
+  .fft-dashboard .fft-filters { flex-wrap: wrap; }
+  .fft-filters-toggle { display: inline-flex; align-items: center; min-height: 34px; padding: 0 13px; border: 1px solid color-mix(in srgb, var(--fft-text, #1d1d1f) 14%, transparent); border-radius: 999px; background: transparent; color: inherit; font: inherit; font-size: 13px; cursor: pointer; }
+  .fft-filters-toggle:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 2px; }
+  .fft-filter-controls { display: none; }
+  .fft-filters[data-sheet] .fft-filter-controls { display: flex; flex: 1 0 100%; order: 10; flex-direction: column; align-items: stretch; gap: 13px; padding: 13px; border-radius: 13px; background: var(--fft-raised, var(--fft-surface, #fff)); box-shadow: 0 0 0 1px var(--fft-border, rgba(0,0,0,.1)); }
+  .fft-filters[data-sheet] .fft-sheet-done { display: block; align-self: flex-end; min-height: 34px; padding: 0 21px; border: 0; border-radius: 999px; background: var(--fft-accent); color: #fff; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .fft-dashboard .fft-board-nav { flex: 1 0 100%; order: 5; }
+  .fft-board-tools { margin-left: auto; }
+  .fft-dashboard-asof-inline { flex: 1 0 100%; order: 6; }
+}
 .fft-skip { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .fft-skip:focus-within { position: static; width: auto; height: auto; margin: 0 0 8px; overflow: visible; clip: auto; white-space: normal; display: flex; flex-wrap: wrap; align-items: baseline; gap: 5px 13px; font-size: 13px; }
 .fft-skip-sections { display: flex; flex-wrap: wrap; gap: 5px 13px; margin: 0; padding: 0; list-style: none; }
@@ -1099,7 +1437,11 @@ const BOARD_CSS = `
   .fft-dashboard .fft-cell-slot[hidden], .fft-board-section[hidden] { display: none !important; }
   .fft-board-section { break-before: page; page-break-before: always; margin: 0 0 8px; }
   .fft-dashboard-grid > .fft-board-section:first-child { break-before: auto; page-break-before: auto; }
-  .fft-unfiltered { position: static; display: inline-block; margin: 0 0 5px; opacity: 1 !important; color: #515154; background: none; padding: 0; }
+  .fft-unfiltered { display: none !important; }
+  .fft-unreached { color: #515154; }
+  .fft-unreached-item::after { display: none; }
+  .fft-section-toggle, .fft-board-share, .fft-share-menu { display: none !important; }
+  .fft-board-footer { color: #515154; }
 }
 .fft-crossfilter { display: inline-flex; align-items: center; gap: 8px; min-height: 34px; padding: 0 8px 0 13px; border: 1px solid color-mix(in srgb, var(--fft-accent) 55%, transparent); border-radius: 999px; background: color-mix(in srgb, var(--fft-accent) 12%, transparent); color: inherit; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
 .fft-crossfilter[hidden] { display: none; }

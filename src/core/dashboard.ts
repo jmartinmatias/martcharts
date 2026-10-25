@@ -20,6 +20,11 @@ export interface DashboardCell {
   /** A line under the section heading. */
   description?: string;
   /**
+   * On a section heading: the section starts folded, its heading and a "Show n cards" button in view, its cards not
+   * drawn until it is opened. Reference material a reader opens when they need it.
+   */
+  collapsed?: boolean;
+  /**
    * Makes the widget follow a selection: when a click on a mark (or a filter) picks a value of `field`, this widget
    * shows that value instead of the one its spec names. See `DashboardFollow`.
    */
@@ -106,6 +111,13 @@ export interface DashboardSpec {
    * `{latest}`, the latest date across the widgets that have the range field ("Data to {latest}").
    */
   asOf?: string;
+  /**
+   * Where the board's data comes from, said once in a footer under the board. A card whose own `source` has the same
+   * name stops repeating it on its credit line; a card with another source keeps its own.
+   */
+  source?: { name: string; url?: string };
+  /** "tabs": the section links become tabs with no "All", the first section showing at first. Default: All and each section. */
+  sections?: "tabs";
   widgets: DashboardCell[];
 }
 
@@ -150,6 +162,12 @@ export function validateDashboard(spec: unknown): Issue[] {
   }
   if (spec.crossFilter !== undefined && typeof spec.crossFilter !== "boolean") issues.push(error("crossFilter", "Must be true or false."));
   if (spec.asOf !== undefined && !(typeof spec.asOf === "string" && spec.asOf.trim() !== "")) issues.push(error("asOf", 'Must be a date such as "2026-10-25", or words with {latest}.'));
+  if (spec.source !== undefined) {
+    const source = spec.source;
+    if (!isPlainObject(source) || typeof source.name !== "string" || source.name.trim() === "") issues.push(error("source.name", 'Required. The board\'s source, such as { "name": "Finance ledger" }.'));
+    else if (source.url !== undefined && (typeof source.url !== "string" || /^\s*(javascript|data|vbscript):/i.test(source.url))) issues.push(error("source.url", "Must be a web address."));
+  }
+  if (spec.sections !== undefined && spec.sections !== "tabs") issues.push(error("sections", 'Must be "tabs", or left out for All and each section.'));
   if (!Array.isArray(spec.widgets)) {
     issues.push(error("widgets", 'Required. A list of cells such as { "widget": "revenue-kpi", "span": 2 }.'));
     return issues;
@@ -160,6 +178,10 @@ export function validateDashboard(spec: unknown): Issue[] {
     if (!isPlainObject(cell) || (typeof cell.widget !== "string" && !isPlainObject(cell.spec) && !isSection)) {
       issues.push(error(`widgets[${i}]`, "Needs a widget id, an inline spec, or a section title."));
       return;
+    }
+    if (cell.collapsed !== undefined) {
+      if (!isSection) issues.push(error(`widgets[${i}].collapsed`, "Only a section heading folds; put collapsed on a section cell."));
+      else if (typeof cell.collapsed !== "boolean") issues.push(error(`widgets[${i}].collapsed`, "Must be true or false."));
     }
     if (cell.follow !== undefined) {
       const follow = cell.follow;
