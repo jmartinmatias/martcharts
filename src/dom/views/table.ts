@@ -15,11 +15,18 @@ import { wordsFor } from "./words.ts";
  * aloud, `pageSize` turns the rows into pages with Previous and Next, and
  * `stickyFirst` pins the first column while the rest scrolls sideways.
  */
+/** How many rows a long table without pages shows at first, and adds per Show more. */
+export const SHOW_STEP = 100;
+
 export const renderTable: ViewRenderer<TableView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
   const columns = ctx.view.columns ? fieldList(ctx.view.columns) : allFields(ctx.rows);
   const sortable = ctx.view.sortable !== false;
   const pageSize = typeof ctx.view.pageSize === "number" && ctx.view.pageSize >= 1 ? Math.floor(ctx.view.pageSize) : 0;
+  // Without pages, a long table shows its first 100 rows and a Show more button for the next 100, as Datawrapper does:
+  // 5,000 rows drawn at once took seconds and 45,000 nodes. showAll: true draws every row.
+  const step = pageSize || ctx.view.showAll === true ? 0 : SHOW_STEP;
+  let limit = step;
   const align = ctx.view.align && typeof ctx.view.align === "object" ? ctx.view.align : {};
   let sort: { field: string; direction: 1 | -1 } | undefined;
   let query = "";
@@ -57,6 +64,7 @@ export const renderTable: ViewRenderer<TableView> = (ctx) => {
     input.addEventListener("input", () => {
       query = input.value;
       page = 0;
+      limit = step;
       draw();
     });
     tools.append(input, found);
@@ -87,11 +95,27 @@ export const renderTable: ViewRenderer<TableView> = (ctx) => {
     pager.append(previous, where, next);
   }
 
+  // Show more: the rows shown so far and a button for the next ones; focus stays on the button, the count is read out.
+  const more = html(doc, "div", "fft-table-more");
+  more.hidden = true;
+  const moreNote = html(doc, "span", "fft-table-more-note");
+  moreNote.setAttribute("aria-live", "polite");
+  const moreButton = html(doc, "button", "fft-pager-button fft-table-more-button");
+  moreButton.type = "button";
+  if (step) {
+    moreButton.addEventListener("click", () => {
+      limit += step;
+      draw();
+      if (!more.hidden) moreButton.focus();
+    });
+    more.append(moreNote, moreButton);
+  }
+
   const draw = (focus?: string) => {
     const rows = matching();
     const pages = pageSize ? Math.max(1, Math.ceil(rows.length / pageSize)) : 1;
     page = Math.min(page, pages - 1);
-    const shown = pageSize ? rows.slice(page * pageSize, (page + 1) * pageSize) : rows;
+    const shown = pageSize ? rows.slice(page * pageSize, (page + 1) * pageSize) : step ? rows.slice(0, limit) : rows;
     const table = buildTable(ctx, shown, columns, true);
     // Rows fade in top to bottom on the first draw, as every view's marks do.
     table.querySelectorAll<HTMLElement>("tbody tr").forEach((tr, i) => tr.style.setProperty("--fft-i", String(i)));
@@ -105,6 +129,7 @@ export const renderTable: ViewRenderer<TableView> = (ctx) => {
         button.addEventListener("click", () => {
           sort = sort?.field === field ? { field, direction: sort.direction > 0 ? -1 : 1 } : { field, direction: 1 };
           page = 0;
+          limit = step;
           draw(field);
         });
       });
@@ -124,6 +149,12 @@ export const renderTable: ViewRenderer<TableView> = (ctx) => {
       found.hidden = !searching;
       empty.hidden = rows.length > 0;
       wrap.hidden = rows.length === 0;
+    }
+    if (step) {
+      const rest = rows.length - shown.length;
+      more.hidden = rest <= 0;
+      moreButton.textContent = wordsFor(ctx).table.showMore(count.format(Math.min(step, rest)));
+      moreNote.textContent = wordsFor(ctx).table.showing(count.format(shown.length), count.format(rows.length));
     }
     if (pageSize) {
       pager.hidden = pages <= 1;
@@ -170,5 +201,6 @@ export const renderTable: ViewRenderer<TableView> = (ctx) => {
   if (ctx.view.search) ctx.el.append(tools);
   ctx.el.append(wrap, empty);
   if (pageSize) ctx.el.append(pager);
+  if (step) ctx.el.append(more);
   draw();
 };

@@ -59,6 +59,8 @@ const EN = {
   density: "Density",
   duration: "Duration",
   progress: "Progress",
+  denseHeatmap: (n: number) => `${n.toLocaleString("en-US")} cells. Use the arrow keys to move across and down, and Enter to pick one.`,
+  denseScatter: (n: number) => `${n.toLocaleString("en-US")} dots. Use the arrow keys to move from dot to dot, left to right, and Enter to pick one.`,
   quadrant: "Quadrant",
   forecast: "Forecast",
   up: "Up",
@@ -208,6 +210,8 @@ const EN = {
     total: "Total",
     scrollSideways: (title: string) => `${title}: scroll sideways for more columns`,
     tableWord: "Table",
+    showMore: (n: string) => `Show ${n} more`,
+    showing: (shown: string, total: string) => `${shown} of ${total} rows shown`,
   },
 
   // ---- What each chart is, for screen readers (the chart's accessible name) ----
@@ -514,6 +518,8 @@ const FR: Words = {
   density: "Densité",
   duration: "Durée",
   progress: "Avancement",
+  denseHeatmap: (n) => `${n.toLocaleString("fr-FR")} cellules. Les flèches se déplacent en ligne et en colonne ; Entrée en choisit une.`,
+  denseScatter: (n) => `${n.toLocaleString("fr-FR")} points. Les flèches passent d’un point à l’autre, de gauche à droite ; Entrée en choisit un.`,
   quadrant: "Quadrant",
   forecast: "Prévision",
   up: "Hausse",
@@ -646,6 +652,8 @@ const FR: Words = {
     total: "Total",
     scrollSideways: (title) => `${title} : faites défiler pour voir les autres colonnes`,
     tableWord: "Tableau",
+    showMore: (n) => `Afficher ${n} de plus`,
+    showing: (shown, total) => `${shown} lignes affichées sur ${total}`,
   },
   aria: {
     anomalies: (count, x) => `Suivi des anomalies de ${count} ${plural(count, "indicateur", "indicateurs")} par ${x}`,
@@ -938,6 +946,8 @@ const DE: Words = {
   density: "Dichte",
   duration: "Dauer",
   progress: "Fortschritt",
+  denseHeatmap: (n) => `${n.toLocaleString("de-DE")} Zellen. Mit den Pfeiltasten über Zeilen und Spalten; Eingabe wählt eine aus.`,
+  denseScatter: (n) => `${n.toLocaleString("de-DE")} Punkte. Mit den Pfeiltasten von Punkt zu Punkt, von links nach rechts; Eingabe wählt einen aus.`,
   quadrant: "Quadrant",
   forecast: "Prognose",
   up: "Steigend",
@@ -1070,6 +1080,8 @@ const DE: Words = {
     total: "Summe",
     scrollSideways: (title) => `${title}: seitlich scrollen für weitere Spalten`,
     tableWord: "Tabelle",
+    showMore: (n) => `${n} weitere anzeigen`,
+    showing: (shown, total) => `${shown} von ${total} Zeilen angezeigt`,
   },
   aria: {
     anomalies: (count, x) => `Auffälligkeiten-Monitor für ${count} ${plural(count, "Kennzahl", "Kennzahlen")} nach ${x}`,

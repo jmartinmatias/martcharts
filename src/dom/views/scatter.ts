@@ -13,6 +13,16 @@ import { wordsFor } from "./words.ts";
 /** Radius of the biggest bubble: a Fibonacci step. */
 const MAX_BUBBLE = 21;
 
+/**
+ * Past this many dots a scatter draws dense: one path per color holds every dot, a single hit layer over the plot finds
+ * the nearest dot through a grid index, and one probe mark stands in for the dot under the pointer or the keyboard.
+ * 5,000 dots drawn one circle and one hit area each took 1.9s and 30,000 nodes.
+ */
+export const DENSE_POINTS = 1000;
+
+/** The rows a dense scatter lists for screen readers: the first ones, with a line saying how many there are in all. */
+const DENSE_TABLE_ROWS = 100;
+
 /** Options the scatter block declares (and validates) that its core type does not list yet. */
 interface ScatterExtras {
   highlight?: string | string[];
@@ -185,7 +195,23 @@ export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) =>
       return { x: xs(point.x), y: typeof note.y === "number" ? ys(note.y) : ys(point.y) };
     },
   );
-  points.forEach((point, i) => {
+  const dense = points.length > DENSE_POINTS;
+  /** What a dot says: its name, then each measure, as the tooltip and as its accessible name. */
+  const describe = (point: (typeof points)[number], i: number, color: string) => {
+    const name = label ? ctx.format(point.row[label], label) : colorField ? ctx.format(point.row[colorField], colorField) : "";
+    const items: TooltipItem[] = [
+      { label: ctx.label(xField), value: ctx.format(point.row[xField], xField) },
+      { label: ctx.label(yField), value: ctx.format(point.row[yField], yField) },
+    ];
+    if (size) items.push({ label: ctx.label(size), value: ctx.format(point.row[size], size) });
+    if (series) items.push({ label: ctx.label(series), value: ctx.format(point.row[series], series), color });
+    if (cluster) items.push({ label: ctx.label(cluster), value: ctx.format(point.row[cluster], cluster), ...(series ? {} : { color }) });
+    if (quadrants) items.push({ label: wordsFor(ctx).quadrant, value: quadrantName(point.x, point.y) });
+    for (const pin of pinned) if (pin.i === i) items.push({ label: wordsFor(ctx).note, value: pin.text });
+    return { name, items, said: `${name ? `${name}: ` : ""}${items.map((item) => `${item.label} ${item.value}`).join(", ")}` };
+  };
+  if (dense) drawDense();
+  else points.forEach((point, i) => {
     const cx = xs(point.x);
     const cy = ys(point.y);
     const on = isOn(point);
@@ -197,18 +223,9 @@ export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) =>
     marks.push(dot);
     dots.append(dot);
 
-    const name = label ? ctx.format(point.row[label], label) : colorField ? ctx.format(point.row[colorField], colorField) : "";
-    const items: TooltipItem[] = [
-      { label: ctx.label(xField), value: ctx.format(point.row[xField], xField) },
-      { label: ctx.label(yField), value: ctx.format(point.row[yField], yField) },
-    ];
-    if (size) items.push({ label: ctx.label(size), value: ctx.format(point.row[size], size) });
-    if (series) items.push({ label: ctx.label(series), value: ctx.format(point.row[series], series), color });
-    if (cluster) items.push({ label: ctx.label(cluster), value: ctx.format(point.row[cluster], cluster), ...(series ? {} : { color }) });
-    if (quadrants) items.push({ label: wordsFor(ctx).quadrant, value: quadrantName(point.x, point.y) });
-    for (const pin of pinned) if (pin.i === i) items.push({ label: wordsFor(ctx).note, value: pin.text });
+    const { name, items, said } = describe(point, i, color);
     const hit = svg(doc, "circle", { class: "fft-point-hit", cx, cy, r: Math.max(13, point.r + 3), tabindex: 0, role: "img" });
-    hit.setAttribute("aria-label", `${name ? `${name}: ` : ""}${items.map((item) => `${item.label} ${item.value}`).join(", ")}`);
+    hit.setAttribute("aria-label", said);
     const activate = () => {
       wrap.setAttribute("data-active", "");
       for (const mark of marks) mark.removeAttribute("data-active");
@@ -222,6 +239,115 @@ export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) =>
     selectable(hit, () => ctx.select(point.row));
     overlay.append(hit);
   });
+  /**
+   * The dense drawing: one path per color (and one more for greyed dots), each dot a closed arc, so 5,000 dots are a
+   * handful of nodes. One transparent layer over the plot takes the pointer and the keyboard: a grid index finds the
+   * dot nearest the pointer, a single probe circle marks it, and the arrow keys walk the dots left to right.
+   */
+  function drawDense() {
+    const paths = new Map<string, string[]>();
+    points.forEach((point) => {
+      const color = isOn(point) ? groupColor(point.group) : DEEMPHASIS;
+      const r = Math.round(point.r * 100) / 100;
+      const [cx, cy] = [Math.round(xs(point.x) * 100) / 100, Math.round(ys(point.y) * 100) / 100];
+      const list = paths.get(color) ?? [];
+      list.push(`M${cx - r},${cy}a${r},${r} 0 1,0 ${r * 2},0a${r},${r} 0 1,0 ${-r * 2},0`);
+      paths.set(color, list);
+    });
+    for (const [color, d] of paths) {
+      const path = svg(doc, "path", { class: size ? "fft-point fft-point-bubble fft-point-dense" : "fft-point fft-point-dense", d: d.join("") });
+      path.style.setProperty("fill", color);
+      if (color === DEEMPHASIS) path.dataset.muted = "true";
+      dots.append(path);
+    }
+    // A grid of 21px buckets over the plot: the nearest dot is in the pointer's bucket or one next to it.
+    const CELL = 21;
+    const buckets = new Map<string, number[]>();
+    points.forEach((point, i) => {
+      const key = `${Math.floor(xs(point.x) / CELL)},${Math.floor(ys(point.y) / CELL)}`;
+      const list = buckets.get(key) ?? [];
+      list.push(i);
+      buckets.set(key, list);
+    });
+    const nearest = (px: number, py: number): number => {
+      const [bx, by] = [Math.floor(px / CELL), Math.floor(py / CELL)];
+      let best = -1;
+      let bestDistance = Infinity;
+      for (let dx = -1; dx <= 1; dx++) {
+        for (let dy = -1; dy <= 1; dy++) {
+          for (const i of buckets.get(`${bx + dx},${by + dy}`) ?? []) {
+            const point = points[i] as (typeof points)[number];
+            const distance = Math.hypot(xs(point.x) - px, ys(point.y) - py) - point.r;
+            if (distance < bestDistance) [best, bestDistance] = [i, distance];
+          }
+        }
+      }
+      return bestDistance <= 13 ? best : -1;
+    };
+    const probe = svg(doc, "circle", { class: "fft-point fft-point-probe", r: 0, cx: 0, cy: 0 });
+    probe.setAttribute("aria-hidden", "true");
+    const layer = svg(doc, "rect", { class: "fft-point-layer", x: plot.x, y: plot.y, width: plot.w, height: plot.h, tabindex: 0, role: "img" });
+    layer.setAttribute("aria-label", wordsFor(ctx).denseScatter(points.length));
+    const spoken = html(doc, "span", "fft-sr-only");
+    spoken.setAttribute("aria-live", "polite");
+    // Left to right, then bottom to top: the order the arrow keys walk.
+    const order = points.map((_, i) => i).sort((a, b) => (points[a] as (typeof points)[number]).x - (points[b] as (typeof points)[number]).x || (points[a] as (typeof points)[number]).y - (points[b] as (typeof points)[number]).y);
+    let current = -1;
+    const show = (i: number) => {
+      current = i;
+      const point = points[i] as (typeof points)[number];
+      const color = isOn(point) ? groupColor(point.group) : DEEMPHASIS;
+      probe.setAttribute("cx", String(xs(point.x)));
+      probe.setAttribute("cy", String(ys(point.y)));
+      probe.setAttribute("r", String(Math.max(5, point.r + 1)));
+      probe.style.setProperty("fill", color);
+      wrap.setAttribute("data-active", "");
+      const { name, items, said } = describe(point, i, color);
+      ctx.tooltip.show(probe, name, items);
+      spoken.textContent = said;
+    };
+    const hide = () => {
+      current = -1;
+      probe.setAttribute("r", "0");
+      wrap.removeAttribute("data-active");
+      ctx.tooltip.hide();
+    };
+    const at = (event: PointerEvent | MouseEvent) => {
+      const box = chart.getBoundingClientRect();
+      const scale = box.width ? width / box.width : 1;
+      return nearest((event.clientX - box.left) * scale, (event.clientY - box.top) * scale);
+    };
+    layer.addEventListener("pointermove", (event) => {
+      const i = at(event as PointerEvent);
+      if (i >= 0) show(i);
+      else hide();
+    });
+    layer.addEventListener("pointerleave", hide);
+    layer.addEventListener("click", (event) => {
+      const i = at(event as MouseEvent);
+      if (i >= 0) ctx.select((points[i] as (typeof points)[number]).row);
+    });
+    layer.addEventListener("focus", () => show(order[0] as number));
+    layer.addEventListener("blur", hide);
+    layer.addEventListener("keydown", (event) => {
+      const key = (event as KeyboardEvent).key;
+      const step = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1, PageDown: 10, PageUp: -10 }[key];
+      if (step !== undefined) {
+        event.preventDefault();
+        const position = Math.max(0, Math.min(order.length - 1, order.indexOf(current) + step));
+        show(order[position] as number);
+      } else if (key === "Home" || key === "End") {
+        event.preventDefault();
+        show(order[key === "Home" ? 0 : order.length - 1] as number);
+      } else if ((key === "Enter" || key === " ") && current >= 0) {
+        event.preventDefault();
+        ctx.select((points[current] as (typeof points)[number]).row);
+      }
+    });
+    overlay.append(probe, layer);
+    wrap.append(spoken);
+  }
+
   chart.append(dots);
   // The notes keep clear of the dots; reference labels, drawn after, keep clear of both.
   const noteList = drawNotes(doc, chart, pinned, plot, ctx.width, dotBoxes);
@@ -259,12 +385,14 @@ export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) =>
     chart.append(names);
   }
   chart.append(overlay);
-  roving([...overlay.children]);
+  if (!dense) roving([...overlay.children]);
   wrap.append(chart);
   if (noteList) wrap.append(noteList);
   if (!points.length) wrap.append(html(doc, "p", "fft-empty-note", wordsFor(ctx).noRowBoth(ctx.label(xField), ctx.label(yField))));
 
   const columns = [label, xField, yField, size, series, cluster].filter((f): f is string => Boolean(f));
-  wrap.append(hiddenTableOf(ctx, quadrants ? points.map((p) => ({ ...p.row, [wordsFor(ctx).quadrant]: quadrantName(p.x, p.y) })) : points.map((p) => p.row), quadrants ? [...columns, wordsFor(ctx).quadrant] : columns));
+  // A dense scatter lists its first rows for screen readers and says how many there are; the keyboard walks them all.
+  const listed = dense ? points.slice(0, DENSE_TABLE_ROWS) : points;
+  wrap.append(hiddenTableOf(ctx, quadrants ? listed.map((p) => ({ ...p.row, [wordsFor(ctx).quadrant]: quadrantName(p.x, p.y) })) : listed.map((p) => p.row), quadrants ? [...columns, wordsFor(ctx).quadrant] : columns));
   ctx.el.append(wrap);
 };

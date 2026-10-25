@@ -12,7 +12,27 @@ import { wordsFor } from "./words.ts";
 const SIDE = 8;
 const PITCH = 10;
 /** Round numbers a square may stand for, smallest first. */
+/** The most squares one chart draws: past this, a square stands for more units. */
+const MAX_SQUARES = 2000;
 const UNITS = [1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000, 5000, 10000];
+
+/**
+ * How many units one square stands for: the smallest round step (1, 2, 2.5 or 5 times a power of ten, the familiar
+ * steps first) that fits the biggest total into `capacity` squares. Any total fits, however large, so a strip never
+ * asks for more squares than a row can hold (a total of 1e12 once asked for a trillion).
+ */
+export function unitStep(maxTotal: number, capacity: number): number {
+  const fits = (u: number) => Math.ceil(maxTotal / u) <= capacity;
+  const familiar = UNITS.find(fits);
+  if (familiar !== undefined) return familiar;
+  for (let power = 4; power < 300; power++) {
+    for (const k of [1, 2, 2.5, 5]) {
+      const u = k * 10 ** power;
+      if (fits(u)) return u;
+    }
+  }
+  return Number.MAX_VALUE;
+}
 
 /** The plural of a unit word: provision to provisions, clause to clauses, article to articles. */
 export const pluralUnit = (unit: string) => (/[^aeiou]y$/.test(unit) ? `${unit.slice(0, -1)}ies` : /(s|x|ch|sh)$/.test(unit) ? `${unit}es` : `${unit}s`);
@@ -52,8 +72,9 @@ export const renderStrips: ViewRenderer<StripsView> = (ctx) => {
   // The end column holds the total, the share and the density side by side: room for the longest of the three together.
   const shareWord = parts.length > 1 ? ` ${ctx.label(first).toLowerCase()}` : "";
   const endW = Math.max(...endTexts.map((t) => textWidth(t.total, 11, 600) + (t.part ? textWidth(`${t.part}${shareWord}`) + 8 : 0) + (t.dense ? textWidth(t.dense) + 8 : 0))) + 13;
-  const capacity = Math.max(10, Math.floor((ctx.width - labelW - endW - 16) / PITCH));
-  const perSquare = UNITS.find((u) => Math.ceil(maxTotal / u) <= capacity) ?? UNITS.at(-1) ?? 1;
+  // A row holds what the card has room for, and the whole chart never more than about 2,000 squares.
+  const capacity = Math.max(10, Math.min(Math.floor((ctx.width - labelW - endW - 16) / PITCH), Math.floor(MAX_SQUARES / Math.max(1, ctx.rows.length))));
+  const perSquare = unitStep(Number.isFinite(maxTotal) ? maxTotal : 0, capacity);
   const squares = Math.max(1, ...totals.map((t) => Math.round(t / perSquare)));
   const stripW = squares * PITCH - (PITCH - SIDE);
 
