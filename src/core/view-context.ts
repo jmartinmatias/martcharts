@@ -4,6 +4,7 @@
  *
  * @module
  */
+import { normalizeView } from "./aliases.ts";
 import type { Row, ViewSpec, WidgetSpec } from "./types.ts";
 
 /** One line in a tooltip: a value and the series it belongs to. */
@@ -84,8 +85,10 @@ function isCategoryValue(value: unknown): boolean {
  * when the row has no category at all. Dashboards cross-filter on it; tooltip templates find their row by it.
  */
 export function categoryField(view: { type: string; [option: string]: unknown }, row: Row): string | undefined {
+  // Read through the aliases, so a scatter colored with the canonical `color` cross-filters on it like one using `series`.
+  const named = normalizeView(view);
   for (const option of CATEGORY_OPTIONS) {
-    const field = view[option];
+    const field = named[option];
     if (typeof field === "string" && field in row && isCategoryValue(row[field])) return field;
   }
   return Object.keys(row).find((key) => isCategoryValue(row[key]));

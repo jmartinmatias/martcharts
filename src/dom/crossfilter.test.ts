@@ -202,4 +202,8 @@ describe("tooltip templates", () => {
   test("fillRowTemplate leaves words that name no field alone", () => {
     expect(fillRowTemplate("{region} {nope}", { region: "East" }, (value) => String(value))).toBe("East {nope}");
   });
+  test("a scatter colored with the canonical color option cross-filters on that field", async () => {
+    const { categoryField } = await import("../core/view-context.ts");
+    expect(categoryField({ type: "scatter", x: "risk", y: "ret", color: "segment" }, { risk: 3, ret: 0.04, segment: "Core" })).toBe("segment");
+  });
 });
