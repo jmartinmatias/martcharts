@@ -13,6 +13,7 @@
  */
 import { defineWidgetElement } from "./dom/element.ts";
 import type { FftWidgetElement } from "./dom/element.ts";
+import { listenForEmbedHeights } from "./dom/embed.ts";
 
 export * from "./index.ts";
 
@@ -27,3 +28,5 @@ declare global {
 }
 
 if (typeof customElements !== "undefined") defineWidgetElement();
+// A page that loads the bundle sizes its chart iframes (embed.html) to their content, with no script of its own.
+if (typeof window !== "undefined") listenForEmbedHeights(window);

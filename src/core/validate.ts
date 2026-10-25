@@ -11,6 +11,8 @@ import { getPalette, paletteNames, resolvePalette } from "./palettes.ts";
 import { getPreset, presetNames } from "./presets.ts";
 import { getBlock, UnknownBlockError } from "./registry.ts";
 import { templateRefs } from "./template.ts";
+import { colorRuleProblems, highlightRuleProblems, isHighlightRule } from "./rules.ts";
+import { responsiveProblems } from "./responsive.ts";
 import type { Block, BlockKind, OptionSchema, ViewBlock } from "./registry.ts";
 import type { Issue, Row } from "./types.ts";
 
@@ -82,6 +84,14 @@ export function validateSpec(spec: unknown, rows?: Row[]): Issue[] {
 
   if (spec.colors !== undefined) issues.push(...checkColors(spec.colors));
   if (spec.tooltip !== undefined) issues.push(...checkTooltip(spec.tooltip));
+  if (spec.colorRules !== undefined) for (const message of colorRuleProblems(spec.colorRules)) issues.push(error(message.match(/^colorRules(\[\d+\])?(\.\w+)?/)?.[0] ?? "colorRules", message));
+  if (spec.responsive !== undefined) for (const problem of responsiveProblems(spec.responsive)) issues.push({ level: problem.level, path: problem.path, message: problem.message });
+  // Highlight by number: a rule or a top N picks the categories that stay in colour. It needs a view that highlights
+  // categories; lines, areas and radars highlight series (fields), which no rule on rows can name.
+  if (isPlainObject(view) && isHighlightRule(view.highlight)) {
+    for (const message of highlightRuleProblems(view.highlight)) issues.push(error("view.highlight", message));
+    if (view.type === "line" || view.type === "area" || view.type === "radar") issues.push(error("view.highlight", "Highlight by number picks categories; this view highlights series. Name the series instead."));
+  }
 
   if (!hasErrors(issues) && isPlainObject(view)) issues.push(...checkSeriesCount(view, spec.style));
   if (rows && isPlainObject(view) && !hasErrors(issues)) {

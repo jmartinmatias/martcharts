@@ -544,6 +544,22 @@ const EN = {
     addedToBoard: (name: string) => `Added to ${name}`,
     openComposer: "Open in the Composer",
   },
+  // ---- Datawrapper, second wave: colour rules in words, live data, self-sizing embeds ----
+  dw2: {
+    rulesKey: "What the colours mean",
+    above: "above",
+    atLeast: "at least",
+    below: "below",
+    atMost: "at most",
+    is: "is",
+    isNot: "is not",
+    isOneOf: "is one of",
+    isNoneOf: "is none of",
+    or: "or",
+    updated: (time: string) => `Updated ${time}`,
+    stale: (time: string) => `Could not update; showing data from ${time}`,
+    embedFrame: "In a page, sized to fit (iframe)",
+  },
 };
 
 /** Every word, by meaning. The French and German sets have exactly these keys. */
@@ -1033,6 +1049,21 @@ const FR: Words = {
     addedToBoard: (name: string) => `Ajouté à ${name}`,
     openComposer: "Ouvrir dans le compositeur",
   },
+  dw2: {
+    rulesKey: "Ce que disent les couleurs",
+    above: "au-dessus de",
+    atLeast: "d'au moins",
+    below: "en dessous de",
+    atMost: "d'au plus",
+    is: "égal à",
+    isNot: "différent de",
+    isOneOf: "parmi",
+    isNoneOf: "hors de",
+    or: "ou",
+    updated: (time: string) => `Mis à jour à ${time}`,
+    stale: (time: string) => `Mise à jour impossible ; données de ${time}`,
+    embedFrame: "Dans une page, à la bonne hauteur (iframe)",
+  },
 };
 
 const DE: Words = {
@@ -1518,6 +1549,21 @@ const DE: Words = {
     boardName: "Name des Dashboards",
     addedToBoard: (name: string) => `Zu ${name} hinzugefügt`,
     openComposer: "Im Komponisten öffnen",
+  },
+  dw2: {
+    rulesKey: "Was die Farben bedeuten",
+    above: "über",
+    atLeast: "mindestens",
+    below: "unter",
+    atMost: "höchstens",
+    is: "gleich",
+    isNot: "ungleich",
+    isOneOf: "eines von",
+    isNoneOf: "keines von",
+    or: "oder",
+    updated: (time: string) => `Aktualisiert ${time}`,
+    stale: (time: string) => `Aktualisierung fehlgeschlagen; Daten von ${time}`,
+    embedFrame: "In einer Seite, passende Höhe (iframe)",
   },
 };
 

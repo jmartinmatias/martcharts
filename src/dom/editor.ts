@@ -31,6 +31,7 @@ import { DARK, LIGHT } from "./styles.ts";
 import { fieldList } from "./views/shared.ts";
 import { createWidget } from "./widget.ts";
 import type { Widget } from "./widget.ts";
+import { frameEmbed } from "./embed.ts";
 import { wordsFor, WORDS_EN } from "../core/words.ts";
 import { addChartToBoard, localBoardStore } from "./board-store.ts";
 import type { BoardStore, SavedBoard, SavedChart } from "./board-store.ts";
@@ -65,6 +66,8 @@ export interface EditorOptions {
   composerHref?(boardId: string): string;
   /** The address the `src` embed code points at. Default: `widgets/<id>.json`. */
   srcOf?(spec: WidgetSpec): string;
+  /** The address of `embed.html`, for the iframe embed code (a frame that sizes itself). Default: `embed.html`. */
+  embedHref?: string;
   /** Keep the step and the spec in the page address, so a chart can be shared by link. Default true in a browser. */
   hash?: boolean;
   /** Toolbar actions on the published chart. Default csv, image, copy and explain. */
@@ -1828,6 +1831,8 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
     panel.append(block(t("json"), json, `${spec.id ?? "chart"}.json`));
     panel.append(el("h3", "fft-ed-subtitle", t("embed")));
     panel.append(block(t("embedInline"), codes.inline), block(t("embedSrc"), codes.src), block(t("embedJs"), codes.js));
+    // A frame for pages that cannot run the library's script inline (a CMS, a newsletter page): it sizes itself.
+    panel.append(block(wordsFor(options.locale ?? doc.documentElement.lang).dw2.embedFrame, frameEmbed("widget", spec, options.embedHref ?? "embed.html", spec.title ?? spec.id ?? cw.untitledChart)));
     panel.append(
       button(t("save"), async (b) => {
         try {

@@ -19,6 +19,8 @@ export { createPalettePicker } from "./dom/palette-picker.ts";
 export { createEditor, columnKind, embedCodes, ensureEditorStyles, gridOf, readHash, rowsFromJson, rowsFromTable, STRINGS as EDITOR_STRINGS, writeHash } from "./dom/editor.ts";
 export type { Editor, EditorOptions, EditorSample } from "./dom/editor.ts";
 export { createDashboard } from "./dom/dashboard.ts";
+export { frameEmbed, fromBase64Url, HEIGHT_MESSAGE, listenForEmbedHeights, mountEmbed, postHeights, toBase64Url } from "./dom/embed.ts";
+export type { Embedded } from "./dom/embed.ts";
 export { boardFromHash, boardToHash, createComposer, dashboardEmbed } from "./dom/composer.ts";
 export type { Composer, ComposerOptions, FilterChoice } from "./dom/composer.ts";
 export { addChartToBoard, localBoardStore } from "./dom/board-store.ts";

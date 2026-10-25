@@ -352,6 +352,32 @@ The `rag` cell format draws the pill. `"rag": { "green", "amber", "goodWhen" }` 
 
 `cardToSvg(card, background)` returns the whole card as SVG markup: title, subtitle, headline, the chart, HTML legends, footer and credit line. `cardToPng(card, background, scale)` resolves to a PNG blob. The `image` and `svg` actions use them.
 
+### Colour by rules: `spec.colorRules`, `matchRule`, `ruleColors`
+
+`"colorRules": [{ "field": "change", "op": "<", "value": 0, "color": "down" }]` gives every mark whose row matches a rule that rule's colour; the first matching rule wins, over `colors`. `op` is one of `>`, `>=`, `<`, `<=`, `==`, `!=`, `in` and `not in` (`value` a list for the last two). Leave out `field` and the rule reads the mark's own category: `{ "op": "==", "value": "Late", "color": "#c03a2b" }`. `color` is a CSS colour, or one of the theme's own: `up`, `down`, `accent`, `muted`, so a rule follows light and dark. Anything that could leave the style (a `url()`, a `;`) is refused by validation. The chart writes the rules that colour something in words above it ("Change below 0", or the rule's own `label`), in the widget's language, so the colour never carries the meaning alone. Views get `ctx.colorOf(category)` (rules, then `colors`) and `ctx.colorForRow(row)` for marks that stand for one row. `matchRule(rule, row, categoryField?)` is the one matcher every rule in the library uses.
+
+### Highlight by number
+
+`highlight` takes, besides names, a rule: `{ "field": "revenue", "op": ">", "value": 1000000 }` keeps the categories whose rows match in colour, and `{ "top": 3 }` (with an optional `field` and `"order": "asc"`) the top three by a measure, the view's first number when none is named. The widget turns the rule into names before the view draws (`highlightedNames(rule, rows, categoryField)`), so it works on every view that highlights categories. A rule that picks nothing lights nothing. Lines, areas and radars highlight series, so a rule there is a validation error.
+
+### Rich tooltips
+
+A `tooltip` template with markup reads as rich lines: `**bold**`, a new line per line, `{field}` in the field's format, `{field|percent}` (or any format type) in a named format, and `{field|bar}` as a small bar, its length the value's share of the largest. Summary tokens (`{count}`, `{sum:revenue}`) work too. The template is read once into runs (`richLines(template, row, ctx)`), and the row only fills them as text, so no value is ever read as markup or HTML. A template without markup keeps the "Label: value" rows.
+
+### Live data and Google Sheets
+
+`refresh: seconds` on a `url`, `csv` or `sheet` source reloads the data on that beat (never faster than every 5 seconds) and redraws. A failed reload keeps the last good rows and says so; a beat that falls while the page is hidden waits for the page to show again; `destroy()` stops it. The footer says "Updated 12:04" in the widget's language and locale.
+
+`{ "type": "sheet", "url": "https://docs.google.com/spreadsheets/d/<id>/edit#gid=0" }` reads a Google Sheet through its CSV export. The address can be the one in the browser or the one "Publish to web" gives; `gid` picks a tab. The sheet must be published, or shared so anyone with the link can view it. `sheetCsvUrl(address, gid?)` is the conversion.
+
+### Embeds that size themselves: `examples/embed.html`, `mountEmbed`, `listenForEmbedHeights`, `frameEmbed`
+
+`examples/embed.html` draws one chart or dashboard with no page chrome, for an iframe: `?spec=<widget spec in base64url>`, `?src=<address of a spec>` or `?board=<dashboard spec in base64url>`, plus `&actions=csv,image`. It posts `{ type: "martcharts:height", height }` to its parent on load and on every resize. In the host page, the drop-in bundle runs `listenForEmbedHeights(window)` by itself, and a page that only holds iframes can load `examples/embed-host.js` instead; either sets each iframe's height to its chart's. `frameEmbed(kind, spec, embedHref, title)` writes the iframe code; the editor and the composer show it beside their other embed codes (`embedHref` option).
+
+### Breakpoints: `spec.responsive`
+
+`"responsive": [{ "maxWidth": 480, "override": { "view": { "limit": 5, "labels": false } } }]` merges the override's `view` and `style` into the spec on a card narrower than `maxWidth`, widest rule first so the narrowest has the last word. The widget re-evaluates on every resize and reshapes the rows when the override changes `sort`, `limit` or `other`. Other keys in an override are ignored, with a warning. `atWidth(spec, width)` gives the spec as drawn at a width.
+
 ### The drawing kit for custom views
 
 Custom views that use the kit size, space and behave like the built-in ones.

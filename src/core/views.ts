@@ -607,7 +607,8 @@ function seriesExtent(view: Record<string, unknown>, rows: Row[]): number[] {
 
 const highlightCategories: OptionSchema = {
   type: "any",
-  description: 'Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"].',
+  description:
+    'Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest.',
 };
 const highlightSeries: OptionSchema = {
   type: "any",
