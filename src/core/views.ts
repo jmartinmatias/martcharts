@@ -282,7 +282,7 @@ export interface TimelineView {
 }
 
 /** Time of an ISO date string or timestamp, or null. */
-function timeOf(value: unknown): number | null {
+export function timeOf(value: unknown): number | null {
   const time = typeof value === "number" ? value : typeof value === "string" ? Date.parse(value) : Number.NaN;
   return Number.isFinite(time) ? time : null;
 }
@@ -1577,4 +1577,132 @@ const locator: ViewBlock = {
   },
 };
 
-export const builtinViews: ViewBlock[] = [table, list, kpi, kpis, bar, hbar, line, area, meter, bullet, donut, treemap, funnel, waterfall, heatmap, calendar, scatter, beeswarm, ridgeline, sankey, dumbbell, slope, bump, marimekko, histogram, rings, timeline, waffle, variance, gauge, pareto, boxplot, likert, candlestick, sunburst, chord, radar, rose, horizon, icicle, dot, pyramid, dual, choropleth, symbols, locator, pie];
+// ---- Regulatory landscape: a mark matrix, unit strips and stage lifecycles ----
+
+/** `{ type: "matrix", x, y, size?, color?, mark?, label? }`: one mark per x and y pair on a grid, sized, shaded or ticked by value. */
+export interface MatrixView {
+  type: "matrix";
+  x: string;
+  y: string;
+  size?: string;
+  color?: string;
+  mark?: string;
+  label?: string;
+}
+
+/** `{ type: "strips", label, parts, per?, unit? }`: one square per unit in a strip per row, colored by part. */
+export interface StripsView {
+  type: "strips";
+  label: string;
+  parts: string | string[];
+  per?: string;
+  unit?: string;
+}
+
+/** `{ type: "lifecycle", label, stages, group?, today?, status?, impact? }`: each row's stages as segments on one date axis. */
+export interface LifecycleView {
+  type: "lifecycle";
+  label: string;
+  stages: string | string[];
+  group?: string;
+  today?: boolean | string;
+  status?: string;
+  impact?: string;
+}
+
+/** Whether a value reads as a yes: true, 1, "true", "yes", "y", "x", "required" or "must". */
+export function isYes(value: unknown): boolean {
+  return value === true || value === 1 || (typeof value === "string" && /^(true|yes|y|x|required|must)$/i.test(value.trim()));
+}
+
+const matrix: ViewBlock = {
+  type: "matrix",
+  description:
+    "A mark matrix (a punchcard): one mark per pair of x and y, sized by a value, shaded by another, or a square where a flag is yes. Rows are the y values, columns the x values; a pair with no row is an empty cell. For regulatory pressure per topic per quarter (size and shade), or who must comply with which rule (a square per yes).",
+  options: {
+    x: { type: "field", kind: "category", required: true, description: "Field for the columns: quarters, stakeholders, stages." },
+    y: { type: "field", kind: "category", required: true, description: "Field for the rows: topics, regulations, teams." },
+    size: { type: "field", kind: "number", description: "Field that sizes each circle, by area, against the largest value." },
+    color: {
+      type: "field",
+      kind: "category",
+      description: "Field that shades each mark: a number takes the seven-step scale from lowest to highest (with a scale under the grid), a category takes one color per value (with a key).",
+    },
+    mark: { type: "field", kind: "category", description: 'A yes/no field (true, 1, "yes", "x"): a filled square where it is yes, a faint dot where it is no. For who must comply.' },
+    label: { type: "field", kind: "category", description: "Field (text or a number) written inside marks big enough to hold it; always in the tooltip." },
+  },
+  validate(view) {
+    return view.mark && view.size ? ["mark draws a square for every yes; drop it, or drop size."] : [];
+  },
+  checkData(view, rows) {
+    const [x, y] = [String(view.x), String(view.y)];
+    const pairs = new Set(rows.map((row) => `${String(row[x])}\u0000${String(row[y])}`));
+    const columns = new Set(rows.map((row) => String(row[x]))).size;
+    const lines = new Set(rows.map((row) => String(row[y]))).size;
+    const messages: string[] = [];
+    if (pairs.size < rows.length) messages.push(`${rows.length - pairs.size} pairs of ${x} and ${y} repeat: a cell takes one row, so sum them first with an aggregate step.`);
+    if (columns > 24) messages.push(`${columns} columns crowd the grid. Keep the 24 that matter most, or roll periods up.`);
+    if (lines > 30) messages.push(`${lines} rows crowd the grid. Keep the 30 that matter most (limit or filter).`);
+    return messages;
+  },
+};
+
+const strips: ViewBlock = {
+  type: "strips",
+  description:
+    "Unit strips: one row per item with a strip of small squares, one per unit, colored part by part in order (mandatory, recommended, optional), the total and the first part's share at the end. When totals run long, one square stands for a round number of units, said under the chart. A per field adds a density: provisions per page. For how many provisions a regulation has and how binding they are.",
+  options: {
+    label: { type: "field", kind: "category", required: true, description: "Field naming each row." },
+    parts: { type: "fields", kind: "number", required: true, description: "Field or fields with each part's count, in the order they are drawn. The first part's share of the total is written at the end." },
+    per: { type: "field", kind: "number", description: "Field with a denominator, such as pages: the density (units per one of them) is written at the end and in the tooltip." },
+    unit: { type: "string", default: "provision", description: "What one unit is, in the singular, for the note under the chart and the tooltip." },
+  },
+  checkData(view, rows) {
+    const parts = Array.isArray(view.parts) ? view.parts.map(String) : [String(view.parts)];
+    const negative = rows.filter((row) => parts.some((field) => (readNumber(row[field]) ?? 0) < 0)).length;
+    const messages: string[] = [];
+    if (negative) messages.push(`${negative} ${negative === 1 ? "row has" : "rows have"} a negative count: squares cannot show less than nothing, so those parts are left out.`);
+    if (rows.length > 20) messages.push(`${rows.length} rows make a long chart. Keep the 20 that matter most (limit or filter).`);
+    return messages;
+  },
+};
+
+const lifecycle: ViewBlock = {
+  type: "lifecycle",
+  description:
+    "Stage swimlanes: one row per item on a shared date axis, each stage drawn from its date to the next in a deepening tint of one hue, a tick at every stage date, and the last reached stage running on faintly while its next date is unknown. A today line, a status pill at the row's end, and an impact that sets the row's thickness. For where each regulation stands, from proposal to application.",
+  options: {
+    label: { type: "field", kind: "category", required: true, description: "Field naming each row." },
+    stages: {
+      type: "fields",
+      kind: "date",
+      required: true,
+      description: "Date fields in lifecycle order, such as proposed, adopted, inForce, applies. A later date may be missing: the row then runs on from its last known stage.",
+    },
+    group: { type: "field", kind: "category", description: "Field that gathers rows under a heading, such as topic." },
+    today: { type: "any", description: "true for a line at today's date, or a YYYY-MM-DD date for the line. Shown when it falls inside the span." },
+    status: { type: "field", kind: "category", description: "Field written as a small pill at the row's end, such as In force or Consultation." },
+    impact: { type: "field", kind: "number", description: "Field from 1 to 5 that sets each row's thickness: the higher the impact, the thicker the row." },
+  },
+  validate(view) {
+    const stages = Array.isArray(view.stages) ? view.stages : typeof view.stages === "string" ? [view.stages] : [];
+    const today = view.today;
+    const problems = stages.length < 2 ? ['stages needs at least two date fields in order, such as ["proposed", "adopted"].'] : [];
+    if (today !== undefined && today !== true && today !== false && !(typeof today === "string" && /^\d{4}-\d{2}-\d{2}/.test(today))) problems.push("today must be true or a YYYY-MM-DD date.");
+    return problems;
+  },
+  checkData(view, rows) {
+    const stages = Array.isArray(view.stages) ? view.stages.map(String) : [String(view.stages)];
+    const out = rows.filter((row) => {
+      const days = stages.map((field) => timeOf(row[field])).filter((d): d is number => d !== null);
+      return days.some((d, i) => i > 0 && d < (days[i - 1] as number));
+    });
+    const messages: string[] = [];
+    if (out.length) messages.push(`${out.length} ${out.length === 1 ? "row has" : "rows have"} stage dates out of order: ${out.map((row) => String(row[view.label as string])).join(", ")}.`);
+    if (rows.some((row) => stages.every((field) => timeOf(row[field]) === null))) messages.push("Some rows have no stage date at all and are left out.");
+    if (rows.length > 30) messages.push(`${rows.length} rows make a long chart. Keep the 30 that matter most (limit or filter), or facet by group.`);
+    return messages;
+  },
+};
+
+export const builtinViews: ViewBlock[] = [table, list, kpi, kpis, bar, hbar, line, area, meter, bullet, donut, treemap, funnel, waterfall, heatmap, calendar, scatter, beeswarm, ridgeline, sankey, dumbbell, slope, bump, marimekko, histogram, rings, timeline, waffle, variance, gauge, pareto, boxplot, likert, candlestick, sunburst, chord, radar, rose, horizon, icicle, dot, pyramid, dual, choropleth, symbols, locator, pie, matrix, strips, lifecycle];

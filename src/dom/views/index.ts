@@ -35,6 +35,9 @@ import { renderIcicle } from "./icicle.ts";
 import { renderPyramid } from "./pyramid.ts";
 import { renderDual } from "./dual.ts";
 import { renderPie } from "./pie.ts";
+import { renderMatrix } from "./matrix.ts";
+import { renderStrips } from "./strips.ts";
+import { renderLifecycle } from "./lifecycle.ts";
 import { renderRidgeline } from "./ridgeline.ts";
 import { renderRings } from "./rings.ts";
 import { renderSankey } from "./sankey.ts";
@@ -98,6 +101,9 @@ setRenderer("choropleth", renderChoropleth);
 setRenderer("symbols", renderSymbols);
 setRenderer("locator", renderLocator);
 setRenderer("pie", renderPie);
+setRenderer("matrix", renderMatrix);
+setRenderer("strips", renderStrips);
+setRenderer("lifecycle", renderLifecycle);
 
 export { renderKpis } from "./kpis.ts";
 export { renderRidgeline } from "./ridgeline.ts";
@@ -105,3 +111,6 @@ export { renderArea, renderBar, renderBeeswarm, renderBoxplot, renderBullet, ren
 export { renderChoropleth } from "./choropleth.ts";
 export { renderSymbols } from "./symbols.ts";
 export { renderLocator } from "./locator.ts";
+export { renderMatrix } from "./matrix.ts";
+export { renderStrips } from "./strips.ts";
+export { renderLifecycle } from "./lifecycle.ts";

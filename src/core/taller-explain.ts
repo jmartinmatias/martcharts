@@ -119,6 +119,21 @@ export function explainVariant(spec: WidgetSpec, chartTitle: string, rowName?: s
       mark = `each row is one ${name(view.label)}`;
       read = `A dot further right means more ${list(view.values)}.`;
       break;
+    case "matrix":
+      form = "a grid of marks";
+      mark = `each mark is one ${name(view.y)} in one ${name(view.x)}`;
+      read = view.mark ? `A square means yes for ${name(view.mark)}.` : `A bigger or stronger mark means more ${name(view.size ?? view.color)}.`;
+      break;
+    case "strips":
+      form = "strips of squares";
+      mark = `each row is one ${name(view.label)}, each square one unit`;
+      read = `A longer strip means more; the colors say which part each square belongs to.`;
+      break;
+    case "lifecycle":
+      form = "stage lanes on a date axis";
+      mark = `each row is one ${name(view.label)}`;
+      read = `Each colored stretch is one stage, deeper as it goes; a faint stretch is still running.`;
+      break;
     case "slope":
       form = "slopes";
       mark = `each line is one ${name(view.label)}`;

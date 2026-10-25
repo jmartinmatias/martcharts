@@ -383,6 +383,47 @@ const RULES: Record<string, Rule> = {
     const [size] = shape.numbers;
     return placed && size && nonNegative(shape, size) ? { score: 62, view: { type: "symbols", geo: placed.geo, id: placed.id, size }, why: `${size} as circles on a map, one per ${placed.id}.` } : undefined;
   },
+  // Two categories crossed, one row per pair: marks sized by a count and shaded by a second measure, or a square per yes.
+  matrix: (shape) => {
+    const flags = shape.categories.filter((field) => shape.rows.every((row) => typeof row[field] === "boolean" || row[field] == null));
+    const names = shape.categories.filter((field) => !flags.includes(field) && shape.distinct(field) >= 2);
+    if (names.length < 2 || shape.rows.length < 4) return undefined;
+    // Periods (quarters, months) go across; the other category down.
+    const period = names.find((field) => /quarter|month|year|period|week|date/i.test(field) || shape.rows.every((row) => /^\d{4}/.test(String(row[field]))));
+    const x = period ?? (names[1] as string);
+    const y = names.find((field) => field !== x) as string;
+    if (shape.distinct(x) * shape.distinct(y) < shape.rows.length) return undefined;
+    const measures = shape.numbers.filter((field) => !TARGET.test(field));
+    const [mark] = flags.filter((field) => shape.rows.some((row) => row[field] === true));
+    if (mark && measures.length === 0) return { score: 70, view: { type: "matrix", x, y, mark }, why: `A square for every ${y} and ${x} where ${mark} is yes.` };
+    const [size, color] = measures;
+    if (!size || !nonNegative(shape, size)) return undefined;
+    return { score: 60, view: { type: "matrix", x, y, size, ...(color ? { color } : {}) }, why: `${size}${color ? ` and ${color}` : ""} for every ${y} and ${x}, as marks on one grid.` };
+  },
+  // Whole counts in parts named for how binding they are: squares to count, colored by part.
+  strips: (shape) => {
+    const [label] = shape.categories;
+    const parts = shape.numbers.filter((field) => /mandatory|binding|required|recommended|optional|provision|obligation|clause|article/i.test(field) && nonNegative(shape, field) && shape.values(field).every(Number.isInteger));
+    if (!label || parts.length < 2 || shape.rows.length > 20 || shape.distinct(label) !== shape.rows.length) return undefined;
+    const per = shape.numbers.find((field) => /page|article|word/i.test(field) && !parts.includes(field));
+    return { score: 86, view: { type: "strips", label, parts, ...(per ? { per } : {}) }, why: `One square per ${parts.join(", ")} for each ${label}, so the counts can be counted and compared.` };
+  },
+  // Several dates per row in lifecycle order: each row's stages on one date axis.
+  lifecycle: (shape) => {
+    const [label] = shape.categories;
+    if (!label || shape.dates.length < 2 || shape.rows.length > 30 || shape.distinct(label) !== shape.rows.length) return undefined;
+    // Stages in the order their dates fall: where rows have both, the one that comes first more often goes first; otherwise the column order stands.
+    const before = (a: string, b: string) =>
+      shape.rows.reduce((sum, row) => {
+        const [da, db] = [row[a], row[b]];
+        return typeof da === "string" && typeof db === "string" ? sum + Math.sign(da.localeCompare(db)) : sum;
+      }, 0);
+    const stages = shape.dates.map((field, i) => ({ field, i })).sort((a, b) => before(a.field, b.field) || a.i - b.i).map((s) => s.field);
+    const status = shape.categories.find((field) => /status|stage|state|phase/i.test(field));
+    const group = shape.categories.find((field) => field !== label && field !== status && /topic|group|team|area|domain|category/i.test(field));
+    const impact = shape.numbers.find((field) => /impact|severity|priority/i.test(field));
+    return { score: 76, view: { type: "lifecycle", label, stages, ...(group ? { group } : {}), ...(status ? { status } : {}), ...(impact ? { impact } : {}), today: true }, why: `Where each ${label} stands, from ${stages[0]} to ${stages.at(-1)}, on one date axis.` };
+  },
 };
 
 /**

@@ -152,6 +152,7 @@ const VIEW_GUIDE = [
   "Plans and dates: timeline (milestones, progress, a today line).",
   "Where things are: choropleth (regions shaded by a value), symbols (circles sized by a value on their regions or at coordinates), locator (named markers); geo takes a built-in tile grid (europe, us-states) or your own GeoJSON.",
   "Records to read: table (with spark and badge cells), list.",
+  "Regulation and compliance: matrix (one mark per x and y pair, sized, shaded or a square per yes: pressure per topic per quarter, who must comply), strips (one square per provision, colored mandatory to optional, with a density per page), lifecycle (each rule's stages from proposal to application on one date axis, a today line and a status pill).",
 ];
 
 function blocksMarkdown(kinds: BlockKind[]): string {

@@ -1382,4 +1382,76 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-map-note { margin: 0; font-size: 11px; line-height: 13px; color: var(--fft-muted); }
 .fft-widget[data-animate] .fft-map-region { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 13ms); }
 .fft-widget[data-animate] .fft-map-symbol, .fft-widget[data-animate] .fft-map-marker { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(233ms + var(--fft-i, 0) * 21ms); }
+
+/* Matrix: a faint grid of cells, one mark where a row sits at a crossing. */
+.fft-matrix { display: flex; flex-direction: column; gap: 13px; }
+.fft-matrix svg { display: block; max-width: 100%; }
+.fft-mx-cell { fill: color-mix(in srgb, var(--fft-text) 4%, transparent); pointer-events: none; }
+.fft-mx-row, .fft-mx-col { fill: var(--fft-text-secondary); font-size: 11px; pointer-events: none; }
+.fft-mx-dot, .fft-mx-yes { stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 1.5; pointer-events: none; transition: opacity 377ms var(--fft-ease); }
+.fft-mx-no { fill: var(--fft-muted); fill-opacity: 0.6; pointer-events: none; }
+.fft-mx-dot[data-step="1"], .fft-mx-yes[data-step="1"] { fill: var(--fft-seq-1); }
+.fft-mx-dot[data-step="2"], .fft-mx-yes[data-step="2"] { fill: var(--fft-seq-2); }
+.fft-mx-dot[data-step="3"], .fft-mx-yes[data-step="3"] { fill: var(--fft-seq-3); }
+.fft-mx-dot[data-step="4"], .fft-mx-yes[data-step="4"] { fill: var(--fft-seq-4); }
+.fft-mx-dot[data-step="5"], .fft-mx-yes[data-step="5"] { fill: var(--fft-seq-5); }
+.fft-mx-dot[data-step="6"], .fft-mx-yes[data-step="6"] { fill: var(--fft-seq-6); }
+.fft-mx-dot[data-step="7"], .fft-mx-yes[data-step="7"] { fill: var(--fft-seq-7); }
+.fft-matrix[data-active] :is(.fft-mx-dot, .fft-mx-yes):not([data-active]) { opacity: 0.38; }
+.fft-mx-label { font-size: 10px; font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; fill: var(--fft-text); paint-order: stroke; stroke: var(--fft-surface); stroke-width: 2.5px; stroke-linejoin: round; }
+.fft-mx-label[data-step] { stroke: none; }
+.fft-mx-label[data-step="1"] { fill: var(--fft-seq-text-1); }
+.fft-mx-label[data-step="2"] { fill: var(--fft-seq-text-2); }
+.fft-mx-label[data-step="3"] { fill: var(--fft-seq-text-3); }
+.fft-mx-label[data-step="4"] { fill: var(--fft-seq-text-4); }
+.fft-mx-label[data-step="5"] { fill: var(--fft-seq-text-5); }
+.fft-mx-label[data-step="6"] { fill: var(--fft-seq-text-6); }
+.fft-mx-label[data-step="7"] { fill: var(--fft-seq-text-7); }
+.fft-mx-hit { fill: transparent; cursor: pointer; outline: none; }
+.fft-mx-hit:hover, .fft-mx-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 8%, transparent); }
+.fft-mx-keys { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 21px; }
+.fft-mx-sizekey { display: flex; align-items: flex-end; gap: 8px; font-size: 11px; line-height: 13px; color: var(--fft-muted); }
+.fft-mx-sizekey svg { display: block; overflow: visible; }
+.fft-mx-key-ring { fill: none; stroke: var(--fft-muted); stroke-width: 1; }
+.fft-mx-key-line { stroke: var(--fft-grid); stroke-width: 1; shape-rendering: crispEdges; }
+.fft-mx-key-text { fill: var(--fft-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.fft-widget[data-animate] :is(.fft-mx-dot, .fft-mx-yes) { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 8ms); }
+
+/* Strips: one small square per unit, colored by part, the figures at the end. */
+.fft-strips { display: flex; flex-direction: column; gap: 13px; container-type: inline-size; }
+.fft-strip-rows { display: flex; flex-direction: column; gap: 8px; }
+.fft-strip { display: grid; grid-template-columns: var(--fft-strip-label, 34%) 1fr auto; align-items: center; gap: 8px; border-radius: 5px; outline: none; cursor: pointer; }
+.fft-strip:focus-visible { box-shadow: 0 0 0 2px var(--fft-ring, var(--fft-surface)), 0 0 0 3px var(--fft-accent); }
+.fft-strip-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--fft-text-secondary); font-size: 12px; }
+.fft-strip-squares { display: block; overflow: visible; }
+.fft-strip-sq { transition: opacity 377ms var(--fft-ease); }
+.fft-strip-rows[data-active] .fft-strip:not([data-active]) .fft-strip-sq { opacity: 0.38; }
+.fft-strip-end { display: inline-flex; align-items: baseline; gap: 6px; white-space: nowrap; font-variant-numeric: tabular-nums; font-size: 12px; }
+.fft-strip-total { font-weight: 600; }
+.fft-strip-share, .fft-strip-density { color: var(--fft-text-secondary); font-size: 11px; }
+.fft-strip-density::before { content: "·"; margin-right: 6px; color: var(--fft-muted); }
+.fft-strips-note { margin: 0; font-size: 11px; line-height: 13px; color: var(--fft-muted); }
+@container (max-width: 420px) { .fft-strip-share, .fft-strip-density { display: none; } }
+.fft-widget[data-animate] .fft-strip-sq { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 34ms + var(--fft-k, 0) * 5ms); }
+
+/* Lifecycle: stage lanes in a deepening tint, a tick per stage date, a faint run while a stage is still open. */
+.fft-lifecycle svg { display: block; max-width: 100%; }
+.fft-lc-lane { transition: opacity 377ms var(--fft-ease); }
+.fft-chart[data-active] .fft-lc-lane:not([data-active]) { opacity: 0.38; }
+.fft-lc-label { fill: var(--fft-text-secondary); font-size: 11px; pointer-events: none; }
+.fft-lc-lane[data-active] .fft-lc-label { fill: var(--fft-text); }
+.fft-lc-group { fill: var(--fft-text); font-size: 11px; font-weight: 600; letter-spacing: 0.02em; pointer-events: none; }
+.fft-lc-group-rule { stroke: var(--fft-grid); stroke-width: 1; shape-rendering: crispEdges; }
+.fft-lc-seg { pointer-events: none; }
+.fft-lc-open { fill-opacity: 0.1; stroke-opacity: 0.55; stroke-width: 1; stroke-dasharray: 3 3; pointer-events: none; }
+.fft-lc-tick { stroke: var(--fft-text); stroke-width: 1.5; shape-rendering: crispEdges; pointer-events: none; }
+.fft-lc-status { fill: color-mix(in srgb, var(--fft-text) 7%, transparent); pointer-events: none; }
+.fft-lc-status-text { fill: var(--fft-text-secondary); font-size: 10px; font-weight: 600; pointer-events: none; }
+.fft-lc-tick-label { font-size: 11px; }
+.fft-lc-hit { fill: transparent; cursor: pointer; outline: none; }
+.fft-lc-hit:hover, .fft-lc-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 6%, transparent); }
+.fft-lc-key-open { background: color-mix(in srgb, var(--fft-lc-color) 12%, var(--fft-surface)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fft-lc-color) 55%, transparent); }
+.fft-lc-note { margin: 0; font-size: 11px; line-height: 13px; color: var(--fft-muted); }
+.fft-widget[data-animate] .fft-lc-seg, .fft-widget[data-animate] .fft-lc-open { transform-box: fill-box; transform-origin: 0 50%; animation: fft-grow-x 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 34ms); }
+.fft-widget[data-animate] .fft-lc-tick { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(377ms + var(--fft-i, 0) * 34ms); }
 `;
