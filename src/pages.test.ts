@@ -7,6 +7,7 @@ const PAGES = [
   ["index.html", "Gallery", "./"],
   ["taller.html", "Taller", "./"],
   ["selected.html", "Selected", "./"],
+  ["editor.html", "Editor", "./"],
   ["catalog/index.html", "Catalog", "../"],
   ["catalog/guide.html", "Data guide", "../"],
   ["examples/drop-in.html", "Drop-in", "../"],
@@ -15,11 +16,11 @@ const PAGES = [
 const read = (file: string) => new DOMParser().parseFromString(readFileSync(file, "utf8"), "text/html");
 
 describe("every page goes to every page", () => {
-  test.each(PAGES)("%s has the same row: Gallery, Taller, Selected, Playground, Catalog, Data guide and Drop-in, its own page marked", (file, own, up) => {
+  test.each(PAGES)("%s has the same row: Gallery, Taller, Selected, Playground, Editor, Catalog, Data guide and Drop-in, its own page marked", (file, own, up) => {
     const doc = read(file);
     const nav = doc.querySelector('nav.site-nav[aria-label="Pages"]');
     const items = [...(nav?.querySelectorAll("a, button") ?? [])];
-    expect(items.map((item) => item.textContent?.trim())).toEqual(["Gallery", "Taller", "Selected", "Playground", "Catalog", "Data guide", "Drop-in"]);
+    expect(items.map((item) => item.textContent?.trim())).toEqual(["Gallery", "Taller", "Selected", "Playground", "Editor", "Catalog", "Data guide", "Drop-in"]);
     // Links go to the other pages; the Playground is a dialog on the gallery, so elsewhere it opens it there.
     const target = (item: Element) => item.getAttribute("href") ?? `#${item.id}`;
     expect(items.map(target)).toEqual([
@@ -27,6 +28,7 @@ describe("every page goes to every page", () => {
       `${up}taller.html`,
       `${up}selected.html`,
       file === "index.html" ? "#open-playground" : `${up}index.html#playground`,
+      `${up}editor.html`,
       `${up}catalog/index.html`,
       `${up}catalog/guide.html`,
       `${up}examples/drop-in.html`,

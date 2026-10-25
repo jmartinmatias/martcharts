@@ -187,6 +187,11 @@ Widgets are stored as `widgets/<id>.json`, the same files the demo page reads. A
 - [docs/mcp.md](docs/mcp.md): MCP tools, resources and setup.
 - [docs/accessibility.md](docs/accessibility.md): conformance with EN 301 549 (the European Accessibility Act) and WCAG 2.1 AA, criterion by criterion, and how to test it.
 - [docs/taller.md](docs/taller.md): the Taller, elBulli's creative method abstracted and applied to sales: seven sales moves that make new, balanced versions of any widget, each with the sales question it answers.
+- [docs/editor.md](docs/editor.md): the editor, a chart from a table in four steps, and how to embed it with `createEditor`.
+
+## Make a chart without writing JSON: the editor
+
+The demo's Editor page (`editor.html`) is Datawrapper's flow on this library: **Upload data** (drop a CSV, TSV or JSON file, paste a table from a spreadsheet, type it, or give an address; the columns are told apart as numbers, text and dates), **Check & describe** (labels, formats, drag the columns into order, hide some), **Visualize** (a grid of every chart with the ones that fit this data first and why; a Refine form generated from the chosen chart's own options, with highlight, small multiples and style; an Annotate tab for title, notes, source, byline, headline, reference lines and text notes you can drag on the chart) and **Publish & embed** (the spec, three embed codes, a saved copy). The live chart stays beside you throughout, every change is undoable, and the chart's address can be shared. `createEditor(el, options)` puts the same four steps in any app; see [docs/editor.md](docs/editor.md).
 
 ## Project layout
 
@@ -197,7 +202,7 @@ src/mcp/       widget store, MCP server, command line entry.
 widgets/       stored widget specs (one JSON file each), shared by the demo and the MCP server.
 dashboards/    dashboard specs; gallery.json lays out the demo gallery.
 public/data/   sample data the example widgets load.
-demo/          the gallery and playground page.
+demo/          the gallery and playground page, the Taller, the selected variations and the editor page.
 docs/          reference documentation.
 catalog/       one self-contained spec per view, and a page that draws them all (generated).
 examples/      drop-in pages that use the built bundle with no build step.

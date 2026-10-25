@@ -97,7 +97,8 @@ export function presetCss(preset: StylePreset): string {
 const steps = (kind: "pal" | "pal-dark") =>
   Array.from({ length: 14 }, (_, i) => `\n  --fft-series-${i + 1}: var(--fft-${kind}-${i + 1});`).join("") + "\n";
 
-const DARK = `
+/** The dark theme's tokens, for any root that wears the library's look (widgets, the palette picker, the editor). */
+export const DARK = `
   color-scheme: dark;
   --fft-surface: #1a1a19;
   --fft-card: #1a1a19;
@@ -141,7 +142,8 @@ const DARK = `
   --fft-shadow: none;
 `;
 
-const LIGHT = `
+/** The light theme's tokens. */
+export const LIGHT = `
   color-scheme: light;
   --fft-surface: #fcfcfb;
   --fft-card: #fcfcfb;

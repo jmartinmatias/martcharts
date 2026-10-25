@@ -282,6 +282,7 @@ const page = `<!doctype html>
     <a href="../taller.html" title="elBulli's creative method applied to sales charts: new versions of any widget, each answering a sales question">Taller</a>
     <a href="../selected.html" title="New ways to show the same data, picked because they are new and meaningful">Selected</a>
     <a href="../index.html#playground" title="Edit any widget's spec, view and style, with a live preview">Playground</a>
+    <a href="../editor.html" title="A chart from a table in four steps: drop the data, describe the columns, pick and refine the chart, publish and embed">Editor</a>
     <a href="../catalog/index.html" title="Every chart type: what data it needs, when to use it, and a spec to copy">Catalog</a>
     <a href="../catalog/guide.html" aria-current="page" title="What each chart needs, row by row, the data drawing it, when to use it, and which other charts the same data makes">Data guide</a>
     <a href="../examples/drop-in.html" title="Every way to put a chart on a page: one tag, a JSON file, a CSV, or just a data address">Drop-in</a>
