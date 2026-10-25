@@ -29,6 +29,39 @@ async function copy(button, value) {
   } catch { button.textContent = "Copy failed"; }
   setTimeout(() => (button.textContent = label), 1200);
 }
+// A section's detail opens on demand: its live chart loads only then, so the page draws 57 charts only if asked.
+const load = (details) => {
+  const el = details.querySelector("fft-widget[data-src]");
+  if (el && !el.hasAttribute("src")) el.setAttribute("src", el.dataset.src);
+};
+document.querySelectorAll("details.more").forEach((details) => details.addEventListener("toggle", () => details.open && load(details)));
+const open = (type) => {
+  const details = document.querySelector("#c-" + type + " details.more");
+  if (details && !details.open) details.open = true;
+  if (details) load(details);
+};
+// A link to a chart (#c-pie), from the jobs table, the matrix or another page, opens that chart's detail.
+const openFromHash = () => {
+  const match = /^#c-(.+)$/.exec(location.hash);
+  if (match) open(match[1]);
+};
+window.addEventListener("hashchange", openFromHash);
+openFromHash();
+// Find: charts whose name, summary or jobs hold every word typed.
+const find = document.getElementById("find");
+const count = document.getElementById("count");
+const none = document.getElementById("none");
+const charts = [...document.querySelectorAll("section.chart")];
+find.addEventListener("input", () => {
+  const words = find.value.toLowerCase().split(/\s+/).filter(Boolean);
+  let shown = 0;
+  for (const chart of charts) {
+    chart.hidden = !words.every((word) => chart.dataset.search.includes(word));
+    if (!chart.hidden) shown++;
+  }
+  count.textContent = words.length ? shown + " of " + charts.length : "";
+  none.hidden = !words.length || shown > 0;
+});
 document.addEventListener("change", (event) => {
   const select = event.target.closest("select[data-type]");
   if (select) showAs(select.dataset.type, select.value);
@@ -38,6 +71,7 @@ document.addEventListener("click", async (event) => {
   if (!button) return;
   if (button.dataset.from) {
     const { from, to } = button.dataset;
+    open(from);
     await showAs(from, to);
     if (button.closest(".matrix")) document.getElementById("c-" + from).scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   } else if (button.dataset.all) {

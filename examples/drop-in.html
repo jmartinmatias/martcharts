@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Embed · martcharts</title>
-  <!-- The whole library, with <fft-widget> registered. No bundler, no build step, no dependencies. -->
+  <!-- The lite bundle, with <fft-widget> registered: no bundler, no build step, no dependencies. -->
   <script src="../dist/martcharts-lite.iife.js"></script>
   <link rel="stylesheet" href="../demo/site-nav.css">
   <link rel="stylesheet" href="../demo/site-look.css">
@@ -12,11 +12,22 @@
   <style>
     :root { color-scheme: light dark; }
     body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif; margin: 0 auto; max-width: 960px; padding: 24px 16px; background: Canvas; color: CanvasText; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
-    code { background: color-mix(in srgb, CanvasText 10%, transparent); padding: 1px 4px; border-radius: 3px; }
+    code, pre { font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace; font-size: 12px; }
+    p code { background: color-mix(in srgb, CanvasText 10%, transparent); padding: 1px 4px; border-radius: 3px; }
     header.page { margin: 8px 0 21px; }
     header.page h1 { margin: 0; font-size: 28px; line-height: 1.2; letter-spacing: -0.02em; }
     header.page p { margin: 5px 0 0; opacity: 0.8; }
+    .bundles { margin: 0 0 34px; padding: 13px 16px; border: 1px solid color-mix(in srgb, CanvasText 14%, transparent); border-radius: 8px; }
+    .bundles h2, .example h2 { margin: 0 0 5px; font-size: 15px; line-height: 21px; }
+    .bundles ul { margin: 0; padding: 0 0 0 18px; line-height: 1.6; }
+    .bundles .size { opacity: 0.7; font-variant-numeric: tabular-nums; }
+    .examples { display: grid; gap: 34px; }
+    .example > p { margin: 0 0 8px; opacity: 0.8; }
+    .example .live { margin: 0 0 8px; }
+    .snippet { position: relative; }
+    .snippet pre { margin: 0; padding: 13px 16px; overflow-x: auto; border-radius: 8px; background: color-mix(in srgb, CanvasText 6%, transparent); line-height: 1.5; white-space: pre; }
+    .snippet button { position: absolute; top: 8px; right: 8px; min-height: 30px; padding: 0 13px; border: 1px solid color-mix(in srgb, CanvasText 18%, transparent); border-radius: 999px; background: Canvas; color: CanvasText; font: inherit; font-size: 12px; cursor: pointer; }
+    .snippet button:focus-visible { outline: 2px solid Highlight; outline-offset: 2px; }
   </style>
 </head>
 <body>
@@ -37,49 +48,91 @@
   </div>
   <header class="page">
     <h1>Embed a chart</h1>
-    <p>Every way to put a chart on a page: each card below is one <code>&lt;fft-widget&gt;</code> tag and one script, with no build step.</p>
+    <p>Each example below is the code under it, live: copy it into any page, with no build step.</p>
   </header>
 
-  <div class="grid">
-    <!-- 1. Spec written inside the tag. -->
-    <fft-widget actions="csv image">
-      <script type="application/json">
-        {
-          "title": "Signups by channel",
-          "subtitle": "Last 30 days",
-          "data": { "type": "inline", "rows": [
-            { "channel": "Search", "signups": 1240 },
-            { "channel": "Social", "signups": 860 },
-            { "channel": "Referral", "signups": 610 },
-            { "channel": "Email", "signups": 420 }
-          ] },
-          "fields": { "signups": { "label": "Signups", "format": "number" } },
-          "view": { "type": "hbar", "label": "channel", "value": "signups" }
-        }
-      </script>
-    </fft-widget>
+  <section class="bundles" aria-labelledby="bundles-title">
+    <h2 id="bundles-title">Which bundle</h2>
+    <ul>
+      <li><a href="../dist/martcharts-lite.iife.js" data-bundle>martcharts-lite.iife.js</a> <span class="size" data-size></span>: to show charts and dashboards. Most pages need only this one.</li>
+      <li><a href="../dist/martcharts.iife.js" data-bundle>martcharts.iife.js</a> <span class="size" data-size></span>: everything, the editor and composer too.</li>
+      <li><a href="../dist/martcharts-reading.iife.js" data-bundle>martcharts-reading.iife.js</a> <span class="size" data-size></span>: add it after either one for chart explanations in French and German.</li>
+    </ul>
+    <div class="snippet" data-snippet="bundle"></div>
+  </section>
 
-    <!-- 2. Spec loaded from a JSON file (any widget in /widgets works). -->
-    <fft-widget src="../widgets/revenue-kpi.json"></fft-widget>
-    <fft-widget src="../widgets/revenue-by-region.json" actions="csv image copy"></fft-widget>
+  <div class="examples">
+    <section class="example" aria-labelledby="ex-inline">
+      <h2 id="ex-inline">The spec inside the tag</h2>
+      <p>Data, fields and the chart in one block of JSON.</p>
+      <template>
+<fft-widget actions="csv image">
+  <script type="application/json">
+    {
+      "title": "Signups by channel",
+      "subtitle": "Last 30 days",
+      "data": { "type": "inline", "rows": [
+        { "channel": "Search", "signups": 1240 },
+        { "channel": "Social", "signups": 860 },
+        { "channel": "Referral", "signups": 610 },
+        { "channel": "Email", "signups": 420 }
+      ] },
+      "fields": { "signups": { "label": "Signups", "format": "number" } },
+      "view": { "type": "hbar", "label": "channel", "value": "signups" }
+    }
+  </script>
+</fft-widget>
+      </template>
+    </section>
 
-    <!-- 3. A CSV file, as exported from a spreadsheet: the first row names the fields. -->
-    <fft-widget>
-      <script type="application/json">
-        {
-          "title": "Tickets this week",
-          "data": { "type": "csv", "url": "tickets.csv" },
-          "view": { "type": "bar", "x": "team", "y": ["opened", "closed"] }
-        }
-      </script>
-    </fft-widget>
+    <section class="example" aria-labelledby="ex-file">
+      <h2 id="ex-file">A spec file</h2>
+      <p>Any widget saved as JSON, from the editor or the catalog.</p>
+      <template>
+<fft-widget src="../widgets/revenue-by-region.json" actions="csv image copy"></fft-widget>
+      </template>
+    </section>
 
-    <!-- 4. No spec at all: point at a data file and the chart is picked from its shape. -->
-    <fft-widget data="tickets.csv" heading="Tickets, chart picked from the data"></fft-widget>
-    <fft-widget data="/data/monthly.json" heading="Monthly data, picked"></fft-widget>
+    <section class="example" aria-labelledby="ex-csv">
+      <h2 id="ex-csv">A CSV file</h2>
+      <p>As exported from a spreadsheet: the first row names the fields.</p>
+      <template>
+<fft-widget>
+  <script type="application/json">
+    {
+      "title": "Tickets this week",
+      "data": { "type": "csv", "url": "tickets.csv" },
+      "view": { "type": "bar", "x": "team", "y": ["opened", "closed"] }
+    }
+  </script>
+</fft-widget>
+      </template>
+    </section>
 
-    <!-- 5. Spec set from JavaScript, with live data. -->
-    <fft-widget id="live"></fft-widget>
+    <section class="example" aria-labelledby="ex-data">
+      <h2 id="ex-data">Just a data file</h2>
+      <p>No spec at all: the chart is picked from the data's shape.</p>
+      <template>
+<fft-widget data="tickets.csv" heading="Tickets, chart picked from the data"></fft-widget>
+      </template>
+    </section>
+
+    <section class="example" aria-labelledby="ex-js" data-example="live">
+      <h2 id="ex-js">From JavaScript</h2>
+      <p>Set the spec from code; here the data is a function that runs in the page.</p>
+      <template>
+<fft-widget id="live"></fft-widget>
+      </template>
+    </section>
+
+    <section class="example" aria-labelledby="ex-frame">
+      <h2 id="ex-frame">In an iframe, on any site</h2>
+      <p>For sites that cannot load scripts: the frame sizes itself to the chart.</p>
+      <template>
+<iframe src="embed.html?src=../widgets/revenue-kpi.json" title="Revenue" style="width: 100%; border: 0" loading="lazy"></iframe>
+<script src="embed-host.js"></script>
+      </template>
+    </section>
   </div>
 
   <script src="drop-in.js"></script>

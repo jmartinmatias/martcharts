@@ -132,7 +132,7 @@ const section = ({ type, spec, rows, switches }: Built) => {
   views[type] = Object.fromEntries(ok.map((s) => [s.to, s.view]));
   const { min, max } = contract.rowsRead;
   return `
-  <section class="chart" id="c-${type}" aria-labelledby="h-${type}">
+  <section class="chart" id="c-${type}" aria-labelledby="h-${type}" data-search="${escape([type, entry.summary, ...Object.keys(guide?.purposes ?? {}).map((p) => PURPOSES[p as Purpose])].join(" ").toLowerCase())}">
     <header>
       <h2 id="h-${type}"><code>${type}</code></h2>
       <p class="summary">${escape(entry.summary)}</p>
@@ -141,6 +141,8 @@ const section = ({ type, spec, rows, switches }: Built) => {
         .map(([p, s]) => `<span class="chip s${s}" title="${STRENGTH[s]}">${escape(PURPOSES[p])}</span>`)
         .join(" ")}</p>
     </header>
+    <details class="more" data-type="${type}">
+    <summary>The chart live, the table it needs, its data, and the charts the same data makes</summary>
     <div class="top">
       <div class="live">
         <label class="as"><span>Show this data as</span>
@@ -150,7 +152,7 @@ const section = ({ type, spec, rows, switches }: Built) => {
           </select>
         </label>
         <p class="said" id="said-${type}" aria-live="polite"></p>
-        <fft-widget id="w-${type}" src="${type}.json" actions="info expand csv"></fft-widget>
+        <fft-widget id="w-${type}" data-src="${type}.json" actions="info expand csv"></fft-widget>
       </div>
       <div class="uses">
         <h3>Best for</h3>
@@ -194,6 +196,7 @@ const section = ({ type, spec, rows, switches }: Built) => {
         .join("")}</tbody>
     </table></div>
     ${no.length ? `<details class="nope"><summary>Not possible with this data (${no.length})</summary><ul>${no.map((s) => `<li><code>${s.to}</code>: ${escape(s.caveats[0] ?? s.assessment)}</li>`).join("")}</ul></details>` : ""}
+    </details>
   </section>`;
 };
 const sections = charts.map(section).join("\n");
@@ -273,6 +276,14 @@ const page = `<!doctype html>
     .matrix td.self { background: var(--soft); }
     .matrix td.stretch button { opacity: .55; }
     .legend { display: flex; flex-wrap: wrap; gap: 13px; font-size: 13px; margin: 8px 0 0; }
+    .find { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 21px; font-size: 14px; }
+    .find input { font: inherit; font-size: 15px; padding: 6px 10px; min-height: 36px; width: min(100%, 360px); border: 1px solid color-mix(in srgb, CanvasText 25%, transparent); border-radius: 8px; background: Canvas; color: inherit; }
+    #count, .none { color: var(--muted); font-size: 13px; }
+    details.more { margin-top: 13px; }
+    details.more > summary, details.matrix-box > summary { cursor: pointer; font-size: 14px; color: var(--muted); padding: 5px 0; }
+    details.more > summary:hover, details.matrix-box > summary:hover { color: CanvasText; }
+    details.matrix-box { margin: 34px 0 0; }
+    section.chart { padding: 34px 0 13px; }
     .jobs th[scope="row"] { font-weight: 500; white-space: nowrap; padding-right: 21px; }
     @media (max-width: 800px) { .top { grid-template-columns: minmax(0, 1fr); gap: 21px; } h1 { font-size: 28px; } .jobs th[scope="row"] { white-space: normal; } }
   </style>
@@ -285,12 +296,15 @@ ${catalogTabs("guide")}
     <p class="lede">For each of the ${charts.length} charts: the table it needs, the data drawing it, and which other charts the same data makes.</p>
   </header>
 
+  <p class="find"><label for="find">Find a chart</label> <input type="search" id="find" placeholder="Name or job, such as trend or map" autocomplete="off"> <span id="count" aria-live="polite"></span></p>
+
   <h3>Which chart for which job</h3>
   <div class="scroll"><table class="jobs"><thead><tr><th scope="col">Job</th><th scope="col">Best</th><th scope="col">Good</th></tr></thead><tbody>
 ${purposeTable}
   </tbody></table></div>
 
-  <h3>Switch matrix</h3>
+  <details class="matrix-box">
+  <summary>Switch matrix: every chart's data drawn as every other chart</summary>
   <p class="muted">Each row is a chart as made; each column the chart its data becomes. Select a mark to see the switch drawn.</p>
   <p class="legend">${Object.entries(MARK)
     .map(([v, m]) => `<span class="v-${v}">${m} ${VERDICT_WORDS[v]}</span>`)
@@ -299,6 +313,8 @@ ${purposeTable}
     <thead><tr><th scope="col"><span class="sr">From</span></th>${types.map((t) => `<th scope="col"><span>${t}</span></th>`).join("")}</tr></thead>
     <tbody>${charts.map((from) => `<tr><th scope="row"><a href="#c-${from.type}">${from.type}</a></th>${types.map((to) => cellFor(from, to)).join("")}</tr>`).join("\n")}</tbody>
   </table></div>
+  </details>
+  <p class="none" id="none" hidden>No chart matches. Try another word, such as share, time or flow.</p>
 ${sections}
   <script type="application/json" id="switches">${JSON.stringify(views).replace(/</g, "\\u003c")}</script>
   <script>
@@ -333,6 +349,39 @@ ${sections}
       } catch { button.textContent = "Copy failed"; }
       setTimeout(() => (button.textContent = label), 1200);
     }
+    // A section's detail opens on demand: its live chart loads only then, so the page draws 57 charts only if asked.
+    const load = (details) => {
+      const el = details.querySelector("fft-widget[data-src]");
+      if (el && !el.hasAttribute("src")) el.setAttribute("src", el.dataset.src);
+    };
+    document.querySelectorAll("details.more").forEach((details) => details.addEventListener("toggle", () => details.open && load(details)));
+    const open = (type) => {
+      const details = document.querySelector("#c-" + type + " details.more");
+      if (details && !details.open) details.open = true;
+      if (details) load(details);
+    };
+    // A link to a chart (#c-pie), from the jobs table, the matrix or another page, opens that chart's detail.
+    const openFromHash = () => {
+      const match = /^#c-(.+)$/.exec(location.hash);
+      if (match) open(match[1]);
+    };
+    window.addEventListener("hashchange", openFromHash);
+    openFromHash();
+    // Find: charts whose name, summary or jobs hold every word typed.
+    const find = document.getElementById("find");
+    const count = document.getElementById("count");
+    const none = document.getElementById("none");
+    const charts = [...document.querySelectorAll("section.chart")];
+    find.addEventListener("input", () => {
+      const words = find.value.toLowerCase().split(/\\s+/).filter(Boolean);
+      let shown = 0;
+      for (const chart of charts) {
+        chart.hidden = !words.every((word) => chart.dataset.search.includes(word));
+        if (!chart.hidden) shown++;
+      }
+      count.textContent = words.length ? shown + " of " + charts.length : "";
+      none.hidden = !words.length || shown > 0;
+    });
     document.addEventListener("change", (event) => {
       const select = event.target.closest("select[data-type]");
       if (select) showAs(select.dataset.type, select.value);
@@ -342,6 +391,7 @@ ${sections}
       if (!button) return;
       if (button.dataset.from) {
         const { from, to } = button.dataset;
+        open(from);
         await showAs(from, to);
         if (button.closest(".matrix")) document.getElementById("c-" + from).scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
       } else if (button.dataset.all) {
