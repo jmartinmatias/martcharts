@@ -336,7 +336,8 @@
       "widget": "client-xray"
     },
     {
-      "widget": "client-history"
+      "widget": "client-history",
+      "span": 3
     }
   ],
   "title": "Gallery",
