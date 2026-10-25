@@ -34,7 +34,8 @@ export const renderWaffle: ViewRenderer<WaffleView> = (ctx) => {
   const even = evenFormat(ctx, value, parts.map((part) => part.amount), { type: "number", compact: true });
   const amountText = (part: { row: Row; amount: number }) => even(part.amount);
 
-  const size = figureSize(ctx.width);
+  // Never wider than the card, so the browser never squeezes the squares out of shape; every square is the same size.
+  const size = Math.min(figureSize(ctx.width), Math.max(89, Math.floor(ctx.width)));
   const cell = (size - GAP * (SIDE - 1)) / SIDE;
   const wrap = html(doc, "div", "fft-waffle");
   const chart = svg(doc, "svg", { width: size, height: size, viewBox: `0 0 ${size} ${size}` });

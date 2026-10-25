@@ -4,9 +4,10 @@ import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { RagboardView } from "../../core/views.ts";
 import { roving } from "./focus.ts";
-import { ragColor, ragMark, srText } from "./rag-shared.ts";
+import { ensureRagGridStyles, ragColor, ragMark, srText } from "./rag-shared.ts";
 import type { RagLook } from "./rag-shared.ts";
-import { fieldList, html, selectable } from "./shared.ts";
+import { fieldList, html, selectable, textWidth } from "./shared.ts";
+import { WORDS } from "./words.ts";
 
 /** The column key of the overall (worst-of) status. */
 const OVERALL = "\u0000overall";
@@ -43,6 +44,8 @@ export const renderRagboard: ViewRenderer<RagboardView> = (ctx) => {
     const previous = dims.map((field) => (previousOf[field] ? ragOf(row[previousOf[field] as string]) : undefined));
     return { row, name: ctx.format(row[label], label), statuses, previous, overall: overallField ? ragOf(row[overallField]) : worstOf(statuses) };
   });
+  // With only, the board shows the rows whose overall status is listed; the others fold into one line under it.
+  const shown = Array.isArray(view.only) && view.only.length ? new Set(view.only.map((s) => ragOf(s))) : undefined;
   const order = view.sort ?? "worst";
   const reds = (line: Line) => line.statuses.filter((s) => s === "R").length;
   const ambers = (line: Line) => line.statuses.filter((s) => s === "A").length;
@@ -50,7 +53,7 @@ export const renderRagboard: ViewRenderer<RagboardView> = (ctx) => {
   else if (order === "name") lines.sort((a, b) => a.name.localeCompare(b.name, ctx.spec.locale));
 
   // The columns: Overall first (the one to act on), then each dimension.
-  const columns = [...(overall ? [{ key: OVERALL, title: "Overall" }] : []), ...dims.map((field) => ({ key: field, title: ctx.label(field) }))];
+  const columns = [...(overall ? [{ key: OVERALL, title: WORDS.overall }] : []), ...dims.map((field) => ({ key: field, title: ctx.label(field) }))];
   const statusAt = (line: Line, c: number): Rag => (overall ? (c === 0 ? line.overall : (line.statuses[c - 1] as Rag)) : (line.statuses[c] as Rag));
   const previousAt = (line: Line, c: number): Rag | undefined => {
     const d = overall ? c - 1 : c;
@@ -65,7 +68,7 @@ export const renderRagboard: ViewRenderer<RagboardView> = (ctx) => {
   const rowCounts = ragCounts(lines.map((line) => line.overall));
   const share = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 0 });
   const summary = html(doc, "ul", "fft-rag-summary");
-  summary.setAttribute("aria-label", `${lines.length} ${lines.length === 1 ? "row" : "rows"} by overall status`);
+  summary.setAttribute("aria-label", WORDS.rowsByStatus(lines.length));
   for (const status of RAG_ORDER) {
     const n = overall ? rowCounts[status] : counts[status];
     const total = overall ? rowCounts.total : counts.total;
@@ -78,9 +81,34 @@ export const renderRagboard: ViewRenderer<RagboardView> = (ctx) => {
   }
   wrap.append(summary);
 
+  // Every status cell the same size, worked out from the card, never from its heading: the name column takes what the
+  // longest name or note needs (up to a third of the card), and the status columns share the rest equally, from a
+  // tappable 30px to 89px. Below that the table keeps its size and scrolls sideways.
+  ensureRagGridStyles(doc);
+  const SPACING = 3;
+  const visible = shown ? lines.filter((line) => shown.has(line.overall)) : lines;
+  const longest = Math.max(
+    0,
+    ...visible.map((line) => textWidth(line.name, 11, 500)),
+    ...(view.note ? visible.map((line) => textWidth(ctx.format(line.row[view.note as string], view.note), 11)) : []),
+    textWidth(ctx.label(label), 11),
+  );
+  const nameW = Math.round(Math.min(Math.max(72, longest + 13), ctx.width * (ctx.width < 480 ? 0.3 : 0.34)));
+  const free = ctx.width - nameW - SPACING * (columns.length + 2);
+  const cell = Math.max(30, Math.min(89, Math.floor(free / Math.max(1, columns.length))));
   const scroller = html(doc, "div", "fft-rag-scroll");
   const table = html(doc, "table", "fft-rag-table");
+  table.dataset.fixed = "";
   table.style.setProperty("--fft-rag-cols", String(columns.length));
+  table.style.setProperty("--fft-rag-cell", `${cell}px`);
+  table.style.width = `${nameW + cell * columns.length + SPACING * (columns.length + 2)}px`;
+  const cols = html(doc, "colgroup");
+  for (const width of [nameW, ...columns.map(() => cell)]) {
+    const col = html(doc, "col");
+    col.style.width = `${width}px`;
+    cols.append(col);
+  }
+  table.append(cols);
   const head = html(doc, "thead");
   const headRow = html(doc, "tr");
   const corner = html(doc, "th", "fft-rag-corner", ctx.label(label));
@@ -106,7 +134,7 @@ export const renderRagboard: ViewRenderer<RagboardView> = (ctx) => {
   // Rows, gathered under their group's heading when there is one, groups in order of their first row.
   const groupField = view.group;
   const groups = new Map<string, Line[]>();
-  for (const line of lines) {
+  for (const line of visible) {
     const key = groupField ? ctx.format(line.row[groupField], groupField) : "";
     groups.set(key, [...(groups.get(key) ?? []), line]);
   }
@@ -115,7 +143,7 @@ export const renderRagboard: ViewRenderer<RagboardView> = (ctx) => {
     const body = html(doc, "tbody");
     if (groupField) {
       const tr = html(doc, "tr", "fft-rag-group");
-      const th = html(doc, "th", undefined, groupName || "Other");
+      const th = html(doc, "th", undefined, groupName || WORDS.other);
       th.scope = "colgroup";
       th.colSpan = columns.length + 1;
       tr.append(th);
@@ -126,10 +154,15 @@ export const renderRagboard: ViewRenderer<RagboardView> = (ctx) => {
       tr.style.setProperty("--fft-i", String(i++));
       const name = html(doc, "th", "fft-rag-name");
       name.scope = "row";
+      // One line each for the name and its note, so every row, and every cell in it, is the same height; both whole in the title.
       name.append(html(doc, "span", "fft-rag-name-text", line.name));
+      name.title = line.name;
       if (view.note) {
         const note = ctx.format(line.row[view.note], view.note);
-        if (note) name.append(html(doc, "span", "fft-rag-note", note));
+        if (note) {
+          name.append(html(doc, "span", "fft-rag-note", note));
+          name.title = `${line.name}\n${note}`;
+        }
       }
       tr.append(name);
       columns.forEach((column, c) => {
@@ -146,11 +179,11 @@ export const renderRagboard: ViewRenderer<RagboardView> = (ctx) => {
           mark.setAttribute("aria-hidden", "true");
           td.append(mark);
         }
-        const change = trend === "same" ? "" : `, ${trend === "improved" ? "better" : "worse"} than last period (${word(before as Rag)})`;
+        const change = trend === "same" ? "" : WORDS.movedSince(trend === "improved", word(before as Rag));
         td.append(srText(doc, `${word(status)}${change}`));
         const items: TooltipItem[] = [{ label: column.title, value: word(status), color: ragColor(status) }];
-        if (before !== undefined) items.push({ label: "Last period", value: word(before), color: ragColor(before) });
-        if (trend !== "same") items.push({ label: "Change", value: trend === "improved" ? "Better" : "Worse" });
+        if (before !== undefined) items.push({ label: WORDS.lastPeriod, value: word(before), color: ragColor(before) });
+        if (trend !== "same") items.push({ label: WORDS.change, value: trend === "improved" ? WORDS.better : WORDS.worse });
         const show = () => {
           table.setAttribute("data-active", "");
           for (const other of rowsOut) other.removeAttribute("data-active");
@@ -174,11 +207,11 @@ export const renderRagboard: ViewRenderer<RagboardView> = (ctx) => {
   // The footer: each column's count of off track, at risk and on track, shapes and figures.
   const foot = html(doc, "tfoot");
   const footRow = html(doc, "tr", "fft-rag-foot");
-  const footHead = html(doc, "th", undefined, "Count");
+  const footHead = html(doc, "th", undefined, WORDS.count);
   footHead.scope = "row";
   footRow.append(footHead);
   columns.forEach((_, c) => {
-    const tally = ragCounts(lines.map((line) => statusAt(line, c)));
+    const tally = ragCounts(visible.map((line) => statusAt(line, c)));
     const td = html(doc, "td", "fft-rag-tally");
     const said: string[] = [];
     for (const status of ["R", "A", "G"] as Rag[]) {
@@ -190,7 +223,7 @@ export const renderRagboard: ViewRenderer<RagboardView> = (ctx) => {
       td.append(part);
       said.push(`${tally[status]} ${word(status).toLowerCase()}`);
     }
-    td.append(srText(doc, said.join(", ") || "no data"));
+    td.append(srText(doc, said.join(", ") || WORDS.noStatus));
     footRow.append(td);
   });
   foot.append(footRow);
@@ -199,5 +232,13 @@ export const renderRagboard: ViewRenderer<RagboardView> = (ctx) => {
   roving(cells, { down: columns.length });
   scroller.append(table);
   wrap.append(scroller);
+  // The rows left out by only, in one line, so the board still accounts for every row: "and 33 on track".
+  if (shown) {
+    const left = RAG_ORDER.filter((status) => !shown.has(status)).map((status) => [status, lines.filter((line) => line.overall === status).length] as const).filter(([, n]) => n > 0);
+    if (left.length) {
+      const fold = html(doc, "p", "fft-rag-fold", WORDS.andMore(left.map(([status, n]) => `${n} ${word(status).toLowerCase()}`)));
+      wrap.append(fold);
+    }
+  }
   ctx.el.append(wrap);
 };

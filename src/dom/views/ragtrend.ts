@@ -8,6 +8,7 @@ import { roving } from "./focus.ts";
 import { ragColor, ragLegend, ragMark, ragPill, srText } from "./rag-shared.ts";
 import type { RagLook } from "./rag-shared.ts";
 import { html, selectable, textWidth } from "./shared.ts";
+import { WORDS } from "./words.ts";
 
 /** Writes a time back as a period in the same pattern as the data's own: 2026-Q1, 2026-03 or 2026-03-31. */
 function periodText(time: number, like: string): string {
@@ -116,7 +117,7 @@ export const renderRagtrend: ViewRenderer<RagtrendView> = (ctx) => {
     else th.append(srText(doc, text));
     headRow.append(th);
   });
-  const nowHead = html(doc, "th", "fft-ragtrend-now", "Now");
+  const nowHead = html(doc, "th", "fft-ragtrend-now", WORDS.now);
   nowHead.scope = "col";
   headRow.append(nowHead);
   head.append(headRow);
@@ -148,11 +149,13 @@ export const renderRagtrend: ViewRenderer<RagtrendView> = (ctx) => {
       const why = changed && note && row ? ctx.format(row[note], note) : "";
       if (row) td.append(ragMark(doc, status, look, glyph));
       if (changed) td.dataset.changed = ragTrend(before as Rag, status);
-      const said = row ? `${ctx.format(key, period)}: ${word(status)}${changed ? `, was ${word(before as Rag)}${why ? `. ${why}` : ""}` : ""}` : `${ctx.format(key, period)}: no reading`;
+      const said = row
+        ? `${ctx.format(key, period)}: ${word(status)}${changed ? `, ${WORDS.was.toLowerCase()} ${word(before as Rag)}${why ? `. ${why}` : ""}` : ""}`
+        : `${ctx.format(key, period)}: ${WORDS.noReading.toLowerCase()}`;
       td.append(srText(doc, said));
-      const items: TooltipItem[] = [{ label: "Status", value: row ? word(status) : "No reading", color: ragColor(status) }];
-      if (changed) items.push({ label: "Was", value: word(before as Rag), color: ragColor(before as Rag) });
-      if (why) items.push({ label: "Why", value: why });
+      const items: TooltipItem[] = [{ label: WORDS.status, value: row ? word(status) : WORDS.noReading, color: ragColor(status) }];
+      if (changed) items.push({ label: WORDS.was, value: word(before as Rag), color: ragColor(before as Rag) });
+      if (why) items.push({ label: WORDS.why, value: why });
       const show = () => {
         table.setAttribute("data-active", "");
         for (const other of rowsOut) other.removeAttribute("data-active");

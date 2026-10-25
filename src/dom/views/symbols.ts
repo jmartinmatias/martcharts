@@ -34,7 +34,8 @@ export const renderSymbols: ViewRenderer<SymbolsView> = (ctx) =>
       .map((p) => ({ ...p, amount: readNumber(p.row[size]) ?? 0 }))
       .filter((p) => p.amount > 0)
       .sort((a, b) => b.amount - a.amount);
-    const largest = sized[0]?.amount ?? 1;
+    // Small multiples pass one extent, so a circle of one size means one amount in every panel.
+    const largest = Math.max(sized[0]?.amount ?? 0, ...(ctx.extent ?? []).filter((n) => n > 0)) || 1;
     // On a tile grid the biggest circle covers about a tile; on real shapes, a share of the map's short side.
     const maxRadius = Math.max(8, Math.min(MAX_RADIUS, collection?.grid ? projection.scale * 0.62 : Math.min(width, height) / 8));
     const radius = (amount: number) => Math.max(3, Math.sqrt(amount / largest) * maxRadius);
