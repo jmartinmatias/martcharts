@@ -137,4 +137,16 @@ describe("the published site", () => {
       expect([file, inline.length]).toEqual([file, 0]);
     }
   });
+
+  test("no site style lays a page-wide wash: an edge-to-edge shadow only on the bar's own clipped backdrop", () => {
+    // A spread shadow reaches every way. On the nav it once laid a 78% wash of the page colour over the whole site.
+    for (const file of ["demo/site-look.css", "demo/site-nav.css", "demo/site-page.css"]) {
+      const css = readFileSync(file, "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+      for (const [, selector, body] of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+        if (!/box-shadow:[^;]*\d+vmax/.test(body as string)) continue;
+        expect([file, (selector as string).trim()]).toEqual([file, expect.stringMatching(/\.site-bar::before$/)]);
+      }
+    }
+    expect(readFileSync("demo/site-nav.css", "utf8")).toMatch(/\.site-bar::before\s*\{[^}]*clip-path: inset\(0 -100vmax -1px -100vmax\)/);
+  });
 });
