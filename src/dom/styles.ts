@@ -206,6 +206,23 @@ export function parseTokens(css: string): Record<string, string> {
  */
 export const BASE_CSS = `
 /* Fibonacci framing: spacing 2 3 5 8 13 21 34, type 11 13 21 34, motion 377 610 987 ms, golden-ratio proportions. */
+/* The shared scale every view draws with: one hover dimming, three radii (plus the card's and a pill), five type steps. */
+.fft-widget, .fft-overlay {
+  --fft-dim: 0.38;
+  --fft-dim-strong: 0.21;
+  --fft-radius-s: 2px;
+  --fft-radius-m: 5px;
+  --fft-radius-l: 8px;
+  --fft-radius-card: var(--fft-radius, 13px);
+  --fft-radius-pill: 999px;
+  --fft-radius-mark: var(--fft-radius-s);
+  --fft-radius-control: var(--fft-radius-l);
+  --fft-fs-xs: 10px;
+  --fft-fs-s: 11px;
+  --fft-fs-m: 13px;
+  --fft-fs-l: 21px;
+  --fft-fs-xl: 34px;
+}
 .fft-widget {${LIGHT}
   --fft-pad: 21px;
   --fft-gap: 13px;
@@ -253,7 +270,7 @@ export const BASE_CSS = `
 .fft-widget:hover .fft-actions, .fft-widget:focus-within .fft-actions { opacity: 1; }
 @media (hover: none) { .fft-actions { opacity: 1; } }
 .fft-action {
-  display: grid; place-items: center; width: 26px; height: 26px; padding: 0; border: 0; border-radius: 5px;
+  display: grid; place-items: center; width: 26px; height: 26px; padding: 0; border: 0; border-radius: var(--fft-radius-m);
   background: transparent; color: var(--fft-muted); cursor: pointer;
 }
 .fft-action svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
@@ -269,21 +286,21 @@ export const BASE_CSS = `
   position: absolute; top: calc(100% + 5px); right: 0; z-index: 6; min-width: 200px;
   display: flex; flex-direction: column; gap: 2px; padding: 5px;
   background: var(--fft-popover, var(--fft-surface)); color: var(--fft-text);
-  border: 1px solid var(--fft-border); border-radius: 8px; box-shadow: 0 8px 21px rgba(0, 0, 0, 0.16);
+  border: 1px solid var(--fft-border); border-radius: var(--fft-radius-l); box-shadow: 0 8px 21px rgba(0, 0, 0, 0.16);
 }
 .fft-menu[hidden] { display: none; }
 .fft-menu .fft-action { display: flex; align-items: center; justify-content: flex-start; gap: 8px; width: 100%; height: 34px; padding: 0 8px; color: var(--fft-text-secondary); }
-.fft-menu .fft-action-text { display: inline; font: inherit; font-size: 13px; color: var(--fft-text); white-space: nowrap; }
+.fft-menu .fft-action-text { display: inline; font: inherit; font-size: var(--fft-fs-m); color: var(--fft-text); white-space: nowrap; }
 /* Expand: the widget redrawn large in a dialog over a blurred page; full screen on phones. */
 .fft-overlay {
   position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 21px;
   background: rgba(0, 0, 0, 0.55); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
   animation: fft-fade 233ms var(--fft-ease, ease) both;
 }
-.fft-overlay-panel { position: relative; width: min(1100px, 100%); max-height: 100%; overflow: auto; border-radius: 13px; animation: fft-rise 377ms var(--fft-ease, ease) both; }
+.fft-overlay-panel { position: relative; width: min(1100px, 100%); max-height: 100%; overflow: auto; border-radius: var(--fft-radius-card); animation: fft-rise 377ms var(--fft-ease, ease) both; }
 .fft-overlay-slot { display: flex; flex-direction: column; min-height: 100%; }
 .fft-overlay-slot > .fft-widget { flex: 1; }
-.fft-overlay .fft-widget[data-preset="airy"] { background: var(--fft-card); padding: 21px; border-radius: 13px; }
+.fft-overlay .fft-widget[data-preset="airy"] { background: var(--fft-card); padding: 21px; border-radius: var(--fft-radius-card); }
 .fft-overlay .fft-actions { right: 55px; }
 .fft-overlay-close {
   position: absolute; top: 13px; right: 13px; z-index: 6; display: grid; place-items: center; width: 34px; height: 34px; padding: 0;
@@ -293,13 +310,13 @@ export const BASE_CSS = `
 .fft-overlay-panel { touch-action: pan-y; }
 .fft-overlay-nav {
   position: fixed; left: 50%; bottom: calc(21px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 7;
-  display: flex; align-items: center; gap: 5px; padding: 5px; border-radius: 34px;
+  display: flex; align-items: center; gap: 5px; padding: 5px; border-radius: var(--fft-radius-pill);
   background: rgba(20, 20, 20, 0.72); color: #ffffff; -webkit-backdrop-filter: blur(13px); backdrop-filter: blur(13px);
   font: 600 11px/21px -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif; font-variant-numeric: tabular-nums;
 }
 .fft-overlay-nav button { display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: inherit; cursor: pointer; }
 .fft-overlay-nav button:hover:not(:disabled), .fft-overlay-nav button:focus-visible { background: rgba(255, 255, 255, 0.16); outline: none; }
-.fft-overlay-nav button:disabled { opacity: 0.34; cursor: default; }
+.fft-overlay-nav button:disabled { opacity: var(--fft-dim); cursor: default; }
 .fft-overlay-count { min-width: 55px; text-align: center; }
 .fft-overlay-close:hover, .fft-overlay-close:focus-visible { background: rgba(128, 128, 128, 0.32); outline: none; }
 @media (max-width: 700px) {
@@ -312,34 +329,34 @@ export const BASE_CSS = `
 /* On a phone the card gives its padding to the chart: the page around it already has a gutter. */
 @media (max-width: 480px) { .fft-widget { --fft-pad: 16px; --fft-gap: 8px; } }
 .fft-action[data-failed] { color: var(--fft-negative); }
-.fft-title { margin: 0; font-size: 13px; line-height: 21px; font-weight: 600; letter-spacing: -0.005em; }
-.fft-subtitle { margin: 0; font-size: 13px; line-height: 21px; color: var(--fft-text-secondary); }
+.fft-title { margin: 0; font-size: var(--fft-fs-m); line-height: 21px; font-weight: 600; letter-spacing: -0.005em; }
+.fft-subtitle { margin: 0; font-size: var(--fft-fs-m); line-height: 21px; color: var(--fft-text-secondary); }
 /* How to read it: a quiet note under the chart, a thin accent rule, a small label over plain sentences. */
-.fft-guide { margin: 0; max-width: 68ch; padding: 2px 0 2px 13px; border-left: 2px solid var(--fft-accent); font-size: 13px; line-height: 21px; color: var(--fft-text-secondary); }
+.fft-guide { margin: 0; max-width: 68ch; padding: 2px 0 2px 13px; border-left: 2px solid var(--fft-accent); font-size: var(--fft-fs-m); line-height: 21px; color: var(--fft-text-secondary); }
 .fft-guide[hidden] { display: none; }
-.fft-guide-label { display: block; margin-bottom: 2px; font-size: 11px; line-height: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
-.fft-guide-question { display: block; margin-bottom: 3px; font-size: 14px; line-height: 21px; font-weight: 600; color: var(--fft-text); text-wrap: balance; }
+.fft-guide-label { display: block; margin-bottom: 2px; font-size: var(--fft-fs-s); line-height: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+.fft-guide-question { display: block; margin-bottom: 3px; font-size: var(--fft-fs-m); line-height: 21px; font-weight: 600; color: var(--fft-text); text-wrap: balance; }
 /* The Details side (the info action). While it shows, the front's parts step aside and the back fills the card. */
 .fft-widget[data-side="back"] > :not(.fft-back) { display: none; }
 .fft-widget:has(.fft-action[data-action="info"]) { cursor: pointer; }
 .fft-widget:has(.fft-action[data-action="info"]) :is(a, button, [tabindex]:not([tabindex="-1"])) { cursor: pointer; }
 .fft-back { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 8px; cursor: auto; }
 .fft-back[hidden] { display: none; }
-.fft-back-kicker { margin: 0; font-size: 11px; line-height: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fft-accent); }
-.fft-back-title { margin: 0; font-size: 15px; line-height: 21px; font-weight: 600; color: var(--fft-text); text-wrap: balance; }
-.fft-back-about { margin: 0; font-size: 13px; line-height: 21px; color: var(--fft-text-secondary); }
-.fft-back-list { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 5px 13px; margin: 5px 0; font-size: 13px; line-height: 18px; }
+.fft-back-kicker { margin: 0; font-size: var(--fft-fs-s); line-height: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fft-accent); }
+.fft-back-title { margin: 0; font-size: var(--fft-fs-m); line-height: 21px; font-weight: 600; color: var(--fft-text); text-wrap: balance; }
+.fft-back-about { margin: 0; font-size: var(--fft-fs-m); line-height: 21px; color: var(--fft-text-secondary); }
+.fft-back-list { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 5px 13px; margin: 5px 0; font-size: var(--fft-fs-m); line-height: 18px; }
 .fft-back-term { color: var(--fft-muted); }
 .fft-back-value { margin: 0; color: var(--fft-text); overflow-wrap: anywhere; }
-.fft-back-links { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 3px; font-size: 13px; line-height: 18px; }
+.fft-back-links { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 3px; font-size: var(--fft-fs-m); line-height: 18px; }
 .fft-back-link { color: var(--fft-accent); text-decoration: underline; text-underline-offset: 2px; text-decoration-thickness: 1px; }
 .fft-back-link:hover { text-decoration-thickness: 2px; }
 .fft-back-tools { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 8px; }
-.fft-back-button { font: inherit; font-size: 12px; min-height: 30px; padding: 4px 13px; border-radius: 8px; border: 1px solid var(--fft-border); background: transparent; color: var(--fft-text); cursor: pointer; }
+.fft-back-button { font: inherit; font-size: var(--fft-fs-m); min-height: 30px; padding: 4px 13px; border-radius: var(--fft-radius-l); border: 1px solid var(--fft-border); background: transparent; color: var(--fft-text); cursor: pointer; }
 .fft-back-button:hover { background: var(--fft-grid); }
 .fft-back-button:focus-visible, .fft-back-link:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 2px; }
 @media (max-width: 420px) { .fft-back-list { grid-template-columns: minmax(0, 1fr); gap: 0; } .fft-back-value { margin-bottom: 5px; } }
-.fft-footer { margin: 0; font-size: 11px; line-height: 13px; color: var(--fft-muted); }
+.fft-footer { margin: 0; font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-muted); }
 /* The bottom row: footer at the left, the ghost ref at the right. */
 .fft-base { display: flex; align-items: baseline; gap: 13px; min-width: 0; }
 .fft-base[hidden] { display: none; }
@@ -350,8 +367,8 @@ export const BASE_CSS = `
    so it still reads at 4.5:1; clearer when reached for, a click away from the clipboard. */
 .fft-widget-ref {
   /* Its 5px hit padding tucks into the card's own padding; a cardless look (no side padding) sets --fft-ref-inset to 0. */
-  margin: 0 calc(-1 * var(--fft-ref-inset, 5px)) 0 auto; padding: 2px 5px; border: 0; border-radius: 5px; background: none;
-  font: 400 10px/13px ui-monospace, SFMono-Regular, ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace; letter-spacing: 0.08em;
+  margin: 0 calc(-1 * var(--fft-ref-inset, 5px)) 0 auto; padding: 2px 5px; border: 0; border-radius: var(--fft-radius-m); background: none;
+  font: 400 10px/13px ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace; letter-spacing: 0.08em;
   color: var(--fft-muted); cursor: copy; white-space: nowrap;
   transition: color 233ms var(--fft-ease), background-color 233ms var(--fft-ease);
 }
@@ -362,41 +379,51 @@ export const BASE_CSS = `
 .fft-widget-ref[data-failed] { color: var(--fft-negative); }
 .fft-headline { display: flex; flex-direction: column; gap: 2px; margin-top: -5px; }
 .fft-headline-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; }
-.fft-headline-value { font-size: 34px; line-height: 34px; font-weight: 600; letter-spacing: -0.02em; }
-.fft-widget[data-density="compact"] .fft-headline-value { font-size: 21px; line-height: 21px; }
-.fft-headline .fft-kpi-delta { margin-top: 0; font-size: 11px; }
-.fft-headline-caption { font-size: 11px; line-height: 13px; color: var(--fft-text-secondary); }
+.fft-headline-value { font-size: var(--fft-fs-xl); line-height: 34px; font-weight: 600; letter-spacing: -0.02em; }
+.fft-widget[data-density="compact"] .fft-headline-value { font-size: var(--fft-fs-l); line-height: 21px; }
+.fft-headline .fft-kpi-delta { margin-top: 0; font-size: var(--fft-fs-s); }
+.fft-headline-caption { font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-text-secondary); }
 .fft-area[data-gradient] { fill-opacity: 1; }
 .fft-body { position: relative; min-width: 0; transition: opacity 377ms var(--fft-ease); }
 .fft-widget[aria-busy="true"] .fft-body { opacity: 0.55; }
 .fft-message { margin: 0; padding: 21px 0; text-align: center; color: var(--fft-text-secondary); }
-.fft-message ul { margin: 8px 0 0; padding: 0; list-style: none; text-align: left; font-size: 11px; line-height: 21px; }
+.fft-message ul { margin: 8px 0 0; padding: 0; list-style: none; text-align: left; font-size: var(--fft-fs-s); line-height: 21px; }
 /* Taps show the widget's own highlight and tooltip, so iOS's grey tap flash goes. */
 .fft-widget { --fft-skeleton: color-mix(in srgb, var(--fft-text) 7%, transparent); -webkit-tap-highlight-color: transparent; }
 .fft-widget[data-state="loading"] .fft-message { padding: 0; text-align: left; }
 .fft-skeleton { animation: fft-fade 377ms var(--fft-ease) 233ms both; }
-.fft-skeleton > *, .fft-skel-row > * { animation: fft-pulse 1597ms ease-in-out infinite; }
-.fft-skeleton span { display: block; background: var(--fft-skeleton); border-radius: 4px; }
+.fft-skeleton > *, .fft-skel-row > *, .fft-skel-lane > * { animation: fft-pulse 1597ms ease-in-out infinite; }
+.fft-skeleton span { display: block; background: var(--fft-skeleton); border-radius: var(--fft-radius-m); }
 .fft-skeleton[data-shape="bars"] { display: flex; align-items: flex-end; justify-content: space-around; gap: 8px; padding: 0 13px; box-shadow: inset 0 -1px 0 var(--fft-skeleton); }
-.fft-skeleton[data-shape="bars"] span { width: 21px; border-radius: 4px 4px 0 0; }
+.fft-skeleton[data-shape="bars"] span { width: 21px; border-radius: var(--fft-radius-m) var(--fft-radius-m) 0 0; }
 .fft-skeleton[data-shape="bars"] span:nth-child(2n) { animation-delay: 233ms; }
 .fft-skeleton[data-shape="rows"] .fft-skel-row { display: flex; justify-content: space-between; align-items: center; height: 34px; background: none; border-radius: 0; box-shadow: inset 0 -1px 0 var(--fft-skeleton); animation: none; }
 .fft-skel-row span { height: 8px; }
 .fft-skel-row span:first-child { width: 34%; }
 .fft-skel-row span:last-child { width: 13%; }
 .fft-skeleton[data-shape="stat"] span:first-child { width: 89px; height: 8px; margin: 3px 0 13px; }
-.fft-skeleton[data-shape="stat"] span:last-child { width: 144px; height: 34px; border-radius: 8px; }
+.fft-skeleton[data-shape="stat"] span:last-child { width: 144px; height: 34px; border-radius: var(--fft-radius-l); }
 .fft-skeleton[data-shape="ring"] { display: flex; justify-content: center; align-items: center; }
 .fft-skeleton[data-shape="ring"] span { height: 100%; aspect-ratio: 1; border-radius: 50%; background: none; border: 13px solid var(--fft-skeleton); box-sizing: border-box; }
 .fft-skeleton[data-shape="plot"] svg { display: block; width: 100%; height: 100%; }
 .fft-skeleton[data-shape="plot"] path { fill: var(--fft-skeleton); }
+.fft-skeleton[data-shape="lanes"] { display: flex; flex-direction: column; gap: 13px; padding: 5px 0; }
+.fft-skel-lane { display: flex; align-items: center; gap: 13px; background: none; animation: none; }
+.fft-skel-lane span:first-child { flex: none; width: 21%; height: 8px; }
+.fft-skel-lane span:last-child { height: 13px; border-radius: var(--fft-radius-s); }
+.fft-skeleton[data-shape="grid"] { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; }
+.fft-skeleton[data-shape="grid"] span { aspect-ratio: 2; border-radius: var(--fft-radius-s); }
+.fft-skeleton[data-shape="grid"] span:nth-child(3n) { animation-delay: 233ms; }
+.fft-skeleton[data-shape="map"] { display: grid; grid-template-columns: repeat(7, 21px); grid-auto-rows: 21px; gap: 3px; justify-content: center; align-content: center; }
+.fft-skeleton[data-shape="map"] span { border-radius: var(--fft-radius-s); }
+.fft-skeleton[data-shape="map"] span:nth-child(2n) { animation-delay: 233ms; }
 @keyframes fft-pulse { 50% { opacity: 0.38; } }
 .fft-state-icon { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; margin-bottom: 8px; border-radius: 50%; background: var(--fft-skeleton); color: var(--fft-text-secondary); }
 .fft-state-icon svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
 .fft-state-icon[data-icon="alert"] { color: var(--fft-warning); background: color-mix(in srgb, var(--fft-warning) 13%, transparent); }
-.fft-state-title { margin: 0; color: var(--fft-text); font-size: 13px; font-weight: 600; }
-.fft-state-hint { margin: 3px 0 0; color: var(--fft-text-secondary); font-size: 11px; }
-.fft-widget[data-state="error"] .fft-message ul { max-width: 610px; margin: 13px auto 0; padding: 8px 13px; border-radius: 8px; background: color-mix(in srgb, var(--fft-text) 4%, transparent); font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace; }
+.fft-state-title { margin: 0; color: var(--fft-text); font-size: var(--fft-fs-m); font-weight: 600; }
+.fft-state-hint { margin: 3px 0 0; color: var(--fft-text-secondary); font-size: var(--fft-fs-s); }
+.fft-widget[data-state="error"] .fft-message ul { max-width: 610px; margin: 13px auto 0; padding: 8px 13px; border-radius: var(--fft-radius-l); background: color-mix(in srgb, var(--fft-text) 4%, transparent); font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace; }
 .fft-message li { overflow-wrap: anywhere; }
 .fft-sr-only {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
@@ -409,26 +436,26 @@ export const BASE_CSS = `
   --fft-tip-bg: var(--fft-popover, var(--fft-surface));
   min-width: 144px; max-width: 233px; padding: 8px 13px;
   background: var(--fft-tip-bg); color: var(--fft-text);
-  border: 1px solid var(--fft-border); border-radius: 8px;
+  border: 1px solid var(--fft-border); border-radius: var(--fft-radius-l);
   box-shadow: 0 5px 21px rgba(0, 0, 0, 0.13);
-  font-size: 11px; line-height: 21px;
+  font-size: var(--fft-fs-s); line-height: 21px;
   transform: translate(-50%, calc(-100% - 8px));
 }
 .fft-tooltip[data-placement="below"] { transform: translate(-50%, 8px); }
 .fft-tooltip-title { color: var(--fft-text-secondary); }
 .fft-tooltip-row { display: flex; align-items: center; gap: 8px; }
-.fft-tooltip-key { flex: none; width: 13px; height: 2px; border-radius: 1px; }
-.fft-tooltip-value { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.fft-tooltip-key { flex: none; width: 13px; height: 2px; border-radius: var(--fft-radius-s); }
+.fft-tooltip-value { font-size: var(--fft-fs-m); font-weight: 600; font-variant-numeric: tabular-nums; }
 .fft-tooltip-label { color: var(--fft-text-secondary); }
 
 .fft-table-wrap { max-width: 100%; overflow-x: auto; }
 /* More columns to the right: that edge fades out, a cue to swipe. Only the right edge, so the first column always reads. */
-.fft-table-wrap:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 2px; border-radius: 5px; }
+.fft-table-wrap:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 2px; border-radius: var(--fft-radius-m); }
 .fft-table-wrap[data-more] { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 34px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 34px), transparent); }
 .fft-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
 .fft-table th {
   padding: 5px 8px; text-align: left; white-space: nowrap;
-  font-size: 11px; font-weight: 500; letter-spacing: 0.02em; color: var(--fft-text-secondary);
+  font-size: var(--fft-fs-s); font-weight: 500; letter-spacing: 0.02em; color: var(--fft-text-secondary);
   border-bottom: 1px solid var(--fft-axis);
 }
 .fft-table td { padding: 8px; border-bottom: 1px solid var(--fft-grid); }
@@ -443,7 +470,7 @@ export const BASE_CSS = `
 .fft-list { margin: 0; padding: 0; list-style: none; }
 .fft-item {
   display: flex; align-items: center; justify-content: space-between; gap: 13px;
-  padding: 8px 5px; border-bottom: 1px solid var(--fft-grid); border-radius: 5px;
+  padding: 8px 5px; border-bottom: 1px solid var(--fft-grid); border-radius: var(--fft-radius-m);
   transition: background 377ms var(--fft-ease);
 }
 .fft-widget[data-density="compact"] .fft-item { padding: 5px; }
@@ -451,22 +478,22 @@ export const BASE_CSS = `
 .fft-item:hover, .fft-item:focus-visible { background: color-mix(in srgb, var(--fft-accent) 7%, transparent); outline: none; }
 .fft-item-text { display: flex; flex-direction: column; min-width: 0; }
 .fft-item-label { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.fft-item-detail { font-size: 11px; line-height: 13px; color: var(--fft-text-secondary); }
+.fft-item-detail { font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-text-secondary); }
 .fft-item-value { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 .fft-kpi { position: relative; display: flex; flex-direction: column; gap: 3px; }
 .fft-kpi-icon {
-  position: absolute; top: 0; right: 0; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 8px;
+  position: absolute; top: 0; right: 0; width: 34px; height: 34px; display: grid; place-items: center; border-radius: var(--fft-radius-l);
   color: var(--fft-accent); background: color-mix(in srgb, var(--fft-accent) 13%, transparent);
 }
 .fft-kpi-icon svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .fft-facet-legend { margin-bottom: 13px; }
 .fft-facets { display: grid; gap: 13px; }
 .fft-facet { min-width: 0; padding: 8px 0 0; border-top: 1px solid var(--fft-grid); }
-.fft-facet-title { margin: 0 0 5px; font-size: 11px; line-height: 13px; font-weight: 600; color: var(--fft-text-secondary); }
+.fft-facet-title { margin: 0 0 5px; font-size: var(--fft-fs-s); line-height: 13px; font-weight: 600; color: var(--fft-text-secondary); }
 .fft-kpi-label { color: var(--fft-text-secondary); }
-.fft-kpi-value { font-size: 34px; line-height: 34px; font-weight: 600; letter-spacing: -0.02em; }
-.fft-widget[data-density="compact"] .fft-kpi-value { font-size: 21px; line-height: 21px; }
+.fft-kpi-value { font-size: var(--fft-fs-xl); line-height: 34px; font-weight: 600; letter-spacing: -0.02em; }
+.fft-widget[data-density="compact"] .fft-kpi-value { font-size: var(--fft-fs-l); line-height: 21px; }
 .fft-kpi-delta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 5px; margin-top: 5px; font-weight: 500; }
 .fft-kpi-delta[data-sentiment="good"] .fft-kpi-change { color: var(--fft-positive); }
 .fft-kpi-delta[data-sentiment="bad"] .fft-kpi-change { color: var(--fft-negative); }
@@ -478,30 +505,30 @@ export const BASE_CSS = `
 .fft-stat > .fft-sparkline { margin-top: auto; padding-top: 5px; }
 .fft-stat:first-child { padding-left: 0; border-left: 0; }
 .fft-stat-label { color: var(--fft-text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.fft-stat-value { font-size: 34px; line-height: 34px; font-weight: 600; letter-spacing: -0.02em; }
-.fft-widget[data-density="compact"] .fft-stat-value { font-size: 21px; line-height: 21px; }
-.fft-stat .fft-kpi-delta { margin-top: 3px; font-size: 11px; }
+.fft-stat-value { font-size: var(--fft-fs-xl); line-height: 34px; font-weight: 600; letter-spacing: -0.02em; }
+.fft-widget[data-density="compact"] .fft-stat-value { font-size: var(--fft-fs-l); line-height: 21px; }
+.fft-stat .fft-kpi-delta { margin-top: 3px; font-size: var(--fft-fs-s); }
 .fft-spark-line { fill: none; stroke: color-mix(in srgb, var(--fft-muted) 70%, transparent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 .fft-spark-end { fill: var(--fft-accent); stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 2; }
 
 .fft-meters { display: flex; flex-direction: column; gap: 13px; }
-.fft-meter { display: flex; flex-direction: column; gap: 5px; border-radius: 5px; outline: none; }
+.fft-meter { display: flex; flex-direction: column; gap: 5px; border-radius: var(--fft-radius-m); outline: none; }
 .fft-meter:focus-visible { box-shadow: 0 0 0 2px var(--fft-ring, var(--fft-surface)), 0 0 0 3px var(--fft-accent); }
 .fft-meter-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .fft-meter-label { font-weight: 500; }
 .fft-meter-percent { display: inline-flex; align-items: center; gap: 3px; font-weight: 600; font-variant-numeric: tabular-nums; }
-.fft-meter-track { height: 8px; border-radius: 5px; background: color-mix(in srgb, var(--fft-accent) 16%, transparent); overflow: hidden; }
-.fft-meter-fill { height: 100%; border-radius: 5px; background: var(--fft-accent); transform-origin: 0 50%; }
-.fft-meter-value { font-size: 11px; line-height: 13px; color: var(--fft-muted); font-variant-numeric: tabular-nums; }
+.fft-meter-track { height: 8px; border-radius: var(--fft-radius-m); background: color-mix(in srgb, var(--fft-accent) 16%, transparent); overflow: hidden; }
+.fft-meter-fill { height: 100%; border-radius: var(--fft-radius-m); background: var(--fft-accent); transform-origin: 0 50%; }
+.fft-meter-value { font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-muted); font-variant-numeric: tabular-nums; }
 /* Where each meter stands, in target words: how far to go, or a met target in the positive color with a check. */
 .fft-meter-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-.fft-meter-gap { font-size: 11px; line-height: 13px; color: var(--fft-text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.fft-meter-gap { font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .fft-meter[data-met] .fft-meter-gap { color: var(--fft-positive); font-weight: 600; }
 /* Where a headline number stands against its target, under its change. */
-.fft-kpi-target, .fft-stat-target { display: flex; align-items: center; gap: 3px; font-size: 11px; line-height: 13px; color: var(--fft-text-secondary); font-variant-numeric: tabular-nums; }
+.fft-kpi-target, .fft-stat-target { display: flex; align-items: center; gap: 3px; font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-text-secondary); font-variant-numeric: tabular-nums; }
 :is(.fft-kpi-target, .fft-stat-target)[data-met] { color: var(--fft-positive); font-weight: 600; }
 /* Where a gauge's number stands against its goal, centered under the arc. */
-.fft-gauge-standing { display: flex; align-items: center; justify-content: center; gap: 3px; margin: 0; font-size: 13px; line-height: 21px; color: var(--fft-text-secondary); font-variant-numeric: tabular-nums; }
+.fft-gauge-standing { display: flex; align-items: center; justify-content: center; gap: 3px; margin: 0; font-size: var(--fft-fs-m); line-height: 21px; color: var(--fft-text-secondary); font-variant-numeric: tabular-nums; }
 .fft-gauge-standing[data-met] { color: var(--fft-positive); font-weight: 600; }
 /* A met target's check mark, beside its percentage in meters and rings, and before Target met under a gauge. */
 .fft-check { flex: none; width: 13px; height: 13px; fill: none; stroke: var(--fft-positive); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
@@ -511,43 +538,43 @@ export const BASE_CSS = `
 .fft-donut-figure svg { display: block; overflow: visible; }
 .fft-donut-track { fill: none; stroke: var(--fft-grid); }
 .fft-slice { fill: none; transition: opacity 377ms var(--fft-ease); pointer-events: none; }
-.fft-donut[data-active] .fft-slice:not([data-active]) { opacity: 0.38; }
+.fft-donut[data-active] .fft-slice:not([data-active]) { opacity: var(--fft-dim); }
 .fft-slice-hit { fill: none; stroke: transparent; cursor: pointer; outline: none; }
 .fft-slice-hit:focus-visible { stroke: color-mix(in srgb, var(--fft-accent) 12%, transparent); }
 .fft-donut-center {
   position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
   pointer-events: none; text-align: center;
 }
-.fft-donut-total { font-size: 21px; line-height: 21px; font-weight: 600; letter-spacing: -0.01em; }
-.fft-donut-figure[style*="233px"] .fft-donut-total { font-size: 34px; line-height: 34px; }
+.fft-donut-total { font-size: var(--fft-fs-l); line-height: 21px; font-weight: 600; letter-spacing: -0.01em; }
+.fft-donut-figure[style*="233px"] .fft-donut-total { font-size: var(--fft-fs-xl); line-height: 34px; }
 .fft-donut-figure[style*="377px"] .fft-donut-total { font-size: 55px; line-height: 55px; }
-.fft-donut-figure[style*="377px"] .fft-donut-caption { font-size: 13px; line-height: 21px; }
-.fft-donut-caption { margin-top: 3px; font-size: 11px; line-height: 13px; color: var(--fft-text-secondary); }
+.fft-donut-figure[style*="377px"] .fft-donut-caption { font-size: var(--fft-fs-m); line-height: 21px; }
+.fft-donut-caption { margin-top: 3px; font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-text-secondary); }
 .fft-donut-legend { flex: 1 1 144px; min-width: 144px; max-width: 377px; margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
 .fft-donut-legend li {
   display: grid; grid-template-columns: 8px 1fr auto; grid-template-areas: "dot name name" ". value share";
   align-items: center; column-gap: 8px;
 }
 .fft-donut-legend .fft-swatch { grid-area: dot; }
-.fft-donut-name { grid-area: name; font-size: 11px; line-height: 13px; color: var(--fft-text-secondary); overflow-wrap: anywhere; }
+.fft-donut-name { grid-area: name; font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-text-secondary); overflow-wrap: anywhere; }
 .fft-donut-value { grid-area: value; font-weight: 600; font-variant-numeric: tabular-nums; }
-.fft-donut-share { grid-area: share; text-align: right; font-size: 11px; color: var(--fft-muted); font-variant-numeric: tabular-nums; }
+.fft-donut-share { grid-area: share; text-align: right; font-size: var(--fft-fs-s); color: var(--fft-muted); font-variant-numeric: tabular-nums; }
 .fft-donut-figure[data-arc="half"] .fft-donut-center { justify-content: flex-end; padding-bottom: 1px; }
 .fft-donut-majority { stroke: var(--fft-text); stroke-width: 1.5; pointer-events: none; }
-.fft-donut-majority-label { fill: var(--fft-text-secondary); font-size: 11px; }
+.fft-donut-majority-label { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); }
 .fft-pie-slice { stroke: var(--fft-surface); stroke-width: 2; stroke-linejoin: round; cursor: pointer; outline: none; transition: opacity 377ms var(--fft-ease); }
-.fft-pie[data-active] .fft-pie-slice:not([data-active]) { opacity: 0.38; }
+.fft-pie[data-active] .fft-pie-slice:not([data-active]) { opacity: var(--fft-dim); }
 .fft-pie-slice:focus-visible { stroke: var(--fft-accent); stroke-width: 3; }
-.fft-pie-label { fill: #fff; font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; paint-order: stroke; stroke: rgba(0, 0, 0, 0.35); stroke-width: 2px; stroke-linejoin: round; }
+.fft-pie-label { fill: #fff; font-size: var(--fft-fs-s); font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; paint-order: stroke; stroke: rgba(0, 0, 0, 0.35); stroke-width: 2px; stroke-linejoin: round; }
 .fft-pie-leader { fill: none; stroke: var(--fft-axis); stroke-width: 1; pointer-events: none; }
-.fft-pie-name { fill: var(--fft-text); font-size: 11px; pointer-events: none; }
+.fft-pie-name { fill: var(--fft-text); font-size: var(--fft-fs-s); pointer-events: none; }
 .fft-pie-name-share { fill: var(--fft-text-secondary); font-variant-numeric: tabular-nums; }
 
 .fft-rings { display: flex; flex-wrap: wrap; align-items: center; gap: 21px; }
 .fft-rings-figure { flex: none; }
 .fft-rings-figure svg { display: block; overflow: visible; }
 .fft-ring { transition: opacity 377ms var(--fft-ease); }
-.fft-rings[data-active] .fft-ring:not([data-active]) { opacity: 0.38; }
+.fft-rings[data-active] .fft-ring:not([data-active]) { opacity: var(--fft-dim); }
 .fft-ring-track { fill: none; stroke: var(--fft-ring-color); stroke-opacity: 0.16; }
 .fft-ring-arc, .fft-ring-lap { fill: none; stroke: var(--fft-ring-color); stroke-linecap: round; pointer-events: none; }
 .fft-ring-lap { filter: brightness(1.18) drop-shadow(0 0 3px rgba(0, 0, 0, 0.5)); }
@@ -556,38 +583,38 @@ export const BASE_CSS = `
 .fft-rings-legend { flex: 1 1 144px; min-width: 144px; max-width: 377px; margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 13px; }
 .fft-rings-legend li { display: grid; grid-template-columns: 8px 1fr auto; grid-template-areas: "dot name percent" ". value value" ". gap gap"; align-items: baseline; column-gap: 8px; }
 .fft-rings-legend .fft-swatch { grid-area: dot; align-self: center; }
-.fft-rings-name { grid-area: name; font-size: 11px; color: var(--fft-text-secondary); }
-.fft-rings-percent { grid-area: percent; display: inline-flex; align-items: center; gap: 3px; justify-self: end; font-size: 21px; line-height: 21px; font-weight: 600; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
-.fft-rings-value { grid-area: value; font-size: 11px; color: var(--fft-muted); font-variant-numeric: tabular-nums; }
-.fft-rings-gap { grid-area: gap; font-size: 11px; color: var(--fft-text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.fft-rings-name { grid-area: name; font-size: var(--fft-fs-s); color: var(--fft-text-secondary); }
+.fft-rings-percent { grid-area: percent; display: inline-flex; align-items: center; gap: 3px; justify-self: end; font-size: var(--fft-fs-l); line-height: 21px; font-weight: 600; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.fft-rings-value { grid-area: value; font-size: var(--fft-fs-s); color: var(--fft-muted); font-variant-numeric: tabular-nums; }
+.fft-rings-gap { grid-area: gap; font-size: var(--fft-fs-s); color: var(--fft-text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .fft-rings-legend li[data-met] .fft-rings-gap { color: var(--fft-positive); font-weight: 600; }
 .fft-gantt { transition: opacity 377ms var(--fft-ease); }
-.fft-chart[data-active] .fft-gantt:not([data-active]) { opacity: 0.38; }
-.fft-gantt-label { fill: var(--fft-text-secondary); font-size: 11px; pointer-events: none; }
+.fft-chart[data-active] .fft-gantt:not([data-active]) { opacity: var(--fft-dim); }
+.fft-gantt-label { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); pointer-events: none; }
 .fft-gantt[data-active] .fft-gantt-label { fill: var(--fft-text); }
 .fft-gantt-bar { pointer-events: none; transform-box: fill-box; transform-origin: 0 50%; }
 .fft-gantt-bar[data-tracked] { fill-opacity: 0.3; }
 .fft-gantt-done { pointer-events: none; transform-box: fill-box; transform-origin: 0 50%; }
-.fft-gantt-progress { fill: var(--fft-text-secondary); font-size: 11px; font-variant-numeric: tabular-nums; pointer-events: none; }
+.fft-gantt-progress { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); font-variant-numeric: tabular-nums; pointer-events: none; }
 .fft-gantt-milestone { stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 2; pointer-events: none; }
-.fft-gantt-tick { font-size: 11px; }
+.fft-gantt-tick { font-size: var(--fft-fs-s); }
 .fft-gantt-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-gantt-hit:hover, .fft-gantt-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 6%, transparent); }
 .fft-gantt-today { stroke: var(--fft-accent); stroke-width: 1.5; pointer-events: none; }
-.fft-gantt-today-label { fill: var(--fft-accent); font-size: 11px; font-weight: 600; pointer-events: none; }
+.fft-gantt-today-label { fill: var(--fft-accent); font-size: var(--fft-fs-s); font-weight: 600; pointer-events: none; }
 .fft-waffle { display: flex; flex-wrap: wrap; align-items: center; gap: 21px; }
 .fft-waffle > svg { display: block; flex: none; }
 .fft-waffle-group { transition: opacity 377ms var(--fft-ease); }
-.fft-waffle[data-active] .fft-waffle-group:not([data-active]) { opacity: 0.25; }
+.fft-waffle[data-active] .fft-waffle-group:not([data-active]) { opacity: var(--fft-dim-strong); }
 .fft-waffle-cell { cursor: pointer; }
 .fft-waffle-empty { fill: color-mix(in srgb, var(--fft-text) 7%, transparent); }
 .fft-waffle-legend { flex: 1 1 144px; min-width: 144px; max-width: 377px; margin: 0 5px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
-.fft-waffle-legend li { display: grid; grid-template-columns: 8px 1fr auto; grid-template-areas: "dot name name" ". value share"; align-items: center; column-gap: 8px; padding: 3px 5px; margin: -3px -5px; border-radius: 6px; cursor: pointer; outline: none; }
+.fft-waffle-legend li { display: grid; grid-template-columns: 8px 1fr auto; grid-template-areas: "dot name name" ". value share"; align-items: center; column-gap: 8px; padding: 3px 5px; margin: -3px -5px; border-radius: var(--fft-radius-m); cursor: pointer; outline: none; }
 .fft-waffle-legend li:hover, .fft-waffle-legend li:focus-visible { background: color-mix(in srgb, var(--fft-accent) 8%, transparent); }
 .fft-waffle-legend .fft-swatch { grid-area: dot; }
-.fft-waffle-name { grid-area: name; font-size: 11px; color: var(--fft-text-secondary); }
+.fft-waffle-name { grid-area: name; font-size: var(--fft-fs-s); color: var(--fft-text-secondary); }
 .fft-waffle-value { grid-area: value; font-weight: 600; font-variant-numeric: tabular-nums; }
-.fft-waffle-share { grid-area: share; text-align: right; font-size: 11px; color: var(--fft-muted); font-variant-numeric: tabular-nums; }
+.fft-waffle-share { grid-area: share; text-align: right; font-size: var(--fft-fs-s); color: var(--fft-muted); font-variant-numeric: tabular-nums; }
 /* Ring, rings and waffle on a narrow card (a phone): the legend drops under the figure, so the figure centers and
    each legend entry tightens to one line, name then value then share, instead of two loose rows with the share
    stranded at the far edge. */
@@ -597,20 +624,20 @@ export const BASE_CSS = `
   .fft-donut-legend, .fft-rings-legend, .fft-waffle-legend { flex: 1 1 100%; max-width: none; gap: 5px; }
   .fft-donut-legend li, .fft-waffle-legend li { grid-template-columns: 8px minmax(0, 1fr) auto 34px; grid-template-areas: "dot name value share"; align-items: baseline; }
   .fft-donut-legend .fft-swatch, .fft-waffle-legend .fft-swatch { align-self: center; }
-  .fft-donut-name, .fft-waffle-name { font-size: 13px; line-height: 21px; }
+  .fft-donut-name, .fft-waffle-name { font-size: var(--fft-fs-m); line-height: 21px; }
   .fft-rings-legend li { grid-template-areas: "dot name percent" ". value gap"; row-gap: 0; }
-  .fft-rings-name { font-size: 13px; line-height: 21px; }
-  .fft-rings-percent { font-size: 17px; line-height: 21px; }
+  .fft-rings-name { font-size: var(--fft-fs-m); line-height: 21px; }
+  .fft-rings-percent { font-size: var(--fft-fs-l); line-height: 21px; }
   .fft-rings-gap { justify-self: end; }
 }
 .fft-var { --fft-var-color: var(--fft-muted); transition: opacity 377ms var(--fft-ease); }
 .fft-var[data-tone="good"] { --fft-var-color: var(--fft-up); }
 .fft-var[data-tone="bad"] { --fft-var-color: var(--fft-down); }
-.fft-chart[data-active] .fft-var:not([data-active]) { opacity: 0.38; }
+.fft-chart[data-active] .fft-var:not([data-active]) { opacity: var(--fft-dim); }
 .fft-var-bar { fill: var(--fft-var-color); pointer-events: none; transform-box: fill-box; }
-.fft-var-label { fill: var(--fft-text-secondary); font-size: 11px; pointer-events: none; }
+.fft-var-label { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); pointer-events: none; }
 .fft-var[data-active] .fft-var-label { fill: var(--fft-text); }
-.fft-var-value { fill: var(--fft-text); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; }
+.fft-var-value { fill: var(--fft-text); font-size: var(--fft-fs-s); font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; }
 .fft-var-zero { stroke: var(--fft-text-secondary); stroke-width: 1.5; pointer-events: none; }
 .fft-var-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-var-hit:hover, .fft-var-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 6%, transparent); }
@@ -619,18 +646,18 @@ export const BASE_CSS = `
 .fft-gauge-track { fill: none; stroke: var(--fft-gauge-color); stroke-opacity: 0.16; stroke-linecap: round; }
 .fft-gauge-arc { fill: none; stroke: var(--fft-gauge-color); stroke-linecap: round; pointer-events: none; }
 .fft-gauge-target { stroke: var(--fft-text); stroke-width: 2.5; stroke-linecap: round; pointer-events: none; }
-.fft-gauge-value { fill: var(--fft-text); font-size: 34px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; pointer-events: none; }
+.fft-gauge-value { fill: var(--fft-text); font-size: var(--fft-fs-xl); font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; pointer-events: none; }
 .fft-gauge > svg[width="377"] .fft-gauge-value { font-size: 55px; }
-.fft-gauge-caption { fill: var(--fft-text-secondary); font-size: 11px; pointer-events: none; }
-.fft-gauge-scale { fill: var(--fft-muted); font-size: 11px; font-variant-numeric: tabular-nums; pointer-events: none; }
-.fft-gauge-goal { fill: var(--fft-text-secondary); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; }
+.fft-gauge-caption { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); pointer-events: none; }
+.fft-gauge-scale { fill: var(--fft-muted); font-size: var(--fft-fs-s); font-variant-numeric: tabular-nums; pointer-events: none; }
+.fft-gauge-goal { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; }
 .fft-gauge-hit { fill: none; stroke: transparent; stroke-linecap: round; cursor: pointer; outline: none; pointer-events: stroke; }
 .fft-gauge-hit:focus-visible { stroke: color-mix(in srgb, var(--fft-accent) 16%, transparent); }
 .fft-pareto-line { fill: none; stroke: var(--fft-text-secondary); stroke-width: 2; stroke-linejoin: round; pointer-events: none; }
 .fft-pareto-dot { fill: var(--fft-text-secondary); stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 2; pointer-events: none; }
 .fft-box { transition: opacity 377ms var(--fft-ease); }
-.fft-chart[data-active] .fft-box:not([data-active]) { opacity: 0.38; }
-.fft-box-label { fill: var(--fft-text-secondary); font-size: 11px; pointer-events: none; }
+.fft-chart[data-active] .fft-box:not([data-active]) { opacity: var(--fft-dim); }
+.fft-box-label { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); pointer-events: none; }
 .fft-box[data-active] .fft-box-label { fill: var(--fft-text); }
 .fft-box-whisker { stroke: var(--fft-text-secondary); stroke-width: 1.5; stroke-linecap: round; pointer-events: none; }
 .fft-box-body { fill: var(--fft-box-color); fill-opacity: 0.2; stroke: var(--fft-box-color); stroke-width: 1.5; pointer-events: none; }
@@ -639,15 +666,15 @@ export const BASE_CSS = `
 .fft-box-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-box-hit:hover, .fft-box-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 6%, transparent); }
 .fft-likert-seg { pointer-events: none; transition: opacity 377ms var(--fft-ease); }
-.fft-chart[data-active] .fft-likert-seg:not([data-active]) { opacity: 0.25; }
-.fft-likert-question { fill: var(--fft-text); font-size: 11px; font-weight: 600; pointer-events: none; }
-.fft-likert-end { fill: var(--fft-text-secondary); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; }
+.fft-chart[data-active] .fft-likert-seg:not([data-active]) { opacity: var(--fft-dim-strong); }
+.fft-likert-question { fill: var(--fft-text); font-size: var(--fft-fs-s); font-weight: 600; pointer-events: none; }
+.fft-likert-end { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; }
 .fft-likert-center { stroke: var(--fft-text-secondary); stroke-width: 1.5; pointer-events: none; }
 .fft-likert-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-likert-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 8%, transparent); }
 .fft-candle { --fft-candle-color: var(--fft-up); transition: opacity 377ms var(--fft-ease); }
 .fft-candle[data-tone="down"] { --fft-candle-color: var(--fft-down); }
-.fft-chart[data-active] .fft-candle:not([data-active]) { opacity: 0.38; }
+.fft-chart[data-active] .fft-candle:not([data-active]) { opacity: var(--fft-dim); }
 .fft-candle-wick { stroke: var(--fft-candle-color); stroke-width: 1.5; pointer-events: none; }
 .fft-candle-body { fill: var(--fft-candle-color); pointer-events: none; }
 /* Up candles are hollow, down candles filled: direction reads without color (WCAG 1.4.1). */
@@ -656,7 +683,7 @@ export const BASE_CSS = `
 .fft-candle-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-candle-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 8%, transparent); }
 .fft-sun-seg { stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 1.5; pointer-events: none; transition: opacity 377ms var(--fft-ease); }
-.fft-sun[data-active] .fft-sun-seg:not([data-active]) { opacity: 0.25; }
+.fft-sun[data-active] .fft-sun-seg:not([data-active]) { opacity: var(--fft-dim-strong); }
 .fft-sun .fft-donut-center { padding: 0 25%; }
 .fft-sun .fft-donut-caption { overflow-wrap: anywhere; }
 .fft-sun-hit { fill: transparent; cursor: pointer; outline: none; }
@@ -665,14 +692,14 @@ export const BASE_CSS = `
 .fft-chord[data-active] .fft-chord-ribbon { fill-opacity: 0.08; }
 .fft-chord[data-active] .fft-chord-ribbon[data-active] { fill-opacity: 0.72; }
 .fft-chord-arc { pointer-events: none; }
-.fft-chord-label { fill: var(--fft-text-secondary); font-size: 11px; pointer-events: none; }
+.fft-chord-label { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); pointer-events: none; }
 .fft-chord-hit, .fft-chord-arc-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-chord-hit:focus-visible, .fft-chord-arc-hit:focus-visible { stroke: var(--fft-accent); stroke-width: 2; }
 .fft-radar-ring { fill: none; stroke: var(--fft-grid); stroke-width: 1; pointer-events: none; }
 .fft-radar-spoke { stroke: var(--fft-grid); stroke-width: 1; pointer-events: none; transition: stroke 233ms var(--fft-ease); }
 .fft-radar-spoke[data-active] { stroke: var(--fft-text-secondary); stroke-width: 1.5; }
-.fft-radar-tick { fill: var(--fft-muted); font-size: 10px; font-variant-numeric: tabular-nums; pointer-events: none; }
-.fft-radar-axis { fill: var(--fft-text-secondary); font-size: 11px; pointer-events: none; }
+.fft-radar-tick { fill: var(--fft-muted); font-size: var(--fft-fs-xs); font-variant-numeric: tabular-nums; pointer-events: none; }
+.fft-radar-axis { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); pointer-events: none; }
 .fft-radar-shape { fill: var(--fft-radar-color); fill-opacity: 0.16; stroke: var(--fft-radar-color); stroke-width: 2; stroke-linejoin: round; pointer-events: none; }
 .fft-radar-dot { stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 1.5; pointer-events: none; }
 .fft-radar-hit { fill: transparent; cursor: pointer; outline: none; }
@@ -682,36 +709,36 @@ export const BASE_CSS = `
 .fft-ice { pointer-events: none; }
 .fft-ice[data-root] { fill: var(--fft-text); fill-opacity: 0.06; }
 .fft-ice-edge { pointer-events: none; }
-.fft-ice-name { fill: var(--fft-text); font-size: 11px; font-weight: 600; pointer-events: none; }
-.fft-ice-value { fill: var(--fft-text-secondary); font-size: 11px; font-variant-numeric: tabular-nums; pointer-events: none; }
-.fft-icicle[data-active] .fft-ice-cell:not([data-active]) { opacity: 0.38; }
+.fft-ice-name { fill: var(--fft-text); font-size: var(--fft-fs-s); font-weight: 600; pointer-events: none; }
+.fft-ice-value { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); font-variant-numeric: tabular-nums; pointer-events: none; }
+.fft-icicle[data-active] .fft-ice-cell:not([data-active]) { opacity: var(--fft-dim); }
 .fft-ice-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-ice-hit:focus-visible { stroke: var(--fft-accent); stroke-width: 2; }
 /* Horizon: thin rows on a faint track, bands deepening with distance, a compact key above. */
-.fft-horizon-key { display: flex; flex-wrap: wrap; align-items: center; gap: 5px 13px; margin-bottom: 8px; font-size: 11px; line-height: 13px; color: var(--fft-text-secondary); }
+.fft-horizon-key { display: flex; flex-wrap: wrap; align-items: center; gap: 5px 13px; margin-bottom: 8px; font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-text-secondary); }
 .fft-horizon-ramp { display: inline-flex; gap: 1px; margin-left: -8px; }
-.fft-horizon-swatch { width: 13px; height: 8px; border-radius: 2px; }
+.fft-horizon-swatch { width: 13px; height: 8px; border-radius: var(--fft-radius-s); }
 .fft-horizon-track { fill: color-mix(in srgb, var(--fft-text) 3%, transparent); pointer-events: none; }
 .fft-horizon-band { stroke: none; pointer-events: none; }
-.fft-horizon-label { fill: var(--fft-text-secondary); font-size: 11px; pointer-events: none; }
+.fft-horizon-label { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); pointer-events: none; }
 .fft-horizon-hit { fill: transparent; outline: none; cursor: pointer; }
 .fft-horizon-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 6%, transparent); }
 /* Rose: hairline rings, wedges parted by the card color, the pointed wedge kept while the rest step back. */
 .fft-rose-ring { fill: none; stroke: var(--fft-grid); stroke-width: 1; pointer-events: none; }
 .fft-rose-seg { fill-opacity: 0.88; stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 1.5; stroke-linejoin: round; pointer-events: none; transition: opacity 377ms var(--fft-ease); }
-.fft-rose[data-active] .fft-rose-wedge:not([data-active]) .fft-rose-seg { opacity: 0.32; }
-.fft-rose-tick { fill: var(--fft-muted); font-size: 10px; font-variant-numeric: tabular-nums; paint-order: stroke; stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 3; stroke-linejoin: round; pointer-events: none; transition: opacity 233ms var(--fft-ease); }
+.fft-rose[data-active] .fft-rose-wedge:not([data-active]) .fft-rose-seg { opacity: var(--fft-dim); }
+.fft-rose-tick { fill: var(--fft-muted); font-size: var(--fft-fs-xs); font-variant-numeric: tabular-nums; paint-order: stroke; stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 3; stroke-linejoin: round; pointer-events: none; transition: opacity 233ms var(--fft-ease); }
 /* While a wedge is pointed at, its tooltip carries the exact numbers: the scale steps back, so nothing sits under the tooltip. */
 .fft-rose[data-active] .fft-rose-tick { opacity: 0; }
 .fft-rose-anchor { fill: none; stroke: none; pointer-events: none; }
-.fft-rose-axis { fill: var(--fft-text-secondary); font-size: 11px; font-variant-numeric: tabular-nums; pointer-events: none; }
+.fft-rose-axis { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); font-variant-numeric: tabular-nums; pointer-events: none; }
 .fft-rose-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-rose-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 6%, transparent); }
 .fft-point-bubble { fill-opacity: 0.62; stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 1.5; }
 .fft-scatter-size { color: var(--fft-muted); }
 .fft-cell-bar { display: inline-grid; grid-template-columns: minmax(34px, 89px) auto; align-items: center; gap: 8px; width: 100%; justify-content: end; }
-.fft-cell-bar-track { display: block; height: 8px; border-radius: 2px; background: color-mix(in srgb, var(--fft-accent) 12%, transparent); overflow: hidden; }
-.fft-cell-bar-fill { display: block; height: 100%; border-radius: 2px; background: var(--fft-accent); transform-origin: 0 50%; }
+.fft-cell-bar-track { display: block; height: 8px; border-radius: var(--fft-radius-s); background: color-mix(in srgb, var(--fft-accent) 12%, transparent); overflow: hidden; }
+.fft-cell-bar-fill { display: block; height: 100%; border-radius: var(--fft-radius-s); background: var(--fft-accent); transform-origin: 0 50%; }
 .fft-cell-bar[data-negative] .fft-cell-bar-fill { background: var(--fft-down); }
 .fft-cell-bar-value { font-variant-numeric: tabular-nums; text-align: right; min-width: 55px; }
 /* A narrow table keeps the numbers and lets the bars go, rather than scroll sideways. */
@@ -723,8 +750,8 @@ export const BASE_CSS = `
   .fft-table :is(th, td):first-child { padding-left: 0; }
   .fft-table :is(th, td):last-child { padding-right: 0; }
 }
-.fft-sort { all: unset; display: inline-flex; align-items: center; gap: 3px; cursor: pointer; border-radius: 3px; }
-.fft-sort::after { content: ""; width: 8px; font-size: 10px; line-height: 1; opacity: 0.38; }
+.fft-sort { all: unset; display: inline-flex; align-items: center; gap: 3px; cursor: pointer; border-radius: var(--fft-radius-m); }
+.fft-sort::after { content: ""; width: 8px; font-size: var(--fft-fs-xs); line-height: 1; opacity: 0.38; }
 th[aria-sort="ascending"] .fft-sort::after { content: "▲"; opacity: 1; }
 th[aria-sort="descending"] .fft-sort::after { content: "▼"; opacity: 1; }
 th:not([aria-sort]) .fft-sort:hover::after { content: "▲"; }
@@ -735,7 +762,7 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-delta-cell[data-tone="good"] { color: var(--fft-positive); }
 .fft-delta-cell[data-tone="bad"] { color: var(--fft-negative); }
 .fft-delta-arrow { font-size: 0.75em; }
-.fft-heat-cell { display: inline-block; min-width: 55px; padding: 2px 8px; border-radius: 3px; text-align: right; font-variant-numeric: tabular-nums; }
+.fft-heat-cell { display: inline-block; min-width: 55px; padding: 2px 8px; border-radius: var(--fft-radius-s); text-align: right; font-variant-numeric: tabular-nums; }
 .fft-heat-cell[data-step="1"] { background: var(--fft-seq-1); color: var(--fft-seq-text-1); }
 .fft-heat-cell[data-step="2"] { background: var(--fft-seq-2); color: var(--fft-seq-text-2); }
 .fft-heat-cell[data-step="3"] { background: var(--fft-seq-3); color: var(--fft-seq-text-3); }
@@ -746,35 +773,35 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-hbars { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
 .fft-hbar {
   display: grid; grid-template-columns: minmax(55px, 38%) 1fr minmax(34px, auto); align-items: center; gap: 8px;
-  border-radius: 5px; outline: none; cursor: pointer;
+  border-radius: var(--fft-radius-m); outline: none; cursor: pointer;
 }
 .fft-hbar:focus-visible { box-shadow: 0 0 0 2px var(--fft-ring, var(--fft-surface)), 0 0 0 3px var(--fft-accent); }
 .fft-hbar-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--fft-text-secondary); }
 .fft-hbar-track { height: 13px; }
-.fft-hbar-fill { height: 100%; border-radius: 2px 5px 5px 2px; transform-origin: 0 50%; transition: opacity 377ms var(--fft-ease); }
-.fft-hbars[data-active] .fft-hbar:not([data-active]) .fft-hbar-fill { opacity: 0.38; }
+.fft-hbar-fill { height: 100%; border-radius: var(--fft-radius-s) var(--fft-radius-m) var(--fft-radius-m) var(--fft-radius-s); transform-origin: 0 50%; transition: opacity 377ms var(--fft-ease); }
+.fft-hbars[data-active] .fft-hbar:not([data-active]) .fft-hbar-fill { opacity: var(--fft-dim); }
 .fft-hbar-value { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
 /* Lollipop rankings: a hairline guide, a 2px stem, an 11px dot ringed in the card color. */
 .fft-hbars[data-mark="lollipop"] .fft-hbar-track { position: relative; background: linear-gradient(var(--fft-grid), var(--fft-grid)) center / 100% 1px no-repeat; }
-.fft-hbars[data-mark="lollipop"] .fft-hbar-fill { height: 2px; margin-top: 5.5px; border-radius: 1px; }
+.fft-hbars[data-mark="lollipop"] .fft-hbar-fill { height: 2px; margin-top: 5.5px; border-radius: var(--fft-radius-s); }
 .fft-hbar-dot { position: absolute; top: 50%; width: 11px; height: 11px; margin: -5.5px 0 0 -5.5px; border-radius: 50%; box-shadow: 0 0 0 2px var(--fft-ring, var(--fft-surface)); transition: opacity 377ms var(--fft-ease); }
-.fft-hbars[data-active] .fft-hbar:not([data-active]) .fft-hbar-dot { opacity: 0.38; }
+.fft-hbars[data-active] .fft-hbar:not([data-active]) .fft-hbar-dot { opacity: var(--fft-dim); }
 
 .fft-step { transition: opacity 377ms var(--fft-ease); transform-box: fill-box; transform-origin: 50% 100%; }
 .fft-step[data-kind="up"] { fill: var(--fft-up); }
 .fft-step[data-kind="down"] { fill: var(--fft-down); }
 .fft-step[data-kind="total"] { fill: var(--fft-total); }
-.fft-chart[data-active] .fft-step:not([data-active]) { opacity: 0.38; }
-.fft-step-label { fill: var(--fft-text-secondary); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; }
+.fft-chart[data-active] .fft-step:not([data-active]) { opacity: var(--fft-dim); }
+.fft-step-label { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; }
 .fft-connector { stroke: var(--fft-axis); stroke-width: 1; shape-rendering: crispEdges; pointer-events: none; }
 
 .fft-heat { display: flex; flex-direction: column; gap: 13px; }
 .fft-heatmap { display: grid; gap: 2px; align-items: stretch; }
-.fft-heat-col { font-size: 11px; line-height: 13px; color: var(--fft-muted); text-align: center; padding-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.fft-heat-row { font-size: 11px; line-height: 13px; color: var(--fft-text-secondary); padding-right: 8px; display: flex; align-items: center; }
+.fft-heat-col { font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-muted); text-align: center; padding-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fft-heat-row { font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-text-secondary); padding-right: 8px; display: flex; align-items: center; }
 .fft-cell {
-  min-height: 34px; border-radius: 3px; display: grid; place-items: center;
-  font-size: 11px; font-weight: 500; font-variant-numeric: tabular-nums; outline: none; cursor: pointer;
+  min-height: 34px; border-radius: var(--fft-radius-s); display: grid; place-items: center;
+  font-size: var(--fft-fs-s); font-weight: 500; font-variant-numeric: tabular-nums; outline: none; cursor: pointer;
   transition: box-shadow 377ms var(--fft-ease);
 }
 .fft-widget[data-density="compact"] .fft-cell { min-height: 21px; }
@@ -798,14 +825,14 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-day[data-step="7"] { fill: var(--fft-seq-7); }
 .fft-day-empty { fill: var(--fft-grid); cursor: default; }
 .fft-day:hover, .fft-day:focus-visible { stroke: var(--fft-accent); stroke-width: 2; }
-.fft-cal-month, .fft-cal-weekday { fill: var(--fft-muted); font-size: 11px; }
-.fft-heat-legend { display: flex; align-items: center; gap: 8px; font-size: 11px; line-height: 13px; color: var(--fft-muted); font-variant-numeric: tabular-nums; }
+.fft-cal-month, .fft-cal-weekday { fill: var(--fft-muted); font-size: var(--fft-fs-s); }
+.fft-heat-legend { display: flex; align-items: center; gap: 8px; font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-muted); font-variant-numeric: tabular-nums; }
 .fft-heat-ramp { display: flex; gap: 2px; }
-.fft-heat-ramp div { width: 21px; height: 8px; border-radius: 2px; }
+.fft-heat-ramp div { width: 21px; height: 8px; border-radius: var(--fft-radius-s); }
 
 .fft-badge {
-  display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px 2px 5px; border-radius: 13px;
-  font-size: 11px; line-height: 13px; font-weight: 500; white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px 2px 5px; border-radius: var(--fft-radius-pill);
+  font-size: var(--fft-fs-s); line-height: 13px; font-weight: 500; white-space: nowrap;
   --fft-tone: var(--fft-muted);
   /* The tone deepened toward the text color, so it reads at 4.5:1 on its own tint in every theme. */
   color: color-mix(in srgb, var(--fft-tone) 72%, var(--fft-text));
@@ -822,13 +849,13 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-chart svg { display: block; overflow: visible; }
 .fft-gridline { stroke: var(--fft-grid); stroke-width: 1; shape-rendering: crispEdges; }
 .fft-baseline { stroke: var(--fft-axis); stroke-width: 1; shape-rendering: crispEdges; }
-.fft-tick { fill: var(--fft-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.fft-tick { fill: var(--fft-muted); font-size: var(--fft-fs-s); font-variant-numeric: tabular-nums; }
 .fft-bar { transition: opacity 377ms var(--fft-ease); transform-box: fill-box; transform-origin: 50% 100%; }
 .fft-bar[data-negative] { transform-origin: 50% 0; }
-.fft-chart[data-active] .fft-marks:not([data-active]) .fft-bar { opacity: 0.38; }
+.fft-chart[data-active] .fft-marks:not([data-active]) .fft-bar { opacity: var(--fft-dim); }
 .fft-lolli-stem { stroke-width: 2; stroke-linecap: round; transition: opacity 377ms var(--fft-ease); transform-box: fill-box; transform-origin: 50% 100%; }
 .fft-lolli-dot { stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 2; transition: opacity 377ms var(--fft-ease); }
-.fft-chart[data-active] .fft-marks:not([data-active]) :is(.fft-lolli-stem, .fft-lolli-dot) { opacity: 0.38; }
+.fft-chart[data-active] .fft-marks:not([data-active]) :is(.fft-lolli-stem, .fft-lolli-dot) { opacity: var(--fft-dim); }
 .fft-line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 .fft-area { fill-opacity: 0.1; stroke: none; pointer-events: none; }
 .fft-area[data-stacked] { fill-opacity: 0.34; }
@@ -838,21 +865,21 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 /* Forecast fans: a faint zone after the last actual, a soft band, dashed forecasts ending on a hollow dot. */
 .fft-forecast-zone { fill: var(--fft-text); fill-opacity: 0.035; pointer-events: none; }
 .fft-forecast-divider { stroke: var(--fft-text-secondary); stroke-opacity: 0.55; stroke-width: 1; stroke-dasharray: 2 3; pointer-events: none; }
-.fft-forecast-label { fill: var(--fft-text-secondary); font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; pointer-events: none; }
+.fft-forecast-label { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; pointer-events: none; }
 .fft-forecast-note { font-weight: 400; letter-spacing: 0; text-transform: none; }
 .fft-band { fill-opacity: 0.16; stroke: none; pointer-events: none; }
 .fft-area[data-forecast] { opacity: 0.5; }
 .fft-line[data-forecast] { stroke-dasharray: 5 5; }
-.fft-band-label { fill: var(--fft-text-secondary); font-size: 11px; font-variant-numeric: tabular-nums; pointer-events: none; }
-.fft-stream-label { fill: var(--fft-text); font-size: 11px; font-weight: 600; letter-spacing: 0.01em; pointer-events: none; }
+.fft-band-label { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); font-variant-numeric: tabular-nums; pointer-events: none; }
+.fft-stream-label { fill: var(--fft-text); font-size: var(--fft-fs-s); font-weight: 600; letter-spacing: 0.01em; pointer-events: none; }
 .fft-dot { stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 2; pointer-events: none; }
 .fft-bar-track { pointer-events: none; }
-.fft-end-label { fill: var(--fft-text-secondary); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; }
+.fft-end-label { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; }
 .fft-point { stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 2; transition: opacity 377ms var(--fft-ease); pointer-events: none; }
-.fft-chart[data-active] .fft-point:not([data-active]) { opacity: 0.38; }
+.fft-chart[data-active] .fft-point:not([data-active]) { opacity: var(--fft-dim); }
 .fft-point-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-point-hit:focus-visible { stroke: var(--fft-accent); stroke-width: 2; }
-.fft-axis-title { fill: var(--fft-text-secondary); font-size: 11px; font-weight: 500; }
+.fft-axis-title { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); font-weight: 500; }
 .fft-spark { display: inline-block; vertical-align: middle; overflow: visible; }
 .fft-spark path { fill: none; stroke: color-mix(in srgb, var(--fft-muted) 85%, transparent); stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
 .fft-spark circle { fill: var(--fft-accent); }
@@ -860,12 +887,12 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-spark rect:last-of-type { fill: var(--fft-accent); }
 .fft-ref { stroke: var(--fft-text-secondary); stroke-width: 1.5; stroke-dasharray: 5 3; pointer-events: none; }
 .fft-ref-band { fill: color-mix(in srgb, var(--fft-text) 5%, transparent); pointer-events: none; }
-.fft-ref-label { fill: var(--fft-text-secondary); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; }
+.fft-ref-label { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; }
 /* Every row shares one set of columns (subgrid), so a check by one number never shortens that row's track: bars on one scale. */
 .fft-bullets { display: grid; grid-template-columns: minmax(55px, 30%) 1fr minmax(34px, auto); gap: 13px 8px; }
 .fft-bullet {
   display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: center;
-  border-radius: 5px; outline: none; cursor: pointer;
+  border-radius: var(--fft-radius-m); outline: none; cursor: pointer;
 }
 @supports not (grid-template-columns: subgrid) {
   .fft-bullet { grid-template-columns: minmax(55px, 30%) 1fr 89px; column-gap: 8px; }
@@ -884,41 +911,41 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-tile { fill-opacity: 0.2; transition: opacity 377ms var(--fft-ease), fill-opacity 377ms var(--fft-ease); pointer-events: none; }
 .fft-tile[data-active] { fill-opacity: 0.32; }
 .fft-tile-edge { pointer-events: none; }
-.fft-chart[data-active] .fft-tile:not([data-active]) { opacity: 0.38; }
+.fft-chart[data-active] .fft-tile:not([data-active]) { opacity: var(--fft-dim); }
 .fft-tile-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-tile-hit:focus-visible { stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 3; }
-.fft-tile-name { fill: var(--fft-text); font-size: 11px; font-weight: 600; pointer-events: none; }
-.fft-tile-value { fill: var(--fft-text-secondary); font-size: 11px; font-variant-numeric: tabular-nums; pointer-events: none; }
+.fft-tile-name { fill: var(--fft-text); font-size: var(--fft-fs-s); font-weight: 600; pointer-events: none; }
+.fft-tile-value { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); font-variant-numeric: tabular-nums; pointer-events: none; }
 .fft-funnel { display: flex; flex-direction: column; }
 .fft-funnel-row {
   display: grid; grid-template-columns: minmax(55px, 25%) 1fr minmax(55px, auto); align-items: center; gap: 13px;
-  padding: 3px 0; border-radius: 5px; outline: none; cursor: pointer;
+  padding: 3px 0; border-radius: var(--fft-radius-m); outline: none; cursor: pointer;
 }
 .fft-funnel-row:focus-visible { box-shadow: 0 0 0 2px var(--fft-ring, var(--fft-surface)), 0 0 0 3px var(--fft-accent); }
 .fft-funnel-label { color: var(--fft-text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .fft-funnel-track { display: flex; justify-content: center; }
-.fft-funnel-bar { height: 21px; border-radius: 5px; background: var(--fft-accent); transform-origin: 50% 50%; }
+.fft-funnel-bar { height: 21px; border-radius: var(--fft-radius-m); background: var(--fft-accent); transform-origin: 50% 50%; }
 .fft-funnel-nums { display: flex; gap: 8px; justify-content: flex-end; align-items: baseline; font-variant-numeric: tabular-nums; }
 .fft-funnel-value { font-weight: 600; }
-.fft-funnel-share { min-width: 34px; text-align: right; font-size: 11px; color: var(--fft-muted); }
-.fft-funnel-step { text-align: center; font-size: 11px; line-height: 13px; color: var(--fft-muted); padding: 2px 0; margin-left: calc(25% + 13px); margin-right: calc(55px + 13px); }
+.fft-funnel-share { min-width: 34px; text-align: right; font-size: var(--fft-fs-s); color: var(--fft-muted); }
+.fft-funnel-step { text-align: center; font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-muted); padding: 2px 0; margin-left: calc(25% + 13px); margin-right: calc(55px + 13px); }
 .fft-bee { stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 1.5; transition: opacity 377ms var(--fft-ease); pointer-events: none; }
-.fft-chart[data-active] .fft-bee:not([data-active]) { opacity: 0.38; }
+.fft-chart[data-active] .fft-bee:not([data-active]) { opacity: var(--fft-dim); }
 .fft-bee-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-bee-hit:focus-visible { stroke: var(--fft-accent); stroke-width: 2; }
-.fft-swarm-group { fill: var(--fft-text-secondary); font-size: 11px; }
+.fft-swarm-group { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); }
 .fft-ribbon { fill-opacity: 0.34; transition: fill-opacity 377ms var(--fft-ease); pointer-events: none; }
 .fft-chart[data-active] .fft-ribbon { fill-opacity: 0.13; }
 .fft-chart[data-active] .fft-ribbon[data-active] { fill-opacity: 0.55; }
 .fft-ribbon-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-ribbon-hit:focus-visible { stroke: var(--fft-accent); stroke-width: 1.5; }
 .fft-node { pointer-events: none; }
-.fft-node-label { fill: var(--fft-text); font-size: 11px; font-weight: 600; pointer-events: none; }
-.fft-node-value { fill: var(--fft-text-secondary); font-size: 11px; font-variant-numeric: tabular-nums; pointer-events: none; }
+.fft-node-label { fill: var(--fft-text); font-size: var(--fft-fs-s); font-weight: 600; pointer-events: none; }
+.fft-node-value { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); font-variant-numeric: tabular-nums; pointer-events: none; }
 .fft-db-line { stroke: var(--fft-axis); stroke-width: 2; stroke-linecap: round; pointer-events: none; }
 .fft-db-from { fill: var(--fft-muted); stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 2; pointer-events: none; }
 .fft-db-to { stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 2; pointer-events: none; }
-.fft-db-label { fill: var(--fft-text-secondary); font-size: 11px; }
+.fft-db-label { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); }
 .fft-db-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-db-hit:hover, .fft-db-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 6%, transparent); }
 .fft-db-key-from { background: var(--fft-muted); }
@@ -932,59 +959,59 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-db-key-down { background: var(--fft-down); }
 .fft-chart[data-mark="arrow"] .fft-db-from { fill: var(--fft-muted); }
 .fft-slope-axis { stroke: var(--fft-axis); stroke-width: 1; }
-.fft-slope-head { fill: var(--fft-text-secondary); font-size: 11px; font-weight: 600; letter-spacing: 0.02em; }
+.fft-slope-head { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); font-weight: 600; letter-spacing: 0.02em; }
 .fft-slope { --fft-slope-color: var(--fft-muted); }
 .fft-slope[data-direction="up"] { --fft-slope-color: var(--fft-up); }
 .fft-slope[data-direction="down"] { --fft-slope-color: var(--fft-down); }
 .fft-slope[data-muted] { --fft-slope-color: var(--fft-deemphasis); }
 .fft-slope-line { fill: none; stroke: var(--fft-slope-color); stroke-width: 2; stroke-linecap: round; pointer-events: none; transition: opacity 233ms var(--fft-ease); }
 .fft-slope-dot { fill: var(--fft-slope-color); stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 2; pointer-events: none; transition: opacity 233ms var(--fft-ease); }
-.fft-slope-label { font-size: 11px; font-variant-numeric: tabular-nums; pointer-events: none; transition: opacity 233ms var(--fft-ease); }
+.fft-slope-label { font-size: var(--fft-fs-s); font-variant-numeric: tabular-nums; pointer-events: none; transition: opacity 233ms var(--fft-ease); }
 .fft-slope-name { fill: var(--fft-text-secondary); }
 .fft-slope-value { fill: var(--fft-text); font-weight: 600; }
 .fft-slope[data-muted] .fft-slope-label, .fft-slope[data-muted] .fft-slope-label tspan { fill: var(--fft-muted); }
 .fft-slope-hit { fill: none; stroke: transparent; stroke-width: 13; stroke-linecap: round; cursor: pointer; outline: none; pointer-events: stroke; }
 .fft-slope-hit:focus-visible { stroke: color-mix(in srgb, var(--fft-accent) 21%, transparent); }
-.fft-chart[data-active] .fft-slope:not([data-active]) :is(.fft-slope-line, .fft-slope-dot, .fft-slope-label) { opacity: 0.21; }
+.fft-chart[data-active] .fft-slope:not([data-active]) :is(.fft-slope-line, .fft-slope-dot, .fft-slope-label) { opacity: var(--fft-dim-strong); }
 .fft-slope[data-active] .fft-slope-line { stroke-width: 3; }
 .fft-bump-line { fill: none; stroke-width: 2; stroke-linecap: round; pointer-events: none; transition: opacity 233ms var(--fft-ease), stroke-width 233ms var(--fft-ease); }
 .fft-bump-dot { stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 2; pointer-events: none; transition: opacity 233ms var(--fft-ease); }
-.fft-bump-label { font-size: 11px; font-variant-numeric: tabular-nums; pointer-events: none; transition: opacity 233ms var(--fft-ease); }
+.fft-bump-label { font-size: var(--fft-fs-s); font-variant-numeric: tabular-nums; pointer-events: none; transition: opacity 233ms var(--fft-ease); }
 .fft-bump-name { fill: var(--fft-text-secondary); }
 .fft-bump-rank { fill: var(--fft-text); font-weight: 600; }
 .fft-bump[data-muted] .fft-bump-label, .fft-bump[data-muted] .fft-bump-label tspan { fill: var(--fft-muted); }
 .fft-bump-hit { fill: none; stroke: transparent; stroke-width: 13; stroke-linecap: round; cursor: pointer; outline: none; pointer-events: stroke; }
 .fft-bump-hit:focus-visible { stroke: color-mix(in srgb, var(--fft-accent) 21%, transparent); }
-.fft-chart[data-active] .fft-bump:not([data-active]) :is(.fft-bump-line, .fft-bump-dot, .fft-bump-label) { opacity: 0.21; }
+.fft-chart[data-active] .fft-bump:not([data-active]) :is(.fft-bump-line, .fft-bump-dot, .fft-bump-label) { opacity: var(--fft-dim-strong); }
 .fft-bump[data-active] .fft-bump-line { stroke-width: 3; }
 .fft-mekko { transition: opacity 377ms var(--fft-ease); }
-.fft-chart[data-active] .fft-hist:not([data-active]) .fft-hist-bar { opacity: 0.38; }
+.fft-chart[data-active] .fft-hist:not([data-active]) .fft-hist-bar { opacity: var(--fft-dim); }
 .fft-hist-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-hist-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 8%, transparent); }
 .fft-dot-line { stroke: var(--fft-grid); stroke-width: 1; shape-rendering: crispEdges; pointer-events: none; }
 .fft-dot-mark { stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 2; pointer-events: none; transition: opacity 377ms var(--fft-ease); }
-.fft-dot-label { fill: var(--fft-text-secondary); font-size: 11px; }
-.fft-dot-value { fill: var(--fft-text); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; transition: opacity 377ms var(--fft-ease); }
+.fft-dot-label { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); }
+.fft-dot-value { fill: var(--fft-text); font-size: var(--fft-fs-s); font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; transition: opacity 377ms var(--fft-ease); }
 .fft-dot-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-dot-hit:hover, .fft-dot-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 6%, transparent); }
-.fft-dots[data-active] .fft-dot-row:not([data-active]) :is(.fft-dot-mark, .fft-dot-value) { opacity: 0.38; }
+.fft-dots[data-active] .fft-dot-row:not([data-active]) :is(.fft-dot-mark, .fft-dot-value) { opacity: var(--fft-dim); }
 .fft-mekko-seg { fill-opacity: 0.24; pointer-events: none; transition: fill-opacity 377ms var(--fft-ease); }
 .fft-mekko[data-active] .fft-mekko-seg { fill-opacity: 0.38; }
-.fft-chart[data-active] .fft-mekko:not([data-active]) { opacity: 0.38; }
+.fft-chart[data-active] .fft-mekko:not([data-active]) { opacity: var(--fft-dim); }
 .fft-mekko-edge { pointer-events: none; }
-.fft-mekko-name { fill: var(--fft-text); font-size: 11px; font-weight: 600; pointer-events: none; }
-.fft-mekko-share { fill: var(--fft-text-secondary); font-size: 11px; font-variant-numeric: tabular-nums; pointer-events: none; }
+.fft-mekko-name { fill: var(--fft-text); font-size: var(--fft-fs-s); font-weight: 600; pointer-events: none; }
+.fft-mekko-share { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); font-variant-numeric: tabular-nums; pointer-events: none; }
 .fft-mekko-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-mekko-hit:focus-visible { stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 3; }
-.fft-mekko-column { font-size: 11px; }
+.fft-mekko-column { font-size: var(--fft-fs-s); }
 .fft-mekko-column-name { fill: var(--fft-text-secondary); }
 .fft-mekko-column-total { fill: var(--fft-text); font-weight: 600; font-variant-numeric: tabular-nums; }
 .fft-ridge-mask { fill: var(--fft-ring, var(--fft-surface)); pointer-events: none; }
 .fft-ridge-area { fill-opacity: 0.22; pointer-events: none; }
 .fft-ridge-line { fill: none; stroke-width: 1.5; stroke-linejoin: round; pointer-events: none; }
 .fft-ridge { transition: opacity 377ms var(--fft-ease); }
-.fft-chart[data-active] .fft-ridge:not([data-active]) { opacity: 0.5; }
-.fft-ridge-label { fill: var(--fft-text-secondary); font-size: 11px; }
+.fft-chart[data-active] .fft-ridge:not([data-active]) { opacity: var(--fft-dim); }
+.fft-ridge-label { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); }
 .fft-ridge-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-ridge-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 6%, transparent); }
 .fft-crosshair { stroke: var(--fft-axis); stroke-width: 1; shape-rendering: crispEdges; pointer-events: none; }
@@ -992,12 +1019,15 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 8%, transparent); }
 .fft-legend {
   display: flex; flex-wrap: wrap; gap: 5px 13px; margin: 0 0 8px; padding: 0;
-  list-style: none; font-size: 11px; line-height: 13px; color: var(--fft-text-secondary);
+  list-style: none; font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-text-secondary);
 }
 .fft-legend li { display: inline-flex; align-items: center; gap: 5px; }
-.fft-swatch { width: 8px; height: 8px; border-radius: 2px; }
-.fft-swatch[data-shape="line"] { width: 13px; height: 2px; border-radius: 1px; }
+.fft-swatch { width: 8px; height: 8px; border-radius: var(--fft-radius-s); }
+.fft-swatch[data-shape="line"] { width: 13px; height: 2px; border-radius: var(--fft-radius-s); }
 .fft-swatch[data-shape="dot"] { border-radius: 50%; }
+.fft-swatch[data-shape="ring"] { border-radius: 50%; background: transparent; }
+.fft-swatch[data-tone="muted"] { opacity: var(--fft-dim); }
+.fft-legend[data-place="below"] { order: 1; }
 
 /* Dashboard: a grid of widget cells with one filter row; carries its own tokens for the controls. */
 .fft-dashboard {${LIGHT}
@@ -1011,7 +1041,7 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 :root:root .fft-dashboard[data-scheme="light"] {${LIGHT}}
 :root:root .fft-dashboard[data-scheme="dark"] {${DARK}}
 .fft-dashboard-header { display: flex; flex-direction: column; gap: 3px; }
-.fft-dashboard-title { margin: 0; font-size: 21px; line-height: 34px; font-weight: 600; letter-spacing: -0.01em; }
+.fft-dashboard-title { margin: 0; font-size: var(--fft-fs-l); line-height: 34px; font-weight: 600; letter-spacing: -0.01em; }
 .fft-dashboard-subtitle { margin: 0; color: var(--fft-text-secondary); }
 .fft-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 13px; }
 .fft-filters[hidden] { display: none; }
@@ -1030,13 +1060,13 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-filter { display: inline-flex; align-items: center; gap: 8px; color: var(--fft-text-secondary); }
 .fft-filter select {
   font: inherit; color: var(--fft-text); background: var(--fft-surface); border: 1px solid var(--fft-border);
-  border-radius: 8px; padding: 3px 8px; min-width: 89px;
+  border-radius: var(--fft-radius-l); padding: 3px 8px; min-width: 89px;
 }
 .fft-range { display: inline-flex; align-items: center; gap: 8px; color: var(--fft-text-secondary); }
-.fft-range-track { display: inline-flex; gap: 2px; padding: 2px; border-radius: 8px; background: color-mix(in srgb, var(--fft-text) 7%, transparent); }
+.fft-range-track { display: inline-flex; gap: 2px; padding: 2px; border-radius: var(--fft-radius-l); background: color-mix(in srgb, var(--fft-text) 7%, transparent); }
 .fft-range button {
-  font: inherit; font-size: 11px; font-weight: 600; letter-spacing: 0.02em; font-variant-numeric: tabular-nums;
-  padding: 3px 10px; border: 0; border-radius: 6px; background: transparent; color: var(--fft-text-secondary); cursor: pointer;
+  font: inherit; font-size: var(--fft-fs-s); font-weight: 600; letter-spacing: 0.02em; font-variant-numeric: tabular-nums;
+  padding: 3px 10px; border: 0; border-radius: var(--fft-radius-m); background: transparent; color: var(--fft-text-secondary); cursor: pointer;
   transition: background 233ms var(--fft-ease), color 233ms var(--fft-ease), box-shadow 233ms var(--fft-ease);
 }
 .fft-range button:hover { color: var(--fft-text); }
@@ -1046,8 +1076,8 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 /* Section filter: quiet chips on their own line under the controls, All first, starting at the left edge like everything else. */
 .fft-board-nav { display: flex; flex: 1 0 100%; flex-wrap: wrap; justify-content: flex-start; gap: 2px; min-width: 0; margin-left: -8px; scroll-behavior: smooth; }
 .fft-board-nav button {
-  display: inline-flex; flex-direction: column; align-items: center; padding: 2px 8px; border: 0; border-radius: 13px; background: transparent; cursor: pointer;
-  font: inherit; font-size: 11px; line-height: 21px; white-space: nowrap; color: var(--fft-text-secondary);
+  display: inline-flex; flex-direction: column; align-items: center; padding: 2px 8px; border: 0; border-radius: var(--fft-radius-pill); background: transparent; cursor: pointer;
+  font: inherit; font-size: var(--fft-fs-s); line-height: 21px; white-space: nowrap; color: var(--fft-text-secondary);
   transition: background 233ms var(--fft-ease), color 233ms var(--fft-ease);
 }
 @media (hover: hover) { .fft-board-nav button:hover { color: var(--fft-text); background: color-mix(in srgb, var(--fft-text) 5%, transparent); } }
@@ -1065,13 +1095,13 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-board-cell > .fft-widget { flex: 1; }
 .fft-board-section { display: flex; flex-wrap: wrap; align-items: baseline; gap: 3px 13px; margin-top: 21px; padding-top: 21px; border-top: 1px solid var(--fft-border); scroll-margin-top: 21px; }
 .fft-board-section:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
-.fft-board-section h3 { margin: 0; font-size: 11px; line-height: 21px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fft-text-secondary); }
-.fft-board-section p { margin: 0; font-size: 13px; color: var(--fft-text-secondary); }
+.fft-board-section h3 { margin: 0; font-size: var(--fft-fs-s); line-height: 21px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fft-text-secondary); }
+.fft-board-section p { margin: 0; font-size: var(--fft-fs-m); color: var(--fft-text-secondary); }
 /* A jumped-to section lands clear of the pinned row: its height comes from the runtime, with a fallback until measured. */
 .fft-dashboard[data-sticky] .fft-board-section { scroll-margin-top: calc(var(--fft-sticky-top, 0px) + var(--fft-filters-height, 89px) + 13px); }
 /* Under a pinned filter row, the page scroll-pads by its height, so whatever takes focus is scrolled clear of it (WCAG 2.4.11). */
 :root:has(.fft-dashboard[data-sticky]) { scroll-padding-top: calc(var(--fft-sticky-top, 0px) + var(--fft-filters-height, 89px) + 13px); }
-.fft-cell-missing { margin: 0; padding: 21px; border: 1px dashed var(--fft-axis); border-radius: 13px; color: var(--fft-text-secondary); text-align: center; }
+.fft-cell-missing { margin: 0; padding: 21px; border: 1px dashed var(--fft-axis); border-radius: var(--fft-radius-card); color: var(--fft-text-secondary); text-align: center; }
 @media (max-width: 1100px) {
   .fft-dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .fft-cell-slot[data-span] { grid-column: span 1 !important; }
@@ -1120,35 +1150,35 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-picker *, .fft-picker *::before, .fft-picker *::after { box-sizing: border-box; }
 .fft-picker-library { display: flex; flex-wrap: wrap; gap: 8px; }
 .fft-picker-chip {
-  display: inline-flex; flex-direction: column; gap: 5px; padding: 8px; border: 1px solid var(--fft-border); border-radius: 8px;
-  background: transparent; color: var(--fft-text-secondary); font: inherit; font-size: 11px; line-height: 13px; text-align: left; cursor: pointer;
+  display: inline-flex; flex-direction: column; gap: 5px; padding: 8px; border: 1px solid var(--fft-border); border-radius: var(--fft-radius-l);
+  background: transparent; color: var(--fft-text-secondary); font: inherit; font-size: var(--fft-fs-s); line-height: 13px; text-align: left; cursor: pointer;
   transition: border-color 377ms var(--fft-ease, ease), color 377ms var(--fft-ease, ease);
 }
 .fft-picker-chip:hover { color: var(--fft-text); }
 .fft-picker-chip[aria-checked="true"] { color: var(--fft-text); border-color: var(--fft-accent); box-shadow: 0 0 0 1px var(--fft-accent); }
 .fft-picker-strip { display: flex; gap: 2px; }
-.fft-picker-strip span { width: 8px; height: 13px; border-radius: 2px; }
+.fft-picker-strip span { width: 8px; height: 13px; border-radius: var(--fft-radius-s); }
 .fft-picker-swatches { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(144px, 1fr)); gap: 8px; }
-.fft-picker-swatch { display: flex; align-items: center; gap: 5px; padding: 5px; border: 1px solid var(--fft-border); border-radius: 8px; }
-.fft-picker-swatch input[type="color"] { flex: none; width: 21px; height: 21px; padding: 0; border: 0; border-radius: 5px; background: none; cursor: pointer; }
+.fft-picker-swatch { display: flex; align-items: center; gap: 5px; padding: 5px; border: 1px solid var(--fft-border); border-radius: var(--fft-radius-l); }
+.fft-picker-swatch input[type="color"] { flex: none; width: 21px; height: 21px; padding: 0; border: 0; border-radius: var(--fft-radius-m); background: none; cursor: pointer; }
 .fft-picker-swatch input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-.fft-picker-swatch input[type="color"]::-webkit-color-swatch { border: 0; border-radius: 5px; }
-.fft-picker-swatch input[type="color"]::-moz-color-swatch { border: 0; border-radius: 5px; }
+.fft-picker-swatch input[type="color"]::-webkit-color-swatch { border: 0; border-radius: var(--fft-radius-m); }
+.fft-picker-swatch input[type="color"]::-moz-color-swatch { border: 0; border-radius: var(--fft-radius-m); }
 .fft-picker-hex { flex: 1; width: 0; min-width: 55px; border: 0; background: transparent; color: var(--fft-text); font: 11px/21px ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace; }
 .fft-picker-hex:focus { outline: none; }
 .fft-picker-hex[aria-invalid="true"] { color: var(--fft-negative); }
 .fft-picker-pipette, .fft-picker-remove {
-  flex: none; display: inline-grid; place-items: center; width: 21px; height: 21px; padding: 0; border: 0; border-radius: 5px;
+  flex: none; display: inline-grid; place-items: center; width: 21px; height: 21px; padding: 0; border: 0; border-radius: var(--fft-radius-m);
   background: transparent; color: var(--fft-muted); font: 13px/1 -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif; cursor: pointer;
 }
 .fft-picker-pipette:hover, .fft-picker-remove:hover:not(:disabled) { color: var(--fft-text); background: var(--fft-grid); }
-.fft-picker-remove:disabled { opacity: 0.38; cursor: default; }
+.fft-picker-remove:disabled { opacity: var(--fft-dim); cursor: default; }
 .fft-picker-add {
-  align-self: flex-start; padding: 3px 13px; border: 1px dashed var(--fft-axis); border-radius: 8px;
-  background: transparent; color: var(--fft-text-secondary); font: inherit; font-size: 11px; cursor: pointer;
+  align-self: flex-start; padding: 3px 13px; border: 1px dashed var(--fft-axis); border-radius: var(--fft-radius-l);
+  background: transparent; color: var(--fft-text-secondary); font: inherit; font-size: var(--fft-fs-s); cursor: pointer;
 }
 .fft-picker-checks { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 5px; }
-.fft-picker-checks li { display: grid; grid-template-columns: 55px 144px 1fr; align-items: baseline; gap: 8px; font-size: 11px; line-height: 13px; }
+.fft-picker-checks li { display: grid; grid-template-columns: 55px 144px 1fr; align-items: baseline; gap: 8px; font-size: var(--fft-fs-s); line-height: 13px; }
 .fft-picker-checks .fft-badge { justify-self: start; }
 .fft-picker-check-label { font-weight: 600; color: var(--fft-text); }
 .fft-picker-check-text { color: var(--fft-text-secondary); }
@@ -1242,21 +1272,21 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 /* Notes pinned to points of a chart: a dot, a hairline leader and a few words with a halo of the card, so they read over the marks. */
 .fft-note-dot { fill: var(--fft-text); stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 2; pointer-events: none; }
 .fft-note-leader { stroke: var(--fft-text-secondary); stroke-width: 1; pointer-events: none; }
-.fft-note-text { fill: var(--fft-text); font-size: 11px; paint-order: stroke; stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 3px; stroke-linejoin: round; pointer-events: none; }
+.fft-note-text { fill: var(--fft-text); font-size: var(--fft-fs-s); paint-order: stroke; stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 3px; stroke-linejoin: round; pointer-events: none; }
 .fft-note-marker { fill: var(--fft-ring, var(--fft-surface)); stroke: var(--fft-text); stroke-width: 1.5; pointer-events: none; }
-.fft-note-index { fill: var(--fft-text); font-size: 10px; font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; }
-.fft-notes { margin: 5px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 3px; font-size: 11px; line-height: 15px; color: var(--fft-text-secondary); }
+.fft-note-index { fill: var(--fft-text); font-size: var(--fft-fs-xs); font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; }
+.fft-notes { margin: 5px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 3px; font-size: var(--fft-fs-s); line-height: 15px; color: var(--fft-text-secondary); }
 .fft-notes li { display: flex; gap: 8px; align-items: baseline; }
-.fft-note-num { flex: none; width: 16px; height: 16px; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--fft-text); color: var(--fft-text); font-size: 10px; font-weight: 600; line-height: 16px; text-align: center; font-variant-numeric: tabular-nums; }
+.fft-note-num { flex: none; width: 16px; height: 16px; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--fft-text); color: var(--fft-text); font-size: var(--fft-fs-xs); font-weight: 600; line-height: 16px; text-align: center; font-variant-numeric: tabular-nums; }
 /* Line symbols and peak labels. */
 .fft-point-dot { stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 1.5; pointer-events: none; transition: opacity 377ms var(--fft-ease); }
 .fft-peak-dot { stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 2; pointer-events: none; }
-.fft-peak-label { fill: var(--fft-text-secondary); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; paint-order: stroke; stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 3px; stroke-linejoin: round; pointer-events: none; }
+.fft-peak-label { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); font-weight: 600; font-variant-numeric: tabular-nums; paint-order: stroke; stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 3px; stroke-linejoin: round; pointer-events: none; }
 /* A comparison column behind a bar: quiet, a little wider, dimmed with its bar when another is active. */
 .fft-bar-compare { transition: opacity 377ms var(--fft-ease); }
-.fft-chart[data-active] .fft-marks:not([data-active]) .fft-bar-compare { opacity: 0.38; }
+.fft-chart[data-active] .fft-marks:not([data-active]) .fft-bar-compare { opacity: var(--fft-dim); }
 /* Dual: two panels sharing one x axis; each panel's caption names its measure where a legend would. */
-.fft-dual-caption { fill: var(--fft-text-secondary); font-size: 11px; font-weight: 600; }
+.fft-dual-caption { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); font-weight: 600; }
 .fft-widget[data-animate] .fft-point-dot { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: 610ms; }
 .fft-widget[data-animate] .fft-note-layer { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: 610ms; }
 @media (prefers-reduced-motion: reduce) {
@@ -1271,68 +1301,68 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-hbar-bar { display: flex; align-items: center; min-width: 0; }
 .fft-hbar-run { position: relative; width: calc(100% - var(--fft-end-room, 0px)); height: 13px; }
 .fft-hbar-run .fft-hbar-fill { position: absolute; left: 0; top: 2px; height: 9px; }
-.fft-hbar-end { position: absolute; top: 0; margin-left: 5px; font-size: 11px; line-height: 13px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--fft-text-secondary); }
+.fft-hbar-end { position: absolute; top: 0; margin-left: 5px; font-size: var(--fft-fs-s); line-height: 13px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--fft-text-secondary); }
 .fft-hbar-seg { position: relative; overflow: hidden; }
-.fft-hbar-seg-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; font-variant-numeric: tabular-nums; color: #fff; text-shadow: 0 0 2px rgba(0, 0, 0, 0.45); pointer-events: none; }
+.fft-hbar-seg-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: var(--fft-fs-xs); font-weight: 600; font-variant-numeric: tabular-nums; color: #fff; text-shadow: 0 0 2px rgba(0, 0, 0, 0.45); pointer-events: none; }
 .fft-hbars[data-mode="stacked"] .fft-hbar-track { height: 15px; }
 .fft-hbars[data-mode="grouped"] .fft-hbar-label { align-self: center; }
 .fft-hbar-stack { display: flex; gap: 2px; }
-.fft-hbar-seg { height: 100%; flex: none; min-width: 0; border-radius: 2px; transform-origin: 0 50%; transition: opacity 377ms var(--fft-ease); }
-.fft-hbar-seg:first-child { border-radius: 2px 2px 2px 2px; }
-.fft-hbar-seg:last-child { border-radius: 2px 5px 5px 2px; }
-.fft-hbars[data-active] .fft-hbar:not([data-active]) .fft-hbar-seg { opacity: 0.38; }
+.fft-hbar-seg { height: 100%; flex: none; min-width: 0; border-radius: var(--fft-radius-s); transform-origin: 0 50%; transition: opacity 377ms var(--fft-ease); }
+.fft-hbar-seg:first-child { border-radius: var(--fft-radius-s); }
+.fft-hbar-seg:last-child { border-radius: var(--fft-radius-s) var(--fft-radius-m) var(--fft-radius-m) var(--fft-radius-s); }
+.fft-hbars[data-active] .fft-hbar:not([data-active]) .fft-hbar-seg { opacity: var(--fft-dim); }
 .fft-hbars[data-mode="split"] { gap: 5px; }
 .fft-hbars[data-mode="split"] .fft-hbar { grid-template-columns: minmax(55px, 26%) repeat(var(--fft-splits, 2), minmax(0, 1fr)); gap: 13px; }
 .fft-hbars[data-mode="split"] .fft-hbar-bar { padding-right: 3px; }
 .fft-map-code { fill: var(--fft-text-secondary); opacity: 0.5; font-size: 9px; font-weight: 600; letter-spacing: 0.02em; pointer-events: none; }
 .fft-hbar-head { cursor: default; margin-bottom: 3px; }
-.fft-hbar-col-title { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; line-height: 13px; color: var(--fft-text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fft-hbar-col-title { display: inline-flex; align-items: center; gap: 5px; font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 @container (max-width: 420px) {
   .fft-hbars[data-mode="split"] .fft-hbar { grid-template-columns: minmax(55px, 30%) repeat(var(--fft-splits, 2), minmax(0, 1fr)); gap: 8px; }
 }
 .fft-widget[data-animate] .fft-hbar-seg { animation: fft-grow-x 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 34ms); }
 
 /* Population pyramid. */
-.fft-pyr-head { fill: var(--fft-text-secondary); font-size: 11px; font-weight: 600; }
-.fft-pyr-label { fill: var(--fft-text-secondary); font-size: 11px; pointer-events: none; }
-.fft-pyr-value { fill: var(--fft-text-secondary); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; }
+.fft-pyr-head { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); font-weight: 600; }
+.fft-pyr-label { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); pointer-events: none; }
+.fft-pyr-value { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; }
 .fft-pyr-bar { transition: opacity 377ms var(--fft-ease); transform-box: fill-box; }
 .fft-pyr-bar[data-side="left"] { transform-origin: 100% 50%; }
 .fft-pyr-bar[data-side="right"] { transform-origin: 0 50%; }
-.fft-pyramid[data-active] .fft-pyr-row:not([data-active]) .fft-pyr-bar { opacity: 0.38; }
+.fft-pyramid[data-active] .fft-pyr-row:not([data-active]) .fft-pyr-bar { opacity: var(--fft-dim); }
 .fft-pyr-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-pyr-hit:hover, .fft-pyr-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 6%, transparent); }
 .fft-widget[data-animate] .fft-pyr-bar { animation: fft-grow-x 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 21ms); }
 /* The small print: the footer, then the credit ("Source: Eurostat · Chart: Marta") in the same quiet type, the source underlined as a link. */
 .fft-small-print { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .fft-small-print[hidden] { display: none; }
-.fft-credit { margin: 0; font-size: 11px; line-height: 13px; color: var(--fft-muted); }
+.fft-credit { margin: 0; font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-muted); }
 .fft-credit[hidden] { display: none; }
-.fft-credit-link { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 38%, transparent); text-underline-offset: 2px; border-radius: 2px; }
+.fft-credit-link { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 38%, transparent); text-underline-offset: 2px; border-radius: var(--fft-radius-s); }
 .fft-credit-link:hover, .fft-credit-link:focus-visible { color: var(--fft-text); text-decoration-color: currentColor; outline: none; }
 .fft-credit-link:focus-visible { box-shadow: 0 0 0 2px var(--fft-accent); }
 /* Table tools, each only there when asked for: a quiet search field with its live count, a pager of two small buttons, a pinned first column. */
 .fft-table-tools { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .fft-table-search {
   flex: 1; min-width: 0; max-width: 233px; height: 28px; margin: 0; padding: 0 8px;
-  border: 1px solid var(--fft-border); border-radius: 5px; background: transparent; color: var(--fft-text);
-  font: inherit; font-size: 13px; line-height: 26px;
+  border: 1px solid var(--fft-border); border-radius: var(--fft-radius-m); background: transparent; color: var(--fft-text);
+  font: inherit; font-size: var(--fft-fs-m); line-height: 26px;
 }
 .fft-table-search::placeholder { color: var(--fft-muted); opacity: 1; }
 .fft-table-search:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 1px; }
-.fft-table-count { font-size: 11px; line-height: 13px; color: var(--fft-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.fft-table-count { font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .fft-table-count[hidden] { display: none; }
-.fft-table-empty { margin: 0; padding: 13px 0; font-size: 13px; line-height: 21px; color: var(--fft-text-secondary); }
+.fft-table-empty { margin: 0; padding: 13px 0; font-size: var(--fft-fs-m); line-height: 21px; color: var(--fft-text-secondary); }
 .fft-table-empty[hidden], .fft-table-wrap[hidden] { display: none; }
-.fft-pager { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 8px; font-size: 11px; line-height: 13px; color: var(--fft-muted); font-variant-numeric: tabular-nums; }
+.fft-pager { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 8px; font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-muted); font-variant-numeric: tabular-nums; }
 .fft-pager[hidden] { display: none; }
 .fft-pager-button {
-  all: unset; display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 5px;
-  color: var(--fft-text-secondary); font-size: 13px; cursor: pointer;
+  all: unset; display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 28px; padding: 0 8px; border-radius: var(--fft-radius-m);
+  color: var(--fft-text-secondary); font-size: var(--fft-fs-m); cursor: pointer;
 }
 .fft-pager-button:hover, .fft-pager-button:focus-visible { color: var(--fft-text); background: var(--fft-grid); }
 .fft-pager-button:focus-visible { box-shadow: 0 0 0 2px var(--fft-accent); }
-.fft-pager-button:disabled { opacity: 0.38; cursor: default; background: none; }
+.fft-pager-button:disabled { opacity: var(--fft-dim); cursor: default; background: none; }
 .fft-table-wrap[data-sticky] .fft-table :is(th, td):first-child { position: sticky; left: 0; z-index: 1; background: var(--fft-surface); box-shadow: 1px 0 0 var(--fft-grid); }
 .fft-table-wrap[data-sticky] .fft-table tbody tr:is(:hover, :focus-visible) td:first-child { background: color-mix(in srgb, var(--fft-accent) 7%, var(--fft-surface)); }
 /* Maps: choropleth, symbols and locator. Land is muted, borders are the card's own surface, so regions separate quietly. */
@@ -1351,8 +1381,8 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-map-region[data-step="6"] { fill: var(--fft-seq-6); }
 .fft-map-region[data-step="7"] { fill: var(--fft-seq-7); }
 .fft-map-region:hover, .fft-map-region:focus-visible { stroke: var(--fft-text); stroke-width: 2; }
-.fft-map-wrap[data-active] .fft-map-region:not([data-active]):not(.fft-map-region-empty) { opacity: 0.55; }
-.fft-map-region-label { font-size: 11px; font-weight: 500; pointer-events: none; fill: var(--fft-text); }
+.fft-map-wrap[data-active] .fft-map-region:not([data-active]):not(.fft-map-region-empty) { opacity: var(--fft-dim); }
+.fft-map-region-label { font-size: var(--fft-fs-s); font-weight: 500; pointer-events: none; fill: var(--fft-text); }
 .fft-map-region-label-empty { fill: var(--fft-muted); }
 .fft-map-region-label[data-step="1"] { fill: var(--fft-seq-text-1); }
 .fft-map-region-label[data-step="2"] { fill: var(--fft-seq-text-2); }
@@ -1366,20 +1396,20 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-map-swatch-empty { background: color-mix(in srgb, var(--fft-muted) 16%, var(--fft-surface)); box-shadow: inset 0 0 0 1px var(--fft-grid); }
 .fft-map-symbol { fill-opacity: 0.55; stroke-width: 1.5; outline: none; cursor: pointer; transition: opacity 377ms var(--fft-ease), fill-opacity 377ms var(--fft-ease); }
 .fft-map-symbol:hover, .fft-map-symbol:focus-visible, .fft-map-symbol[data-active] { fill-opacity: 0.85; stroke: var(--fft-text); }
-.fft-map-wrap[data-active] .fft-map-symbol:not([data-active]) { opacity: 0.45; }
+.fft-map-wrap[data-active] .fft-map-symbol:not([data-active]) { opacity: var(--fft-dim); }
 .fft-map-keys { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 8px 21px; }
-.fft-map-sizekey-wrap { display: flex; align-items: flex-end; gap: 8px; font-size: 11px; line-height: 13px; color: var(--fft-muted); }
+.fft-map-sizekey-wrap { display: flex; align-items: flex-end; gap: 8px; font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-muted); }
 .fft-map-sizekey { display: block; overflow: visible; }
 .fft-map-sizekey-ring { fill: none; stroke: var(--fft-muted); stroke-width: 1; }
 .fft-map-sizekey-line { stroke: var(--fft-grid); stroke-width: 1; shape-rendering: crispEdges; }
-.fft-map-sizekey-text { fill: var(--fft-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.fft-map-sizekey-text { fill: var(--fft-muted); font-size: var(--fft-fs-s); font-variant-numeric: tabular-nums; }
 .fft-map-marker { stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 2; outline: none; cursor: pointer; transition: opacity 377ms var(--fft-ease); }
 .fft-map-marker:hover, .fft-map-marker:focus-visible, .fft-map-marker[data-active] { stroke: var(--fft-text); }
-.fft-map-wrap[data-active] .fft-map-marker:not([data-active]) { opacity: 0.45; }
-.fft-map-place { font-size: 11px; pointer-events: none; paint-order: stroke; stroke: var(--fft-surface); stroke-width: 3px; stroke-linejoin: round; }
+.fft-map-wrap[data-active] .fft-map-marker:not([data-active]) { opacity: var(--fft-dim); }
+.fft-map-place { font-size: var(--fft-fs-s); pointer-events: none; paint-order: stroke; stroke: var(--fft-surface); stroke-width: 3px; stroke-linejoin: round; }
 .fft-map-place-name { fill: var(--fft-text); font-weight: 600; }
-.fft-map-place-note { fill: var(--fft-text-secondary); font-size: 10px; }
-.fft-map-note { margin: 0; font-size: 11px; line-height: 13px; color: var(--fft-muted); }
+.fft-map-place-note { fill: var(--fft-text-secondary); font-size: var(--fft-fs-xs); }
+.fft-map-note { margin: 0; font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-muted); }
 .fft-widget[data-animate] .fft-map-region { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 13ms); }
 .fft-widget[data-animate] .fft-map-symbol, .fft-widget[data-animate] .fft-map-marker { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(233ms + var(--fft-i, 0) * 21ms); }
 
@@ -1387,7 +1417,7 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-matrix { display: flex; flex-direction: column; gap: 13px; }
 .fft-matrix svg { display: block; max-width: 100%; }
 .fft-mx-cell { fill: color-mix(in srgb, var(--fft-text) 4%, transparent); pointer-events: none; }
-.fft-mx-row, .fft-mx-col { fill: var(--fft-text-secondary); font-size: 11px; pointer-events: none; }
+.fft-mx-row, .fft-mx-col { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); pointer-events: none; }
 .fft-mx-dot, .fft-mx-yes { stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 1.5; pointer-events: none; transition: opacity 377ms var(--fft-ease); }
 .fft-mx-no { fill: var(--fft-muted); fill-opacity: 0.6; pointer-events: none; }
 .fft-mx-dot[data-step="1"], .fft-mx-yes[data-step="1"] { fill: var(--fft-seq-1); }
@@ -1397,8 +1427,8 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-mx-dot[data-step="5"], .fft-mx-yes[data-step="5"] { fill: var(--fft-seq-5); }
 .fft-mx-dot[data-step="6"], .fft-mx-yes[data-step="6"] { fill: var(--fft-seq-6); }
 .fft-mx-dot[data-step="7"], .fft-mx-yes[data-step="7"] { fill: var(--fft-seq-7); }
-.fft-matrix[data-active] :is(.fft-mx-dot, .fft-mx-yes):not([data-active]) { opacity: 0.38; }
-.fft-mx-label { font-size: 10px; font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; fill: var(--fft-text); paint-order: stroke; stroke: var(--fft-surface); stroke-width: 2.5px; stroke-linejoin: round; }
+.fft-matrix[data-active] :is(.fft-mx-dot, .fft-mx-yes):not([data-active]) { opacity: var(--fft-dim); }
+.fft-mx-label { font-size: var(--fft-fs-xs); font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; fill: var(--fft-text); paint-order: stroke; stroke: var(--fft-surface); stroke-width: 2.5px; stroke-linejoin: round; }
 .fft-mx-label[data-step] { stroke: none; }
 .fft-mx-label[data-step="1"] { fill: var(--fft-seq-text-1); }
 .fft-mx-label[data-step="2"] { fill: var(--fft-seq-text-2); }
@@ -1410,53 +1440,53 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-mx-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-mx-hit:hover, .fft-mx-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 8%, transparent); }
 .fft-mx-keys { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 21px; }
-.fft-mx-sizekey { display: flex; align-items: flex-end; gap: 8px; font-size: 11px; line-height: 13px; color: var(--fft-muted); }
+.fft-mx-sizekey { display: flex; align-items: flex-end; gap: 8px; font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-muted); }
 .fft-mx-sizekey svg { display: block; overflow: visible; }
 .fft-mx-key-ring { fill: none; stroke: var(--fft-muted); stroke-width: 1; }
 .fft-mx-key-line { stroke: var(--fft-grid); stroke-width: 1; shape-rendering: crispEdges; }
-.fft-mx-key-text { fill: var(--fft-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.fft-mx-key-text { fill: var(--fft-muted); font-size: var(--fft-fs-s); font-variant-numeric: tabular-nums; }
 .fft-widget[data-animate] :is(.fft-mx-dot, .fft-mx-yes) { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 8ms); }
 
 /* Strips: one small square per unit, colored by part, the figures at the end. */
 .fft-strips { display: flex; flex-direction: column; gap: 13px; container-type: inline-size; }
 .fft-strip-rows { display: flex; flex-direction: column; gap: 8px; }
-.fft-strip { display: grid; grid-template-columns: var(--fft-strip-label, 34%) 1fr auto; align-items: center; gap: 8px; border-radius: 5px; outline: none; cursor: pointer; }
+.fft-strip { display: grid; grid-template-columns: var(--fft-strip-label, 34%) 1fr auto; align-items: center; gap: 8px; border-radius: var(--fft-radius-m); outline: none; cursor: pointer; }
 .fft-strip:focus-visible { box-shadow: 0 0 0 2px var(--fft-ring, var(--fft-surface)), 0 0 0 3px var(--fft-accent); }
-.fft-strip-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--fft-text-secondary); font-size: 12px; }
+.fft-strip-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--fft-text-secondary); font-size: var(--fft-fs-s); }
 .fft-strip-squares { display: block; overflow: visible; }
 .fft-strip-sq { transition: opacity 377ms var(--fft-ease); }
-.fft-strip-rows[data-active] .fft-strip:not([data-active]) .fft-strip-sq { opacity: 0.38; }
-.fft-strip-end { display: inline-flex; align-items: baseline; gap: 6px; white-space: nowrap; font-variant-numeric: tabular-nums; font-size: 12px; }
+.fft-strip-rows[data-active] .fft-strip:not([data-active]) .fft-strip-sq { opacity: var(--fft-dim); }
+.fft-strip-end { display: inline-flex; align-items: baseline; gap: 6px; white-space: nowrap; font-variant-numeric: tabular-nums; font-size: var(--fft-fs-s); }
 .fft-strip-total { font-weight: 600; }
-.fft-strip-share, .fft-strip-density { color: var(--fft-text-secondary); font-size: 11px; }
+.fft-strip-share, .fft-strip-density { color: var(--fft-text-secondary); font-size: var(--fft-fs-s); }
 .fft-strip-density::before { content: "·"; margin-right: 6px; color: var(--fft-muted); }
-.fft-strips-note { margin: 0; font-size: 11px; line-height: 13px; color: var(--fft-muted); }
+.fft-strips-note { margin: 0; font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-muted); }
 @container (max-width: 420px) { .fft-strip-share, .fft-strip-density { display: none; } }
 .fft-widget[data-animate] .fft-strip-sq { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 34ms + var(--fft-k, 0) * 5ms); }
 
 /* Lifecycle: stage lanes in a deepening tint, a tick per stage date, a faint run while a stage is still open. */
 .fft-lifecycle svg { display: block; max-width: 100%; }
 .fft-lc-lane { transition: opacity 377ms var(--fft-ease); }
-.fft-chart[data-active] .fft-lc-lane:not([data-active]) { opacity: 0.38; }
-.fft-lc-label { fill: var(--fft-text-secondary); font-size: 11px; pointer-events: none; }
+.fft-chart[data-active] .fft-lc-lane:not([data-active]) { opacity: var(--fft-dim); }
+.fft-lc-label { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); pointer-events: none; }
 .fft-lc-lane[data-active] .fft-lc-label { fill: var(--fft-text); }
-.fft-lc-group { fill: var(--fft-text); font-size: 11px; font-weight: 600; letter-spacing: 0.02em; pointer-events: none; }
+.fft-lc-group { fill: var(--fft-text); font-size: var(--fft-fs-s); font-weight: 600; letter-spacing: 0.02em; pointer-events: none; }
 .fft-lc-group-rule { stroke: var(--fft-grid); stroke-width: 1; shape-rendering: crispEdges; }
 .fft-lc-seg { pointer-events: none; }
 .fft-lc-open { fill-opacity: 0.1; stroke-opacity: 0.55; stroke-width: 1; stroke-dasharray: 3 3; pointer-events: none; }
 .fft-lc-tick { stroke: var(--fft-text); stroke-width: 1.5; shape-rendering: crispEdges; pointer-events: none; }
 .fft-lc-status { fill: color-mix(in srgb, var(--fft-text) 7%, transparent); pointer-events: none; }
-.fft-lc-status-text { fill: var(--fft-text-secondary); font-size: 10px; font-weight: 600; pointer-events: none; }
-.fft-lc-tick-label { font-size: 11px; }
+.fft-lc-status-text { fill: var(--fft-text-secondary); font-size: var(--fft-fs-xs); font-weight: 600; pointer-events: none; }
+.fft-lc-tick-label { font-size: var(--fft-fs-s); }
 .fft-lc-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-lc-hit:hover, .fft-lc-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 6%, transparent); }
 .fft-lc-key-open { background: color-mix(in srgb, var(--fft-lc-color) 12%, var(--fft-surface)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fft-lc-color) 55%, transparent); }
-.fft-lc-note { margin: 0; font-size: 11px; line-height: 13px; color: var(--fft-muted); }
+.fft-lc-note { margin: 0; font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-muted); }
 .fft-widget[data-animate] .fft-lc-seg, .fft-widget[data-animate] .fft-lc-open { transform-box: fill-box; transform-origin: 0 50%; animation: fft-grow-x 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 34ms); }
 .fft-widget[data-animate] .fft-lc-tick { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(377ms + var(--fft-i, 0) * 34ms); }
 /* Whitespace: the cross-sell map. Held is a filled square, an opportunity an outlined one tinted by its score, not eligible a faint dot. */
 .fft-ws { display: flex; flex-direction: column; gap: 8px; }
-.fft-ws-grid { display: grid; gap: 2px; align-items: stretch; font-size: 11px; line-height: 13px; }
+.fft-ws-grid { display: grid; gap: 2px; align-items: stretch; font-size: var(--fft-fs-s); line-height: 13px; }
 .fft-ws-corner { min-height: 1px; }
 .fft-ws-col { display: flex; align-items: flex-end; justify-content: center; padding-bottom: 3px; color: var(--fft-muted); text-align: center; min-width: 0; }
 .fft-ws-col-name { overflow-wrap: anywhere; }
@@ -1465,12 +1495,12 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-ws-head-sum, .fft-ws-foot-label { display: flex; align-items: flex-end; color: var(--fft-muted); white-space: nowrap; padding: 0 0 3px 8px; }
 .fft-ws-foot-label { align-items: center; padding: 3px 8px 0 0; justify-content: flex-end; }
 .fft-ws-row { display: flex; align-items: center; padding-right: 8px; color: var(--fft-text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.fft-ws-cell { position: relative; display: flex; align-items: center; justify-content: center; aspect-ratio: 1; min-height: 21px; border-radius: 3px; outline: none; transition: opacity 377ms var(--fft-ease); }
+.fft-ws-cell { position: relative; display: flex; align-items: center; justify-content: center; aspect-ratio: 1; min-height: 21px; border-radius: var(--fft-radius-s); outline: none; transition: opacity 377ms var(--fft-ease); }
 .fft-ws-cell:not([data-state="empty"]) { cursor: pointer; }
 .fft-ws-cell:hover, .fft-ws-cell:focus-visible { box-shadow: 0 0 0 2px var(--fft-ring, var(--fft-surface)), 0 0 0 3px var(--fft-accent); }
 .fft-ws-cell[data-state="empty"] { box-shadow: inset 0 0 0 1px var(--fft-grid); }
-.fft-ws-mark { display: block; width: 62%; height: 62%; border-radius: 3px; }
-.fft-ws-cell[data-state="holds"] .fft-ws-mark { border-radius: 3px; }
+.fft-ws-mark { display: block; width: 62%; height: 62%; border-radius: var(--fft-radius-s); }
+.fft-ws-cell[data-state="holds"] .fft-ws-mark { border-radius: var(--fft-radius-s); }
 .fft-ws-cell[data-state="opportunity"] .fft-ws-mark { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--fft-ws-color, var(--fft-accent)) 70%, var(--fft-text)); background: color-mix(in srgb, var(--fft-ws-color, var(--fft-accent)) 10%, transparent); }
 .fft-ws-cell[data-state="opportunity"] .fft-ws-mark[data-step="2"] { background: color-mix(in srgb, var(--fft-ws-color, var(--fft-accent)) 18%, transparent); }
 .fft-ws-cell[data-state="opportunity"] .fft-ws-mark[data-step="3"] { background: color-mix(in srgb, var(--fft-ws-color, var(--fft-accent)) 26%, transparent); }
@@ -1479,7 +1509,7 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-ws-cell[data-state="opportunity"] .fft-ws-mark[data-step="6"] { background: color-mix(in srgb, var(--fft-ws-color, var(--fft-accent)) 55%, transparent); }
 .fft-ws-cell[data-state="opportunity"] .fft-ws-mark[data-step="7"] { background: color-mix(in srgb, var(--fft-ws-color, var(--fft-accent)) 68%, transparent); }
 .fft-ws-cell[data-state="none"] .fft-ws-mark { width: 5px; height: 5px; border-radius: 50%; background: var(--fft-grid); }
-.fft-ws-grid[data-active] .fft-ws-cell:not([data-active]) .fft-ws-mark { opacity: 0.45; }
+.fft-ws-grid[data-active] .fft-ws-cell:not([data-active]) .fft-ws-mark { opacity: var(--fft-dim); }
 .fft-ws-sum { display: flex; flex-direction: column; justify-content: center; align-items: flex-end; padding-left: 8px; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .fft-ws-count { color: var(--fft-text-secondary); }
 .fft-ws-potential { font-weight: 600; color: var(--fft-text); }
@@ -1491,20 +1521,20 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 /* X-ray: one client on one card, part under part. */
 .fft-xray { display: flex; flex-direction: column; gap: 13px; }
 .fft-xray-head { display: flex; flex-direction: column; gap: 2px; }
-.fft-xray-name { margin: 0; font-size: 21px; line-height: 26px; font-weight: 600; letter-spacing: -0.01em; }
+.fft-xray-name { margin: 0; font-size: var(--fft-fs-l); line-height: 26px; font-weight: 600; letter-spacing: -0.01em; }
 .fft-xray-detail { margin: 0; color: var(--fft-text-secondary); }
 .fft-xray-facts { display: grid; grid-template-columns: repeat(var(--fft-xray-facts, 3), minmax(0, 1fr)); gap: 8px 13px; margin: 0; }
 .fft-xray-fact { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.fft-xray-fact-label { font-size: 11px; line-height: 13px; color: var(--fft-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.fft-xray-fact-value { margin: 0; font-size: 17px; line-height: 21px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fft-xray-fact-label { font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fft-xray-fact-value { margin: 0; font-size: var(--fft-fs-l); line-height: 21px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .fft-xray-section { display: flex; flex-direction: column; gap: 5px; }
-.fft-xray-title { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 11px; line-height: 13px; color: var(--fft-muted); }
+.fft-xray-title { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-muted); }
 .fft-xray-title-count { color: var(--fft-text-secondary); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .fft-xray-holdings { display: flex; flex-wrap: wrap; gap: 5px; margin: 0; padding: 0; list-style: none; }
-.fft-xray-pill { padding: 2px 8px; border-radius: 13px; font-size: 11px; line-height: 13px; color: var(--fft-text-secondary); box-shadow: inset 0 0 0 1px var(--fft-grid); }
+.fft-xray-pill { padding: 2px 8px; border-radius: var(--fft-radius-pill); font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-text-secondary); box-shadow: inset 0 0 0 1px var(--fft-grid); }
 .fft-xray-pill[data-held] { color: color-mix(in srgb, var(--fft-xray-color, var(--fft-accent)) 60%, var(--fft-text)); background: color-mix(in srgb, var(--fft-xray-color, var(--fft-accent)) 16%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fft-xray-color, var(--fft-accent)) 55%, transparent); font-weight: 600; }
-.fft-xray-track { height: 8px; border-radius: 5px; background: color-mix(in srgb, var(--fft-accent) 16%, transparent); overflow: hidden; }
-.fft-xray-fill { height: 100%; border-radius: 5px; transform-origin: 0 50%; }
+.fft-xray-track { height: 8px; border-radius: var(--fft-radius-m); background: color-mix(in srgb, var(--fft-accent) 16%, transparent); overflow: hidden; }
+.fft-xray-fill { height: 100%; border-radius: var(--fft-radius-m); transform-origin: 0 50%; }
 .fft-xray-trend .fft-sparkline { display: block; max-width: 100%; }
 .fft-xray-flags { display: flex; flex-wrap: wrap; gap: 5px; margin: 0; padding: 0; list-style: none; }
 .fft-xray-actions { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 5px; }
@@ -1514,22 +1544,22 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 /* History: a vertical timeline, newest first, a dot per event on a hairline rail. */
 .fft-history-wrap { display: flex; flex-direction: column; gap: 13px; }
 .fft-history-group { display: flex; flex-direction: column; gap: 5px; }
-.fft-history-heading { margin: 0; font-size: 13px; line-height: 21px; font-weight: 600; }
+.fft-history-heading { margin: 0; font-size: var(--fft-fs-m); line-height: 21px; font-weight: 600; }
 .fft-history { position: relative; margin: 0; padding: 0 0 0 29px; list-style: none; display: flex; flex-direction: column; gap: 8px; }
 .fft-history::before { content: ""; position: absolute; left: 10px; top: 8px; bottom: 8px; width: 1px; background: var(--fft-grid); }
-.fft-history-month { position: relative; margin: 5px 0 0; font-size: 11px; line-height: 13px; color: var(--fft-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.fft-history-month { position: relative; margin: 5px 0 0; font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-muted); text-transform: uppercase; letter-spacing: 0.04em; }
 .fft-history-month::before { content: ""; position: absolute; left: -21px; top: 5px; width: 5px; height: 5px; border-radius: 50%; background: var(--fft-grid); box-shadow: 0 0 0 2px var(--fft-ring, var(--fft-surface)); }
 .fft-history-month:first-child { margin-top: 0; }
-.fft-history-event { position: relative; display: flex; gap: 8px; border-radius: 5px; outline: none; transition: opacity 377ms var(--fft-ease); cursor: pointer; }
+.fft-history-event { position: relative; display: flex; gap: 8px; border-radius: var(--fft-radius-m); outline: none; transition: opacity 377ms var(--fft-ease); cursor: pointer; }
 .fft-history-event:focus-visible { box-shadow: 0 0 0 2px var(--fft-ring, var(--fft-surface)), 0 0 0 3px var(--fft-accent); }
-.fft-history-dot { position: absolute; left: -29px; top: 1px; width: 21px; height: 21px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #fff; box-shadow: 0 0 0 2px var(--fft-ring, var(--fft-surface)); }
+.fft-history-dot { position: absolute; left: -29px; top: 1px; width: 21px; height: 21px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: var(--fft-fs-xs); font-weight: 700; color: #fff; box-shadow: 0 0 0 2px var(--fft-ring, var(--fft-surface)); }
 .fft-history-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
 .fft-history-line { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
-.fft-history-date { flex: none; font-size: 11px; line-height: 13px; color: var(--fft-muted); font-variant-numeric: tabular-nums; min-width: 42px; }
+.fft-history-date { flex: none; font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-muted); font-variant-numeric: tabular-nums; min-width: 42px; }
 .fft-history-title { flex: 1; min-width: 0; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .fft-history-amount { flex: none; font-weight: 600; font-variant-numeric: tabular-nums; }
-.fft-history-note { margin: 0 0 0 50px; font-size: 11px; line-height: 15px; color: var(--fft-text-secondary); }
-.fft-history-more { font-size: 11px; line-height: 13px; color: var(--fft-muted); }
+.fft-history-note { margin: 0 0 0 50px; font-size: var(--fft-fs-s); line-height: 15px; color: var(--fft-text-secondary); }
+.fft-history-more { font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-muted); }
 .fft-widget[data-animate] .fft-history-event { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 34ms); }
 @container (max-width: 380px) {
   .fft-xray-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }

@@ -932,3 +932,75 @@ function normal(a: XY, b: XY, inside: XY): XY {
   if ((m.x - inside.x) * n.x + (m.y - inside.y) * n.y < 0) n = { x: -n.x, y: -n.y };
   return n;
 }
+
+// ---- The shared drawing scale: one way to measure text, one row scale, one label column ----
+
+/**
+ * Average width of one character of 11px San Francisco text, for sizing without measuring. Every view uses this
+ * (or `textWidth`) instead of its own constant, so labels, margins and end figures agree across charts.
+ */
+export const CHAR_WIDTH = 6.2;
+
+/** Characters narrower than average in San Francisco: about 0.3em. */
+const NARROW = /[iljtfrI.,:;'’|!()\[\] ]/;
+/** Characters wider than average: about 0.85em. */
+const WIDE = /[mwMW@%]/;
+
+/**
+ * The width in pixels of `text` set in San Francisco at `size` px: an estimate from character classes (narrow
+ * punctuation and i, l, t; wide m, w and %; tabular digits; capitals), close enough to place labels without a
+ * layout pass, and the same in Node and the browser. Bold text (600 and up) runs about 4% wider.
+ */
+export function textWidth(text: string, size = 11, weight = 400): number {
+  let em = 0;
+  for (const ch of text) {
+    if (NARROW.test(ch)) em += 0.3;
+    else if (WIDE.test(ch)) em += 0.85;
+    else if (/[0-9]/.test(ch)) em += 0.6;
+    else if (/[A-Z]/.test(ch)) em += 0.66;
+    else em += 0.54;
+  }
+  return Math.round(em * size * (weight >= 600 ? 1.04 : 1) * 10) / 10;
+}
+
+/**
+ * Row heights for views drawn one row per item (hbar, dot, dumbbell, strips, lifecycle, pyramid, anomalies…):
+ * `compact` for long lists, `regular` by default, `roomy` for a few rows that carry two lines, `tall` for rows
+ * that draw a shape (ridgelines, likert, boxplots), and `group` for a heading row between groups.
+ */
+export const ROW = { compact: 21, regular: 26, roomy: 34, tall: 55, group: 21 } as const;
+
+/** The row height for `count` rows: compact past 16, regular past 8, otherwise the given preference (roomy by default). */
+export function rowHeight(count: number, preferred: keyof typeof ROW = "roomy"): number {
+  if (count > 16) return ROW.compact;
+  if (count > 8) return Math.min(ROW.regular, ROW[preferred]);
+  return ROW[preferred];
+}
+
+/** Gaps between marks and labels, on the Fibonacci steps the stylesheet uses. */
+export const GAP = { xs: 2, s: 3, m: 5, l: 8, xl: 13, xxl: 21 } as const;
+
+/** The label column's bounds: at least 34px, at most 34% of the card. */
+export const LABEL_COLUMN = { min: 34, max: 0.34 } as const;
+
+/**
+ * Width of the label column for a row view: the longest name plus a gap, between `min` px and `max` of the card's
+ * width (34px and 34% by default). Longer names are ellipsed by the view, which keeps the full name in aria.
+ */
+export function labelColumn(names: string[], width: number, opts: { min?: number; max?: number; size?: number } = {}): number {
+  const min = opts.min ?? LABEL_COLUMN.min;
+  const max = Math.max(min, width * (opts.max ?? LABEL_COLUMN.max));
+  const longest = Math.max(0, ...names.map((name) => textWidth(name, opts.size ?? 11)));
+  return Math.round(Math.min(max, Math.max(min, longest + GAP.l)));
+}
+
+/**
+ * Room for a column of values written at the end of marks: the widest text in bold (600, as every value at a mark
+ * is set) plus the gap before it, so the longest bar's figure never runs off the card.
+ */
+export function endRoom(texts: string[], size = 11): number {
+  return Math.ceil(Math.max(0, ...texts.map((text) => textWidth(text, size, 600))) + GAP.m + GAP.s);
+}
+
+/** The opacity marks step back to when another mark is active; the stylesheet's `--fft-dim`. */
+export const DIM = 0.38;

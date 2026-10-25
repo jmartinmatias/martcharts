@@ -7,7 +7,7 @@
 import { formatValue } from "../../core/display.ts";
 import { readNumber } from "../../core/formats.ts";
 import type { FormatSpec, Row } from "../../core/types.ts";
-import type { ViewContext } from "../../core/view-context.ts";
+import type { TooltipItem, ViewContext } from "../../core/view-context.ts";
 import { roving } from "./focus.ts";
 
 export const SVG_NS = "http://www.w3.org/2000/svg";
@@ -234,4 +234,140 @@ export function buildTable(ctx: ViewContext<{ type: string }>, rows: Row[], colu
   if (interactive) roving([...body.children]);
   table.append(head, body);
   return table;
+}
+
+// ---- The shared drawing kit: one legend, one row behaviour, one hidden table, one share format ----
+
+export { CHAR_WIDTH, DIM, endRoom, GAP, LABEL_COLUMN, labelColumn, ROW, rowHeight, textWidth } from "../layout.ts";
+
+/** A swatch's shape, mirroring its marks: a square for bars and cells, a dot for points, a short line for lines, a ring for outlined marks. */
+export type SwatchShape = "rect" | "dot" | "line" | "ring";
+
+/** One legend key. */
+export interface LegendEntry {
+  /** The words beside the swatch. */
+  label: string;
+  /** CSS color of the swatch. */
+  color: string;
+  shape?: SwatchShape;
+  /** A mark state the swatch mirrors: `miss` is a light fill outlined in the color (a bar below its target), `muted` a greyed key. */
+  tone?: "miss" | "muted";
+}
+
+/**
+ * The one legend every view uses: a row of keys whose swatches mirror their marks. Above the chart by default;
+ * `place: "below"` for maps and scales. Returns undefined inside a small-multiples panel (the widget draws one
+ * shared legend there) and when there is nothing to tell apart (`min` keys, 1 by default; pass 2 for series keys).
+ */
+export function legendList(ctx: ViewContext<{ type: string }>, entries: LegendEntry[], opts: { place?: "above" | "below"; min?: number } = {}): HTMLElement | undefined {
+  if (ctx.inFacet || entries.length < (opts.min ?? 1)) return undefined;
+  const doc = ctx.el.ownerDocument;
+  const list = html(doc, "ul", "fft-legend");
+  if (opts.place === "below") list.dataset.place = "below";
+  for (const entry of entries) {
+    const swatch = html(doc, "span", "fft-swatch");
+    swatch.dataset.shape = entry.shape ?? "rect";
+    swatch.setAttribute("aria-hidden", "true");
+    if (entry.tone === "miss") {
+      swatch.dataset.tone = "miss";
+      swatch.style.background = `color-mix(in srgb, ${entry.color} 34%, var(--fft-surface))`;
+      swatch.style.boxShadow = `inset 0 0 0 1px color-mix(in srgb, ${entry.color} 85%, var(--fft-text))`;
+    } else if (entry.shape === "ring") {
+      swatch.style.boxShadow = `inset 0 0 0 1.5px ${entry.color}`;
+    } else swatch.style.background = entry.color;
+    if (entry.tone === "muted") swatch.dataset.tone = "muted";
+    const item = html(doc, "li");
+    item.append(swatch, entry.label);
+    list.append(item);
+  }
+  return list;
+}
+
+/** Percent of a whole, for shares in legends and tooltips: whole percents by default ("37%"), `digits` decimals at most. */
+export function shareFormat(locale?: string, digits = 0): Intl.NumberFormat {
+  return new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: digits });
+}
+
+/** The data-active dance: one active mark at a time, the others stepping back to `--fft-dim` through the stylesheet. */
+export interface ActiveGroup {
+  /** Marks `node` active (and the group as having one), clearing the previous one. */
+  on(node: Element): void;
+  /** Clears the active mark and hides the tooltip, if one was given. */
+  off(): void;
+}
+
+/**
+ * The data-active state of a group of marks: `wrap` carries `data-active` while one mark does, so the stylesheet
+ * can dim the rest with `.x[data-active] .mark:not([data-active]) { opacity: var(--fft-dim) }`.
+ */
+export function activeGroup(wrap: Element, tooltip?: { hide(): void }): ActiveGroup {
+  let current: Element | undefined;
+  return {
+    on(node) {
+      if (current && current !== node) current.removeAttribute("data-active");
+      current = node;
+      wrap.setAttribute("data-active", "");
+      node.setAttribute("data-active", "");
+    },
+    off() {
+      current?.removeAttribute("data-active");
+      current = undefined;
+      wrap.removeAttribute("data-active");
+      tooltip?.hide();
+    },
+  };
+}
+
+/** What makes one row (or mark) of a view reachable: its name, its tooltip lines and where the tooltip points. */
+export interface RowHitOptions {
+  /** The element that takes focus and the pointer: a list item, or a transparent SVG rect over the row. */
+  node: HTMLElement | SVGElement;
+  /** The data row, reported through `ctx.select` on click, Enter or Space. */
+  row: Row;
+  /** The row's name: the tooltip title and the start of its aria-label. */
+  name: string;
+  items: TooltipItem[];
+  /** The element the tooltip points at; the node itself by default. */
+  anchor?: Element;
+  /** The element that carries `data-active`; the node by default (often its row group). */
+  active?: Element;
+  /** The group whose other marks dim while this one is active. */
+  group: ActiveGroup;
+  /** Extra words at the end of the aria-label, such as ", crosses the majority". */
+  said?: string;
+}
+
+/**
+ * Wires one row the way every row view does: focusable (tabindex 0; role img on SVG), an aria-label of its name and
+ * tooltip lines, the tooltip on pointer and focus, the rest dimmed meanwhile, and `ctx.select` on click, Enter or
+ * Space. Call `roving(nodes)` once the rows are drawn so arrow keys move between them.
+ */
+export function rowHit(ctx: ViewContext<{ type: string }>, opts: RowHitOptions): HTMLElement | SVGElement {
+  const { node, row, name, items, group } = opts;
+  node.setAttribute("tabindex", "0");
+  if (node.namespaceURI === SVG_NS) node.setAttribute("role", "img");
+  node.setAttribute("aria-label", `${name}: ${items.map((item) => `${item.label} ${item.value || "no value"}`).join(", ")}${opts.said ?? ""}`);
+  const show = () => {
+    group.on(opts.active ?? node);
+    ctx.tooltip.show(opts.anchor ?? node, name, items);
+  };
+  node.addEventListener("pointerenter", show);
+  node.addEventListener("focus", show);
+  node.addEventListener("pointerleave", () => group.off());
+  node.addEventListener("blur", () => group.off());
+  selectable(node, () => ctx.select(row));
+  return node;
+}
+
+/** The arrow-key order over a view's rows, once they are drawn: re-exported so views need one import. */
+export { roving };
+
+/**
+ * The table behind a chart, for screen readers only (WCAG 1.3.1): the rows it draws, in the columns it reads, in
+ * the fields' own formats. Repeated or empty column names are dropped.
+ */
+export function hiddenTableOf(ctx: ViewContext<{ type: string }>, rows: Row[], columns: string[]): HTMLElement {
+  const hidden = html(ctx.el.ownerDocument, "div", "fft-sr-only");
+  hidden.append(buildTable(ctx, rows, columns.filter((field, i) => field && columns.indexOf(field) === i), false));
+  return hidden;
 }
