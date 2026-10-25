@@ -6,6 +6,8 @@
  * @module
  */
 import { readNumber } from "./formats.ts";
+import { basemapNames, featureId, geoProblem, normalizeId, resolveGeo } from "./geo.ts";
+import type { GeoCollection } from "./geo.ts";
 import { ICON_NAMES } from "./icons.ts";
 import { checkReference, REFERENCE_OPTION } from "./reference.ts";
 import type { ReferenceMark } from "./reference.ts";
@@ -1368,4 +1370,161 @@ const rose: ViewBlock = {
   },
 };
 
-export const builtinViews: ViewBlock[] = [table, list, kpi, kpis, bar, hbar, line, area, meter, bullet, donut, treemap, funnel, waterfall, heatmap, calendar, scatter, beeswarm, ridgeline, sankey, dumbbell, slope, bump, marimekko, histogram, rings, timeline, waffle, variance, gauge, pareto, boxplot, likert, candlestick, sunburst, chord, radar, rose, horizon, icicle, dot, pyramid, dual];
+/** What the map views accept as geometry: a built-in basemap's name, an inline GeoJSON FeatureCollection, or its address. */
+export type GeoOption = string | GeoCollection;
+
+/** `{ type: "choropleth", geo, id, value, key?, labels?, min?, max? }`: regions shaded by a value. */
+export interface ChoroplethView {
+  type: "choropleth";
+  geo: GeoOption;
+  id: string;
+  value: string;
+  key?: string;
+  labels?: boolean;
+  min?: number;
+  max?: number;
+}
+
+/** `{ type: "symbols", geo?, id? | lat? lon?, size, label?, color? }`: circles sized by a value, placed on a map. */
+export interface SymbolsView {
+  type: "symbols";
+  geo?: GeoOption;
+  id?: string;
+  lat?: string;
+  lon?: string;
+  size: string;
+  label?: string;
+  color?: string;
+  key?: string;
+}
+
+/** `{ type: "locator", geo?, id? | lat? lon?, label, note?, kind? }`: named markers on a map. */
+export interface LocatorView {
+  type: "locator";
+  geo?: GeoOption;
+  id?: string;
+  lat?: string;
+  lon?: string;
+  label: string;
+  note?: string;
+  kind?: string;
+  key?: string;
+}
+
+const GEO_OPTION = (required: boolean): OptionSchema => ({
+  type: "any",
+  required,
+  description: `The map's geometry: a built-in basemap by name (${basemapNames().join(", ")}: tile grids keyed by country or state code), an inline GeoJSON FeatureCollection whose features carry an id, or the address of a GeoJSON file to fetch.`,
+});
+const KEY_OPTION: OptionSchema = { type: "string", default: "id", description: "The feature property that holds each region's id in your own GeoJSON (feature.id is read too). Built-in basemaps use their codes." };
+const ID_OPTION = (what: string): OptionSchema => ({ type: "field", kind: "category", description: `Field with the region code that places each ${what}: a country or state code on a built-in basemap, or the feature id in your GeoJSON. Use lat and lon instead for coordinates.` });
+const LAT_OPTION: OptionSchema = { type: "field", kind: "number", description: "Field with each row's latitude, for placing by coordinates on your own GeoJSON (not on a built-in grid)." };
+const LON_OPTION: OptionSchema = { type: "field", kind: "number", description: "Field with each row's longitude, paired with lat." };
+
+/** Problems with how a map places its rows: by id, or by lat and lon, never both or neither. */
+function placementProblems(view: Record<string, unknown>, required: boolean): string[] {
+  const byId = typeof view.id === "string" && view.id !== "";
+  const byPoint = typeof view.lat === "string" || typeof view.lon === "string";
+  const problems: string[] = [];
+  if (byId && byPoint) problems.push("Place rows by id (a region code) or by lat and lon, not both.");
+  if (byPoint && !(typeof view.lat === "string" && typeof view.lon === "string")) problems.push("lat and lon go together: name both fields.");
+  if (!byId && !byPoint && required) problems.push("Say where each row goes: id (a region code on the basemap) or lat and lon.");
+  if (byPoint && typeof view.geo === "string" && resolveGeo(view.geo)?.grid) problems.push(`The ${view.geo} basemap is a tile grid with no coordinates: place rows by id (its codes) instead of lat and lon.`);
+  const geo = geoProblem(view.geo);
+  if (geo) problems.push(geo);
+  return problems;
+}
+
+/** Rows whose id names no region on the geometry at hand, as one warning. */
+function unplacedRows(view: Record<string, unknown>, rows: Row[]): string[] {
+  const collection = resolveGeo(view.geo);
+  const field = typeof view.id === "string" ? view.id : undefined;
+  if (!collection || !field) return [];
+  const key = typeof view.key === "string" ? view.key : "id";
+  const known = new Set(collection.features.map((feature) => normalizeId(featureId(feature, key))));
+  const lost = rows.map((row) => normalizeId(row[field])).filter((code) => code && !known.has(code));
+  if (!lost.length) return [];
+  const sample = [...new Set(lost)].slice(0, 3).join(", ");
+  return [`${lost.length} row${lost.length === 1 ? "" : "s"} name${lost.length === 1 ? "s" : ""} no region on the map (${sample}${lost.length > 3 ? ", …" : ""}): check the codes against the basemap, or they stay unplaced.`];
+}
+
+const choropleth: ViewBlock = {
+  type: "choropleth",
+  description:
+    "A map with each region shaded by its value, from the weakest tint to the strongest, with a scale under it: revenue by country, share by state. Regions with no row stay grey and are keyed No data. Built-in tile grids (europe, us-states) give every region the same size, so small countries read as well as big ones; your own GeoJSON draws true shapes.",
+  options: {
+    geo: GEO_OPTION(true),
+    id: { type: "field", kind: "category", required: true, description: "Field with each row's region code: a country or state code on a built-in basemap (FR, TX), or the feature id in your GeoJSON." },
+    value: { type: "field", kind: "number", required: true, description: "Field that shades each region. Rows with no number stay grey." },
+    key: KEY_OPTION,
+    labels: { type: "boolean", default: true, description: "Write each region's code inside it, where it fits." },
+    min: { type: "number", description: "Value of the weakest tint. Defaults to the lowest value." },
+    max: { type: "number", description: "Value of the strongest tint. Defaults to the highest value." },
+  },
+  validate(view) {
+    const problems = [...placementProblems(view, false)];
+    if (typeof view.min === "number" && typeof view.max === "number" && view.max <= view.min) problems.push("max must be greater than min.");
+    return problems;
+  },
+  checkData(view, rows) {
+    const field = String(view.id);
+    const codes = rows.map((row) => normalizeId(row[field])).filter(Boolean);
+    const warnings = unplacedRows(view, rows);
+    if (new Set(codes).size < codes.length) warnings.push(`Some ${field} codes repeat: a region takes one value, so sum the rows first with an aggregate step.`);
+    return warnings;
+  },
+};
+
+const symbols: ViewBlock = {
+  type: "symbols",
+  description:
+    "A map with a circle on each place, its area true to a value: customers by state, volume by port. Places sit on a region of a basemap (by code) or at coordinates on your own GeoJSON; a color field groups them with a key, and a size key shows what the circles mean.",
+  options: {
+    geo: GEO_OPTION(false),
+    id: ID_OPTION("circle"),
+    lat: LAT_OPTION,
+    lon: LON_OPTION,
+    size: { type: "field", kind: "number", required: true, description: "Field that sizes each circle, by area. Zero and missing values draw nothing." },
+    label: { type: "field", kind: "category", description: "Field naming each place in its tooltip. Defaults to the region's name, or the id." },
+    color: { type: "field", kind: "category", description: "Field that colors the circles by group, with a key." },
+    key: KEY_OPTION,
+  },
+  validate(view) {
+    const problems = placementProblems(view, true);
+    if (typeof view.lat === "string" && !view.geo) problems.push("Coordinates need a map under them: give geo a GeoJSON FeatureCollection or its address.");
+    return problems;
+  },
+  checkData(view, rows) {
+    const warnings = unplacedRows(view, rows);
+    if (rows.length > 150) warnings.push(`${rows.length} circles crowd a map: sum them by region first, or filter.`);
+    return warnings;
+  },
+};
+
+const locator: ViewBlock = {
+  type: "locator",
+  description:
+    "A small, clean map that says where things are: a marker and an always-on name for each place, such as offices, stores or sites, with a second line of detail if there is one. Places sit on a region of a basemap (by code) or at coordinates on your own GeoJSON; a kind field colors the markers with a key.",
+  options: {
+    geo: GEO_OPTION(false),
+    id: ID_OPTION("marker"),
+    lat: LAT_OPTION,
+    lon: LON_OPTION,
+    label: { type: "field", kind: "category", required: true, description: "Field with each place's name, written beside its marker." },
+    note: { type: "field", kind: "category", description: "Field with a second, smaller line under the name, such as a city or a headcount." },
+    kind: { type: "field", kind: "category", description: "Field that colors the markers by kind, with a key." },
+    key: KEY_OPTION,
+  },
+  validate(view) {
+    const problems = placementProblems(view, true);
+    if (typeof view.lat === "string" && !view.geo) problems.push("Coordinates need a map under them: give geo a GeoJSON FeatureCollection or its address.");
+    return problems;
+  },
+  checkData(view, rows) {
+    const warnings = unplacedRows(view, rows);
+    if (rows.length > 30) warnings.push(`${rows.length} named places crowd a locator map; keep about 30 or fewer, or use symbols.`);
+    return warnings;
+  },
+};
+
+export const builtinViews: ViewBlock[] = [table, list, kpi, kpis, bar, hbar, line, area, meter, bullet, donut, treemap, funnel, waterfall, heatmap, calendar, scatter, beeswarm, ridgeline, sankey, dumbbell, slope, bump, marimekko, histogram, rings, timeline, waffle, variance, gauge, pareto, boxplot, likert, candlestick, sunburst, chord, radar, rose, horizon, icicle, dot, pyramid, dual, choropleth, symbols, locator];

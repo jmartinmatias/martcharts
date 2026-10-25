@@ -46,6 +46,9 @@ import { renderTreemap } from "./treemap.ts";
 import { renderVariance } from "./variance.ts";
 import { renderWaffle } from "./waffle.ts";
 import { renderWaterfall } from "./waterfall.ts";
+import { renderChoropleth } from "./choropleth.ts";
+import { renderSymbols } from "./symbols.ts";
+import { renderLocator } from "./locator.ts";
 
 setRenderer("table", renderTable);
 setRenderer("list", renderList);
@@ -90,7 +93,13 @@ setRenderer("icicle", renderIcicle);
 setRenderer("dot", renderDot);
 setRenderer("pyramid", renderPyramid);
 setRenderer("dual", renderDual);
+setRenderer("choropleth", renderChoropleth);
+setRenderer("symbols", renderSymbols);
+setRenderer("locator", renderLocator);
 
 export { renderKpis } from "./kpis.ts";
 export { renderRidgeline } from "./ridgeline.ts";
 export { renderArea, renderBar, renderBeeswarm, renderBoxplot, renderBullet, renderBump, renderCalendar, renderCandlestick, renderChord, renderDonut, renderDot, renderDual, renderDumbbell, renderSankey, renderFunnel, renderGauge, renderTreemap, renderHbar, renderHeatmap, renderHistogram, renderHorizon, renderIcicle, renderKpi, renderLikert, renderLine, renderList, renderMarimekko, renderMeter, renderPareto, renderPyramid, renderRadar, renderRings, renderRose, renderScatter, renderSlope, renderSunburst, renderTable, renderTimeline, renderVariance, renderWaffle, renderWaterfall };
+export { renderChoropleth } from "./choropleth.ts";
+export { renderSymbols } from "./symbols.ts";
+export { renderLocator } from "./locator.ts";

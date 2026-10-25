@@ -1,0 +1,55 @@
+{
+  "id": "customers-by-state",
+  "title": "Customers by state",
+  "subtitle": "Active accounts, September 2026",
+  "description": "Active customer accounts per US state as circles on a tile grid, sized by count and colored by sales region, so the coasts' weight and the thin middle show at once.",
+  "footer": "Source: CRM, accounts with an active subscription",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {"state":"CA","customers":1840,"region":"West"},
+      {"state":"WA","customers":620,"region":"West"},
+      {"state":"OR","customers":240,"region":"West"},
+      {"state":"CO","customers":410,"region":"West"},
+      {"state":"AZ","customers":330,"region":"West"},
+      {"state":"UT","customers":190,"region":"West"},
+      {"state":"NV","customers":150,"region":"West"},
+      {"state":"TX","customers":1260,"region":"South"},
+      {"state":"FL","customers":890,"region":"South"},
+      {"state":"GA","customers":540,"region":"South"},
+      {"state":"NC","customers":460,"region":"South"},
+      {"state":"VA","customers":430,"region":"South"},
+      {"state":"TN","customers":260,"region":"South"},
+      {"state":"IL","customers":720,"region":"Midwest"},
+      {"state":"OH","customers":480,"region":"Midwest"},
+      {"state":"MI","customers":390,"region":"Midwest"},
+      {"state":"MN","customers":350,"region":"Midwest"},
+      {"state":"MO","customers":230,"region":"Midwest"},
+      {"state":"WI","customers":210,"region":"Midwest"},
+      {"state":"NY","customers":1520,"region":"Northeast"},
+      {"state":"MA","customers":680,"region":"Northeast"},
+      {"state":"PA","customers":560,"region":"Northeast"},
+      {"state":"NJ","customers":470,"region":"Northeast"},
+      {"state":"CT","customers":220,"region":"Northeast"}
+    ]
+  },
+  "fields": {
+    "state": {
+      "label": "State"
+    },
+    "customers": {
+      "label": "Customers"
+    },
+    "region": {
+      "label": "Sales region"
+    }
+  },
+  "view": {
+    "type": "symbols",
+    "geo": "us-states",
+    "id": "state",
+    "size": "customers",
+    "color": "region"
+  }
+}

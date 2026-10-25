@@ -150,6 +150,7 @@ const VIEW_GUIDE = [
   "Flows between stages: sankey (branching), funnel (one path), chord (exchange within one set, such as moves between plans).",
   "Survey answers: likert.",
   "Plans and dates: timeline (milestones, progress, a today line).",
+  "Where things are: choropleth (regions shaded by a value), symbols (circles sized by a value on their regions or at coordinates), locator (named markers); geo takes a built-in tile grid (europe, us-states) or your own GeoJSON.",
   "Records to read: table (with spark and badge cells), list.",
 ];
 

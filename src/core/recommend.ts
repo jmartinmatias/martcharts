@@ -6,6 +6,7 @@
  *
  * @module
  */
+import { guessBasemap } from "./geo.ts";
 import type { Row, ViewSpec } from "./types.ts";
 
 /** One recommended chart. */
@@ -100,6 +101,15 @@ function peers(shape: Shape, max: number): string[] {
 }
 
 const falling = (values: number[]) => values.length >= 3 && values.every((value, i) => i === 0 || value <= values[i - 1]!);
+
+/** The first category column whose values are all codes on one built-in basemap, with that basemap's name. */
+function onBasemap(shape: Shape): { id: string; geo: string } | undefined {
+  for (const id of shape.categories) {
+    const geo = guessBasemap(shape.rows.map((row) => row[id]));
+    if (geo) return { id, geo };
+  }
+  return undefined;
+}
 
 /** One rule per view, each returning a score and view when the data suits it. */
 const RULES: Record<string, Rule> = {
@@ -354,6 +364,19 @@ const RULES: Record<string, Rule> = {
     return label && left && right && shape.rows.length >= 3 && shape.rows.length <= 30 && shape.distinct(label) === shape.rows.length && nonNegative(shape, left) && nonNegative(shape, right)
       ? { score: 90, view: { type: "pyramid", label, left, right }, why: `${left} and ${right} back to back across ${shape.rows.length} ${label} bands.` }
       : undefined;
+  },
+  // A column of country or state codes that all sit on one built-in basemap: shade the map, or size circles on it.
+  choropleth: (shape) => {
+    const placed = onBasemap(shape);
+    const [value] = shape.numbers;
+    return placed && value && shape.distinct(placed.id) === shape.rows.length
+      ? { score: 86, view: { type: "choropleth", geo: placed.geo, id: placed.id, value }, why: `${value} by ${placed.id}, shaded on a map.` }
+      : undefined;
+  },
+  symbols: (shape) => {
+    const placed = onBasemap(shape);
+    const [size] = shape.numbers;
+    return placed && size && nonNegative(shape, size) ? { score: 62, view: { type: "symbols", geo: placed.geo, id: placed.id, size }, why: `${size} as circles on a map, one per ${placed.id}.` } : undefined;
   },
 };
 
