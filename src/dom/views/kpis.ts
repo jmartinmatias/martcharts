@@ -7,6 +7,8 @@ import { deltaElement } from "./delta.ts";
 import { sparkline } from "./kpi.ts";
 import { html } from "./shared.ts";
 import { targetLine } from "./target.ts";
+import { ragFromValue } from "../../core/rag.ts";
+import { ragPill } from "./rag-shared.ts";
 
 /**
  * Draws the `kpis` view: one strip of stat tiles separated by hairlines, each
@@ -33,6 +35,8 @@ export const renderKpis: ViewRenderer<KpisView> = (ctx) => {
     tile.append(html(doc, "div", "fft-stat-label", item.label ?? ctx.label(field)), number);
     const compare = item.compare ?? (series ? "previous" : undefined);
     const now = readNumber(value);
+    // With RAG thresholds, a pill says where the tile stands: its shape and its words, never color alone.
+    if (item.rag && now !== null) tile.append(ragPill(doc, ragFromValue(now, item.rag), {}, "fft-stat-rag"));
     const then = compare === "previous" ? (before ? readNumber(before[field]) : null) : compare ? readNumber(row[compare]) : null;
     if (now !== null && then !== null && then !== 0) {
       tile.append(deltaElement(doc, (now - then) / Math.abs(then), item.goodWhen ?? "up", item.compareLabel, ctx.spec.locale));

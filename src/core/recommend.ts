@@ -7,6 +7,7 @@
  * @module
  */
 import { guessBasemap } from "./geo.ts";
+import { isRagValue } from "./rag.ts";
 import type { Row, ViewSpec } from "./types.ts";
 
 /** One recommended chart. */
@@ -540,7 +541,44 @@ const RULES: Record<string, Rule> = {
     const value = shape.numbers.find((field) => !TARGET.test(field));
     return { score: 76, view: { type: "board", label, stage, ...(group ? { group } : {}), ...(value ? { value } : {}) }, why: `Every ${label} on a board, one column per ${stage}.` };
   },
+  // Columns whose every value is a status (R, A, G or red, amber, green), one row per entity: a RAG scorecard.
+  ragboard: (shape) => {
+    const statuses = ragColumns(shape);
+    const label = shape.categories.find((field) => !statuses.includes(field) && shape.distinct(field) === shape.rows.length);
+    if (!statuses.length || !label || shape.rows.length < 2 || shape.rows.length > 60) return undefined;
+    const previous = Object.fromEntries(statuses.flatMap((field) => {
+      const before = statuses.find((other) => other !== field && PREVIOUS.test(other) && other.replace(PREVIOUS, "") === field);
+      return before ? [[field, before]] : [];
+    }));
+    const dimensions = statuses.filter((field) => !Object.values(previous).includes(field));
+    const group = shape.categories.find((field) => field !== label && !statuses.includes(field) && shape.distinct(field) >= 2 && shape.distinct(field) <= 8);
+    return {
+      score: dimensions.length > 1 ? 90 : 72,
+      view: { type: "ragboard", label, dimensions, ...(Object.keys(previous).length ? { previous } : {}), ...(group ? { group } : {}) },
+      why: `${dimensions.length === 1 ? "A status" : `${dimensions.length} statuses`} per ${label} as a RAG scorecard, worst first.`,
+    };
+  },
+  // One status per entity per period: how each status moved over time.
+  ragtrend: (shape) => {
+    const [status] = ragColumns(shape);
+    const period = shape.dates[0] ?? shape.categories.find((field) => shape.rows.every((row) => /^\d{4}-?Q[1-4]$/i.test(String(row[field] ?? ""))));
+    const label = shape.categories.find((field) => field !== status && field !== period && shape.distinct(field) >= 2 && shape.distinct(field) < shape.rows.length);
+    if (!status || !period || !label || shape.distinct(period) < 3) return undefined;
+    const note = shape.categories.find((field) => /note|reason|why|comment|cause/i.test(field));
+    return { score: 84, view: { type: "ragtrend", label, period, status, ...(note ? { note } : {}) }, why: `Each ${label}'s ${status} ${period} by ${period}: who got worse, and when.` };
+  },
 };
+
+/** A previous-period twin of a field: healthLast, health_prev, previousHealth. */
+const PREVIOUS = /(Last|_last|Prev|_prev|Previous|_previous|Before|_before)$/;
+
+/** Category columns whose every present value is a status: R, A, G, N or red, amber, green, grey. */
+function ragColumns(shape: Shape): string[] {
+  return shape.categories.filter((field) => {
+    const values = shape.rows.map((row) => row[field]).filter((v) => v !== null && v !== undefined && v !== "");
+    return values.length > 0 && values.every(isRagValue);
+  });
+}
 
 /**
  * The views that suit `rows`, best first, each with a filled view block.

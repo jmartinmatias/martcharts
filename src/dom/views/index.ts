@@ -58,6 +58,8 @@ import { renderWhitespace } from "./whitespace.ts";
 import { renderXray } from "./xray.ts";
 import { renderHistory } from "./history.ts";
 import { renderBoard } from "./board.ts";
+import { renderRagboard } from "./ragboard.ts";
+import { renderRagtrend } from "./ragtrend.ts";
 
 setRenderer("table", renderTable);
 setRenderer("list", renderList);
@@ -114,6 +116,8 @@ setRenderer("xray", renderXray);
 setRenderer("history", renderHistory);
 setRenderer("anomalies", renderAnomalies);
 setRenderer("board", renderBoard);
+setRenderer("ragboard", renderRagboard);
+setRenderer("ragtrend", renderRagtrend);
 
 export { renderKpis } from "./kpis.ts";
 export { renderRidgeline } from "./ridgeline.ts";
@@ -129,3 +133,5 @@ export { renderStrips } from "./strips.ts";
 export { renderLifecycle } from "./lifecycle.ts";
 export { renderAnomalies } from "./anomalies.ts";
 export { renderBoard } from "./board.ts";
+export { renderRagboard } from "./ragboard.ts";
+export { renderRagtrend } from "./ragtrend.ts";

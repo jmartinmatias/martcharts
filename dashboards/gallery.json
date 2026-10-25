@@ -358,6 +358,17 @@
     {
       "widget": "deal-board",
       "span": 3
+    },
+    {
+      "section": "RAG reporting (views)",
+      "description": "Who is on track, on what, and how each status moved"
+    },
+    {
+      "widget": "rag-scorecard",
+      "span": 2
+    },
+    {
+      "widget": "rag-status-trend"
     }
   ],
   "title": "Gallery",

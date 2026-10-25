@@ -4,6 +4,8 @@
  * @module
  */
 import type { TransformBlock } from "./registry.ts";
+import { applyRag, ragStepProblems } from "./rag.ts";
+import type { RagStep } from "./rag.ts";
 import { binValues, sturges } from "./scale.ts";
 import type { Row } from "./types.ts";
 
@@ -312,4 +314,24 @@ const bin: TransformBlock = {
   },
 };
 
-export const builtinTransforms: TransformBlock[] = [filter, sort, limit, aggregate, pivot, calc, bin];
+/**
+ * `{ type: "rag", rules: [{ field, as?, green, amber, goodWhen? }], overall? }`: turns numbers into Red, Amber and Green
+ * statuses against thresholds, one status column per rule, and optionally the worst of them in one overall column.
+ */
+const rag: TransformBlock = {
+  type: "rag",
+  description:
+    "Turns numbers into RAG statuses (R, A, G, or N for no data) against thresholds: one status column per rule, named <field>Rag unless as says otherwise, and optionally an overall column holding the worst of them. With goodWhen up (the default) a value at or past green is G, at or past amber is A, and lower is R; with goodWhen down, less is better.",
+  options: {
+    rules: {
+      type: "array",
+      required: true,
+      description: 'One rule per measure: { "field": "nps", "green": 40, "amber": 20 } or, when less is better, { "field": "daysSinceContact", "green": 30, "amber": 60, "goodWhen": "down", "as": "contact" }.',
+    },
+    overall: { type: "string", description: "Name of a column holding the worst status of all the rules: the row's overall RAG." },
+  },
+  validate: (step) => ragStepProblems(step),
+  apply: (rows, step) => applyRag(rows, step as unknown as RagStep) as Row[],
+};
+
+export const builtinTransforms: TransformBlock[] = [filter, sort, limit, aggregate, pivot, calc, bin, rag];

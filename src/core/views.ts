@@ -14,6 +14,7 @@ import { checkReference, REFERENCE_OPTION } from "./reference.ts";
 import type { ReferenceMark } from "./reference.ts";
 import type { Row } from "./types.ts";
 import type { OptionSchema, ViewBlock } from "./registry.ts";
+import { isRagValue, ragStepProblems } from "./rag.ts";
 
 /** `{ type: "table", columns? }` */
 export interface TableView {
@@ -59,6 +60,30 @@ export interface KpiView {
   x?: string;
   icon?: string;
   target?: string;
+  /** Thresholds that give the number a RAG status, shown as a pill with its shape and words beside it. */
+  rag?: KpiRag;
+}
+
+/** `{ green, amber, goodWhen? }`: a headline number's RAG thresholds. */
+export interface KpiRag {
+  green: number;
+  amber: number;
+  goodWhen?: "up" | "down";
+}
+
+/** The kpi and kpis `rag` option: thresholds for a status pill beside the number. */
+const KPI_RAG_OPTION: OptionSchema = {
+  type: "object",
+  description:
+    'Thresholds that give the number a Red, Amber or Green status, shown as a small pill with its shape and words (On track, At risk, Off track) beside it: { "green": 40, "amber": 20 }, or { "green": 2, "amber": 5, "goodWhen": "down" } when less is better.',
+};
+
+/** Problems with a rag thresholds object at `path`. */
+function checkKpiRag(value: unknown, path: string): string[] {
+  if (value === undefined) return [];
+  if (!value || typeof value !== "object" || Array.isArray(value)) return [`${path} must be an object such as { "green": 40, "amber": 20 }.`];
+  // The transform's own checks, worded for this option: "rules[0].green" reads "rag.green".
+  return ragStepProblems({ rules: [{ field: "value", ...(value as Record<string, unknown>) }] }).map((p) => p.replace(/^rules\[0\](\.|: )/, (_, sep: string) => (sep === "." ? `${path}.` : `${path}: `)));
 }
 
 /** One tile in a `kpis` row. */
@@ -69,6 +94,8 @@ export interface KpisItem {
   compareLabel?: string;
   goodWhen?: "up" | "down";
   target?: string;
+  /** Thresholds that give the tile a RAG status pill. */
+  rag?: KpiRag;
 }
 
 /** `{ type: "kpis", items, series? }`: a row of stat tiles in one widget. */
@@ -688,7 +715,9 @@ const kpi: ViewBlock = {
       kind: "number",
       description: "Field holding the target. A line under the number says where the latest stands: a check and Target met, or how far it has to go (with goodWhen down, how far above the target it is).",
     },
+    rag: KPI_RAG_OPTION,
   },
+  validate: (view) => checkKpiRag(view.rag, "rag"),
 };
 
 const kpis: ViewBlock = {
@@ -698,7 +727,7 @@ const kpis: ViewBlock = {
     items: {
       type: "array",
       required: true,
-      description: 'Tiles, each { value, label?, compare?, compareLabel?, goodWhen?, target? }. compare is a field or "previous" (the row before); target is a field, and the tile then says where it stands (Target met, or how far to go). Example: [{ "value": "revenue", "compare": "previous", "target": "target" }].',
+      description: 'Tiles, each { value, label?, compare?, compareLabel?, goodWhen?, target?, rag? }. compare is a field or "previous" (the row before); target is a field, and the tile then says where it stands (Target met, or how far to go); rag is { green, amber, goodWhen? } and adds a Red, Amber or Green status pill. Example: [{ "value": "revenue", "compare": "previous", "target": "target" }].',
     },
     series: { type: "boolean", default: false, description: "Read the rows as a time series: values from the last row, compared with the row before, plus a sparkline per tile." },
   },
@@ -708,7 +737,8 @@ const kpis: ViewBlock = {
     if (items.length === 0) return ["items needs at least one entry."];
     return items.flatMap((item: Partial<KpisItem> | null, i) => {
       if (!item || typeof item.value !== "string" || !item.value) return [`items[${i}] needs a value field.`];
-      return item.goodWhen !== undefined && item.goodWhen !== "up" && item.goodWhen !== "down" ? [`items[${i}].goodWhen must be up or down.`] : [];
+      const problems = item.goodWhen !== undefined && item.goodWhen !== "up" && item.goodWhen !== "down" ? [`items[${i}].goodWhen must be up or down.`] : [];
+      return [...problems, ...checkKpiRag(item.rag, `items[${i}].rag`)];
     });
   },
 };
@@ -2109,8 +2139,130 @@ const board: ViewBlock = {
   },
 };
 
+// ---- RAG reporting: a status scorecard and status over time ----
+
+/**
+ * `{ type: "ragboard", label, dimensions, previous?, overall?, sort?, group?, note? }`: one row per entity, one RAG
+ * cell per dimension, worst first.
+ */
+export interface RagboardView {
+  type: "ragboard";
+  label: string;
+  dimensions: string | string[];
+  /** Each dimension's previous-period field, for the trend arrows: { "health": "healthLast" }. */
+  previous?: Record<string, string>;
+  overall?: boolean;
+  sort?: "worst" | "name" | "none";
+  group?: string;
+  note?: string;
+  words?: Record<string, string>;
+  shapes?: Record<string, string>;
+}
+
+/** `{ type: "ragtrend", label, period, status, note? }`: each entity's status period by period. */
+export interface RagtrendView {
+  type: "ragtrend";
+  label: string;
+  period: string;
+  status: string;
+  note?: string;
+  words?: Record<string, string>;
+  shapes?: Record<string, string>;
+}
+
+const RAG_WORDS_OPTION: OptionSchema = { type: "object", description: 'Words per status, keyed R, A, G, N, in place of Off track, At risk, On track and No data. Example: { "G": "Healthy", "A": "Watch", "R": "Escalate" }.' };
+const RAG_SHAPES_OPTION: OptionSchema = { type: "object", description: "Shape per status, keyed R, A, G, N: circle, triangle, square, ring or diamond. Keep them different, so status never rests on color." };
+
+/** How many values in a field are not a status (R, A, G, N, or their names), with a few of them. */
+function nonRag(rows: Row[], field: string): { count: number; sample: string[] } {
+  const odd = rows.map((row) => row[field]).filter((v) => v !== null && v !== undefined && v !== "" && !isRagValue(v)).map(String);
+  return { count: odd.length, sample: [...new Set(odd)].slice(0, 3) };
+}
+
+const ragboard: ViewBlock = {
+  type: "ragboard",
+  description:
+    "A RAG scorecard: one row per entity (a client, a relationship manager, a deal) and one Red, Amber or Green cell per dimension, worst first, with an overall column holding each row's worst status. Each status has its own shape and words (a filled circle On track, a triangle At risk, a square Off track), so it never rests on color. An arrow in a cell's corner says it improved or got worse since the last period; a strip above counts the statuses and a footer counts them per column.",
+  options: {
+    label: { type: "field", kind: "category", required: true, description: "Field naming each row: the client, the relationship manager or the deal." },
+    dimensions: {
+      type: "fields",
+      kind: "category",
+      required: true,
+      description: "Status fields, one column each, holding R, A, G or N (or red, amber, green, grey). The rag transform turns numbers into them.",
+    },
+    previous: {
+      type: "object",
+      description: 'Each dimension\'s previous-period status field, for the trend arrows: { "health": "healthLast", "pipeline": "pipelineLast" }.',
+    },
+    overall: { type: "boolean", default: true, description: "A first column with each row's worst status, the one to act on." },
+    sort: { type: "enum", values: ["worst", "name", "none"], default: "worst", description: "Rows worst first (by overall status, then the number of reds and ambers), by name, or as given." },
+    group: { type: "field", kind: "category", description: "Field that gathers rows under headings, such as segment or perspective." },
+    note: { type: "field", kind: "category", description: "Field written small under each name, such as the action owner or the next step." },
+    words: RAG_WORDS_OPTION,
+    shapes: RAG_SHAPES_OPTION,
+  },
+  validate(view) {
+    const problems: string[] = [];
+    const prev = view.previous;
+    if (prev !== undefined && (!prev || typeof prev !== "object" || Array.isArray(prev) || Object.values(prev).some((v) => typeof v !== "string"))) {
+      problems.push('previous must map each dimension field to its previous-period field, such as { "health": "healthLast" }.');
+    }
+    return problems;
+  },
+  checkData(view, rows) {
+    const dims = Array.isArray(view.dimensions) ? view.dimensions.map(String) : [String(view.dimensions)];
+    const warnings: string[] = [];
+    for (const field of dims) {
+      const { count, sample } = nonRag(rows, field);
+      if (count) warnings.push(`${count} value${count === 1 ? "" : "s"} in "${field}" ${count === 1 ? "is" : "are"} not a status (${sample.join(", ")}): use R, A, G or N, or turn numbers into statuses with the rag transform. They show as no data.`);
+    }
+    if (dims.length > 10) warnings.push(`${dims.length} dimensions make a wide scorecard: keep about 8 that matter.`);
+    if (rows.length > 40) warnings.push(`${rows.length} rows make a long scorecard: filter to the ones that need attention, or group them.`);
+    return warnings;
+  },
+};
+
+const ragtrend: ViewBlock = {
+  type: "ragtrend",
+  description:
+    "RAG status over time: one row per entity and one small mark per period, shaped and colored by its status (a filled circle On track, a triangle At risk, a square Off track). A tick marks each period where the status changed, and the note of why it moved sits in the tooltip; the current status ends the row as a pill. Rows come worst-current first.",
+  options: {
+    label: { type: "field", kind: "category", required: true, description: "Field naming each row: the client, the relationship manager or the deal." },
+    period: { type: "field", kind: "date", required: true, description: "Field with each row's period: a month, a quarter or a review date, in order." },
+    status: { type: "field", kind: "category", required: true, description: "Field with the status in that period: R, A, G or N (or red, amber, green, grey)." },
+    note: { type: "field", kind: "category", description: "Field saying why the status moved, shown in the tooltip of the period where it changed." },
+    words: RAG_WORDS_OPTION,
+    shapes: RAG_SHAPES_OPTION,
+  },
+  // Every panel of small multiples keeps the same periods: their times, when the periods are dates.
+  extent(view, rows) {
+    const times = rows.map((row) => periodTime(row[view.period as string])).filter((t): t is number => t !== null);
+    return times.length === rows.length ? times : [];
+  },
+  checkData(view, rows) {
+    const warnings: string[] = [];
+    const { count, sample } = nonRag(rows, String(view.status));
+    if (count) warnings.push(`${count} value${count === 1 ? "" : "s"} in "${String(view.status)}" ${count === 1 ? "is" : "are"} not a status (${sample.join(", ")}): use R, A, G or N. They show as no data.`);
+    const pairs = new Set(rows.map((row) => `${String(row[view.label as string])}\u0000${String(row[view.period as string])}`));
+    if (pairs.size < rows.length) warnings.push(`${rows.length - pairs.size} rows repeat an entity and period: the last one wins.`);
+    const periods = new Set(rows.map((row) => String(row[view.period as string]))).size;
+    if (periods > 24) warnings.push(`${periods} periods make a long row: roll them up to months or quarters.`);
+    return warnings;
+  },
+};
+
+/** A period's time in ms when it reads as a date (2026-03, 2026-03-31) or a quarter (2026-Q1), else null. */
+export function periodTime(value: unknown): number | null {
+  if (typeof value !== "string") return null;
+  const quarter = /^(\d{4})-?Q([1-4])$/i.exec(value.trim());
+  if (quarter) return Date.UTC(Number(quarter[1]), (Number(quarter[2]) - 1) * 3, 1);
+  const date = /^(\d{4})-(\d{2})(?:-(\d{2}))?/.exec(value.trim());
+  return date ? Date.UTC(Number(date[1]), Number(date[2]) - 1, Number(date[3] ?? 1)) : null;
+}
+
 // Views that took a reference or annotation list check its shape too, on top of their own rules.
 for (const block of [hbar, dot, dumbbell, histogram, boxplot, strips]) withChecks(block, checkReference);
 for (const block of [dual]) withChecks(block, checkAnnotations);
 
-export const builtinViews: ViewBlock[] = [table, list, kpi, kpis, bar, hbar, line, area, meter, bullet, donut, treemap, funnel, waterfall, heatmap, calendar, scatter, beeswarm, ridgeline, sankey, dumbbell, slope, bump, marimekko, histogram, rings, timeline, waffle, variance, gauge, pareto, boxplot, likert, candlestick, sunburst, chord, radar, rose, horizon, icicle, dot, pyramid, dual, choropleth, symbols, locator, pie, matrix, strips, lifecycle, whitespace, xray, history, anomalies, board];
+export const builtinViews: ViewBlock[] = [table, list, kpi, kpis, bar, hbar, line, area, meter, bullet, donut, treemap, funnel, waterfall, heatmap, calendar, scatter, beeswarm, ridgeline, sankey, dumbbell, slope, bump, marimekko, histogram, rings, timeline, waffle, variance, gauge, pareto, boxplot, likert, candlestick, sunburst, chord, radar, rose, horizon, icicle, dot, pyramid, dual, choropleth, symbols, locator, pie, matrix, strips, lifecycle, whitespace, xray, history, anomalies, board, ragboard, ragtrend];

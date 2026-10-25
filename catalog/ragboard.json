@@ -1,0 +1,61 @@
+{
+  "id": "rag-scorecard",
+  "title": "Client RAG scorecard",
+  "subtitle": "October review against September, worst first",
+  "description": "Every key client's Red, Amber or Green status from four perspectives: client success, business development, coverage and the relationship itself, with the worst of the four as Overall and arrows where a status moved since September.",
+  "footer": "Fictional clients for illustration",
+  "source": {
+    "name": "Client review (fictional)"
+  },
+  "byline": "Client success office",
+  "locale": "en-GB",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {"client":"Aldana Holdings","segment":"Corporate","owner":"L. Vandermeer: renew FX pricing","success":"G","successLast":"G","growth":"A","growthLast":"G","coverage":"R","coverageLast":"A","relationship":"A","relationshipLast":"A"},
+      {"client":"Nordvik Pension Fund","segment":"Institutional","owner":"S. Okonkwo: board review on 12 Nov","success":"G","successLast":"G","growth":"G","growthLast":"A","coverage":"G","coverageLast":"G","relationship":"G","relationshipLast":"G"},
+      {"client":"Dr. M. Keller","segment":"Private","owner":"A. Romero: complaint closed, follow up","success":"R","successLast":"A","growth":"A","growthLast":"A","coverage":"A","coverageLast":"G","relationship":"R","relationshipLast":"A"},
+      {"client":"Hallström Capital","segment":"Institutional","owner":"S. Okonkwo: mandate pitch in Q1","success":"G","successLast":"G","growth":"G","growthLast":"G","coverage":"A","coverageLast":"A","relationship":"G","relationshipLast":"G"},
+      {"client":"Brivio & Figli","segment":"Corporate","owner":"L. Vandermeer: lending terms sent","success":"A","successLast":"R","growth":"G","growthLast":"A","coverage":"G","coverageLast":"G","relationship":"A","relationshipLast":"A"},
+      {"client":"Famille Delcourt","segment":"Private","owner":"A. Romero: no meeting since July","success":"A","successLast":"A","growth":"R","growthLast":"R","coverage":"R","coverageLast":"R","relationship":"A","relationshipLast":"G"},
+      {"client":"Ostrava Metals","segment":"Corporate","owner":"J. Novak: treasury review booked","success":"G","successLast":"A","growth":"A","growthLast":"A","coverage":"G","coverageLast":"A","relationship":"G","relationshipLast":"G"},
+      {"client":"Lindqvist Foundation","segment":"Institutional","owner":"S. Okonkwo: ESG reporting gap","success":"A","successLast":"G","growth":"G","growthLast":"G","coverage":"G","coverageLast":"G","relationship":"G","relationshipLast":"G"},
+      {"client":"C. Marchetti","segment":"Private","owner":"A. Romero: inheritance planning","success":"G","successLast":"G","growth":"G","growthLast":"G","coverage":"G","coverageLast":"G","relationship":"G","relationshipLast":"G"},
+      {"client":"Tejo Logistics","segment":"Corporate","owner":"J. Novak: competitor bid on cash pool","success":"A","successLast":"G","growth":"R","growthLast":"A","coverage":"A","coverageLast":"A","relationship":"R","relationshipLast":"A"}
+    ]
+  },
+  "fields": {
+    "client": {
+      "label": "Client"
+    },
+    "success": {
+      "label": "Client success"
+    },
+    "growth": {
+      "label": "Business development"
+    },
+    "coverage": {
+      "label": "Coverage"
+    },
+    "relationship": {
+      "label": "Relationship"
+    }
+  },
+  "view": {
+    "type": "ragboard",
+    "label": "client",
+    "dimensions": [
+      "success",
+      "growth",
+      "coverage",
+      "relationship"
+    ],
+    "previous": {
+      "success": "successLast",
+      "growth": "growthLast",
+      "coverage": "coverageLast",
+      "relationship": "relationshipLast"
+    },
+    "note": "owner"
+  }
+}
