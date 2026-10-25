@@ -181,4 +181,10 @@ describe("the published site", () => {
     expect(BASE_CSS).toMatch(/\.fft-widget, \.fft-overlay, \.fft-dashboard \{[^}]*--fft-radius-l:[^}]*--fft-radius-pill:[^}]*--fft-fs-xs:/);
     expect(readFileSync("demo/site-nav.css", "utf8")).toMatch(/body \.fft-dashboard\[data-sticky\] \.fft-filters \{ background: none;/);
   });
+
+  test("rows that scroll sideways fade on the side with more, and not at all when everything fits", () => {
+    const css = readFileSync("demo/site-nav.css", "utf8");
+    expect(css).toMatch(/@property --site-fade-r \{[^}]*initial-value: 0px/);
+    expect(css).toMatch(/\.site-nav, \.board-tabs \{[^}]*animation-timeline: scroll\(self inline\)/);
+  });
 });

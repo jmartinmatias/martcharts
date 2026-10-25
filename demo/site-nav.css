@@ -142,3 +142,23 @@ body .fft-dashboard[data-sticky] .fft-filters { background: none; -webkit-backdr
 @media (prefers-reduced-motion: reduce) { .site-nav a, .site-look-menu summary { transition: none; } }
 @media (forced-colors: active) { .site-nav [aria-current="page"] { border-bottom-color: CanvasText; } }
 @media print { .site-bar { display: none; } }
+
+/* Rows that scroll sideways (the menu's links on a phone, the dashboard tabs) fade at the side that has more, so a word
+   at the edge dissolves instead of being sliced, and the fade itself says "there is more". Driven by the row's own
+   scroll: with nothing to scroll the timeline is inactive, the fades stay at 0 and nothing is masked. */
+@property --site-fade-l { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --site-fade-r { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@keyframes site-fade-edges {
+  0% { --site-fade-l: 0px; --site-fade-r: 34px; }
+  10% { --site-fade-l: 34px; }
+  90% { --site-fade-r: 34px; }
+  100% { --site-fade-l: 34px; --site-fade-r: 0px; }
+}
+@supports (animation-timeline: scroll()) {
+  .site-nav, .board-tabs {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 var(--site-fade-l), #000 calc(100% - var(--site-fade-r)), transparent);
+    mask-image: linear-gradient(to right, transparent, #000 var(--site-fade-l), #000 calc(100% - var(--site-fade-r)), transparent);
+    animation: site-fade-edges linear both;
+    animation-timeline: scroll(self inline);
+  }
+}
