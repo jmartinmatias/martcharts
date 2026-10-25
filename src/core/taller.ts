@@ -802,12 +802,12 @@ const PATTERNS: Pattern[] = [
 /** Views the Taller can steer with `highlight`, for one standout item against the rest in grey. */
 const HIGHLIGHTABLE = new Set(["bar", "hbar", "line", "area"]);
 /** Views whose colors follow the categories rather than the series. */
-const BY_CATEGORY = new Set(["donut", "waffle", "treemap", "sunburst", "icicle", "marimekko", "pareto"]);
+const BY_CATEGORY = new Set(["donut", "pie", "waffle", "treemap", "sunburst", "icicle", "marimekko", "pareto"]);
 /** Families of views: a version in another family than the original brings surprise. */
 const FAMILY: Record<string, string> = {
   bar: "rank", hbar: "rank", list: "rank", pareto: "rank", bullet: "target", variance: "target",
   line: "time", area: "time", kpi: "number", kpis: "number", calendar: "time", horizon: "time", bump: "time",
-  donut: "whole", waffle: "whole", treemap: "whole", sunburst: "hierarchy", icicle: "hierarchy", marimekko: "whole",
+  donut: "whole", pie: "whole", waffle: "whole", treemap: "whole", sunburst: "hierarchy", icicle: "hierarchy", marimekko: "whole",
   histogram: "spread", beeswarm: "spread", boxplot: "spread", ridgeline: "spread",
   scatter: "relation", dumbbell: "relation", slope: "relation", radar: "profile", rose: "cycle",
   table: "table", heatmap: "table", sankey: "flow", funnel: "flow", chord: "flow", waterfall: "change",
@@ -909,7 +909,7 @@ export function qualitiesOf(spec: WidgetSpec, rows: Row[], source?: WidgetSpec):
     scatter: [0.15, 0.3, 0.2, 0.25, 0.45], dumbbell: [0.25, 0.3, 0.3, 0.2, 0.45], slope: [0.25, 0.35, 0.3, 0.15, 0.45],
     variance: [0.35, 0.25, 0.6, 0.3, 0.45], bullet: [0.3, 0.2, 0.4, 0.3, 0.45], sunburst: [0.25, 0.35, 0.05, 0.5, 0.3], icicle: [0.25, 0.35, 0.05, 0.5, 0.35],
     heatmap: [0.2, 0.3, 0.2, 0.55, 0.35], marimekko: [0.2, 0.4, 0.1, 0.55, 0.35], horizon: [0.2, 0.45, 0.35, 0.45, 0.4], calendar: [0.2, 0.4, 0.15, 0.5, 0.3],
-    rose: [0.25, 0.5, 0.05, 0.45, 0.25], radar: [0.2, 0.4, 0.1, 0.35, 0.35], bump: [0.25, 0.35, 0.2, 0.2, 0.4],
+    rose: [0.25, 0.5, 0.05, 0.45, 0.25], radar: [0.2, 0.4, 0.1, 0.35, 0.35], bump: [0.25, 0.35, 0.2, 0.2, 0.4], pie: [0.3, 0.1, 0.05, 0.4, 0.2],
   };
   const [emphasis, surprise, honesty, detail, insight] = base[type] ?? [0.25, 0.2, 0.1, 0.3, 0.3];
   const t: Qualities = { emphasis, surprise, honesty, detail, insight };

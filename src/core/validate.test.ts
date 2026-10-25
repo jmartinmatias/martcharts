@@ -49,9 +49,9 @@ describe("validateSpec", () => {
   });
 
   test("an unknown view type names the views that exist", () => {
-    const [only, ...rest] = messages({ ...good, view: { type: "pie" } });
+    const [only, ...rest] = messages({ ...good, view: { type: "sparkline" } });
     expect(rest).toEqual([]);
-    expect(only).toMatch(/^error view\.type: Unknown view "pie"\. Available: .*\bbar\b.*\btable\b.*\.$/);
+    expect(only).toMatch(/^error view\.type: Unknown view "sparkline"\. Available: .*\bbar\b.*\btable\b.*\.$/);
   });
 
   test("a missing required option is reported with what it is for", () => {

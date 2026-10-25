@@ -260,12 +260,22 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const next = ahead ? `, and is expected to reach ${text(ahead, traced)} by ${text(ahead, x)}${range}` : "";
       return first && last && first !== last ? `Here, ${subject} went from ${text(first, traced)} ${when(first, x)} to ${text(last, traced)} ${when(last, x)}${against}${next}.` : "";
     }
-    case "donut": {
+    case "donut":
+    case "pie": {
       const [label, amount] = [one(view.label), one(view.value)];
       if (!label || !amount) return "";
       const total = rows.reduce((sum, row) => sum + Math.max(0, value(row, amount) ?? 0), 0);
       const row = top(amount);
-      return row && total > 0 ? `Here, ${text(row, label)} is the biggest slice, with ${Math.round(((value(row, amount) as number) / total) * 100)}% of the whole.` : "";
+      if (!row || total <= 0) return "";
+      const biggest = `${text(row, label)} is the biggest slice, with ${Math.round(((value(row, amount) as number) / total) * 100)}% of the whole`;
+      // A parliament with a majority line: say whether the first slice reaches it on its own.
+      if (view.arc === "half" && view.majority) {
+        const first = rows.find((r) => (value(r, amount) ?? 0) > 0);
+        const needed = Math.floor(total / 2) + 1;
+        const alone = first && (value(first, amount) as number) >= needed;
+        return `Here, ${biggest}, ${alone ? "enough" : "not enough"} for a majority of ${needed} on its own.`;
+      }
+      return `Here, ${biggest}.`;
     }
     case "treemap": {
       const [label, amount] = [one(view.label), one(view.value)];
@@ -1024,8 +1034,13 @@ function guide(spec: WidgetSpec): string {
       return `Each bar fills up toward its target. A full bar means the goal for ${name(one(view.value))} is reached; the percentage says how close it is.`;
     case "bullet":
       return "The solid bar is the real number and the thin line is the goal. The shaded bands behind show poor, fair and good.";
-    case "donut":
-      return `The ring is the whole. Each slice is one ${noun(one(view.label))}: the bigger the slice, the bigger its share of ${name(one(view.value))}.`;
+    case "donut": {
+      if (view.arc !== "half") return `The ring is the whole. Each slice is one ${noun(one(view.label))}: the bigger the slice, the bigger its share of ${name(one(view.value))}.`;
+      const line = view.majority ? " The small line at the top is the halfway mark: whoever reaches it from the left has a majority." : "";
+      return `The half ring is the whole, read from left to right. Each slice is one ${noun(one(view.label))}: the wider the slice, the more ${name(one(view.value))}.${line}`;
+    }
+    case "pie":
+      return `The circle is the whole. Each slice is one ${noun(one(view.label))}: the wider the slice, the bigger its share of ${name(one(view.value))}.`;
     case "treemap":
       return `Each box is one ${noun(one(view.label))}. The bigger the box, the more ${name(one(view.value))}.`;
     case "funnel":

@@ -225,9 +225,9 @@ describe("tools", () => {
 
   test("fft_create_widget refuses an invalid spec, saves nothing, and lists the problems", async () => {
     const { call } = await connect();
-    const { isError, text } = await call("fft_create_widget", { id: "bad", spec: { view: { type: "pie" } } });
+    const { isError, text } = await call("fft_create_widget", { id: "bad", spec: { view: { type: "sparkline" } } });
     expect(isError).toBe(true);
-    expect(text).toMatch(/view\.type: Unknown view "pie"\. Available: .*\bbar\b.*\btable\b/);
+    expect(text).toMatch(/view\.type: Unknown view "sparkline"\. Available: .*\bbar\b.*\btable\b/);
     expect(await store.has("bad")).toBe(false);
   });
 
@@ -301,7 +301,7 @@ describe("tools", () => {
     expect(data?.note).toContain("of its 5000 rows");
     expect((await call("fft_validate_spec", { spec: starter })).isError).toBe(false);
     expect((await call("fft_get_chart", { type: "sankey" })).text).toContain("No starter spec");
-    const wrong = await call("fft_get_chart", { type: "pie" });
+    const wrong = await call("fft_get_chart", { type: "sparkline" });
     expect(wrong.isError).toBe(true);
     expect(wrong.text).toContain("donut");
   });

@@ -672,7 +672,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       const ctx = context();
       drawnWidth = ctx.width;
       if (current.facet?.field) {
-        cleanup = drawFacets(ctx, render, block.extent);
+        cleanup = drawFacets(ctx, render, block.extent, block.categories?.(current.view));
       } else {
         const result = render(ctx);
         cleanup = typeof result === "function" ? result : undefined;
@@ -694,7 +694,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
   }
 
   /** Small multiples: one panel per facet value, sharing one value scale and one legend. */
-  function drawFacets(ctx: ViewContext, render: NonNullable<ViewBlock["render"]>, extent: ViewBlock["extent"]): (() => void) | undefined {
+  function drawFacets(ctx: ViewContext, render: NonNullable<ViewBlock["render"]>, extent: ViewBlock["extent"], categoryField?: string): (() => void) | undefined {
     const facet = current.facet as NonNullable<WidgetSpec["facet"]>;
     const groups = new Map<string, { value: unknown; rows: Row[] }>();
     for (const row of rows) {
@@ -708,18 +708,32 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     const panelWidth = Math.max(89, Math.floor((ctx.width - gap * (columns - 1)) / columns));
     const shared = facet.shared === false || !extent ? undefined : extent(current.view, rows);
 
+    // One legend for every panel: the series of a y list, or, for a view that colors categories (a donut's slices),
+    // the categories in order of first appearance, each keeping one color in every panel.
+    const legend = make("ul", "fft-legend fft-facet-legend");
+    const key = (swatchShape: string, color: string, text: string) => {
+      const swatch = make("span", "fft-swatch");
+      swatch.dataset.shape = swatchShape;
+      swatch.style.background = color;
+      swatch.setAttribute("aria-hidden", "true");
+      const item = make("li", "");
+      item.append(swatch, text);
+      legend.append(item);
+    };
     const series = Array.isArray(current.view.y) ? current.view.y.map(String) : [];
     if (series.length > 1) {
-      const legend = make("ul", "fft-legend fft-facet-legend");
-      series.forEach((field, i) => {
-        const swatch = make("span", "fft-swatch");
-        swatch.dataset.shape = current.view.type === "bar" ? "rect" : "line";
-        swatch.style.background = ctx.color(i);
-        swatch.setAttribute("aria-hidden", "true");
-        const item = make("li", "");
-        item.append(swatch, ctx.label(field));
-        legend.append(item);
-      });
+      series.forEach((field, i) => key(current.view.type === "bar" ? "rect" : "line", ctx.color(i), ctx.label(field)));
+      body.append(legend);
+    } else if (categoryField) {
+      const categories = new Map<string, unknown>();
+      for (const row of rows) {
+        const id = JSON.stringify(row[categoryField] ?? null);
+        if (!categories.has(id)) categories.set(id, row[categoryField]);
+      }
+      const order = [...categories.keys()];
+      const palette = ctx.color;
+      ctx = { ...ctx, colorOf: (category) => palette(Math.max(0, order.indexOf(JSON.stringify(category ?? null)))) };
+      [...categories.values()].forEach((category, i) => key("dot", palette(i), ctx.format(category, categoryField)));
       body.append(legend);
     }
     const grid = make("div", "fft-facets");

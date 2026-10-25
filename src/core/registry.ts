@@ -83,6 +83,11 @@ export interface ViewBlock extends Block {
   render?: ViewRenderer;
   /** The values a view's value axis must cover for these rows. Small multiples use it to give every panel the same scale. */
   extent?(view: Record<string, unknown>, rows: Row[]): number[];
+  /**
+   * The field whose values the view colors (a donut's label), when colors follow categories rather than series.
+   * Small multiples then give one category the same color in every panel, and draw one legend of them.
+   */
+  categories?(view: Record<string, unknown>): string | undefined;
 }
 
 /** The four kinds of block. */

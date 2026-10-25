@@ -83,6 +83,13 @@
       "widget": "product-share"
     },
     {
+      "widget": "revenue-pie"
+    },
+    {
+      "widget": "revenue-donuts-by-region",
+      "span": 2
+    },
+    {
       "widget": "region-trends"
     },
     {
@@ -206,6 +213,13 @@
     {
       "widget": "share-price",
       "span": 3
+    },
+    {
+      "section": "Elections",
+      "description": "Seats by party, and who reaches a majority"
+    },
+    {
+      "widget": "seats-by-party"
     },
     {
       "section": "Operations and sentiment",

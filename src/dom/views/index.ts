@@ -31,6 +31,7 @@ import { renderRadar } from "./radar.ts";
 import { renderRose } from "./rose.ts";
 import { renderHorizon } from "./horizon.ts";
 import { renderIcicle } from "./icicle.ts";
+import { renderPie } from "./pie.ts";
 import { renderRidgeline } from "./ridgeline.ts";
 import { renderRings } from "./rings.ts";
 import { renderSankey } from "./sankey.ts";
@@ -84,7 +85,8 @@ setRenderer("radar", renderRadar);
 setRenderer("rose", renderRose);
 setRenderer("horizon", renderHorizon);
 setRenderer("icicle", renderIcicle);
+setRenderer("pie", renderPie);
 
 export { renderKpis } from "./kpis.ts";
 export { renderRidgeline } from "./ridgeline.ts";
-export { renderArea, renderBar, renderBeeswarm, renderBoxplot, renderBullet, renderBump, renderCalendar, renderCandlestick, renderChord, renderDonut, renderDumbbell, renderSankey, renderFunnel, renderGauge, renderTreemap, renderHbar, renderHeatmap, renderHistogram, renderHorizon, renderIcicle, renderKpi, renderLikert, renderLine, renderList, renderMarimekko, renderMeter, renderPareto, renderRadar, renderRings, renderRose, renderScatter, renderSlope, renderSunburst, renderTable, renderTimeline, renderVariance, renderWaffle, renderWaterfall };
+export { renderArea, renderBar, renderBeeswarm, renderBoxplot, renderBullet, renderBump, renderCalendar, renderCandlestick, renderChord, renderDonut, renderDumbbell, renderSankey, renderFunnel, renderGauge, renderTreemap, renderHbar, renderHeatmap, renderHistogram, renderHorizon, renderIcicle, renderKpi, renderLikert, renderLine, renderList, renderMarimekko, renderMeter, renderPareto, renderRadar, renderRings, renderRose, renderScatter, renderSlope, renderSunburst, renderTable, renderTimeline, renderVariance, renderWaffle, renderWaterfall, renderPie };

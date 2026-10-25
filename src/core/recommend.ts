@@ -196,6 +196,11 @@ const RULES: Record<string, Rule> = {
     const [value] = shape.numbers;
     return label && value && shape.distinct(label) <= 6 && shape.distinct(label) === shape.rows.length && nonNegative(shape, value) ? { score: 62, view: { type: "donut", label, value }, why: `Each ${label}'s share of the total ${value}.` } : undefined;
   },
+  pie: (shape) => {
+    const [label] = shape.categories;
+    const [value] = shape.numbers;
+    return label && value && shape.distinct(label) <= 6 && shape.distinct(label) === shape.rows.length && nonNegative(shape, value) ? { score: 58, view: { type: "pie", label, value }, why: `Each ${label}'s share of ${value}, as wedges of one disc.` } : undefined;
+  },
   treemap: (shape) => {
     const [label] = shape.categories;
     const [value] = shape.numbers;
