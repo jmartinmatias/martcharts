@@ -3,7 +3,8 @@ import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { TreemapView } from "../../core/views.ts";
 import { squarify } from "../layout.ts";
-import { buildTable, evenFormat, html, selectable, svg } from "./shared.ts";
+import { evenFormat, hiddenTableOf, html, legendList, selectable, shareFormat, svg, textWidth } from "./shared.ts";
+import { categoryColor, emphasis, WORDS } from "./words.ts";
 import { roving } from "./focus.ts";
 
 /**
@@ -26,20 +27,17 @@ export const renderTreemap: ViewRenderer<TreemapView> = (ctx) => {
     kept.push({ row, amount, group: groups.indexOf(name) });
   }
   const total = kept.reduce((sum, k) => sum + k.amount, 0);
-  const share = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 0 });
+  const share = shareFormat(ctx.spec.locale);
+  // A group keeps its color wherever it appears; highlight names tiles or whole groups, and the rest step back.
+  const groupColor = (i: number) => categoryColor(ctx, groups[i], i);
+  const lit = emphasis(ctx);
+  const tileColor = (k: { row: Row; group: number }) =>
+    lit.lit(k.row[label]) || (group !== undefined && lit.any && lit.lit(k.row[group])) ? groupColor(k.group) : lit.paint(k.row[label], groupColor(k.group));
 
   const wrap = html(doc, "div", "fft-chart");
-  if (group && groups.length > 1) {
-    const legend = html(doc, "ul", "fft-legend");
-    groups.forEach((name, i) => {
-      const swatch = html(doc, "span", "fft-swatch");
-      swatch.style.background = ctx.color(i);
-      swatch.setAttribute("aria-hidden", "true");
-      const item = html(doc, "li");
-      item.append(swatch, ctx.format(name, group));
-      legend.append(item);
-    });
-    wrap.append(legend);
+  if (group) {
+    const key = legendList(ctx, groups.map((name, i) => ({ label: ctx.format(name, group), color: groupColor(i) })), { min: 2 });
+    if (key) wrap.append(key);
   }
 
   const width = ctx.width;
@@ -63,22 +61,23 @@ export const renderTreemap: ViewRenderer<TreemapView> = (ctx) => {
     const t = tiles[i];
     if (!t || t.width <= 0 || t.height <= 0) return;
     const box = { x: t.x + 1, y: t.y + 1, width: Math.max(0, t.width - 2), height: Math.max(0, t.height - 2) };
-    const rect = svg(doc, "rect", { class: "fft-tile", ...box, rx: 3, style: `--fft-i: ${i}` });
-    rect.style.setProperty("fill", ctx.color(k.group));
+    const rect = svg(doc, "rect", { class: "fft-tile", ...box, rx: 2, style: `--fft-i: ${i}` });
+    const color = tileColor(k);
+    rect.style.setProperty("fill", color);
     rects.push(rect);
     marks.append(rect);
     const edge = svg(doc, "rect", { class: "fft-tile-edge", x: box.x, y: box.y, width: box.width, height: Math.min(3, box.height), rx: 1.5 });
-    edge.style.setProperty("fill", ctx.color(k.group));
+    edge.style.setProperty("fill", color);
     marks.append(edge);
 
     const name = ctx.format(k.row[label], label);
     const amountText = amountOf(readNumber(k.row[value]) ?? 0);
-    const fitsName = box.width >= Math.max(55, name.length * 6.5 + 13) && box.height >= 21;
+    const fitsName = box.width >= Math.max(55, textWidth(name, 13) + 13) && box.height >= 21;
     if (fitsName) {
       const nameText = svg(doc, "text", { class: "fft-tile-name", x: box.x + 8, y: box.y + 21 });
       nameText.textContent = name;
       marks.append(nameText);
-      if (box.height >= 47 && box.width >= amountText.length * 6.5 + 13) {
+      if (box.height >= 47 && box.width >= textWidth(amountText, 11, 600) + 13) {
         const valueText = svg(doc, "text", { class: "fft-tile-value", x: box.x + 8, y: box.y + 37 });
         valueText.textContent = amountText;
         marks.append(valueText);
@@ -87,9 +86,9 @@ export const renderTreemap: ViewRenderer<TreemapView> = (ctx) => {
 
     const items: TooltipItem[] = [
       { label: ctx.label(value), value: amountText },
-      { label: "Share", value: share.format(k.amount / total) },
+      { label: WORDS.share, value: share.format(k.amount / total) },
     ];
-    if (group) items.push({ label: ctx.label(group), value: ctx.format(k.row[group], group), color: ctx.color(k.group) });
+    if (group) items.push({ label: ctx.label(group), value: ctx.format(k.row[group], group), color: groupColor(k.group) });
     const hit = svg(doc, "rect", { class: "fft-tile-hit", ...box, tabindex: 0, role: "img" });
     hit.setAttribute("aria-label", `${name}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
     const activate = () => {
@@ -109,8 +108,6 @@ export const renderTreemap: ViewRenderer<TreemapView> = (ctx) => {
   roving([...overlay.children]);
   wrap.append(chart);
 
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, kept.map((k) => k.row), [label, value, ...(group ? [group] : [])], false));
-  wrap.append(hidden);
+  wrap.append(hiddenTableOf(ctx, kept.map((k) => k.row), [label, value, ...(group ? [group] : [])]));
   ctx.el.append(wrap);
 };

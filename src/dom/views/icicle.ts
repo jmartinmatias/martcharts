@@ -3,10 +3,10 @@ import { readNumber } from "../../core/formats.ts";
 import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { IcicleView } from "../../core/views.ts";
-import { buildTable, fieldList, html, selectable, svg } from "./shared.ts";
+import { fieldList, hiddenTableOf, html, selectable, shareFormat, svg, textWidth } from "./shared.ts";
+import { categoryColor, emphasis, WORDS } from "./words.ts";
 import { roving } from "./focus.ts";
 
-const CHAR_WIDTH = 6;
 const GAP = 2;
 /** Height the typical leaf should get: one line of name and a little air. */
 const LEAF_ROOM = 24;
@@ -16,6 +16,8 @@ const DEPTH_TINT = [0.32, 0.22, 0.15, 0.1];
 interface Node {
   name: string;
   path: string;
+  /** The raw values along the path, for highlight to match. */
+  keys: string[];
   depth: number;
   value: number;
   children: Map<string, Node>;
@@ -29,9 +31,12 @@ interface Node {
 
 /** `text` cut to fit `width` pixels with an ellipsis, or empty when not even three characters fit. */
 function fit(text: string, width: number): string {
-  const room = Math.floor(width / CHAR_WIDTH);
-  if (room < 3) return "";
-  return text.length <= room ? text : `${text.slice(0, room - 1)}…`;
+  if (textWidth(text) <= width) return text;
+  for (let keep = text.length - 1; keep >= 2; keep--) {
+    const cut = `${text.slice(0, keep)}…`;
+    if (textWidth(cut) <= width) return cut;
+  }
+  return "";
 }
 
 /**
@@ -46,7 +51,7 @@ export const renderIcicle: ViewRenderer<IcicleView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
   const levels = fieldList(ctx.view.levels).slice(0, 4);
   const { value } = ctx.view;
-  const root: Node = { name: "Total", path: "", depth: 0, value: 0, children: new Map(), row: {}, color: 0, start: 0, end: 1 };
+  const root: Node = { name: WORDS.total, path: "", keys: [], depth: 0, value: 0, children: new Map(), row: {}, color: 0, start: 0, end: 1 };
   for (const row of ctx.rows) {
     const amount = readNumber(row[value]);
     if (amount === null || amount <= 0) continue;
@@ -60,6 +65,7 @@ export const renderIcicle: ViewRenderer<IcicleView> = (ctx) => {
         child = {
           name,
           path: node.path ? `${node.path}/${name}` : name,
+          keys: [...node.keys, key],
           depth: depth + 1,
           value: 0,
           children: new Map(),
@@ -91,7 +97,13 @@ export const renderIcicle: ViewRenderer<IcicleView> = (ctx) => {
 
   const hasFormat = ctx.spec.fields?.[value]?.format !== undefined;
   const amountText = (n: number) => (hasFormat ? ctx.format(n, value) : formatValue(n, { type: "number", compact: true }, ctx.spec.locale));
-  const share = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 0 });
+  const share = shareFormat(ctx.spec.locale);
+  // A family keeps its top level's color wherever it appears; highlight names any level, and the families not named step back.
+  const lit = emphasis(ctx);
+  const familyColor = (node: Node) => {
+    const own = categoryColor(ctx, node.keys[0], node.color);
+    return lit.any && !node.keys.some((key) => lit.lit(key)) ? lit.paint(undefined, own) : own;
+  };
 
   // Tall enough that the typical leaf gets a line for its name (24px), up to 610px.
   const leaves = all.filter((node) => node.children.size === 0 && node.depth > 0).map((node) => node.value).sort((a, b) => a - b);
@@ -126,16 +138,16 @@ export const renderIcicle: ViewRenderer<IcicleView> = (ctx) => {
     const h = (node.end - node.start) * height - GAP;
     if (h < 1) return;
     const group = svg(doc, "g", { class: "fft-ice-cell", style: `--fft-i: ${node.depth}` });
-    const rect = svg(doc, "rect", { class: "fft-ice", x, y, width: w, height: h, rx: 3, "data-depth": node.depth, "data-path": node.path });
+    const rect = svg(doc, "rect", { class: "fft-ice", x, y, width: w, height: h, rx: 2, "data-depth": node.depth, "data-path": node.path });
     if (node.depth === 0) rect.setAttribute("data-root", "");
     else {
-      rect.style.setProperty("fill", ctx.color(node.color));
+      rect.style.setProperty("fill", familyColor(node));
       rect.style.setProperty("fill-opacity", String(DEPTH_TINT[node.depth - 1] ?? 0.1));
     }
     group.append(rect);
     if (node.depth > 0) {
       const edge = svg(doc, "rect", { class: "fft-ice-edge", x, y, width: 3, height: h });
-      edge.style.setProperty("fill", ctx.color(node.color));
+      edge.style.setProperty("fill", familyColor(node));
       group.append(edge);
     }
     // Name, then value under it, each only where it fits.
@@ -155,10 +167,10 @@ export const renderIcicle: ViewRenderer<IcicleView> = (ctx) => {
     chart.append(group);
     cells.set(node, { group, rect });
 
-    const items: TooltipItem[] = [{ label: ctx.label(value), value: amountText(node.value), ...(node.depth > 0 ? { color: ctx.color(node.color) } : {}) }];
-    if (node.parent && node.parent.depth > 0) items.push({ label: `Share of ${node.parent.name}`, value: share.format(node.value / (node.parent.value || 1)) });
-    if (node.depth > 0) items.push({ label: "Share of total", value: share.format(node.value / (root.value || 1)) });
-    const title = node.depth === 0 ? "Total" : node.path.split("/").join(" / ");
+    const items: TooltipItem[] = [{ label: ctx.label(value), value: amountText(node.value), ...(node.depth > 0 ? { color: familyColor(node) } : {}) }];
+    if (node.parent && node.parent.depth > 0) items.push({ label: `${WORDS.share} ${WORDS.of} ${node.parent.name}`, value: share.format(node.value / (node.parent.value || 1)) });
+    if (node.depth > 0) items.push({ label: `${WORDS.share} ${WORDS.of} ${WORDS.total.toLowerCase()}`, value: share.format(node.value / (root.value || 1)) });
+    const title = node.depth === 0 ? WORDS.total : node.path.split("/").join(" / ");
     const hit = svg(doc, "rect", { class: "fft-ice-hit", x, y, width: w, height: h, tabindex: 0, role: "img", "data-path": node.path, style: `--fft-i: ${i}` });
     hit.setAttribute("aria-label", `${title}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
     const activate = () => {
@@ -183,8 +195,6 @@ export const renderIcicle: ViewRenderer<IcicleView> = (ctx) => {
   chart.append(overlay);
   roving(hits);
   wrap.append(chart);
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, ctx.rows, [...levels, value], false));
-  wrap.append(hidden);
+  wrap.append(hiddenTableOf(ctx, ctx.rows, [...levels, value]));
   ctx.el.append(wrap);
 };

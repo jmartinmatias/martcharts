@@ -1622,6 +1622,18 @@ ul.fft-map-legend { margin-top: 0; }
 .fft-board-more { margin: 5px 0 0; padding: 3px 2px; border: 0; background: none; color: var(--fft-text-secondary); font: inherit; font-size: var(--fft-fs-s); line-height: 13px; cursor: pointer; border-radius: var(--fft-radius-m); min-height: 24px; }
 .fft-board-more:hover { color: var(--fft-text); }
 .fft-board-more:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 2px; }
+
+/* WP5: radial, hierarchy and maps on the shared kit. */
+/* Entrances follow each mark's own order: wedges, families, ribbons and arcs arrive one after another. */
+.fft-widget[data-animate] .fft-waffle-group { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 55ms); }
+.fft-widget[data-animate] .fft-sun-seg { animation-delay: calc(var(--fft-i, 0) * 21ms); }
+.fft-widget[data-animate] .fft-chord-ribbon { animation-delay: calc(233ms + var(--fft-i, 0) * 21ms); }
+.fft-widget[data-animate] .fft-chord-arc { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 34ms); }
+.fft-widget[data-animate] :is(.fft-radar-shape, .fft-radar-dot) { animation-delay: calc(233ms + var(--fft-i, 0) * 89ms); }
+.fft-widget[data-animate] .fft-node { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 21ms); }
+/* A region that highlight steps back from: the grey every other view uses, its code faded with it. */
+.fft-map-region[data-muted] { fill: var(--fft-deemphasis); }
+.fft-map-region-label[data-muted] { fill: var(--fft-text-secondary); opacity: var(--fft-dim); }
 .fft-widget[data-animate] .fft-board-card { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 13ms); }
 
 /* RAG reporting. Calm, not neon: each status hue leans toward the text color, so it darkens on a light card and lightens on a

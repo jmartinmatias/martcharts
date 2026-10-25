@@ -3,7 +3,8 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { RadarView } from "../../core/views.ts";
 import { niceTicks, polar, sectorPath } from "../layout.ts";
 import { tickFormatter } from "./chart.ts";
-import { buildTable, fieldList, html, selectable, svg } from "./shared.ts";
+import { fieldList, hiddenTableOf, html, legendList, selectable, svg } from "./shared.ts";
+import { categoryColor, emphasis } from "./words.ts";
 import { roving } from "./focus.ts";
 
 const FULL = Math.PI * 2;
@@ -38,20 +39,13 @@ export const renderRadar: ViewRenderer<RadarView> = (ctx) => {
   };
   const shape = (r: (i: number) => number) => `${rows.map((_, i) => `${i === 0 ? "M" : "L"}${at(r(i), i).x},${at(r(i), i).y}`).join("")}Z`;
 
+  // A profile keeps its color wherever it appears; highlight keeps the named profiles in color, the rest step back.
+  const lit = emphasis(ctx);
+  const seriesColor = (s: number) => lit.paint(series[s], categoryColor(ctx, series[s], s));
+
   const wrap = html(doc, "div", "fft-chart fft-radar");
-  if (series.length > 1) {
-    const legend = html(doc, "ul", "fft-legend");
-    series.forEach((field, s) => {
-      const swatch = html(doc, "span", "fft-swatch");
-      swatch.dataset.shape = "line";
-      swatch.style.background = ctx.color(s);
-      swatch.setAttribute("aria-hidden", "true");
-      const item = html(doc, "li");
-      item.append(swatch, ctx.label(field));
-      legend.append(item);
-    });
-    wrap.append(legend);
-  }
+  const key = legendList(ctx, series.map((field, s) => ({ label: ctx.label(field), color: seriesColor(s), shape: "line" as const })), { min: 2 });
+  if (key) wrap.append(key);
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
   chart.setAttribute("aria-label", `Radar chart of ${series.map((f) => ctx.label(f)).join(", ")} across ${ctx.label(label)}`);
@@ -84,13 +78,13 @@ export const renderRadar: ViewRenderer<RadarView> = (ctx) => {
     return spoke;
   });
   series.forEach((field, s) => {
-    const path = svg(doc, "path", { class: "fft-radar-shape", d: shape((i) => ((readNumber(rows[i]?.[field]) ?? 0) / max) * radius), "data-series": field });
-    path.style.setProperty("--fft-radar-color", ctx.color(s));
+    const path = svg(doc, "path", { class: "fft-radar-shape", d: shape((i) => ((readNumber(rows[i]?.[field]) ?? 0) / max) * radius), "data-series": field, style: `--fft-i: ${s}` });
+    path.style.setProperty("--fft-radar-color", seriesColor(s));
     chart.append(path);
     rows.forEach((row, i) => {
       const p = at(((readNumber(row[field]) ?? 0) / max) * radius, i);
-      const dot = svg(doc, "circle", { class: "fft-radar-dot", cx: p.x, cy: p.y, r: 3.5, "data-series": field });
-      dot.style.fill = ctx.color(s);
+      const dot = svg(doc, "circle", { class: "fft-radar-dot", cx: p.x, cy: p.y, r: 3.5, "data-series": field, style: `--fft-i: ${s}` });
+      dot.style.fill = seriesColor(s);
       chart.append(dot);
     });
   });
@@ -104,7 +98,7 @@ export const renderRadar: ViewRenderer<RadarView> = (ctx) => {
   };
   rows.forEach((row, i) => {
     const name = ctx.format(row[label], label);
-    const items: TooltipItem[] = series.map((field, s) => ({ label: ctx.label(field), value: ctx.format(row[field], field), color: ctx.color(s) }));
+    const items: TooltipItem[] = series.map((field, s) => ({ label: ctx.label(field), value: ctx.format(row[field], field), color: seriesColor(s) }));
     const hit = svg(doc, "path", { class: "fft-radar-hit", d: sectorPath(cx, cy, 0.01, radius + 13, angle(i) - half, angle(i) + half), tabindex: 0, role: "img" });
     hit.setAttribute("aria-label", `${name}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
     const activate = () => {
@@ -124,8 +118,6 @@ export const renderRadar: ViewRenderer<RadarView> = (ctx) => {
   chart.append(overlay);
   roving(hits);
   wrap.append(chart);
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, rows, [label, ...series], false));
-  wrap.append(hidden);
+  wrap.append(hiddenTableOf(ctx, rows, [label, ...series]));
   ctx.el.append(wrap);
 };

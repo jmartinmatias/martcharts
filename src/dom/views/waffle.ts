@@ -3,7 +3,8 @@ import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { WaffleView } from "../../core/views.ts";
 import { allocate } from "../layout.ts";
-import { buildTable, evenFormat, figureSize, html, selectable, svg } from "./shared.ts";
+import { evenFormat, figureSize, hiddenTableOf, html, selectable, shareFormat, svg } from "./shared.ts";
+import { categoryColor, emphasis, WORDS } from "./words.ts";
 import { roving } from "./focus.ts";
 
 const SIDE = 10;
@@ -27,7 +28,8 @@ export const renderWaffle: ViewRenderer<WaffleView> = (ctx) => {
   const sum = parts.reduce((total, part) => total + part.amount, 0);
   const whole = Math.max(sum, ctx.view.total ?? 0);
   const counts = allocate([...parts.map((p) => p.amount), whole - sum], SIDE * SIDE);
-  const share = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 0 });
+  const share = shareFormat(ctx.spec.locale);
+  const lit = emphasis(ctx);
   // The legend's figures in one precision, so they line up.
   const even = evenFormat(ctx, value, parts.map((part) => part.amount), { type: "number", compact: true });
   const amountText = (part: { row: Row; amount: number }) => even(part.amount);
@@ -39,7 +41,7 @@ export const renderWaffle: ViewRenderer<WaffleView> = (ctx) => {
   chart.setAttribute("role", "group");
   chart.setAttribute("aria-label", `Waffle chart of ${ctx.label(value)} by ${ctx.label(label)}, each square one percent`);
   const square = (k: number, cls: string) =>
-    svg(doc, "rect", { class: cls, x: (k % SIDE) * (cell + GAP), y: Math.floor(k / SIDE) * (cell + GAP), width: cell, height: cell, rx: size >= 233 ? 3 : 2, style: `--fft-k: ${k}` });
+    svg(doc, "rect", { class: cls, x: (k % SIDE) * (cell + GAP), y: Math.floor(k / SIDE) * (cell + GAP), width: cell, height: cell, rx: 2, style: `--fft-k: ${k}` });
 
   const groups: SVGGElement[] = [];
   const firsts: SVGRectElement[] = [];
@@ -53,11 +55,11 @@ export const renderWaffle: ViewRenderer<WaffleView> = (ctx) => {
   let k = 0;
   parts.forEach((part, i) => {
     const name = ctx.format(part.row[label], label);
-    const group = svg(doc, "g", { class: "fft-waffle-group", "data-label": String(part.row[label]) });
-    const color = ctx.color(i);
+    const group = svg(doc, "g", { class: "fft-waffle-group", "data-label": String(part.row[label]), style: `--fft-i: ${i}` });
+    const color = lit.paint(part.row[label], categoryColor(ctx, part.row[label], i));
     const items: TooltipItem[] = [
       { label: ctx.label(value), value: amountText(part), color },
-      { label: "Share", value: share.format(part.amount / whole) },
+      { label: WORDS.share, value: share.format(part.amount / whole) },
     ];
     const activate = () => {
       wrap.setAttribute("data-active", "");
@@ -97,8 +99,7 @@ export const renderWaffle: ViewRenderer<WaffleView> = (ctx) => {
   chart.addEventListener("pointerleave", deactivate);
   roving(entries);
 
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, parts.map((p) => p.row), [label, value], false));
+  const hidden = hiddenTableOf(ctx, parts.map((p) => p.row), [label, value]);
   wrap.append(chart, legend, hidden);
   ctx.el.append(wrap);
 };

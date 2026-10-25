@@ -3,11 +3,11 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { RoseView } from "../../core/views.ts";
 import { niceTicks, polar, sectorPath } from "../layout.ts";
 import { tickFormatter } from "./chart.ts";
-import { buildTable, fieldList, html, selectable, svg } from "./shared.ts";
+import { fieldList, hiddenTableOf, html, legendList, selectable, svg, textWidth } from "./shared.ts";
+import { categoryColor, WORDS } from "./words.ts";
 import { roving } from "./focus.ts";
 
 const FULL = Math.PI * 2;
-const CHAR_WIDTH = 6;
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
 /**
@@ -38,19 +38,11 @@ export const renderRose: ViewRenderer<RoseView> = (ctx) => {
   const reach = (value: number) => radius * Math.sqrt(Math.min(value, max) / max);
   const step = FULL / Math.max(1, n);
 
+  // A series keeps its color wherever it appears.
+  const seriesColor = (s: number) => categoryColor(ctx, series[s], s);
   const wrap = html(doc, "div", "fft-chart fft-rose");
-  if (series.length > 1) {
-    const legend = html(doc, "ul", "fft-legend");
-    series.forEach((field, s) => {
-      const swatch = html(doc, "span", "fft-swatch");
-      swatch.style.background = ctx.color(s);
-      swatch.setAttribute("aria-hidden", "true");
-      const item = html(doc, "li");
-      item.append(swatch, ctx.label(field));
-      legend.append(item);
-    });
-    wrap.append(legend);
-  }
+  const key = legendList(ctx, series.map((field, s) => ({ label: ctx.label(field), color: seriesColor(s) })), { min: 2 });
+  if (key) wrap.append(key);
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
   chart.setAttribute("aria-label", `Rose chart of ${series.map((f) => ctx.label(f)).join(", ")} by ${ctx.label(label)}`);
@@ -70,7 +62,7 @@ export const renderRose: ViewRenderer<RoseView> = (ctx) => {
         "data-series": field,
         "data-index": i,
       });
-      seg.style.fill = ctx.color(s);
+      seg.style.fill = seriesColor(s);
       group.append(seg);
       below += v;
     });
@@ -88,7 +80,7 @@ export const renderRose: ViewRenderer<RoseView> = (ctx) => {
   // Names round the outside: at most 12, as on a clock face, every k-th when they would crowd, k dividing the count so the gaps stay even.
   const names = rows.map((row) => ctx.format(row[label], label));
   const room = (radius + 13) * step;
-  const need = Math.max(...names.map((name) => name.length * CHAR_WIDTH + 13));
+  const need = Math.max(...names.map((name) => textWidth(name) + 13));
   const every = Array.from({ length: n }, (_, k) => k + 1).find((k) => n % k === 0 && k * room >= need && n / k <= 12) ?? n;
   names.forEach((name, i) => {
     if (i % every !== 0) return;
@@ -125,8 +117,8 @@ export const renderRose: ViewRenderer<RoseView> = (ctx) => {
   };
   rows.forEach((row, i) => {
     const name = names[i] ?? "";
-    const items: TooltipItem[] = series.map((field, s) => ({ label: ctx.label(field), value: ctx.format(row[field], field), color: ctx.color(s) }));
-    if (series.length > 1) items.push({ label: "Total", value: ctx.format(totals[i] ?? 0, series[0]) });
+    const items: TooltipItem[] = series.map((field, s) => ({ label: ctx.label(field), value: ctx.format(row[field], field), color: seriesColor(s) }));
+    if (series.length > 1) items.push({ label: WORDS.total, value: ctx.format(totals[i] ?? 0, series[0]) });
     const hit = svg(doc, "path", { class: "fft-rose-hit", d: sectorPath(cx, cy, 0.01, radius + 8, i * step, (i + 1) * step), tabindex: 0, role: "img" });
     hit.setAttribute("aria-label", `${name}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
     const activate = () => {
@@ -147,8 +139,6 @@ export const renderRose: ViewRenderer<RoseView> = (ctx) => {
   chart.append(overlay);
   roving(hits);
   wrap.append(chart);
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, rows, [label, ...series], false));
-  wrap.append(hidden);
+  wrap.append(hiddenTableOf(ctx, rows, [label, ...series]));
   ctx.el.append(wrap);
 };

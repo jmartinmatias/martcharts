@@ -1,13 +1,12 @@
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { PieView } from "../../core/views.ts";
 import { dodge, polar } from "../layout.ts";
-import { evenFormat, figureSize, html, buildTable, selectable, svg } from "./shared.ts";
+import { evenFormat, figureSize, hiddenTableOf, html, selectable, shareFormat, svg, textWidth } from "./shared.ts";
+import { WORDS } from "./words.ts";
 import { roving } from "./focus.ts";
 import { slicesOf, sliceColor, sliceLegend } from "./donut.ts";
 import type { Slice } from "./donut.ts";
 
-/** Rough width of one character of 11px text, for giving outside labels room without measuring. */
-const CHAR_WIDTH = 6;
 /** Lines of outside labels keep this much air between them. */
 const LABEL_GAP = 15;
 /** How far out along a slice's middle its inside label sits, as a share of the radius. */
@@ -40,7 +39,7 @@ export const renderPie: ViewRenderer<PieView> = (ctx) => {
   const labels = ctx.view.labels ?? "inside";
   const slices = slicesOf(ctx.rows, value);
   const total = slices.reduce((sum, slice) => sum + slice.amount, 0);
-  const share = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 0 });
+  const share = shareFormat(ctx.spec.locale);
   const amountText = evenFormat(ctx, value, slices.map((slice) => slice.amount), { type: "number", compact: true });
   const color = (i: number) => sliceColor(ctx, label, slices[i] as Slice, i);
   const names = slices.map((slice) => ctx.format(slice.row[label], label));
@@ -51,7 +50,7 @@ export const renderPie: ViewRenderer<PieView> = (ctx) => {
   const c = size / 2;
   // Outside labels need room beside the disc: the longest name and share, plus a leader and air.
   const outside = labels === "outside";
-  const room = outside ? Math.max(...names.map((name, i) => (name.length + 1 + (shares[i] as string).length) * CHAR_WIDTH)) + 21 : 0;
+  const room = outside ? Math.max(...names.map((name, i) => textWidth(`${name} ${shares[i] as string}`))) + 21 : 0;
   const width = size + room * 2;
 
   const wrap = html(doc, "div", "fft-donut fft-pie");
@@ -81,7 +80,7 @@ export const renderPie: ViewRenderer<PieView> = (ctx) => {
     const name = names[i] as string;
     const items: TooltipItem[] = [
       { label: ctx.label(value), value: amountText(slice.amount), color: color(i) },
-      { label: "Share", value: shares[i] as string },
+      { label: WORDS.share, value: shares[i] as string },
     ];
     mark.setAttribute("aria-label", `${name}: ${items[0]?.value}, ${items[1]?.value}`);
     const activate = () => {
@@ -104,7 +103,7 @@ export const renderPie: ViewRenderer<PieView> = (ctx) => {
     slices.forEach((slice, i) => {
       const span = (slice.amount / total) * Math.PI * 2;
       const text = shares[i] as string;
-      if (span * r * INSIDE_AT < text.length * CHAR_WIDTH + 8 || span < 0.3) return;
+      if (span * r * INSIDE_AT < textWidth(text, 10, 600) + 8 || span < 0.3) return;
       const at = polar(c, c, r * INSIDE_AT, mids[i] as number);
       const node = svg(doc, "text", { class: "fft-pie-label", x: at.x, y: at.y, "text-anchor": "middle", "dominant-baseline": "central", style: `--fft-i: ${i}` });
       node.textContent = text;
@@ -140,8 +139,7 @@ export const renderPie: ViewRenderer<PieView> = (ctx) => {
   }
 
   figure.append(disc);
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, slices.map((slice) => slice.row), [label, value], false));
+  const hidden = hiddenTableOf(ctx, slices.map((slice) => slice.row), [label, value]);
   roving(marks);
   // Outside labels already name every slice; inside small multiples the widget draws one legend for every panel.
   const legend = outside || ctx.inFacet ? [] : [sliceLegend(ctx, label, slices, total, color, amountText, share)];

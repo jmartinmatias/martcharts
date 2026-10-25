@@ -4,7 +4,8 @@ import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewContext, ViewRenderer } from "../../core/view-context.ts";
 import type { DonutView } from "../../core/views.ts";
 import { arcPath } from "../layout.ts";
-import { buildTable, evenFormat, figureSize, html, ringThickness, selectable, svg } from "./shared.ts";
+import { evenFormat, figureSize, hiddenTableOf, html, ringThickness, selectable, shareFormat, svg } from "./shared.ts";
+import { categoryColor, emphasis, WORDS } from "./words.ts";
 import { roving } from "./focus.ts";
 import { countable } from "../count-up.ts";
 
@@ -25,8 +26,8 @@ export function slicesOf(rows: Row[], value: string): Slice[] {
 }
 
 /** A slice's color: its category's color inside small multiples (the same in every panel), otherwise the palette in order. */
-export function sliceColor(ctx: ViewContext<{ type: string }>, label: string, slice: Slice, index: number): string {
-  return ctx.colorOf?.(slice.row[label]) ?? ctx.color(index);
+export function sliceColor(ctx: ViewContext<{ type: string; highlight?: unknown }>, label: string, slice: Slice, index: number): string {
+  return emphasis(ctx).paint(slice.row[label], categoryColor(ctx, slice.row[label], index));
 }
 
 /** The legend a donut and a pie share: a swatch, the name, the value and the share, one line per slice. */
@@ -69,7 +70,7 @@ export const renderDonut: ViewRenderer<DonutView> = (ctx) => {
   const majority = half && ctx.view.majority === true;
   const slices = slicesOf(ctx.rows, value);
   const total = slices.reduce((sum, slice) => sum + slice.amount, 0);
-  const share = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 0 });
+  const share = shareFormat(ctx.spec.locale);
   // The legend's figures in one precision, so they line up.
   const amountText = evenFormat(ctx, value, slices.map((slice) => slice.amount), { type: "number", compact: true });
   const color = (i: number) => sliceColor(ctx, label, slices[i] as Slice, i);
@@ -127,11 +128,11 @@ export const renderDonut: ViewRenderer<DonutView> = (ctx) => {
     const name = ctx.format(slice.row[label], label);
     const items: TooltipItem[] = [
       { label: ctx.label(value), value: amountText(slice.amount), color: color(i) },
-      { label: "Share", value: share.format(slice.amount / total) },
-      ...(i === crossing ? [{ label: "Majority", value: "Crosses it" }] : []),
+      { label: WORDS.share, value: share.format(slice.amount / total) },
+      ...(i === crossing ? [{ label: WORDS.majority, value: WORDS.crossesMajority }] : []),
     ];
     const hit = svg(doc, "path", { class: "fft-slice-hit", d, "stroke-width": thickness + 13, tabindex: 0, role: "img" });
-    hit.setAttribute("aria-label", `${name}: ${items[0]?.value}, ${items[1]?.value}${i === crossing ? ", crosses the majority" : ""}`);
+    hit.setAttribute("aria-label", `${name}: ${items[0]?.value}, ${items[1]?.value}${i === crossing ? `, ${WORDS.crossesMajorityAria}` : ""}`);
     const activate = () => {
       wrap.setAttribute("data-active", "");
       for (const other of marks) other.removeAttribute("data-active");
@@ -151,18 +152,17 @@ export const renderDonut: ViewRenderer<DonutView> = (ctx) => {
     const reach = thickness / 2 + 4;
     ring.append(svg(doc, "line", { class: "fft-donut-majority", x1: c, x2: c, y1: cy - r - reach, y2: cy - r + reach }));
     const text = svg(doc, "text", { class: "fft-donut-majority-label", x: c, y: 11, "text-anchor": "middle" });
-    text.textContent = `Majority ${amountText(needed)}`;
+    text.textContent = WORDS.majorityLabel(amountText(needed));
     ring.append(text);
   }
 
   const center = html(doc, "div", "fft-donut-center");
   const totalEl = html(doc, "div", "fft-donut-total", amountText(total));
   countable(totalEl, total, amountText);
-  center.append(totalEl, html(doc, "div", "fft-donut-caption", caption ?? (half && SEATS.test(value) ? "seats" : ctx.label(value))));
+  center.append(totalEl, html(doc, "div", "fft-donut-caption", caption ?? (half && SEATS.test(value) ? WORDS.seats : ctx.label(value))));
   figure.append(ring, center);
 
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, slices.map((slice) => slice.row), [label, value], false));
+  const hidden = hiddenTableOf(ctx, slices.map((slice) => slice.row), [label, value]);
   roving([...ring.querySelectorAll(".fft-slice-hit")]);
   // Inside small multiples the widget draws one legend for every panel.
   wrap.append(figure, ...(ctx.inFacet ? [] : [sliceLegend(ctx, label, slices, total, color, amountText, share)]), hidden);

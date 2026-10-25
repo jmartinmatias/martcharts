@@ -3,7 +3,8 @@ import { readNumber } from "../../core/formats.ts";
 import type { Row } from "../../core/types.ts";
 import type { ViewRenderer } from "../../core/view-context.ts";
 import type { ChoroplethView } from "../../core/views.ts";
-import { buildTable, html, selectable, svg } from "./shared.ts";
+import { hiddenTableOf, html, selectable, svg } from "./shared.ts";
+import { categoryColor, emphasis, WORDS } from "./words.ts";
 import { roving } from "./focus.ts";
 import { dotLegend, groupName, labelFits, mapFrame, unplacedNote, withGeo } from "./map-shared.ts";
 
@@ -25,10 +26,15 @@ export const renderChoropleth: ViewRenderer<ChoroplethView> = (ctx) =>
     const value = category ? undefined : ctx.view.value;
     const key = ctx.view.key ?? "id";
     if (!collection) {
-      ctx.el.append(html(doc, "p", "fft-map-note", "No map geometry to draw."));
+      ctx.el.append(html(doc, "p", "fft-map-note", WORDS.noGeometry));
       return;
     }
     const { width, height, projection } = mapFrame(ctx, collection, key);
+    // A category keeps its color wherever it appears; highlight keeps the named regions (by code, name or category) in
+    // their shade, and the others step back to grey.
+    const lit = emphasis(ctx);
+    const groupColor = (i: number) => categoryColor(ctx, groupKeys[i], i);
+    const groupKeys: unknown[] = [];
     const byCode = new Map<string, Row>();
     for (const row of ctx.rows) byCode.set(normalizeId(row[id]), row);
     const amounts = value ? ctx.rows.map((row) => readNumber(row[value])).filter((n): n is number => n !== null) : [];
@@ -39,7 +45,10 @@ export const renderChoropleth: ViewRenderer<ChoroplethView> = (ctx) =>
     const groupOf = (row: Row): number => {
       if (!category) return -1;
       const name = groupName(row[category], (v) => ctx.format(v, category));
-      if (!groups.includes(name)) groups.push(name);
+      if (!groups.includes(name)) {
+        groups.push(name);
+        groupKeys.push(row[category]);
+      }
       return groups.indexOf(name);
     };
     for (const row of ctx.rows) groupOf(row);
@@ -73,10 +82,12 @@ export const renderChoropleth: ViewRenderer<ChoroplethView> = (ctx) =>
         empty = true;
         region.setAttribute("aria-hidden", "true");
       } else {
+        const on = !lit.any || lit.lit(row[id]) || lit.lit(shape.id) || lit.lit(shape.name) || (category !== undefined && lit.lit(row[category]));
+        if (!on) region.dataset.muted = "";
         if (value) region.dataset.step = String(step);
         else {
           region.classList.add("fft-map-region-group");
-          region.style.setProperty("fill", ctx.color(group));
+          region.style.setProperty("fill", on ? groupColor(group) : lit.paint(undefined, ""));
         }
         region.setAttribute("tabindex", "0");
         region.setAttribute("role", "img");
@@ -86,7 +97,7 @@ export const renderChoropleth: ViewRenderer<ChoroplethView> = (ctx) =>
           wrap.setAttribute("data-active", "");
           for (const other of marks) other.removeAttribute("data-active");
           region.setAttribute("data-active", "");
-          ctx.tooltip.show(region, shape.name, [{ label: ctx.label(field), value: text, ...(category ? { color: ctx.color(group) } : {}) }]);
+          ctx.tooltip.show(region, shape.name, [{ label: ctx.label(field), value: text, ...(category ? { color: groupColor(group) } : {}) }]);
         };
         region.addEventListener("pointerenter", activate);
         region.addEventListener("focus", activate);
@@ -101,6 +112,7 @@ export const renderChoropleth: ViewRenderer<ChoroplethView> = (ctx) =>
         const code = shape.id || shape.name;
         if (code && labelFits(shape, code)) {
           const label = svg(doc, "text", { class: "fft-map-region-label", x: shape.centroid[0], y: shape.centroid[1], "text-anchor": "middle", "dominant-baseline": "central" });
+          if (region.hasAttribute("data-muted")) label.dataset.muted = "";
           if (step) label.dataset.step = String(step);
           else if (group >= 0) label.classList.add("fft-map-region-label-group");
           else label.classList.add("fft-map-region-label-empty");
@@ -114,7 +126,7 @@ export const renderChoropleth: ViewRenderer<ChoroplethView> = (ctx) =>
 
     // The scale: seven swatches from the weakest tint to the strongest, the lowest and highest values at its ends;
     // or, by category, a key of dots, one per category in its color.
-    const legend = category ? dotLegend(doc, groups.map((name, i) => ({ name, color: ctx.color(i) }))) : html(doc, "div", "fft-heat-legend fft-map-legend");
+    const legend = category ? (dotLegend(ctx, groups.map((name, i) => ({ name, color: groupColor(i) }))) ?? html(doc, "ul", "fft-legend")) : html(doc, "div", "fft-heat-legend fft-map-legend");
     legend.classList.add("fft-map-legend");
     if (value) {
       const ramp = html(doc, "div", "fft-heat-ramp");
@@ -130,7 +142,7 @@ export const renderChoropleth: ViewRenderer<ChoroplethView> = (ctx) =>
       const none = html(doc, "span", "fft-map-legend-empty");
       const swatch = html(doc, "span", "fft-swatch fft-map-swatch-empty");
       swatch.setAttribute("aria-hidden", "true");
-      none.append(swatch, "No data");
+      none.append(swatch, WORDS.noData);
       if (category) {
         const item = html(doc, "li");
         item.append(none);
@@ -138,9 +150,9 @@ export const renderChoropleth: ViewRenderer<ChoroplethView> = (ctx) =>
       } else legend.append(none);
     }
 
-    const hidden = html(doc, "div", "fft-sr-only");
-    hidden.append(buildTable(ctx, ctx.rows, [id, field], false));
-    wrap.append(canvas, legend);
+    const hidden = hiddenTableOf(ctx, ctx.rows, [id, field]);
+    // Inside a small-multiples panel a category key is drawn once for all panels; the scale stays, since each panel shades on it.
+    wrap.append(canvas, ...(category && ctx.inFacet ? [] : [legend]));
     const note = unplacedNote(doc, unplaced);
     if (note) wrap.append(note);
     wrap.append(hidden);
