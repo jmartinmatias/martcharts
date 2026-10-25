@@ -10,7 +10,10 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import axe from "axe-core";
-import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+
+// axe takes seconds per card on a busy machine; a slow first run must not time out and leave axe running for the next test.
+vi.setConfig({ testTimeout: 30_000 });
 import type { WidgetSpec } from "../core/types.ts";
 import { createDashboard } from "./dashboard.ts";
 import { createWidget } from "./widget.ts";

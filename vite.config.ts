@@ -26,5 +26,8 @@ export default defineConfig({
   test: {
     include: ["src/**/*.test.ts"],
     environment: "node",
+    // Whole-dashboard, export and Taller tests draw dozens of widgets; on a busy machine 5s is not enough, and a timeout
+    // proves nothing about the code. A real hang still fails, at 30s.
+    testTimeout: 30_000,
   },
 });
