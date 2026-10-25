@@ -343,6 +343,20 @@ const EN = {
     asOf: (date: string) => `As of ${date}`,
   },
 
+  // ---- Dashboard a11y: skip links, one stop per card, and each change said aloud ----
+  boardA11y: {
+    skipLinks: "Skip links",
+    skipToFilters: "Skip to filters",
+    skipToSection: (name: string) => `Skip to ${name}`,
+    card: "Card",
+    cardHint: "Press Enter to go into this card and Escape to come back out.",
+    updated: (reached: number, total: number) => (reached === total ? `All ${total} cards updated.` : `${reached} of ${total} cards updated.`),
+    set: (what: string, value: string) => `${what}: ${value}.`,
+    cleared: (what: string) => `${what} filter cleared.`,
+    sectionShown: (name: string, cards: number) => `${name}: ${cards} ${cards === 1 ? "card" : "cards"} shown.`,
+    allSectionsShown: (cards: number) => `All sections: ${cards} cards shown.`,
+  },
+
   // ---- RAG statuses: words that read without the color ----
   rag: { G: "On track", A: "At risk", R: "Off track", N: "No data" } as Readonly<Record<"R" | "A" | "G" | "N", string>>,
 
@@ -777,6 +791,18 @@ const FR: Words = {
     clearMany: "Retirer ces filtres",
     asOf: (date) => `Au ${date}`,
   },
+  boardA11y: {
+    skipLinks: "Liens d'accès rapide",
+    skipToFilters: "Aller aux filtres",
+    skipToSection: (name) => `Aller à ${name}`,
+    card: "Carte",
+    cardHint: "Appuyez sur Entrée pour entrer dans cette carte, puis sur Échap pour en sortir.",
+    updated: (reached, total) => (reached === total ? `Les ${total} cartes sont à jour.` : `${reached} cartes sur ${total} mises à jour.`),
+    set: (what, value) => `${what} : ${value}.`,
+    cleared: (what) => `Filtre ${what} retiré.`,
+    sectionShown: (name, cards) => `${name} : ${cards} ${cards === 1 ? "carte affichée" : "cartes affichées"}.`,
+    allSectionsShown: (cards) => `Toutes les sections : ${cards} cartes affichées.`,
+  },
   rag: { G: "Conforme", A: "À surveiller", R: "Hors trajectoire", N: "Aucune donnée" },
   editor: {
     steps: ["Importer les données", "Vérifier et décrire", "Visualiser", "Publier et intégrer"],
@@ -1204,6 +1230,18 @@ const DE: Words = {
     clearOne: "Filter entfernen",
     clearMany: "Diese Filter entfernen",
     asOf: (date) => `Stand ${date}`,
+  },
+  boardA11y: {
+    skipLinks: "Sprunglinks",
+    skipToFilters: "Zu den Filtern springen",
+    skipToSection: (name) => `Zu ${name} springen`,
+    card: "Karte",
+    cardHint: "Mit der Eingabetaste in diese Karte wechseln, mit Escape wieder heraus.",
+    updated: (reached, total) => (reached === total ? `Alle ${total} Karten aktualisiert.` : `${reached} von ${total} Karten aktualisiert.`),
+    set: (what, value) => `${what}: ${value}.`,
+    cleared: (what) => `Filter ${what} aufgehoben.`,
+    sectionShown: (name, cards) => `${name}: ${cards} ${cards === 1 ? "Karte" : "Karten"} angezeigt.`,
+    allSectionsShown: (cards) => `Alle Bereiche: ${cards} Karten angezeigt.`,
   },
   rag: { G: "Im Plan", A: "Gefährdet", R: "Nicht im Plan", N: "Keine Daten" },
   editor: {

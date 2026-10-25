@@ -6,7 +6,7 @@ FFT widgets are built to meet the European Accessibility Act. The Act applies th
 
 - **Standard:** EN 301 549 v3.2.1, clause 9, which is WCAG 2.1 level AA. These WCAG 2.2 level AA criteria are met too: 2.4.11 Focus Not Obscured (Minimum), 2.5.7 Dragging Movements and 2.5.8 Target Size (Minimum).
 - **Status:** conforms, for the scope below, as of 17 October 2026.
-- **Scope:** all <!-- views -->57<!-- /views --> built-in views, the widget card (title, subtitle, headline, toolbar actions, footer, ghost ref, tooltip, expanded view), and dashboards (period control, filters, section filter, pinned filter row). It covers both themes (light and dark) and every style preset (default, glass, airy, paper), from phone width (320 CSS px) up.
+- **Scope:** all <!-- views -->57<!-- /views --> built-in views, the widget card (title, subtitle, headline, toolbar actions, footer, ghost ref, tooltip, expanded view), and dashboards (skip links, card stops, period control, filters, section filter, click filters, pinned filter row, announcements). It covers both themes (light and dark) and every style preset (default, glass, airy, paper), from phone width (320 CSS px) up.
 - **Method:**
   - Automated checks with axe-core against the WCAG 2.0, 2.1 and 2.2 A and AA rules: every stored widget in jsdom, and the whole demo page in Chrome with real layout, in both themes, every preset and at 320 px. No violations.
   - Contrast computed from the theme tokens in every theme and preset.
@@ -33,14 +33,14 @@ FFT widgets are built to meet the European Accessibility Act. The Act applies th
 | 1.4.11 Non-text contrast | <ul><li>Every series color of the default palette and of each preset reaches 3:1 on the card. The light steps of three house colors were deepened for this.</li><li>The accent used for focus rings reaches 3:1, and the chosen period's accent bar does too.</li><li>Gridlines and axis lines are supplementary, since every value is also in the tooltip, the tick labels and the data table.</li></ul> | `src/dom/contrast.test.ts` |
 | 1.4.12 Text spacing | With line height 1.5, letter spacing 0.12em, word spacing 0.16em and paragraph spacing 2em forced on, nothing clips or overflows (checked at 320 px). | |
 | 1.4.13 Content on hover or focus | Tooltips can be dismissed with Escape without moving focus or the pointer. Escape stops there, so the expanded view behind stays open. A tooltip stays while hovered (the mouse gets a short grace to reach it) and while its mark has focus. It never times out. | `createTooltip` in `src/dom/widget.ts` |
-| 2.1.1 Keyboard | Every mark a pointer can inspect is reachable with the keyboard. Each chart is one Tab stop, and the arrow keys move between its marks (roving focus), showing the same tooltip as hover. Enter or Space selects. Controls are native buttons and selects. | `src/dom/views/focus.ts` |
-| 2.1.2 No keyboard trap | Focus leaves every chart with Tab. The expanded view keeps focus inside while open, closes with Escape, and returns focus to the button that opened it. | `src/dom/widget.ts` |
+| 2.1.1 Keyboard | Every mark a pointer can inspect is reachable with the keyboard. Each chart is one Tab stop, and the arrow keys move between its marks (roving focus), showing the same tooltip as hover. Enter or Space selects. Controls are native buttons and selects. On a dashboard each card is one Tab stop, named by its title: Enter or an arrow key goes into it, where Tab reaches its marks and tools, and Escape comes back out. | `src/dom/views/focus.ts`, `src/dom/dashboard.ts` |
+| 2.1.2 No keyboard trap | Focus leaves every chart with Tab. Inside a dashboard card, Tab moves on past the card's last stop to the next card, and Escape comes back out to the card. The expanded view keeps focus inside while open, closes with Escape, and returns focus to the button that opened it. | `src/dom/widget.ts`, `src/dom/dashboard.ts` |
 | 2.1.4 Character key shortcuts | None are added. | |
 | 2.2.1, 2.2.2 Timing, pause | No time limits. The only motion is a one-time entrance shorter than 5 seconds, and none at all with reduced motion. | |
 | 2.3.1 Three flashes | Nothing flashes. | |
-| 2.4.1 Bypass blocks | Dashboards offer a section filter that shows one section at a time. Headings are not used inside widgets, so a page's own landmarks and headings stay in charge. | `src/dom/dashboard.ts` |
+| 2.4.1 Bypass blocks | Every dashboard opens with skip links: "Skip to filters", and a list of its sections (one roving stop) whose links move focus to each section's heading without changing the address. A section the section filter hides is shown again first. Cards are one stop each, so passing a card is one Tab. The section filter also shows one section at a time. Headings are not used inside widgets, so a page's own landmarks and headings stay in charge. | `src/dom/dashboard.ts` |
 | 2.4.2 Page titled | The host page's responsibility. | |
-| 2.4.3 Focus order | Within a card, focus goes toolbar, chart, ghost ref. Across a dashboard it goes period, filters, sections, then the cards in grid order. | `src/dom/widget.ts` |
+| 2.4.3 Focus order | Within a card, focus goes toolbar, chart, ghost ref. Across a dashboard it goes skip links, period, filters, tools, sections, then the cards in grid order, one stop each. A click filter redraws the board, and focus stays on the mark that set it, found again in its redrawn card by its name (else its place), or moves to the filter's chip. Clearing it with the chip or Escape returns focus to that mark, else to the filter row. Focus never falls to the page. | `src/dom/widget.ts`, `src/dom/dashboard.ts` |
 | 2.4.4 Link purpose | Widgets contain no links. | |
 | 2.4.5 Multiple ways | The host page's responsibility. | |
 | 2.4.6 Headings and labels | Every control has a visible or programmatic label: "Period", the filter labels, "Sections", and each toolbar action's name. | |
@@ -59,7 +59,7 @@ FFT widgets are built to meet the European Accessibility Act. The Act applies th
 | 3.3.1 to 3.3.4 Input assistance | Not applicable to the widgets (no forms). The demo's spec editor reports errors in text with their path. | |
 | 4.1.1 Parsing | Obsolete in WCAG 2.2; the DOM is built with `createElement`, so markup is always well formed. | |
 | 4.1.2 Name, role, value | <ul><li>Toggle groups are `role="group"` with a label, and each button carries `aria-pressed`.</li><li>Meters use `role="meter"` with their values.</li><li>The expanded view is a labelled modal dialog.</li><li>The ghost ref is a button named "Copy widget ref W-XXXX".</li></ul> | |
-| 4.1.3 Status messages | Loading, empty and error states are announced politely (`role="status"`), and a redrawing card is `aria-busy`. | `src/dom/widget.ts` |
+| 4.1.3 Status messages | Loading, empty and error states are announced politely (`role="status"`), and a redrawing card is `aria-busy`. A dashboard says each change once in one polite live region, in its own language: what was set or cleared and how many cards it reached ("Segment: Affluent. 24 of 32 cards updated."), a period, a click filter, or the section shown. Quick changes say only the last, the same words are never said twice in a row, and the first load says nothing. | `src/dom/widget.ts`, `src/dom/dashboard.ts` |
 
 ## Known limitations
 
@@ -79,6 +79,7 @@ npx vitest run src/dom/a11y.test.ts src/dom/contrast.test.ts
   - tooltip dismissal and hovering (1.4.13)
   - focus order and focus not obscured
   - the non-color cues
+- `src/dom/board-a11y.test.ts` checks the dashboard: one tab stop per card on every worked dashboard (the commercial cockpit went from 198 stops to 53, the regulatory board from 138 to 41, client health from 212 to 42), going into and out of a card, focus after a click filter and after clearing it, every announcement, the skip links, and axe on a board with them all.
 - `src/dom/contrast.test.ts` computes every text and mark color against its background in both themes and every preset.
 
 In a real browser, where layout makes contrast and target size measurable, load axe-core from the dev server and run it over the page:
@@ -89,4 +90,4 @@ const result = await axe.run(document, { runOnly: { type: "tag", values: ["wcag2
 result.violations; // expect []
 ```
 
-Repeat with each theme and preset, at 320 px wide, and with a text spacing bookmarklet. Then tab through a dashboard without a mouse, and press Escape on a tooltip.
+Repeat with each theme and preset, at 320 px wide, and with a text spacing bookmarklet. Then tab through a dashboard without a mouse: the skip links come first, each card is one stop, Enter goes into a card and Escape comes back out. Press Enter on a mark to set a click filter and check focus stays on it, then Escape (once for the tooltip, once for the filter) and check it comes back. With a screen reader on, change a filter and listen for one announcement.

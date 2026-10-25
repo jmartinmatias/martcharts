@@ -17,6 +17,7 @@ import { isForecast } from "../core/views.ts";
 import type { Row, TransformSpec, WidgetSpec } from "../core/types.ts";
 import type { WidgetAction } from "./export.ts";
 import { ensureStyles } from "./styles.ts";
+import { roving } from "./views/focus.ts";
 import { createWidget } from "./widget.ts";
 import type { Widget } from "./widget.ts";
 import { wordsFor } from "../core/words.ts";
@@ -52,6 +53,12 @@ export interface DashboardOptions {
    * filter row (and Escape) to clear it. Default: the board's own `crossFilter`, which defaults to true.
    */
   crossFilter?: boolean;
+  /**
+   * Each card is one tab stop (default true): Tab moves from card to card, Enter or an arrow key goes into a card,
+   * where Tab and the arrows reach its marks and tools, and Escape comes back out to the card. Without it, every
+   * card's toolbar, ref and marks are tab stops of their own, about five per card.
+   */
+  cardStops?: boolean;
 }
 
 /** The filter a click on a mark set: the field, its value, and the widget clicked (which keeps its data and highlights the value). */
@@ -119,6 +126,12 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   const boardLocale = firstSpec?.locale ?? (target.ownerDocument.documentElement.lang || "en");
   // The board's own words (filter row, share and print tools, notes), in the same language.
   const B = wordsFor(boardLocale).board;
+  // The words a keyboard and screen-reader user meets: skip links, card stops, and what each change did.
+  const A = wordsFor(boardLocale).boardA11y;
+  /** True once the board has drawn: what a link or the first load sets is not news to announce. */
+  let settled = false;
+  let lastSaid = "";
+  let sayTimer: ReturnType<typeof setTimeout> | undefined;
   if (asOf) asOf.textContent = asOfText(spec.asOf as string, "", boardLocale);
   if (spec.title || spec.subtitle || asOf) {
     const header = el("header", "fft-dashboard-header");
@@ -132,9 +145,30 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   printState.setAttribute("aria-hidden", "true");
   root.append(printState);
   const filterRow = el("div", "fft-filters");
+  // The filter row takes focus from a skip link or after a cleared filter, without becoming a tab stop of its own.
+  filterRow.id = `fft-filters-${Math.random().toString(36).slice(2, 8)}`;
+  filterRow.tabIndex = -1;
   const grid = el("div", "fft-dashboard-grid");
   grid.style.setProperty("--fft-cols", String(columns));
-  root.append(filterRow, grid);
+  // Skip links first in the board: to the filters, and to any section (one roving list, so one stop). Out of sight until focused.
+  const skip = el("nav", "fft-skip");
+  skip.setAttribute("aria-label", A.skipLinks);
+  const toFilters = el("a", "fft-skip-link", A.skipToFilters);
+  toFilters.href = `#${filterRow.id}`;
+  toFilters.addEventListener("click", (event) => {
+    event.preventDefault();
+    filterRow.focus();
+  });
+  skip.append(toFilters);
+  // One polite live region says what each change did, once: "Segment: Affluent. 24 of 32 cards updated."
+  const live = el("p", "fft-sr-only fft-board-live");
+  live.setAttribute("role", "status");
+  live.setAttribute("aria-live", "polite");
+  live.setAttribute("aria-atomic", "true");
+  // The hint every card stop carries, written once.
+  const cardHint = el("p", "fft-sr-only", A.cardHint);
+  cardHint.id = `fft-card-hint-${Math.random().toString(36).slice(2, 8)}`;
+  root.append(skip, filterRow, grid, live, cardHint);
   target.append(root);
 
   const widgets = new Map<string, Widget>();
@@ -200,13 +234,104 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     return { previous: list[i - 1], next: list[i + 1], position: i + 1, total: list.length };
   };
 
+  // ---- One tab stop per card ----
+  // A card's slot is the stop: role group, named by the card's title, described by the hint. What is focusable inside it
+  // (toolbar, ref, the entry to its marks, table controls) is taken out of the tab order while focus is elsewhere, its
+  // own tabindex kept in data-fft-tab, and given back as soon as focus goes in.
+  const cardStops = options.cardStops !== false;
+  const INNER = "a[href], button, input, select, textarea, [tabindex]";
+  const observers: MutationObserver[] = [];
+  const inside = (slot: HTMLElement) => {
+    const active = doc.activeElement;
+    return Boolean(active && active !== slot && slot.contains(active));
+  };
+  const titleOf = (slot: HTMLElement) => slot.querySelector(".fft-title")?.textContent?.trim() || A.card;
+  /** Takes a card's inner stops out of the tab order (unless focus is inside it), and keeps its name current. */
+  function lockCard(slot: HTMLElement) {
+    if (slot.getAttribute("aria-label") !== titleOf(slot)) slot.setAttribute("aria-label", titleOf(slot));
+    if (inside(slot)) return;
+    delete slot.dataset.inside;
+    for (const node of slot.querySelectorAll<HTMLElement>(INNER)) {
+      const now = node.getAttribute("tabindex");
+      if (node.hasAttribute("data-fft-tab")) {
+        // Still out of the order, unless the card's own code (a roving group, a redraw) gave it a stop again.
+        if (now !== "-1") {
+          node.setAttribute("data-fft-tab", now ?? "");
+          node.setAttribute("tabindex", "-1");
+        }
+        continue;
+      }
+      if (now === "-1") continue;
+      node.setAttribute("data-fft-tab", now ?? "");
+      node.setAttribute("tabindex", "-1");
+    }
+  }
+  /** Gives a card's inner stops back, exactly as its own code set them. */
+  function unlockCard(slot: HTMLElement) {
+    slot.dataset.inside = "";
+    for (const node of slot.querySelectorAll<HTMLElement>("[data-fft-tab]")) {
+      const kept = node.getAttribute("data-fft-tab") ?? "";
+      node.removeAttribute("data-fft-tab");
+      if (kept === "") node.removeAttribute("tabindex");
+      else node.setAttribute("tabindex", kept);
+    }
+  }
+  /** Where Enter on a card lands: its marks' entry (the roving stop in the chart), else its first control. */
+  function entryOf(slot: HTMLElement): HTMLElement | undefined {
+    const stops = [...slot.querySelectorAll<HTMLElement>(INNER)].filter((node) => node.getAttribute("tabindex") !== "-1" && !(node as HTMLButtonElement).disabled && !node.closest("[hidden]"));
+    return stops.find((node) => node.closest(".fft-body") && !node.closest(".fft-actions")) ?? stops[0];
+  }
+  function cardStop(slot: HTMLElement) {
+    slot.tabIndex = 0;
+    slot.setAttribute("role", "group");
+    slot.setAttribute("aria-describedby", cardHint.id);
+    slot.addEventListener("focusin", (event) => {
+      if (event.target !== slot) unlockCard(slot);
+    });
+    slot.addEventListener("focusout", (event) => {
+      const next = (event as FocusEvent).relatedTarget as Node | null;
+      if (!next || !slot.contains(next)) queueMicrotask(() => lockCard(slot));
+    });
+    slot.addEventListener("keydown", (event) => {
+      const key = (event as KeyboardEvent).key;
+      if (event.target === slot) {
+        if (key !== "Enter" && key !== "ArrowDown" && key !== "ArrowRight") return;
+        unlockCard(slot);
+        const entry = entryOf(slot);
+        if (!entry) return lockCard(slot);
+        event.preventDefault();
+        entry.focus();
+        return;
+      }
+      // Escape inside a card comes back out to it, unless a click filter is set: then Escape first clears that, and
+      // focus goes back to the mark that set it.
+      if (key === "Escape" && !event.defaultPrevented && !cross) {
+        event.preventDefault();
+        slot.focus();
+      }
+    });
+    // A card redraws (a filter, a resize, its own controls): what it draws joins the order only while focus is inside.
+    if (typeof MutationObserver === "function") {
+      const watch = new MutationObserver(() => {
+        if ("inside" in slot.dataset && !inside(slot) && doc.activeElement !== slot) lockCard(slot);
+        else if (!("inside" in slot.dataset)) lockCard(slot);
+      });
+      watch.observe(slot, { subtree: true, childList: true, attributes: true, attributeFilter: ["tabindex"] });
+      observers.push(watch);
+    }
+    lockCard(slot);
+  }
+
   spec.widgets.forEach((cell, index) => {
     if (cell.section) {
       // A section heading: a full-width row that groups the cells after it.
       const section = el("div", "fft-board-section");
       section.id = sectionId(cell.section);
       section.style.gridColumn = "1 / -1";
-      section.append(el("h3", "", cell.section));
+      // The heading takes focus from a skip link (never a tab stop of its own), so the keyboard can jump section to section.
+      const heading = el("h3", "", cell.section);
+      heading.tabIndex = -1;
+      section.append(heading);
       if (cell.description) section.append(el("p", "", cell.description));
       grid.append(section);
       sections.push({ node: section, title: cell.section });
@@ -246,7 +371,30 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     widgets.set(id, widget);
     slotOf.set(widget, slot);
     options.decorate?.(mount, id, widget);
+    if (cardStops) cardStop(slot);
   });
+
+  // The section list of the skip links: one roving stop (arrow keys move), each link focusing its section's heading.
+  if (sections.length) {
+    const list = el("ul", "fft-skip-sections");
+    const links: HTMLAnchorElement[] = [];
+    for (const { node, title } of sections) {
+      const item = el("li", "");
+      const link = el("a", "fft-skip-link", A.skipToSection(title));
+      link.href = `#${node.id}`;
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        // A section the section filter hides is shown again with the rest, then its heading takes focus.
+        if (node.hidden) choose(null);
+        node.querySelector<HTMLElement>("h3")?.focus();
+      });
+      item.append(link);
+      list.append(item);
+      links.push(link);
+    }
+    roving(links, { down: 1 });
+    skip.append(list);
+  }
 
   // Section filter: with two or more sections, the filter row offers All and each section, like the period control.
   const nav = sections.length > 1 ? el("div", "fft-board-nav") : undefined;
@@ -295,9 +443,15 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
         nav.scrollBy({ left: chip.left - box.left - (box.width - chip.width) / 2 });
       }
     });
+    const changed = shownSection !== (section?.id ?? null);
     shownSection = section?.id ?? null;
     writeHash();
     void writeState();
+    if (changed) {
+      const shown = section ? [...(members.get(section) ?? [])].filter((node) => node.classList.contains("fft-cell-slot")).length : slots.size;
+      const title = section ? sections.find(({ node }) => node === section)?.title : undefined;
+      say(title ? A.sectionShown(title, shown) : A.allSectionsShown(shown));
+    }
     if (root.getBoundingClientRect().top < 0) root.scrollIntoView?.({ block: "start" });
   }
 
@@ -485,6 +639,72 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     await Promise.all([...widgets.entries()].map(async ([id, widget]) => widget.setSpec(await specFor(id))));
   }
 
+  // ---- What each change did, said once, in a polite live region ----
+  /** Says the last of several quick changes, and never the same words twice in a row. */
+  function say(text: string) {
+    if (!settled) return;
+    if (sayTimer) clearTimeout(sayTimer);
+    sayTimer = setTimeout(() => {
+      sayTimer = undefined;
+      if (text === lastSaid) return;
+      lastSaid = text;
+      live.textContent = text;
+    }, 233);
+  }
+  /** After a change has redrawn: what it set, and how many cards it reached ("Segment: Affluent. 24 of 32 cards updated."). */
+  async function sayChange(lead: string) {
+    if (!settled) return;
+    await writeState();
+    const total = slots.size;
+    const reached = [...slots.values()].filter((slot) => !("unfiltered" in slot.dataset)).length;
+    say(`${lead} ${A.updated(reached, total)}`);
+  }
+
+  // ---- Focus that survives a redraw ----
+  /** The mark a click filter came from: its card, its accessible name, and its place among the card's marks. */
+  interface Origin {
+    slot: string;
+    label: string | null;
+    index: number;
+  }
+  /** The mark that set the click filter now in force, for focus to return to when it is cleared. */
+  let crossOrigin: Origin | undefined;
+  /** Where focus goes once the next click-filter redraw is done. */
+  let focusAfter: { origin?: Origin; fallback: "chip" | "row" } | undefined;
+  /** The element last pressed in the grid, for a mouse click (which may not focus an SVG mark). */
+  let lastPressed: Element | null = null;
+  const pressed = (event: Event) => (lastPressed = event.target as Element | null);
+  grid.addEventListener("pointerdown", pressed, true);
+  grid.addEventListener("click", pressed, true);
+  /** A card's marks and in-chart controls, in order: what a focus can come back to. Its toolbar and ref are not marks. */
+  const marksOf = (slot: HTMLElement) =>
+    [...slot.querySelectorAll<HTMLElement>("[tabindex], [data-fft-tab]")].filter((node) => node !== slot && node.closest(".fft-body") && !node.closest(".fft-actions, .fft-widget-ref"));
+  function originOf(id: string | undefined): Origin | undefined {
+    const slot = id ? slots.get(id) : undefined;
+    if (!id || !slot) return undefined;
+    const active = doc.activeElement;
+    const fromKeys = active && active !== slot && slot.contains(active) ? (active as HTMLElement) : null;
+    const fromPointer = lastPressed && slot.contains(lastPressed) ? (lastPressed.closest("[tabindex], [data-fft-tab]") as HTMLElement | null) : null;
+    const mark = fromKeys ?? fromPointer;
+    const marks = marksOf(slot);
+    return { slot: id, label: mark?.getAttribute("aria-label") ?? null, index: mark ? marks.indexOf(mark) : -1 };
+  }
+  /** Focuses the same mark in its redrawn card (by its name, else its place), else the chip or the filter row. */
+  function refocus(origin: Origin | undefined, fallback: "chip" | "row") {
+    const slot = origin ? slots.get(origin.slot) : undefined;
+    const marks = slot ? marksOf(slot) : [];
+    const mark = (origin?.label ? marks.find((node) => node.getAttribute("aria-label") === origin.label) : undefined) ?? (origin && origin.index >= 0 ? marks[origin.index] : undefined);
+    if (slot && mark) {
+      mark.focus();
+      // The mark is its roving group's stop now, as if the arrow keys had brought the focus there.
+      for (const other of marks) if (other !== mark && other.getAttribute("tabindex") === "0" && other.getAttribute("class") === mark.getAttribute("class")) other.setAttribute("tabindex", "-1");
+      mark.setAttribute("tabindex", "0");
+      return;
+    }
+    if (fallback === "chip" && !chip.hidden) chip.focus();
+    else filterRow.focus();
+  }
+
   /** What a filter is called on screen: its row label, the period's label, or the field in words. */
   const filterName = (field: string) => spec.filters?.find((filter) => filter.field === field)?.label ?? fieldLabel(field);
 
@@ -543,11 +763,17 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   const chip = el("button", "fft-crossfilter");
   chip.type = "button";
   chip.hidden = true;
-  chip.addEventListener("click", () => void setCrossFilter(null));
+  chip.addEventListener("click", () => {
+    // The chip is about to go: focus returns to the mark that set the filter, else to the filter row.
+    focusAfter = { origin: crossOrigin, fallback: "row" };
+    void setCrossFilter(null);
+  });
   let rowHiddenBefore = false;
 
   async function setCrossFilter(field: string | null, value?: unknown, source?: string) {
+    const was = cross;
     cross = field === null ? undefined : { field, value, ...(source ? { source } : {}) };
+    if (!cross) crossOrigin = undefined;
     if (cross) {
       const text = `${fieldLabel(cross.field)}: ${formatValue(cross.value, undefined, undefined)}`;
       chip.replaceChildren(el("span", "fft-crossfilter-text", text), el("span", "fft-crossfilter-x", "\u00d7"));
@@ -565,6 +791,12 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     writeHash();
     root.dispatchEvent(new CustomEvent<CrossFilter | null>("fft-crossfilter", { bubbles: true, detail: cross ? { ...cross } : null }));
     await redraw();
+    // A person's click or clear, not a link or a call from code, decides where focus goes once the cards are redrawn.
+    const goal = focusAfter;
+    focusAfter = undefined;
+    if (goal) refocus(goal.origin, goal.fallback);
+    if (cross) await sayChange(A.set(fieldLabel(cross.field), formatValue(cross.value, undefined, undefined)));
+    else if (was) await sayChange(A.cleared(fieldLabel(was.field)));
   }
 
   // A click on a mark filters the rest of the board by what it stands for; the same mark again clears it.
@@ -579,13 +811,22 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     const field = categoryField(view, row);
     if (!field) return;
     const value = row[field];
-    if (cross && cross.field === field && cross.value === value && cross.source === source) void setCrossFilter(null);
-    else void setCrossFilter(field, value, source);
+    // Focus stays on the mark that was used, found again in its redrawn card.
+    const origin = originOf(source);
+    if (cross && cross.field === field && cross.value === value && cross.source === source) {
+      focusAfter = { origin, fallback: "row" };
+      void setCrossFilter(null);
+    } else {
+      crossOrigin = origin;
+      focusAfter = { origin, fallback: "chip" };
+      void setCrossFilter(field, value, source);
+    }
   };
   grid.addEventListener("fft-select", onSelect);
   // Escape clears the click filter, unless something else (a tooltip, a menu, an expanded card) took it first.
   const onKey = (event: KeyboardEvent) => {
     if (event.key !== "Escape" || event.defaultPrevented || !cross || doc.querySelector(".fft-overlay")) return;
+    focusAfter = { origin: crossOrigin, fallback: "row" };
     void setCrossFilter(null);
   };
   doc.addEventListener("keydown", onKey);
@@ -614,10 +855,12 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   }
 
   async function setRange(option: string) {
+    const changed = option !== period;
     period = option;
     for (const button of periodButtons) button.setAttribute("aria-pressed", String(button.dataset.value === option));
     writeHash();
     await redraw();
+    if (changed && range) await sayChange(A.set(range.label ?? B.period, option === "All" ? B.all : option));
   }
 
   const selects = new Map<string, { select: HTMLSelectElement; values: unknown[] }>();
@@ -730,6 +973,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   }
 
   async function setFilter(field: string, value: unknown) {
+    const before = active.get(field);
     active.set(field, value);
     const control = selects.get(field);
     if (control) {
@@ -738,6 +982,9 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     }
     writeHash();
     await redraw();
+    const none = (v: unknown) => v === null || v === undefined;
+    if (none(value) && !none(before)) await sayChange(A.cleared(filterName(field)));
+    else if (!none(value) && JSON.stringify(value) !== JSON.stringify(before)) await sayChange(A.set(filterName(field), formatValue(value, undefined, undefined)));
   }
 
   const ready = (async () => {
@@ -753,6 +1000,8 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     if (pendingCross) await setCrossFilter(pendingCross.field, pendingCross.value, pendingCross.source);
     else if (period !== "All" || Object.keys(pendingFilters ?? {}).length || follows.size) await redraw();
     else await writeState();
+    // From here on, a change is news to say aloud.
+    settled = true;
   })();
 
   return {
@@ -785,6 +1034,10 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       doc.defaultView?.removeEventListener("hashchange", onHash);
       doc.removeEventListener("keydown", onKey);
       grid.removeEventListener("fft-select", onSelect);
+      grid.removeEventListener("pointerdown", pressed, true);
+      grid.removeEventListener("click", pressed, true);
+      for (const watch of observers) watch.disconnect();
+      if (sayTimer) clearTimeout(sayTimer);
       barSize?.disconnect();
       navSize?.disconnect();
       if (barSize) page.style.removeProperty("--fft-filters-height");
@@ -828,7 +1081,17 @@ const BOARD_CSS = `
 .fft-unfiltered { position: absolute; top: 8px; right: 13px; z-index: 1; margin: 0; padding: 2px 8px; border-radius: 999px; font-size: 11px; line-height: 15px; color: var(--fft-muted, #6e6e73); background: color-mix(in srgb, var(--fft-text, #1d1d1f) 5%, transparent); pointer-events: none; transition: opacity 233ms ease; }
 .fft-cell-slot:is(:hover, :focus-within) > .fft-unfiltered { opacity: 0; }
 @media (hover: none) { .fft-unfiltered { position: static; align-self: flex-end; margin: 0 0 5px; } }
+.fft-skip { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.fft-skip:focus-within { position: static; width: auto; height: auto; margin: 0 0 8px; overflow: visible; clip: auto; white-space: normal; display: flex; flex-wrap: wrap; align-items: baseline; gap: 5px 13px; font-size: 13px; }
+.fft-skip-sections { display: flex; flex-wrap: wrap; gap: 5px 13px; margin: 0; padding: 0; list-style: none; }
+.fft-skip-link { color: var(--fft-accent); text-underline-offset: 3px; }
+.fft-skip-link:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 2px; border-radius: 3px; }
+.fft-dashboard .fft-cell-slot[role="group"]:focus { outline: none; }
+.fft-dashboard .fft-cell-slot[role="group"]:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 3px; border-radius: 16px; }
+.fft-dashboard .fft-board-section h3:focus, .fft-dashboard .fft-filters:focus { outline: none; }
+.fft-dashboard .fft-board-section h3:focus-visible, .fft-dashboard .fft-filters:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 3px; border-radius: 5px; }
 @media print {
+  .fft-skip { display: none !important; }
   .fft-filters, .fft-filters-sentinel, .fft-board-tools, .fft-crossfilter, .fft-widget-ref { display: none !important; }
   .fft-print-state { display: block; margin: 0 0 13px; padding: 0 0 8px; border-bottom: 1px solid #d4d3cd; font-size: 12px; color: #1d1d1f; }
   .fft-dashboard-grid { display: block !important; }
