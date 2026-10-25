@@ -6,6 +6,9 @@
  * Uses each page's own tokens (--page, --ink, --ink-2, --line, --accent, --field), with system colors where a page has none.
  */
 /* The bar's height, for anything else that pins under it (a dashboard's filter row reads --fft-sticky-top). */
+/* The bar's backdrop below reaches past the window on purpose (inset: 0 -100vmax); clip, not hidden, keeps the page from
+   scrolling sideways without making the root a scroll container, so the bar stays sticky. */
+html { overflow-x: clip; }
 :root { --site-nav-height: 46px; --fft-sticky-top: var(--site-nav-height); scroll-padding-top: calc(var(--site-nav-height) + 13px); }
 .site-bar {
   position: sticky;
@@ -24,10 +27,13 @@
 .site-bar::before {
   content: "";
   position: absolute;
-  inset: 0 -100vmax;
+  inset: 0;
   z-index: -1;
   background: var(--page, Canvas);
-  border-bottom: 1px solid var(--line, color-mix(in srgb, CanvasText 12%, transparent));
+  /* Edge to edge by shadow, not by size: a shadow never widens the page, so nothing scrolls sideways. The second
+     shadow is the hairline under the bar; the clip keeps both to the bar's own height plus that line. */
+  box-shadow: 0 0 0 100vmax var(--page, Canvas), 0 1px 0 100vmax var(--line, color-mix(in srgb, CanvasText 12%, transparent));
+  clip-path: inset(0 -100vmax -1px -100vmax);
 }
 .site-nav {
   flex: 1;
