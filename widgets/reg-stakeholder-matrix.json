@@ -477,7 +477,7 @@
     "type": "matrix",
     "x": "stakeholder",
     "y": "regulation",
-    "mark": "binds",
+    "flag": "binds",
     "color": "impact"
   },
   "source": {

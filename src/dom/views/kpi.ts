@@ -7,13 +7,39 @@ import { ICONS } from "../../core/icons.ts";
 import { linePath } from "../layout.ts";
 import { countable } from "../count-up.ts";
 import { deltaElement } from "./delta.ts";
-import { html, svg } from "./shared.ts";
+import { hiddenTableOf, html, svg } from "./shared.ts";
 import { targetLine } from "./target.ts";
 import { ragFromValue } from "../../core/rag.ts";
 import { ragPill } from "./rag-shared.ts";
 
 /** Sparkline height in pixels: a Fibonacci step. */
 const SPARK_HEIGHT = 34;
+
+/** What a tile shows when its number is missing: a dash, read aloud as "No value". */
+export const NO_VALUE = "\u2014";
+
+/**
+ * The headline figure: the value as text, counting up when it is a number. A missing value shows a quiet dash and
+ * says "No value" to screen readers, never an empty box.
+ */
+export function figure(doc: Document, className: string, value: unknown, show: (v: unknown) => string): HTMLElement {
+  const amount = readNumber(value);
+  const text = amount === null ? "" : show(value);
+  if (!text) {
+    const empty = html(doc, "div", className, NO_VALUE);
+    empty.dataset.empty = "";
+    empty.setAttribute("aria-label", "No value");
+    return empty;
+  }
+  const number = html(doc, "div", className, text);
+  countable(number, amount, show);
+  return number;
+}
+
+/** The color a field's trend takes: the spec's fixed color for the field or its label, when `colors` names one. */
+export function trendColor(ctx: ViewContext<{ type: string }>, field: string, label?: string): string | undefined {
+  return ctx.colorOf?.(label ?? ctx.label(field)) ?? ctx.colorOf?.(field);
+}
 
 /**
  * Draws the `kpi` view: a label, the headline number, and the change against a
@@ -33,7 +59,6 @@ export const renderKpi: ViewRenderer<KpiView> = (ctx) => {
   const value = row[field];
   const hasFormat = ctx.spec.fields?.[field]?.format !== undefined;
   const show = (v: unknown) => (hasFormat ? ctx.format(v, field) : formatValue(v, { type: "number", compact: true }, ctx.spec.locale));
-  const valueText = show(value);
 
   const box = html(doc, "div", "fft-kpi");
   const icon = ctx.view.icon ? ICONS[ctx.view.icon] : undefined;
@@ -46,9 +71,7 @@ export const renderKpi: ViewRenderer<KpiView> = (ctx) => {
     tile.append(glyph);
     box.append(tile);
   }
-  const number = html(doc, "div", "fft-kpi-value", valueText);
-  countable(number, readNumber(value), show);
-  box.append(html(doc, "div", "fft-kpi-label", label ?? ctx.label(field)), number);
+  box.append(html(doc, "div", "fft-kpi-label", label ?? ctx.label(field)), figure(doc, "fft-kpi-value", value, show));
 
   const now = readNumber(value);
   // With RAG thresholds, a pill says where the number stands: its shape and its words, never color alone.
@@ -65,16 +88,27 @@ export const renderKpi: ViewRenderer<KpiView> = (ctx) => {
   // With a target, one plain line says where the latest stands: met, or how far it has to go (or, when lower is better, how far above).
   const line = targetLine(doc, "fft-kpi-target", now, target ? readNumber(row[target]) : null, goodWhen, show);
   if (line) box.append(line);
-  if (series && rows.length > 1) box.append(sparkline(ctx, rows.map((r) => readNumber(r[field]))));
+  if (series && rows.length > 1) {
+    box.append(sparkline(ctx, rows.map((r) => readNumber(r[field])), ctx.width, trendColor(ctx, field, label)));
+    // The sparkline is a picture; its readings go to screen readers as a table, period by period.
+    box.append(hiddenTableOf(ctx, rows, [...(x ? [x] : []), field]));
+  }
   ctx.el.append(box);
 };
 
 /** A quiet trend line in the de-emphasis ink, with the latest point in the accent. Shared with the `kpis` view. */
-export function sparkline(ctx: ViewContext<{ type: string }>, values: (number | null)[], width = ctx.width): SVGSVGElement {
+export function sparkline(ctx: ViewContext<{ type: string }>, values: (number | null)[], width = ctx.width, color?: string): SVGSVGElement {
   const doc = ctx.el.ownerDocument;
   width = Math.max(55, width);
   const pad = 5;
   const present = values.filter((v): v is number => v !== null);
+  // Fewer than two readings make no line: an empty, hidden box keeps the tile's rhythm.
+  if (present.length < 2) {
+    const empty = svg(doc, "svg", { class: "fft-sparkline", width, height: SPARK_HEIGHT, viewBox: `0 0 ${width} ${SPARK_HEIGHT}` });
+    empty.setAttribute("aria-hidden", "true");
+    empty.dataset.empty = "";
+    return empty;
+  }
   const low = Math.min(...present);
   const high = Math.max(...present);
   const span = high - low || 1;
@@ -82,8 +116,15 @@ export function sparkline(ctx: ViewContext<{ type: string }>, values: (number | 
   const points = values.map((v, i) => (v === null ? null : { x: pad + i * step, y: SPARK_HEIGHT - pad - ((v - low) / span) * (SPARK_HEIGHT - pad * 2) }));
   const chart = svg(doc, "svg", { class: "fft-sparkline", width, height: SPARK_HEIGHT, viewBox: `0 0 ${width} ${SPARK_HEIGHT}` });
   chart.setAttribute("aria-hidden", "true");
-  chart.append(svg(doc, "path", { class: "fft-spark-line", d: linePath(points), pathLength: 1 }));
+  const line = svg(doc, "path", { class: "fft-spark-line", d: linePath(points), pathLength: 1 });
+  chart.append(line);
   const last = points.findLast((p) => p !== null);
-  if (last) chart.append(svg(doc, "circle", { class: "fft-spark-end", cx: last.x, cy: last.y, r: 3 }));
+  const end = last ? svg(doc, "circle", { class: "fft-spark-end", cx: last.x, cy: last.y, r: 3 }) : undefined;
+  if (end) chart.append(end);
+  // A fixed color for this measure (spec.colors): the latest point takes it, the line a quiet share of it.
+  if (color) {
+    line.style.setProperty("stroke", `color-mix(in srgb, ${color} 55%, var(--fft-deemphasis))`);
+    end?.style.setProperty("fill", color);
+  }
   return chart;
 }

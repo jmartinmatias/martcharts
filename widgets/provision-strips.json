@@ -33,7 +33,7 @@
   "view": {
     "type": "strips",
     "label": "name",
-    "parts": ["mandatory", "recommended", "optional"],
+    "value": ["mandatory", "recommended", "optional"],
     "per": "pages",
     "unit": "provision"
   }

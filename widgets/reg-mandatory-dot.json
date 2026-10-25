@@ -36,7 +36,7 @@
   "view": {
     "type": "dot",
     "label": "name",
-    "values": [
+    "value": [
       "mandatory",
       "recommended",
       "optional"

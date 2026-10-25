@@ -1688,4 +1688,9 @@ ul.fft-map-legend { margin-top: 0; }
 .fft-ragtrend-now { font-size: var(--fft-fs-s) !important; text-align: left !important; padding-left: 8px; }
 .fft-ragtrend-end { padding-left: 8px; white-space: nowrap; }
 .fft-widget[data-animate] :is(.fft-rag-row, .fft-ragtrend-row) { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 21ms); }
+
+/* KPI kit: a missing number is a quiet dash, never an empty box; a strip with no tiles says so in one line. */
+:is(.fft-kpi-value, .fft-stat-value)[data-empty] { color: var(--fft-muted); }
+.fft-sparkline[data-empty] { visibility: hidden; }
+.fft-stats-empty { margin: 0; font-size: var(--fft-fs-m); color: var(--fft-text-secondary); }
 `;

@@ -5,6 +5,7 @@
  *
  * @module
  */
+import { shownName } from "./canonical.ts";
 import { explainChart } from "./explain.ts";
 import { questionOf } from "./question.ts";
 import { describeBlocks, getBlock } from "./registry.ts";
@@ -21,6 +22,8 @@ export interface ChartNeed {
   many: boolean;
   required: boolean;
   description: string;
+  /** Older names that still work for this option, such as `values` for a dot plot's `value`. */
+  alsoAccepts?: string[];
 }
 
 /** What one view is for and what it needs. */
@@ -55,9 +58,19 @@ export function describeChart(type: string, example?: WidgetSpec): ChartEntry {
   const entries = Object.entries(options);
   const needs = entries
     .filter(([, option]) => isField(option))
-    .map(([name, option]) => ({ option: name, holds: option.kind ?? "any", many: option.type === "fields", required: option.required === true, description: option.description }))
+    .map(([name, option]): ChartNeed => {
+      // Listed under the canonical name; the name the renderer reads is noted as one that still works.
+      const shown = shownName(type, name);
+      const need: ChartNeed = { option: shown, holds: option.kind ?? "any", many: option.type === "fields", required: option.required === true, description: option.description };
+      if (shown !== name) {
+        need.alsoAccepts = [name];
+        need.description = `${option.description} Also accepts \`${name}\`, the older name.`;
+      }
+      return need;
+    })
     .sort((a, b) => Number(b.required) - Number(a.required));
-  const entry: ChartEntry = { type, summary: firstSentence(description), description, needs, settings: entries.filter(([, option]) => !isField(option)).map(([name]) => name) };
+  const settings = entries.filter(([, option]) => !isField(option)).map(([name]) => shownName(type, name));
+  const entry: ChartEntry = { type, summary: firstSentence(description), description, needs, settings };
   const rows = example?.data.type === "inline" ? (example.data.rows as Row[]) : undefined;
   if (example) {
     entry.question = questionOf(example, rows).text;

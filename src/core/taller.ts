@@ -16,6 +16,7 @@
  */
 import { checkPalette, deltaE, oklch } from "./color.ts";
 import { describePalettes } from "./palettes.ts";
+import { canonicalSpec, readable } from "./canonical.ts";
 import { questionOf } from "./question.ts";
 import type { QuestionKind } from "./question.ts";
 import { getBlock } from "./registry.ts";
@@ -274,7 +275,8 @@ function ownTarget(view: ViewSpec): { measure: unknown; target: unknown } | unde
 }
 
 /** Reads the data: its fields by kind, how many rows and distinct values, and what the chart already shows. */
-export function profileData(spec: WidgetSpec, rows: Row[]): DataProfile {
+export function profileData(written: WidgetSpec, rows: Row[]): DataProfile {
+  const spec = readable(written);
   const kinds = new Map<string, "number" | "date" | "category" | "flag">();
   for (const row of rows) {
     for (const [key, value] of Object.entries(row)) {
@@ -926,7 +928,8 @@ export const BASE_QUALITIES: Record<string, [number, number, number, number, num
   };
 
 /** What a spec draws and the extras it carries, scored on the five qualities from 0 to 1. */
-export function qualitiesOf(spec: WidgetSpec, rows: Row[], source?: WidgetSpec): Qualities {
+export function qualitiesOf(written: WidgetSpec, rows: Row[], source?: WidgetSpec): Qualities {
+  const spec = readable(written);
   const view = spec.view ?? { type: "table" };
   const type = String(view.type);
   const base = BASE_QUALITIES;
@@ -989,7 +992,8 @@ export function qualitiesOf(spec: WidgetSpec, rows: Row[], source?: WidgetSpec):
 }
 
 /** The filled layers a chart carries: washes, streams, bands and shaded cells. */
-export function fillsOf(spec: WidgetSpec): number {
+export function fillsOf(written: WidgetSpec): number {
+  const spec = readable(written);
   const view = spec.view ?? {};
   let fills = 0;
   if (view.type === "area") fills += 1;
@@ -1029,7 +1033,8 @@ const LOOK_PLAIN: Record<Look, string> = { paper: "paper card", airy: "open layo
 
 /** A version's lineage in plain words, for a result card: the move, what it adds, the colors, the marks and the card. */
 export function plainTags(variant: Pick<Variant, "lineage" | "spec">): string[] {
-  const { lineage, spec } = variant;
+  const { lineage } = variant;
+  const spec = readable(variant.spec);
   const view = spec.view ?? {};
   const extras = [
     view.highlight ? "shows one standout" : "",
@@ -1075,7 +1080,9 @@ function variantId(spec: WidgetSpec, pattern: string): string {
  * question it answers, is scored on the five qualities, and is kept only if balanced, valid (`validateSpec` with no
  * errors), colorblind safe, and new: never the original's shape, never another version's.
  */
-export function createVariants(spec: WidgetSpec, rows: Row[], options: TallerOptions = {}): Variant[] {
+export function createVariants(written: WidgetSpec, rows: Row[], options: TallerOptions = {}): Variant[] {
+  // Read in the renderer's names; every version is handed back in the canonical ones.
+  const spec = readable(written);
   const count = Math.max(1, Math.min(24, options.count ?? 6));
   const random = seeded(options.seed ?? 1);
   const color = Math.max(-1, Math.min(1, options.color ?? 0));
@@ -1180,7 +1187,7 @@ export function createVariants(spec: WidgetSpec, rows: Row[], options: TallerOpt
     perMove.set(move, (perMove.get(move) ?? 0) + 1);
     const question = questionOf(variant, rows);
     versions.push({
-      spec: variant,
+      spec: canonicalSpec(variant),
       move,
       lineage: { move, question: question.kind, form: pattern.form, color: tone, marks: feel, look },
       qualities,
@@ -1203,7 +1210,8 @@ const unit = (n: number) => Math.round(Math.max(0, Math.min(1, n)) * 100) / 100;
  * in the same family, then each structural change (mark, curve, stacking, lines, reference, highlight, headline,
  * facet, extra steps, cell formats), and a rare form on top.
  */
-export function noveltyOf(variant: WidgetSpec, source: WidgetSpec): number {
+export function noveltyOf(writtenVariant: WidgetSpec, writtenSource: WidgetSpec): number {
+  const [variant, source] = [readable(writtenVariant), readable(writtenSource)];
   const [vt, st] = [String(variant.view?.type ?? "table"), String(source.view?.type ?? "table")];
   let score = (FAMILY[vt] ?? vt) !== (FAMILY[st] ?? st) ? 0.45 : vt !== st ? 0.2 : 0;
   score += (0.35 * formChanges(variant, source)) / (Object.keys(JSON.parse(shapeOf(source))).length - 1);

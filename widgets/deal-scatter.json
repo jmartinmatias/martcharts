@@ -120,7 +120,7 @@
     "type": "scatter",
     "x": "days",
     "y": "value",
-    "series": "stage",
+    "color": "stage",
     "label": "deal"
   },
   "style": {

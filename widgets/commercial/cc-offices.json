@@ -25,6 +25,6 @@
     "id": "country",
     "label": "office",
     "note": "note",
-    "kind": "kind"
+    "color": "kind"
   }
 }

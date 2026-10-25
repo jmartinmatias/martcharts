@@ -7,6 +7,7 @@ import { guessBasemap } from "./geo.ts";
 import { getBlock } from "./registry.ts";
 import type { OptionSchema } from "./registry.ts";
 import type { Row, ViewSpec } from "./types.ts";
+import { canonicalView } from "./canonical.ts";
 
 type Kind = NonNullable<OptionSchema["kind"]>;
 
@@ -32,6 +33,12 @@ function kindOf(value: unknown): Kind | null {
  * keep the same ones when switching.
  */
 export function suggestView(type: string, rows: Row[], prefer: string[] = []): ViewSpec {
+  // Filled in the renderer's names, written in the canonical ones (a dot plot's measures are its value).
+  return canonicalView(fillView(type, rows, prefer));
+}
+
+/** `suggestView` in the renderer's option names, as the option schemas list them. */
+function fillView(type: string, rows: Row[], prefer: string[] = []): ViewSpec {
   const sample = rows[0] ?? {};
   const rank = (key: string) => (prefer.includes(key) ? prefer.indexOf(key) : prefer.length);
   const keys = Object.keys(sample).sort((a, b) => rank(a) - rank(b));

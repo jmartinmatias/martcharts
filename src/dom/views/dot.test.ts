@@ -139,6 +139,6 @@ describe("dot view (a dot plot)", () => {
       "Each row is one product, with one dot for each of ease of use, value and support. The further right a dot, the higher that value; dots far apart mean a big difference between them. Here, Lite is highest on ease of use, with 8.9, and Enterprise's dots sit furthest apart.",
     );
     const picks = recommendCharts(ratings);
-    expect(picks.find((pick) => pick.type === "dot")?.view).toEqual({ type: "dot", label: "product", values: ["ease", "value", "support"] });
+    expect(picks.find((pick) => pick.type === "dot")?.view).toEqual({ type: "dot", label: "product", value: ["ease", "value", "support"] });
   });
 });

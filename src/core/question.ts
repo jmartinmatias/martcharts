@@ -8,6 +8,7 @@
  */
 import { humanize } from "./display.ts";
 import type { Row, WidgetSpec } from "./types.ts";
+import { readable } from "./canonical.ts";
 
 /** What kind of question a chart answers. */
 export type QuestionKind =
@@ -109,7 +110,9 @@ const stayedWithin = (entity: string, goal: string) => {
  * every new version keeps the original's numbers and says which question it answers. The rows, when given, name a
  * table's columns when the spec does not list them.
  */
-export function questionOf(spec: WidgetSpec, rows: Row[] = []): Question {
+export function questionOf(written: WidgetSpec, rows: Row[] = []): Question {
+  // Canonical or older option names, the question reads one set: the renderer's.
+  const spec = readable(written);
   const view = (spec.view ?? { type: "table" }) as View;
   const name = (field: string) => nameOf(field, spec);
   const ask = (kind: QuestionKind, text: string): Question => ({ kind, text: text.charAt(0).toUpperCase() + text.slice(1) });

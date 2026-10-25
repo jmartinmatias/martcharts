@@ -8,10 +8,12 @@
  * @module
  */
 import { fieldLabel } from "./display.ts";
+import { readable } from "./canonical.ts";
 import type { WidgetSpec } from "./types.ts";
 
 /** A plain title and a short "how to read it" for a chart spec. */
-export function explainVariant(spec: WidgetSpec, chartTitle: string, rowName?: string): { title: string; explain: string } {
+export function explainVariant(written: WidgetSpec, chartTitle: string, rowName?: string): { title: string; explain: string } {
+  const spec = readable(written);
   const view = spec.view ?? { type: "table" };
   // Plain words go lower case in a sentence; abbreviations keep their capitals ("KPI").
   const name = (field: unknown) => (typeof field === "string" ? fieldLabel(field, spec.fields).replace(/^[A-Z][a-z]+\b/, (word) => word.toLowerCase()) : "value");
