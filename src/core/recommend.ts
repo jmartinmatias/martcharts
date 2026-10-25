@@ -317,6 +317,18 @@ const RULES: Record<string, Rule> = {
     const [x] = shape.dates;
     return x && shape.numbers.length >= 4 && shape.rows.length >= 10 ? { score: 66, view: { type: "horizon", x, y: shape.numbers.slice(0, 12) }, why: `${shape.numbers.length} series over ${x}, each in its own thin band.` } : undefined;
   },
+  dot: (shape) => {
+    // Two to five measures of one kind per item (scores, rates): dots on one axis show each row's spread and every ranking.
+    const [label] = shape.categories;
+    const measures = shape.numbers.filter((field) => !TARGET.test(field));
+    if (!label || measures.length < 2 || measures.length > 5 || shape.rows.length < 2 || shape.rows.length > 30 || shape.distinct(label) !== shape.rows.length) return undefined;
+    const spans = measures.map((field) => shape.values(field)).filter((values) => values.length).map((values) => [Math.min(...values), Math.max(...values)] as const);
+    const low = Math.min(...spans.map(([a]) => a));
+    const high = Math.max(...spans.map(([, b]) => b));
+    // The measures must share a scale: every one's range covers at least a fifth of the whole, or the small ones vanish.
+    const shared = high > low && spans.every(([a, b]) => (b - a) / (high - low) >= 0.2);
+    return shared ? { score: 64, view: { type: "dot", label, values: measures }, why: `${measures.length} measures per ${label} as dots on one axis, each row's spread in view.` } : undefined;
+  },
   table: ({ rows }) => (rows.length ? { score: 20, view: { type: "table" }, why: "Exact values, row by row." } : undefined),
 };
 

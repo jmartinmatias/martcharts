@@ -14,6 +14,7 @@ import { renderCalendar } from "./calendar.ts";
 import { renderCandlestick } from "./candlestick.ts";
 import { renderChord } from "./chord.ts";
 import { renderDonut } from "./donut.ts";
+import { renderDot } from "./dot.ts";
 import { renderDumbbell } from "./dumbbell.ts";
 import { renderFunnel } from "./funnel.ts";
 import { renderGauge } from "./gauge.ts";
@@ -84,7 +85,8 @@ setRenderer("radar", renderRadar);
 setRenderer("rose", renderRose);
 setRenderer("horizon", renderHorizon);
 setRenderer("icicle", renderIcicle);
+setRenderer("dot", renderDot);
 
 export { renderKpis } from "./kpis.ts";
 export { renderRidgeline } from "./ridgeline.ts";
-export { renderArea, renderBar, renderBeeswarm, renderBoxplot, renderBullet, renderBump, renderCalendar, renderCandlestick, renderChord, renderDonut, renderDumbbell, renderSankey, renderFunnel, renderGauge, renderTreemap, renderHbar, renderHeatmap, renderHistogram, renderHorizon, renderIcicle, renderKpi, renderLikert, renderLine, renderList, renderMarimekko, renderMeter, renderPareto, renderRadar, renderRings, renderRose, renderScatter, renderSlope, renderSunburst, renderTable, renderTimeline, renderVariance, renderWaffle, renderWaterfall };
+export { renderArea, renderBar, renderBeeswarm, renderBoxplot, renderBullet, renderBump, renderCalendar, renderCandlestick, renderChord, renderDonut, renderDot, renderDumbbell, renderSankey, renderFunnel, renderGauge, renderTreemap, renderHbar, renderHeatmap, renderHistogram, renderHorizon, renderIcicle, renderKpi, renderLikert, renderLine, renderList, renderMarimekko, renderMeter, renderPareto, renderRadar, renderRings, renderRose, renderScatter, renderSlope, renderSunburst, renderTable, renderTimeline, renderVariance, renderWaffle, renderWaterfall };

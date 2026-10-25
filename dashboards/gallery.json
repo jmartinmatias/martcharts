@@ -114,6 +114,9 @@
       "widget": "region-yoy"
     },
     {
+      "widget": "win-rate-arrows"
+    },
+    {
       "widget": "region-panels",
       "span": 2
     },
@@ -239,6 +242,10 @@
     },
     {
       "widget": "feature-adoption"
+    },
+    {
+      "widget": "product-ratings",
+      "span": 2
     }
   ],
   "title": "Gallery",

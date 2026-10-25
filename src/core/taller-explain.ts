@@ -110,9 +110,14 @@ export function explainVariant(spec: WidgetSpec, chartTitle: string, rowName?: s
       read = "The dark bar is the value, the thin mark is the target, and the shaded bands show poor, fair and good.";
       break;
     case "dumbbell":
-      form = "dumbbells";
-      mark = `each line joins two values for one ${name(view.label)}`;
-      read = `One end is ${name(view.from)}, the other ${name(view.to)}; a longer line means a bigger gap.`;
+      form = view.mark === "arrow" ? "arrows" : "dumbbells";
+      mark = view.mark === "arrow" ? `each arrow goes from ${name(view.from)} to ${name(view.to)} for one ${name(view.label)}` : `each line joins two values for one ${name(view.label)}`;
+      read = view.mark === "arrow" ? "An arrow pointing right means it rose, left means it fell; a longer arrow means a bigger move." : `One end is ${name(view.from)}, the other ${name(view.to)}; a longer line means a bigger gap.`;
+      break;
+    case "dot":
+      form = "dots on one axis";
+      mark = `each row is one ${name(view.label)}`;
+      read = `A dot further right means more ${list(view.values)}.`;
       break;
     case "slope":
       form = "slopes";

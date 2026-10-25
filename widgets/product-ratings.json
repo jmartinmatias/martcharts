@@ -1,0 +1,30 @@
+{
+  "id": "product-ratings",
+  "title": "Customer ratings by product",
+  "subtitle": "Ease of use, value for money and support, scored 1 to 10, Q3 2026",
+  "description": "A dot plot: each product's three ratings on one scale, so a product's spread and the ranking on any rating read at once. Enterprise leads on support but trails on value; Lite is the mirror image.",
+  "footer": "Source: quarterly customer survey, 2,140 answers",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      { "product": "Enterprise", "ease": 7.1, "value": 6.2, "support": 9.1 },
+      { "product": "Plus", "ease": 8.2, "value": 7.4, "support": 8.3 },
+      { "product": "Core", "ease": 8.6, "value": 8.1, "support": 7.6 },
+      { "product": "Lite", "ease": 8.9, "value": 8.8, "support": 6.4 },
+      { "product": "Mobile", "ease": 7.8, "value": 8.4, "support": 7.0 },
+      { "product": "API", "ease": 6.5, "value": 7.9, "support": 8.0 }
+    ]
+  },
+  "fields": {
+    "product": { "label": "Product" },
+    "ease": { "label": "Ease of use", "format": { "type": "number", "decimals": 1 } },
+    "value": { "label": "Value for money", "format": { "type": "number", "decimals": 1 } },
+    "support": { "label": "Support", "format": { "type": "number", "decimals": 1 } }
+  },
+  "view": {
+    "type": "dot",
+    "label": "product",
+    "values": ["ease", "value", "support"]
+  }
+}

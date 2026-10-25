@@ -190,6 +190,14 @@ export function questionOf(spec: WidgetSpec, rows: Row[] = []): Question {
       if (label && value) return ask("mix", `what share of ${isPeriod(value) ? `the ${name(value)} total` : whole(name(value))} comes from each ${entityOf(label, spec)}?`);
       break;
     }
+    case "dot": {
+      const label = one(view.label);
+      const measures = many(view.values);
+      if (!label || !measures.length) break;
+      const entity = entityOf(label, spec);
+      if (measures.length > 1) return ask("compare", `how do ${list(measures.map(name))} compare for each ${entity}?`);
+      return ask("rank", `which ${entity} has the ${most(name(measures[0] as string))}?`);
+    }
     case "sunburst":
     case "icicle": {
       const [outer, inner] = many(view.levels);

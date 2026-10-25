@@ -23,7 +23,7 @@ export { parseCsv } from "./sources.ts";
 export type { AggregateStep, BinStep, CalcStep, FilterOp, FilterStep, LimitStep, Measure, PivotStep, SortStep } from "./transforms.ts";
 export type { KpisItem, KpisView } from "./views.ts";
 export type { RidgelineView } from "./views.ts";
-export type { AreaView, BarView, BeeswarmView, BulletView, CalendarView, DumbbellView, SankeyView, DonutView, FunnelView, TreemapView, HbarView, HeatmapView, KpiView, LineView, ListView, MeterView, ScatterView, SlopeView, BumpView, MarimekkoView, HistogramView, RingsView, TimelineView, WaffleView, VarianceView, GaugeView, ParetoView, BoxplotView, LikertView, CandlestickView, SunburstView, ChordView, RadarView, TableView, WaterfallView } from "./views.ts";
+export type { AreaView, BarView, BeeswarmView, BulletView, CalendarView, DotView, DumbbellView, SankeyView, DonutView, FunnelView, TreemapView, HbarView, HeatmapView, KpiView, LineView, ListView, MeterView, ScatterView, SlopeView, BumpView, MarimekkoView, HistogramView, RingsView, TimelineView, WaffleView, VarianceView, GaugeView, ParetoView, BoxplotView, LikertView, CandlestickView, SunburstView, ChordView, RadarView, TableView, WaterfallView } from "./views.ts";
 export type { Override } from "./fork.ts";
 
 export { baseWidget } from "./base.ts";

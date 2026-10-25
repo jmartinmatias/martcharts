@@ -449,6 +449,15 @@ const GUIDES: ChartGuide[] = [
     bestFor: ["Bridges: what took revenue from Q2 to Q3, a profit and loss walk", "Explaining a move from a start to an end"],
     avoidFor: ["Amounts that are not changes to one total (use bar)"],
   },
+  {
+    type: "dot",
+    purposes: { compare: 3, rank: 2, lookup: 1, change: 1 },
+    grain: "category",
+    build: "One row per data row with a hairline across and one dot per values field at its value on one shared axis; one field writes its value beside the dot, several take series colors.",
+    rows: { min: 2, max: 30 },
+    bestFor: ["Two to five measures of one kind per item: ease, value and support scores by product", "Rankings where the differences matter more than the amounts: prices, rates, scores", "Many rows with far less ink than bars"],
+    avoidFor: ["Amounts where the length from zero matters (use hbar)", "Measures on different scales (use table or radar)", "Exactly a before and an after (use dumbbell)"],
+  },
 ];
 
 const BY_TYPE = new Map(GUIDES.map((guide) => [guide.type, guide]));
@@ -726,6 +735,10 @@ const NOTES: Record<string, string> = {
   "chord>sankey": "Reads as a left-to-right path; better when flows run one way through stages.",
   "sunburst>icicle": "Easier to read long names and compare sizes; less of a picture of the whole.",
   "icicle>sunburst": "More compact and inviting as an overview; harder to compare sizes.",
+  "hbar>dot": "Far less ink and a tighter axis, so small differences show; the length from zero is gone.",
+  "dot>hbar": "Amounts read as lengths from zero, which is more familiar; small differences flatten out.",
+  "dumbbell>dot": "Takes three or more measures per row; the before-to-after direction is no longer drawn.",
+  "dot>dumbbell": "Draws the direction and size of each change; only for exactly two values per row.",
   "funnel>hbar": "Drops the step-to-step conversion rates; only better if the stages have no order.",
   "waterfall>bar": "Shows each amount on its own but no longer how they add up from start to end.",
   "heatmap>table": "Exact numbers instead of the pattern.",
