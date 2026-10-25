@@ -146,10 +146,8 @@ describe("the published site", () => {
       expect([file, /box-shadow:[^;]*\d+vmax/.test(css)]).toEqual([file, false]);
     }
     const nav = readFileSync("demo/site-nav.css", "utf8");
-    for (const band of [/\.site-bar::before \{[^}]*/, /\.fft-dashboard\[data-sticky\] \.fft-filters::before \{[^}]*/]) {
-      const rule = band.exec(nav)?.[0] ?? "";
-      expect(rule).toMatch(/left: calc\(50% - 50vw\);\s*right: calc\(50% - 50vw\)/);
-    }
+    expect(/\.site-bar::before \{[^}]*/.exec(nav)?.[0]).toMatch(/left: 0;\s*right: 0/);
+    expect(/\.fft-dashboard\[data-sticky\] \.fft-filters::before \{[^}]*/.exec(nav)?.[0]).toMatch(/left: calc\(50% - 50vw\);\s*right: calc\(50% - 50vw\)/);
   });
 
   test("a grid of examples never grows wider than its page: its column is bounded, so long code scrolls inside its box", () => {
@@ -159,9 +157,16 @@ describe("the published site", () => {
     expect(css).toMatch(/\.snippet pre \{[^}]*overflow-x: auto/);
   });
 
-  test("the menu bar keeps Home and Look off the window's edges, even when the page column fills the window", () => {
+  test("the menu bar is the same on every page: pinned to the window, one 1248px column, 16px from the edges", () => {
     const css = readFileSync("demo/site-nav.css", "utf8");
-    expect(css).toMatch(/\.site-bar \{[^}]*padding:[^;]*calc\(16px - \(100vw - 100%\) \/ 2\)[^;]*calc\(16px - \(100vw - 100%\) \/ 2\)/);
+    const bar = /\.site-bar \{[^}]*\}/.exec(css)?.[0] ?? "";
+    expect(bar).toMatch(/position: fixed;\s*top: 0;\s*left: 0;\s*right: 0;/);
+    expect(bar).toMatch(/max\(calc\(16px \+ env\(safe-area-inset-right, 0px\)\), calc\(\(100% - 1248px\) \/ 2\)\)/);
+    expect(css).toMatch(/html body \{ padding-top: calc\(var\(--site-nav-height\)/);
+    // No page may restyle the bar's place on its own.
+    for (const page of ["index.html", "dashboards.html", "editor.html", "composer.html", "lab.html", "catalog/index.html", "catalog/guide.html", "examples/drop-in.html"]) {
+      expect([page, /\.site-bar\s*\{/.test(readFileSync(page, "utf8"))]).toEqual([page, false]);
+    }
   });
 
   test("pinned under the menu, the filter band and the bar read as one: one hairline, and tabs are segmented tracks", () => {

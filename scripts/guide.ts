@@ -219,7 +219,7 @@ const page = `<!doctype html>
     @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --better: #4cc382; --same: #5aa2f0; --trade: #e0a040; --different: #a48dff; } }
     :root[data-theme="dark"] { --better: #4cc382; --same: #5aa2f0; --trade: #e0a040; --different: #a48dff; }
     * { box-sizing: border-box; }
-    body { font: 15px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif; margin: 0 auto; max-width: 1200px; padding: 24px 16px 89px; background: Canvas; color: CanvasText; }
+    body { font: 15px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif; margin: 0 auto; max-width: 1280px; padding: 24px 16px 89px; background: Canvas; color: CanvasText; }
     h1 { font-size: 34px; letter-spacing: -.02em; margin: 13px 0 8px; line-height: 1.15; }
     .lede { max-width: 68ch; color: var(--muted); font-size: 17px; margin: 0 0 34px; }
     h2 { font-size: 21px; margin: 0; }

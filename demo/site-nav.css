@@ -11,29 +11,34 @@
 html { overflow-x: clip; }
 :root { --site-nav-height: 46px; --fft-sticky-top: var(--site-nav-height); scroll-padding-top: calc(var(--site-nav-height) + 13px); }
 .site-bar {
-  position: sticky;
+  /* Pinned to the window, not to the page's column: every page has the bar at the same height, the same size and
+     the same place, whatever its own width or top padding. The links line up on one 1248px column (the main pages'
+     content width), and never closer than 16px to the window's edge. */
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 50;
   display: flex;
   align-items: center;
   gap: 21px;
   box-sizing: border-box;
   height: calc(var(--site-nav-height) + env(safe-area-inset-top, 0px));
-  margin: 0 0 21px;
-  /* At least 16px between the links and the window's edge. A padding percentage is the column's width, so
-     (100vw - 100%) / 2 is the room the centred column already leaves; the bar adds only what is missing. */
-  padding: env(safe-area-inset-top, 0px) max(env(safe-area-inset-right, 0px), calc(16px - (100vw - 100%) / 2)) 0 max(env(safe-area-inset-left, 0px), calc(16px - (100vw - 100%) / 2));
+  margin: 0;
+  padding: env(safe-area-inset-top, 0px) max(calc(16px + env(safe-area-inset-right, 0px)), calc((100% - 1248px) / 2)) 0 max(calc(16px + env(safe-area-inset-left, 0px)), calc((100% - 1248px) / 2));
   font: 13px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
-/* The bar's backdrop is one band the width of the window (the page column is centred, so 50% - 50vw reaches its
-   left edge), with a hairline under it. One box, so a frosted look blurs it evenly: no square edge at the column. */
+/* The room the bar takes, kept at the top of every page the same way (it used to sit in each page's own flow). */
+html body { padding-top: calc(var(--site-nav-height) + env(safe-area-inset-top, 0px) + 21px); }
+/* The bar's backdrop: one band the width of the window, with a hairline under it. One box, so a frosted look blurs it
+   evenly. */
 .site-bar::before {
   content: "";
   position: absolute;
   top: 0;
   bottom: 0;
-  left: calc(50% - 50vw);
-  right: calc(50% - 50vw);
+  left: 0;
+  right: 0;
   z-index: -1;
   background: var(--page, Canvas);
   border-bottom: 1px solid var(--line, color-mix(in srgb, CanvasText 12%, transparent));
