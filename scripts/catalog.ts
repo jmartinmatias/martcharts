@@ -212,5 +212,20 @@ ${cards
 </body>
 </html>
 `;
-await writeFile(root("catalog/index.html"), page);
+const external = externalScript(page, "catalog.js");
+await writeFile(root("catalog/catalog.js"), `${external.code}\n`);
+await writeFile(root("catalog/index.html"), external.html);
 console.log(`Wrote docs/catalog.md, catalog/index.html and ${cards.length} specs in catalog/`);
+
+/**
+ * Moves a page's inline script into its own file next to it: the published site's Content-Security-Policy allows
+ * scripts from the site only ("script-src 'self'"), so an inline script would be silently skipped there.
+ */
+function externalScript(html: string, file: string): { html: string; code: string } {
+  let code = "";
+  const out = html.replace(/<script>\n([\s\S]*?)\n {2}<\/script>/, (_match, body: string) => {
+    code = body.replace(/^ {4}/gm, "");
+    return `<script src="${file}" defer></script>`;
+  });
+  return { html: out, code };
+}

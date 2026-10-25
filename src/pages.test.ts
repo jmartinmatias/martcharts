@@ -69,4 +69,13 @@ describe("every page goes to every page", () => {
       for (const ref of local) expect([file, ref, published(ref) || ref === "site-look.js"]).toEqual([file, ref, true]);
     }
   });
+
+  test("no page runs an inline script: the published site's policy allows scripts from the site only", () => {
+    // Data blocks (type="application/json") are not scripts and stay; anything that runs must come from a file.
+    const files = [...PAGES.map(([file]) => file), "examples/embed.html"];
+    for (const file of files) {
+      const inline = [...read(file).querySelectorAll("script:not([src])")].filter((node) => node.getAttribute("type") !== "application/json" && (node.textContent ?? "").trim());
+      expect([file, inline.length]).toEqual([file, 0]);
+    }
+  });
 });
