@@ -91,6 +91,7 @@ const CENTRES: Record<string, { risk: number; ret: number }> = {
   "At risk": { risk: 4.6, ret: -0.035 },
   Dormant: { risk: 1.6, ret: 0.008 },
 };
+const CORE = { risk: 3.5, ret: 0.045 };
 
 interface Client {
   id: string;
@@ -162,8 +163,8 @@ for (const [segment, shape] of Object.entries(SEGMENTS)) {
       lastContact: daysAgo(contactDays),
       anomaly: random() < 0.13,
       // Each cluster sits around its own risk and return, as segments found by analysis do, so their areas separate.
-      riskScore: Math.max(1, Math.min(7, Math.round(CENTRES[cluster].risk + between(-1.2, 1.2) + (segment === "Institutional" ? -0.5 : 0)))),
-      returnYtd: round(CENTRES[cluster].ret + between(-0.025, 0.025), 3),
+      riskScore: Math.max(1, Math.min(7, Math.round((CENTRES[cluster] ?? CORE).risk + between(-1.2, 1.2) + (segment === "Institutional" ? -0.5 : 0)))),
+      returnYtd: round((CENTRES[cluster] ?? CORE).ret + between(-0.025, 0.025), 3),
       ...flags,
     });
     n++;
