@@ -171,6 +171,7 @@ Start from what you want the reader to see. Every view takes plain rows; `sugges
 | Survey answers | `likert` |
 | Plans and dates | `timeline` (with milestones, progress and a today line) |
 | Where things are | `choropleth` (regions shaded by a value), `symbols` (circles sized by a value, on their regions or at coordinates), `locator` (named markers). Two built-in tile-grid basemaps, `europe` and `us-states`, keyed by country or state code, or your own GeoJSON by object or address |
+| Which measures stepped out of line | `anomalies` (one thin lane per metric, its expected band behind the line, anomalies as alert dots, the lanes with the most first); on a `scatter`, `"cluster"` draws a soft hull round each cluster's dots |
 | Records to read | `table` (with `spark` and `badge` cells), `list` |
 
 Charts follow fixed rules: a validated, colorblind-checked 8-color palette with its own dark-mode set, bars at most 21px wide with rounded data ends, 2px lines, hairline gridlines, a legend only when there are two or more series, a tooltip on hover and keyboard focus, and a hidden data table for screen readers.

@@ -1,0 +1,27 @@
+{
+  "id": "cc-campaign-funnel",
+  "title": "The best campaign, step by step",
+  "subtitle": "{first:campaign}: targeted to converted",
+  "description": "How many clients each step of the best-converting campaign kept.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/campaign-funnel.json"
+  },
+  "fields": {
+    "stage": {
+      "label": "Step"
+    },
+    "clients": {
+      "label": "Clients"
+    }
+  },
+  "view": {
+    "type": "funnel",
+    "label": "stage",
+    "value": "clients"
+  }
+}

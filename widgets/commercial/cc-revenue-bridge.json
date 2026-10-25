@@ -1,0 +1,37 @@
+{
+  "id": "cc-revenue-bridge",
+  "title": "From last year's revenue to this year's",
+  "subtitle": "What added and what took away",
+  "description": "The revenue bridge from 2025 to 2026.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/commercial-bridge.json"
+  },
+  "fields": {
+    "step": {
+      "label": "Step"
+    },
+    "amount": {
+      "label": "Revenue",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
+  },
+  "view": {
+    "type": "waterfall",
+    "label": "step",
+    "value": "amount",
+    "totals": [
+      "Revenue 2025"
+    ],
+    "endLabel": "Revenue 2026",
+    "fit": true
+  }
+}

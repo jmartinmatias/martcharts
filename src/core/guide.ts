@@ -514,6 +514,15 @@ const GUIDES: ChartGuide[] = [
     bestFor: ["Where the offices, stores or sites are, by name", "A handful of named places for a report or a page header"],
     avoidFor: ["Amounts per place (use symbols)", "More than about 30 places, where names collide (use symbols or a table)"],
   },
+  {
+    type: "anomalies",
+    purposes: { pattern: 3, trend: 2, lookup: 1 },
+    grain: "pair",
+    build: "One lane per metric over the shared time axis, each on its own scale: the expected band as a faint fill, the expected value as a hairline, the actual as a line, flagged readings as alert dots; lanes sorted by how many were flagged.",
+    rows: { min: 14, max: 3000 },
+    bestFor: ["Watching a dozen daily measures at once and seeing which stepped out of line: net new money, fees, trades, complaints", "Operations and risk monitoring, where the exceptions matter more than the levels"],
+    avoidFor: ["Comparing the levels of the measures with each other (each lane has its own scale; use line)", "One measure only (use line with a band)"],
+  },
 ];
 
 const BY_TYPE = new Map(GUIDES.map((guide) => [guide.type, guide]));
@@ -801,6 +810,9 @@ const NOTES: Record<string, string> = {
   "donut>pie": "Fills the middle and writes each share on its slice; the total moves out of the picture.",
   "pie>hbar": "Easier to compare close shares and to rank them; the sense of one whole is weaker.",
   "hbar>pie": "Shows the parts as one whole; only worth it with two to six parts.",
+  "horizon>anomalies": "Shows the expected band and flags the days a measure stepped out of it, worst measures first; the folded color bands are gone.",
+  "anomalies>horizon": "Packs more series into less height and shows the level of each; the expected band and the flags are gone.",
+  "anomalies>line": "One shared scale, so levels compare across measures; with more than three measures the lines tangle and the flags are lost.",
   "funnel>hbar": "Drops the step-to-step conversion rates; only better if the stages have no order.",
   "waterfall>bar": "Shows each amount on its own but no longer how they add up from start to end.",
   "heatmap>table": "Exact numbers instead of the pattern.",
@@ -958,6 +970,7 @@ const MEANING: Record<string, string> = {
   choropleth: "needs a column of country or state codes that sit on a basemap",
   symbols: "needs a column of country or state codes that sit on a basemap, or coordinates",
   locator: "needs named places with region codes on a basemap, or coordinates",
+  anomalies: "needs readings over time per metric, with a yes/no flag or a low and high band",
 };
 
 const FIT_ORDER: Record<Fit, number> = { fits: 0, stretch: 1, no: 2 };

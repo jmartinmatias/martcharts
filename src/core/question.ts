@@ -345,6 +345,11 @@ export function questionOf(spec: WidgetSpec, rows: Row[] = []): Question {
       const plurals = plural(entity);
       return ask("detail", plurals ? `where are the ${plurals}?` : `where is each ${entity}?`);
     }
+    case "anomalies": {
+      const metric = one(view.metric);
+      if (metric) return ask("detail", `which ${plural(entityOf(metric, spec)) || "measures"} stepped out of their expected range, and when?`);
+      break;
+    }
     case "table": {
       const columns = many(view.columns).length ? many(view.columns) : Object.keys(rows[0] ?? {});
       const first = columns[0];

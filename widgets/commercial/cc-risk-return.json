@@ -1,0 +1,48 @@
+{
+  "id": "cc-risk-return",
+  "title": "Risk, return and clusters",
+  "subtitle": "Each client by risk score and return this year, sized by assets",
+  "description": "Clients placed by risk and return, gathered into the clusters the analysis found: where to grow, protect, review or rebalance.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/clients.json"
+  },
+  "fields": {
+    "riskScore": {
+      "label": "Risk score"
+    },
+    "returnYtd": {
+      "label": "Return YTD",
+      "format": {
+        "type": "percent",
+        "decimals": 1
+      }
+    },
+    "aum": {
+      "label": "AuM",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "cluster": {
+      "label": "Cluster"
+    },
+    "name": {
+      "label": "Client"
+    }
+  },
+  "view": {
+    "type": "scatter",
+    "x": "riskScore",
+    "y": "returnYtd",
+    "size": "aum",
+    "cluster": "cluster",
+    "label": "name"
+  }
+}

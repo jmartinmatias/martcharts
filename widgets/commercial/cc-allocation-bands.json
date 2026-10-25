@@ -1,0 +1,56 @@
+{
+  "id": "cc-allocation-bands",
+  "title": "Allocation within its bands",
+  "subtitle": "Each asset class with its allowed range",
+  "description": "Current and target weights with the minimum and maximum the policy allows.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/portfolio-allocation.json"
+  },
+  "fields": {
+    "assetClass": {
+      "label": "Asset class"
+    },
+    "current": {
+      "label": "Current",
+      "format": {
+        "type": "bar",
+        "format": {
+          "type": "percent"
+        }
+      }
+    },
+    "target": {
+      "label": "Target",
+      "format": {
+        "type": "percent"
+      }
+    },
+    "min": {
+      "label": "Min",
+      "format": {
+        "type": "percent"
+      }
+    },
+    "max": {
+      "label": "Max",
+      "format": {
+        "type": "percent"
+      }
+    }
+  },
+  "view": {
+    "type": "table",
+    "columns": [
+      "assetClass",
+      "current",
+      "target",
+      "min",
+      "max"
+    ]
+  }
+}

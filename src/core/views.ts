@@ -161,6 +161,23 @@ export interface ScatterView {
   series?: string;
   label?: string;
   reference?: ReferenceMark[];
+  /** Field naming each dot's cluster: a soft hull gathers each cluster's dots, named at its middle, and colors the dots unless series is set. */
+  cluster?: string;
+}
+
+/**
+ * `{ type: "anomalies", x, metric, value, expected?, low?, high?, flag? }`: one thin lane per metric over time,
+ * its expected band behind the value line, and the days it stepped outside flagged.
+ */
+export interface AnomaliesView {
+  type: "anomalies";
+  x: string;
+  metric: string;
+  value: string;
+  expected?: string;
+  low?: string;
+  high?: string;
+  flag?: string;
 }
 
 /** `{ type: "bullet", label, value, target, ranges? }`: actual against target over qualitative bands, one row each. */
@@ -741,12 +758,25 @@ const scatter: ViewBlock = {
     series: { type: "field", kind: "category", description: "Field that groups the dots by color. Up to 3 groups stay distinct." },
     label: { type: "field", kind: "category", description: "Field naming each dot in its tooltip." },
     reference: REFERENCE_OPTION,
+    cluster: {
+      type: "field",
+      kind: "category",
+      description:
+        "Field naming each dot's cluster, such as a segment found by analysis. A soft, rounded hull gathers each cluster's dots and carries its name at the middle, so the areas read as regions of the plot; the dots take the cluster's color unless series is set. Up to 6 clusters.",
+    },
   },
   validate: checkReference,
   checkData(view, rows) {
-    if (typeof view.series !== "string") return [];
-    const groups = new Set(rows.map((row) => String(row[view.series as string]))).size;
-    return groups > 3 ? [`${groups} groups. Only 3 scatter colors stay distinct for colorblind readers: fold the rest into "Other" or split the chart.`] : [];
+    const messages: string[] = [];
+    if (typeof view.series === "string") {
+      const groups = new Set(rows.map((row) => String(row[view.series as string]))).size;
+      if (groups > 3) messages.push(`${groups} groups. Only 3 scatter colors stay distinct for colorblind readers: fold the rest into "Other" or split the chart.`);
+    }
+    if (typeof view.cluster === "string") {
+      const clusters = new Set(rows.map((row) => String(row[view.cluster as string]))).size;
+      if (clusters > 6) messages.push(`${clusters} clusters. Past 6 the hulls overlap and the colors blur: merge the smallest clusters.`);
+    }
+    return messages;
   },
 };
 
@@ -1575,4 +1605,42 @@ const locator: ViewBlock = {
   },
 };
 
-export const builtinViews: ViewBlock[] = [table, list, kpi, kpis, bar, hbar, line, area, meter, bullet, donut, treemap, funnel, waterfall, heatmap, calendar, scatter, beeswarm, ridgeline, sankey, dumbbell, slope, bump, marimekko, histogram, rings, timeline, waffle, variance, gauge, pareto, boxplot, likert, candlestick, sunburst, chord, radar, rose, horizon, icicle, dot, pyramid, dual, choropleth, symbols, locator, pie];
+const anomalies: ViewBlock = {
+  type: "anomalies",
+  description:
+    "An anomaly tracker: one thin lane per metric over time, the band it was expected to stay in as a faint fill, the expected value as a hairline, the actual as a line, and every day it stepped outside the band as a flagged dot. The lanes with the most anomalies come first, each ending with its latest value and a count. For watching a dozen measures at once and seeing which ones need a look.",
+  options: {
+    x: { type: "field", kind: "date", required: true, description: "Field with the date or period of each reading." },
+    metric: { type: "field", kind: "category", required: true, description: "Field naming the measure each row belongs to; each measure is one lane." },
+    value: { type: "field", kind: "number", required: true, description: "Field with the reading." },
+    expected: { type: "field", kind: "number", description: "Field with the value expected that day, drawn as a hairline through the band." },
+    low: { type: "field", kind: "number", description: "Field with the bottom of the expected band. Needs high too." },
+    high: { type: "field", kind: "number", description: "Field with the top of the expected band. Needs low too." },
+    flag: {
+      type: "field",
+      kind: "category",
+      description: "Field that is true on anomalous readings (true, 1, \"yes\"). Flagged readings draw as filled dots in the alert color. Without it, readings outside the band are flagged.",
+    },
+  },
+  validate(view) {
+    const hasLow = typeof view.low === "string" && view.low !== "";
+    const hasHigh = typeof view.high === "string" && view.high !== "";
+    return hasLow !== hasHigh ? ["The expected band needs both low and high."] : [];
+  },
+  checkData(view, rows) {
+    const messages: string[] = [];
+    const dates = new Set(rows.map((row) => String(row[view.x as string]))).size;
+    if (dates < 2) messages.push(`Only ${dates} period: the tracker needs readings over time to show a lane.`);
+    const flagged = (row: Row) => {
+      if (typeof view.flag === "string") return isForecast(row[view.flag]);
+      const [v, lo, hi] = [readNumber(row[view.value as string]), readNumber(row[view.low as string]), readNumber(row[view.high as string])];
+      return v !== null && lo !== null && hi !== null && (v < lo || v > hi);
+    };
+    if (rows.length && !rows.some(flagged)) messages.push("No reading is flagged, so this draws as plain lanes: check the flag field, or the band.");
+    const lanes = new Set(rows.map((row) => String(row[view.metric as string]))).size;
+    if (lanes > 16) messages.push(`${lanes} metrics: past about 16 lanes the tracker gets long. Keep the ones that matter, or split it.`);
+    return messages;
+  },
+};
+
+export const builtinViews: ViewBlock[] = [table, list, kpi, kpis, bar, hbar, line, area, meter, bullet, donut, treemap, funnel, waterfall, heatmap, calendar, scatter, beeswarm, ridgeline, sankey, dumbbell, slope, bump, marimekko, histogram, rings, timeline, waffle, variance, gauge, pareto, boxplot, likert, candlestick, sunburst, chord, radar, rose, horizon, icicle, dot, pyramid, dual, choropleth, symbols, locator, pie, anomalies];

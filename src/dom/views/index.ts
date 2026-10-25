@@ -35,6 +35,7 @@ import { renderIcicle } from "./icicle.ts";
 import { renderPyramid } from "./pyramid.ts";
 import { renderDual } from "./dual.ts";
 import { renderPie } from "./pie.ts";
+import { renderAnomalies } from "./anomalies.ts";
 import { renderRidgeline } from "./ridgeline.ts";
 import { renderRings } from "./rings.ts";
 import { renderSankey } from "./sankey.ts";
@@ -98,6 +99,7 @@ setRenderer("choropleth", renderChoropleth);
 setRenderer("symbols", renderSymbols);
 setRenderer("locator", renderLocator);
 setRenderer("pie", renderPie);
+setRenderer("anomalies", renderAnomalies);
 
 export { renderKpis } from "./kpis.ts";
 export { renderRidgeline } from "./ridgeline.ts";
@@ -105,3 +107,4 @@ export { renderArea, renderBar, renderBeeswarm, renderBoxplot, renderBullet, ren
 export { renderChoropleth } from "./choropleth.ts";
 export { renderSymbols } from "./symbols.ts";
 export { renderLocator } from "./locator.ts";
+export { renderAnomalies } from "./anomalies.ts";

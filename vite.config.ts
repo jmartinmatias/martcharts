@@ -18,6 +18,7 @@ export default defineConfig({
         taller: fileURLToPath(new URL("./taller.html", import.meta.url)),
         selected: fileURLToPath(new URL("./selected.html", import.meta.url)),
         editor: fileURLToPath(new URL("./editor.html", import.meta.url)),
+        commercial: fileURLToPath(new URL("./commercial.html", import.meta.url)),
       },
     },
   },

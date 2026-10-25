@@ -1,0 +1,42 @@
+{
+  "id": "cc-fees-variance",
+  "title": "Fees against target",
+  "subtitle": "By segment, 2026 year to date",
+  "description": "Fee income per segment against its target.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/segment-targets.json"
+  },
+  "fields": {
+    "segment": {
+      "label": "Segment"
+    },
+    "fees": {
+      "label": "Fees",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "target": {
+      "label": "Target",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
+  },
+  "view": {
+    "type": "variance",
+    "label": "segment",
+    "value": "fees",
+    "target": "target",
+    "percent": true
+  }
+}

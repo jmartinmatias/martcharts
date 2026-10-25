@@ -1,0 +1,68 @@
+{
+  "id": "cc-rm-books",
+  "title": "Books by relationship manager",
+  "subtitle": "Assets, revenue and meetings",
+  "description": "Each relationship manager's book in numbers.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/rm-coverage.json"
+  },
+  "transform": [
+    {
+      "type": "sort",
+      "field": "aum",
+      "order": "desc"
+    }
+  ],
+  "fields": {
+    "rm": {
+      "label": "Relationship manager"
+    },
+    "office": {
+      "label": "Office"
+    },
+    "clients": {
+      "label": "Clients"
+    },
+    "aum": {
+      "label": "AuM",
+      "format": {
+        "type": "bar",
+        "format": {
+          "type": "currency",
+          "currency": "EUR",
+          "compact": true
+        }
+      }
+    },
+    "revenue": {
+      "label": "Revenue",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "meetingsYtd": {
+      "label": "Meetings",
+      "format": {
+        "type": "heat"
+      }
+    }
+  },
+  "view": {
+    "type": "table",
+    "columns": [
+      "rm",
+      "office",
+      "clients",
+      "aum",
+      "revenue",
+      "meetingsYtd"
+    ]
+  }
+}

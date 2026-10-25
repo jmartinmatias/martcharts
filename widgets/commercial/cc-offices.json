@@ -1,0 +1,30 @@
+{
+  "id": "cc-offices",
+  "title": "Our offices",
+  "subtitle": "Where the relationship managers sit",
+  "description": "The offices, by kind, with how many clients each serves.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/rm-offices.json"
+  },
+  "fields": {
+    "office": {
+      "label": "Office"
+    },
+    "kind": {
+      "label": "Kind"
+    }
+  },
+  "view": {
+    "type": "locator",
+    "geo": "europe",
+    "id": "country",
+    "label": "office",
+    "note": "note",
+    "kind": "kind"
+  }
+}

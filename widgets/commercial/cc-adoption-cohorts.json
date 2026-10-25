@@ -1,0 +1,34 @@
+{
+  "id": "cc-adoption-cohorts",
+  "title": "Digital adoption by cohort",
+  "subtitle": "Share of each onboarding quarter using the app, month by month",
+  "description": "How fast each cohort of new clients took up the digital channel.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/adoption.json"
+  },
+  "fields": {
+    "monthsSince": {
+      "label": "Months since onboarding"
+    },
+    "cohort": {
+      "label": "Cohort"
+    },
+    "adopted": {
+      "label": "Adopted",
+      "format": {
+        "type": "percent"
+      }
+    }
+  },
+  "view": {
+    "type": "heatmap",
+    "x": "monthsSince",
+    "y": "cohort",
+    "value": "adopted"
+  }
+}

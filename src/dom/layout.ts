@@ -842,3 +842,93 @@ export function sectorPath(cx: number, cy: number, r0: number, r1: number, start
   const d = polar(cx, cy, r0, start);
   return `M${px(a.x)},${px(a.y)}A${px(r1)},${px(r1)} 0 ${large} 1 ${px(b.x)},${px(b.y)}L${px(c.x)},${px(c.y)}A${px(r0)},${px(r0)} 0 ${large} 0 ${px(d.x)},${px(d.y)}Z`;
 }
+
+/**
+ * The convex hull of a set of points (Andrew's monotone chain), counter-clockwise
+ * in screen space, with no three collinear points kept. One point gives itself; two give both.
+ */
+export function convexHull(points: XY[]): XY[] {
+  const sorted = [...points].sort((a, b) => a.x - b.x || a.y - b.y).filter((p, i, all) => i === 0 || p.x !== all[i - 1]?.x || p.y !== all[i - 1]?.y);
+  if (sorted.length < 3) return sorted;
+  const cross = (o: XY, a: XY, b: XY) => (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+  const lower: XY[] = [];
+  for (const p of sorted) {
+    while (lower.length >= 2 && cross(lower[lower.length - 2] as XY, lower[lower.length - 1] as XY, p) <= 0) lower.pop();
+    lower.push(p);
+  }
+  const upper: XY[] = [];
+  for (const p of [...sorted].reverse()) {
+    while (upper.length >= 2 && cross(upper[upper.length - 2] as XY, upper[upper.length - 1] as XY, p) <= 0) upper.pop();
+    upper.push(p);
+  }
+  return [...lower.slice(0, -1), ...upper.slice(0, -1)];
+}
+
+/**
+ * A soft outline around a set of points: the convex hull pushed out by `pad`
+ * pixels on every side and rounded at the corners, as an SVG path. One point
+ * becomes a disc, two a pill, so a cluster of any size has a shape.
+ */
+export function hullPath(points: XY[], pad = 13): string {
+  const hull = convexHull(points);
+  if (hull.length === 0) return "";
+  // Pad the hull: each corner moves out along the outward bisector of its two edges; a point or a pair grows a ring of corners instead.
+  let padded: XY[];
+  if (hull.length === 1) {
+    const [c] = hull as [XY];
+    padded = Array.from({ length: 12 }, (_, k) => ({ x: c.x + pad * Math.cos((k / 12) * Math.PI * 2), y: c.y + pad * Math.sin((k / 12) * Math.PI * 2) }));
+  } else if (hull.length === 2) {
+    const [a, b] = hull as [XY, XY];
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const len = Math.hypot(dx, dy) || 1;
+    const [ux, uy] = [dx / len, dy / len];
+    const [nx, ny] = [-uy, ux];
+    padded = [
+      { x: a.x - ux * pad + nx * pad, y: a.y - uy * pad + ny * pad },
+      { x: b.x + ux * pad + nx * pad, y: b.y + uy * pad + ny * pad },
+      { x: b.x + ux * pad - nx * pad, y: b.y + uy * pad - ny * pad },
+      { x: a.x - ux * pad - nx * pad, y: a.y - uy * pad - ny * pad },
+    ];
+  } else {
+    const centroid = { x: hull.reduce((s, p) => s + p.x, 0) / hull.length, y: hull.reduce((s, p) => s + p.y, 0) / hull.length };
+    padded = hull.map((p, i) => {
+      const prev = hull[(i + hull.length - 1) % hull.length] as XY;
+      const next = hull[(i + 1) % hull.length] as XY;
+      // Outward normals of the two edges meeting here, averaged; the corner moves far enough that both edges sit pad away.
+      const n1 = normal(prev, p, centroid);
+      const n2 = normal(p, next, centroid);
+      const bx = n1.x + n2.x;
+      const by = n1.y + n2.y;
+      const blen = Math.hypot(bx, by) || 1;
+      const cosHalf = Math.max(0.5, (n1.x * bx + n1.y * by) / blen);
+      return { x: p.x + (bx / blen) * (pad / cosHalf), y: p.y + (by / blen) * (pad / cosHalf) };
+    });
+  }
+  // Round the corners: a quadratic curve through each midpoint, the corner as control point.
+  const mid = (a: XY, b: XY) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+  const count = padded.length;
+  let d = "";
+  for (let i = 0; i < count; i++) {
+    const p = padded[i] as XY;
+    const next = padded[(i + 1) % count] as XY;
+    const m = mid(p, next);
+    if (i === 0) {
+      const start = mid(padded[count - 1] as XY, p);
+      d += `M${px(start.x)},${px(start.y)}`;
+    }
+    d += `Q${px(p.x)},${px(p.y)} ${px(m.x)},${px(m.y)}`;
+  }
+  return `${d}Z`;
+}
+
+/** The unit normal of edge a to b that points away from `inside`. */
+function normal(a: XY, b: XY, inside: XY): XY {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const len = Math.hypot(dx, dy) || 1;
+  let n = { x: -dy / len, y: dx / len };
+  const m = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+  if ((m.x - inside.x) * n.x + (m.y - inside.y) * n.y < 0) n = { x: -n.x, y: -n.y };
+  return n;
+}

@@ -21,6 +21,8 @@ export interface ChartPick {
 }
 
 const DATE = /^\d{4}-\d{2}/;
+/** Field names that mark a row as an anomaly or an alert. */
+const FLAG = /^(flag|flagged|anomaly|anomalous|alert|outlier)$/i;
 const DAY = /^\d{4}-\d{2}-\d{2}/;
 const TARGET = /^(target|plan|planned|budget|goal|quota|forecast)$|(^|[_\s-])(target|plan|budget|goal|quota)$/i;
 const SOURCE = /^(source|from|origin)$/i;
@@ -382,6 +384,22 @@ const RULES: Record<string, Rule> = {
     const placed = onBasemap(shape);
     const [size] = shape.numbers;
     return placed && size && nonNegative(shape, size) ? { score: 62, view: { type: "symbols", geo: placed.geo, id: placed.id, size }, why: `${size} as circles on a map, one per ${placed.id}.` } : undefined;
+  },
+  anomalies: (shape) => {
+    // Readings over time for several measures, with a yes/no flag (or a low and high band): an anomaly tracker.
+    const [x] = shape.dates;
+    const metric = shape.categories.find((field) => !FLAG.test(field) && shape.distinct(field) >= 2 && shape.distinct(field) <= 16);
+    const flag = Object.keys(shape.rows[0] ?? {}).find((field) => FLAG.test(field) && shape.rows.every((row) => typeof row[field] === "boolean" || row[field] == null));
+    const low = shape.numbers.find((field) => /^(low|lower|min)$/i.test(field));
+    const high = shape.numbers.find((field) => /^(high|upper|max)$/i.test(field));
+    const value = shape.numbers.find((field) => field !== low && field !== high && !/^expected|forecast/i.test(field));
+    const expected = shape.numbers.find((field) => /^expected$/i.test(field));
+    if (!x || !metric || !value || (!flag && !(low && high))) return undefined;
+    return {
+      score: 84,
+      view: { type: "anomalies", x, metric, value, ...(expected ? { expected } : {}), ...(low && high ? { low, high } : {}), ...(flag ? { flag } : {}) },
+      why: `Each ${metric} as a lane over ${x}, its expected band behind it and the anomalies flagged.`,
+    };
   },
 };
 

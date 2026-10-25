@@ -1,0 +1,37 @@
+{
+  "id": "cc-complaints-calendar",
+  "title": "Complaints, day by day",
+  "subtitle": "July to October 2026",
+  "description": "Client complaints logged each day.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/metrics-daily.json"
+  },
+  "transform": [
+    {
+      "type": "filter",
+      "field": "metric",
+      "value": "Complaints"
+    }
+  ],
+  "fields": {
+    "date": {
+      "label": "Date",
+      "format": {
+        "type": "date"
+      }
+    },
+    "value": {
+      "label": "Complaints"
+    }
+  },
+  "view": {
+    "type": "calendar",
+    "date": "date",
+    "value": "value"
+  }
+}

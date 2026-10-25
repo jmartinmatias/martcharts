@@ -1,0 +1,46 @@
+{
+  "id": "cc-anomaly-kpis",
+  "title": "Anomaly watch",
+  "subtitle": "As of {first:asOf}",
+  "description": "How many readings stepped out of line this week and this month, and how long since the last.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/anomaly-summary.json"
+  },
+  "fields": {
+    "asOf": {
+      "label": "As of",
+      "format": {
+        "type": "date"
+      }
+    }
+  },
+  "view": {
+    "type": "kpis",
+    "items": [
+      {
+        "value": "anomaliesWeek",
+        "label": "Anomalies this week",
+        "goodWhen": "down"
+      },
+      {
+        "value": "anomaliesMonth",
+        "label": "Anomalies this month",
+        "goodWhen": "down"
+      },
+      {
+        "value": "metricsFlaggedToday",
+        "label": "Measures flagged today",
+        "goodWhen": "down"
+      },
+      {
+        "value": "daysSinceLast",
+        "label": "Days since the last"
+      }
+    ]
+  }
+}

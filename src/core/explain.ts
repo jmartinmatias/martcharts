@@ -532,6 +532,25 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const [top, n] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0] as [string, number];
       return counts.size > 1 ? `Here, ${places} places are marked, ${n} of them ${top}.` : `Here, ${places} place${places === 1 ? " is" : "s are"} marked, all ${top}.`;
     }
+    case "anomalies": {
+      // Which metric stepped out of its band most often, and when it last did.
+      const [x, metric, amount, low, high, flag] = [one(view.x), one(view.metric), one(view.value), one(view.low), one(view.high), one(view.flag)];
+      if (!x || !metric || !amount) return "";
+      const flagged = (row: Row) => {
+        if (flag) return [true, 1, "true", "yes"].includes(row[flag] as never);
+        const [v, lo, hi] = [value(row, amount), low ? value(row, low) : null, high ? value(row, high) : null];
+        return v !== null && lo !== null && hi !== null && (v < lo || v > hi);
+      };
+      const hits = rows.filter(flagged);
+      const metrics = new Set(rows.map((row) => String(row[metric]))).size;
+      if (!hits.length) return `Here, none of the ${metrics} measures stepped outside its expected band.`;
+      const counts = new Map<string, Row[]>();
+      for (const row of hits) counts.set(String(row[metric]), [...(counts.get(String(row[metric])) ?? []), row]);
+      const [top, list] = [...counts.entries()].sort((a, b) => b[1].length - a[1].length)[0] as [string, Row[]];
+      const last = list.reduce((a, b) => (String(b[x]) > String(a[x]) ? b : a));
+      const many = list.length === 1 ? "once" : `${list.length} times`;
+      return `Here, ${hits.length} reading${hits.length === 1 ? " was" : "s were"} flagged across ${counts.size} of ${metrics} measures; ${text(last, metric)} stepped out most, ${many}, last ${when(last, x)} at ${text(last, amount)}.`;
+    }
     case "sunburst":
     case "icicle": {
       const [group, amount] = [many(view.levels)[0], one(view.value)];
@@ -1175,7 +1194,8 @@ function guide(spec: WidgetSpec): string {
       return `Each square is one day, with weeks as columns. The stronger the color, the more ${name(one(view.value))}; the key under the chart shows the scale.`;
     case "scatter": {
       const sized = one(view.size) ? ` Bigger dots mean more ${name(one(view.size))}.` : "";
-      return `Each dot is one ${noun(one(view.label))}. Further right means more ${name(one(view.x))}; higher means more ${name(one(view.y))}.${sized}`;
+      const hulls = one(view.cluster) ? ` Each soft shaded area gathers one ${name(one(view.cluster))}, named at its middle: dots that sit together belong together.` : "";
+      return `Each dot is one ${noun(one(view.label))}. Further right means more ${name(one(view.x))}; higher means more ${name(one(view.y))}.${sized}${hulls}`;
     }
     case "beeswarm":
       return `Each dot is one ${name(one(view.label), "row")}, placed by its ${name(one(view.value))}. Dots pile up where many values are close together.`;
@@ -1254,6 +1274,8 @@ function guide(spec: WidgetSpec): string {
       return `Each circle sits on one ${noun(one(view.label) ?? one(view.id), "place")} on the map. The bigger the circle, the more ${name(one(view.size))}.${one(view.color) ? ` Each color is one ${name(one(view.color))}.` : ""}`;
     case "locator":
       return `Each marker is one ${noun(one(view.label), "place")}, with its name beside it, where it is on the map.${one(view.kind) ? ` Each color is one ${name(one(view.kind))}.` : ""}`;
+    case "anomalies":
+      return `Each thin lane is one ${noun(one(view.metric), "measure")}, ${over(one(view.x))}. The line is what happened${one(view.low) && one(view.high) ? "; the faint band is where it was expected to stay" : ""}${one(view.expected) ? ", with a thin line for the expected value" : ""}. A filled dot marks an anomaly, a reading that stepped out of line. The lanes with the most anomalies come first, and each ends with its latest value and its count.`;
     case "list":
       // A field called name, title or label says nothing about what the lines are: they are entries.
       return `Each line is one ${/^(name|title|label)$/i.test(one(view.label) ?? "") ? "entry" : name(one(view.label))}${one(view.value) ? `, with its ${name(one(view.value))} on the right` : ""}.`;

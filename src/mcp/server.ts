@@ -151,6 +151,7 @@ const VIEW_GUIDE = [
   "Survey answers: likert.",
   "Plans and dates: timeline (milestones, progress, a today line).",
   "Where things are: choropleth (regions shaded by a value), symbols (circles sized by a value on their regions or at coordinates), locator (named markers); geo takes a built-in tile grid (europe, us-states) or your own GeoJSON.",
+  "Which measures stepped out of line: anomalies (one lane per metric over time, its expected band behind it, flagged readings as alert dots, the worst lanes first). Clusters on a scatter: cluster names a field and soft hulls gather its dots.",
   "Records to read: table (with spark and badge cells), list.",
 ];
 

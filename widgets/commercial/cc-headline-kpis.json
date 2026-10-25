@@ -1,0 +1,98 @@
+{
+  "id": "cc-headline-kpis",
+  "title": "The book at a glance",
+  "subtitle": "{last:month}, against the month before",
+  "description": "Assets, revenue so far this year, net new money, open opportunities, cross-sell potential and anomalies, month by month.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/commercial-summary.json"
+  },
+  "fields": {
+    "month": {
+      "label": "Month",
+      "format": {
+        "type": "date",
+        "style": "month"
+      }
+    },
+    "aum": {
+      "label": "AuM",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "revenueYtd": {
+      "label": "Revenue YTD",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "netNewMoney": {
+      "label": "Net new money",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "openOpportunities": {
+      "label": "Open opportunities"
+    },
+    "potential": {
+      "label": "Potential",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "anomalies": {
+      "label": "Anomalies"
+    }
+  },
+  "view": {
+    "type": "kpis",
+    "series": true,
+    "items": [
+      {
+        "value": "aum",
+        "label": "Assets under management",
+        "compare": "previous"
+      },
+      {
+        "value": "revenueYtd",
+        "label": "Revenue, year to date",
+        "compare": "previous"
+      },
+      {
+        "value": "netNewMoney",
+        "label": "Net new money",
+        "compare": "previous"
+      },
+      {
+        "value": "openOpportunities",
+        "label": "Clients with an open opportunity",
+        "compare": "previous"
+      },
+      {
+        "value": "potential",
+        "label": "Cross-sell potential",
+        "compare": "previous"
+      },
+      {
+        "value": "anomalies",
+        "label": "Anomalies this month",
+        "compare": "previous",
+        "goodWhen": "down"
+      }
+    ]
+  }
+}

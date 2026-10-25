@@ -1,0 +1,16 @@
+[
+  {"from":"Custody held","to":"Pension opportunity","clients":15},
+  {"from":"Custody held","to":"Advisory opportunity","clients":15},
+  {"from":"Custody held","to":"Discretionary opportunity","clients":12},
+  {"from":"Advisory held","to":"Pension opportunity","clients":9},
+  {"from":"Insurance held","to":"Pension opportunity","clients":7},
+  {"from":"Advisory held","to":"Discretionary opportunity","clients":6},
+  {"from":"Lending held","to":"Discretionary opportunity","clients":6},
+  {"from":"Lending held","to":"Pension opportunity","clients":6},
+  {"from":"Insurance held","to":"Advisory opportunity","clients":6},
+  {"from":"Custody held","to":"Lending opportunity","clients":6},
+  {"from":"Custody held","to":"Insurance opportunity","clients":5},
+  {"from":"Pension held","to":"Advisory opportunity","clients":5},
+  {"from":"Custody held","to":"FX opportunity","clients":5},
+  {"from":"Insurance held","to":"Discretionary opportunity","clients":4}
+]

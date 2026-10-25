@@ -1,0 +1,80 @@
+{
+  "id": "cc-adoption-curves",
+  "title": "Adoption curves",
+  "subtitle": "Each cohort's share using the app, by months since onboarding",
+  "description": "The adoption curve of every onboarding cohort.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/adoption.json"
+  },
+  "transform": [
+    {
+      "type": "pivot",
+      "row": "monthsSince",
+      "column": "cohort",
+      "value": "adopted"
+    },
+    {
+      "type": "sort",
+      "field": "monthsSince"
+    }
+  ],
+  "fields": {
+    "monthsSince": {
+      "label": "Months since onboarding"
+    },
+    "2024-Q3": {
+      "label": "2024-Q3",
+      "format": {
+        "type": "percent"
+      }
+    },
+    "2024-Q4": {
+      "label": "2024-Q4",
+      "format": {
+        "type": "percent"
+      }
+    },
+    "2025-Q1": {
+      "label": "2025-Q1",
+      "format": {
+        "type": "percent"
+      }
+    },
+    "2025-Q2": {
+      "label": "2025-Q2",
+      "format": {
+        "type": "percent"
+      }
+    },
+    "2025-Q3": {
+      "label": "2025-Q3",
+      "format": {
+        "type": "percent"
+      }
+    },
+    "2025-Q4": {
+      "label": "2025-Q4",
+      "format": {
+        "type": "percent"
+      }
+    }
+  },
+  "view": {
+    "type": "line",
+    "x": "monthsSince",
+    "y": [
+      "2024-Q3",
+      "2024-Q4",
+      "2025-Q1",
+      "2025-Q2",
+      "2025-Q3",
+      "2025-Q4"
+    ],
+    "endLabels": false
+  }
+}

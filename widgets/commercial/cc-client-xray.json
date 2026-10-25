@@ -1,0 +1,89 @@
+{
+  "id": "cc-client-xray",
+  "title": "Client x-ray: Aldana Holdings",
+  "subtitle": "Everything about one client on one card",
+  "description": "The client's book, products held, share of wallet and standing.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/clients.json"
+  },
+  "transform": [
+    {
+      "type": "filter",
+      "field": "name",
+      "value": "Aldana Holdings"
+    }
+  ],
+  "fields": {
+    "name": {
+      "label": "Client"
+    },
+    "aum": {
+      "label": "AuM",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "revenue": {
+      "label": "Revenue",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "products": {
+      "label": "Products"
+    },
+    "sinceYear": {
+      "label": "Client since",
+      "format": {
+        "type": "text"
+      }
+    },
+    "propensity": {
+      "label": "Propensity"
+    },
+    "riskScore": {
+      "label": "Risk score"
+    },
+    "shareOfWallet": {
+      "label": "Share of wallet",
+      "format": {
+        "type": "percent"
+      }
+    },
+    "fx": {
+      "label": "FX"
+    }
+  },
+  "view": {
+    "type": "xray",
+    "label": "name",
+    "facts": [
+      "aum",
+      "revenue",
+      "products",
+      "sinceYear",
+      "propensity",
+      "riskScore"
+    ],
+    "holdings": [
+      "custody",
+      "advisory",
+      "discretionary",
+      "lending",
+      "fx",
+      "structured",
+      "insurance",
+      "pension"
+    ],
+    "wallet": "shareOfWallet"
+  }
+}

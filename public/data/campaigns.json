@@ -1,0 +1,10 @@
+[
+  {"campaign":"Lombard lending spring","product":"Lending","start":"2026-03-02","end":"2026-04-30","targeted":420,"contacted":310,"responded":96,"converted":31,"revenue":1420000,"cost":86000},
+  {"campaign":"Pension autumn","product":"Pension","start":"2026-09-07","end":"2026-11-30","targeted":380,"contacted":290,"responded":118,"converted":44,"revenue":960000,"cost":54000},
+  {"campaign":"FX hedging for corporates","product":"FX","start":"2026-05-04","end":"2026-06-26","targeted":160,"contacted":128,"responded":52,"converted":23,"revenue":1180000,"cost":48000},
+  {"campaign":"ESG discretionary","product":"Discretionary","start":"2026-04-13","end":"2026-07-10","targeted":520,"contacted":360,"responded":74,"converted":19,"revenue":2050000,"cost":142000},
+  {"campaign":"Structured notes Q3","product":"Structured","start":"2026-07-06","end":"2026-09-25","targeted":300,"contacted":240,"responded":41,"converted":9,"revenue":610000,"cost":71000},
+  {"campaign":"Insurance wrapper","product":"Insurance","start":"2026-02-02","end":"2026-05-29","targeted":260,"contacted":190,"responded":63,"converted":27,"revenue":840000,"cost":39000},
+  {"campaign":"Digital onboarding","product":"Custody","start":"2026-06-01","end":"2026-10-30","targeted":900,"contacted":700,"responded":310,"converted":140,"revenue":380000,"cost":95000},
+  {"campaign":"Advisory upgrade","product":"Advisory","start":"2026-08-17","end":"2026-12-18","targeted":240,"contacted":170,"responded":58,"converted":16,"revenue":720000,"cost":33000}
+]

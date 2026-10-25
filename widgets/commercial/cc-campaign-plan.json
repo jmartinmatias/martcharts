@@ -1,0 +1,42 @@
+{
+  "id": "cc-campaign-plan",
+  "title": "Campaigns this year",
+  "subtitle": "When each ran, by product",
+  "description": "Every campaign of 2026 on one calendar, colored by the product it sold.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/campaigns.json"
+  },
+  "fields": {
+    "campaign": {
+      "label": "Campaign"
+    },
+    "product": {
+      "label": "Product"
+    },
+    "start": {
+      "label": "Start",
+      "format": {
+        "type": "date"
+      }
+    },
+    "end": {
+      "label": "End",
+      "format": {
+        "type": "date"
+      }
+    }
+  },
+  "view": {
+    "type": "timeline",
+    "label": "campaign",
+    "start": "start",
+    "end": "end",
+    "group": "product",
+    "today": "2026-10-25"
+  }
+}

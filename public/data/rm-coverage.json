@@ -1,0 +1,8 @@
+[
+  {"rm":"Claire Dubois","office":"Paris","clients":9,"capacity":12,"aum":341560000,"revenue":1862548,"meetingsYtd":38,"target":40},
+  {"rm":"Marco Rinaldi","office":"Milan","clients":10,"capacity":14,"aum":232580000,"revenue":987975,"meetingsYtd":27,"target":40},
+  {"rm":"Sofia Keller","office":"Zurich","clients":10,"capacity":11,"aum":174820000,"revenue":907182,"meetingsYtd":44,"target":40},
+  {"rm":"Jonas Berg","office":"Luxembourg","clients":11,"capacity":12,"aum":265730000,"revenue":1504480,"meetingsYtd":31,"target":40},
+  {"rm":"Inés Ferreira","office":"Madrid","clients":10,"capacity":13,"aum":493240000,"revenue":1879354,"meetingsYtd":36,"target":40},
+  {"rm":"Tom Vermeulen","office":"Luxembourg","clients":10,"capacity":12,"aum":291880000,"revenue":1311996,"meetingsYtd":22,"target":40}
+]
