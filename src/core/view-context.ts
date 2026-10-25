@@ -48,10 +48,11 @@ export interface ViewContext<V extends { type: string } = ViewSpec> {
   /** CSS color for series number `index` (0-based), from the palette in fixed order. */
   color(index: number): string;
   /**
-   * Inside small multiples of a view that colors categories (see `ViewBlock.categories`): the color of one category,
-   * the same in every panel. Views fall back to `color(i)` when it is absent.
+   * The fixed color of one category value, for views that color by category: the value's color in `spec.colors`, and
+   * inside small multiples (see `ViewBlock.categories`) the same palette color in every panel. Undefined (or absent)
+   * means no fixed color: the view falls back to `color(i)`.
    */
-  colorOf?(category: unknown): string;
+  colorOf?(category: unknown): string | undefined;
   /** The widget's tooltip. */
   tooltip: Tooltip;
   /** Reports that the viewer picked a row. The widget fires an `fft-select` event with it. */

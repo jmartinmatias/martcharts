@@ -64,6 +64,8 @@ export { fillTemplate, hasTemplate, templateFields, templateRefs } from "./templ
 export { applyTransforms, runPipeline } from "./pipeline.ts";
 export { fieldLabel, formatNode, formatValue, humanize } from "./display.ts";
 export { FACET_OPTIONS, hasErrors, validateSpec } from "./validate.ts";
+export { aliasesOf, aliasUse, canonicalName, normalizeView, OPTION_ALIASES } from "./aliases.ts";
+export type { AliasUse, OptionAlias } from "./aliases.ts";
 export { ICON_NAMES, ICONS } from "./icons.ts";
 export {
   blockTypes,

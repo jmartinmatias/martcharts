@@ -161,7 +161,7 @@ describe("validateSpec", () => {
 
   test("a scatter with more than 3 groups warns, since only 3 colors stay distinct", () => {
     const rows = ["a", "b", "c", "d"].map((g, i) => ({ g, x: i, y: i }));
-    expect(messages({ ...good, view: { type: "scatter", x: "x", y: "y", series: "g" } }, rows)).toEqual([
+    expect(messages({ ...good, view: { type: "scatter", x: "x", y: "y", color: "g" } }, rows)).toEqual([
       'warning view: 4 groups. Only 3 scatter colors stay distinct for colorblind readers: fold the rest into "Other" or split the chart.',
     ]);
   });
