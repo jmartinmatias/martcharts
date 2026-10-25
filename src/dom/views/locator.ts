@@ -73,7 +73,7 @@ export const renderLocator: ViewRenderer<LocatorView> = (ctx) =>
     const kindColor = (i: number) => categoryColor(ctx, kind ? kindKeys[i] : undefined, i);
 
     const wrap = html(doc, "div", "fft-chart fft-map-wrap");
-    const canvas = mapCanvas(doc, width, height, wordsFor(ctx).aria.locator(ctx.label(label)), collection, projection.shapes);
+    const canvas = mapCanvas(doc, width, height, wordsFor(ctx).aria.locator(ctx.label(label)), collection, projection.shapes, new Set(placed.flatMap((p) => (p.shape ? [p.shape.id] : []))));
     const markers = svg(doc, "g", { class: "fft-map-markers" });
     const labels = svg(doc, "g", { class: "fft-map-place-labels" });
     labels.setAttribute("aria-hidden", "true");

@@ -505,9 +505,10 @@ describe("meter view", () => {
     ]);
   });
 
-  test("a met target carries a check and says so, and a missed one says how far it has to go", async () => {
+  // A met target used to say "Target met" beside its check; the check says it, and the words stay in the aria-label.
+  test("a met target carries a check, and a missed one says how far it has to go", async () => {
     await draw({ rows: regions, view: { type: "meter", value: "revenue", target: "target", label: "region" } });
-    expect(texts(".fft-meter-gap")).toEqual(["62 to go", "Target met"]);
+    expect(texts(".fft-meter-gap")).toEqual(["62 to go"]);
     expect(all(".fft-meter").map((m) => [(m as HTMLElement).dataset.met ?? "", Boolean(m.querySelector(".fft-meter-percent .fft-check"))])).toEqual([
       ["", false],
       ["true", true],
@@ -895,9 +896,9 @@ describe("waterfall view", () => {
 
   test("fit zooms the axis onto the running totals, with totals rising from the axis floor", async () => {
     await draw({ ...spec, view: { ...spec.view, fit: true } });
-    // The axis keeps headroom below the lowest total (so it still draws as a bar), and ticks step by 50,
-    // so shortened labels need two decimals to stay distinct.
-    expect(texts(".fft-tick-y")).toEqual(["900", "950", "1K", "1.05K", "1.1K", "1.15K"]);
+    // Every bar writes its value, so there is no value axis to repeat them (it used to list 900 to 1.15K): the floor
+    // is the only line.
+    expect(texts(".fft-tick-y")).toEqual([]);
     const [first, change] = all("rect.fft-step").map((r) => Number(r.getAttribute("y")) + Number(r.getAttribute("height")));
     const floor = Number(target.querySelector(".fft-baseline")?.getAttribute("y1"));
     expect([first, change !== floor]).toEqual([floor, true]);
@@ -1714,10 +1715,11 @@ describe("rings view", () => {
     expect(all("path.fft-ring-lap").map((a) => a.getAttribute("data-ratio"))).toEqual(["0.07"]);
   });
 
+  // A met goal used to say "Target met" beside its check; on screen the check says it, and the words stay for screen readers.
   test("the legend gives each goal's name, attainment, value of target and where it stands, a met target with a check", async () => {
     await draw(spec);
-    expect(all(".fft-rings-legend li").map((li) => [...li.querySelectorAll("span:not(.fft-swatch)")].map((s) => s.textContent))).toEqual([
-      ["Revenue", "107%", "107 of 100", "Target met"],
+    expect(all(".fft-rings-legend li").map((li) => [...li.querySelectorAll("span:not(.fft-swatch):not(.fft-sr-only)")].map((s) => s.textContent))).toEqual([
+      ["Revenue", "107%", "107 of 100"],
       ["Signups", "50%", "30 of 60", "30 to go"],
       ["Retention", "0%", "0 of 90", "90 to go"],
     ]);
@@ -1726,6 +1728,7 @@ describe("rings view", () => {
       ["", false],
       ["", false],
     ]);
+    expect(all(".fft-rings-legend li")[0]?.querySelector(".fft-sr-only")?.textContent).toBe("Target met");
   });
 
   test("the tooltip gives value, target and attainment, and Enter selects the row", async () => {

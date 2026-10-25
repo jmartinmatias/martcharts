@@ -1,4 +1,5 @@
 import { readNumber } from "../../core/formats.ts";
+import { fitLabel } from "./label-fit.ts";
 import { sequentialStep } from "../../core/geo.ts";
 import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
@@ -126,7 +127,8 @@ export const renderWhitespace: ViewRenderer<WhitespaceView> = (ctx) => {
   const cells: Element[] = [];
   const active = activeGroup(grid, ctx.tooltip);
   lines.forEach((line, i) => {
-    const rowName = html(doc, "div", "fft-ws-row", line.name);
+    // Cut between words to the measured name column (less its padding), never inside a word that would fit whole.
+    const rowName = html(doc, "div", "fft-ws-row", fitLabel(line.name, nameWidth - 10, 11));
     rowName.title = line.name;
     grid.append(rowName);
     for (const column of columns) {

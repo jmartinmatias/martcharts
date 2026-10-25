@@ -59,6 +59,7 @@ export const renderAnomalies: ViewRenderer<AnomaliesView> = (ctx) => {
   }
   const lanes = [...byMetric.values()].sort((a, b) => b.flagged - a.flagged);
   for (const lane of lanes) lane.latest = [...lane.rows].reverse().find((row) => row && readNumber(row[value]) !== null);
+  const sameCount = lanes.every((lane) => lane.flagged === lanes[0]?.flagged);
 
   // The right column: the longest name or "latest · n anomalies", within two fifths of the card.
   const countText = (n: number) => (n === 0 ? "none" : n === 1 ? "1 anomaly" : `${n} anomalies`);
@@ -135,15 +136,20 @@ export const renderAnomalies: ViewRenderer<AnomaliesView> = (ctx) => {
     writeLabel(name, fitLabel(lane.text, side - 21, 11, 600), lane.text);
     const latest = svg(doc, "text", { class: "fft-anom-latest", x: textX, y: top + 27 });
     latest.textContent = latestText(lane);
-    const pillX = textX + (latestText(lane) ? textWidth(latestText(lane)) + 8 : 0);
-    const words = countText(lane.flagged);
-    const pill = svg(doc, "g", { class: "fft-anom-count", "data-none": lane.flagged === 0 ? "true" : "false" });
-    const wide = pillWidth(words);
-    pill.append(svg(doc, "rect", { x: pillX, y: top + 18, width: Math.round(wide), height: 13, rx: 6.5 }));
-    const pillText = svg(doc, "text", { x: pillX + wide / 2, y: top + 24.5, "text-anchor": "middle", "dominant-baseline": "middle" });
-    pillText.textContent = words;
-    pill.append(pillText);
-    group.append(name, latest, pill);
+    group.append(name, latest);
+    // The count pill tells the lanes apart: when every lane has the same count of one or none, it would say the same
+    // thing on every lane, so it is left out (the flagged readings stay in the hidden table and each dot's label).
+    if (!sameCount || lane.flagged > 1) {
+      const pillX = textX + (latestText(lane) ? textWidth(latestText(lane)) + 8 : 0);
+      const words = countText(lane.flagged);
+      const pill = svg(doc, "g", { class: "fft-anom-count", "data-none": lane.flagged === 0 ? "true" : "false" });
+      const wide = pillWidth(words);
+      pill.append(svg(doc, "rect", { x: pillX, y: top + 18, width: Math.round(wide), height: 13, rx: 6.5 }));
+      const pillText = svg(doc, "text", { x: pillX + wide / 2, y: top + 24.5, "text-anchor": "middle", "dominant-baseline": "middle" });
+      pillText.textContent = words;
+      pill.append(pillText);
+      group.append(pill);
+    }
     chart.append(group);
   });
 

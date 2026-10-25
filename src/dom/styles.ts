@@ -373,6 +373,11 @@ export const BASE_CSS = `
   transition: color 233ms var(--fft-ease), background-color 233ms var(--fft-ease);
 }
 .fft-widget-ref[hidden] { display: none; }
+/* A developer's handle, not a reader's: out of sight until the card is pointed at or reached by keyboard, like the
+   toolbar, and always on paper. It keeps its place in the tab order inside the card. */
+.fft-widget-ref { opacity: 0; transition: opacity 233ms var(--fft-ease), color 233ms var(--fft-ease), background-color 233ms var(--fft-ease); }
+.fft-widget:hover .fft-widget-ref, .fft-widget:focus-within .fft-widget-ref, .fft-widget-ref:focus-visible, .fft-widget-ref[data-done], .fft-widget-ref[data-failed] { opacity: 1; }
+@media print { .fft-widget-ref { opacity: 1 !important; } }
 .fft-widget-ref:hover, .fft-widget-ref:focus-visible { color: var(--fft-text-secondary); background: color-mix(in srgb, var(--fft-text) 6%, transparent); outline: none; }
 .fft-widget-ref:focus-visible { box-shadow: 0 0 0 2px var(--fft-accent); }
 .fft-widget-ref[data-done]::after { content: " copied"; letter-spacing: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif; }
@@ -396,7 +401,7 @@ export const BASE_CSS = `
 .fft-skeleton span { display: block; background: var(--fft-skeleton); border-radius: var(--fft-radius-m); }
 .fft-skeleton[data-shape="bars"] { display: flex; align-items: flex-end; justify-content: space-around; gap: 8px; padding: 0 13px; box-shadow: inset 0 -1px 0 var(--fft-skeleton); }
 .fft-skeleton[data-shape="bars"] span { width: 21px; border-radius: var(--fft-radius-m) var(--fft-radius-m) 0 0; }
-.fft-skeleton[data-shape="bars"] span:nth-child(2n) { animation-delay: 233ms; }
+.fft-skeleton[data-shape="bars"] span:nth-child(2n) { animation-delay: min(233ms, 610ms); }
 .fft-skeleton[data-shape="rows"] .fft-skel-row { display: flex; justify-content: space-between; align-items: center; height: 34px; background: none; border-radius: 0; box-shadow: inset 0 -1px 0 var(--fft-skeleton); animation: none; }
 .fft-skel-row span { height: 8px; }
 .fft-skel-row span:first-child { width: 34%; }
@@ -413,10 +418,10 @@ export const BASE_CSS = `
 .fft-skel-lane span:last-child { height: 13px; border-radius: var(--fft-radius-s); }
 .fft-skeleton[data-shape="grid"] { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; }
 .fft-skeleton[data-shape="grid"] span { aspect-ratio: 2; border-radius: var(--fft-radius-s); }
-.fft-skeleton[data-shape="grid"] span:nth-child(3n) { animation-delay: 233ms; }
+.fft-skeleton[data-shape="grid"] span:nth-child(3n) { animation-delay: min(233ms, 610ms); }
 .fft-skeleton[data-shape="map"] { display: grid; grid-template-columns: repeat(7, 21px); grid-auto-rows: 21px; gap: 3px; justify-content: center; align-content: center; }
 .fft-skeleton[data-shape="map"] span { border-radius: var(--fft-radius-s); }
-.fft-skeleton[data-shape="map"] span:nth-child(2n) { animation-delay: 233ms; }
+.fft-skeleton[data-shape="map"] span:nth-child(2n) { animation-delay: min(233ms, 610ms); }
 @keyframes fft-pulse { 50% { opacity: 0.38; } }
 .fft-state-icon { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; margin-bottom: 8px; border-radius: 50%; background: var(--fft-skeleton); color: var(--fft-text-secondary); }
 .fft-state-icon svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
@@ -484,7 +489,7 @@ export const BASE_CSS = `
 .fft-kpi { position: relative; display: flex; flex-direction: column; gap: 3px; }
 .fft-kpi-icon {
   position: absolute; top: 0; right: 0; width: 34px; height: 34px; display: grid; place-items: center; border-radius: var(--fft-radius-l);
-  color: var(--fft-accent); background: color-mix(in srgb, var(--fft-accent) 13%, transparent);
+  color: var(--fft-muted); background: none; width: 21px; height: 21px; opacity: 0.8;
 }
 .fft-kpi-icon svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .fft-facet-legend { margin-bottom: 13px; }
@@ -556,7 +561,7 @@ export const BASE_CSS = `
   align-items: center; column-gap: 8px;
 }
 .fft-donut-legend .fft-swatch { grid-area: dot; }
-.fft-donut-name { grid-area: name; font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-text-secondary); overflow-wrap: anywhere; }
+.fft-donut-name { grid-area: name; font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-text-secondary); overflow-wrap: normal; min-width: 0; }
 .fft-donut-value { grid-area: value; font-weight: 600; font-variant-numeric: tabular-nums; }
 .fft-donut-share { grid-area: share; text-align: right; font-size: var(--fft-fs-s); color: var(--fft-muted); font-variant-numeric: tabular-nums; }
 .fft-donut-figure[data-arc="half"] .fft-donut-center { justify-content: flex-end; padding-bottom: 1px; }
@@ -685,7 +690,7 @@ export const BASE_CSS = `
 .fft-sun-seg { stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 1.5; pointer-events: none; transition: opacity 377ms var(--fft-ease); }
 .fft-sun[data-active] .fft-sun-seg:not([data-active]) { opacity: var(--fft-dim-strong); }
 .fft-sun .fft-donut-center { padding: 0 25%; }
-.fft-sun .fft-donut-caption { overflow-wrap: anywhere; }
+.fft-sun .fft-donut-caption { overflow-wrap: normal; }
 .fft-sun-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-sun-hit:focus-visible { stroke: var(--fft-accent); stroke-width: 2; }
 .fft-chord-ribbon { fill-opacity: 0.55; stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 0.5; pointer-events: none; transition: fill-opacity 377ms var(--fft-ease); }
@@ -782,7 +787,7 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-hbars[data-active] .fft-hbar:not([data-active]) .fft-hbar-fill { opacity: var(--fft-dim); }
 .fft-hbar-value { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
 /* Lollipop rankings: a hairline guide, a 2px stem, an 11px dot ringed in the card color. */
-.fft-hbars[data-mark="lollipop"] .fft-hbar-track { position: relative; background: linear-gradient(var(--fft-grid), var(--fft-grid)) center / 100% 1px no-repeat; }
+.fft-hbars[data-mark="lollipop"] .fft-hbar-track { position: relative; }
 .fft-hbars[data-mark="lollipop"] .fft-hbar-fill { height: 2px; margin-top: 5.5px; border-radius: var(--fft-radius-s); }
 .fft-hbar-dot { position: absolute; top: 50%; width: 11px; height: 11px; margin: -5.5px 0 0 -5.5px; border-radius: 50%; box-shadow: 0 0 0 2px var(--fft-ring, var(--fft-surface)); transition: opacity 377ms var(--fft-ease); }
 .fft-hbars[data-active] .fft-hbar:not([data-active]) .fft-hbar-dot { opacity: var(--fft-dim); }
@@ -1202,9 +1207,9 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 @keyframes fft-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 @keyframes fft-fade { from { opacity: 0; } }
 @keyframes fft-rise { from { opacity: 0; transform: translateY(3px); } }
-.fft-widget[data-animate] .fft-bar { animation: fft-grow 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 21ms); }
-.fft-widget[data-animate] .fft-lolli-stem { animation: fft-grow 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 21ms); }
-.fft-widget[data-animate] .fft-lolli-dot, .fft-widget[data-animate] .fft-hbar-dot { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(377ms + var(--fft-i, 0) * 34ms); }
+.fft-widget[data-animate] .fft-bar { animation: fft-grow 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 21ms), 610ms); }
+.fft-widget[data-animate] .fft-lolli-stem { animation: fft-grow 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 21ms), 610ms); }
+.fft-widget[data-animate] .fft-lolli-dot, .fft-widget[data-animate] .fft-hbar-dot { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: min(calc(377ms + var(--fft-i, 0) * 34ms), 610ms); }
 .fft-widget[data-animate] .fft-line,
 .fft-widget[data-animate] .fft-spark-line { stroke-dasharray: 1; animation: fft-draw 987ms var(--fft-ease) both; }
 /* Dashes cannot draw in, so forecasts and their band fade in once the actuals have drawn. */
@@ -1213,58 +1218,58 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-widget[data-animate] .fft-band-label,
 .fft-widget[data-animate] .fft-forecast-zone,
 .fft-widget[data-animate] .fft-forecast-label { animation: fft-fade 610ms var(--fft-ease) 377ms both; }
-.fft-widget[data-animate] .fft-slice { stroke-dasharray: 1; animation: fft-draw 987ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 89ms); }
-.fft-widget[data-animate] .fft-pie-slice, .fft-widget[data-animate] .fft-pie-label, .fft-widget[data-animate] .fft-pie-name, .fft-widget[data-animate] .fft-pie-leader { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 89ms); }
+.fft-widget[data-animate] .fft-slice { stroke-dasharray: 1; animation: fft-draw 987ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 89ms), 610ms); }
+.fft-widget[data-animate] .fft-pie-slice, .fft-widget[data-animate] .fft-pie-label, .fft-widget[data-animate] .fft-pie-name, .fft-widget[data-animate] .fft-pie-leader { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 89ms), 610ms); }
 .fft-widget[data-animate] .fft-end-label,
 .fft-widget[data-animate] .fft-stream-label,
 .fft-widget[data-animate] .fft-area,
 .fft-widget[data-animate] .fft-dot,
 .fft-widget[data-animate] .fft-spark-end { animation: fft-fade 610ms var(--fft-ease) 377ms both; }
-.fft-widget[data-animate] .fft-step { animation: fft-grow 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 55ms); }
+.fft-widget[data-animate] .fft-step { animation: fft-grow 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 55ms), 610ms); }
 .fft-widget[data-animate] .fft-cell { animation: fft-fade 610ms var(--fft-ease) both; }
-.fft-widget[data-animate] .fft-day { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 13ms); }
-.fft-widget[data-animate] .fft-ribbon { animation: fft-fade 987ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 34ms); }
-.fft-widget[data-animate] .fft-bee { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 13ms); }
-.fft-widget[data-animate] .fft-point { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 21ms); }
+.fft-widget[data-animate] .fft-day { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 13ms), 610ms); }
+.fft-widget[data-animate] .fft-ribbon { animation: fft-fade 987ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 34ms), 610ms); }
+.fft-widget[data-animate] .fft-bee { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 13ms), 610ms); }
+.fft-widget[data-animate] .fft-point { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 21ms), 610ms); }
 .fft-widget[data-animate] .fft-meter-fill { animation: fft-grow-x 987ms var(--fft-ease) both; }
-.fft-widget[data-animate] .fft-bullet-value { animation: fft-grow-x 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 55ms); }
-.fft-widget[data-animate] .fft-tile { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 34ms); }
-.fft-widget[data-animate] .fft-funnel-bar { animation: fft-grow-x 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 89ms); }
-.fft-widget[data-animate] .fft-slope-line { stroke-dasharray: 1; animation: fft-draw 987ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 55ms); }
+.fft-widget[data-animate] .fft-bullet-value { animation: fft-grow-x 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 55ms), 610ms); }
+.fft-widget[data-animate] .fft-tile { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 34ms), 610ms); }
+.fft-widget[data-animate] .fft-funnel-bar { animation: fft-grow-x 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 89ms), 610ms); }
+.fft-widget[data-animate] .fft-slope-line { stroke-dasharray: 1; animation: fft-draw 987ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 55ms), 610ms); }
 .fft-widget[data-animate] .fft-var-bar,
-.fft-widget[data-animate] .fft-var-value { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 55ms); }
+.fft-widget[data-animate] .fft-var-value { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 55ms), 610ms); }
 .fft-widget[data-animate] .fft-waffle-cell,
-.fft-widget[data-animate] .fft-waffle-empty { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(var(--fft-k, 0) * 8ms); }
+.fft-widget[data-animate] .fft-waffle-empty { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-k, 0) * 8ms), 610ms); }
 .fft-widget[data-animate] .fft-gantt-done,
-.fft-widget[data-animate] .fft-gantt-bar { animation: fft-grow-x 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 55ms); }
-.fft-widget[data-animate] .fft-gantt-milestone { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(377ms + var(--fft-i, 0) * 55ms); }
-.fft-widget[data-animate] .fft-ice-cell { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 144ms); }
-.fft-widget[data-animate] .fft-horizon-row { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 55ms); }
-.fft-widget[data-animate] .fft-rose-wedge { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 34ms); }
-.fft-widget[data-animate] .fft-radar-shape, .fft-widget[data-animate] .fft-radar-dot { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: 233ms; }
-.fft-widget[data-animate] .fft-chord-ribbon { animation: fft-fade 987ms var(--fft-ease) both; animation-delay: 233ms; }
+.fft-widget[data-animate] .fft-gantt-bar { animation: fft-grow-x 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 55ms), 610ms); }
+.fft-widget[data-animate] .fft-gantt-milestone { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: min(calc(377ms + var(--fft-i, 0) * 55ms), 610ms); }
+.fft-widget[data-animate] .fft-ice-cell { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 144ms), 610ms); }
+.fft-widget[data-animate] .fft-horizon-row { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 55ms), 610ms); }
+.fft-widget[data-animate] .fft-rose-wedge { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 34ms), 610ms); }
+.fft-widget[data-animate] .fft-radar-shape, .fft-widget[data-animate] .fft-radar-dot { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: min(233ms, 610ms); }
+.fft-widget[data-animate] .fft-chord-ribbon { animation: fft-fade 987ms var(--fft-ease) both; animation-delay: min(233ms, 610ms); }
 .fft-widget[data-animate] .fft-sun-seg { animation: fft-fade 610ms var(--fft-ease) both; }
-.fft-widget[data-animate] .fft-sun-seg[data-depth="1"] { animation-delay: 233ms; }
-.fft-widget[data-animate] .fft-sun-seg[data-depth="2"] { animation-delay: 377ms; }
+.fft-widget[data-animate] .fft-sun-seg[data-depth="1"] { animation-delay: min(233ms, 610ms); }
+.fft-widget[data-animate] .fft-sun-seg[data-depth="2"] { animation-delay: min(377ms, 610ms); }
 .fft-widget[data-animate] .fft-cell-bar-fill { animation: fft-grow-x 610ms var(--fft-ease) both; }
-.fft-widget[data-animate] .fft-candle { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 13ms); }
-.fft-widget[data-animate] .fft-candle-average { stroke-dasharray: 1; animation: fft-draw 987ms var(--fft-ease) both; animation-delay: 377ms; }
-.fft-widget[data-animate] .fft-likert-seg { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 55ms); }
-.fft-widget[data-animate] .fft-box { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 89ms); }
-.fft-widget[data-animate] .fft-pareto-line { stroke-dasharray: 1; animation: fft-draw 987ms var(--fft-ease) both; animation-delay: 377ms; }
-.fft-widget[data-animate] .fft-pareto-dot { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: 987ms; }
+.fft-widget[data-animate] .fft-candle { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 13ms), 610ms); }
+.fft-widget[data-animate] .fft-candle-average { stroke-dasharray: 1; animation: fft-draw 987ms var(--fft-ease) both; animation-delay: min(377ms, 610ms); }
+.fft-widget[data-animate] .fft-likert-seg { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 55ms), 610ms); }
+.fft-widget[data-animate] .fft-box { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 89ms), 610ms); }
+.fft-widget[data-animate] .fft-pareto-line { stroke-dasharray: 1; animation: fft-draw 987ms var(--fft-ease) both; animation-delay: min(377ms, 610ms); }
+.fft-widget[data-animate] .fft-pareto-dot { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: min(987ms, 610ms); }
 .fft-widget[data-animate] .fft-gauge-arc { stroke-dasharray: 1; animation: fft-draw 987ms var(--fft-ease) both; }
-.fft-widget[data-animate] .fft-ring-arc { stroke-dasharray: 1; animation: fft-draw 1597ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 144ms); }
-.fft-widget[data-animate] .fft-ring-lap { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(987ms + var(--fft-i, 0) * 144ms); }
-.fft-widget[data-animate] .fft-bump-line { stroke-dasharray: 1; animation: fft-draw 987ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 55ms); }
-.fft-widget[data-animate] .fft-mekko { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 55ms); }
+.fft-widget[data-animate] .fft-ring-arc { stroke-dasharray: 1; animation: fft-draw 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 89ms), 233ms); }
+.fft-widget[data-animate] .fft-ring-lap { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: min(calc(377ms + var(--fft-i, 0) * 89ms), 610ms); }
+.fft-widget[data-animate] .fft-bump-line { stroke-dasharray: 1; animation: fft-draw 987ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 55ms), 610ms); }
+.fft-widget[data-animate] .fft-mekko { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 55ms), 610ms); }
 .fft-widget[data-animate] .fft-bump-dot,
 .fft-widget[data-animate] .fft-bump-label,
 .fft-widget[data-animate] .fft-slope-dot,
-.fft-widget[data-animate] .fft-slope-label { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(377ms + var(--fft-i, 0) * 55ms); }
-.fft-widget[data-animate] .fft-hbar-fill { animation: fft-grow-x 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 34ms); }
-.fft-widget[data-animate] .fft-dot-mark, .fft-widget[data-animate] .fft-dot-value { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 34ms); }
-.fft-widget[data-animate] .fft-db-head, .fft-widget[data-animate] .fft-db-shaft, .fft-widget[data-animate] .fft-db-still { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(233ms + var(--fft-i, 0) * 34ms); }
+.fft-widget[data-animate] .fft-slope-label { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: min(calc(377ms + var(--fft-i, 0) * 55ms), 610ms); }
+.fft-widget[data-animate] .fft-hbar-fill { animation: fft-grow-x 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 34ms), 610ms); }
+.fft-widget[data-animate] .fft-dot-mark, .fft-widget[data-animate] .fft-dot-value { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 34ms), 610ms); }
+.fft-widget[data-animate] .fft-db-head, .fft-widget[data-animate] .fft-db-shaft, .fft-widget[data-animate] .fft-db-still { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: min(calc(233ms + var(--fft-i, 0) * 34ms), 610ms); }
 .fft-widget[data-animate] .fft-stat-value,
 .fft-widget[data-animate] .fft-kpi-value,
 .fft-widget[data-animate] .fft-kpi-delta,
@@ -1287,8 +1292,8 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-chart[data-active] .fft-marks:not([data-active]) .fft-bar-compare { opacity: var(--fft-dim); }
 /* Dual: two panels sharing one x axis; each panel's caption names its measure where a legend would. */
 .fft-dual-caption { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); font-weight: 600; }
-.fft-widget[data-animate] .fft-point-dot { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: 610ms; }
-.fft-widget[data-animate] .fft-note-layer { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: 610ms; }
+.fft-widget[data-animate] .fft-point-dot { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: min(610ms, 610ms); }
+.fft-widget[data-animate] .fft-note-layer { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: min(610ms, 610ms); }
 @media (prefers-reduced-motion: reduce) {
   .fft-widget *, .fft-widget *::before, .fft-widget *::after { animation: none !important; transition: none !important; }
   .fft-overlay, .fft-overlay-panel { animation: none !important; }
@@ -1320,7 +1325,7 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 @container (max-width: 420px) {
   .fft-hbars[data-mode="split"] .fft-hbar { grid-template-columns: minmax(55px, 30%) repeat(var(--fft-splits, 2), minmax(0, 1fr)); gap: 8px; }
 }
-.fft-widget[data-animate] .fft-hbar-seg { animation: fft-grow-x 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 34ms); }
+.fft-widget[data-animate] .fft-hbar-seg { animation: fft-grow-x 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 34ms), 610ms); }
 
 /* Population pyramid. */
 .fft-pyr-head { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); font-weight: 600; }
@@ -1332,7 +1337,7 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-pyramid[data-active] .fft-pyr-row:not([data-active]) .fft-pyr-bar { opacity: var(--fft-dim); }
 .fft-pyr-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-pyr-hit:hover, .fft-pyr-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 6%, transparent); }
-.fft-widget[data-animate] .fft-pyr-bar { animation: fft-grow-x 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 21ms); }
+.fft-widget[data-animate] .fft-pyr-bar { animation: fft-grow-x 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 21ms), 610ms); }
 /* The small print: the footer, then the credit ("Source: Eurostat · Chart: Marta") in the same quiet type, the source underlined as a link. */
 .fft-small-print { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .fft-small-print[hidden] { display: none; }
@@ -1410,8 +1415,8 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-map-place-name { fill: var(--fft-text); font-weight: 600; }
 .fft-map-place-note { fill: var(--fft-text-secondary); font-size: var(--fft-fs-xs); }
 .fft-map-note { margin: 0; font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-muted); }
-.fft-widget[data-animate] .fft-map-region { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 13ms); }
-.fft-widget[data-animate] .fft-map-symbol, .fft-widget[data-animate] .fft-map-marker { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(233ms + var(--fft-i, 0) * 21ms); }
+.fft-widget[data-animate] .fft-map-region { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 13ms), 610ms); }
+.fft-widget[data-animate] .fft-map-symbol, .fft-widget[data-animate] .fft-map-marker { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: min(calc(233ms + var(--fft-i, 0) * 21ms), 610ms); }
 
 /* Matrix: a faint grid of cells, one mark where a row sits at a crossing. */
 .fft-matrix { display: flex; flex-direction: column; gap: 13px; }
@@ -1445,7 +1450,7 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-mx-key-ring { fill: none; stroke: var(--fft-muted); stroke-width: 1; }
 .fft-mx-key-line { stroke: var(--fft-grid); stroke-width: 1; shape-rendering: crispEdges; }
 .fft-mx-key-text { fill: var(--fft-muted); font-size: var(--fft-fs-s); font-variant-numeric: tabular-nums; }
-.fft-widget[data-animate] :is(.fft-mx-dot, .fft-mx-yes) { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 8ms); }
+.fft-widget[data-animate] :is(.fft-mx-dot, .fft-mx-yes) { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 8ms), 610ms); }
 
 /* Strips: one small square per unit, colored by part, the figures at the end. */
 .fft-strips { display: flex; flex-direction: column; gap: 13px; container-type: inline-size; }
@@ -1462,7 +1467,7 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-strip-density::before { content: "·"; margin-right: 6px; color: var(--fft-muted); }
 .fft-strips-note { margin: 0; font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-muted); }
 @container (max-width: 420px) { .fft-strip-share, .fft-strip-density { display: none; } }
-.fft-widget[data-animate] .fft-strip-sq { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 34ms + var(--fft-k, 0) * 5ms); }
+.fft-widget[data-animate] .fft-strip-sq { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 34ms + var(--fft-k, 0) * 5ms), 610ms); }
 
 /* Lifecycle: stage lanes in a deepening tint, a tick per stage date, a faint run while a stage is still open. */
 .fft-lifecycle svg { display: block; max-width: 100%; }
@@ -1483,14 +1488,14 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-lc-hit:hover, .fft-lc-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 6%, transparent); }
 .fft-lc-key-open { background: color-mix(in srgb, var(--fft-lc-color) 12%, var(--fft-surface)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fft-lc-color) 55%, transparent); }
 .fft-lc-note { margin: 0; font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-muted); }
-.fft-widget[data-animate] .fft-lc-seg, .fft-widget[data-animate] .fft-lc-open { transform-box: fill-box; transform-origin: 0 50%; animation: fft-grow-x 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 34ms); }
-.fft-widget[data-animate] .fft-lc-tick { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(377ms + var(--fft-i, 0) * 34ms); }
+.fft-widget[data-animate] .fft-lc-seg, .fft-widget[data-animate] .fft-lc-open { transform-box: fill-box; transform-origin: 0 50%; animation: fft-grow-x 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 34ms), 610ms); }
+.fft-widget[data-animate] .fft-lc-tick { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: min(calc(377ms + var(--fft-i, 0) * 34ms), 610ms); }
 /* Whitespace: the cross-sell map. Held is a filled square, an opportunity an outlined one tinted by its score, not eligible a faint dot. */
 .fft-ws { display: flex; flex-direction: column; gap: 8px; }
 .fft-ws-grid { display: grid; gap: 2px; align-items: stretch; font-size: var(--fft-fs-s); line-height: 13px; }
 .fft-ws-corner { min-height: 1px; }
 .fft-ws-col { display: flex; align-items: flex-end; justify-content: center; padding-bottom: 3px; color: var(--fft-muted); text-align: center; min-width: 0; }
-.fft-ws-col-name { overflow-wrap: anywhere; }
+.fft-ws-col-name { overflow-wrap: normal; }
 .fft-ws-grid[data-tight] .fft-ws-col { justify-content: center; align-items: flex-end; height: 76px; }
 .fft-ws-grid[data-tight] .fft-ws-col-name { writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-height: 76px; }
 .fft-ws-head-sum, .fft-ws-foot-label { display: flex; align-items: flex-end; color: var(--fft-muted); white-space: nowrap; padding: 0 0 3px 8px; }
@@ -1518,7 +1523,7 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-ws-foot-holds { color: var(--fft-text-secondary); font-weight: 600; }
 .fft-ws-swatch[data-state="opportunity"] { background: color-mix(in srgb, var(--fft-ws-color, var(--fft-accent)) 26%, transparent); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--fft-ws-color, var(--fft-accent)) 70%, var(--fft-text)); }
 .fft-ws-swatch[data-state="none"] { width: 5px; height: 5px; border-radius: 50%; background: var(--fft-grid); margin: 0 1.5px; }
-.fft-widget[data-animate] .fft-ws-mark { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 21ms); }
+.fft-widget[data-animate] .fft-ws-mark { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 21ms), 610ms); }
 /* X-ray: one client on one card, part under part. */
 .fft-xray { display: flex; flex-direction: column; gap: 13px; }
 .fft-xray-head { display: flex; flex-direction: column; gap: 2px; }
@@ -1561,7 +1566,7 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-history-amount { flex: none; font-weight: 600; font-variant-numeric: tabular-nums; }
 .fft-history-note { margin: 0 0 0 50px; font-size: var(--fft-fs-s); line-height: 15px; color: var(--fft-text-secondary); }
 .fft-history-more { font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-muted); }
-.fft-widget[data-animate] .fft-history-event { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 34ms); }
+.fft-widget[data-animate] .fft-history-event { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 34ms), 610ms); }
 @container (max-width: 380px) {
   .fft-xray-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .fft-history-note { margin-left: 0; }
@@ -1589,7 +1594,7 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-anomalies[data-active] .fft-anom-flag { opacity: 0.55; }
 .fft-anom-key-band { background: color-mix(in srgb, var(--fft-muted) 22%, transparent); }
 .fft-anom-key-flag { background: var(--fft-down); }
-.fft-widget[data-animate] .fft-anom-lane { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 34ms); }
+.fft-widget[data-animate] .fft-anom-lane { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 34ms), 610ms); }
 /* Scatter quadrants and always-on names: two hairlines, four faint words in the corners, names clear of the dots. */
 .fft-quadrant-line { stroke: var(--fft-axis); stroke-width: 1; stroke-dasharray: 2 3; pointer-events: none; }
 .fft-quadrant-label { fill: var(--fft-muted); font-size: var(--fft-fs-s); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; pointer-events: none; }
@@ -1626,16 +1631,16 @@ ul.fft-map-legend { margin-top: 0; }
 
 /* WP5: radial, hierarchy and maps on the shared kit. */
 /* Entrances follow each mark's own order: wedges, families, ribbons and arcs arrive one after another. */
-.fft-widget[data-animate] .fft-waffle-group { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 55ms); }
-.fft-widget[data-animate] .fft-sun-seg { animation-delay: calc(var(--fft-i, 0) * 21ms); }
-.fft-widget[data-animate] .fft-chord-ribbon { animation-delay: calc(233ms + var(--fft-i, 0) * 21ms); }
-.fft-widget[data-animate] .fft-chord-arc { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 34ms); }
-.fft-widget[data-animate] :is(.fft-radar-shape, .fft-radar-dot) { animation-delay: calc(233ms + var(--fft-i, 0) * 89ms); }
-.fft-widget[data-animate] .fft-node { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 21ms); }
+.fft-widget[data-animate] .fft-waffle-group { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 55ms), 610ms); }
+.fft-widget[data-animate] .fft-sun-seg { animation-delay: min(calc(var(--fft-i, 0) * 21ms), 610ms); }
+.fft-widget[data-animate] .fft-chord-ribbon { animation-delay: min(calc(233ms + var(--fft-i, 0) * 21ms), 610ms); }
+.fft-widget[data-animate] .fft-chord-arc { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 34ms), 610ms); }
+.fft-widget[data-animate] :is(.fft-radar-shape, .fft-radar-dot) { animation-delay: min(calc(233ms + var(--fft-i, 0) * 89ms), 610ms); }
+.fft-widget[data-animate] .fft-node { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 21ms), 610ms); }
 /* A region that highlight steps back from: the grey every other view uses, its code faded with it. */
 .fft-map-region[data-muted] { fill: var(--fft-deemphasis); }
 .fft-map-region-label[data-muted] { fill: var(--fft-text-secondary); opacity: var(--fft-dim); }
-.fft-widget[data-animate] .fft-board-card { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 13ms); }
+.fft-widget[data-animate] .fft-board-card { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 13ms), 610ms); }
 
 /* RAG reporting. Calm, not neon: each status hue leans toward the text color, so it darkens on a light card and lightens on a
    dark one, and stays at 3:1 or more on the surface either way. The green leans teal and the red warm, so they part under
@@ -1671,7 +1676,7 @@ ul.fft-map-legend { margin-top: 0; }
 .fft-rag-table, .fft-ragtrend-table { border-collapse: separate; border-spacing: 3px; width: 100%; font-size: var(--fft-fs-s); line-height: 13px; }
 .fft-rag-table th, .fft-ragtrend-table th { font-weight: 500; color: var(--fft-text-secondary); text-align: center; vertical-align: bottom; }
 .fft-rag-corner { text-align: left !important; font-size: var(--fft-fs-s); color: var(--fft-muted) !important; }
-.fft-rag-head { font-size: var(--fft-fs-s); padding: 0 2px 5px; min-width: 34px; max-width: 89px; overflow-wrap: break-word; hyphens: auto; }
+.fft-rag-head { font-size: var(--fft-fs-s); padding: 0 2px 5px; min-width: 34px; max-width: 89px; overflow-wrap: normal; hyphens: manual; word-break: normal; }
 .fft-rag-head-overall { color: var(--fft-text) !important; font-weight: 600 !important; }
 .fft-rag-name { text-align: left !important; vertical-align: middle !important; padding: 3px 13px 3px 0; min-width: 89px; color: var(--fft-text) !important; }
 .fft-rag-name-text { display: block; font-weight: 500; }
@@ -1700,7 +1705,7 @@ ul.fft-map-legend { margin-top: 0; }
 .fft-ragtrend-cell[data-changed]::before { content: ""; position: absolute; left: -2px; top: 4px; bottom: 4px; width: 2px; border-radius: var(--fft-radius-s); background: var(--fft-text); }
 .fft-ragtrend-now { font-size: var(--fft-fs-s) !important; text-align: left !important; padding-left: 8px; }
 .fft-ragtrend-end { padding-left: 8px; white-space: nowrap; }
-.fft-widget[data-animate] :is(.fft-rag-row, .fft-ragtrend-row) { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 21ms); }
+.fft-widget[data-animate] :is(.fft-rag-row, .fft-ragtrend-row) { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 21ms), 610ms); }
 /* WP3: row views on the shared kit. highlight keeps the named rows in color; the rest step back to the grey every view uses. */
 .fft-db-row[data-muted] :is(.fft-db-from, .fft-db-to, .fft-db-head) { fill: var(--fft-deemphasis) !important; }
 .fft-db-row[data-muted] .fft-db-shaft { stroke: var(--fft-deemphasis) !important; }
@@ -1710,7 +1715,7 @@ ul.fft-map-legend { margin-top: 0; }
 :is(.fft-db-row, .fft-pyr-row, .fft-funnel-row, .fft-strip)[data-muted] :is(.fft-db-label, .fft-pyr-label, .fft-funnel-label, .fft-strip-label) { color: var(--fft-text-secondary); fill: var(--fft-text-secondary); }
 /* Meters and funnels dim the rest while one is pointed at, like every other row view. */
 .fft-meters[data-active] .fft-meter:not([data-active]), .fft-funnel[data-active] .fft-funnel-row:not([data-active]) { opacity: var(--fft-dim); transition: opacity 377ms var(--fft-ease); }
-.fft-widget[data-animate] .fft-meter[style*="--fft-i"] .fft-meter-fill { animation-delay: calc(var(--fft-i, 0) * 55ms); }
+.fft-widget[data-animate] .fft-meter[style*="--fft-i"] .fft-meter-fill { animation-delay: min(calc(var(--fft-i, 0) * 55ms), 610ms); }
 /* WP4: cartesian and grid views on the shared kit. */
 /* A view with nothing to draw says what is missing, quietly, where the marks would be. */
 .fft-empty-note { margin: 8px 0 0; font-size: var(--fft-fs-s); line-height: 18px; color: var(--fft-text-secondary); }
@@ -1722,8 +1727,8 @@ ul.fft-map-legend { margin-top: 0; }
 .fft-day { transition: opacity 377ms var(--fft-ease); }
 .fft-calendar[data-active] .fft-day:not([data-active]) { opacity: var(--fft-dim); }
 /* Staggered entry for heat cells and table rows. */
-.fft-widget[data-animate] .fft-heatmap .fft-cell { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 5ms); }
-.fft-widget[data-animate] .fft-table tbody tr { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(min(var(--fft-i, 0), 21) * 13ms); }
+.fft-widget[data-animate] .fft-heatmap .fft-cell { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 5ms), 610ms); }
+.fft-widget[data-animate] .fft-table tbody tr { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: min(calc(min(var(--fft-i, 0), 21) * 13ms), 610ms); }
 
 /* KPI kit: a missing number is a quiet dash, never an empty box; a strip with no tiles says so in one line. */
 :is(.fft-kpi-value, .fft-stat-value)[data-empty] { color: var(--fft-muted); }
@@ -1795,4 +1800,10 @@ ul.fft-map-legend { margin-top: 0; }
 .fft-tooltip-bar-fill[data-negative] { background: var(--fft-down); }
 .fft-updated { margin: 0; font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-muted); font-variant-numeric: tabular-nums; }
 .fft-updated[data-stale="true"] { color: var(--fft-text-secondary); }
+/* Noise: marks that would repeat themselves. Dots between a line's ends show only while it is pointed at; a history
+   dot is a small swatch of its kind's color. */
+.fft-bump-dot[data-mid], .fft-pareto-dot[data-mid] { opacity: 0; transition: opacity 233ms var(--fft-ease); }
+.fft-bump:hover .fft-bump-dot[data-mid], .fft-bump[data-active] .fft-bump-dot[data-mid], .fft-pareto-dot[data-mid][data-active] { opacity: 1; }
+.fft-widget[data-animate] .fft-bump-dot[data-mid], .fft-widget[data-animate] .fft-pareto-dot[data-mid] { animation: none; }
+.fft-history-dot { width: 11px; height: 11px; left: -24px; top: 6px; font-size: 0; }
 `;

@@ -47,13 +47,20 @@ describe("pie view", () => {
     expect(texts(".fft-pie-label")).toEqual(["54%", "37%", "8%"]);
   });
 
-  test("the legend lists each slice with its value and share, as a donut's does", async () => {
+  // The legend used to repeat the share written on each slice; now it gives a share only where the slice could not hold it.
+  test("the legend lists each slice with its value, and its share only where the slice could not hold one", async () => {
     await draw(spec);
-    expect(all(".fft-donut-legend li").map((li) => [...li.querySelectorAll("span")].map((s) => s.textContent).filter(Boolean))).toEqual([
-      ["Enterprise", "€660,100", "55%"],
-      ["Mid-market", "€447,000", "37%"],
-      ["Small business", "€97,600", "8%"],
+    const onSlices = texts(".fft-pie-label");
+    const legend = all(".fft-donut-legend li").map((li) => [...li.querySelectorAll("span")].map((s) => s.textContent).filter(Boolean));
+    expect(legend.map((row) => row.slice(0, 2))).toEqual([
+      ["Enterprise", "€660,100"],
+      ["Mid-market", "€447,000"],
+      ["Small business", "€97,600"],
     ]);
+    // No share is said twice: every share is either on its slice or in the legend, never both.
+    const inLegend = legend.flatMap((row) => row.slice(2));
+    expect(inLegend.filter((share) => onSlices.includes(share))).toEqual([]);
+    expect([...onSlices, ...inLegend].sort()).toEqual(["37%", "55%", "8%"]);
   });
 
   test('labels "outside" names every slice beside the disc on a leader line, pushed apart so none overlap, and drops the legend', async () => {

@@ -8,12 +8,30 @@
 import { GAP, labelColumn, textWidth } from "../layout.ts";
 import { SVG_NS } from "./shared.ts";
 
-/** `text` cut to fit `room` px at `size` px and `weight`, ending in an ellipsis; whole when it fits. */
+/**
+ * `text` cut to fit `room` px at `size` px and `weight`, ending in an ellipsis; whole when it fits. The cut falls
+ * between words where a whole word fits ("Operational…", not "Operational resilien…"), never inside a parenthesis
+ * ("Gross margin…", not "Gross margin (…"); only a single word too long for the room is cut inside itself.
+ */
 export function fitLabel(text: string, room: number, size = 11, weight = 400): string {
   if (textWidth(text, size, weight) <= room) return text;
+  const fits = (head: string) => textWidth(`${head}…`, size, weight) <= room;
+  const tidy = (head: string) => head.replace(/[\s,;:·–—-]+$/u, "");
+  // Whole words first: the longest run of words that fits, cut before any parenthesis left open.
+  const words = text.split(/(\s+)/);
+  let best = "";
+  for (let i = 0; i < words.length; i += 2) {
+    const head = tidy(words.slice(0, i + 1).join(""));
+    const open = head.lastIndexOf("(");
+    const safe = open > head.lastIndexOf(")") ? tidy(head.slice(0, open)) : head;
+    if (safe && fits(safe)) best = safe;
+    else if (!fits(head)) break;
+  }
+  if (best) return `${best}…`;
+  // One word longer than the room: cut it by characters.
   const chars = [...text];
   let keep = chars.length - 1;
-  while (keep > 1 && textWidth(`${chars.slice(0, keep).join("").trimEnd()}…`, size, weight) > room) keep--;
+  while (keep > 1 && !fits(chars.slice(0, keep).join("").trimEnd())) keep--;
   return `${chars.slice(0, Math.max(1, keep)).join("").trimEnd()}…`;
 }
 

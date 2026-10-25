@@ -1,4 +1,5 @@
 import { readNumber } from "../../core/formats.ts";
+import { fitLabel } from "./label-fit.ts";
 import type { ViewRenderer } from "../../core/view-context.ts";
 import type { BulletView } from "../../core/views.ts";
 import { activeGroup, hiddenTableOf, html, roving, rowHit, shareFormat, svg } from "./shared.ts";
@@ -56,8 +57,9 @@ export const renderBullet: ViewRenderer<BulletView> = (ctx) => {
       item.dataset.met = "true";
       number.prepend(checkMark(doc));
     }
-    const nameNode = html(doc, "span", "fft-bullet-label", name);
-    // A name longer than its column ends in an ellipsis (CSS); the pointer's title and the row's aria-label keep it whole.
+    // A name longer than its column (at most 30% of the card) is cut between words, never inside a parenthesis; the
+    // pointer's title and the row's aria-label keep it whole. CSS ellipsis stays as the last resort.
+    const nameNode = html(doc, "span", "fft-bullet-label", fitLabel(name, Math.max(55, ctx.width * 0.3) - 4, 13));
     nameNode.title = name;
     item.append(nameNode, chart, number);
     const attainment = actual !== null && goal ? share.format(actual / goal) : "";

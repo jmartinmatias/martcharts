@@ -31,7 +31,7 @@ export function sliceColor(ctx: ViewContext<{ type: string; highlight?: unknown 
 }
 
 /** The legend a donut and a pie share: a swatch, the name, the value and the share, one line per slice. */
-export function sliceLegend(ctx: ViewContext<{ type: string }>, label: string, slices: Slice[], total: number, color: (i: number) => string, amountText: (n: number) => string, share: Intl.NumberFormat): HTMLElement {
+export function sliceLegend(ctx: ViewContext<{ type: string }>, label: string, slices: Slice[], total: number, color: (i: number) => string, amountText: (n: number) => string, share: Intl.NumberFormat, onSlice: ReadonlySet<number> = new Set()): HTMLElement {
   const doc = ctx.el.ownerDocument;
   const legend = html(doc, "ul", "fft-donut-legend");
   slices.forEach((slice, i) => {
@@ -43,7 +43,8 @@ export function sliceLegend(ctx: ViewContext<{ type: string }>, label: string, s
       swatch,
       html(doc, "span", "fft-donut-name", ctx.format(slice.row[label], label)),
       html(doc, "span", "fft-donut-value", amountText(slice.amount)),
-      html(doc, "span", "fft-donut-share", share.format(slice.amount / total)),
+      // A share already written on its slice is not said again here: the column stays, empty, so the rows line up.
+      html(doc, "span", "fft-donut-share", onSlice.has(i) ? "" : share.format(slice.amount / total)),
     );
     legend.append(item);
   });

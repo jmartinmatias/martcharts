@@ -1,4 +1,5 @@
 import { readNumber } from "../../core/formats.ts";
+import { fitLabel } from "./label-fit.ts";
 import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import { BOARD_LIMIT } from "../../core/views.ts";
@@ -56,6 +57,7 @@ export const renderBoard: ViewRenderer<BoardView> = (ctx) => {
   boardEl.setAttribute("role", "group");
   boardEl.setAttribute("aria-label", wordsFor(ctx).aria.board(ctx.label(label), ctx.label(stage)));
   boardEl.style.setProperty("--fft-columns", String(columns.size));
+  const cardRoom = Math.max(144, (ctx.width - 13 * (columns.size - 1)) / Math.max(1, columns.size)) - 20 - 13;
   const cards: Element[] = [];
   const count = new Intl.NumberFormat(ctx.spec.locale);
   const active = activeGroup(boardEl, ctx.tooltip);
@@ -81,8 +83,9 @@ export const renderBoard: ViewRenderer<BoardView> = (ctx) => {
         title.append(dot);
       }
       const nameText = ctx.format(row[label], label);
-      const nameNode = html(doc, "span", "fft-board-name", nameText);
-      // A name longer than its card ends in an ellipsis (CSS); the pointer's title and the card's aria-label keep it whole.
+      // A name longer than its card is cut between words (the card is its column, at least 144px, less padding and
+      // the group dot); the pointer's title and the card's aria-label keep it whole. CSS ellipsis is the last resort.
+      const nameNode = html(doc, "span", "fft-board-name", fitLabel(nameText, cardRoom, 13, 600));
       nameNode.title = nameText;
       title.append(nameNode);
       card.append(title);

@@ -50,18 +50,28 @@ export const renderGauge: ViewRenderer<GaugeView> = (ctx) => {
     const inner = polar(c, c, r - thickness / 2 - 3, angle(ratio(goal)));
     const outer = polar(c, c, r + thickness / 2 + 3, angle(ratio(goal)));
     chart.append(svg(doc, "line", { class: "fft-gauge-target", x1: inner.x, y1: inner.y, x2: outer.x, y2: outer.y, "data-ratio": round2(ratio(goal)) }));
-    // The tick says what it is, just inside the arc, reading toward the center so it stays clear of the number.
-    const at = polar(c, c, r - thickness / 2 - 13, angle(ratio(goal)));
-    const side = ratio(goal) < 0.4 ? "start" : ratio(goal) > 0.6 ? "end" : "middle";
-    const name = svg(doc, "text", { class: "fft-gauge-goal", x: at.x, y: at.y, "text-anchor": side, "dominant-baseline": "middle" });
-    name.textContent = `${target ? ctx.label(target) : wordsFor(ctx).target} ${show(goal)}`;
-    chart.append(name);
+    // The tick says what it is, just inside the arc, reading toward the center so it stays clear of the number;
+    // unless the title or subtitle already names the goal ("against a goal of 50"): then the tick is enough, and the
+    // goal stays in the tooltip and the aria-label.
+    const said = `${ctx.spec.title ?? ""} ${ctx.spec.subtitle ?? ""}`;
+    if (!said.includes(show(goal))) {
+      const at = polar(c, c, r - thickness / 2 - 13, angle(ratio(goal)));
+      const side = ratio(goal) < 0.4 ? "start" : ratio(goal) > 0.6 ? "end" : "middle";
+      const name = svg(doc, "text", { class: "fft-gauge-goal", x: at.x, y: at.y, "text-anchor": side, "dominant-baseline": "middle" });
+      name.textContent = `${target ? ctx.label(target) : wordsFor(ctx).target} ${show(goal)}`;
+      chart.append(name);
+    }
   }
   const number = svg(doc, "text", { class: "fft-gauge-value", x: c, y: c - 6, "text-anchor": "middle" });
   number.textContent = show(row[field]);
-  const caption = svg(doc, "text", { class: "fft-gauge-caption", x: c, y: c + 15, "text-anchor": "middle" });
-  caption.textContent = ctx.view.label ?? ctx.label(field);
-  chart.append(number, caption);
+  chart.append(number);
+  // The caption names the number, unless the title already does in the same words.
+  const captionText = ctx.view.label ?? ctx.label(field);
+  if (captionText.trim().toLowerCase() !== (ctx.spec.title ?? "").trim().toLowerCase()) {
+    const caption = svg(doc, "text", { class: "fft-gauge-caption", x: c, y: c + 15, "text-anchor": "middle" });
+    caption.textContent = captionText;
+    chart.append(caption);
+  }
   for (const [v, x] of [
     [min, c - r],
     [max, c + r],

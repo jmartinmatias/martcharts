@@ -104,7 +104,9 @@ export const renderRings: ViewRenderer<RingsView> = (ctx) => {
     const percentEl = html(doc, "span", "fft-rings-percent", attainment);
     if (met) percentEl.prepend(checkMark(doc));
     item.append(swatch, html(doc, "span", "fft-rings-name", name), percentEl, html(doc, "span", "fft-rings-value", `${ctx.format(g.row[value], value)} ${wordsFor(ctx).of} ${ctx.format(g.row[target], target)}`));
-    if (stand) item.append(html(doc, "span", "fft-rings-gap", stand));
+    // A met goal says so once, with its check; the words stay for screen readers. A miss says what is left to go.
+    if (stand && !met) item.append(html(doc, "span", "fft-rings-gap", stand));
+    else if (stand) item.append(html(doc, "span", "fft-sr-only", stand));
     legend.append(item);
   });
   figure.append(chart);

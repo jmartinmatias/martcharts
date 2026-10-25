@@ -93,10 +93,15 @@ export const renderPareto: ViewRenderer<ParetoView> = (ctx) => {
   chart.append(...groups);
   const points = shares.map((it, i) => ({ x: slots[i]?.center ?? 0, y: y(it.cumulative) }));
   chart.append(svg(doc, "path", { class: "fft-pareto-line", d: linePath(points), pathLength: 1 }));
+  // A dot at each end of the running total, and at a cause while it is pointed at: the line carries the rest.
+  const dots = svg(doc, "g", { class: "fft-pareto-dots" });
   shares.forEach((it, i) => {
     const point = points[i] as { x: number; y: number };
-    chart.append(svg(doc, "circle", { class: "fft-pareto-dot", cx: point.x, cy: point.y, r: 4, "data-cumulative": round2(it.cumulative) }));
+    const dot = svg(doc, "circle", { class: "fft-pareto-dot", cx: point.x, cy: point.y, r: 4, "data-cumulative": round2(it.cumulative), "data-index": i });
+    if (i > 0 && i < shares.length - 1) dot.setAttribute("data-mid", "");
+    dots.append(dot);
   });
+  chart.append(dots);
   drawReferences(doc, [{ kind: "line", value: threshold }], y, plot, tickText, below, above, { lines: [points], boxes: rects });
   chart.append(above);
 
@@ -104,6 +109,7 @@ export const renderPareto: ViewRenderer<ParetoView> = (ctx) => {
   const deactivate = () => {
     wrap.removeAttribute("data-active");
     for (const group of groups) group.removeAttribute("data-active");
+    for (const dot of dots.children) dot.removeAttribute("data-active");
     ctx.tooltip.hide();
   };
   slots.forEach((slot, i) => {
@@ -120,6 +126,7 @@ export const renderPareto: ViewRenderer<ParetoView> = (ctx) => {
       wrap.setAttribute("data-active", "");
       for (const group of groups) group.removeAttribute("data-active");
       groups[i]?.setAttribute("data-active", "");
+      for (const dot of dots.children) dot.toggleAttribute("data-active", dot.getAttribute("data-index") === String(i));
       ctx.tooltip.show(hit, it.name, items);
     };
     hit.addEventListener("pointerenter", activate);

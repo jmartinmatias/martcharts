@@ -74,7 +74,7 @@ export const renderLifecycle: ViewRenderer<LifecycleView> = (ctx) => {
   // On a narrow card the names, the status pills and a 144px plot do not all fit: the status shrinks to a dot (its
   // words stay in the tooltip and the row's label) and the plot may narrow to 89px, so the chart never outgrows the card.
   const compactStatus = Boolean(status) && left + pillsW + 13 + 144 > ctx.width;
-  const statusW = compactStatus ? 10 : pillsW;
+  const statusW = compactStatus ? 0 : pillsW;
   const margin = { top: 34, right: status ? statusW + 13 : 13, bottom: 8, left };
   const width = Math.max(ctx.width, left + margin.right + 89);
   const heights = items.map((it) => (it.kind === "group" ? GROUP_ROW : LANE));
@@ -169,13 +169,9 @@ export const renderLifecycle: ViewRenderer<LifecycleView> = (ctx) => {
     if (status) {
       const text = statusTexts[drawn.indexOf(item)] ?? "";
       const px = plotRight + 8;
-      if (compactStatus) {
-        const dot = svg(doc, "circle", { class: "fft-lc-status fft-lc-status-dot", cx: px + 5, cy, r: 5 });
-        const title = svg(doc, "title");
-        title.textContent = text;
-        dot.append(title);
-        g.append(dot);
-      } else {
+      // On a narrow card there is no room for the status words, and a grey dot would carry nothing on screen: the
+      // status stays in the tooltip and the row's label only.
+      if (!compactStatus) {
         const pillW = pillWidth(text);
         g.append(svg(doc, "rect", { class: "fft-lc-status", x: px, y: cy - 8, width: pillW, height: 16, rx: 8 }));
         const pill = svg(doc, "text", { class: "fft-lc-status-text", x: px + pillW / 2, y: cy, "text-anchor": "middle", "dominant-baseline": "central" });
