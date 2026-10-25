@@ -44,6 +44,17 @@ export interface WidgetSpec {
   transform?: TransformSpec[];
   /** Per-field display settings, keyed by field name. */
   fields?: Record<string, FieldSpec>;
+  /**
+   * Fixed colors for category values, `{ "Enterprise": "#2f6fdb" }`: a value wears its color on every chart that
+   * colors by category, so a dashboard keeps one color per segment, region or status. Values not named take the palette.
+   */
+  colors?: Record<string, string>;
+  /**
+   * The tooltip, as a template: `"Revenue: {revenue}"` (one line per line of text, `{field}` filled from the mark's row),
+   * or `{ title, body }`. A line written "Label: value" reads like the built-in rows. Marks that stand for many rows keep
+   * the view's own tooltip.
+   */
+  tooltip?: string | { title?: string; body?: string };
   /** One big number above the view, with its change and a caption. See `HeadlineSpec`. */
   headline?: HeadlineSpec;
   /** Small multiples: draw the view once per value of a field, in a grid of panels sharing one scale. */

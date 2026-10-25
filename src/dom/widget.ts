@@ -4,6 +4,7 @@
  * @module
  */
 import { fieldLabel, formatNode, formatValue } from "../core/display.ts";
+import { normalizeView } from "../core/aliases.ts";
 import { fork } from "../core/fork.ts";
 import type { Override } from "../core/fork.ts";
 import { runPipeline } from "../core/pipeline.ts";
@@ -282,6 +283,12 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
   target.append(root);
 
   let current = spec;
+  /** The view as its renderer reads it: canonical option names (value, color, flag) moved onto the renderer's own. Same object when nothing is renamed. */
+  let normalized: { from: unknown; view: WidgetSpec["view"] } | undefined;
+  const drawView = (): WidgetSpec["view"] => {
+    if (normalized?.from !== current.view) normalized = { from: current.view, view: normalizeView(current.view) };
+    return normalized.view;
+  };
   let rows: Row[] = [];
   let issues: Issue[] = [];
   let generation = 0;
@@ -327,7 +334,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
 
   /** Writes the Details side for what is drawn now. */
   function paintBack() {
-    const view = typeof current.view?.type === "string" ? current.view.type : "";
+    const view = typeof drawView()?.type === "string" ? drawView().type : "";
     const entry = view ? describeChart(view) : undefined;
     const kicker = make("p", "fft-back-kicker");
     kicker.textContent = "Details";
@@ -594,7 +601,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     // The widget's text is in its locale's language, for screen reader pronunciation (WCAG 3.1.2).
     if (current.locale) root.lang = current.locale;
     else root.removeAttribute("lang");
-    root.dataset.view = typeof current.view?.type === "string" ? current.view.type : "";
+    root.dataset.view = typeof drawView()?.type === "string" ? drawView().type : "";
   }
 
   function clearBody() {
@@ -614,7 +621,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     if (state === "loading") {
       // A silhouette of the view at its final height, plus the word for screen readers.
       const width = body.clientWidth || FALLBACK_WIDTH;
-      const shape = skeletonShape(current.view.type);
+      const shape = skeletonShape(drawView().type);
       const height = shape === "ring" ? (width >= 480 ? 233 : 144) : (current.style?.height ?? goldenHeight(width));
       const spoken = doc.createElement("span");
       spoken.className = "fft-sr-only";
@@ -667,7 +674,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     const fill = (text: string, row: Row) => fillRowTemplate(text, row, format, (t) => fillTemplate(t, rows, current.fields, current.locale));
     const rowFor = (title: string): Row | undefined => {
       const first = rows[0];
-      const field = first ? categoryField(current.view, first) : undefined;
+      const field = first ? categoryField(drawView(), first) : undefined;
       if (!field) return undefined;
       const matches = rows.filter((row) => format(row[field], field) === title);
       return matches.length === 1 ? matches[0] : undefined;
@@ -694,8 +701,8 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     return {
       el: body,
       rows,
-      view: current.view,
-      spec: current,
+      view: drawView(),
+      spec: drawView() === current.view ? current : { ...current, view: drawView() },
       width,
       height: current.style?.height ?? goldenHeight(width),
       label: (field) => fieldLabel(field, fields),
@@ -708,6 +715,8 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
         return formatNode(value, { ...extra, ...spec }, current.locale, doc);
       },
       color: (index) => `var(--fft-series-${(index % size) + 1})`,
+      // Fixed colors for named category values (spec.colors), for views that color by category.
+      ...(current.colors ? { colorOf: (category: unknown) => current.colors?.[String(category)] } : {}),
       tooltip: templatedTooltip(),
       select: (row) => root.dispatchEvent(new CustomEvent<SelectDetail>("fft-select", { bubbles: true, detail: { row, spec: current } })),
     };
@@ -721,10 +730,10 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       showMessage("empty", "No data to show", [], "The source returned no rows, or every row was filtered out.");
       return;
     }
-    const block = getBlock("view", current.view.type);
+    const block = getBlock("view", drawView().type);
     const render = block.render;
     if (!render) {
-      showError([`View "${current.view.type}" has no renderer in this page. Import "martcharts" or call setRenderer() before drawing it.`]);
+      showError([`View "${drawView().type}" has no renderer in this page. Import "martcharts" or call setRenderer() before drawing it.`]);
       return;
     }
     message.hidden = true;
@@ -735,7 +744,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       const ctx = context();
       drawnWidth = ctx.width;
       if (current.facet?.field) {
-        cleanup = drawFacets(ctx, render, block.extent, block.categories?.(current.view));
+        cleanup = drawFacets(ctx, render, block.extent, block.categories?.(drawView()));
       } else {
         const result = render(ctx);
         cleanup = typeof result === "function" ? result : undefined;
@@ -757,7 +766,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
         setTimeout(() => root.removeAttribute("data-animate"), ENTRANCE_MS);
       }
     } catch (caught) {
-      showError([`The ${current.view.type} view failed: ${errorMessage(caught)}`]);
+      showError([`The ${drawView().type} view failed: ${errorMessage(caught)}`]);
     }
   }
 
@@ -774,7 +783,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     const gap = 13;
     const columns = facet.columns ?? Math.max(1, Math.floor((ctx.width + gap) / (233 + gap)));
     const panelWidth = Math.max(89, Math.floor((ctx.width - gap * (columns - 1)) / columns));
-    const shared = facet.shared === false || !extent ? undefined : extent(current.view, rows);
+    const shared = facet.shared === false || !extent ? undefined : extent(drawView(), rows);
 
     // One legend for every panel: the series of a y list, or, for a view that colors categories (a donut's slices),
     // the categories in order of first appearance, each keeping one color in every panel.
@@ -788,9 +797,10 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       item.append(swatch, text);
       legend.append(item);
     };
-    const series = Array.isArray(current.view.y) ? current.view.y.map(String) : [];
+    const ys = drawView().y;
+    const series = Array.isArray(ys) ? ys.map(String) : [];
     if (series.length > 1) {
-      series.forEach((field, i) => key(current.view.type === "bar" ? "rect" : "line", ctx.color(i), ctx.label(field)));
+      series.forEach((field, i) => key(drawView().type === "bar" ? "rect" : "line", ctx.color(i), ctx.label(field)));
       body.append(legend);
     } else if (categoryField) {
       const categories = new Map<string, unknown>();
@@ -800,8 +810,11 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       }
       const order = [...categories.keys()];
       const palette = ctx.color;
-      ctx = { ...ctx, colorOf: (category) => palette(Math.max(0, order.indexOf(JSON.stringify(category ?? null)))) };
-      [...categories.values()].forEach((category, i) => key("dot", palette(i), ctx.format(category, categoryField)));
+      // A value named in spec.colors keeps its color; the others take the palette in order of first appearance.
+      const fixed = (category: unknown) => current.colors?.[String(category)];
+      const byOrder = (category: unknown) => palette(Math.max(0, order.indexOf(JSON.stringify(category ?? null))));
+      ctx = { ...ctx, colorOf: (category) => fixed(category) ?? byOrder(category) };
+      [...categories.values()].forEach((category) => key("dot", fixed(category) ?? byOrder(category), ctx.format(category, categoryField)));
       body.append(legend);
     }
     const grid = make("div", "fft-facets");

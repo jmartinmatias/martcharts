@@ -3,6 +3,7 @@
  *
  * @module
  */
+import { aliasUse, normalizeView } from "./aliases.ts";
 import { readNumber } from "./formats.ts";
 import { isPlainObject } from "./fork.ts";
 import { HEADLINE_OPTIONS } from "./headline.ts";
@@ -42,8 +43,18 @@ export function validateSpec(spec: unknown, rows?: Row[]): Issue[] {
 
   if (spec.fields !== undefined) issues.push(...checkFields(spec.fields));
 
+  // Views are checked as their renderers read them: canonical option names (value, color, flag) move onto the
+  // renderer's own, and a problem is reported under the name the spec used.
+  const view = isPlainObject(spec.view) && typeof spec.view.type === "string" ? (normalizeView(spec.view as { type: string }) as Record<string, unknown>) : spec.view;
   if (spec.view === undefined) issues.push(error("view", 'Every widget needs a view, for example { "type": "table" }.'));
-  else issues.push(...checkBlock("view", spec.view, "view"));
+  else {
+    const use = isPlainObject(spec.view) ? aliasUse(spec.view) : { canonical: [], deprecated: [] };
+    const written = new Map(use.canonical.map(([canonical, legacy]) => [`view.${legacy}`, `view.${canonical}`]));
+    issues.push(...checkBlock("view", view, "view").map((issue) => (written.has(issue.path) ? { ...issue, path: written.get(issue.path) as string } : issue)));
+    for (const [legacy, canonical] of use.deprecated) {
+      issues.push({ level: "warning", path: `view.${legacy}`, message: `"${legacy}" is now called "${canonical}", the name every view uses for it. "${legacy}" still works.` });
+    }
+  }
 
   if (spec.style !== undefined) issues.push(...checkStyle(spec.style));
 
@@ -69,18 +80,42 @@ export function validateSpec(spec: unknown, rows?: Row[]): Issue[] {
   if (spec.source !== undefined) issues.push(...checkSource(spec.source));
   if (spec.byline !== undefined && typeof spec.byline !== "string") issues.push(error("byline", 'Must be text naming who made the chart, for example "Marta".'));
 
-  if (!hasErrors(issues) && isPlainObject(spec.view)) issues.push(...checkSeriesCount(spec.view, spec.style));
-  if (rows && isPlainObject(spec.view) && !hasErrors(issues)) {
-    issues.push(...checkViewFields(spec.view, rows));
+  if (spec.colors !== undefined) issues.push(...checkColors(spec.colors));
+  if (spec.tooltip !== undefined) issues.push(...checkTooltip(spec.tooltip));
+
+  if (!hasErrors(issues) && isPlainObject(view)) issues.push(...checkSeriesCount(view, spec.style));
+  if (rows && isPlainObject(view) && !hasErrors(issues)) {
+    issues.push(...checkViewFields(view, rows));
     if (isPlainObject(spec.headline)) issues.push(...checkHeadlineFields(spec.headline, rows));
     if (isPlainObject(spec.facet) && typeof spec.facet.field === "string" && rows.length && !rows.some((row) => (spec.facet as { field: string }).field in row)) {
       const fields = [...new Set(rows.flatMap((row) => Object.keys(row)))].join(", ");
       issues.push({ level: "warning", path: "facet.field", message: `Field "${spec.facet.field}" is not in the data. Fields: ${fields}.` });
     }
     issues.push(...checkTemplates(spec, rows));
-    const check = getBlock("view", spec.view.type as string).checkData;
-    if (check) for (const message of check(spec.view, rows)) issues.push({ level: "warning", path: "view", message });
+    const check = getBlock("view", view.type as string).checkData;
+    if (check) for (const message of check(view, rows)) issues.push({ level: "warning", path: "view", message });
   }
+  return issues;
+}
+
+/** `colors`: fixed colors for category values, so one value wears one color on every chart of a dashboard. */
+function checkColors(colors: unknown): Issue[] {
+  if (!isPlainObject(colors)) return [error("colors", 'Must map category values to colors, for example { "Enterprise": "#2f6fdb", "SMB": "teal" }.')];
+  return Object.entries(colors)
+    .filter(([, color]) => typeof color !== "string" || color.trim() === "" || /[;{}<>]/.test(color))
+    .map(([name]) => error(`colors.${name}`, 'Must be a CSS color, such as "#2f6fdb", "teal" or "var(--brand)".'));
+}
+
+/** `tooltip`: a template with {field} placeholders, or { title, body }. */
+function checkTooltip(tooltip: unknown): Issue[] {
+  if (typeof tooltip === "string") return tooltip.trim() ? [] : [error("tooltip", "Must not be empty. Leave it out to keep the chart's own tooltip.")];
+  if (!isPlainObject(tooltip)) return [error("tooltip", 'Must be a template such as "Revenue: {revenue}", or { "title": "{name}", "body": "Revenue: {revenue}" }.')];
+  const issues: Issue[] = [];
+  for (const key of ["title", "body"] as const) {
+    if (tooltip[key] !== undefined && typeof tooltip[key] !== "string") issues.push(error(`tooltip.${key}`, "Must be text, with {field} placeholders."));
+  }
+  if (tooltip.title === undefined && tooltip.body === undefined) issues.push(error("tooltip", "Needs a title, a body, or both."));
+  for (const key of Object.keys(tooltip)) if (key !== "title" && key !== "body") issues.push({ level: "warning", path: `tooltip.${key}`, message: "Unknown key. A tooltip has a title and a body." });
   return issues;
 }
 

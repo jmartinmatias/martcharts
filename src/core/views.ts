@@ -6,6 +6,7 @@
  * @module
  */
 import { readNumber } from "./formats.ts";
+import { binValues, sturges } from "./scale.ts";
 import { basemapNames, featureId, geoProblem, normalizeId, resolveGeo } from "./geo.ts";
 import type { GeoCollection } from "./geo.ts";
 import { ICON_NAMES } from "./icons.ts";
@@ -575,6 +576,63 @@ const highlightSeries: OptionSchema = {
   description: 'Series field or fields to keep in color; every other series turns grey. Example: "revenue".',
 };
 
+/** Every number in the named fields across the rows: a view's extent, so small multiples share one scale. */
+function numbersOf(rows: Row[], fields: unknown[]): number[] {
+  return fields.flatMap((field) => (typeof field === "string" ? rows.map((row) => readNumber(row[field])) : [])).filter((n): n is number => n !== null);
+}
+
+/** Variance bars run from zero to actual minus plan, or to its share of plan with percent. */
+function varianceExtent(view: Record<string, unknown>, rows: Row[]): number[] {
+  return rows.flatMap((row) => {
+    const [actual, plan] = [readNumber(row[view.value as string]), readNumber(row[view.target as string])];
+    if (actual === null || plan === null) return [];
+    return [0, view.percent ? (plan === 0 ? 0 : (actual - plan) / Math.abs(plan)) : actual - plan];
+  });
+}
+
+/** A waterfall's axis spans every running total: steps add to it, total rows reset it. */
+function waterfallExtent(view: Record<string, unknown>, rows: Row[]): number[] {
+  const totals = new Set((Array.isArray(view.totals) ? view.totals : view.totals === undefined ? [] : [view.totals]).map(String));
+  let running = 0;
+  const out = [0];
+  for (const row of rows) {
+    const amount = readNumber(row[view.value as string]) ?? 0;
+    running = totals.has(String(row[view.label as string])) ? amount : running + amount;
+    out.push(running);
+  }
+  return out;
+}
+
+/** A histogram's axis is counts: the tallest bin, binned as the view bins. */
+function histogramExtent(view: Record<string, unknown>, rows: Row[]): number[] {
+  const values = numbersOf(rows, [view.value]);
+  const bins = binValues(values, typeof view.bins === "number" ? view.bins : sturges(values.length));
+  return [0, ...bins.map((bin) => bin.count)];
+}
+
+/** A bullet's axis reaches the actual, the target and the end of its last band. */
+function bulletExtent(view: Record<string, unknown>, rows: Row[]): number[] {
+  const last = Array.isArray(view.ranges) && typeof view.ranges[2] === "number" ? view.ranges[2] : 1.2;
+  return rows.flatMap((row) => {
+    const [actual, goal] = [readNumber(row[view.value as string]), readNumber(row[view.target as string])];
+    return [0, ...(actual === null ? [] : [actual]), ...(goal === null ? [] : [goal, goal * last])];
+  });
+}
+
+/** Adds a shape check to a block, after its own: for options declared on many views at once. */
+function withChecks(block: ViewBlock, check: (view: Record<string, unknown>) => string[]): void {
+  const own = block.validate;
+  block.validate = (view) => [...(own ? own(view) : []), ...check(view)];
+}
+
+/** Which side of a target is good news, on every view that has a target. */
+const GOOD_WHEN_OPTION: OptionSchema = {
+  type: "enum",
+  values: ["up", "down"],
+  default: "up",
+  description: 'Whether more is better ("up", as for revenue) or less is better ("down", as for wait times and costs). It decides which side of the target reads as met.',
+};
+
 const table: ViewBlock = {
   type: "table",
   description: "Rows and columns. The default view, and the one to use when people need exact values.",
@@ -738,16 +796,19 @@ const area: ViewBlock = {
 
 const meter: ViewBlock = {
   type: "meter",
+  extent: (view, rows) => numbersOf(rows, [view.value, view.target]),
   description: "Progress against a target, one meter per row: attainment as a percentage, a bar that fills to the target, and where it stands in plain words: a check and Target met, or how far it has to go (€22K to go).",
   options: {
     value: { type: "field", kind: "number", required: true, description: "Field holding the current amount." },
     target: { type: "field", kind: "number", required: true, description: "Field holding the target amount." },
     label: { type: "field", kind: "category", description: "Field naming each meter, for example a region. Defaults to the value field's label." },
+    goodWhen: GOOD_WHEN_OPTION,
   },
 };
 
 const waterfall: ViewBlock = {
   type: "waterfall",
+  extent: waterfallExtent,
   description: "A bridge: how a total moves to another through increases and decreases, each floating from the running total, with totals standing on zero.",
   options: {
     label: { type: "field", kind: "category", required: true, description: "Field naming each step." },
@@ -759,6 +820,7 @@ const waterfall: ViewBlock = {
       default: false,
       description: "Fit the axis to the running totals instead of starting at zero, so small changes stay visible. Totals then rise from the axis floor.",
     },
+    highlight: highlightCategories,
   },
 };
 
@@ -774,6 +836,7 @@ const heatmap: ViewBlock = {
 
 const scatter: ViewBlock = {
   type: "scatter",
+  extent: (view, rows) => numbersOf(rows, [view.y]),
   description: "One dot per row placed by two numbers, to show how they relate. An optional group field colors the dots, up to 3 groups; an optional size field turns it into a bubble chart.",
   options: {
     x: { type: "field", kind: "number", required: true, description: "Numeric field along the horizontal axis." },
@@ -794,6 +857,8 @@ const scatter: ViewBlock = {
       description:
         'Splits the plot into four at a value of x and of y, with a faint word in each corner: { "x": 50, "y": 3, "labels": ["Monitor", "Act now", "Prepare", "Watch"] } (top-left first, then clockwise). For priority grids such as pressure against impact.',
     },
+    highlight: highlightCategories,
+    annotations: ANNOTATIONS_OPTION,
   },
   validate: (view) => [...checkReference(view), ...checkQuadrants(view)],
   checkData(view, rows) {
@@ -812,6 +877,7 @@ const scatter: ViewBlock = {
 
 const bullet: ViewBlock = {
   type: "bullet",
+  extent: bulletExtent,
   description: "Actual against target, one compact row per item: a value bar and a target tick over three qualitative bands (poor, fair, good). A met target carries a check by its number; the tooltip says what is left to go. A dense alternative to gauges.",
   options: {
     label: { type: "field", kind: "category", required: true, description: "Field naming each row." },
@@ -822,6 +888,7 @@ const bullet: ViewBlock = {
       default: [0.6, 0.9, 1.2],
       description: "Where the three bands end, as multiples of the target: poor up to the first, fair up to the second, good up to the third.",
     },
+    goodWhen: GOOD_WHEN_OPTION,
   },
   validate(view) {
     const ranges = view.ranges;
@@ -838,6 +905,7 @@ const treemap: ViewBlock = {
     label: { type: "field", kind: "category", required: true, description: "Field naming each tile." },
     value: { type: "field", kind: "number", required: true, description: "Field sizing each tile. Zero and negative values are left out." },
     group: { type: "field", kind: "category", description: "Field that colors related tiles alike, up to 8 groups. Without it every tile shares one color." },
+    highlight: highlightCategories,
   },
   checkData(view, rows) {
     if (typeof view.group !== "string") return [];
@@ -852,6 +920,7 @@ const funnel: ViewBlock = {
   options: {
     label: { type: "field", kind: "category", required: true, description: "Field naming each stage." },
     value: { type: "field", kind: "number", required: true, description: "Field with how many reached each stage." },
+    highlight: highlightCategories,
   },
 };
 
@@ -896,6 +965,7 @@ const sankey: ViewBlock = {
 
 const dumbbell: ViewBlock = {
   type: "dumbbell",
+  extent: (view, rows) => numbersOf(rows, [view.from, view.to]),
   description:
     'Before and after per item on one shared axis: a muted dot for before, an accent dot for after, joined by a line (a range plot). With mark "arrow" the line becomes an arrow from the first value to the second (an arrow plot), blue when it rose and red when it fell. For this year against last year, by region.',
   options: {
@@ -909,6 +979,8 @@ const dumbbell: ViewBlock = {
       description:
         '"range" joins the two dots with a plain line, the gap between them. "arrow" points from the from value to the to value, so direction reads at a glance; between two periods a rise takes the up color and a fall the down color, keyed Rose and Fell.',
     },
+    highlight: highlightCategories,
+    reference: REFERENCE_OPTION,
   },
 };
 
@@ -921,6 +993,7 @@ const dot: ViewBlock = {
     label: { type: "field", kind: "category", required: true, description: "Field naming each row." },
     values: { type: "fields", kind: "number", required: true, description: "Field or fields placed as dots on the axis. Each field is one series with its own color; one field writes its value beside the dot." },
     highlight: highlightCategories,
+    reference: REFERENCE_OPTION,
   },
   checkData(view, rows) {
     const fields = fieldList(view.values);
@@ -939,6 +1012,7 @@ function fieldList(value: unknown): string[] {
 
 const slope: ViewBlock = {
   type: "slope",
+  extent: (view, rows) => numbersOf(rows, [view.from, view.to]),
   description: "Each item's move between two points in time, as a line from a left column to a right one on one shared scale. Rises and falls take the up and down colors, and the steepest lines are the biggest movers. For rank and change between two periods.",
   options: {
     label: { type: "field", kind: "category", required: true, description: "Field naming each row." },
@@ -982,12 +1056,14 @@ const marimekko: ViewBlock = {
 
 const histogram: ViewBlock = {
   type: "histogram",
+  extent: histogramExtent,
   description: "A distribution as touching bars: the value's range is cut into bins on round edges, and each bar counts the rows in its bin. A dashed line marks the median. For how deal sizes, order values or response times spread.",
   options: {
     value: { type: "field", kind: "number", required: true, description: "Numeric field to bin." },
     bins: { type: "number", description: "About how many bins to use; edges snap to round numbers, so the exact count can differ. Defaults to Sturges' rule (1 + log2 of the row count)." },
     median: { type: "boolean", default: true, description: "Draw a dashed line at the median." },
     countLabel: { type: "string", default: "Count", description: 'Name for the counts in the tooltip, for example "Deals".' },
+    reference: REFERENCE_OPTION,
   },
   checkData(view, rows) {
     const n = rows.filter((row) => readNumber(row[view.value as string]) !== null).length;
@@ -1002,6 +1078,7 @@ const rings: ViewBlock = {
     label: { type: "field", kind: "category", required: true, description: "Field naming each goal." },
     value: { type: "field", kind: "number", required: true, description: "Field with the amount reached." },
     target: { type: "field", kind: "number", required: true, description: "Field with the goal amount." },
+    goodWhen: GOOD_WHEN_OPTION,
   },
   checkData(_view, rows) {
     return rows.length > 5 ? [`${rows.length} rings: inner rings get too small past 5. Use a meter or bullet view for longer lists.`] : [];
@@ -1046,6 +1123,7 @@ const waffle: ViewBlock = {
 
 const variance: ViewBlock = {
   type: "variance",
+  extent: varianceExtent,
   description: "Variance against plan, as in financial reporting: per row a bar from a zero line to actual minus plan, right when over and left when under, colored good or bad and labelled with its sign. For budget against actual, or results against target.",
   options: {
     label: { type: "field", kind: "category", required: true, description: "Field naming each row, such as a department." },
@@ -1065,6 +1143,7 @@ const gauge: ViewBlock = {
     min: { type: "number", default: 0, description: "Start of the scale." },
     max: { type: "number", description: "End of the scale. Defaults to a round number above the value and the target." },
     label: { type: "string", description: "Caption under the number. Defaults to the value field's label." },
+    goodWhen: GOOD_WHEN_OPTION,
   },
 };
 
@@ -1084,10 +1163,12 @@ const pareto: ViewBlock = {
 
 const boxplot: ViewBlock = {
   type: "boxplot",
+  extent: (view, rows) => numbersOf(rows, [view.value]),
   description: "A box plot per group on one shared axis: a box over the middle half of the values (first to third quartile), a line at the median, whiskers to the furthest values within 1.5 box-widths, and dots for outliers beyond. For comparing spreads compactly, such as deal size by region.",
   options: {
     value: { type: "field", kind: "number", required: true, description: "Numeric field whose spread is drawn." },
     group: { type: "field", kind: "category", description: "Field giving each group its own box. Without it, all rows make one box." },
+    reference: REFERENCE_OPTION,
   },
   checkData(view, rows) {
     if (!view.group) return [];
@@ -1113,6 +1194,7 @@ const likert: ViewBlock = {
 
 const candlestick: ViewBlock = {
   type: "candlestick",
+  extent: (view, rows) => numbersOf(rows, [view.low, view.high]),
   description: "Prices per period as candles: a thin wick from low to high around a body from open to close, in the up color when the period closed higher and the down color when lower. An optional moving average of the close smooths the trend. For share prices, exchange rates and commodities.",
   options: {
     x: { type: "field", kind: "date", required: true, description: "Field with the period, such as a trading day." },
@@ -1208,6 +1290,7 @@ const radar: ViewBlock = {
 
 const beeswarm: ViewBlock = {
   type: "beeswarm",
+  extent: (view, rows) => numbersOf(rows, [view.value]),
   description: "A distribution: one dot per row along a value axis, nudged apart so none overlap, optionally one row per group. Shows spread and outliers an average hides.",
   options: {
     value: { type: "field", kind: "number", required: true, description: "Numeric field along the axis." },
@@ -1231,6 +1314,7 @@ const donut: ViewBlock = {
       description: '"half" draws a semicircle open at the bottom with the slices from left to right in the order given: an election donut, seats by party in the order they sit.',
     },
     majority: { type: "boolean", default: false, description: "On a half ring, a thin tick at the halfway point labelled Majority and the seats it takes (more than half of the total); the slice that crosses it says so in its tooltip." },
+    highlight: highlightCategories,
   },
   validate(view) {
     return view.majority && view.arc !== "half" ? ['majority marks a half ring: set arc to "half" too.'] : [];
@@ -1265,6 +1349,7 @@ const pie: ViewBlock = {
       default: "inside",
       description: '"inside" writes each share on its slice (thin slices skip theirs) with a legend of names and values; "outside" writes names and shares beside the disc on short leader lines, with no legend; "legend" leaves the disc bare.',
     },
+    highlight: highlightCategories,
   },
   checkData(view, rows) {
     return checkSlices(view, rows, "pie");
@@ -1342,6 +1427,7 @@ const hbar: ViewBlock = {
     shared: { type: "boolean", default: false, description: "Split columns share one scale, so a bar compares across columns too. Only for fields in the same unit." },
     highlight: highlightCategories,
     mark: MARK_OPTION,
+    reference: REFERENCE_OPTION,
   },
   validate(view) {
     const stacked = view.stacked;
@@ -1361,6 +1447,7 @@ const pyramid: ViewBlock = {
     label: { type: "field", kind: "category", required: true, description: "Field naming each band, in order from top to bottom, such as the age group." },
     left: { type: "field", kind: "number", required: true, description: "Field with the count drawn leftward, such as women." },
     right: { type: "field", kind: "number", required: true, description: "Field with the count drawn rightward, such as men." },
+    highlight: highlightCategories,
   },
   checkData(view, rows) {
     const negative = rows.filter((row) => (readNumber(row[view.left as string]) ?? 0) < 0 || (readNumber(row[view.right as string]) ?? 0) < 0).length;
@@ -1426,6 +1513,7 @@ const dual: ViewBlock = {
       description: 'How each panel draws its measure, top then bottom: "bar" for amounts (from zero) or "line" for rates and levels. Example: ["bar", "line"].',
     },
     curve: CURVE_OPTION,
+    annotations: ANNOTATIONS_OPTION,
   },
   validate(view) {
     const marks = view.marks;
@@ -1575,9 +1663,10 @@ const choropleth: ViewBlock = {
       description: "Field that colors each region by its category instead, one series color per value with a key: a transposition status, a supervisor, a regime. Up to 8 categories stay distinct.",
     },
     key: KEY_OPTION,
-    labels: { type: "boolean", default: true, description: "Write each region's code inside it, where it fits." },
+    labels: { type: "boolean", default: true, description: 'Write each region\'s code inside it, where it fits. Also takes the words other views use: "codes" (the same as true) or "none".' },
     min: { type: "number", description: "Value of the weakest tint. Defaults to the lowest value." },
     max: { type: "number", description: "Value of the strongest tint. Defaults to the highest value." },
+    highlight: highlightCategories,
   },
   validate(view) {
     const problems = [...placementProblems(view, false)];
@@ -1705,6 +1794,7 @@ const matrix: ViewBlock = {
     },
     mark: { type: "field", kind: "category", description: 'A yes/no field (true, 1, "yes", "x"): a filled square where it is yes, a faint dot where it is no. For who must comply.' },
     label: { type: "field", kind: "category", description: "Field (text or a number) written inside marks big enough to hold it; always in the tooltip." },
+    highlight: highlightCategories,
   },
   validate(view) {
     return view.mark && view.size ? ["mark draws a square for every yes; drop it, or drop size."] : [];
@@ -1724,6 +1814,7 @@ const matrix: ViewBlock = {
 
 const strips: ViewBlock = {
   type: "strips",
+  extent: (view, rows) => rows.map((row) => fieldList(view.parts).reduce((sum, field) => sum + Math.max(0, readNumber(row[field]) ?? 0), 0)),
   description:
     "Unit strips: one row per item with a strip of small squares, one per unit, colored part by part in order (mandatory, recommended, optional), the total and the first part's share at the end. When totals run long, one square stands for a round number of units, said under the chart. A per field adds a density: provisions per page. For how many provisions a regulation has and how binding they are.",
   options: {
@@ -1731,6 +1822,8 @@ const strips: ViewBlock = {
     parts: { type: "fields", kind: "number", required: true, description: "Field or fields with each part's count, in the order they are drawn. The first part's share of the total is written at the end." },
     per: { type: "field", kind: "number", description: "Field with a denominator, such as pages: the density (units per one of them) is written at the end and in the tooltip." },
     unit: { type: "string", default: "provision", description: "What one unit is, in the singular, for the note under the chart and the tooltip." },
+    highlight: highlightCategories,
+    reference: REFERENCE_OPTION,
   },
   checkData(view, rows) {
     const parts = Array.isArray(view.parts) ? view.parts.map(String) : [String(view.parts)];
@@ -1758,6 +1851,7 @@ const lifecycle: ViewBlock = {
     today: { type: "any", description: "true for a line at today's date, or a YYYY-MM-DD date for the line. Shown when it falls inside the span." },
     status: { type: "field", kind: "category", description: "Field written as a small pill at the row's end, such as In force or Consultation." },
     impact: { type: "field", kind: "number", description: "Field from 1 to 5 that sets each row's thickness: the higher the impact, the thicker the row." },
+    highlight: highlightCategories,
   },
   validate(view) {
     const stages = Array.isArray(view.stages) ? view.stages : typeof view.stages === "string" ? [view.stages] : [];
@@ -2014,5 +2108,9 @@ const board: ViewBlock = {
     return warnings;
   },
 };
+
+// Views that took a reference or annotation list check its shape too, on top of their own rules.
+for (const block of [hbar, dot, dumbbell, histogram, boxplot, strips]) withChecks(block, checkReference);
+for (const block of [dual]) withChecks(block, checkAnnotations);
 
 export const builtinViews: ViewBlock[] = [table, list, kpi, kpis, bar, hbar, line, area, meter, bullet, donut, treemap, funnel, waterfall, heatmap, calendar, scatter, beeswarm, ridgeline, sankey, dumbbell, slope, bump, marimekko, histogram, rings, timeline, waffle, variance, gauge, pareto, boxplot, likert, candlestick, sunburst, chord, radar, rose, horizon, icicle, dot, pyramid, dual, choropleth, symbols, locator, pie, matrix, strips, lifecycle, whitespace, xray, history, anomalies, board];
