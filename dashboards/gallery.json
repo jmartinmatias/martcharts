@@ -239,6 +239,21 @@
     },
     {
       "widget": "feature-adoption"
+    },
+    {
+      "section": "Maps",
+      "description": "Where revenue, customers and offices are"
+    },
+    {
+      "widget": "revenue-by-country",
+      "span": 2
+    },
+    {
+      "widget": "offices"
+    },
+    {
+      "widget": "customers-by-state",
+      "span": 2
     }
   ],
   "title": "Gallery",

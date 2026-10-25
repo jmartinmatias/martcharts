@@ -3,11 +3,15 @@
  *
  * @module
  */
+import { guessBasemap } from "./geo.ts";
 import { getBlock } from "./registry.ts";
 import type { OptionSchema } from "./registry.ts";
 import type { Row, ViewSpec } from "./types.ts";
 
 type Kind = NonNullable<OptionSchema["kind"]>;
+
+/** Views drawn on a map, whose `geo` option names geometry rather than a field. */
+const MAP_VIEWS = new Set(["choropleth", "symbols", "locator"]);
 
 const DATE = /^\d{4}-\d{2}/;
 
@@ -58,5 +62,14 @@ export function suggestView(type: string, rows: Row[], prefer: string[] = []): V
   }
   // The stat row's tiles are its one required option that is not a field: one tile per number field, up to 3.
   if (type === "kpis") view.items = pools.number.slice(0, 3).map((value) => ({ value }));
+  // A map's geometry cannot be guessed from the rows, except a column of country or state codes that all sit on one built-in basemap.
+  if (MAP_VIEWS.has(type) && view.geo === undefined) {
+    const idField = typeof view.id === "string" ? view.id : pools.category.find((key) => guessBasemap(rows.map((row) => row[key])));
+    const name = idField ? guessBasemap(rows.map((row) => row[idField])) : undefined;
+    if (name && idField) {
+      view.geo = name;
+      view.id = idField;
+    }
+  }
   return view;
 }

@@ -8,6 +8,7 @@
  */
 import { fieldLabel, formatValue, timeStep } from "./display.ts";
 import { readNumber } from "./formats.ts";
+import { featureId, featureName, normalizeId, resolveGeo } from "./geo.ts";
 import { binValues, sturges } from "./scale.ts";
 import { isPlural } from "./question.ts";
 import type { Row, WidgetSpec } from "./types.ts";
@@ -453,6 +454,35 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const measured = rows.filter((row) => value(row, amount) !== null && (value(row, target) ?? 0) > 0);
       const reached = measured.filter((row) => (value(row, amount) as number) >= (value(row, target) as number));
       return goalLine(measured.length, reached, one(view.label), "reached");
+    }
+    case "choropleth": {
+      const [code, amount] = [one(view.id), one(view.value)];
+      if (!code || !amount) return "";
+      const shaded = rows.filter((row) => value(row, amount) !== null);
+      if (!shaded.length) return "";
+      const high = shaded.reduce((best, row) => ((value(row, amount) as number) > (value(best, amount) as number) ? row : best));
+      const low = shaded.reduce((best, row) => ((value(row, amount) as number) < (value(best, amount) as number) ? row : best));
+      const place = (row: Row) => regionName(view, row[code]);
+      return high === low ? `Here, ${place(high)} has ${text(high, amount)}.` : `Here, ${place(high)} is the strongest, with ${text(high, amount)}, and ${place(low)} the weakest, with ${text(low, amount)}.`;
+    }
+    case "symbols": {
+      const [amount, label, code] = [one(view.size), one(view.label), one(view.id)];
+      if (!amount) return "";
+      const sized = rows.filter((row) => (value(row, amount) ?? 0) > 0);
+      if (!sized.length) return "";
+      const big = sized.reduce((best, row) => ((value(row, amount) as number) > (value(best, amount) as number) ? row : best));
+      const place = label ? text(big, label) : code ? regionName(view, big[code]) : "one place";
+      const total = sized.reduce((sum, row) => sum + (value(row, amount) as number), 0);
+      return `Here, the biggest circle is ${place}, with ${text(big, amount)}, ${percent((value(big, amount) as number) / total)} of all ${sized.length} places.`;
+    }
+    case "locator": {
+      const kind = one(view.kind);
+      const places = rows.length;
+      if (!kind) return `Here, ${places} place${places === 1 ? " is" : "s are"} marked.`;
+      const counts = new Map<string, number>();
+      for (const row of rows) counts.set(text(row, kind), (counts.get(text(row, kind)) ?? 0) + 1);
+      const [top, n] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0] as [string, number];
+      return counts.size > 1 ? `Here, ${places} places are marked, ${n} of them ${top}.` : `Here, ${places} place${places === 1 ? " is" : "s are"} marked, all ${top}.`;
     }
     case "sunburst":
     case "icicle": {
@@ -955,6 +985,15 @@ const plural = (noun: string) => (/[^aeiou]y$/.test(noun) ? `${noun.slice(0, -1)
 /** A share as a whole percentage: 0.8 is "80%". */
 const percent = (share: number) => `${Math.round(share * 100)}%`;
 
+/** A region's name on the map's geometry when it is at hand (France for FR), else the code as written. */
+function regionName(view: View, code: unknown): string {
+  const collection = resolveGeo(view.geo);
+  const key = typeof view.key === "string" ? view.key : "id";
+  const wanted = normalizeId(code);
+  const feature = collection?.features.find((f) => normalizeId(featureId(f, key)) === wanted);
+  return feature ? featureName(feature, key) : String(code ?? "");
+}
+
 /** The general reading guide for a view, from its options alone. */
 function guide(spec: WidgetSpec): string {
   const view = (spec.view ?? { type: "table" }) as View;
@@ -1103,6 +1142,12 @@ function guide(spec: WidgetSpec): string {
     }
     case "icicle":
       return `The first column is the total. Each column to the right splits the boxes into smaller parts: the taller the box, the more ${name(one(view.value))}.`;
+    case "choropleth":
+      return `Each region on the map is one ${noun(one(view.id), "region")}. The stronger its shade, the more ${name(one(view.value))}; a grey region has no data.`;
+    case "symbols":
+      return `Each circle sits on one ${noun(one(view.label) ?? one(view.id), "place")} on the map. The bigger the circle, the more ${name(one(view.size))}.${one(view.color) ? ` Each color is one ${name(one(view.color))}.` : ""}`;
+    case "locator":
+      return `Each marker is one ${noun(one(view.label), "place")}, with its name beside it, where it is on the map.${one(view.kind) ? ` Each color is one ${name(one(view.kind))}.` : ""}`;
     case "list":
       // A field called name, title or label says nothing about what the lines are: they are entries.
       return `Each line is one ${/^(name|title|label)$/i.test(one(view.label) ?? "") ? "entry" : name(one(view.label))}${one(view.value) ? `, with its ${name(one(view.value))} on the right` : ""}.`;

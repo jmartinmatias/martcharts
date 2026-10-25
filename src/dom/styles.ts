@@ -1212,4 +1212,52 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
   .fft-widget *, .fft-widget *::before, .fft-widget *::after { animation: none !important; transition: none !important; }
   .fft-overlay, .fft-overlay-panel { animation: none !important; }
 }
+
+/* Maps: choropleth, symbols and locator. Land is muted, borders are the card's own surface, so regions separate quietly. */
+.fft-map-wrap { display: flex; flex-direction: column; gap: 13px; }
+.fft-map { display: block; max-width: 100%; height: auto; }
+.fft-map-land { fill: color-mix(in srgb, var(--fft-muted) 16%, var(--fft-surface)); stroke: var(--fft-surface); stroke-width: 0.75; stroke-linejoin: round; }
+.fft-map-grid .fft-map-land { stroke-width: 2; }
+.fft-map-region { stroke: var(--fft-surface); stroke-width: 0.75; stroke-linejoin: round; outline: none; cursor: pointer; transition: opacity 377ms var(--fft-ease); }
+.fft-map-grid .fft-map-region { stroke-width: 2; }
+.fft-map-region-empty { fill: color-mix(in srgb, var(--fft-muted) 16%, var(--fft-surface)); cursor: default; }
+.fft-map-region[data-step="1"] { fill: var(--fft-seq-1); }
+.fft-map-region[data-step="2"] { fill: var(--fft-seq-2); }
+.fft-map-region[data-step="3"] { fill: var(--fft-seq-3); }
+.fft-map-region[data-step="4"] { fill: var(--fft-seq-4); }
+.fft-map-region[data-step="5"] { fill: var(--fft-seq-5); }
+.fft-map-region[data-step="6"] { fill: var(--fft-seq-6); }
+.fft-map-region[data-step="7"] { fill: var(--fft-seq-7); }
+.fft-map-region:hover, .fft-map-region:focus-visible { stroke: var(--fft-text); stroke-width: 2; }
+.fft-map-wrap[data-active] .fft-map-region:not([data-active]):not(.fft-map-region-empty) { opacity: 0.55; }
+.fft-map-region-label { font-size: 11px; font-weight: 500; pointer-events: none; fill: var(--fft-text); }
+.fft-map-region-label-empty { fill: var(--fft-muted); }
+.fft-map-region-label[data-step="1"] { fill: var(--fft-seq-text-1); }
+.fft-map-region-label[data-step="2"] { fill: var(--fft-seq-text-2); }
+.fft-map-region-label[data-step="3"] { fill: var(--fft-seq-text-3); }
+.fft-map-region-label[data-step="4"] { fill: var(--fft-seq-text-4); }
+.fft-map-region-label[data-step="5"] { fill: var(--fft-seq-text-5); }
+.fft-map-region-label[data-step="6"] { fill: var(--fft-seq-text-6); }
+.fft-map-region-label[data-step="7"] { fill: var(--fft-seq-text-7); }
+.fft-map-legend { flex-wrap: wrap; }
+.fft-map-legend-empty { display: inline-flex; align-items: center; gap: 5px; margin-left: 8px; }
+.fft-map-swatch-empty { background: color-mix(in srgb, var(--fft-muted) 16%, var(--fft-surface)); box-shadow: inset 0 0 0 1px var(--fft-grid); }
+.fft-map-symbol { fill-opacity: 0.55; stroke-width: 1.5; outline: none; cursor: pointer; transition: opacity 377ms var(--fft-ease), fill-opacity 377ms var(--fft-ease); }
+.fft-map-symbol:hover, .fft-map-symbol:focus-visible, .fft-map-symbol[data-active] { fill-opacity: 0.85; stroke: var(--fft-text); }
+.fft-map-wrap[data-active] .fft-map-symbol:not([data-active]) { opacity: 0.45; }
+.fft-map-keys { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 8px 21px; }
+.fft-map-sizekey-wrap { display: flex; align-items: flex-end; gap: 8px; font-size: 11px; line-height: 13px; color: var(--fft-muted); }
+.fft-map-sizekey { display: block; overflow: visible; }
+.fft-map-sizekey-ring { fill: none; stroke: var(--fft-muted); stroke-width: 1; }
+.fft-map-sizekey-line { stroke: var(--fft-grid); stroke-width: 1; shape-rendering: crispEdges; }
+.fft-map-sizekey-text { fill: var(--fft-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.fft-map-marker { stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 2; outline: none; cursor: pointer; transition: opacity 377ms var(--fft-ease); }
+.fft-map-marker:hover, .fft-map-marker:focus-visible, .fft-map-marker[data-active] { stroke: var(--fft-text); }
+.fft-map-wrap[data-active] .fft-map-marker:not([data-active]) { opacity: 0.45; }
+.fft-map-place { font-size: 11px; pointer-events: none; paint-order: stroke; stroke: var(--fft-surface); stroke-width: 3px; stroke-linejoin: round; }
+.fft-map-place-name { fill: var(--fft-text); font-weight: 600; }
+.fft-map-place-note { fill: var(--fft-text-secondary); font-size: 10px; }
+.fft-map-note { margin: 0; font-size: 11px; line-height: 13px; color: var(--fft-muted); }
+.fft-widget[data-animate] .fft-map-region { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 13ms); }
+.fft-widget[data-animate] .fft-map-symbol, .fft-widget[data-animate] .fft-map-marker { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(233ms + var(--fft-i, 0) * 21ms); }
 `;

@@ -305,6 +305,25 @@ export function questionOf(spec: WidgetSpec, rows: Row[] = []): Question {
       if (label) return ask("schedule", `when does each ${name(label)} start and end?`);
       break;
     }
+    case "choropleth": {
+      const [code, amount] = [one(view.id), one(view.value)];
+      if (!code || !amount) break;
+      const entity = entityOf(code, spec);
+      const plurals = plural(entity);
+      return ask("compare", plurals ? `which ${plurals} have the ${most(name(amount))}, on the map?` : `which ${entity} has the ${most(name(amount))}, on the map?`);
+    }
+    case "symbols": {
+      const amount = one(view.size);
+      if (amount) return ask("compare", `where ${be(name(amount))} the ${most(name(amount))}?`);
+      break;
+    }
+    case "locator": {
+      const label = one(view.label);
+      if (!label) break;
+      const entity = entityOf(label, spec);
+      const plurals = plural(entity);
+      return ask("detail", plurals ? `where are the ${plurals}?` : `where is each ${entity}?`);
+    }
     case "table": {
       const columns = many(view.columns).length ? many(view.columns) : Object.keys(rows[0] ?? {});
       const first = columns[0];

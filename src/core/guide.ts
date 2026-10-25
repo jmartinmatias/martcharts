@@ -449,6 +449,33 @@ const GUIDES: ChartGuide[] = [
     bestFor: ["Bridges: what took revenue from Q2 to Q3, a profit and loss walk", "Explaining a move from a start to an end"],
     avoidFor: ["Amounts that are not changes to one total (use bar)"],
   },
+  {
+    type: "choropleth",
+    purposes: { compare: 3, pattern: 2, lookup: 1 },
+    grain: "category",
+    build: "One region per row, matched by its code to the basemap (a built-in tile grid or your GeoJSON), shaded on a seven-step scale from the lowest value to the highest; regions with no row stay grey.",
+    rows: { min: 3, max: 300 },
+    bestFor: ["An amount or a rate by country or state: revenue by country, share by state", "Seeing where something is high or low across a territory"],
+    avoidFor: ["Exact comparisons between regions (use hbar)", "Totals that follow area or population, which big regions exaggerate (use a rate, or symbols)", "Rows that are not regions"],
+  },
+  {
+    type: "symbols",
+    purposes: { compare: 3, pattern: 2 },
+    grain: "category",
+    build: "One circle per row on its region (by code) or at its coordinates, its area true to the size field; a color field groups the circles with a key.",
+    rows: { min: 2, max: 150 },
+    bestFor: ["Counts and totals by place where the size itself matters: customers by state, volume by port", "Several kinds of place on one map, told apart by color"],
+    avoidFor: ["Rates and shares (use choropleth)", "Hundreds of overlapping places (sum them by region first)"],
+  },
+  {
+    type: "locator",
+    purposes: { lookup: 3 },
+    grain: "category",
+    build: "One marker per row on its region (by code) or at its coordinates, its name written beside it; a kind field colors the markers with a key.",
+    rows: { min: 1, max: 30 },
+    bestFor: ["Where the offices, stores or sites are, by name", "A handful of named places for a report or a page header"],
+    avoidFor: ["Amounts per place (use symbols)", "More than about 30 places, where names collide (use symbols or a table)"],
+  },
 ];
 
 const BY_TYPE = new Map(GUIDES.map((guide) => [guide.type, guide]));
@@ -791,6 +818,8 @@ export function switchChart(spec: WidgetSpec, to: string, rows: Row[] = inlineRo
       if (option.type === "field") taken.set(field, name);
     }
   }
+  // A map with no geometry to put the rows on: the data has no column of codes that sit on a basemap.
+  if (MEANING[to] && options.geo && view.geo === undefined) problems.push(MEANING[to] as string);
   const issues = validateSpec({ ...spec, view }, rows);
   if (hasErrors(issues)) problems.push(...issues.filter((i) => i.level === "error").map((i) => `${i.path}: ${i.message}`));
   if (problems.length) {
@@ -872,6 +901,9 @@ const MEANING: Record<string, string> = {
   meter: "needs a target, plan or budget column",
   rings: "needs a target, plan or budget column",
   variance: "needs a target, plan or budget column",
+  choropleth: "needs a column of country or state codes that sit on a basemap",
+  symbols: "needs a column of country or state codes that sit on a basemap, or coordinates",
+  locator: "needs named places with region codes on a basemap, or coordinates",
 };
 
 const FIT_ORDER: Record<Fit, number> = { fits: 0, stretch: 1, no: 2 };

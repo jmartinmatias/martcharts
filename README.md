@@ -126,6 +126,7 @@ const asTable = fork(topCustomers, { view: { type: "table", label: null, detail:
 | KPI icons | `"icon": "users"` and 13 more line icons on KPI tiles |
 | Direct labels | Lines and areas write each series' last value at its end (up to 4 series, hidden when ends collide) |
 | Headline | A big number with its change and a caption above any chart: `"headline": { "value": "revenue", "compare": "previous" }` |
+| Maps | `"geo": "europe"` or `"geo": "us-states"` puts rows on a built-in tile grid by their country or state code (every region the same size, so Luxembourg reads like France); `"geo"` also takes a GeoJSON FeatureCollection or its address for true shapes, with `lat` and `lon` for points. No dependencies, no tiles, no keys |
 | Style presets | `default`, `glass` (frosted translucent cards: light frost or dark smoke), `airy` (chrome-free editorial), `paper` (print: warm paper, serif titles, a rule over each card; a night edition on dark). Every preset has a light and a dark look that follow the theme, each with its palette stepped for its surface |
 | Palettes | `default`, `apple`, `credit-agricole`, `bw`, `50-shades`, five acclaimed ones with their exact published colors (`okabe-ito`, `tol-vibrant`, `tableau-10`, `carbon`, `observable-10`), or any list of colors. Every named palette has a light and a dark set: its own where published (Default, Apple, Carbon), otherwise derived with the same hues moved into the dark band (greys flip), and charts switch with the theme; `createPalettePicker` chooses them with an eyedropper and live colorblind checks |
 
@@ -156,6 +157,7 @@ Start from what you want the reader to see. Every view takes plain rows; `sugges
 | Flows between stages | `sankey` (branching), `funnel` (one path), `chord` (exchange within one set, such as moves between plans) |
 | Survey answers | `likert` |
 | Plans and dates | `timeline` (with milestones, progress and a today line) |
+| Where things are | `choropleth` (regions shaded by a value), `symbols` (circles sized by a value, on their regions or at coordinates), `locator` (named markers). Two built-in tile-grid basemaps, `europe` and `us-states`, keyed by country or state code, or your own GeoJSON by object or address |
 | Records to read | `table` (with `spark` and `badge` cells), `list` |
 
 Charts follow fixed rules: a validated, colorblind-checked 8-color palette with its own dark-mode set, bars at most 21px wide with rounded data ends, 2px lines, hairline gridlines, a legend only when there are two or more series, a tooltip on hover and keyboard focus, and a hidden data table for screen readers.

@@ -6,6 +6,7 @@
  *
  * @module
  */
+import { guessBasemap } from "./geo.ts";
 import type { Row, ViewSpec } from "./types.ts";
 
 /** One recommended chart. */
@@ -100,6 +101,15 @@ function peers(shape: Shape, max: number): string[] {
 }
 
 const falling = (values: number[]) => values.length >= 3 && values.every((value, i) => i === 0 || value <= values[i - 1]!);
+
+/** The first category column whose values are all codes on one built-in basemap, with that basemap's name. */
+function onBasemap(shape: Shape): { id: string; geo: string } | undefined {
+  for (const id of shape.categories) {
+    const geo = guessBasemap(shape.rows.map((row) => row[id]));
+    if (geo) return { id, geo };
+  }
+  return undefined;
+}
 
 /** One rule per view, each returning a score and view when the data suits it. */
 const RULES: Record<string, Rule> = {
@@ -318,6 +328,19 @@ const RULES: Record<string, Rule> = {
     return x && shape.numbers.length >= 4 && shape.rows.length >= 10 ? { score: 66, view: { type: "horizon", x, y: shape.numbers.slice(0, 12) }, why: `${shape.numbers.length} series over ${x}, each in its own thin band.` } : undefined;
   },
   table: ({ rows }) => (rows.length ? { score: 20, view: { type: "table" }, why: "Exact values, row by row." } : undefined),
+  // A column of country or state codes that all sit on one built-in basemap: shade the map, or size circles on it.
+  choropleth: (shape) => {
+    const placed = onBasemap(shape);
+    const [value] = shape.numbers;
+    return placed && value && shape.distinct(placed.id) === shape.rows.length
+      ? { score: 86, view: { type: "choropleth", geo: placed.geo, id: placed.id, value }, why: `${value} by ${placed.id}, shaded on a map.` }
+      : undefined;
+  },
+  symbols: (shape) => {
+    const placed = onBasemap(shape);
+    const [size] = shape.numbers;
+    return placed && size && nonNegative(shape, size) ? { score: 62, view: { type: "symbols", geo: placed.geo, id: placed.id, size }, why: `${size} as circles on a map, one per ${placed.id}.` } : undefined;
+  },
 };
 
 /**

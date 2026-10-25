@@ -1,0 +1,47 @@
+{
+  "id": "revenue-by-country",
+  "title": "Revenue by country",
+  "subtitle": "2026 year to date, European markets",
+  "description": "Year-to-date revenue per European country on a tile grid, every country the same size so Luxembourg reads as well as Germany; countries with no sales stay grey.",
+  "footer": "Source: finance ledger",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      { "country": "DE", "revenue": 4120000 },
+      { "country": "FR", "revenue": 3860000 },
+      { "country": "GB", "revenue": 2940000 },
+      { "country": "IT", "revenue": 2210000 },
+      { "country": "ES", "revenue": 1980000 },
+      { "country": "NL", "revenue": 1640000 },
+      { "country": "BE", "revenue": 1120000 },
+      { "country": "CH", "revenue": 1090000 },
+      { "country": "SE", "revenue": 940000 },
+      { "country": "AT", "revenue": 880000 },
+      { "country": "PL", "revenue": 860000 },
+      { "country": "LU", "revenue": 720000 },
+      { "country": "DK", "revenue": 610000 },
+      { "country": "IE", "revenue": 590000 },
+      { "country": "PT", "revenue": 540000 },
+      { "country": "NO", "revenue": 520000 },
+      { "country": "FI", "revenue": 410000 },
+      { "country": "CZ", "revenue": 380000 },
+      { "country": "GR", "revenue": 260000 },
+      { "country": "RO", "revenue": 240000 },
+      { "country": "HU", "revenue": 210000 },
+      { "country": "SK", "revenue": 120000 },
+      { "country": "HR", "revenue": 90000 },
+      { "country": "SI", "revenue": 80000 }
+    ]
+  },
+  "fields": {
+    "country": { "label": "Country" },
+    "revenue": { "label": "Revenue", "format": { "type": "currency", "currency": "EUR", "compact": true } }
+  },
+  "view": {
+    "type": "choropleth",
+    "geo": "europe",
+    "id": "country",
+    "value": "revenue"
+  }
+}
