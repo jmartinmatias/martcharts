@@ -129,9 +129,11 @@ export function questionOf(spec: WidgetSpec, rows: Row[] = []): Question {
       const value = one(view.type === "bar" ? view.y : view.value);
       if (!label || !value) break;
       const entity = entityOf(label, spec);
-      if (series.length > 1 && view.stacked === "percent") return ask("mix", `how is each ${entity} split between ${list(series.map(name))}?`);
-      if (series.length > 1 && view.stacked) return ask("mix", `which ${entity} has the most in all, and what is it made of?`);
-      if (series.length > 1) return ask("compare", `how do ${list(series.map(name))} compare for each ${entity}?`);
+      // An hbar's series are its value fields: grouped, stacked or split bars.
+      const parts = view.type === "hbar" ? many(view.value) : series;
+      if (parts.length > 1 && view.stacked === "percent") return ask("mix", `how is each ${entity} split between ${list(parts.map(name))}?`);
+      if (parts.length > 1 && view.stacked) return ask("mix", `which ${entity} has the most in all, and what is it made of?`);
+      if (parts.length > 1) return ask("compare", `how do ${list(parts.map(name))} compare for each ${entity}?`);
       // Stages whose numbers only shrink are a pipeline: the question is where they drop out, not which stage is biggest.
       const known = rows.length ? rows : spec.data?.type === "inline" ? ((spec.data as { rows?: Row[] }).rows ?? []) : [];
       if (STAGE.test(label) && shrinking(known, value)) return ask("flow", `where ${isPlural(name(value)) ? "do" : "does"} ${name(value)} drop out, ${entity} by ${entity}?`);
@@ -216,6 +218,11 @@ export function questionOf(spec: WidgetSpec, rows: Row[] = []): Question {
       if (!label || !from || !to) break;
       if (PERIOD.test(from) && PERIOD.test(to)) return ask("change", `how did each ${entityOf(label, spec)} change from ${name(from)} to ${name(to)}?`);
       return ask("compare", `how big is the gap between ${name(from)} and ${name(to)} for each ${entityOf(label, spec)}?`);
+    }
+    case "pyramid": {
+      const [label, left, right] = [one(view.label), one(view.left), one(view.right)];
+      if (!label || !left || !right) break;
+      return ask("spread", `how do ${name(left)} and ${name(right)} compare, ${entityOf(label, spec)} by ${entityOf(label, spec)}?`);
     }
     case "waterfall": {
       const start = many(view.totals)[0];

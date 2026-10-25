@@ -1,0 +1,29 @@
+{
+  "id": "leads-wins-by-channel",
+  "title": "Leads and wins by channel",
+  "subtitle": "Q3 2026",
+  "description": "How many leads each channel brought in and how many turned into customers. Partner referrals bring a third of the leads of paid search but almost as many wins.",
+  "footer": "Source: CRM",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      { "channel": "Paid search", "leads": 1840, "won": 221 },
+      { "channel": "Partner referrals", "leads": 610, "won": 198 },
+      { "channel": "Organic search", "leads": 1230, "won": 172 },
+      { "channel": "Events and webinars", "leads": 540, "won": 97 },
+      { "channel": "Outbound sales", "leads": 720, "won": 86 },
+      { "channel": "Social media", "leads": 980, "won": 59 }
+    ]
+  },
+  "fields": {
+    "channel": { "label": "Channel" },
+    "leads": { "label": "Leads", "format": { "type": "number" } },
+    "won": { "label": "Won", "format": { "type": "number" } }
+  },
+  "view": {
+    "type": "hbar",
+    "label": "channel",
+    "value": ["leads", "won"]
+  }
+}

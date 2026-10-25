@@ -189,7 +189,14 @@ const RULES: Record<string, Rule> = {
     if (!label || !value) return undefined;
     const count = shape.distinct(label);
     const long = shape.rows.some((row) => String(row[label]).length > 12);
-    return { score: count > 12 || long ? 88 : 72, view: { type: "hbar", label, value }, why: `A ranking of ${count} ${label} values by ${value}${long ? ", with room for long names" : ""}.` };
+    // Long names with two or three comparable measures: grouped bars, one thin bar per measure in each row.
+    const y = long ? peers(shape, 3) : [value];
+    const grouped = y.length > 1;
+    return {
+      score: count > 12 || long ? 88 : 72,
+      view: { type: "hbar", label, value: grouped ? y : value },
+      why: grouped ? `${y.join(" and ")} side by side for each of ${count} ${label} values, with room for long names.` : `A ranking of ${count} ${label} values by ${value}${long ? ", with room for long names" : ""}.`,
+    };
   },
   donut: (shape) => {
     const [label] = shape.categories;
@@ -330,6 +337,15 @@ const RULES: Record<string, Rule> = {
     return shared ? { score: 64, view: { type: "dot", label, values: measures }, why: `${measures.length} measures per ${label} as dots on one axis, each row's spread in view.` } : undefined;
   },
   table: ({ rows }) => (rows.length ? { score: 20, view: { type: "table" }, why: "Exact values, row by row." } : undefined),
+  pyramid: (shape) => {
+    // Two counts named for the two sides of a population (women and men, female and male) across ordered bands.
+    const [label] = shape.categories;
+    const left = named(shape.numbers, /^(women|female|females|girls|f)$/i);
+    const right = named(shape.numbers, /^(men|male|males|boys|m)$/i);
+    return label && left && right && shape.rows.length >= 3 && shape.rows.length <= 30 && shape.distinct(label) === shape.rows.length && nonNegative(shape, left) && nonNegative(shape, right)
+      ? { score: 90, view: { type: "pyramid", label, left, right }, why: `${left} and ${right} back to back across ${shape.rows.length} ${label} bands.` }
+      : undefined;
+  },
 };
 
 /**

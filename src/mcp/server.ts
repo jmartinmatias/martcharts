@@ -131,6 +131,8 @@ const VIEW_GUIDE = [
   "One number and how it moved: kpi, kpis (a row of them), gauge (on a known scale), or a headline above any view.",
   "Progress to a goal: meter, bullet (with poor, fair and good bands), rings (a few goals at once), gauge.",
   "A ranking or a comparison across categories: hbar, bar, dumbbell (before and after, or arrows with mark arrow), slope (who moved between two periods), dot (several measures per item as dots on one axis).",
+  'Several measures per row: hbar with a list of values (grouped bars), stacked true or "percent", or split true (one column per measure, each on its own scale, for different units).',
+  "Two groups across ordered bands (women and men by age group): pyramid, two counts back to back on one axis.",
   "Change over time: line, area, bar, calendar (day by day), heatmap (two time scales, such as weekday by hour), candlestick (prices: open, high, low, close).",
   "Many time series at once: horizon (one thin row each, values folded into bands of deepening color, blue above the baseline and red below).",
   "Rank over time: bump.",

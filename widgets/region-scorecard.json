@@ -1,0 +1,30 @@
+{
+  "id": "region-scorecard",
+  "title": "Region scorecard",
+  "subtitle": "Q3 2026: revenue, gross margin and NPS",
+  "description": "Three measures in different units, one column each, so a region reads across in one line. East leads on revenue, Central on margin, and West on NPS.",
+  "footer": "Source: finance ledger and customer survey",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      { "region": "East", "revenue": 338000, "margin": 0.41, "nps": 44 },
+      { "region": "North", "revenue": 278000, "margin": 0.39, "nps": 51 },
+      { "region": "Central", "revenue": 259000, "margin": 0.47, "nps": 38 },
+      { "region": "South", "revenue": 204000, "margin": 0.33, "nps": 29 },
+      { "region": "West", "revenue": 205000, "margin": 0.36, "nps": 57 }
+    ]
+  },
+  "fields": {
+    "region": { "label": "Region" },
+    "revenue": { "label": "Revenue", "format": { "type": "currency", "currency": "EUR", "compact": true } },
+    "margin": { "label": "Gross margin", "format": { "type": "percent" } },
+    "nps": { "label": "NPS", "format": { "type": "number" } }
+  },
+  "view": {
+    "type": "hbar",
+    "label": "region",
+    "value": ["revenue", "margin", "nps"],
+    "split": true
+  }
+}
