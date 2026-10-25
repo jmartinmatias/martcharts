@@ -4,6 +4,7 @@ import type { ViewRenderer } from "../../core/view-context.ts";
 import type { HeatmapView } from "../../core/views.ts";
 import { quantize } from "../layout.ts";
 import { activeGroup, hiddenTable, html, selectable, textWidth } from "./shared.ts";
+import { drawsScaleKey, sharedRange } from "./facet-key.ts";
 import { roving } from "./focus.ts";
 
 /** Steps in the sequential scale. */
@@ -29,8 +30,8 @@ export const renderHeatmap: ViewRenderer<HeatmapView> = (ctx) => {
     cells.set(JSON.stringify([cy, cx]), row);
   }
   const numbers = ctx.rows.map((row) => readNumber(row[value])).filter((n): n is number => n !== null);
-  const min = Math.min(...numbers);
-  const max = Math.max(...numbers);
+  // Small multiples share one color scale: every panel shades the same number the same.
+  const [min, max] = sharedRange(numbers, ctx.extent);
 
   const wrap = html(doc, "div", "fft-heat");
   const grid = html(doc, "div", "fft-heatmap");
@@ -116,7 +117,7 @@ export const renderHeatmap: ViewRenderer<HeatmapView> = (ctx) => {
     ]),
   );
   // With no number at all there is no range to key: say so instead of a scale from Infinity to -Infinity.
-  if (numbers.length) wrap.append(grid, legend, table);
+  if (numbers.length) wrap.append(grid, ...(drawsScaleKey(ctx) ? [legend] : []), table);
   else wrap.append(grid, html(doc, "p", "fft-empty-note", `No cell has a number in ${ctx.label(value)}.`), table);
   ctx.el.append(wrap);
 };

@@ -4,6 +4,7 @@ import type { ViewRenderer } from "../../core/view-context.ts";
 import type { CalendarView } from "../../core/views.ts";
 import { quantize } from "../layout.ts";
 import { activeGroup, DAY, dayOf, hiddenTable, html, selectable, svg } from "./shared.ts";
+import { drawsScaleKey, sharedRange } from "./facet-key.ts";
 import { roving } from "./focus.ts";
 
 const STEPS = 7;
@@ -32,8 +33,8 @@ export const renderCalendar: ViewRenderer<CalendarView> = (ctx) => {
   const first = Math.min(...keys);
   const last = Math.max(...keys);
   const numbers = [...days.values()].map((d) => d.amount).filter((n): n is number => n !== null);
-  const min = Math.min(...numbers);
-  const max = Math.max(...numbers);
+  // Small multiples share one color scale: every panel shades the same number the same.
+  const [min, max] = sharedRange(numbers, ctx.extent);
   const weekday = (day: number) => (new Date(day * DAY).getUTCDay() + 6) % 7;
   const start = first - weekday(first);
   const weeks = Math.floor((last - start) / 7) + 1;
@@ -115,6 +116,6 @@ export const renderCalendar: ViewRenderer<CalendarView> = (ctx) => {
     const entry = days.get(day);
     return entry && entry.amount !== null ? [[longDate.format(new Date(day * DAY)), ctx.format(entry.row[value], value)]] : [];
   });
-  wrap.append(chart, legend, hiddenTable(doc, [ctx.label(date), ctx.label(value)], listed));
+  wrap.append(chart, ...(drawsScaleKey(ctx) ? [legend] : []), hiddenTable(doc, [ctx.label(date), ctx.label(value)], listed));
   ctx.el.append(wrap);
 };

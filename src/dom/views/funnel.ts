@@ -15,7 +15,10 @@ export const renderFunnel: ViewRenderer<FunnelView> = (ctx) => {
   const { label, value } = ctx.view;
   const amounts = ctx.rows.map((row) => readNumber(row[value]));
   const first = amounts[0] ?? null;
-  const base = first !== null && first > 0 ? first : Math.max(0, ...amounts.filter((n): n is number => n !== null)) || 1;
+  // Bars are as wide as their share of the first stage; in small multiples, of the widest first stage of any panel, so
+  // the same count is the same width in every panel. Shares in the text stay this panel's own.
+  const own = first !== null && first > 0 ? first : Math.max(0, ...amounts.filter((n): n is number => n !== null)) || 1;
+  const base = ctx.extent?.length ? Math.max(own, ...ctx.extent) : own;
   const pct = shareFormat(ctx.spec.locale);
 
   // highlight keeps the named rows in color and steps the rest back to grey, as on hbar and dot.
@@ -29,7 +32,7 @@ export const renderFunnel: ViewRenderer<FunnelView> = (ctx) => {
     const amount = amounts[i] ?? null;
     const name = ctx.format(row[label], label);
     const valueText = ctx.format(row[value], value);
-    const ofFirst = amount === null ? "" : pct.format(amount / base);
+    const ofFirst = amount === null ? "" : pct.format(amount / own);
 
     const item = html(doc, "div", "fft-funnel-row");
     if (muted(row)) item.dataset.muted = "";
