@@ -7,6 +7,7 @@ import { createWidget } from "../src/index.ts";
 import type { WidgetSpec } from "../src/index.ts";
 import { withLook } from "./look.ts";
 import { fork } from "../src/index.ts";
+import { boardHref, HOME_STRIP } from "./routes.ts";
 
 // The gallery lived here, with its sections, filters and playground in the address: send those on.
 // The playground is the Editor's JSON panel now; a Taller version (#taller=<spec>) opens there too.
@@ -21,12 +22,22 @@ const byType = (type: string) => Object.entries(catalog).find(([path]) => path.e
 const strip = document.querySelector("#strip") as HTMLElement;
 const draw = () => {
   strip.replaceChildren();
-  for (const type of ["line", "choropleth", "donut"]) {
+  for (const { type, board, label } of HOME_STRIP) {
     const spec = byType(type);
     if (!spec) continue;
     const slot = document.createElement("div");
+    slot.className = "strip-item";
+    const card = document.createElement("div");
+    // Each live chart leads to the dashboard tab where it lives in context.
+    const link = document.createElement("a");
+    link.className = "strip-link";
+    link.href = boardHref(board);
+    link.textContent = label;
+    // Quiet, under its card: the page's own link colour, a small size, no extra chrome.
+    link.style.cssText = "display:inline-block;margin:8px 0 0 2px;font-size:13px;";
+    slot.append(card, link);
     strip.append(slot);
-    createWidget(slot, withLook(spec, fork), { actions: ["explain"] });
+    createWidget(card, withLook(spec, fork), { actions: ["explain"] });
   }
 };
 draw();
