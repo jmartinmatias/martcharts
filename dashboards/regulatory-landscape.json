@@ -3,6 +3,7 @@
   "title": "Regulatory landscape",
   "subtitle": "Activity, impact and lifecycle of the rules that bind financial firms, as of October 2026 (fictional data)",
   "description": "What is coming, where it binds, how heavy it is and who must comply: the regulatory watch on one page.",
+  "asOf": "2026-10-25",
   "columns": 4,
   "range": {
     "field": "month"

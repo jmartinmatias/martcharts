@@ -372,5 +372,6 @@
     }
   ],
   "title": "Gallery",
-  "subtitle": "Every example widget"
+  "subtitle": "Every example widget",
+  "asOf": "Data to {latest}"
 }

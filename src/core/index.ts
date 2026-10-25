@@ -41,7 +41,7 @@ export type { Override } from "./fork.ts";
 
 export { baseWidget } from "./base.ts";
 export { RANGE_OPTIONS, rangeStart, validateDashboard } from "./dashboard.ts";
-export type { DashboardCell, DashboardFilter, DashboardRange, DashboardSpec } from "./dashboard.ts";
+export type { DashboardCell, DashboardFilter, DashboardFollow, DashboardRange, DashboardSpec } from "./dashboard.ts";
 export { computeHeadline, HEADLINE_OPTIONS, summarizeField } from "./headline.ts";
 export { checkReference, REFERENCE_OPTION, referenceValues, resolveReferences } from "./reference.ts";
 export type { ReferenceMark, ResolvedReference } from "./reference.ts";
