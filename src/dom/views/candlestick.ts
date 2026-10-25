@@ -5,7 +5,7 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { CandlestickView } from "../../core/views.ts";
 import { bands, CHAR_WIDTH, fitLabels, linearScale, linePath } from "../layout.ts";
 import { tickFormatter } from "./chart.ts";
-import { hiddenTableOf, html, selectable, svg } from "./shared.ts";
+import { hiddenTableOf, html, legendList, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
 
 /** Widest a candle body gets: a Fibonacci step, so candles stay thin marks. */
@@ -68,26 +68,23 @@ export const renderCandlestick: ViewRenderer<CandlestickView> = (ctx) => {
       : [];
 
   const wrap = html(doc, "div", "fft-chart");
-  const legend = html(doc, "ul", "fft-legend");
   const keys: [string, string, string][] = [
     ["Up", "var(--fft-up)", "hollow"],
     ["Down", "var(--fft-down)", "rect"],
     // Named in the chart's own time step ("5-day average"), or as an average of the last points.
     ...(means.length ? ([[`${average}-${timeStep(xField) ?? "point"} average`, "var(--fft-text-secondary)", "line"]] as [string, string, string][]) : []),
   ];
-  for (const [name, color, shape] of keys) {
-    const swatch = html(doc, "span", "fft-swatch");
-    swatch.dataset.shape = shape;
-    // Up is hollow and down filled, as on the candles, so direction reads without color (WCAG 1.4.1).
-    if (shape === "hollow") swatch.style.boxShadow = `inset 0 0 0 1.5px ${color}`;
-    else swatch.style.background = color;
-    swatch.setAttribute("aria-hidden", "true");
-    const item = html(doc, "li");
-    item.append(swatch, name);
-    legend.append(item);
-  }
-  // A small-multiples panel leaves its keys to the widget's one shared legend.
-  if (!ctx.inFacet) wrap.append(legend);
+  // Up is hollow and down filled, as on the candles, so direction reads without color (WCAG 1.4.1). The shared
+  // legend has no hollow square, so that one swatch is restyled after; inside a panel there is no legend at all.
+  const legend = legendList(ctx, keys.map(([name, color, shape]) => ({ label: name, color, shape: shape === "line" ? ("line" as const) : ("rect" as const) })));
+  legend?.querySelectorAll<HTMLElement>(".fft-swatch").forEach((swatch, i) => {
+    const [, color, shape] = keys[i] ?? [];
+    if (shape !== "hollow" || !color) return;
+    swatch.dataset.shape = "hollow";
+    swatch.style.removeProperty("background");
+    swatch.style.boxShadow = `inset 0 0 0 1.5px ${color}`;
+  });
+  if (legend) wrap.append(legend);
 
   // Small multiples pass every panel's lows and highs, so the panels share one price axis.
   const extent = [...periods.flatMap((p) => [p.l, p.h]), ...(ctx.extent ?? [])];

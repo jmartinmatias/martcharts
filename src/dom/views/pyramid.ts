@@ -53,7 +53,8 @@ export const renderPyramid: ViewRenderer<PyramidView> = (ctx) => {
   const span = (value: number) => (value / max) * half;
   // A pyramid reads as a silhouette: its bars nearly touch, with square corners whatever the preset's bar radius.
   const rx = 2;
-  const [leftColor, rightColor] = [ctx.color(0), ctx.color(1)];
+  const sideColor = (field: string, i: number) => ctx.colorOf?.(field) ?? ctx.colorOf?.(ctx.label(field)) ?? ctx.color(i);
+  const [leftColor, rightColor] = [sideColor(left, 0), sideColor(right, 1)];
 
   const wrap = html(doc, "div", "fft-chart fft-pyramid");
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });

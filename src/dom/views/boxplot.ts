@@ -5,7 +5,7 @@ import type { BoxplotView } from "../../core/views.ts";
 import { fitLabels, linearScale, quantile } from "../layout.ts";
 import { tickFormatter } from "./chart.ts";
 import { activeGroup, hiddenTableOf, html, ROW, roving, rowHit, svg, textWidth } from "./shared.ts";
-import { nameColumn, writeLabel } from "./label-fit.ts";
+import { edgeAnchor, edgeX, nameColumn, writeLabel } from "./label-fit.ts";
 
 /** Row height and box height: Fibonacci steps. */
 const LANE: number = ROW.tall;
@@ -65,8 +65,10 @@ export const renderBoxplot: ViewRenderer<BoxplotView> = (ctx) => {
   for (const tick of x.ticks) chart.append(svg(doc, "line", { class: "fft-gridline", x1: x(tick), x2: x(tick), y1: 0, y2: plotBottom }));
   for (const i of fitLabels(x.ticks.map((tick) => ({ x: x(tick), width: textWidth(tickText(tick)) })))) {
     const tick = x.ticks[i] as number;
-    const text = svg(doc, "text", { class: "fft-tick fft-tick-x", x: x(tick), y: plotBottom + 18, "text-anchor": "middle" });
-    text.textContent = tickText(tick);
+    const word = tickText(tick);
+    const anchor = edgeAnchor(x(tick), word, width);
+    const text = svg(doc, "text", { class: "fft-tick fft-tick-x", x: edgeX(x(tick), anchor, width), y: plotBottom + 18, "text-anchor": anchor });
+    text.textContent = word;
     chart.append(text);
   }
 
@@ -76,7 +78,7 @@ export const renderBoxplot: ViewRenderer<BoxplotView> = (ctx) => {
   const color = ctx.color(0);
   boxes.forEach((b, i) => {
     const cy = i * LANE + LANE / 2;
-    const g = svg(doc, "g", { class: "fft-box", style: `--fft-i: ${i}; --fft-box-color: ${color}` });
+    const g = svg(doc, "g", { class: "fft-box", style: `--fft-i: ${i}; --fft-box-color: ${(group ? ctx.colorOf?.(b.name) : undefined) ?? color}` });
     if (group && column) {
       const label = svg(doc, "text", { class: "fft-box-label", x: column.end, y: cy, "text-anchor": "end", "dominant-baseline": "middle" });
       const full = ctx.format(b.name, group);
@@ -97,8 +99,8 @@ export const renderBoxplot: ViewRenderer<BoxplotView> = (ctx) => {
       { label: "Median", value: show(b.median), color },
       { label: "Middle half", value: `${show(b.q1)} to ${show(b.q3)}` },
       { label: "Range", value: `${show(b.low)} to ${show(b.high)}` },
-      { label: "Values", value: String(b.values.length) },
-      ...(b.outliers.length ? [{ label: "Outliers", value: String(b.outliers.length) }] : []),
+      { label: "Values", value: new Intl.NumberFormat(ctx.spec.locale).format(b.values.length) },
+      ...(b.outliers.length ? [{ label: "Outliers", value: new Intl.NumberFormat(ctx.spec.locale).format(b.outliers.length) }] : []),
     ];
     const title = group ? ctx.format(b.name, group) : ctx.label(value);
     const hit = svg(doc, "rect", { class: "fft-box-hit", x: 0, y: i * LANE, width, height: LANE });

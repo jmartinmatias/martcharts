@@ -49,3 +49,19 @@ export function nameColumn(names: string[], cardWidth: number, opts: { min?: num
   const room = Math.max(8, width - GAP.l + 0.5);
   return { width, end: width - GAP.m, shown: names.map((name) => fitLabel(name, room, size, opts.weight ?? 400)) };
 }
+
+/**
+ * How a label centred on `x` should anchor so it stays inside a drawing `width` wide: "middle" where it fits, "start"
+ * when it would spill past the left edge, "end" when it would spill past the right one (the last tick of an axis).
+ */
+export function edgeAnchor(x: number, text: string, width: number, size = 11, weight = 400): "start" | "middle" | "end" {
+  const half = textWidth(text, size, weight) / 2;
+  if (x + half > width - 1) return "end";
+  if (x - half < 1) return "start";
+  return "middle";
+}
+
+/** The x to write a label at for its anchor: pulled to the edge it anchors on, so an end label ends at the edge. */
+export function edgeX(x: number, anchor: "start" | "middle" | "end", width: number): number {
+  return anchor === "end" ? Math.min(x, width - 1) : anchor === "start" ? Math.max(x, 1) : x;
+}

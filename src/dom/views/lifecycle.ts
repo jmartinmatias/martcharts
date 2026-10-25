@@ -3,9 +3,9 @@ import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { LifecycleView } from "../../core/views.ts";
 import { fitLabels } from "../layout.ts";
-import { activeGroup, DAY, dayOf, fieldList, hiddenTableOf, html, ROW, roving, rowHit, svg, textWidth } from "./shared.ts";
+import { DAY, ROW, activeGroup, dayOf, fieldList, hiddenTableOf, html, legendList, roving, rowHit, svg, textWidth } from "./shared.ts";
 import { DEEMPHASIS, highlights } from "./chart.ts";
-import { fitLabel, nameColumn, writeLabel } from "./label-fit.ts";
+import { edgeAnchor, edgeX, fitLabel, nameColumn, writeLabel } from "./label-fit.ts";
 
 const LANE: number = ROW.roomy;
 const GROUP_ROW: number = ROW.group;
@@ -64,14 +64,18 @@ export const renderLifecycle: ViewRenderer<LifecycleView> = (ctx) => {
 
   const statusTexts = status ? drawn.map((it) => ctx.format(it.row[status], status)) : [];
   const pillWidth = (text: string) => textWidth(text, 10, 600) + 12;
-  const statusW = status ? Math.max(0, ...statusTexts.map(pillWidth)) : 0;
+  const pillsW = status ? Math.max(0, ...statusTexts.map(pillWidth)) : 0;
   // The names' measured column (group headings in bold too), cut with an ellipsis past a third of the card.
   const boldest = Math.max(0, ...items.filter((it) => it.kind === "group").map((it) => Math.ceil(textWidth(it.name, 11, 600)) + 9));
   const column = nameColumn(items.filter((it) => it.kind === "row").map((it) => it.name), ctx.width, { min: Math.max(55, Math.min(boldest, ctx.width * 0.34)) });
   const headings = items.map((it) => (it.kind === "group" ? fitLabel(it.name, column.width - 8, 11, 600) : ""));
   const left = column.width + 8;
+  // On a narrow card the names, the status pills and a 144px plot do not all fit: the status shrinks to a dot (its
+  // words stay in the tooltip and the row's label) and the plot may narrow to 89px, so the chart never outgrows the card.
+  const compactStatus = Boolean(status) && left + pillsW + 13 + 144 > ctx.width;
+  const statusW = compactStatus ? 10 : pillsW;
   const margin = { top: 34, right: status ? statusW + 13 : 13, bottom: 8, left };
-  const width = Math.max(ctx.width, left + margin.right + 144);
+  const width = Math.max(ctx.width, left + margin.right + 89);
   const heights = items.map((it) => (it.kind === "group" ? GROUP_ROW : LANE));
   const height = margin.top + heights.reduce((a, b) => a + b, 0) + margin.bottom;
   const plotW = width - margin.left - margin.right;
@@ -114,7 +118,7 @@ export const renderLifecycle: ViewRenderer<LifecycleView> = (ctx) => {
 
   const longDate = new Intl.DateTimeFormat(locale, { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
   const dateText = (row: Row, field: string, day: number) => (ctx.spec.fields?.[field]?.format !== undefined ? ctx.format(row[field], field) : longDate.format(new Date(day * DAY)));
-  const base = ctx.color(0);
+  const base = ctx.colorOf?.(stages[0]) ?? ctx.color(0);
   const lanes: SVGGElement[] = [];
   const hits: Element[] = [];
   const active = activeGroup(wrap, ctx.tooltip);
@@ -163,12 +167,20 @@ export const renderLifecycle: ViewRenderer<LifecycleView> = (ctx) => {
     });
     if (status) {
       const text = statusTexts[drawn.indexOf(item)] ?? "";
-      const pillW = pillWidth(text);
       const px = plotRight + 8;
-      g.append(svg(doc, "rect", { class: "fft-lc-status", x: px, y: cy - 8, width: pillW, height: 16, rx: 8 }));
-      const pill = svg(doc, "text", { class: "fft-lc-status-text", x: px + pillW / 2, y: cy, "text-anchor": "middle", "dominant-baseline": "central" });
-      pill.textContent = text;
-      g.append(pill);
+      if (compactStatus) {
+        const dot = svg(doc, "circle", { class: "fft-lc-status fft-lc-status-dot", cx: px + 5, cy, r: 5 });
+        const title = svg(doc, "title");
+        title.textContent = text;
+        dot.append(title);
+        g.append(dot);
+      } else {
+        const pillW = pillWidth(text);
+        g.append(svg(doc, "rect", { class: "fft-lc-status", x: px, y: cy - 8, width: pillW, height: 16, rx: 8 }));
+        const pill = svg(doc, "text", { class: "fft-lc-status-text", x: px + pillW / 2, y: cy, "text-anchor": "middle", "dominant-baseline": "central" });
+        pill.textContent = text;
+        g.append(pill);
+      }
     }
     const tooltip: TooltipItem[] = [];
     stages.forEach((field, s) => {
@@ -194,7 +206,8 @@ export const renderLifecycle: ViewRenderer<LifecycleView> = (ctx) => {
   if (now !== null && now >= lo && now <= hi) {
     const tx = x(now);
     chart.append(svg(doc, "line", { class: "fft-gantt-today", x1: tx, x2: tx, y1: margin.top - 6, y2: bottom }));
-    const text = svg(doc, "text", { class: "fft-gantt-today-label", x: tx, y: margin.top - 10, "text-anchor": "middle" });
+    const anchor = edgeAnchor(tx, "Today", width, 10, 600);
+    const text = svg(doc, "text", { class: "fft-gantt-today-label", x: edgeX(tx, anchor, width), y: margin.top - 10, "text-anchor": anchor });
     text.textContent = "Today";
     chart.append(text);
   }
@@ -203,23 +216,19 @@ export const renderLifecycle: ViewRenderer<LifecycleView> = (ctx) => {
 
   // The key: each stage's tint, and what a thicker row means.
   if (!ctx.inFacet) {
-    const legend = html(doc, "ul", "fft-legend fft-lc-key");
-    stages.forEach((field, s) => {
-      const swatch = html(doc, "span", "fft-swatch");
-      swatch.dataset.shape = "rect";
-      swatch.style.background = `color-mix(in srgb, ${base} ${Math.round(stageTint(s, stages.length) * 100)}%, var(--fft-surface))`;
-      swatch.setAttribute("aria-hidden", "true");
-      const li = html(doc, "li");
-      li.append(swatch, ctx.label(field));
-      legend.append(li);
-    });
-    const open = html(doc, "span", "fft-swatch fft-lc-key-open");
-    open.setAttribute("aria-hidden", "true");
-    open.style.setProperty("--fft-lc-color", base);
-    const li = html(doc, "li");
-    li.append(open, "Still running");
-    legend.append(li);
-    wrap.append(legend);
+    const tints = stages.map((field, s) => ({ label: ctx.label(field), color: `color-mix(in srgb, ${base} ${Math.round(stageTint(s, stages.length) * 100)}%, var(--fft-surface))` }));
+    const legend = legendList(ctx, [...tints, { label: "Still running", color: "" }]);
+    if (legend) {
+      legend.classList.add("fft-lc-key");
+      const open = legend.querySelectorAll<HTMLElement>(".fft-swatch")[stages.length];
+      if (open) {
+        open.classList.add("fft-lc-key-open");
+        open.style.removeProperty("background");
+        open.style.setProperty("--fft-lc-color", base);
+      }
+      // Above the lanes, as every row view's key.
+      wrap.prepend(legend);
+    }
     if (impact) wrap.append(html(doc, "p", "fft-lc-note", `Thicker rows: higher ${ctx.label(impact).toLowerCase()}.`));
   }
   wrap.append(hiddenTableOf(ctx, drawn.map((it) => it.row), [label, ...stages, ...(status ? [status] : []), ...(group ? [group] : []), ...(impact ? [impact] : [])]));

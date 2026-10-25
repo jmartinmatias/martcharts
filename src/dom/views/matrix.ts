@@ -4,7 +4,7 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import { isYes } from "../../core/views.ts";
 import type { MatrixView } from "../../core/views.ts";
 import { quantize, wrapLabels } from "../layout.ts";
-import { activeGroup, hiddenTable, html, roving, rowHit, svg, textWidth } from "./shared.ts";
+import { activeGroup, hiddenTable, html, legendList, roving, rowHit, svg, textWidth } from "./shared.ts";
 import { DEEMPHASIS, highlights } from "./chart.ts";
 import { fitLabel, nameColumn, writeLabel } from "./label-fit.ts";
 
@@ -225,27 +225,14 @@ export const renderMatrix: ViewRenderer<MatrixView> = (ctx) => {
     keys.append(legend);
   }
   if ((kinds.length || mark) && !ctx.inFacet) {
-    const legend = html(doc, "ul", "fft-legend");
-    if (mark) {
-      const swatch = html(doc, "span", "fft-swatch");
-      swatch.setAttribute("aria-hidden", "true");
-      swatch.style.background = ctx.color(0);
-      const item = html(doc, "li");
-      item.append(swatch, ctx.label(mark));
-      legend.append(item);
-    }
-    kinds.forEach((kind, i) => {
-      const swatch = html(doc, "span", "fft-swatch");
-      swatch.dataset.shape = mark ? "rect" : "dot";
-      swatch.setAttribute("aria-hidden", "true");
-      swatch.style.background = kindColor(i);
-      const item = html(doc, "li");
-      item.append(swatch, color ? sample(kind, color) : kind);
-      legend.append(item);
-    });
-    keys.append(legend);
+    const legend = legendList(ctx, [
+      ...(mark ? [{ label: ctx.label(mark), color: ctx.color(0) }] : []),
+      ...kinds.map((kind, i) => ({ label: color ? sample(kind, color) : kind, color: kindColor(i), shape: mark ? ("rect" as const) : ("dot" as const) })),
+    ]);
+    if (legend) keys.append(legend);
   }
-  if (keys.childElementCount) wrap.append(keys);
+  // Keys above the grid, as every row view's.
+  if (keys.childElementCount) wrap.prepend(keys);
 
   // The grid as a table for screen readers: one row per line, one column per column.
   const cellText = (row: Row | undefined) => {

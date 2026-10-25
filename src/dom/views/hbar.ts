@@ -57,17 +57,18 @@ function renderSingle(ctx: ViewContext<HbarView>, value: string): void {
     const fill = html(doc, "div", "fft-hbar-fill");
     const share = widthOf(amount, max);
     fill.style.width = share;
-    fill.style.background = on ? ctx.color(0) : DEEMPHASIS;
-    fill.style.setProperty("--fft-bar-color", on ? ctx.color(0) : DEEMPHASIS);
+    const hue = ctx.colorOf?.(row[label]) ?? ctx.color(0);
+    fill.style.background = on ? hue : DEEMPHASIS;
+    fill.style.setProperty("--fft-bar-color", on ? hue : DEEMPHASIS);
     track.append(fill);
     if (lollipop) {
       const dot = html(doc, "span", "fft-hbar-dot");
       dot.style.left = share;
-      dot.style.background = on ? ctx.color(0) : DEEMPHASIS;
+      dot.style.background = on ? hue : DEEMPHASIS;
       track.append(dot);
     }
     item.append(nameLabel(doc, name), track, html(doc, "span", "fft-hbar-value", valueText));
-    rows.push(rowHit(ctx, { node: item, row, name, items: [{ label: ctx.label(value), value: valueText, color: on ? ctx.color(0) : DEEMPHASIS }], anchor: track, group: active }));
+    rows.push(rowHit(ctx, { node: item, row, name, items: [{ label: ctx.label(value), value: valueText, color: on ? hue : DEEMPHASIS }], anchor: track, group: active }));
     // One measure is read as the name and its figure alone: "North: €1,200".
     item.setAttribute("aria-label", `${name}: ${valueText || "no value"}`);
     list.append(item);
@@ -108,7 +109,8 @@ function frame(ctx: ViewContext<HbarView>, series: string[], mode: "grouped" | "
   const picked = highlights(ctx.view.highlight);
   const on = (row: Row) => picked.length === 0 || picked.includes(String(row[ctx.view.label]));
   // A muted row keeps a hint of each series' hue, so its greys still say which is which.
-  const color = (s: number, lit = true) => (lit ? ctx.color(s) : `color-mix(in srgb, ${ctx.color(s)} 30%, ${DEEMPHASIS})`);
+  const hue = (s: number) => ctx.colorOf?.(series[s]) ?? ctx.colorOf?.(ctx.label(series[s] as string)) ?? ctx.color(s);
+  const color = (s: number, lit = true) => (lit ? hue(s) : `color-mix(in srgb, ${hue(s)} 30%, ${DEEMPHASIS})`);
   const wrap = html(doc, "div", "fft-hbar-wrap");
   const key = mode === "split" ? undefined : legendList(ctx, series.map((field, s) => ({ label: ctx.label(field), color: color(s) })));
   if (key) wrap.append(key);

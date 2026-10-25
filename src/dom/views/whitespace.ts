@@ -4,7 +4,7 @@ import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import { WHITESPACE_STATES } from "../../core/views.ts";
 import type { WhitespaceView } from "../../core/views.ts";
-import { activeGroup, hiddenTable, html, labelColumn, roving, rowHit } from "./shared.ts";
+import { activeGroup, hiddenTable, html, labelColumn, legendList, roving, rowHit, textWidth } from "./shared.ts";
 
 /** A column narrower than this, in pixels, turns its header on its side. */
 const TIGHT = 55;
@@ -32,6 +32,8 @@ interface Line {
 export const renderWhitespace: ViewRenderer<WhitespaceView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
   const { row: rowField, column: columnField, state: stateField, score: scoreField, value: valueField } = ctx.view;
+  // Held products in one hue; a product with a fixed color keeps it in its own column.
+  const held = ctx.color(0);
   const names = (Array.isArray(ctx.view.states) && ctx.view.states.length === 3 ? ctx.view.states : WHITESPACE_STATES).map(String);
   const stateOf = (value: unknown): State | undefined => {
     const text = String(value);
@@ -79,22 +81,19 @@ export const renderWhitespace: ViewRenderer<WhitespaceView> = (ctx) => {
   const wrap = html(doc, "div", "fft-ws");
   // The legend: the three states as the marks themselves.
   if (!ctx.inFacet) {
-    const legend = html(doc, "ul", "fft-legend fft-ws-legend");
-    for (const [state, label] of [
-      ["holds", names[0]],
-      ["opportunity", names[1]],
-      ["none", names[2]],
-    ] as const) {
-      const swatch = html(doc, "span", "fft-swatch fft-ws-swatch");
-      swatch.dataset.state = state;
-      if (state === "holds") swatch.style.background = ctx.color(0);
-      if (state === "opportunity") swatch.style.setProperty("--fft-ws-color", ctx.color(0));
-      swatch.setAttribute("aria-hidden", "true");
-      const item = html(doc, "li");
-      item.append(swatch, label ?? "");
-      legend.append(item);
+    const states = ["holds", "opportunity", "none"] as const;
+    const legend = legendList(ctx, states.map((state, i) => ({ label: names[i] ?? "", color: state === "holds" ? held : "" })));
+    if (legend) {
+      legend.classList.add("fft-ws-legend");
+      legend.querySelectorAll<HTMLElement>(".fft-swatch").forEach((swatch, i) => {
+        const state = states[i] as (typeof states)[number];
+        swatch.classList.add("fft-ws-swatch");
+        swatch.dataset.state = state;
+        if (state !== "holds") swatch.style.removeProperty("background");
+        if (state === "opportunity") swatch.style.setProperty("--fft-ws-color", held);
+      });
+      wrap.append(legend);
     }
-    wrap.append(legend);
   }
 
   const grid = html(doc, "div", "fft-ws-grid");
@@ -103,6 +102,11 @@ export const renderWhitespace: ViewRenderer<WhitespaceView> = (ctx) => {
   // The name column is as wide as the longest name, measured, up to a third of the card; longer names end in an ellipsis.
   const nameWidth = labelColumn(lines.map((line) => line.name), ctx.width, { min: 55, size: 13 });
   grid.style.gridTemplateColumns = `minmax(55px, ${nameWidth}px) repeat(${columns.length}, minmax(21px, 1fr)) max-content`;
+  // The narrowest the grid can be: the names' floor, a tappable 21px per product and the row ends' figures. On a
+  // card narrower than that, the cells keep their size and the grid scrolls sideways, never squeezing a cell.
+  const endTexts = lines.flatMap((line) => [`${line.holds} of ${eligible(line)}`, ...(hasValue && line.potential > 0 ? [money(line.potential)] : []), hasValue ? "Held · to win" : "Held"]);
+  const floor = 55 + columns.length * 23 + Math.max(...endTexts.map((text) => textWidth(text, 11, 600))) + 13;
+  if (floor > ctx.width) wrap.dataset.scrolls = "";
   // Narrow columns turn their names on their side, so every product keeps its full name.
   const perColumn = (ctx.width - 89 - (hasValue ? 89 : 55)) / Math.max(1, columns.length);
   if (perColumn < TIGHT) grid.dataset.tight = "";
@@ -132,9 +136,9 @@ export const renderWhitespace: ViewRenderer<WhitespaceView> = (ctx) => {
       cell.dataset.state = entry.state;
       const mark = html(doc, "span", "fft-ws-mark");
       mark.setAttribute("aria-hidden", "true");
-      if (entry.state === "holds") mark.style.background = ctx.color(0);
+      if (entry.state === "holds") mark.style.background = ctx.colorOf?.(column.name) ?? held;
       if (entry.state === "opportunity") {
-        mark.style.setProperty("--fft-ws-color", ctx.color(0));
+        mark.style.setProperty("--fft-ws-color", ctx.colorOf?.(column.name) ?? held);
         if (entry.score !== null) mark.dataset.step = String(sequentialStep(entry.score, Math.min(0, low), Math.max(high, low + 1)));
       }
       cell.append(mark);

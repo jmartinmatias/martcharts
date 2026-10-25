@@ -5,8 +5,8 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { DumbbellView } from "../../core/views.ts";
 import { linearScale } from "../layout.ts";
 import { highlights, tickFormatter } from "./chart.ts";
-import { activeGroup, hiddenTableOf, html, roving, rowHeight, rowHit, svg } from "./shared.ts";
-import { nameColumn, writeLabel } from "./label-fit.ts";
+import { activeGroup, hiddenTableOf, html, legendList, roving, rowHeight, rowHit, svg } from "./shared.ts";
+import { edgeAnchor, edgeX, nameColumn, writeLabel } from "./label-fit.ts";
 
 /** Field names that read as a moment in time (q3_2025, h1, last, before): such a pair is a before and an after. */
 const PERIOD = /(19|20)\d\d|\b[qh][1-4]\b|before|after|previous|prior|last|current|start|end/i;
@@ -53,31 +53,29 @@ export const renderDumbbell: ViewRenderer<DumbbellView> = (ctx) => {
   const x = linearScale(values, [margin.left, width - margin.right], { includeZero: false });
   const change = minusFormat(new Intl.NumberFormat(ctx.spec.locale, { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1, signDisplay: "exceptZero" }));
   const periods = PERIOD.test(from) || PERIOD.test(to);
-  const fromColor = periods ? undefined : ctx.color(0);
-  const toColor = periods ? ctx.color(0) : ctx.color(1);
+  const fixed = (field: string) => ctx.colorOf?.(field) ?? ctx.colorOf?.(ctx.label(field));
+  const fromColor = periods ? fixed(from) : (fixed(from) ?? ctx.color(0));
+  const toColor = periods ? (fixed(to) ?? ctx.color(0)) : (fixed(to) ?? ctx.color(1));
   const directionOf = (a: number, b: number): Direction => (b > a ? "up" : b < a ? "down" : "flat");
   const directions = rows.map((row) => directionOf(readNumber(row[from]) as number, readNumber(row[to]) as number));
 
   const wrap = html(doc, "div", "fft-chart");
   if (arrow) wrap.dataset.mark = "arrow";
-  const legend = html(doc, "ul", "fft-legend");
-  const key = (cls: string, shape: "dot" | "line", text: string, color?: string) => {
-    const swatch = html(doc, "span", `fft-swatch ${cls}`);
-    swatch.dataset.shape = shape;
-    swatch.setAttribute("aria-hidden", "true");
-    if (color) swatch.style.background = color;
-    const item = html(doc, "li");
-    item.append(swatch, text);
-    legend.append(item);
-  };
+  const entries: { cls: string; shape: "dot" | "line"; label: string; color: string }[] = [];
+  const key = (cls: string, shape: "dot" | "line", text: string, color?: string) => entries.push({ cls, shape, label: text, color: color ?? "" });
   key("fft-db-key-from", "dot", ctx.label(from), fromColor);
   if (arrow && periods) {
     // Arrows between two periods are keyed by what they say: rose or fell, each only when it happened.
     if (directions.includes("up")) key("fft-db-key-up", "line", "Rose");
     if (directions.includes("down")) key("fft-db-key-down", "line", "Fell");
   } else key("fft-db-key-to", arrow ? "line" : "dot", ctx.label(to), toColor);
-  // Inside a small-multiples panel the widget draws one shared legend.
-  if (!ctx.inFacet) wrap.append(legend);
+  // The shared legend, above the chart; keys without a color of their own take it from their class.
+  const legend = legendList(ctx, entries);
+  legend?.querySelectorAll<HTMLElement>(".fft-swatch").forEach((swatch, i) => {
+    swatch.classList.add(entries[i]?.cls ?? "");
+    if (!entries[i]?.color) swatch.style.removeProperty("background");
+  });
+  if (legend) wrap.append(legend);
 
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
@@ -86,8 +84,10 @@ export const renderDumbbell: ViewRenderer<DumbbellView> = (ctx) => {
   for (const tick of x.ticks) {
     const tx = x(tick);
     chart.append(svg(doc, "line", { class: "fft-gridline", x1: tx, x2: tx, y1: margin.top, y2: plotBottom }));
-    const text = svg(doc, "text", { class: "fft-tick fft-tick-x", x: tx, y: plotBottom + 18, "text-anchor": "middle" });
-    text.textContent = tickText(tick);
+    const word = tickText(tick);
+    const anchor = edgeAnchor(tx, word, width);
+    const text = svg(doc, "text", { class: "fft-tick fft-tick-x", x: edgeX(tx, anchor, width), y: plotBottom + 18, "text-anchor": anchor });
+    text.textContent = word;
     chart.append(text);
   }
   // highlight keeps the named rows in color and steps the rest back to grey, as on hbar and dot.

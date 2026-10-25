@@ -58,7 +58,8 @@ export const renderStrips: ViewRenderer<StripsView> = (ctx) => {
 
   const wrap = html(doc, "div", "fft-strips");
   wrap.style.setProperty("--fft-strip-label", `${Math.round(labelW)}px`);
-  const key = legendList(ctx, parts.map((field, i) => ({ label: ctx.label(field), color: ctx.color(i) })), { min: 2 });
+  const partColor = (p: number) => ctx.colorOf?.(parts[p]) ?? ctx.colorOf?.(ctx.label(parts[p] as string)) ?? ctx.color(p);
+  const key = legendList(ctx, parts.map((field, i) => ({ label: ctx.label(field), color: partColor(i) })), { min: 2 });
   if (key) wrap.append(key);
   const list = html(doc, "div", "fft-strip-rows");
   list.setAttribute("role", "list");
@@ -82,7 +83,7 @@ export const renderStrips: ViewRenderer<StripsView> = (ctx) => {
     perPart.forEach((m, p) => {
       for (let q = 0; q < m; q++, k++) {
         const rect = svg(doc, "rect", { class: "fft-strip-sq", x: k * PITCH, y: 0, width: SIDE, height: SIDE, rx: 1.5, "data-part": p, style: `--fft-k: ${k}` });
-        rect.style.setProperty("fill", ctx.color(p));
+        rect.style.setProperty("fill", partColor(p));
         strip.append(rect);
       }
     });
@@ -95,7 +96,7 @@ export const renderStrips: ViewRenderer<StripsView> = (ctx) => {
     writeLabel(nameNode, column.shown[i] ?? names[i] ?? "", names[i] ?? "");
     item.append(nameNode, strip, end);
 
-    const items: TooltipItem[] = parts.map((field, p) => ({ label: ctx.label(field), value: ctx.format(row[field], field), color: ctx.color(p) }));
+    const items: TooltipItem[] = parts.map((field, p) => ({ label: ctx.label(field), value: ctx.format(row[field], field), color: partColor(p) }));
     if (parts.length > 1) items.push({ label: "Total", value: text.total });
     if (text.part) items.push({ label: `${ctx.label(first)} share`, value: text.part });
     if (text.dense) items.push({ label: "Density", value: text.dense });

@@ -43,10 +43,11 @@ export const renderDot: ViewRenderer<DotView> = (ctx) => {
   const height = plotBottom + margin.bottom;
   const x = linearScale(present, [margin.left, width - margin.right], { includeZero: false });
   const tickText = tickFormatter(ctx, measures[0], x.ticks);
-  const colorOf = (i: number, m: number) => (picked.length === 0 || picked.includes(String(rows[i]?.[label])) ? ctx.color(m) : DEEMPHASIS);
+  const hue = (m: number) => ctx.colorOf?.(measures[m]) ?? ctx.colorOf?.(ctx.label(measures[m] as string)) ?? ctx.color(m);
+  const colorOf = (i: number, m: number) => (picked.length === 0 || picked.includes(String(rows[i]?.[label])) ? hue(m) : DEEMPHASIS);
 
   const wrap = html(doc, "div", "fft-chart fft-dots");
-  const key = single ? undefined : legendList(ctx, measures.map((field, m) => ({ label: ctx.label(field), color: ctx.color(m), shape: "dot" as const })));
+  const key = single ? undefined : legendList(ctx, measures.map((field, m) => ({ label: ctx.label(field), color: hue(m), shape: "dot" as const })));
   if (key) wrap.append(key);
 
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
