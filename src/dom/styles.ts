@@ -1593,4 +1593,69 @@ ul.fft-map-legend { margin-top: 0; }
 .fft-board-more:hover { color: var(--fft-text); }
 .fft-board-more:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 2px; }
 .fft-widget[data-animate] .fft-board-card { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 13ms); }
+
+/* RAG reporting. Calm, not neon: each status hue leans toward the text color, so it darkens on a light card and lightens on a
+   dark one, and stays at 3:1 or more on the surface either way. The green leans teal and the red warm, so they part under
+   protanopia too; the shapes (filled circle, triangle, square, hollow circle) carry the status without any color. */
+.fft-widget, .fft-dashboard, .fft-editor {
+  --fft-rag-g: color-mix(in oklab, #19a39a 85%, var(--fft-text));
+  --fft-rag-a: color-mix(in oklab, #e8b10c 80%, var(--fft-text));
+  --fft-rag-r: color-mix(in oklab, #c03a2b 90%, var(--fft-text));
+  --fft-rag-n: var(--fft-muted);
+}
+[data-rag="G"] { --fft-rag: var(--fft-rag-g); }
+[data-rag="A"] { --fft-rag: var(--fft-rag-a); }
+[data-rag="R"] { --fft-rag: var(--fft-rag-r); }
+[data-rag="N"] { --fft-rag: var(--fft-rag-n); }
+.fft-rag-glyph { flex: none; display: block; overflow: visible; }
+.fft-rag-glyph path { fill: var(--fft-rag, var(--fft-muted)); }
+.fft-rag-glyph path[data-shape="ring"] { fill: none; stroke: var(--fft-rag, var(--fft-muted)); stroke-width: 1.5; }
+.fft-rag-pill {
+  display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px 2px 5px; border-radius: 13px;
+  font-size: 11px; line-height: 13px; font-weight: 600; white-space: nowrap;
+  color: color-mix(in srgb, var(--fft-rag) 70%, var(--fft-text));
+  background: color-mix(in srgb, var(--fft-rag) 12%, transparent);
+}
+.fft-rag-pill[data-compact] { padding: 3px; }
+.fft-kpi-rag, .fft-stat-rag { align-self: flex-start; margin-top: 5px; }
+
+.fft-ragboard, .fft-ragtrend { display: flex; flex-direction: column; gap: 13px; }
+.fft-rag-summary { display: flex; flex-wrap: wrap; gap: 8px 21px; margin: 0; padding: 0; list-style: none; }
+.fft-rag-sum { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; line-height: 21px; color: var(--fft-text-secondary); }
+.fft-rag-sum-count { font-size: 21px; line-height: 21px; font-weight: 600; color: var(--fft-text); font-variant-numeric: tabular-nums; }
+.fft-rag-sum-share { color: var(--fft-muted); font-variant-numeric: tabular-nums; }
+.fft-rag-scroll { overflow-x: auto; }
+.fft-rag-table, .fft-ragtrend-table { border-collapse: separate; border-spacing: 3px; width: 100%; font-size: 12px; line-height: 13px; }
+.fft-rag-table th, .fft-ragtrend-table th { font-weight: 500; color: var(--fft-text-secondary); text-align: center; vertical-align: bottom; }
+.fft-rag-corner { text-align: left !important; font-size: 11px; color: var(--fft-muted) !important; }
+.fft-rag-head { font-size: 11px; padding: 0 2px 5px; min-width: 34px; max-width: 89px; overflow-wrap: break-word; hyphens: auto; }
+.fft-rag-head-overall { color: var(--fft-text) !important; font-weight: 600 !important; }
+.fft-rag-name { text-align: left !important; vertical-align: middle !important; padding: 3px 13px 3px 0; min-width: 89px; color: var(--fft-text) !important; }
+.fft-rag-name-text { display: block; font-weight: 500; }
+.fft-rag-note { display: block; margin-top: 2px; font-size: 11px; font-weight: 400; color: var(--fft-muted); }
+.fft-rag-cell, .fft-ragtrend-cell {
+  position: relative; height: 30px; padding: 0; border-radius: 6px; text-align: center; vertical-align: middle; cursor: pointer; outline: none;
+  background: color-mix(in srgb, var(--fft-rag) 11%, transparent);
+  transition: opacity 377ms var(--fft-ease), background 233ms var(--fft-ease);
+}
+.fft-rag-cell .fft-rag-glyph, .fft-ragtrend-cell .fft-rag-glyph { margin: 0 auto; }
+.fft-rag-cell[data-overall] { background: color-mix(in srgb, var(--fft-rag) 18%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fft-rag) 34%, transparent); }
+.fft-rag-cell[data-rag="N"], .fft-ragtrend-cell[data-rag="N"] { background: color-mix(in srgb, var(--fft-text) 3%, transparent); }
+.fft-rag-cell:hover, .fft-ragtrend-cell:hover { background: color-mix(in srgb, var(--fft-rag) 22%, transparent); }
+.fft-rag-cell:focus-visible, .fft-ragtrend-cell:focus-visible { box-shadow: 0 0 0 2px var(--fft-ring, var(--fft-surface)), 0 0 0 4px var(--fft-accent); }
+.fft-rag-table[data-active] .fft-rag-row:not([data-active]) :is(.fft-rag-cell, .fft-rag-name),
+.fft-ragtrend-table[data-active] .fft-ragtrend-row:not([data-active]) :is(.fft-ragtrend-cell, .fft-rag-name) { opacity: 0.38; }
+.fft-rag-trend { position: absolute; top: 1px; right: 4px; font-size: 10px; line-height: 11px; font-weight: 700; color: var(--fft-text-secondary); }
+.fft-rag-cell[data-trend="worse"] .fft-rag-trend { color: var(--fft-rag-r); }
+.fft-rag-group th { padding: 13px 0 3px; text-align: left; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--fft-muted); }
+.fft-rag-foot th { text-align: left !important; font-size: 11px; color: var(--fft-muted) !important; padding-top: 5px; }
+.fft-rag-tally { padding-top: 5px; text-align: center; font-size: 11px; color: var(--fft-text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.fft-rag-tally-part { display: inline-flex; align-items: center; gap: 2px; margin: 0 3px; }
+.fft-rag-legend li { display: inline-flex; align-items: center; gap: 5px; }
+.fft-ragtrend-period { font-size: 10px !important; font-weight: 400 !important; padding-bottom: 5px; white-space: nowrap; }
+.fft-ragtrend-cell { height: 26px; min-width: 21px; }
+.fft-ragtrend-cell[data-changed]::before { content: ""; position: absolute; left: -2px; top: 4px; bottom: 4px; width: 2px; border-radius: 1px; background: var(--fft-text); }
+.fft-ragtrend-now { font-size: 11px !important; text-align: left !important; padding-left: 8px; }
+.fft-ragtrend-end { padding-left: 8px; white-space: nowrap; }
+.fft-widget[data-animate] :is(.fft-rag-row, .fft-ragtrend-row) { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 21ms); }
 `;

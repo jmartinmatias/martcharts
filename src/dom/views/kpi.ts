@@ -9,6 +9,8 @@ import { countable } from "../count-up.ts";
 import { deltaElement } from "./delta.ts";
 import { html, svg } from "./shared.ts";
 import { targetLine } from "./target.ts";
+import { ragFromValue } from "../../core/rag.ts";
+import { ragPill } from "./rag-shared.ts";
 
 /** Sparkline height in pixels: a Fibonacci step. */
 const SPARK_HEIGHT = 34;
@@ -49,6 +51,8 @@ export const renderKpi: ViewRenderer<KpiView> = (ctx) => {
   box.append(html(doc, "div", "fft-kpi-label", label ?? ctx.label(field)), number);
 
   const now = readNumber(value);
+  // With RAG thresholds, a pill says where the number stands: its shape and its words, never color alone.
+  if (ctx.view.rag && now !== null) box.append(ragPill(doc, ragFromValue(now, ctx.view.rag), {}, "fft-kpi-rag"));
   const before = compare ? readNumber(row[compare]) : previous ? readNumber(previous[field]) : null;
   if (now !== null && before !== null && before !== 0) {
     const fallbackLabel = compare

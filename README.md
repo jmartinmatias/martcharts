@@ -114,8 +114,8 @@ const asTable = fork(topCustomers, { view: { type: "table", label: null, detail:
 | Slot | Blocks |
 | --- | --- |
 | Data sources | `inline`, `url`, `fn` |
-| Transforms | `filter`, `sort`, `limit`, `aggregate` (including `list`, for spark columns), `pivot` (long to wide), `calc`, `bin` (value bands with counts) |
-| Formats | `number`, `currency`, `percent`, `date`, `badge` (status pills), `spark` (mini trends in table and list cells), `bar` (in-cell data bars scaled to the column), `delta` (signed changes with an arrow, good or bad), `heat` (cells tinted on one shared scale, for heat tables), `text` |
+| Transforms | `filter`, `sort`, `limit`, `aggregate` (including `list`, for spark columns), `pivot` (long to wide), `calc`, `bin` (value bands with counts), `rag` (numbers to Red, Amber, Green statuses against thresholds, with an overall worst-of column) |
+| Formats | `number`, `currency`, `percent`, `date`, `badge` (status pills), `spark` (mini trends in table and list cells), `bar` (in-cell data bars scaled to the column), `delta` (signed changes with an arrow, good or bad), `heat` (cells tinted on one shared scale, for heat tables), `rag` (a status pill with its shape and words: On track, At risk, Off track), `text` |
 | Views | 40 of them, grouped by the question they answer in [Which view?](#which-view) |
 | Emphasis | `highlight` on bar, hbar, line and area keeps the named categories or series in color and greys the rest |
 | Combo | `"lines": "target"` on a bar chart draws lines over the bars on the same axis (never a second one); under a target line, bars that fall short are drawn outlined and keyed Below target; `"compare": "lastYear"` stands a wider, quieter column behind each bar |
@@ -173,6 +173,8 @@ Start from what you want the reader to see. Every view takes plain rows; `sugges
 | Where things are | `choropleth` (regions shaded by a value), `symbols` (circles sized by a value, on their regions or at coordinates), `locator` (named markers). Two built-in tile-grid basemaps, `europe` and `us-states`, keyed by country or state code, or your own GeoJSON by object or address |
 | Which measures stepped out of line | `anomalies` (one thin lane per metric, its expected band behind the line, anomalies as alert dots, the lanes with the most first); on a `scatter`, `"cluster"` draws a soft hull round each cluster's dots |
 | Where everything stands in a lifecycle | `board` (one column per stage or status, each item a card with its group dot and value: regulations by status, deals by stage) |
+| RAG reporting: who is on track | `ragboard` (a Red, Amber, Green scorecard: one row per client, relationship manager or deal, one status cell per dimension such as health, coverage, pipeline and relationship, the worst first, arrows for better or worse since last period, counts per column) |
+| RAG reporting: how status moved | `ragtrend` (each entity's status period by period, a tick where it changed and why in the tooltip, the current status as a pill); the `rag` transform turns numbers into statuses against thresholds, the `rag` format shows a status pill in any table, and `"rag": { "green": 40, "amber": 20 }` on a `kpi` or `kpis` tile adds a status pill beside the number. Every status has its own shape and words, never color alone |
 | Records to read | `table` (with `spark` and `badge` cells), `list` |
 | Regulatory pressure, or who must comply | `matrix` (one mark per topic and quarter, sized by new obligations and shaded by impact; or a square per stakeholder that must comply with each rule) |
 | Provisions and how binding they are | `strips` (one square per provision, colored mandatory, recommended, optional, with the mandatory share and the density per page at the end) |

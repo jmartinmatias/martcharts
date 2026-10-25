@@ -815,6 +815,7 @@ const FAMILY: Record<string, string> = {
   matrix: "table", strips: "whole", lifecycle: "time",
   whitespace: "table", xray: "number", history: "time",
   board: "table",
+  ragboard: "target", ragtrend: "time",
 };
 /** Forms that surprise on any table: rare and playful. */
 const RARE = new Set(["rose", "horizon", "icicle", "beeswarm", "waffle", "marimekko", "calendar", "sunburst", "radar", "chord"]);
@@ -920,6 +921,7 @@ export function qualitiesOf(spec: WidgetSpec, rows: Row[], source?: WidgetSpec):
     whitespace: [0.3, 0.35, 0.3, 0.55, 0.5], xray: [0.5, 0.25, 0.2, 0.45, 0.4], history: [0.2, 0.25, 0.3, 0.5, 0.35],
     anomalies: [0.35, 0.4, 0.45, 0.4, 0.5],
     board: [0.2, 0.3, 0.2, 0.5, 0.3],
+    ragboard: [0.45, 0.25, 0.35, 0.45, 0.5], ragtrend: [0.3, 0.3, 0.35, 0.45, 0.45],
   };
   const [emphasis, surprise, honesty, detail, insight] = base[type] ?? [0.25, 0.2, 0.1, 0.3, 0.3];
   const t: Qualities = { emphasis, surprise, honesty, detail, insight };

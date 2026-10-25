@@ -332,6 +332,17 @@ export function questionOf(spec: WidgetSpec, rows: Row[] = []): Question {
       const entity = entityOf(label, spec);
       return ask("detail", `where is each ${entity} right now, and how many are at each ${name(stage)}?`);
     }
+    case "ragboard": {
+      const label = one(view.label);
+      if (!label) break;
+      const entities = plural(entityOf(label, spec)) ?? entityOf(label, spec);
+      return ask("target", `which ${entities} are off track, on what, and which need action first?`);
+    }
+    case "ragtrend": {
+      const label = one(view.label);
+      if (!label) break;
+      return ask("change", `whose status got worse, when, and why?`);
+    }
     case "choropleth": {
       const [code, amount, category] = [one(view.id), one(view.value), one(view.category)];
       if (code && category && !amount) {

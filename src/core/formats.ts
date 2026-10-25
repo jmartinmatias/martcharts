@@ -6,6 +6,8 @@
  */
 import type { FormatBlock } from "./registry.ts";
 import type { FormatSpec } from "./types.ts";
+import { ragOf, ragShape, ragShapePath, ragWord } from "./rag.ts";
+import type { Rag } from "./rag.ts";
 
 /** Reads a number from a number or from text that is exactly a number. Anything else gives null. */
 export function readNumber(value: unknown): number | null {
@@ -299,4 +301,57 @@ const heat: FormatBlock = {
   },
 };
 
-export const builtinFormats: FormatBlock[] = [number, currency, percent, date, badge, spark, text, bar, delta, heat];
+/** A status's shape as a 12px SVG, colored by the status's token; hidden from screen readers, which read the words. */
+export function ragGlyph(doc: Document, status: Rag, shapes?: unknown, size = 12): SVGSVGElement {
+  const glyph = doc.createElementNS(SVG_NS, "svg") as SVGSVGElement;
+  glyph.setAttribute("class", "fft-rag-glyph");
+  glyph.setAttribute("width", String(size));
+  glyph.setAttribute("height", String(size));
+  glyph.setAttribute("viewBox", `0 0 ${size} ${size}`);
+  glyph.setAttribute("aria-hidden", "true");
+  glyph.setAttribute("data-rag", status);
+  const shape = ragShape(status, shapes);
+  const path = doc.createElementNS(SVG_NS, "path");
+  path.setAttribute("d", ragShapePath(shape, size));
+  path.setAttribute("data-shape", shape);
+  glyph.append(path);
+  return glyph;
+}
+
+/**
+ * A RAG status as a pill: its shape (a filled circle for G, a triangle for A, a square for R, a hollow circle for no
+ * data), its words and its color, so the status never rests on color alone.
+ */
+const ragFormat: FormatBlock = {
+  type: "rag",
+  description:
+    "A RAG status (R, A, G, or N for no data; red, amber, green and grey also read) as a pill with its shape, its words and its color: On track with a filled circle, At risk with a triangle, Off track with a square, No data with a hollow circle. compact keeps only the shape, with the words in its label. Plain words elsewhere.",
+  options: {
+    compact: { type: "boolean", default: false, description: "Only the shape, for dense tables; the words stay in its label and tooltip." },
+    words: { type: "object", description: 'Words per status, keyed R, A, G, N. Example: { "G": "Healthy", "A": "Watch", "R": "Escalate" }.' },
+    shapes: { type: "object", description: "Shape per status, keyed R, A, G, N: circle, triangle, square, ring or diamond." },
+  },
+  format: (value, options) => ragWord(ragOf(value), options.words),
+  element(value, options, _locale, doc) {
+    const status = ragOf(value);
+    const word = ragWord(status, options.words);
+    const pill = doc.createElement("span");
+    pill.className = "fft-rag-pill";
+    pill.dataset.rag = status;
+    pill.append(ragGlyph(doc, status, options.shapes));
+    if (options.compact) {
+      pill.dataset.compact = "";
+      pill.setAttribute("role", "img");
+      pill.setAttribute("aria-label", word);
+      pill.title = word;
+    } else {
+      const text = doc.createElement("span");
+      text.className = "fft-rag-word";
+      text.textContent = word;
+      pill.append(text);
+    }
+    return pill;
+  },
+};
+
+export const builtinFormats: FormatBlock[] = [number, currency, percent, date, badge, spark, text, bar, delta, heat, ragFormat];

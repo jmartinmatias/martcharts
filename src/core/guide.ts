@@ -587,6 +587,24 @@ const GUIDES: ChartGuide[] = [
     bestFor: ["Where everything stands in a lifecycle: regulations by status, deals by stage, tickets by state", "Seeing at once which stage is crowded and what is in it, by name"],
     avoidFor: ["Amounts per stage alone (use funnel or bar)", "Hundreds of items (filter first, or count them into a funnel)", "Stages with no natural order"],
   },
+  {
+    type: "ragboard",
+    purposes: { target: 3, lookup: 2, compare: 1 },
+    grain: "category",
+    build: "One row per data row and one cell per dimension holding its status (R, A, G or N) as a shape, an Overall column with the worst of them first, rows sorted worst first, a strip that counts the statuses above and a count per column below; a previous field per dimension adds a better or worse arrow.",
+    rows: { min: 2, max: 40 },
+    bestFor: ["A RAG scorecard: client health, coverage, pipeline and relationship status per client or per relationship manager", "Which accounts need action first, and on what", "Status reviews where each cell is a judgment, not an amount"],
+    avoidFor: ["Amounts and trends (use table with heat cells, or line)", "One status over many periods (use ragtrend)", "More than about 40 rows (filter to the ones that need attention)"],
+  },
+  {
+    type: "ragtrend",
+    purposes: { change: 3, trend: 2, target: 1 },
+    grain: "pair",
+    build: "One row per entity and one cell per period with its status as a shape, a tick where the status changed, the note of why in the tooltip, and the current status as a pill at the end; rows worst-current first.",
+    rows: { min: 6, max: 600 },
+    bestFor: ["How each client's or deal's status moved, review by review", "Spotting who slipped recently, and reading why", "Monthly or quarterly RAG reporting with a history"],
+    avoidFor: ["Several dimensions at one moment (use ragboard)", "Numbers rather than statuses (use line or horizon)", "More than about 24 periods (roll them up)"],
+  },
 ];
 
 const BY_TYPE = new Map(GUIDES.map((guide) => [guide.type, guide]));
@@ -834,6 +852,10 @@ const NOTES: Record<string, string> = {
   "board>funnel": "Counts per stage read as one shape, with the conversion between stages; the items themselves are gone.",
   "funnel>board": "Names every item in its stage, so you see what is where; the shape of the drop-off is less obvious.",
   "board>table": "Every field in columns, sortable and searchable; where things stand no longer reads at a glance.",
+  "ragboard>table": "Every status as words in a sortable, searchable table; the worst-first scan and the counts are gone.",
+  "table>ragboard": "Statuses become shapes in a grid, worst rows first, with counts per column; other fields drop out.",
+  "ragboard>ragtrend": "Shows one status moving over time instead of several at once; needs a status per period.",
+  "ragtrend>ragboard": "Several dimensions side by side for the latest period; the history is gone.",
   "bar>hbar": "Same comparison, but labels get a full line and the order reads as a ranking; the better default on phones and with long names.",
   "hbar>bar": "Same comparison; only better when the categories are in time order or the labels are short.",
   "bar>line": "Better when the categories are periods: the eye follows the trend instead of comparing bar tops.",
@@ -1059,6 +1081,8 @@ const MEANING: Record<string, string> = {
   history: "needs dated events with a short title each",
   anomalies: "needs readings over time per metric, with a yes/no flag or a low and high band",
   board: "needs a stage or status column with a handful of values, and a name per row",
+  ragboard: "needs status columns holding R, A, G (or red, amber, green), one row per client or deal; the rag transform makes them from numbers",
+  ragtrend: "needs one status (R, A, G) per entity per period",
 };
 
 const FIT_ORDER: Record<Fit, number> = { fits: 0, stretch: 1, no: 2 };

@@ -12,7 +12,9 @@ import { featureId, featureName, normalizeId, resolveGeo } from "./geo.ts";
 import { binValues, sturges } from "./scale.ts";
 import { isPlural } from "./question.ts";
 import type { Row, WidgetSpec } from "./types.ts";
-import { isYes, timeOf } from "./views.ts";
+import { isYes, periodTime, timeOf } from "./views.ts";
+import { ragOf, ragRank, ragTrend, ragWord, worstOf } from "./rag.ts";
+import type { Rag } from "./rag.ts";
 
 type View = Record<string, unknown> & { type: string };
 
@@ -31,7 +33,8 @@ export function explainChart(spec: WidgetSpec, rows: Row[] = []): string {
   const goal = targetLine(spec);
   const lined = goal ? `${guide(spec)} The dashed line is the ${goal.name}.${missKey(spec)}` : guide(spec);
   // Small multiples: one chart per value, so an example across all rows would mix the panels up.
-  const general = facet ? `${lined} There is one small chart for each ${nameOf(facet, spec)}, all on the same scale.` : lined;
+  const faceted = facet ? `${lined} There is one small chart for each ${nameOf(facet, spec)}, all on the same scale.` : lined;
+  const general = `${faceted}${ragNote(spec)}`;
   const example = rows.length ? (facet ? facetExample(spec, rows, facet) : exampleOf(spec, rows)) : "";
   return example ? `${general} ${example}` : general;
 }
@@ -57,6 +60,24 @@ function facetExample(spec: WidgetSpec, rows: Row[], facet: string): string {
   const entity = nameOf(facet, spec);
   const count = grew.length === runs.length ? `every ${entity}` : `${grew.length} of ${runs.length} ${plural(entity)}`;
   return `Here, ${count} grew from ${show(best.first, x)} to ${show(best.last, x)}, and ${best.name} grew the most, from ${show(best.first, field)} to ${show(best.last, field)}.`;
+}
+
+/**
+ * Statuses the rag transform worked out: one sentence on where they come from, so a reader knows a red is a rule, not
+ * a judgment: "Each status comes from a rule: NPS is on track at 40 or more, at risk from 20."
+ */
+function ragNote(spec: WidgetSpec): string {
+  const steps = (spec.transform ?? []).filter((step) => step.type === "rag" && Array.isArray(step.rules));
+  const rules = steps.flatMap((step) => step.rules as { field?: unknown; green?: unknown; amber?: unknown; goodWhen?: unknown }[]).filter((r) => typeof r.field === "string" && typeof r.green === "number" && typeof r.amber === "number");
+  if (!rules.length) return "";
+  const show = (field: string, n: number) => formatValue(n, spec.fields?.[field]?.format, spec.locale);
+  const said = rules.slice(0, 2).map((r) => {
+    const field = r.field as string;
+    const down = r.goodWhen === "down";
+    return `${nameOf(field, spec)} is on track at ${show(field, r.green as number)} or ${down ? "less" : "more"}, at risk ${down ? "up to" : "from"} ${show(field, r.amber as number)}`;
+  });
+  const more = rules.length > 2 ? `, and ${rules.length - 2} more like them` : "";
+  return ` Each status comes from a rule: ${said.join("; ")}${more}.`;
 }
 
 /** A reference line drawn at a fixed target (labelled target, plan, goal, budget or quota), on bars and lines. */
@@ -1160,6 +1181,47 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const day = spec.fields?.[date]?.format !== undefined ? text(latest, date) : formatValue(latest[date], { type: "date" }, spec.locale);
       return `Here, there are ${dated.length} events${mostly}; the latest is ${text(latest, title)} on ${day}.`;
     }
+    case "ragboard": {
+      // How many need action overall, and the one in the worst shape.
+      const label = one(view.label);
+      const dims = many(view.dimensions);
+      if (!label || !dims.length || !rows.length) return "";
+      const lines = rows.map((row) => ({ row, statuses: dims.map((f) => ragOf(row[f])) }));
+      const said = (s: Rag) => ragWord(s, view.words).toLowerCase();
+      const entity = nameOf(label, spec);
+      const off = lines.filter((l) => worstOf(l.statuses) === "R");
+      const risk = lines.filter((l) => worstOf(l.statuses) === "A");
+      const worst = [...lines].sort((a, b) => b.statuses.filter((s) => s === "R").length - a.statuses.filter((s) => s === "R").length || b.statuses.filter((s) => s === "A").length - a.statuses.filter((s) => s === "A").length)[0];
+      if (!off.length && !risk.length) return `Here, every ${entity} is ${said("G")} on every count.`;
+      const atRisk = risk.length ? `${risk.length} ${risk.length === 1 ? "is" : "are"} ${said("A")}` : "";
+      const counted = off.length
+        ? `${off.length} of ${rows.length} ${plural(entity)} ${off.length === 1 ? "is" : "are"} ${said("R")} on at least one count${atRisk ? `, and ${risk.length} more ${risk.length === 1 ? "is" : "are"} ${said("A")}` : ""}`
+        : `${atRisk.replace(/^\d+/, (n) => `${n} of ${rows.length} ${plural(entity)}`)}`;
+      const reds = worst ? worst.statuses.filter((s) => s === "R").length : 0;
+      const standout = worst && reds ? `; ${text(worst.row, label)} is ${said("R")} on ${reds} of ${dims.length}` : "";
+      return `Here, ${counted}${standout}.`;
+    }
+    case "ragtrend": {
+      // Who is in the worst state now, and since when it moved.
+      const [label, period, status] = [one(view.label), one(view.period), one(view.status)];
+      if (!label || !period || !status || !rows.length) return "";
+      const said = (s: Rag) => ragWord(s, view.words).toLowerCase();
+      const byName = new Map<string, Row[]>();
+      for (const row of rows) byName.set(text(row, label), [...(byName.get(text(row, label)) ?? []), row]);
+      const order = (a: Row, b: Row) => (periodTime(a[period]) ?? 0) - (periodTime(b[period]) ?? 0) || String(a[period]).localeCompare(String(b[period]));
+      const runs = [...byName.entries()].map(([name, list]) => {
+        const sorted = [...list].sort(order).filter((r) => ragOf(r[status]) !== "N");
+        return { name, first: sorted[0], last: sorted.at(-1) };
+      }).filter((run) => run.first && run.last) as { name: string; first: Row; last: Row }[];
+      if (!runs.length) return "";
+      const worse = runs.filter((run) => ragTrend(run.first[status], run.last[status]) === "worse");
+      const better = runs.filter((run) => ragTrend(run.first[status], run.last[status]) === "improved");
+      const entity = nameOf(label, spec);
+      const moved = `${worse.length} of ${runs.length} ${plural(entity)} got worse over the period and ${better.length} got better`;
+      const lead = worse.sort((a, b) => ragRank(ragOf(a.last[status])) - ragRank(ragOf(b.last[status])))[0];
+      const named = lead ? `; ${lead.name} went from ${said(ragOf(lead.first[status]))} to ${said(ragOf(lead.last[status]))}` : "";
+      return `Here, ${moved}${named}.`;
+    }
     default:
       return "";
   }
@@ -1432,6 +1494,18 @@ function guide(spec: WidgetSpec): string {
       return `Each dot is one event for the ${noun(one(view.group) ?? one(view.title), "client")}, ${view.order === "asc" ? "oldest first" : "newest at the top"}, with its date and what happened${one(view.amount) ? ` and, on the right, the ${name(one(view.amount))}` : ""}.${one(view.kind) ? ` Each color and letter is one ${name(one(view.kind))}.` : ""}`;
     case "anomalies":
       return `Each thin lane is one ${noun(one(view.metric), "measure")}, ${over(one(view.x))}. The line is what happened${one(view.low) && one(view.high) ? "; the faint band is where it was expected to stay" : ""}${one(view.expected) ? ", with a thin line for the expected value" : ""}. A filled dot marks an anomaly, a reading that stepped out of line. The lanes with the most anomalies come first, and each ends with its latest value and its count.`;
+    case "ragboard": {
+      const words = (s: Rag) => ragWord(s, view.words).toLowerCase();
+      // Four sentences at most: what a row and a column are, the shapes, the Overall column, the arrows.
+      const changes = view.previous && typeof view.previous === "object" ? " An arrow means better or worse than last period." : "";
+      const first = view.overall === false ? "" : " Overall, first, is each row's worst status.";
+      return `Each row is one ${noun(one(view.label), "client")}, each column one of ${both(many(view.dimensions).map((f) => name(f)))}. A circle is ${words("G")}, a triangle ${words("A")}, a square ${words("R")}; the worst rows come first.${first}${changes}`;
+    }
+    case "ragtrend": {
+      const words = (s: Rag) => ragWord(s, view.words).toLowerCase();
+      const why = one(view.note) ? ", and pointing at it says why" : "";
+      return `Each row is one ${noun(one(view.label), "client")}, read left to right ${over(one(view.period))}. A filled circle is ${words("G")}, a triangle ${words("A")} and a square ${words("R")}; a thin upright line marks where the status changed${why}. The pill at the end is where it stands now, and the rows in the worst state come first.`;
+    }
     case "list":
       // A field called name, title or label says nothing about what the lines are: they are entries.
       return `Each line is one ${/^(name|title|label)$/i.test(one(view.label) ?? "") ? "entry" : name(one(view.label))}${one(view.value) ? `, with its ${name(one(view.value))} on the right` : ""}.`;
