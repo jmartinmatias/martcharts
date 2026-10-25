@@ -1,0 +1,48 @@
+{
+  "id": "reg-days-late-map",
+  "title": "Transposition delays",
+  "subtitle": "Days late across AMLD6, CRD6 and NIS2, summed per country",
+  "description": "Where national transposition runs late: the bigger the circle, the more days late across the three directives.",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/regulatory-transposition.json"
+  },
+  "transform": [
+    {
+      "type": "filter",
+      "field": "status",
+      "op": "==",
+      "value": "Late"
+    },
+    {
+      "type": "aggregate",
+      "groupBy": "country",
+      "measures": [
+        {
+          "op": "sum",
+          "field": "daysLate",
+          "as": "daysLate"
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "country": {
+      "label": "Member state"
+    },
+    "daysLate": {
+      "label": "Days late"
+    }
+  },
+  "view": {
+    "type": "symbols",
+    "geo": "europe",
+    "id": "country",
+    "size": "daysLate"
+  },
+  "source": {
+    "name": "Regulatory watch (fictional)"
+  },
+  "byline": "Compliance office"
+}

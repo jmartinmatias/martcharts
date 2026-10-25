@@ -1,0 +1,47 @@
+{
+  "id": "reg-impact-scatter",
+  "title": "Pressure against impact",
+  "subtitle": "Bubble area is how many stakeholder types must comply",
+  "description": "Each rule placed by the pressure it exerts and its impact; the corners say what to do: act now on the high-high, prepare for high impact still building, monitor high pressure of low impact, watch the rest.",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/regulations.json"
+  },
+  "fields": {
+    "name": {
+      "label": "Regulation"
+    },
+    "pressure": {
+      "label": "Pressure (0 to 100)"
+    },
+    "impact": {
+      "label": "Impact (1 to 5)"
+    },
+    "mustComply": {
+      "label": "Stakeholder types bound"
+    }
+  },
+  "view": {
+    "type": "scatter",
+    "x": "pressure",
+    "y": "impact",
+    "size": "mustComply",
+    "label": "name",
+    "labels": true,
+    "quadrants": {
+      "x": 60,
+      "y": 3.5,
+      "labels": [
+        "Prepare",
+        "Act now",
+        "Monitor",
+        "Watch"
+      ]
+    }
+  },
+  "source": {
+    "name": "Regulatory watch (fictional)"
+  },
+  "byline": "Compliance office"
+}

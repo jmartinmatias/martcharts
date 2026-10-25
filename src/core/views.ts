@@ -148,6 +148,30 @@ export interface ScatterView {
   series?: string;
   label?: string;
   reference?: ReferenceMark[];
+  /** Write each dot's label beside it, where it does not land on another label. */
+  labels?: boolean;
+  /** Four quadrants split at x and y, each with a faint corner word. */
+  quadrants?: Quadrants;
+}
+
+/** `{ x, y, labels? }`: the lines that split a scatter into four, and the words in its corners, top-left first then clockwise. */
+export interface Quadrants {
+  x: number;
+  y: number;
+  labels?: string[];
+}
+
+/** The quadrants option's shape, as problems. */
+function checkQuadrants(view: Record<string, unknown>): string[] {
+  const q = view.quadrants;
+  if (q === undefined) return [];
+  if (!q || typeof q !== "object" || Array.isArray(q)) return ['quadrants must be an object such as { "x": 50, "y": 3, "labels": ["Monitor", "Act now", "Prepare", "Watch"] }.'];
+  const { x, y, labels } = q as Record<string, unknown>;
+  const problems: string[] = [];
+  if (typeof x !== "number" || !Number.isFinite(x)) problems.push("quadrants.x must be a number: where the vertical split falls.");
+  if (typeof y !== "number" || !Number.isFinite(y)) problems.push("quadrants.y must be a number: where the horizontal split falls.");
+  if (labels !== undefined && !(Array.isArray(labels) && labels.length <= 4 && labels.every((l) => typeof l === "string"))) problems.push("quadrants.labels must be up to four strings: top-left, top-right, bottom-right, bottom-left.");
+  return problems;
 }
 
 /** `{ type: "bullet", label, value, target, ranges? }`: actual against target over qualitative bands, one row each. */
@@ -728,8 +752,14 @@ const scatter: ViewBlock = {
     series: { type: "field", kind: "category", description: "Field that groups the dots by color. Up to 3 groups stay distinct." },
     label: { type: "field", kind: "category", description: "Field naming each dot in its tooltip." },
     reference: REFERENCE_OPTION,
+    labels: { type: "boolean", default: false, description: "Write each dot's label beside it, skipping names that would land on another, so the standouts are named on the chart itself." },
+    quadrants: {
+      type: "object",
+      description:
+        'Splits the plot into four at a value of x and of y, with a faint word in each corner: { "x": 50, "y": 3, "labels": ["Monitor", "Act now", "Prepare", "Watch"] } (top-left first, then clockwise). For priority grids such as pressure against impact.',
+    },
   },
-  validate: checkReference,
+  validate: (view) => [...checkReference(view), ...checkQuadrants(view)],
   checkData(view, rows) {
     if (typeof view.series !== "string") return [];
     const groups = new Set(rows.map((row) => String(row[view.series as string]))).size;
@@ -1378,7 +1408,10 @@ export interface ChoroplethView {
   type: "choropleth";
   geo: GeoOption;
   id: string;
-  value: string;
+  /** The number that shades each region, on the sequential scale. One of value and category. */
+  value?: string;
+  /** The category that colors each region, one series color per value, with a key. One of value and category. */
+  category?: string;
   key?: string;
   labels?: boolean;
   min?: number;
@@ -1455,7 +1488,12 @@ const choropleth: ViewBlock = {
   options: {
     geo: GEO_OPTION(true),
     id: { type: "field", kind: "category", required: true, description: "Field with each row's region code: a country or state code on a built-in basemap (FR, TX), or the feature id in your GeoJSON." },
-    value: { type: "field", kind: "number", required: true, description: "Field that shades each region. Rows with no number stay grey." },
+    value: { type: "field", kind: "number", description: "Field that shades each region on the sequential scale. Rows with no number stay grey. Give value or category, not both." },
+    category: {
+      type: "field",
+      kind: "category",
+      description: "Field that colors each region by its category instead, one series color per value with a key: a transposition status, a supervisor, a regime. Up to 8 categories stay distinct.",
+    },
     key: KEY_OPTION,
     labels: { type: "boolean", default: true, description: "Write each region's code inside it, where it fits." },
     min: { type: "number", description: "Value of the weakest tint. Defaults to the lowest value." },
@@ -1463,6 +1501,9 @@ const choropleth: ViewBlock = {
   },
   validate(view) {
     const problems = [...placementProblems(view, false)];
+    const [byValue, byCategory] = [typeof view.value === "string" && view.value !== "", typeof view.category === "string" && view.category !== ""];
+    if (!byValue && !byCategory) problems.push("Say what colors the regions: value (a number, shaded) or category (a name, one color each).");
+    if (byValue && byCategory) problems.push("Give value or category, not both: a region is shaded by a number or colored by a category.");
     if (typeof view.min === "number" && typeof view.max === "number" && view.max <= view.min) problems.push("max must be greater than min.");
     return problems;
   },
@@ -1471,6 +1512,10 @@ const choropleth: ViewBlock = {
     const codes = rows.map((row) => normalizeId(row[field])).filter(Boolean);
     const warnings = unplacedRows(view, rows);
     if (new Set(codes).size < codes.length) warnings.push(`Some ${field} codes repeat: a region takes one value, so sum the rows first with an aggregate step.`);
+    if (typeof view.category === "string") {
+      const groups = new Set(rows.map((row) => String(row[view.category as string] ?? ""))).size;
+      if (groups > 8) warnings.push(`${groups} categories but only 8 colors, so map colors would repeat. Fold the rare ones into "Other".`);
+    }
     return warnings;
   },
 };
@@ -1527,4 +1572,53 @@ const locator: ViewBlock = {
   },
 };
 
-export const builtinViews: ViewBlock[] = [table, list, kpi, kpis, bar, hbar, line, area, meter, bullet, donut, treemap, funnel, waterfall, heatmap, calendar, scatter, beeswarm, ridgeline, sankey, dumbbell, slope, bump, marimekko, histogram, rings, timeline, waffle, variance, gauge, pareto, boxplot, likert, candlestick, sunburst, chord, radar, rose, horizon, icicle, dot, pyramid, dual, choropleth, symbols, locator];
+/** `{ type: "board", label, stage, stages?, group?, value?, detail?, limit? }`: a status board, one column per stage. */
+export interface BoardView {
+  type: "board";
+  label: string;
+  stage: string;
+  stages?: string[];
+  group?: string;
+  value?: string;
+  detail?: string;
+  limit?: number;
+}
+
+/** The default number of cards a board column shows before folding the rest. */
+export const BOARD_LIMIT = 8;
+
+const board: ViewBlock = {
+  type: "board",
+  description:
+    "A status board: one column per stage with its count in the header, and the items in it as quiet cards, so where everything stands reads at a glance. For things moving through a lifecycle: regulations by status, deals by stage, tickets by state. A group field colors a dot on each card with a key; a value field writes a number on each card; past the limit a column folds the rest into one line that opens on a click.",
+  options: {
+    label: { type: "field", kind: "category", required: true, description: "Field naming each card." },
+    stage: { type: "field", kind: "category", required: true, description: "Field with each item's stage: one column per distinct value, in the order of stages or of first appearance." },
+    stages: {
+      type: "array",
+      description: 'The columns in order, such as ["Proposal", "Adopted", "In force"]. A listed stage with no item still shows, empty; an item whose stage is not listed goes to a last column named Other.',
+    },
+    group: { type: "field", kind: "category", description: "Field that colors a dot on each card by group, with a key. Up to 8 groups stay distinct." },
+    value: { type: "field", kind: "number", description: "Field written on each card, such as impact or amount, in the field's format." },
+    detail: { type: "field", kind: "category", description: "Field for a smaller line under the card's name, such as the issuer or the owner." },
+    limit: { type: "number", default: BOARD_LIMIT, description: "How many cards a column shows before folding the rest into a + n more line. The line opens the rest in place." },
+  },
+  validate(view) {
+    const problems: string[] = [];
+    if (view.stages !== undefined && !(Array.isArray(view.stages) && view.stages.length > 0 && view.stages.every((s) => typeof s === "string"))) problems.push('stages must be a list of stage names, such as ["Proposal", "Adopted", "In force"].');
+    if (view.limit !== undefined && !(typeof view.limit === "number" && Number.isInteger(view.limit) && view.limit >= 1)) problems.push("limit must be a whole number, 1 or more.");
+    return problems;
+  },
+  checkData(view, rows) {
+    const warnings: string[] = [];
+    const stages = new Set(rows.map((row) => String(row[view.stage as string] ?? "")));
+    if (stages.size > 8) warnings.push(`${stages.size} stages make a wide board: keep about 8 or fewer, or fold the rare ones together.`);
+    if (typeof view.group === "string") {
+      const groups = new Set(rows.map((row) => String(row[view.group as string] ?? ""))).size;
+      if (groups > 8) warnings.push(`${groups} groups but only 8 colors, so dot colors would repeat. Fold the rare ones into "Other".`);
+    }
+    return warnings;
+  },
+};
+
+export const builtinViews: ViewBlock[] = [table, list, kpi, kpis, bar, hbar, line, area, meter, bullet, donut, treemap, funnel, waterfall, heatmap, calendar, scatter, beeswarm, ridgeline, sankey, dumbbell, slope, bump, marimekko, histogram, rings, timeline, waffle, variance, gauge, pareto, boxplot, likert, candlestick, sunburst, chord, radar, rose, horizon, icicle, dot, pyramid, dual, choropleth, symbols, locator, board];

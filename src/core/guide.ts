@@ -504,6 +504,15 @@ const GUIDES: ChartGuide[] = [
     bestFor: ["Where the offices, stores or sites are, by name", "A handful of named places for a report or a page header"],
     avoidFor: ["Amounts per place (use symbols)", "More than about 30 places, where names collide (use symbols or a table)"],
   },
+  {
+    type: "board",
+    purposes: { lookup: 3, conversion: 2, compare: 1, schedule: 1 },
+    grain: "category",
+    build: "One column per stage (in the order of stages, or of first appearance) headed by its count, and one card per row in its stage's column, with a group dot, a value and a detail line when those fields are given.",
+    rows: { min: 3, max: 120 },
+    bestFor: ["Where everything stands in a lifecycle: regulations by status, deals by stage, tickets by state", "Seeing at once which stage is crowded and what is in it, by name"],
+    avoidFor: ["Amounts per stage alone (use funnel or bar)", "Hundreds of items (filter first, or count them into a funnel)", "Stages with no natural order"],
+  },
 ];
 
 const BY_TYPE = new Map(GUIDES.map((guide) => [guide.type, guide]));
@@ -748,6 +757,9 @@ export interface ChartSwitch {
 
 /** Hand-written notes on the switches people make most, where the purpose scores alone miss the point. */
 const NOTES: Record<string, string> = {
+  "board>funnel": "Counts per stage read as one shape, with the conversion between stages; the items themselves are gone.",
+  "funnel>board": "Names every item in its stage, so you see what is where; the shape of the drop-off is less obvious.",
+  "board>table": "Every field in columns, sortable and searchable; where things stand no longer reads at a glance.",
   "bar>hbar": "Same comparison, but labels get a full line and the order reads as a ranking; the better default on phones and with long names.",
   "hbar>bar": "Same comparison; only better when the categories are in time order or the labels are short.",
   "bar>line": "Better when the categories are periods: the eye follows the trend instead of comparing bar tops.",
@@ -944,6 +956,7 @@ const MEANING: Record<string, string> = {
   choropleth: "needs a column of country or state codes that sit on a basemap",
   symbols: "needs a column of country or state codes that sit on a basemap, or coordinates",
   locator: "needs named places with region codes on a basemap, or coordinates",
+  board: "needs a stage or status column with a handful of values, and a name per row",
 };
 
 const FIT_ORDER: Record<Fit, number> = { fits: 0, stretch: 1, no: 2 };

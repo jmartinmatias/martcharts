@@ -1,0 +1,29 @@
+{
+  "id": "reg-rules-by-country",
+  "title": "Rules in scope per country",
+  "subtitle": "EU rules plus national ones, European markets",
+  "description": "How many tracked rules bind firms in each country: the EU body of rules everywhere in the Union, fewer in the EEA, and national regimes in the United Kingdom and Switzerland.",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/regulatory-countries.json"
+  },
+  "fields": {
+    "country": {
+      "label": "Country"
+    },
+    "regulations": {
+      "label": "Rules in scope"
+    }
+  },
+  "view": {
+    "type": "choropleth",
+    "geo": "europe",
+    "id": "country",
+    "value": "regulations"
+  },
+  "source": {
+    "name": "Regulatory watch (fictional)"
+  },
+  "byline": "Compliance office"
+}

@@ -49,6 +49,7 @@ import { renderWaterfall } from "./waterfall.ts";
 import { renderChoropleth } from "./choropleth.ts";
 import { renderSymbols } from "./symbols.ts";
 import { renderLocator } from "./locator.ts";
+import { renderBoard } from "./board.ts";
 
 setRenderer("table", renderTable);
 setRenderer("list", renderList);
@@ -96,6 +97,7 @@ setRenderer("dual", renderDual);
 setRenderer("choropleth", renderChoropleth);
 setRenderer("symbols", renderSymbols);
 setRenderer("locator", renderLocator);
+setRenderer("board", renderBoard);
 
 export { renderKpis } from "./kpis.ts";
 export { renderRidgeline } from "./ridgeline.ts";
@@ -103,3 +105,4 @@ export { renderArea, renderBar, renderBeeswarm, renderBoxplot, renderBullet, ren
 export { renderChoropleth } from "./choropleth.ts";
 export { renderSymbols } from "./symbols.ts";
 export { renderLocator } from "./locator.ts";
+export { renderBoard } from "./board.ts";

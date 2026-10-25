@@ -1,0 +1,54 @@
+{
+  "id": "reg-density-strips",
+  "title": "Provision density",
+  "subtitle": "Binding, recommended and optional provisions per page, the fifteen longest rules",
+  "description": "Each rule as a strip of its provisions, binding first, with how many provisions each page carries.",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/regulations.json"
+  },
+  "transform": [
+    {
+      "type": "sort",
+      "field": "provisions",
+      "order": "desc"
+    },
+    {
+      "type": "limit",
+      "count": 15
+    }
+  ],
+  "fields": {
+    "name": {
+      "label": "Regulation"
+    },
+    "mandatory": {
+      "label": "Binding (shall)"
+    },
+    "recommended": {
+      "label": "Recommended (should)"
+    },
+    "optional": {
+      "label": "Optional (may)"
+    },
+    "pages": {
+      "label": "Pages"
+    }
+  },
+  "view": {
+    "type": "strips",
+    "label": "name",
+    "parts": [
+      "mandatory",
+      "recommended",
+      "optional"
+    ],
+    "per": "pages",
+    "unit": "provisions"
+  },
+  "source": {
+    "name": "Regulatory watch (fictional)"
+  },
+  "byline": "Compliance office"
+}

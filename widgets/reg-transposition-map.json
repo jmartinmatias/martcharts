@@ -1,0 +1,37 @@
+{
+  "id": "reg-transposition-map",
+  "title": "AMLD6 transposition",
+  "subtitle": "Where the sixth anti-money-laundering directive stands in national law",
+  "description": "Each member state colored by how far it has transposed AMLD6: done, in progress, or not started.",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/regulatory-transposition.json"
+  },
+  "transform": [
+    {
+      "type": "filter",
+      "field": "regulation",
+      "op": "==",
+      "value": "AMLD6"
+    }
+  ],
+  "fields": {
+    "country": {
+      "label": "Member state"
+    },
+    "status": {
+      "label": "Transposition"
+    }
+  },
+  "view": {
+    "type": "choropleth",
+    "geo": "europe",
+    "id": "country",
+    "category": "status"
+  },
+  "source": {
+    "name": "Regulatory watch (fictional)"
+  },
+  "byline": "Compliance office"
+}

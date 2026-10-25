@@ -1,0 +1,52 @@
+{
+  "id": "reg-obligations-dual",
+  "title": "New obligations and the pressure index",
+  "subtitle": "{first:month} to {last:month}, each on its own scale",
+  "description": "Monthly new obligations as bars above the pressure index as a line: two units, two panels, one time axis.",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/regulatory-pressure.json"
+  },
+  "transform": [
+    {
+      "type": "filter",
+      "field": "forecast",
+      "op": "==",
+      "value": false
+    }
+  ],
+  "fields": {
+    "month": {
+      "label": "Month",
+      "format": {
+        "type": "date",
+        "style": "month"
+      }
+    },
+    "newObligations": {
+      "label": "New obligations"
+    },
+    "pressureIndex": {
+      "label": "Pressure index",
+      "format": {
+        "type": "number",
+        "decimals": 1
+      }
+    }
+  },
+  "view": {
+    "type": "dual",
+    "x": "month",
+    "y": "newObligations",
+    "y2": "pressureIndex",
+    "marks": [
+      "bar",
+      "line"
+    ]
+  },
+  "source": {
+    "name": "Regulatory watch (fictional)"
+  },
+  "byline": "Compliance office"
+}

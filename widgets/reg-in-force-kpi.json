@@ -1,0 +1,45 @@
+{
+  "id": "reg-in-force-kpi",
+  "title": "Rules in force",
+  "subtitle": "In force or applying today",
+  "description": "How many of the tracked regulations are already in force or applying.",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/regulations.json"
+  },
+  "transform": [
+    {
+      "type": "filter",
+      "field": "status",
+      "op": "in",
+      "value": [
+        "In force",
+        "Applies"
+      ]
+    },
+    {
+      "type": "aggregate",
+      "measures": [
+        {
+          "op": "count",
+          "as": "count"
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "count": {
+      "label": "Regulations in force"
+    }
+  },
+  "view": {
+    "type": "kpi",
+    "value": "count",
+    "icon": "check"
+  },
+  "source": {
+    "name": "Regulatory watch (fictional)"
+  },
+  "byline": "Compliance office"
+}

@@ -494,7 +494,17 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       return goalLine(measured.length, reached, one(view.label), "reached");
     }
     case "choropleth": {
-      const [code, amount] = [one(view.id), one(view.value)];
+      const [code, amount, category] = [one(view.id), one(view.value), one(view.category)];
+      if (code && category && !amount) {
+        // By category: the one most regions share, and how many.
+        const counts = new Map<string, number>();
+        for (const row of rows) counts.set(text(row, category), (counts.get(text(row, category)) ?? 0) + 1);
+        const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+        const [first, n] = sorted[0] ?? ["", 0];
+        if (!n) return "";
+        const entity = nameOf(code, spec);
+        return sorted.length === 1 ? `Here, every ${entity} is ${first}.` : `Here, ${n} of ${rows.length} ${plural(entity)} are ${first}${sorted[1] ? `, and ${sorted[1][1]} ${sorted[1][0]}` : ""}.`;
+      }
       if (!code || !amount) return "";
       const shaded = rows.filter((row) => value(row, amount) !== null);
       if (!shaded.length) return "";
@@ -521,6 +531,20 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       for (const row of rows) counts.set(text(row, kind), (counts.get(text(row, kind)) ?? 0) + 1);
       const [top, n] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0] as [string, number];
       return counts.size > 1 ? `Here, ${places} places are marked, ${n} of them ${top}.` : `Here, ${places} place${places === 1 ? " is" : "s are"} marked, all ${top}.`;
+    }
+    case "board": {
+      // Where most things stand: the fullest column, and the one standout by value when a value is given.
+      const [label, stage, amount] = [one(view.label), one(view.stage), one(view.value)];
+      if (!label || !stage || !rows.length) return "";
+      const counts = new Map<string, number>();
+      for (const row of rows) counts.set(text(row, stage), (counts.get(text(row, stage)) ?? 0) + 1);
+      const [fullest, n] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0] as [string, number];
+      // A field called name, title or label says nothing about what the cards are: they are entries, as the guide says.
+      const entity = /^(name|title|label)$/i.test(label) ? "entry" : nameOf(label, spec);
+      const where = `${n === rows.length ? `every ${entity}` : `${n} of ${rows.length} ${plural(entity)}`} ${n === 1 ? "sits" : "sit"} in ${fullest}`;
+      const row = amount ? top(amount) : undefined;
+      const standout = row && amount ? `, and ${text(row, label)} has the highest ${nameOf(amount, spec)}, ${text(row, amount)}` : "";
+      return `Here, ${where}${standout}.`;
     }
     case "sunburst":
     case "icicle": {
@@ -1160,7 +1184,12 @@ function guide(spec: WidgetSpec): string {
       return `Each square is one day, with weeks as columns. The stronger the color, the more ${name(one(view.value))}; the key under the chart shows the scale.`;
     case "scatter": {
       const sized = one(view.size) ? ` Bigger dots mean more ${name(one(view.size))}.` : "";
-      return `Each dot is one ${noun(one(view.label))}. Further right means more ${name(one(view.x))}; higher means more ${name(one(view.y))}.${sized}`;
+      const q = view.quadrants as { labels?: string[] } | undefined;
+      const corners = q?.labels?.filter(Boolean) ?? [];
+      // Names on the chart join the corners' sentence, so a fully dressed scatter still reads in four sentences.
+      const named = view.labels ? (q ? ", and the standouts carry their names" : " The standouts carry their names on the chart.") : "";
+      const split = q ? ` The dashed lines cut the chart into four corners${corners.length ? `, named ${both(corners)}` : ""}: which corner a dot sits in says what to do about it${named}.` : named;
+      return `Each dot is one ${noun(one(view.label))}. Further right means more ${name(one(view.x))}; higher means more ${name(one(view.y))}.${sized}${split}`;
     }
     case "beeswarm":
       return `Each dot is one ${name(one(view.label), "row")}, placed by its ${name(one(view.value))}. Dots pile up where many values are close together.`;
@@ -1234,7 +1263,13 @@ function guide(spec: WidgetSpec): string {
       return `Each row is one ${noun(one(view.label))}. The further right the dot, the more ${name(measures[0])}.`;
     }
     case "choropleth":
+      if (one(view.category)) return `Each region on the map is one ${noun(one(view.id), "region")}, colored by its ${name(one(view.category))}; the key says which color is which, and a grey region has no data.`;
       return `Each region on the map is one ${noun(one(view.id), "region")}. The stronger its shade, the more ${name(one(view.value))}; a grey region has no data.`;
+    case "board": {
+      const grouped = one(view.group) ? ` The dot on a card tells its ${name(one(view.group))}, as the key says.` : "";
+      const valued = one(view.value) ? ` The number on a card is its ${name(one(view.value))}.` : "";
+      return `Each column is one ${name(one(view.stage), "stage")}, with how many ${plural(noun(one(view.label)))} are in it; each card is one ${noun(one(view.label))}. Read left to right to see how far things have come.${grouped}${valued}`;
+    }
     case "symbols":
       return `Each circle sits on one ${noun(one(view.label) ?? one(view.id), "place")} on the map. The bigger the circle, the more ${name(one(view.size))}.${one(view.color) ? ` Each color is one ${name(one(view.color))}.` : ""}`;
     case "locator":
@@ -1253,7 +1288,11 @@ function guide(spec: WidgetSpec): string {
       });
       const search = view.search ? " Type in the search box to keep only the rows that match." : "";
       const pages = typeof view.pageSize === "number" && view.pageSize >= 1 ? ` ${view.pageSize} rows show at a time; Next and Previous turn the pages.` : "";
-      return `${shape}${shaded ? " The stronger the shade, the bigger the number." : ""}${view.sortable === false ? "" : " Click a column heading to sort by it."}${search}${pages}`;
+      const sort = view.sortable === false ? "" : " Click a column heading to sort by it.";
+      // Four sentences at most: with every extra on, the shade joins the first sentence instead of standing alone.
+      const crowded = shaded && sort && search && pages;
+      const opening = crowded ? `${shape.slice(0, -1)}, and the stronger the shade, the bigger the number.` : `${shape}${shaded ? " The stronger the shade, the bigger the number." : ""}`;
+      return `${opening}${sort}${search}${pages}`;
     }
     default:
       return "Each mark stands for one value. Bigger, longer or stronger marks mean more.";

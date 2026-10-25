@@ -325,8 +325,18 @@ export function questionOf(spec: WidgetSpec, rows: Row[] = []): Question {
       if (label) return ask("schedule", `when does each ${name(label)} start and end?`);
       break;
     }
+    case "board": {
+      const [label, stage] = [one(view.label), one(view.stage)];
+      if (!label || !stage) break;
+      const entity = entityOf(label, spec);
+      return ask("detail", `where is each ${entity} right now, and how many are at each ${name(stage)}?`);
+    }
     case "choropleth": {
-      const [code, amount] = [one(view.id), one(view.value)];
+      const [code, amount, category] = [one(view.id), one(view.value), one(view.category)];
+      if (code && category && !amount) {
+        const entity = entityOf(code, spec);
+        return ask("compare", `which ${name(category)} is each ${entity}, on the map?`);
+      }
       if (!code || !amount) break;
       const entity = entityOf(code, spec);
       const plurals = plural(entity);

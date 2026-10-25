@@ -151,6 +151,7 @@ const VIEW_GUIDE = [
   "Survey answers: likert.",
   "Plans and dates: timeline (milestones, progress, a today line).",
   "Where things are: choropleth (regions shaded by a value), symbols (circles sized by a value on their regions or at coordinates), locator (named markers); geo takes a built-in tile grid (europe, us-states) or your own GeoJSON.",
+  "Where everything stands in a lifecycle: board (one column per stage or status, each item a card with its group and value; regulations by status, deals by stage).",
   "Records to read: table (with spark and badge cells), list.",
 ];
 

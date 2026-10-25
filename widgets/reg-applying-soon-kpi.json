@@ -1,0 +1,48 @@
+{
+  "id": "reg-applying-soon-kpi",
+  "title": "Applying within a year",
+  "subtitle": "Application dates from 2026-10-25 to 2027-10-25",
+  "description": "Regulations whose application date falls in the next twelve months: the ones to be ready for.",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/regulations.json"
+  },
+  "transform": [
+    {
+      "type": "filter",
+      "field": "applies",
+      "op": ">=",
+      "value": "2026-10-25"
+    },
+    {
+      "type": "filter",
+      "field": "applies",
+      "op": "<",
+      "value": "2027-10-26"
+    },
+    {
+      "type": "aggregate",
+      "measures": [
+        {
+          "op": "count",
+          "as": "count"
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "count": {
+      "label": "Applying within a year"
+    }
+  },
+  "view": {
+    "type": "kpi",
+    "value": "count",
+    "icon": "clock"
+  },
+  "source": {
+    "name": "Regulatory watch (fictional)"
+  },
+  "byline": "Compliance office"
+}
