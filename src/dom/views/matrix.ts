@@ -6,6 +6,7 @@ import type { MatrixView } from "../../core/views.ts";
 import { quantize, wrapLabels } from "../layout.ts";
 import { activeGroup, hiddenTable, html, legendList, roving, rowHit, svg, textWidth } from "./shared.ts";
 import { DEEMPHASIS, highlights } from "./chart.ts";
+import { drawsScaleKey, sharedRange } from "./facet-key.ts";
 import { fitLabel, nameColumn, writeLabel } from "./label-fit.ts";
 
 /** Steps in the sequential scale, shared with heat cells and the choropleth. */
@@ -50,9 +51,11 @@ export const renderMatrix: ViewRenderer<MatrixView> = (ctx) => {
   // A category keeps one color wherever it appears when the spec fixes colors per category.
   const kindColor = (k: number) => ctx.colorOf?.(kinds[k]) ?? ctx.color(k);
   const present = colorValues.filter((v): v is number => v !== null);
-  const [cmin, cmax] = [Math.min(...present), Math.max(...present)];
+  // Small multiples share one scale. The core's extent carries the size values when there is a size, else the colour
+  // values, so that one scale is shared; a colour scale under a size stays the panel's own.
+  const [cmin, cmax] = sharedRange(present, size ? undefined : ctx.extent);
   const sizes = size ? ctx.rows.map((row) => readNumber(row[size])) : [];
-  const smax = Math.max(0, ...sizes.filter((v): v is number => v !== null));
+  const smax = Math.max(0, ...sizes.filter((v): v is number => v !== null), ...(size ? (ctx.extent ?? []) : []));
 
   // Geometry: square cells, as wide as the card allows between 21px and 55px.
   // Row names in a measured column (up to 38% of the card, as a matrix's names carry the grid), cut with an ellipsis.
@@ -232,7 +235,7 @@ export const renderMatrix: ViewRenderer<MatrixView> = (ctx) => {
     if (legend) keys.append(legend);
   }
   // Keys above the grid, as every row view's.
-  if (keys.childElementCount) wrap.prepend(keys);
+  if (keys.childElementCount && drawsScaleKey(ctx)) wrap.prepend(keys);
 
   // The grid as a table for screen readers: one row per line, one column per column.
   const cellText = (row: Row | undefined) => {

@@ -6,6 +6,7 @@ import type { LabelBox } from "../layout.ts";
 import { tickFormatter } from "./chart.ts";
 import { fieldList, hiddenTableOf, html, ROW, roving, rowHit, svg, textWidth } from "./shared.ts";
 import type { ActiveGroup } from "./shared.ts";
+import { drawsScaleKey } from "./facet-key.ts";
 import { nameColumn, writeLabel } from "./label-fit.ts";
 
 const LANE: number = ROW.roomy;
@@ -44,7 +45,8 @@ export const renderHorizon: ViewRenderer<HorizonView> = (ctx) => {
   const count = Math.min(5, Math.max(1, Math.round(ctx.view.bands ?? 3)));
   const base = ctx.view.baseline ?? 0;
   const values = series.map((field) => rows.map((row) => readNumber(row[field])));
-  const reach = Math.max(0, ...values.flat().flatMap((v) => (v === null ? [] : [Math.abs(v - base)])));
+  // Small multiples share one band size: the reach covers every panel's distance from the baseline.
+  const reach = Math.max(0, ...values.flat().flatMap((v) => (v === null ? [] : [Math.abs(v - base)])), ...(ctx.extent ?? []).map((v) => Math.abs(v - base)));
   const step = roundUp(reach / count);
   const valueText = tickFormatter(ctx, series[0], [base, ...Array.from({ length: count + 1 }, (_, k) => base + k * step)]);
 
@@ -75,7 +77,7 @@ export const renderHorizon: ViewRenderer<HorizonView> = (ctx) => {
     key.append(html(doc, "span", "fft-horizon-key-text", text), ramp);
   }
   key.append(html(doc, "span", "fft-horizon-key-text", `Each shade ${tickFormatter(ctx, series[0], [step])(step)}`));
-  wrap.append(key);
+  if (drawsScaleKey(ctx)) wrap.append(key);
 
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");

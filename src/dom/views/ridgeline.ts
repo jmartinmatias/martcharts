@@ -4,6 +4,7 @@ import type { RidgelineView } from "../../core/views.ts";
 import { density, linearScale, quantile } from "../layout.ts";
 import { tickFormatter } from "./chart.ts";
 import { activeGroup, hiddenTable, html, ROW, roving, rowHit, svg } from "./shared.ts";
+import { sharedRange } from "./facet-key.ts";
 import { edgeAnchor, edgeX, nameColumn, writeLabel } from "./label-fit.ts";
 
 const LANE: number = ROW.tall;
@@ -32,15 +33,19 @@ export const renderRidgeline: ViewRenderer<RidgelineView> = (ctx) => {
     values.get(name)?.push(amount);
   }
   const all = [...values.values()].flat();
-  const low = Math.min(...all);
-  const high = Math.max(...all);
+  // Small multiples share one value axis: the range covers every panel's values.
+  const [low, high] = sharedRange(all, ctx.extent);
   const pad = (high - low || 1) * 0.15;
   // Amounts that are never negative (sizes, counts, revenue) must not grow tails below zero.
   const start = low >= 0 ? Math.max(0, low - pad) : low - pad;
   const end = high + pad;
   const grid = Array.from({ length: GRID }, (_, i) => start + ((end - start) * i) / (GRID - 1));
-  const curves = groups.map((name) => density(values.get(name) ?? [], grid));
-  const peak = Math.max(...curves.flat()) || 1;
+  // Small multiples share one density height too: one bandwidth from every panel's values, and one height per unit of
+  // density (a ridge at full height would be every value in one place), so the same spread draws the same shape everywhere.
+  const shared = ctx.extent?.length ? ctx.extent : undefined;
+  const bandwidth = shared ? silverman(shared) : undefined;
+  const curves = groups.map((name) => density(values.get(name) ?? [], grid, bandwidth));
+  const peak = bandwidth ? 0.618 / (bandwidth * Math.sqrt(2 * Math.PI)) : Math.max(...curves.flat()) || 1;
   const ridgeHeight = LANE * 1.618;
 
   const labels = groups.map((name) => ctx.format(name, group));
@@ -79,7 +84,7 @@ export const renderRidgeline: ViewRenderer<RidgelineView> = (ctx) => {
   const summary: string[][] = [];
   groups.forEach((name, g) => {
     const base = margin.top + (g + 1) * LANE;
-    const points = grid.map((v, i) => `${Math.round(x(v) * 100) / 100},${Math.round((base - ((curves[g]?.[i] ?? 0) / peak) * ridgeHeight) * 100) / 100}`);
+    const points = grid.map((v, i) => `${Math.round(x(v) * 100) / 100},${Math.round((base - Math.min(1, (curves[g]?.[i] ?? 0) / peak) * ridgeHeight) * 100) / 100}`);
     const line = `M${points.join("L")}`;
     const area = `${line}L${x(grid[GRID - 1] as number)},${base}L${x(grid[0] as number)},${base}Z`;
     const ridge = svg(doc, "g", { class: "fft-ridge", style: `--fft-i: ${g}` });
@@ -114,3 +119,11 @@ export const renderRidgeline: ViewRenderer<RidgelineView> = (ctx) => {
   wrap.append(chart, hiddenTable(doc, [ctx.label(group), "Median", "Middle half", "Count"], summary));
   ctx.el.append(wrap);
 };
+
+/** Silverman's rule of thumb: the bandwidth `density` would choose for these values. */
+function silverman(values: number[]): number {
+  const n = values.length;
+  const mean = values.reduce((sum, v) => sum + v, 0) / n;
+  const sd = Math.sqrt(values.reduce((sum, v) => sum + (v - mean) ** 2, 0) / n);
+  return 1.06 * sd * n ** -0.2 || 1;
+}
