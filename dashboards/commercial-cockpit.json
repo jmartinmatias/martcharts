@@ -3,6 +3,7 @@
   "title": "Commercial cockpit",
   "subtitle": "Products, coverage, sales, campaigns, adoption, whitespace, clients and anomalies",
   "description": "The commercial book on one page: what sells, who covers whom, where revenue comes from, which campaigns pay, how clients adopt, where the next sale is, and what stepped out of line.",
+  "asOf": "Data to {latest}",
   "columns": 3,
   "range": {
     "field": "month"
@@ -149,11 +150,13 @@
       "description": "One client's story, and the whole book"
     },
     {
-      "widget": "cc-client-xray"
+      "widget": "cc-client-xray",
+      "follow": { "field": "name" }
     },
     {
       "widget": "cc-client-story",
-      "span": 2
+      "span": 2,
+      "follow": { "field": "name", "as": "client" }
     },
     {
       "widget": "cc-client-list",

@@ -347,10 +347,10 @@ describe("section filter", () => {
     expect(ids()).toEqual(["g-revenue-and-profit", "g-trends", "g-revenue-and-profit-2", "g-trends-2"]);
   });
 
-  test("the section filter comes after the period and filter controls", async () => {
+  test("the section filter comes after the period and filter controls, and the share tools close the controls", async () => {
     const board = createDashboard(target, { ...spec, filters: [{ field: "region" }], range: { field: "month" } }, { widgets });
     await board.ready;
-    expect([...(target.querySelector(".fft-filters") as HTMLElement).children].map((el) => el.className)).toEqual(["fft-range", "fft-filter", "fft-board-nav"]);
+    expect([...(target.querySelector(".fft-filters") as HTMLElement).children].map((el) => el.className)).toEqual(["fft-range", "fft-filter", "fft-board-tools", "fft-board-nav"]);
   });
 
   test("with no filters, no range and fewer than two sections, the filter row stays hidden", async () => {

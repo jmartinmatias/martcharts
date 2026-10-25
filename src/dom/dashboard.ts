@@ -6,7 +6,7 @@
  */
 import { RANGE_OPTIONS, rangeStart } from "../core/dashboard.ts";
 import { getPreset } from "../core/presets.ts";
-import type { DashboardSpec } from "../core/dashboard.ts";
+import type { DashboardFollow, DashboardSpec } from "../core/dashboard.ts";
 import { fieldLabel, formatValue } from "../core/display.ts";
 import { fork } from "../core/fork.ts";
 import { runPipeline } from "../core/pipeline.ts";
@@ -110,12 +110,20 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   const columns = spec.columns ?? 3;
   const root = el("section", "fft-dashboard");
   if (options.sticky) root.dataset.sticky = "";
-  if (spec.title || spec.subtitle) {
+  // The as-of line: when the data was last true. A {latest} token waits for the widgets' dates.
+  const asOf = typeof spec.asOf === "string" && spec.asOf.trim() !== "" ? el("p", "fft-dashboard-asof") : undefined;
+  if (asOf) asOf.textContent = asOfText(spec.asOf as string, "");
+  if (spec.title || spec.subtitle || asOf) {
     const header = el("header", "fft-dashboard-header");
     if (spec.title) header.append(el("h2", "fft-dashboard-title", spec.title));
     if (spec.subtitle) header.append(el("p", "fft-dashboard-subtitle", spec.subtitle));
+    if (asOf) header.append(asOf);
     root.append(header);
   }
+  // On paper the filter row is gone, so one line says what the page shows: the section, filters, period and click filter.
+  const printState = el("p", "fft-print-state");
+  printState.setAttribute("aria-hidden", "true");
+  root.append(printState);
   const filterRow = el("div", "fft-filters");
   const grid = el("div", "fft-dashboard-grid");
   grid.style.setProperty("--fft-cols", String(columns));
@@ -124,6 +132,10 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
 
   const widgets = new Map<string, Widget>();
   const originals = new Map<string, WidgetSpec>();
+  /** Widgets that follow the selection, with the value their own spec shows before anything is picked. */
+  const follows = new Map<string, { follow: DashboardFollow; key: string; authored: unknown }>();
+  /** Each widget's slot by cell id, for the "Not filtered by" note. */
+  const slots = new Map<string, HTMLElement>();
   const rawFields = new Map<string, Promise<Set<string>>>();
   const rawRows = new Map<string, Promise<Row[]>>();
   const active = new Map<string, unknown>();
@@ -209,6 +221,14 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       return;
     }
     originals.set(id, found);
+    slots.set(id, slot);
+    if (cell.follow?.field) {
+      const key = cell.follow.as ?? cell.follow.field;
+      // The value the widget shows as written: its own filter on the key, else the default the cell names.
+      const own = (found.transform ?? []).find((step) => step.type === "filter" && step.field === key && (step.op === undefined || step.op === "=="));
+      follows.set(id, { follow: cell.follow, key, authored: own ? own.value : cell.follow.default });
+      slot.dataset.follows = cell.follow.field;
+    }
     const rows = runPipeline({ data: found.data }, { fetch: options.fetch }).catch(() => [] as Row[]);
     rawRows.set(id, rows);
     rawFields.set(id, rows.then((list) => new Set(list.flatMap((row) => Object.keys(row)))));
@@ -267,47 +287,88 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     });
     shownSection = section?.id ?? null;
     writeHash();
+    void writeState();
     if (root.getBoundingClientRect().top < 0) root.scrollIntoView?.({ block: "start" });
   }
 
+  /** The filters set in the row, by field, with nothing for "All". */
+  const chosenFilters = () => Object.fromEntries([...active.entries()].filter(([, value]) => value !== null && value !== undefined));
+  const firstPeriod = period;
+
   /**
-   * The address, when the board keeps it: the section in view and the click filter, as `#<section>&cf=<filter>`.
-   * The filter is JSON ([field, value, source]) so numbers stay numbers through a reload.
+   * The address, when the board keeps it: the section in view, the click filter, the filters and the period, as
+   * `#<section>&cf=<filter>&f=<filters>&p=<period>`. Values are JSON so numbers stay numbers through a reload, and a
+   * copied link opens the board exactly as it was.
    */
   function writeHash() {
     if (!options.hash) return;
     const view = doc.defaultView;
     if (!view) return;
-    const parts = [shownSection, cross ? `cf=${encodeURIComponent(JSON.stringify([cross.field, cross.value, cross.source ?? null]))}` : null].filter(Boolean);
+    const filters = chosenFilters();
+    const parts = [
+      shownSection,
+      cross ? `cf=${encodeURIComponent(JSON.stringify([cross.field, cross.value, cross.source ?? null]))}` : null,
+      Object.keys(filters).length ? `f=${encodeURIComponent(JSON.stringify(filters))}` : null,
+      period !== firstPeriod ? `p=${encodeURIComponent(period)}` : null,
+    ].filter(Boolean);
     view.history.replaceState(view.history.state, "", parts.length ? `#${parts.join("&")}` : `${view.location.pathname}${view.location.search}`);
   }
 
-  /** The two parts of the address: the section named, and the click filter written there. */
-  function readHash(): { section: string; cross?: CrossFilter } {
+  /** The parts of the address: the section named, and the click filter, filters and period written there. */
+  function readHash(): { section: string; cross?: CrossFilter; filters?: Record<string, unknown>; period?: string } {
     const parts = (doc.defaultView?.location.hash.slice(1) ?? "").split("&");
     let found: CrossFilter | undefined;
+    let filters: Record<string, unknown> | undefined;
+    let chosen: string | undefined;
     const named = parts.filter((part) => {
-      if (!part.startsWith("cf=")) return true;
+      // A part that does not read is ignored, like an unknown section.
       try {
-        const [field, value, source] = JSON.parse(decodeURIComponent(part.slice(3))) as [unknown, unknown, unknown];
-        if (typeof field === "string" && field) found = { field, value, ...(typeof source === "string" ? { source } : {}) };
+        if (part.startsWith("cf=")) {
+          const [field, value, source] = JSON.parse(decodeURIComponent(part.slice(3))) as [unknown, unknown, unknown];
+          if (typeof field === "string" && field) found = { field, value, ...(typeof source === "string" ? { source } : {}) };
+          return false;
+        }
+        if (part.startsWith("f=")) {
+          const read = JSON.parse(decodeURIComponent(part.slice(2))) as unknown;
+          if (read && typeof read === "object" && !Array.isArray(read)) filters = read as Record<string, unknown>;
+          return false;
+        }
+        if (part.startsWith("p=")) {
+          const option = decodeURIComponent(part.slice(2));
+          if (periods.includes(option)) chosen = option;
+          return false;
+        }
       } catch {
-        // A filter that does not read is ignored, like an unknown section.
+        return false;
       }
-      return false;
+      return true;
     });
-    return { section: named[0] ?? "", ...(found ? { cross: found } : {}) };
+    return { section: named[0] ?? "", ...(found ? { cross: found } : {}), ...(filters ? { filters } : {}), ...(chosen ? { period: chosen } : {}) };
   }
 
   // An address naming one of this board's sections opens the board on it, and the board follows the address as it
   // changes (links, back and forward): a section's id shows it, an empty address shows them all, anything else is left alone.
   let pendingCross: CrossFilter | undefined;
+  let pendingFilters: Record<string, unknown> | undefined;
   const fromAddress = (initial: boolean) => {
-    const { section: named, cross: wanted } = readHash();
+    const { section: named, cross: wanted, filters, period: chosen } = readHash();
     if (nav) {
       const match = sections.find(({ node }) => node.id === named);
       if (match) choose(match.node);
       else if (!named && !initial) choose(null);
+    }
+    // Filters and the period: on first load they are set before anything draws; later, only what changed redraws.
+    if (initial) {
+      if (chosen) period = chosen;
+      pendingFilters = filters;
+    } else {
+      const now = chosenFilters();
+      const wantedFilters = filters ?? {};
+      for (const field of new Set([...Object.keys(now), ...Object.keys(wantedFilters)])) {
+        if (JSON.stringify(now[field] ?? null) !== JSON.stringify(wantedFilters[field] ?? null)) void setFilter(field, wantedFilters[field] ?? null);
+      }
+      const nextPeriod = chosen ?? firstPeriod;
+      if (range && nextPeriod !== period) void setRange(nextPeriod);
     }
     // The click filter follows the address too; on first load it waits until the widgets know their fields.
     if (!crossOn) return;
@@ -348,8 +409,34 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     stuckSpy.observe(sentinel);
   }
 
+  /** The value a following widget shows: the click filter on its field, else the row's filter on it, else none (its own). */
+  function followedValue(id: string): unknown {
+    const entry = follows.get(id);
+    if (!entry) return undefined;
+    if (cross && cross.field === entry.follow.field && cross.source !== id) return cross.value;
+    const chosen = active.get(entry.follow.field);
+    return chosen === null || chosen === undefined ? undefined : chosen;
+  }
+
+  /**
+   * A following widget's spec: its own filter on the key replaced by the value picked (or the cell's default), and its
+   * title, subtitle and description naming that value where they named the one written in the spec.
+   */
+  function followed(id: string, base: WidgetSpec): WidgetSpec {
+    const entry = follows.get(id);
+    if (!entry) return base;
+    const value = followedValue(id) ?? entry.authored;
+    if (value === undefined || value === null) return base;
+    const steps = (base.transform ?? []).filter((step) => !(step.type === "filter" && step.field === entry.key && (step.op === undefined || step.op === "==")));
+    const was = entry.authored === undefined || entry.authored === null ? "" : String(entry.authored);
+    const now = String(value);
+    const rename = (text: string | undefined) => (text && was && was !== now ? text.split(was).join(now) : text);
+    const words = Object.fromEntries((["title", "subtitle", "description"] as const).filter((key) => typeof base[key] === "string").map((key) => [key, rename(base[key])]));
+    return fork(base, { ...words, transform: [{ type: "filter", field: entry.key, op: "==", value }, ...steps] });
+  }
+
   async function specFor(id: string): Promise<WidgetSpec> {
-    const base = fork(originals.get(id) as WidgetSpec, override);
+    const base = followed(id, fork(originals.get(id) as WidgetSpec, override));
     const fields = (await rawFields.get(id)) ?? new Set<string>();
     const steps: TransformSpec[] = [...active.entries()]
       .filter(([field, value]) => value !== null && value !== undefined && fields.has(field))
@@ -368,7 +455,54 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   }
 
   async function redraw() {
+    void writeState();
     await Promise.all([...widgets.entries()].map(async ([id, widget]) => widget.setSpec(await specFor(id))));
+  }
+
+  /** What a filter is called on screen: its row label, the period's label, or the field in words. */
+  const filterName = (field: string) => spec.filters?.find((filter) => filter.field === field)?.label ?? fieldLabel(field);
+
+  /**
+   * Honesty about scope: each card that a filter set right now cannot reach (its data has no such field) says so,
+   * quietly: "Not filtered by Segment". A card that follows the click filter's field counts as reached by it.
+   */
+  async function markUnreached() {
+    const filters = chosenFilters();
+    await Promise.all(
+      [...slots.entries()].map(async ([id, slot]) => {
+        const fields = (await rawFields.get(id)) ?? new Set<string>();
+        const missed = Object.keys(filters).filter((field) => !fields.has(field)).map(filterName);
+        if (range && period !== "All" && !rangeFields.some((field) => fields.has(field))) missed.push(range.label ?? "Period");
+        if (cross && cross.source !== id && !fields.has(cross.field) && follows.get(id)?.follow.field !== cross.field) missed.push(fieldLabel(cross.field));
+        let note = slot.querySelector<HTMLElement>(":scope > .fft-unfiltered");
+        if (!missed.length) {
+          note?.remove();
+          delete slot.dataset.unfiltered;
+          return;
+        }
+        if (!note) {
+          note = el("p", "fft-unfiltered");
+          slot.append(note);
+        }
+        const names = [...new Set(missed)];
+        note.textContent = `Not filtered by ${names.length > 1 ? `${names.slice(0, -1).join(", ")} or ${names.at(-1)}` : names[0]}`;
+        slot.dataset.unfiltered = "";
+      }),
+    );
+  }
+
+  /** The printed state line and the as-of date: what the page shows, in words. */
+  async function writeState() {
+    const parts: string[] = [];
+    const section = sections.find(({ node }) => node.id === shownSection);
+    if (section) parts.push(`Section: ${section.title}`);
+    for (const [field, value] of Object.entries(chosenFilters())) parts.push(`${filterName(field)}: ${formatValue(value, undefined, undefined)}`);
+    if (range) parts.push(`${range.label ?? "Period"}: ${period}`);
+    if (cross) parts.push(`${fieldLabel(cross.field)}: ${formatValue(cross.value, undefined, undefined)}`);
+    const asOfLine = asOf ? asOfText(spec.asOf as string, range ? await latest() : "") : "";
+    if (asOf) asOf.textContent = asOfLine;
+    printState.textContent = [spec.title, parts.length ? parts.join(" · ") : "Everything, unfiltered", asOfLine].filter(Boolean).join(" · ");
+    await markUnreached();
   }
 
   /** Whether a view lights up categories with `highlight` (bars and the like), and draws this field as its categories. */
@@ -455,6 +589,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   async function setRange(option: string) {
     period = option;
     for (const button of periodButtons) button.setAttribute("aria-pressed", String(button.dataset.value === option));
+    writeHash();
     await redraw();
   }
 
@@ -485,25 +620,83 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       wrap.append(label, select);
       filterRow.insertBefore(wrap, nav ?? null);
     }
+    filterRow.insertBefore(buildTools(), nav ?? null);
     rowHiddenBefore = !(spec.filters?.length || range || nav);
     filterRow.hidden = rowHiddenBefore && chip.hidden;
+  }
+
+  /** Copy link (when the board keeps its state in the address) and Print, at the end of the filter row. */
+  function buildTools(): HTMLElement {
+    const tools = el("div", "fft-board-tools");
+    tools.setAttribute("role", "group");
+    tools.setAttribute("aria-label", "Share");
+    const status = el("span", "fft-sr-only");
+    status.setAttribute("aria-live", "polite");
+    if (options.hash) {
+      const copy = el("button", "fft-board-tool", "Copy link");
+      copy.type = "button";
+      copy.title = "Copy a link to this view, with its filters";
+      copy.addEventListener("click", async () => {
+        const url = shareLink();
+        let done = false;
+        try {
+          await doc.defaultView?.navigator.clipboard.writeText(url);
+          done = Boolean(doc.defaultView?.navigator.clipboard);
+        } catch {
+          done = false;
+        }
+        copy.textContent = done ? "Link copied" : "Copy failed";
+        status.textContent = done ? "Link to this view copied" : "The link could not be copied";
+        root.dispatchEvent(new CustomEvent<{ url: string; copied: boolean }>("fft-share", { bubbles: true, detail: { url, copied: done } }));
+        setTimeout(() => (copy.textContent = "Copy link"), 1597);
+      });
+      tools.append(copy);
+    }
+    const print = el("button", "fft-board-tool", "Print");
+    print.type = "button";
+    print.title = "Print this view, or save it as a PDF";
+    print.addEventListener("click", () => {
+      void writeState();
+      try {
+        doc.defaultView?.print();
+      } catch {
+        // No print dialog here (a test page, a locked-down browser): nothing to do.
+      }
+    });
+    tools.append(print, status);
+    return tools;
+  }
+
+  /** The address of the board as it is now: section, filters, period and click filter. */
+  function shareLink(): string {
+    writeHash();
+    return doc.defaultView?.location.href ?? "";
   }
 
   async function setFilter(field: string, value: unknown) {
     active.set(field, value);
     const control = selects.get(field);
     if (control) {
-      const index = control.values.indexOf(value);
+      const index = control.values.findIndex((seen) => seen === value || JSON.stringify(seen) === JSON.stringify(value));
       control.select.value = value === null || value === undefined || index < 0 ? "" : String(index);
     }
+    writeHash();
     await redraw();
   }
 
   const ready = (async () => {
     await buildFilters();
+    // Filters a link named: set before anything redraws, each shown in its control.
+    for (const [field, value] of Object.entries(pendingFilters ?? {})) {
+      active.set(field, value);
+      const control = selects.get(field);
+      const index = control ? control.values.findIndex((seen) => seen === value || JSON.stringify(seen) === JSON.stringify(value)) : -1;
+      if (control) control.select.value = index < 0 ? "" : String(index);
+    }
     await Promise.all([...widgets.values()].map((widget) => widget.ready));
     if (pendingCross) await setCrossFilter(pendingCross.field, pendingCross.value, pendingCross.source);
-    else if (period !== "All") await redraw();
+    else if (period !== "All" || Object.keys(pendingFilters ?? {}).length || follows.size) await redraw();
+    else await writeState();
   })();
 
   return {
@@ -546,8 +739,49 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   };
 }
 
-/** The click filter's chip, on the library's tokens; injected once per document. */
+/** A date written for people: "25 Oct 2026" for a day, "October 2026" for a month, the text unchanged otherwise. */
+function dateWords(text: string): string {
+  const day = /^(\d{4})-(\d{2})-(\d{2})/.exec(text);
+  const month = /^(\d{4})-(\d{2})$/.exec(text);
+  const options: Intl.DateTimeFormatOptions = day ? { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" } : { month: "long", year: "numeric", timeZone: "UTC" };
+  if (!day && !month) return text;
+  const [, y, m, d] = (day ?? month) as RegExpExecArray;
+  return new Intl.DateTimeFormat(undefined, options).format(new Date(Date.UTC(Number(y), Number(m) - 1, Number(d ?? 1))));
+}
+
+/**
+ * The as-of line: "As of 25 Oct 2026" for a date, or the words given with {latest} filled by the latest date across
+ * the widgets that have the range field. Empty while {latest} is not known yet.
+ */
+export function asOfText(asOf: string, latest: string): string {
+  const text = asOf.trim();
+  if (/^\d{4}-\d{2}(-\d{2})?$/.test(text)) return `As of ${dateWords(text)}`;
+  if (!text.includes("{latest}")) return text;
+  return latest ? text.split("{latest}").join(dateWords(latest)) : "";
+}
+
+/** The click filter's chip, the share tools, the "Not filtered by" note and the printed page; injected once per document. */
 const BOARD_CSS = `
+.fft-dashboard-asof { margin: 2px 0 0; font-size: 12px; color: var(--fft-muted, #6e6e73); font-variant-numeric: tabular-nums; }
+.fft-print-state { display: none; }
+.fft-board-tools { display: inline-flex; align-items: center; gap: 5px; margin-left: auto; }
+.fft-board-tool { min-height: 34px; padding: 0 13px; border: 1px solid color-mix(in srgb, var(--fft-text, #1d1d1f) 14%, transparent); border-radius: 999px; background: transparent; color: inherit; font: inherit; font-size: 13px; cursor: pointer; white-space: nowrap; }
+.fft-board-tool:hover { background: color-mix(in srgb, var(--fft-text, #1d1d1f) 6%, transparent); }
+.fft-board-tool:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 2px; }
+.fft-dashboard .fft-cell-slot { position: relative; }
+.fft-unfiltered { position: absolute; top: 8px; right: 13px; z-index: 1; margin: 0; padding: 2px 8px; border-radius: 999px; font-size: 11px; line-height: 15px; color: var(--fft-muted, #6e6e73); background: color-mix(in srgb, var(--fft-text, #1d1d1f) 5%, transparent); pointer-events: none; transition: opacity 233ms ease; }
+.fft-cell-slot:is(:hover, :focus-within) > .fft-unfiltered { opacity: 0; }
+@media (hover: none) { .fft-unfiltered { position: static; align-self: flex-end; margin: 0 0 5px; } }
+@media print {
+  .fft-filters, .fft-filters-sentinel, .fft-board-tools, .fft-crossfilter, .fft-widget-ref { display: none !important; }
+  .fft-print-state { display: block; margin: 0 0 13px; padding: 0 0 8px; border-bottom: 1px solid #d4d3cd; font-size: 12px; color: #1d1d1f; }
+  .fft-dashboard-grid { display: block !important; }
+  .fft-dashboard .fft-cell-slot { margin: 0 0 13px; break-inside: avoid; page-break-inside: avoid; }
+  .fft-dashboard .fft-cell-slot[hidden], .fft-board-section[hidden] { display: none !important; }
+  .fft-board-section { break-before: page; page-break-before: always; margin: 0 0 8px; }
+  .fft-dashboard-grid > .fft-board-section:first-child { break-before: auto; page-break-before: auto; }
+  .fft-unfiltered { position: static; display: inline-block; margin: 0 0 5px; opacity: 1 !important; color: #515154; background: none; padding: 0; }
+}
 .fft-crossfilter { display: inline-flex; align-items: center; gap: 8px; min-height: 34px; padding: 0 8px 0 13px; border: 1px solid color-mix(in srgb, var(--fft-accent) 55%, transparent); border-radius: 999px; background: color-mix(in srgb, var(--fft-accent) 12%, transparent); color: inherit; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
 .fft-crossfilter[hidden] { display: none; }
 .fft-crossfilter:hover { background: color-mix(in srgb, var(--fft-accent) 20%, transparent); }

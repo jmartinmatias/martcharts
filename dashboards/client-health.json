@@ -3,6 +3,7 @@
   "title": "Client health",
   "subtitle": "Red, amber and green from four perspectives: client success, business development, coverage and the relationship",
   "description": "Every client's health on one page, scored against written thresholds: who is on track, where it is slipping, what changed this quarter, and who owns the next step.",
+  "asOf": "2026-10-25",
   "columns": 3,
   "filters": [
     {

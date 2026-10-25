@@ -19,6 +19,26 @@ export interface DashboardCell {
   section?: string;
   /** A line under the section heading. */
   description?: string;
+  /**
+   * Makes the widget follow a selection: when a click on a mark (or a filter) picks a value of `field`, this widget
+   * shows that value instead of the one its spec names. See `DashboardFollow`.
+   */
+  follow?: DashboardFollow;
+}
+
+/**
+ * A widget that follows the board's selection, such as a client card that shows the client clicked anywhere else.
+ * `field` is the field the selection is made on ("name" in a ranking of clients); `as` is the field the widget keys
+ * its own rows on, when it differs ("client" in a history of events). The widget's own filter on that field is
+ * replaced by the selected value, and its title and subtitle name the new value where they named the old one.
+ */
+export interface DashboardFollow {
+  /** Field the selection is made on, such as "name". */
+  field: string;
+  /** Field this widget keys its rows on, when it differs from `field`, such as "client". */
+  as?: string;
+  /** Value shown before anything is picked. Defaults to the value the widget's own filter names, or its first row. */
+  default?: string | number;
 }
 
 /** A filter in the dashboard's filter row. */
@@ -81,6 +101,11 @@ export interface DashboardSpec {
    * field to its value, with a chip in the filter row to clear it. Default true; `false` turns it off for this board.
    */
   crossFilter?: boolean;
+  /**
+   * When the data was last true, shown in the header and on paper: an ISO date ("2026-10-25"), or words with
+   * `{latest}`, the latest date across the widgets that have the range field ("Data to {latest}").
+   */
+  asOf?: string;
   widgets: DashboardCell[];
 }
 
@@ -124,6 +149,7 @@ export function validateDashboard(spec: unknown): Issue[] {
     }
   }
   if (spec.crossFilter !== undefined && typeof spec.crossFilter !== "boolean") issues.push(error("crossFilter", "Must be true or false."));
+  if (spec.asOf !== undefined && !(typeof spec.asOf === "string" && spec.asOf.trim() !== "")) issues.push(error("asOf", 'Must be a date such as "2026-10-25", or words with {latest}.'));
   if (!Array.isArray(spec.widgets)) {
     issues.push(error("widgets", 'Required. A list of cells such as { "widget": "revenue-kpi", "span": 2 }.'));
     return issues;
@@ -134,6 +160,16 @@ export function validateDashboard(spec: unknown): Issue[] {
     if (!isPlainObject(cell) || (typeof cell.widget !== "string" && !isPlainObject(cell.spec) && !isSection)) {
       issues.push(error(`widgets[${i}]`, "Needs a widget id, an inline spec, or a section title."));
       return;
+    }
+    if (cell.follow !== undefined) {
+      const follow = cell.follow;
+      if (isSection) issues.push(error(`widgets[${i}].follow`, "A section heading cannot follow a selection; put follow on a widget cell."));
+      else if (!isPlainObject(follow) || typeof follow.field !== "string" || follow.field === "") {
+        issues.push(error(`widgets[${i}].follow.field`, 'Required. The field the selection is made on, such as { "field": "name", "as": "client" }.'));
+      } else {
+        if (follow.as !== undefined && !(typeof follow.as === "string" && follow.as !== "")) issues.push(error(`widgets[${i}].follow.as`, "Must name the field this widget keys its rows on."));
+        if (follow.default !== undefined && typeof follow.default !== "string" && typeof follow.default !== "number") issues.push(error(`widgets[${i}].follow.default`, "Must be a text or a number."));
+      }
     }
     const span = cell.span;
     if (span !== undefined && !(typeof span === "number" && Number.isInteger(span) && span >= 1 && span <= max)) {
