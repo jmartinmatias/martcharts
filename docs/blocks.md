@@ -9,6 +9,18 @@ Register your own blocks with `registerSource`, `registerTransform`, `registerFo
 
 Slot: `data: { type, ...options }`.
 
+### `csv`
+
+Comma-separated values (CSV), from a file or written into the spec, with the first row as field names. Number cells become numbers. For spreadsheet and BI exports.
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `url` | string |  |  | Address of the CSV file. Give this or text. Relative addresses resolve as for url. |
+| `text` | string |  |  | The CSV itself, for example "region,revenue\nNorth,120". Give this or url. |
+| `delimiter` | string |  |  | Column separator. Leave out to pick a comma, semicolon or tab from the header row. |
+| `typed` | boolean |  | `true` | Turn number-looking cells into numbers (ids with leading zeros stay text) and empty cells into null. False keeps every cell as text. |
+| `cache` | number |  | `60` | Seconds a fetched file is shared with other loads of the same address. 0 always fetches. |
+
 ### `fn`
 
 Calls your own JavaScript function for rows. For code use only: a function cannot be saved as JSON.

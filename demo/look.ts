@@ -1,0 +1,25 @@
+/** The site-wide look from public/site-look.js: the theme and style preset picked on any page. */
+export interface Look {
+  theme?: string;
+  preset?: string;
+}
+
+declare global {
+  interface Window {
+    siteLook?: { get(): Look; set(patch: Look): Look };
+  }
+}
+
+export const look = (): Look => window.siteLook?.get() ?? {};
+export const setLook = (patch: Look): void => void window.siteLook?.set(patch);
+/** The saved preset as a style patch for a spec, or nothing when it is the default. */
+export const lookStyle = (): { preset: string } | undefined => {
+  const preset = look().preset;
+  return preset && preset !== "default" ? { preset } : undefined;
+};
+
+/** The spec in the saved look, unless it already chose its own preset (a Taller version picks its card). */
+export function withLook<T extends { style?: { preset?: string } }>(spec: T, fork: (spec: T, patch: { style: { preset: string } }) => T): T {
+  const style = lookStyle();
+  return style && !spec.style?.preset ? fork(spec, { style }) : spec;
+}

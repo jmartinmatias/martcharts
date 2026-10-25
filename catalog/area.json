@@ -1,0 +1,78 @@
+{
+  "id": "cash-forecast",
+  "title": "Cash on hand",
+  "subtitle": "Month-end balance, with a six-month forecast",
+  "description": "Cash ended September at €5.36M, up from €4.21M a year earlier. The middle case reaches €6.21M by March 2027, inside an 80% range of €4.50M to €8.22M.",
+  "footer": "Source: treasury and planning model",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {"month":"2025-10","cash":4210000,"low":null,"high":null,"forecast":false},
+      {"month":"2025-11","cash":4020000,"low":null,"high":null,"forecast":false},
+      {"month":"2025-12","cash":4530000,"low":null,"high":null,"forecast":false},
+      {"month":"2026-01","cash":4120000,"low":null,"high":null,"forecast":false},
+      {"month":"2026-02","cash":3940000,"low":null,"high":null,"forecast":false},
+      {"month":"2026-03","cash":4310000,"low":null,"high":null,"forecast":false},
+      {"month":"2026-04","cash":4630000,"low":null,"high":null,"forecast":false},
+      {"month":"2026-05","cash":4410000,"low":null,"high":null,"forecast":false},
+      {"month":"2026-06","cash":4820000,"low":null,"high":null,"forecast":false},
+      {"month":"2026-07","cash":5080000,"low":null,"high":null,"forecast":false},
+      {"month":"2026-08","cash":4910000,"low":null,"high":null,"forecast":false},
+      {"month":"2026-09","cash":5360000,"low":5360000,"high":5360000,"forecast":false},
+      {"month":"2026-10","cash":5480000,"low":5320000,"high":5670000,"forecast":true},
+      {"month":"2026-11","cash":5610000,"low":5250000,"high":6040000,"forecast":true},
+      {"month":"2026-12","cash":6080000,"low":5430000,"high":6850000,"forecast":true},
+      {"month":"2027-01","cash":5720000,"low":4830000,"high":6770000,"forecast":true},
+      {"month":"2027-02","cash":5830000,"low":4590000,"high":7290000,"forecast":true},
+      {"month":"2027-03","cash":6210000,"low":4500000,"high":8220000,"forecast":true}
+    ]
+  },
+  "fields": {
+    "month": {
+      "label": "Month",
+      "format": {
+        "type": "date",
+        "style": "month"
+      }
+    },
+    "cash": {
+      "label": "Cash",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "low": {
+      "label": "Low (p10)",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "high": {
+      "label": "High (p90)",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "forecast": {
+      "label": "Forecast"
+    }
+  },
+  "view": {
+    "type": "area",
+    "x": "month",
+    "y": "cash",
+    "forecast": "forecast",
+    "band": {
+      "low": "low",
+      "high": "high",
+      "label": "80% range"
+    }
+  }
+}

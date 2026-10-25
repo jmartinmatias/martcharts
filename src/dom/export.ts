@@ -7,7 +7,7 @@
 import type { Row } from "../core/types.ts";
 
 /** Actions a host can offer on a widget. */
-export type WidgetAction = "csv" | "image" | "copy" | "expand" | "explain";
+export type WidgetAction = "csv" | "image" | "copy" | "expand" | "explain" | "info";
 
 function isMissing(value: unknown): boolean {
   return value === null || value === undefined || (typeof value === "number" && Number.isNaN(value));
@@ -98,6 +98,7 @@ export const ACTION_ICONS: Record<WidgetAction, string[]> = {
   copy: ["M9 9h10v11H9z", "M5 15V5a1 1 0 0 1 1-1h9"],
   expand: ["M14 4h6v6", "M10 20H4v-6", "M20 4l-7 7", "M4 20l7-7"],
   explain: ["M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z", "M9.5 9.5a2.5 2.5 0 0 1 4.9.6c0 1.6-2.4 2.2-2.4 3.7", "M12 17h.01"],
+  info: ["M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z", "M12 11v6", "M12 7.5h.01"],
 };
 
 /** Accessible names for the action buttons. */
@@ -107,4 +108,5 @@ export const ACTION_LABELS: Record<WidgetAction, string> = {
   copy: "Copy data",
   expand: "Expand",
   explain: "How to read it",
+  info: "Details",
 };

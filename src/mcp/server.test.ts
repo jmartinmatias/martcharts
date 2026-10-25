@@ -71,14 +71,19 @@ describe("tools", () => {
     const { client } = await connect();
     const { tools } = await client.listTools();
     expect(tools.map((t) => t.name).sort()).toEqual([
+      "fft_chart_guide",
       "fft_check_palette",
       "fft_create_variants",
       "fft_create_widget",
       "fft_delete_widget",
+      "fft_get_chart",
       "fft_get_widget",
       "fft_get_widget_data",
       "fft_list_blocks",
+      "fft_list_charts",
       "fft_list_widgets",
+      "fft_recommend_charts",
+      "fft_switch_chart",
       "fft_update_widget",
       "fft_validate_spec",
     ]);
@@ -268,6 +273,60 @@ describe("tools", () => {
     expect(await store.has("visits")).toBe(false);
   });
 
+  test("fft_list_charts lists every view with the fields it needs, and which have a starter", async () => {
+    await mkdir(join(root, "catalog"));
+    const catalog = createFileStore(join(root, "catalog"), "chart");
+    await catalog.save("hbar", { title: "Teams", data: { type: "inline", rows: [{ team: "Ops", hours: 3 }] }, view: { type: "hbar", label: "team", value: "hours" } });
+    const { data } = await (await connect({ catalog })).call("fft_list_charts", { response_format: "json" });
+    const charts = data?.charts as { type: string; has_starter: boolean; question?: string; needs: { option: string; holds: string; required: boolean }[] }[];
+    expect(charts.length).toBe(data?.total);
+    expect(charts.length).toBeGreaterThanOrEqual(40);
+    const hbar = charts.find((c) => c.type === "hbar");
+    expect(hbar?.has_starter).toBe(true);
+    expect(hbar?.question).toBeTruthy();
+    expect(hbar?.needs.filter((n) => n.required).map((n) => [n.option, n.holds])).toEqual([["label", "category"], ["value", "number"]]);
+    expect(charts.find((c) => c.type === "sankey")?.has_starter).toBe(false);
+  });
+
+  test("fft_get_chart returns a starter spec that validates, and names the known types for a wrong one", async () => {
+    await mkdir(join(root, "catalog"));
+    const catalog = createFileStore(join(root, "catalog"), "chart");
+    const rows = Array.from({ length: 5_000 }, (_, i) => ({ team: `Team ${i} with a long name`, hours: i }));
+    await catalog.save("hbar", { title: "Teams", data: { type: "inline", rows }, view: { type: "hbar", label: "team", value: "hours" } });
+    const { call } = await connect({ catalog });
+    const { data, text } = await call("fft_get_chart", { type: "hbar", response_format: "json" });
+    const starter = data?.starter as { data: { rows: unknown[] } };
+    expect(starter.data.rows.length).toBeLessThan(rows.length);
+    expect(text.length).toBeLessThan(25_000);
+    expect(data?.note).toContain("of its 5000 rows");
+    expect((await call("fft_validate_spec", { spec: starter })).isError).toBe(false);
+    expect((await call("fft_get_chart", { type: "sankey" })).text).toContain("No starter spec");
+    const wrong = await call("fft_get_chart", { type: "pie" });
+    expect(wrong.isError).toBe(true);
+    expect(wrong.text).toContain("donut");
+  });
+
+  test("fft_recommend_charts ranks charts for CSV text, and each pick saves as a widget", async () => {
+    const { call } = await connect();
+    const csv = "month,revenue\n2026-01,100\n2026-02,120\n2026-03,90\n2026-04,130";
+    const { data } = await call("fft_recommend_charts", { data: { type: "csv", text: csv }, response_format: "json" });
+    const picks = data?.picks as { type: string; why: string; spec: Record<string, unknown> }[];
+    expect(data?.rows).toBe(4);
+    expect(picks[0]?.type).toBe("line");
+    expect(picks[0]?.why).toContain("revenue");
+    expect((await call("fft_create_widget", { id: "revenue-trend", spec: picks[0]!.spec })).isError).toBe(false);
+    expect(await store.has("revenue-trend")).toBe(true);
+  });
+
+  test("fft_recommend_charts reads url data through transforms, and explains a bad source", async () => {
+    const { call } = await connect();
+    const { text } = await call("fft_recommend_charts", { data: { type: "url", url: "/data/sales.json" }, transform: [{ type: "aggregate", groupBy: "region", measures: [{ op: "sum", field: "revenue" }] }] });
+    expect(text).toContain("# Charts for 3 rows");
+    expect(text).toMatch(/`(bar|hbar)`/);
+    const bad = await call("fft_recommend_charts", { data: { type: "nope" } });
+    expect(bad.isError).toBe(true);
+  });
+
   test("fft_list_blocks describes every view and its options", async () => {
     const { data } = await (await connect()).call("fft_list_blocks", { kind: "view", response_format: "json" });
     const views = data?.view as { type: string; options: Record<string, { required?: boolean }> }[];
@@ -285,6 +344,20 @@ describe("tools", () => {
     const { data } = await (await connect()).call("fft_list_blocks", { kind: "view", response_format: "json" });
     const missing = (data?.view as { type: string }[]).map((v) => v.type).filter((type) => !named.has(type));
     expect(missing).toEqual([]);
+  });
+
+  test("fft_chart_guide hands over a chart's table, data and switches; fft_switch_chart redraws a spec as another chart", async () => {
+    const { call } = await connect();
+    const guide = await call("fft_chart_guide", { spec: { data: { type: "inline", rows: [{ region: "East", revenue: 5 }, { region: "West", revenue: 3 }, { region: "North", revenue: 4 }] }, view: { type: "bar", x: "region", y: "revenue" } } });
+    const { text } = guide;
+    expect(text).toContain("## The data it needs");
+    expect(text).toContain("region,revenue\nEast,5");
+    expect(text).toContain("`hbar`");
+    const spec = { data: { type: "inline", rows: [{ region: "East", revenue: 5 }, { region: "West", revenue: 3 }] }, view: { type: "bar", x: "region", y: "revenue" } };
+    const one = await call("fft_switch_chart", { spec, to: "hbar" });
+    expect(one.data).toMatchObject({ fit: "fits", verdict: "better", view: { type: "hbar", label: "region", value: "revenue" } });
+    const all = await call("fft_switch_chart", { spec });
+    expect((all.data as { switches: { fit: string }[] }).switches.every((s) => s.fit !== "no")).toBe(true);
   });
 
   test("fft_check_palette reports colorblind separation and contrast for a list of colors or a library palette", async () => {
@@ -393,6 +466,22 @@ describe("resources", () => {
     expect(JSON.parse((contents[0] as { text: string }).text)).toEqual({ id: "visits", ...kpi });
   });
 
+  test("with a catalog, every chart starter is its own resource, and other files are not", async () => {
+    await mkdir(join(root, "catalog"));
+    const catalog = createFileStore(join(root, "catalog"), "chart");
+    const hbar = { data: { type: "inline", rows: [{ team: "Ops", hours: 3 }] }, view: { type: "hbar", label: "team", value: "hours" } };
+    await catalog.save("hbar", hbar);
+    await catalog.save("not-a-view", hbar);
+    const { client } = await connect({ catalog });
+    const charts = (await client.listResources()).resources.filter((r) => r.uri.startsWith("fft://charts/"));
+    expect(charts.map((r) => r.uri)).toEqual(["fft://charts/hbar"]);
+    expect(charts[0]?.title).toMatch(/^hbar: Horizontal bars/);
+    const { contents } = await client.readResource({ uri: "fft://charts/hbar" });
+    expect(JSON.parse((contents[0] as { text: string }).text)).toMatchObject(hbar);
+    await expect(client.readResource({ uri: "fft://charts/sankey" })).rejects.toThrow();
+    await expect(client.readResource({ uri: "fft://charts/not-a-view" })).rejects.toThrow();
+  });
+
   test("reading a widget's data resource returns its rows", async () => {
     const { client } = await connect();
     const { contents } = await client.readResource({ uri: "fft://widgets/sales-by-region/data" });
@@ -408,7 +497,7 @@ describe("a server linked to one widget", () => {
   test("offers only that widget's tools, with no id to pass", async () => {
     const { client } = await connect({ widgetId: "visits" });
     const { tools } = await client.listTools();
-    expect(tools.map((t) => t.name).sort()).toEqual(["fft_check_palette", "fft_create_variants", "fft_get_widget", "fft_get_widget_data", "fft_list_blocks", "fft_update_widget", "fft_validate_spec"]);
+    expect(tools.map((t) => t.name).sort()).toEqual(["fft_chart_guide", "fft_check_palette", "fft_create_variants", "fft_get_chart", "fft_get_widget", "fft_get_widget_data", "fft_list_blocks", "fft_list_charts", "fft_recommend_charts", "fft_switch_chart", "fft_update_widget", "fft_validate_spec"]);
     const getWidget = tools.find((t) => t.name === "fft_get_widget");
     expect(Object.keys((getWidget?.inputSchema as { properties?: object }).properties ?? {})).not.toContain("id");
   });

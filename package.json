@@ -1,5 +1,5 @@
 {
-  "name": "fft-widgets",
+  "name": "martcharts",
   "version": "0.1.0",
   "description": "One universal widget block. Describe the data, the reshaping, the view and the style; fork it into any chart, table, list or KPI. Ships with an MCP server so agents can read and edit every widget.",
   "type": "module",
@@ -7,14 +7,31 @@
   "exports": {
     ".": "./src/index.ts",
     "./core": "./src/core/index.ts",
-    "./mcp": "./src/mcp/server.ts"
+    "./mcp": "./src/mcp/server.ts",
+    "./standalone": {
+      "types": "./dist/types/standalone.d.ts",
+      "default": "./dist/martcharts.js"
+    },
+    "./dist/*": "./dist/*"
   },
+  "unpkg": "dist/martcharts.iife.js",
+  "jsdelivr": "dist/martcharts.iife.js",
+  "files": [
+    "src",
+    "dist",
+    "widgets",
+    "dashboards",
+    "catalog",
+    "docs",
+    "!src/**/*.test.ts"
+  ],
   "bin": {
     "fft-mcp": "src/mcp/main.ts"
   },
   "scripts": {
     "dev": "vite",
     "build:demo": "vite build",
+    "build:lib": "vite build -c vite.lib.config.ts && node scripts/lib-types.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
@@ -22,7 +39,9 @@
     "mcp:inspect": "npx @modelcontextprotocol/inspector node src/mcp/main.ts",
     "smoke": "node scripts/smoke.ts",
     "mcp:config": "node src/mcp/main.ts --print-config",
-    "docs": "node scripts/docs.ts"
+    "docs": "node scripts/docs.ts",
+    "catalog": "node scripts/catalog.ts && node scripts/guide.ts",
+    "prepare": "npm run build:lib"
   },
   "engines": {
     "node": ">=23.6"

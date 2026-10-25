@@ -4,18 +4,33 @@
  * ```html
  * <fft-widget src="/widgets/revenue-by-region.json" actions="csv image copy"></fft-widget>
  * <fft-widget spec='{"data":{"type":"inline","rows":[{"a":1}]},"view":{"type":"table"}}'></fft-widget>
+ * <fft-widget>
+ *   <script type="application/json">{"data":{"type":"inline","rows":[{"a":1}]},"view":{"type":"table"}}</script>
+ * </fft-widget>
+ * <fft-widget data="/exports/sales.csv"></fft-widget>                     <!-- no spec: the chart is picked from the data -->
+ * <fft-widget data="/api/orders.json" chart="line" heading="Orders"></fft-widget>
  * ```
  *
  * @module
  */
-import type { WidgetSpec } from "../core/types.ts";
+import { fork } from "../core/fork.ts";
+import { runPipeline } from "../core/pipeline.ts";
+import { recommendCharts } from "../core/recommend.ts";
+import { blockTypes } from "../core/registry.ts";
+import { suggestView } from "../core/suggest.ts";
+import type { DataSpec, WidgetSpec } from "../core/types.ts";
 import { createWidget } from "./widget.ts";
 import type { Widget } from "./widget.ts";
+import { ACTION_LABELS } from "./export.ts";
 import type { WidgetAction } from "./export.ts";
 
 /** The `<fft-widget>` element. */
 export interface FftWidgetElement extends HTMLElement {
-  /** The spec to draw. Setting it redraws; also settable through the `spec` (JSON) or `src` (URL) attributes. */
+  /**
+   * The spec to draw. Setting it redraws; also settable through the `spec` (JSON) or `src` (URL) attributes,
+   * an inline `<script type="application/json">` child, or the `data` attribute (a CSV or JSON address) with
+   * an optional `chart` (a view type; left out, the chart is picked from the data) and `heading`.
+   */
   spec: WidgetSpec | undefined;
   /** The live widget, once the element is in the page and has a spec. */
   readonly widget: Widget | undefined;
@@ -29,7 +44,7 @@ export function defineWidgetElement(tag = "fft-widget"): void {
   if (customElements.get(tag)) return;
 
   class Element extends HTMLElement implements FftWidgetElement {
-    static observedAttributes = ["spec", "src"];
+    static observedAttributes = ["spec", "src", "data", "chart", "preset"];
     #spec: WidgetSpec | undefined;
     #widget: Widget | undefined;
     #srcRequest = 0;
@@ -48,7 +63,22 @@ export function defineWidgetElement(tag = "fft-widget"): void {
     }
 
     connectedCallback() {
+      if (!this.#spec && !this.hasAttribute("spec") && !this.hasAttribute("src") && !this.hasAttribute("data")) this.#readInline();
       this.#draw();
+    }
+
+    // A spec written inside the tag. While the page is still parsing, the child may not exist yet.
+    #readInline() {
+      const script = this.querySelector(':scope > script[type="application/json"]');
+      if (!script) {
+        if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => this.#spec || this.#readInline(), { once: true });
+        return;
+      }
+      try {
+        this.spec = JSON.parse(script.textContent ?? "") as WidgetSpec;
+      } catch (caught) {
+        this.#problem(`The inline spec is not valid JSON: ${caught instanceof Error ? caught.message : String(caught)}`);
+      }
     }
 
     disconnectedCallback() {
@@ -57,6 +87,11 @@ export function defineWidgetElement(tag = "fft-widget"): void {
     }
 
     attributeChangedCallback(name: string, _old: string | null, value: string | null) {
+      // A page-wide look (Airy, Glass...) set on the tag wins over the spec's own preset; removing it restores the spec's.
+      if (name === "preset") {
+        this.#draw();
+        return;
+      }
       if (value === null) return;
       if (name === "spec") {
         try {
@@ -66,6 +101,25 @@ export function defineWidgetElement(tag = "fft-widget"): void {
         }
       } else if (name === "src") {
         void this.#load(value);
+      } else if (this.hasAttribute("data") && !this.hasAttribute("spec") && !this.hasAttribute("src")) {
+        void this.#fromData(this.getAttribute("data") ?? "", this.getAttribute("chart"));
+      }
+    }
+
+    /** A spec from a data address alone: CSV by its extension, JSON otherwise (with an optional `path`), drawn as `chart` or the best pick. */
+    async #fromData(address: string, chart: string | null) {
+      const request = ++this.#srcRequest;
+      const path = this.getAttribute("path");
+      const data: DataSpec = /\.csv([?#]|$)/i.test(address) ? { type: "csv", url: address } : { type: "url", url: address, ...(path ? { path } : {}) };
+      const title = this.getAttribute("heading");
+      try {
+        if (chart && chart !== "auto" && !blockTypes("view").includes(chart)) throw new Error(`Unknown chart "${chart}". Use one of: auto, ${blockTypes("view").join(", ")}.`);
+        // The data source shares this answer with the widget's own load, so the file is fetched once.
+        const rows = await runPipeline({ data });
+        const view = chart && chart !== "auto" ? suggestView(chart, rows) : (recommendCharts(rows, { limit: 1 })[0]?.view ?? { type: "table" });
+        if (request === this.#srcRequest) this.spec = { ...(title ? { title } : {}), data, view };
+      } catch (caught) {
+        if (request === this.#srcRequest) this.#problem(`Could not draw ${address}: ${caught instanceof Error ? caught.message : String(caught)}`);
       }
     }
 
@@ -83,10 +137,12 @@ export function defineWidgetElement(tag = "fft-widget"): void {
 
     #draw() {
       if (!this.isConnected || !this.#spec) return;
-      if (this.#widget) void this.#widget.setSpec(this.#spec);
+      const preset = this.getAttribute("preset");
+      const spec = preset ? fork(this.#spec, { style: { preset: preset === "default" ? null : preset } }) : this.#spec;
+      if (this.#widget) void this.#widget.setSpec(spec);
       else {
-        const actions = (this.getAttribute("actions") ?? "").split(/\s+/).filter((a): a is WidgetAction => a === "csv" || a === "image" || a === "copy" || a === "expand");
-        this.#widget = createWidget(this, this.#spec, { actions });
+        const actions = (this.getAttribute("actions") ?? "").split(/\s+/).filter((a): a is WidgetAction => Object.hasOwn(ACTION_LABELS, a));
+        this.#widget = createWidget(this, spec, { actions });
       }
     }
 

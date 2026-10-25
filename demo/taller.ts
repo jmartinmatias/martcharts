@@ -3,8 +3,9 @@
  * widget in widgets/), say who reads it, choose sales moves, steer color and marks, and make live versions, each
  * with the sales question it answers, its move, five qualities and balance note.
  */
-import { AUDIENCES, balanceOf, createVariants, createWidget, explainChart, fillsOf, MOVES, plainTags, PRINCIPLES, qualitiesOf, QUALITIES, questionOf, runPipeline } from "../src/index.ts";
-import type { Audience, Move, Qualities, Row, Variant, Widget, WidgetSpec } from "../src/index.ts";
+import { AUDIENCES, balanceOf, createVariants, createWidget, explainChart, fillsOf, fork, MOVES, plainTags, PRINCIPLES, qualitiesOf, QUALITIES, questionOf, runPipeline } from "../src/index.ts";
+import type { Audience, Move, Qualities, Row, Variant, Widget, WidgetAction, WidgetSpec } from "../src/index.ts";
+import { setLook, withLook } from "./look.ts";
 
 const stored = import.meta.glob<WidgetSpec>("../widgets/*.json", { eager: true, import: "default" });
 const charts = Object.values(stored)
@@ -25,9 +26,7 @@ const sentence = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 const themeGroup = $("#theme");
 for (const b of themeGroup.querySelectorAll<HTMLButtonElement>("button")) {
   b.addEventListener("click", () => {
-    for (const other of themeGroup.querySelectorAll("button")) other.setAttribute("aria-pressed", String(other === b));
-    if (b.dataset.value === "auto") delete document.documentElement.dataset.theme;
-    else document.documentElement.dataset.theme = b.dataset.value;
+    setLook({ theme: b.dataset.value });
   });
 }
 
@@ -101,8 +100,8 @@ const rowsOf = (spec: WidgetSpec) => {
   return rowsCache.get(key) as Promise<Row[]>;
 };
 
-function mount(target: HTMLElement, spec: WidgetSpec, actions: ("expand" | "csv" | "image" | "copy")[] = []) {
-  const widget = createWidget(target, spec, { actions });
+function mount(target: HTMLElement, spec: WidgetSpec, actions: WidgetAction[] = []) {
+  const widget = createWidget(target, withLook(spec, fork), { actions });
   live.push(widget);
   return widget;
 }
@@ -153,7 +152,7 @@ function card(variant: Variant): HTMLElement {
   node.append(heading, form, scores, tags, chart, explain, qualities, balance, actions);
   // Mount after the card is in the page, so the charts measure their real width.
   queueMicrotask(() => {
-    const widget = mount(chart, variant.spec, ["expand", "csv"]);
+    const widget = mount(chart, variant.spec, ["info", "expand", "csv"]);
     // Once the chart has its rows, the plain guide adds one concrete example from them.
     void widget.ready.then(() => {
       explain.textContent = explainChart(variant.spec, widget.rows);
@@ -179,7 +178,7 @@ async function make() {
   questionLine($("#original-question"), questionOf(chart, rows).text);
   const original = $("#original");
   original.replaceChildren();
-  mount(original, chart, ["expand"]);
+  mount(original, chart, ["info", "expand"]);
   const own = qualitiesOf(chart, rows);
   const originalQualities = $("#original-qualities");
   originalQualities.replaceChildren();

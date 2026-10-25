@@ -29,7 +29,28 @@ npm run dev        # demo gallery at http://localhost:5173; its Playground (head
 npm test           # unit and integration tests
 npm run typecheck
 npm run smoke      # starts the real MCP server and calls it as a client would
+npm run build:lib  # the drop-in bundle in dist/
+npm run catalog    # the chart catalog and data guide: catalog/*.json, catalog/index.html, catalog/guide.html, docs/catalog.md, docs/chart-guide.md
 ```
+
+## Drop it into any page
+
+`npm run build:lib` writes two self-contained files with no dependencies: `dist/martcharts.iife.js` (a classic script, exposed as `window.MartCharts`) and `dist/martcharts.js` (an ES module, also `import "martcharts/standalone"`). Both register `<fft-widget>` on load, so a page needs no bundler, no Node and no JavaScript of its own. Type declarations ship in `dist/types` (`martcharts/standalone` resolves them under any `moduleResolution`, and `document.querySelector("fft-widget")` comes back typed). The module is safe to import on a server too: it only registers the tag where `customElements` exists.
+
+```html
+<script src="martcharts.iife.js"></script>
+
+<fft-widget data="sales.csv"></fft-widget>                   <!-- just data: the chart is picked for you -->
+<fft-widget src="catalog/funnel.json"></fft-widget>          <!-- a spec file -->
+<fft-widget actions="csv image">                              <!-- or the spec inline -->
+  <script type="application/json">
+    { "data": { "type": "inline", "rows": [{ "team": "Ops", "hours": 3 }, { "team": "Sales", "hours": 5 }] },
+      "view": { "type": "hbar", "label": "team", "value": "hours" } }
+  </script>
+</fft-widget>
+```
+
+The [chart catalog](docs/catalog.md) has all 40 views, each with what it is for, the data it needs and a self-contained spec in `catalog/` to start from. [examples/drop-in.html](examples/drop-in.html) shows every way in: inline, `src`, and a spec set from JavaScript with live data. [docs/frameworks.md](docs/frameworks.md) says how to get it into another project (copy one file, or `npm install` from GitHub) and has recipes for React, Vue, Svelte and server-rendered apps.
 
 ## A widget in one object
 
@@ -53,7 +74,7 @@ npm run smoke      # starts the real MCP server and calls it as a client would
 Draw it with JavaScript:
 
 ```ts
-import { createWidget } from "fft-widgets";
+import { createWidget } from "martcharts";
 
 const widget = createWidget(document.querySelector("#slot")!, spec);
 await widget.ready;
@@ -64,7 +85,7 @@ or with the HTML tag:
 
 ```html
 <script type="module">
-  import { defineWidgetElement } from "fft-widgets";
+  import { defineWidgetElement } from "martcharts";
   defineWidgetElement();
 </script>
 <fft-widget src="/widgets/revenue-by-region.json"></fft-widget>
@@ -75,7 +96,7 @@ or with the HTML tag:
 `baseWidget` is the vanilla block: valid, empty, drawn as a table. Every widget is a fork of it, or of another widget. A fork says only what changes, using JSON Merge Patch rules: objects merge, lists replace, `null` removes a key.
 
 ```ts
-import { baseWidget, fork } from "fft-widgets";
+import { baseWidget, fork } from "martcharts";
 
 const topCustomers = fork(baseWidget, {
   title: "Top customers",
@@ -158,13 +179,16 @@ npm run mcp:config                            # print an .mcp.json with one serv
 npm run mcp:inspect                           # open the MCP Inspector against it
 ```
 
-This folder's `.mcp.json` already registers the all-widgets server, so Claude Code picks it up when opened here. Tools: `fft_list_widgets`, `fft_get_widget`, `fft_get_widget_data`, `fft_create_widget`, `fft_update_widget`, `fft_delete_widget`, `fft_list_blocks`, `fft_validate_spec`, `fft_create_variants` (the Taller). Resources: `fft://widgets/<id>`, `fft://widgets/<id>/data`, `fft://blocks`.
+This folder's `.mcp.json` already registers the all-widgets server, so Claude Code picks it up when opened here. Tools: `fft_list_widgets`, `fft_get_widget`, `fft_get_widget_data`, `fft_create_widget`, `fft_update_widget`, `fft_delete_widget`, `fft_list_charts` and `fft_get_chart` (the chart catalog, with starter specs), `fft_chart_guide` and `fft_switch_chart` (the table each chart needs, its data, its uses, and the same data as another chart), `fft_recommend_charts` (which chart for this data), `fft_list_blocks`, `fft_validate_spec`, `fft_create_variants` (the Taller). Resources: `fft://widgets/<id>`, `fft://widgets/<id>/data`, `fft://blocks`.
 
 Widgets are stored as `widgets/<id>.json`, the same files the demo page reads. A change made through MCP shows up in the open demo page right away. Details in [docs/mcp.md](docs/mcp.md).
 
 ## Documentation
 
 - [docs/api.md](docs/api.md): the spec format, the JavaScript API, events, styling and extending.
+- [docs/frameworks.md](docs/frameworks.md): recipes for plain HTML, JavaScript, React, Vue, Svelte and server-rendered apps.
+- [docs/catalog.md](docs/catalog.md): every chart, what it answers, the data it needs and a spec to copy (generated).
+- [docs/chart-guide.md](docs/chart-guide.md): which chart for which job, each chart's best and worst uses, the table it needs, and which other charts the same data makes, with an assessment of each switch (generated). One Markdown file per chart with its data in full is in `catalog/guide/`, to hand to another model.
 - [docs/blocks.md](docs/blocks.md): every block and option (generated).
 - [docs/mcp.md](docs/mcp.md): MCP tools, resources and setup.
 - [docs/accessibility.md](docs/accessibility.md): conformance with EN 301 549 (the European Accessibility Act) and WCAG 2.1 AA, criterion by criterion, and how to test it.
@@ -181,7 +205,9 @@ dashboards/    dashboard specs; gallery.json lays out the demo gallery.
 public/data/   sample data the example widgets load.
 demo/          the gallery and playground page.
 docs/          reference documentation.
-scripts/       smoke test and docs generator.
+catalog/       one self-contained spec per view, and a page that draws them all (generated).
+examples/      drop-in pages that use the built bundle with no build step.
+scripts/       smoke test, docs and catalog generators.
 ```
 
 ## Evaluating the MCP server

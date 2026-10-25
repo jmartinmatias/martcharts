@@ -1,25 +1,50 @@
 /*
- * The demo's pages, the same row at the top of every page: Gallery, Taller, Selected and Playground. The page you
- * are on is marked twice, in words for screen readers (aria-current) and by a heavier ink and an accent rule.
- * Uses each page's own tokens: --ink, --ink-2, --line, --accent.
+ * The site's pages, the same row at the top of every page: Gallery, Taller, Selected, Playground, Catalog and Drop-in.
+ * It stays pinned to the top while the page scrolls, so every page is one tap away. The page you are on is marked
+ * twice, in words for screen readers (aria-current) and by a heavier ink and an accent rule.
+ * Uses each page's own tokens (--page, --ink, --ink-2, --line, --accent), with system colors for pages that have none.
  */
-.site-nav { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 21px; margin: 0 0 21px; padding-bottom: 13px; border-bottom: 1px solid var(--line); font-size: 13px; }
+/* The nav's height, for anything else that pins under it (a dashboard's filter row reads --fft-sticky-top). */
+:root { --site-nav-height: 46px; --fft-sticky-top: var(--site-nav-height); scroll-padding-top: calc(var(--site-nav-height) + 13px); }
+.site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 21px;
+  box-sizing: border-box;
+  height: calc(var(--site-nav-height) + env(safe-area-inset-top, 0px));
+  margin: 0 0 21px;
+  padding: env(safe-area-inset-top, 0px) 0 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: var(--page, Canvas);
+  border-bottom: 1px solid var(--line, color-mix(in srgb, CanvasText 12%, transparent));
+  box-shadow: 0 0 0 100vmax var(--page, Canvas);
+  clip-path: inset(0 -100vmax);
+  font: 13px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.site-nav::-webkit-scrollbar { display: none; }
 .site-nav a, .site-nav button {
   appearance: none;
+  flex: none;
   background: none;
   border: 0;
   border-bottom: 2px solid transparent;
   border-radius: 0;
-  padding: 4px 0;
-  color: var(--ink-2);
+  padding: 6px 0;
+  color: var(--ink-2, color-mix(in srgb, CanvasText 70%, transparent));
   font: inherit;
   letter-spacing: 0.01em;
   text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
   transition: color 233ms ease, border-color 233ms ease;
 }
-.site-nav a:hover, .site-nav button:hover { color: var(--ink); border-bottom-color: var(--line); }
-.site-nav a:focus-visible, .site-nav button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; color: var(--ink); }
-.site-nav [aria-current="page"] { color: var(--ink); font-weight: 600; border-bottom-color: var(--accent); cursor: default; }
+.site-nav a:hover, .site-nav button:hover { color: var(--ink, CanvasText); border-bottom-color: var(--line, color-mix(in srgb, CanvasText 20%, transparent)); }
+.site-nav a:focus-visible, .site-nav button:focus-visible { outline: 2px solid var(--accent, AccentColor); outline-offset: 3px; color: var(--ink, CanvasText); }
+.site-nav [aria-current="page"] { color: var(--ink, CanvasText); font-weight: 600; border-bottom-color: var(--accent, AccentColor); cursor: default; }
+@media (max-width: 480px) { .site-nav { gap: 16px; } }
 @media (prefers-reduced-motion: reduce) { .site-nav a, .site-nav button { transition: none; } }
 @media (forced-colors: active) { .site-nav [aria-current="page"] { border-bottom-color: CanvasText; } }

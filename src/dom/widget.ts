@@ -7,6 +7,7 @@ import { fieldLabel, formatNode, formatValue } from "../core/display.ts";
 import { fork } from "../core/fork.ts";
 import type { Override } from "../core/fork.ts";
 import { runPipeline } from "../core/pipeline.ts";
+import { describeChart } from "../core/catalog.ts";
 import { explainChart } from "../core/explain.ts";
 import { questionOf } from "../core/question.ts";
 import { widgetRef } from "../core/ref.ts";
@@ -32,7 +33,8 @@ export interface WidgetOptions {
    * Buttons offered in the widget's corner: `csv` downloads the rows, `image`
    * downloads the chart as a PNG (shown only when the view draws a chart),
    * `copy` copies the rows as tab-separated text for spreadsheets, `explain`
-   * shows a plain "How to read it" guide under the chart. None by default:
+   * shows a plain "How to read it" guide under the chart. `info` turns the card round to
+   * its Details side (and lets a click on the card do the same). None by default:
    * whether people may take the data out is the host's decision.
    */
   actions?: WidgetAction[];
@@ -64,6 +66,8 @@ export interface Widget {
   setSpec(spec: WidgetSpec): Promise<void>;
   /** Opens or closes the "How to read it" guide under the chart. */
   showGuide(open: boolean): void;
+  /** Turns the card to its Details side (chart, data, fields, steps, links) or back to the chart. Settles when the turn ends. */
+  showDetails(open: boolean): Promise<void>;
   /** Reloads the data and redraws. The previous drawing stays, dimmed, until the new data arrives. */
   refresh(): Promise<void>;
   /**
@@ -263,6 +267,10 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       button.setAttribute("aria-expanded", String(!guide.hidden));
       button.setAttribute("aria-controls", guide.id);
     }
+    if (action === "info") {
+      button.setAttribute("aria-expanded", "false");
+      button.setAttribute("aria-controls", `${id}-back`);
+    }
     button.addEventListener("click", () => void runAction(action, button));
     actionButtons.set(action, button);
   }
@@ -279,6 +287,174 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
   let entered = false;
 
   const tooltip = createTooltip(root, tip);
+
+  /**
+   * The Details side (the `info` action): the card swirls round to show what the widget is made of, its chart,
+   * data, fields and steps, and where to go next. Clicking any plain part of the card turns it, as does the toolbar
+   * button; marks, buttons and links keep their own clicks. Escape or "Back to chart" turns it back.
+   */
+  const back = make("div", "fft-back");
+  back.id = `${id}-back`;
+  back.hidden = true;
+  back.setAttribute("role", "region");
+  back.setAttribute("aria-label", "Details");
+  root.append(back);
+  let turning = false;
+  const canTurn = (options.actions ?? []).includes("info");
+
+  function detail(list: HTMLElement, term: string, value: string | Node | undefined) {
+    if (value === undefined || value === "") return;
+    const dt = make("dt", "fft-back-term");
+    dt.textContent = term;
+    const dd = make("dd", "fft-back-value");
+    dd.append(value);
+    list.append(dt, dd);
+  }
+
+  function link(label: string, href: string) {
+    const a = make("a", "fft-back-link");
+    a.href = href;
+    a.textContent = label;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    return a;
+  }
+
+  /** Writes the Details side for what is drawn now. */
+  function paintBack() {
+    const view = typeof current.view?.type === "string" ? current.view.type : "";
+    const entry = view ? describeChart(view) : undefined;
+    const kicker = make("p", "fft-back-kicker");
+    kicker.textContent = "Details";
+    const heading = make("h3", "fft-back-title");
+    heading.textContent = title.textContent || current.id || "Widget";
+    const parts: Node[] = [kicker, heading];
+    if (current.description) {
+      const about = make("p", "fft-back-about");
+      about.textContent = current.description;
+      parts.push(about);
+    }
+
+    const list = make("dl", "fft-back-list");
+    detail(list, "Answers", questionOf(current, rows).text);
+    detail(list, "Chart", entry ? `${view}: ${entry.summary}` : view);
+    const data = current.data ?? { type: "" };
+    const address = typeof data.url === "string" ? data.url : undefined;
+    detail(list, "Data", address ? link(address, address) : data.type === "inline" ? "Written into the spec" : data.type === "fn" ? "Loaded by the page's own code" : data.type);
+    if (typeof data.path === "string") detail(list, "Inside", data.path);
+    const steps = (current.transform ?? []).map((step) => step.type);
+    detail(list, "Steps", steps.length ? steps.join(" → ") : undefined);
+    const names = [...new Set(rows.slice(0, 50).flatMap((row) => Object.keys(row)))];
+    detail(list, "Rows", loaded ? `${rows.length.toLocaleString()} drawn, ${names.length} field${names.length === 1 ? "" : "s"}` : "Not loaded yet");
+    if (names.length) {
+      const shown = names.slice(0, 12).map((name) => {
+        const label = fieldLabel(name, current.fields);
+        const format = current.fields?.[name]?.format;
+        const kind = typeof format === "string" ? format : format && typeof format === "object" && "type" in format ? String(format.type) : "";
+        return `${label === name ? name : `${label} (${name})`}${kind ? `: ${kind}` : ""}`;
+      });
+      detail(list, "Fields", shown.join(", ") + (names.length > 12 ? `, and ${names.length - 12} more` : ""));
+    }
+    if (current.facet?.field) detail(list, "Panels", `One per ${fieldLabel(current.facet.field, current.fields)}`);
+    if (current.locale) detail(list, "Locale", current.locale);
+    if (current.id) detail(list, "Id", `${current.id} (ref ${widgetRef(current.id)})`);
+    const warnings = issues.filter((issue) => issue.level !== "error");
+    if (warnings.length) detail(list, "Notes", warnings.map((issue) => `${issue.path}: ${issue.message}`).join(" "));
+    parts.push(list);
+
+    const links = (current.links ?? []).filter((item) => item && typeof item.href === "string");
+    if (links.length) {
+      const label = make("p", "fft-back-kicker");
+      label.textContent = "Linked";
+      const items = make("ul", "fft-back-links");
+      for (const item of links) {
+        const li = make("li", "");
+        li.append(link(item.label || item.href, item.href));
+        items.append(li);
+      }
+      parts.push(label, items);
+    }
+
+    const tools = make("div", "fft-back-tools");
+    const close = make("button", "fft-back-button");
+    close.type = "button";
+    close.textContent = "Back to chart";
+    close.addEventListener("click", () => void turn(false));
+    const copy = make("button", "fft-back-button");
+    copy.type = "button";
+    copy.textContent = "Copy spec";
+    copy.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(JSON.stringify(current, null, 2));
+        copy.textContent = "Copied";
+      } catch {
+        copy.textContent = "Could not copy";
+      }
+      setTimeout(() => (copy.textContent = "Copy spec"), 1597);
+    });
+    tools.append(close, copy);
+    parts.push(tools);
+    back.replaceChildren(...parts);
+  }
+
+  /** Turns the card: a quarter turn out, swap sides, a quarter turn back in. Without motion, it just swaps. */
+  async function turn(open: boolean) {
+    if (turning || open === !back.hidden) return;
+    turning = true;
+    const swap = () => {
+      if (open) {
+        // The back keeps the front's size, so the page does not jump; long details scroll inside it.
+        root.style.height = `${root.offsetHeight}px`;
+        paintBack();
+        root.dataset.side = "back";
+        back.hidden = false;
+      } else {
+        back.hidden = true;
+        delete root.dataset.side;
+        root.style.height = "";
+      }
+      actionButtons.get("info")?.setAttribute("aria-expanded", String(open));
+    };
+    const still = doc.defaultView?.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    try {
+      if (still || typeof root.animate !== "function") swap();
+      else {
+        const out = root.animate(
+          [{ transform: "perspective(1200px) rotateY(0deg)" }, { transform: "perspective(1200px) rotateY(90deg) rotateZ(-3deg) scale(0.96)" }],
+          { duration: 233, easing: "cubic-bezier(0.5, 0, 0.75, 0)", fill: "forwards" },
+        );
+        await out.finished;
+        swap();
+        out.cancel();
+        await root.animate(
+          [{ transform: "perspective(1200px) rotateY(-90deg) rotateZ(3deg) scale(0.96)" }, { transform: "perspective(1200px) rotateY(0deg)" }],
+          { duration: 377, easing: "cubic-bezier(0.2, 0.7, 0.2, 1)" },
+        ).finished;
+      }
+    } catch {
+      // An animation cancelled by destroy() or a hidden tab: the sides are already swapped or about to be.
+      if (open === back.hidden) swap();
+    } finally {
+      turning = false;
+    }
+    if (open) back.querySelector<HTMLButtonElement>(".fft-back-button")?.focus({ preventScroll: true });
+    else (actionButtons.get("info") ?? undefined)?.focus({ preventScroll: true });
+  }
+
+  const INTERACTIVE = 'a, button, input, select, textarea, label, summary, [tabindex]:not([tabindex="-1"]), [role="button"], [contenteditable]';
+  root.addEventListener("click", (event) => {
+    if (!canTurn || turning) return;
+    const target = event.target as Element | null;
+    if (!target || target.closest(INTERACTIVE) || target.closest(".fft-tooltip")) return;
+    if (doc.getSelection?.()?.toString()) return;
+    void turn(root.dataset.side !== "back");
+  });
+  root.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !back.hidden) {
+      event.preventDefault();
+      void turn(false);
+    }
+  });
 
   /**
    * Touch has no hover: a tap fires pointerenter and then pointerleave at once,
@@ -334,7 +510,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     typeof ResizeObserver === "undefined"
       ? undefined
       : new ResizeObserver(() => {
-          if (root.dataset.state === "ready" && Math.abs(body.clientWidth - drawnWidth) > 1) draw();
+          if (back.hidden && root.dataset.state === "ready" && Math.abs(body.clientWidth - drawnWidth) > 1) draw();
         });
   resize?.observe(body);
 
@@ -485,7 +661,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     const block = getBlock("view", current.view.type);
     const render = block.render;
     if (!render) {
-      showError([`View "${current.view.type}" has no renderer in this page. Import "fft-widgets" or call setRenderer() before drawing it.`]);
+      showError([`View "${current.view.type}" has no renderer in this page. Import "martcharts" or call setRenderer() before drawing it.`]);
       return;
     }
     message.hidden = true;
@@ -705,6 +881,10 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       setGuide(Boolean(guide.hidden));
       return;
     }
+    if (action === "info") {
+      void turn(root.dataset.side !== "back");
+      return;
+    }
     const name = slug(current.id ?? current.title);
     const label = (field: string) => fieldLabel(field, current.fields);
     try {
@@ -778,6 +958,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     },
     refresh: () => load(true),
     showGuide: (open) => setGuide(open),
+    showDetails: (open) => turn(open),
     addAction(label, icon, onClick) {
       const button = actionButton(label, icon);
       button.addEventListener("click", () => onClick(button));

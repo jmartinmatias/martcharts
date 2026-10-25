@@ -20,7 +20,8 @@ A `WidgetSpec` is a plain object. Only `data` and `view` are required.
 | `title` | string | Heading at the top. |
 | `subtitle` | string | Smaller line under the title, for example the period covered. |
 | `footer` | string | Small print at the bottom, for example the source. |
-| `description` | string | What the widget is for. Not drawn; read by people and agents. |
+| `description` | string | What the widget is for. Not drawn on the chart; read by people and agents, and shown on the Details side. |
+| `links` | `{ label, href }[]` | Related pages (a report, the data's owner, a runbook), listed on the Details side under **Linked**. |
 | `locale` | string | BCP 47 locale for number and date formats, for example `"en-US"`. Defaults to the runtime's. |
 | `data` | block | Where rows come from. See [data sources](blocks.md#data-sources). |
 | `transform` | block list | Reshaping steps, applied in order. See [transforms](blocks.md#transforms). |
@@ -132,7 +133,7 @@ The title, subtitle, footer and headline caption can name values from the rows t
 Draws `spec` inside the `target` element.
 
 ```ts
-import { createWidget } from "fft-widgets";
+import { createWidget } from "martcharts";
 
 const widget = createWidget(document.querySelector("#slot")!, spec, { fetch: myFetch });
 await widget.ready;
@@ -140,7 +141,7 @@ await widget.ready;
 
 `options.fetch` replaces the global `fetch` for `url` sources (for auth headers, for example). Loads of the same address through the same `fetch` share one request, and the answer is reused for `cache` seconds (default 60; set `"cache": 0` on the source to always fetch), so a dashboard of many widgets fetches each file once and filters redraw without refetching.
 
-`options.actions` offers buttons in the widget's corner, shown on hover and keyboard focus: `"csv"` downloads the rows (labelled headers, raw values), `"image"` downloads the chart as a 2x PNG with its colors baked in (shown only when the view draws a chart), `"copy"` copies the rows as tab-separated text that pastes straight into a spreadsheet, `"explain"` (a question mark) opens or closes **How to read it**, a plain guide under the chart that opens with the sales question it answers (`questionOf`) and then, from `explainChart`, says what each mark is and what bigger, longer or stronger means, ending with one example from the rows, and `"expand"` opens the widget redrawn large in a modal dialog (with its guide open from the start) (full screen on phones; Escape, the backdrop or the close button closes it, and focus returns to the button). Inside a dashboard the dialog also steps through the board's widgets: previous and next buttons with a "3 of 44" count, the left and right arrow keys (unless a chart used the arrow to move between its marks), and a sideways swipe on phones. `options.neighbors(widget)` supplies that order for widgets outside a dashboard. None by default: whether people may take the data out is the host's decision. On the tag: `<fft-widget actions="expand csv image copy">`. Past three actions (yours from `addAction` included), the first two stay in the toolbar and the rest go into a **More** menu of labelled items, keyboard friendly (arrow keys, Home, End, Escape back to its button), and the title keeps the toolbar's width free so a long title never runs under it. `options.guide: true` shows the guide from the start. The building blocks are exported too: `toDelimited(rows, label, separator)`, `download(doc, filename, blob)` and `svgToPng(svg, background, scale)`.
+`options.actions` offers buttons in the widget's corner, shown on hover and keyboard focus: `"csv"` downloads the rows (labelled headers, raw values), `"image"` downloads the chart as a 2x PNG with its colors baked in (shown only when the view draws a chart), `"copy"` copies the rows as tab-separated text that pastes straight into a spreadsheet, `"explain"` (a question mark) opens or closes **How to read it**, a plain guide under the chart that opens with the sales question it answers (`questionOf`) and then, from `explainChart`, says what each mark is and what bigger, longer or stronger means, ending with one example from the rows, `"info"` turns the card round, with a short swirl (none under reduced motion), to its **Details** side: the question it answers, the chart type and what it is for, where the data comes from (a link for `url` and `csv` sources), the transform steps, how many rows and which fields with their formats, the id and ref, any validation notes, the spec's `description` and `links`, and a Copy spec button. With `info` on, a click on any plain part of the card turns it too (marks, buttons and links keep their own clicks); Escape or **Back to chart** turns it back, and `widget.showDetails(open)` does it from code. And `"expand"` opens the widget redrawn large in a modal dialog (with its guide open from the start) (full screen on phones; Escape, the backdrop or the close button closes it, and focus returns to the button). Inside a dashboard the dialog also steps through the board's widgets: previous and next buttons with a "3 of 44" count, the left and right arrow keys (unless a chart used the arrow to move between its marks), and a sideways swipe on phones. `options.neighbors(widget)` supplies that order for widgets outside a dashboard. None by default: whether people may take the data out is the host's decision. On the tag: `<fft-widget actions="expand csv image copy">`. Past three actions (yours from `addAction` included), the first two stay in the toolbar and the rest go into a **More** menu of labelled items, keyboard friendly (arrow keys, Home, End, Escape back to its button), and the title keeps the toolbar's width free so a long title never runs under it. `options.guide: true` shows the guide from the start. The building blocks are exported too: `toDelimited(rows, label, separator)`, `download(doc, filename, blob)` and `svgToPng(svg, background, scale)`.
 
 The returned `Widget`:
 
@@ -155,6 +156,7 @@ The returned `Widget`:
 | `setSpec(spec)` | Replaces the spec and redraws. |
 | `refresh()` | Reloads the data, skipping the `url` source's cache. The old drawing stays, dimmed, until new rows arrive. |
 | `showGuide(open)` | Opens or closes the How to read it guide, keeping the explain button in step. |
+| `showDetails(open)` | Turns the card to its Details side or back to the chart. Settles when the turn ends. |
 | `addAction(label, icon, onClick)` | Adds your own button to the hover toolbar, styled like the built-in actions: `label` names it for tooltips and screen readers, `icon` is SVG path data on a 24px grid (drawn as 2px strokes), and `onClick` receives the button (set `data-done` or `data-failed` on it for a moment of green or red feedback). Returns the button. A dashboard's `decorate(cell, id, widget)` is the natural place to call it. |
 | `destroy()` | Removes the widget and stops work in flight. |
 
@@ -162,17 +164,26 @@ States are exposed on `root` as `data-state`: `loading`, `ready`, `empty` or `er
 
 ### `<fft-widget>`
 
-Call `defineWidgetElement()` once (optionally with your own tag name), then:
+Call `defineWidgetElement()` once (optionally with your own tag name), or load the built bundle, which calls it for you. Then:
 
 ```html
 <fft-widget src="/widgets/revenue-kpi.json"></fft-widget>
 <fft-widget spec='{"data":{"type":"inline","rows":[{"a":1}]},"view":{"type":"table"}}'></fft-widget>
+<fft-widget>
+  <script type="application/json">{"data":{"type":"inline","rows":[{"a":1}]},"view":{"type":"table"}}</script>
+</fft-widget>
 ```
 
 | Attribute or property | What it does |
 | --- | --- |
 | `src` attribute | URL of a spec JSON file to load. |
 | `spec` attribute | The spec as JSON. Invalid JSON shows an error in the widget. |
+| `<script type="application/json">` child | The spec as JSON inside the tag, read when neither attribute is set. Invalid JSON shows an error. |
+| `data` attribute | No spec needed: the address of a data file. Ends in `.csv`: read as CSV; otherwise JSON (with `path` for a list inside the response). The chart is picked from the data with `recommendCharts`. Used when neither `spec` nor `src` is set. |
+| `chart` attribute | With `data`: the view type to draw (`line`, `donut`, ...), its fields filled from the data. `auto` or left out picks one. |
+| `heading` attribute | With `data`: the widget's title. (Not `title`, which would put a browser tooltip over the whole chart.) |
+| `actions` attribute | Space-separated buttons to show: `info`, `csv`, `image`, `copy`, `explain`, `expand`. |
+| `preset` attribute | A style preset (`glass`, `airy`, `paper`, `default`...) that wins over the spec's own, so a page can give every tag one look. Removing it restores the spec's. |
 | `spec` property | The spec as an object. Setting it redraws the same widget. |
 | `widget` property | The live `Widget`, once connected. |
 
@@ -214,13 +225,13 @@ A dashboard is JSON too: a grid of cells and one filter row that scopes every wi
 ```
 
 ```ts
-import { createDashboard } from "fft-widgets";
+import { createDashboard } from "martcharts";
 
 const board = createDashboard(document.querySelector("#board")!, dashboardSpec, {
   widgets: storedSpecsById,         // or resolve: (id) => spec
   actions: ["csv", "image", "copy"],
   decorate: (cell, id, widget) => { /* add your own controls to each cell */ },
-  sticky: true,                     // pin the filter row while the page scrolls
+  sticky: true,                     // pin the filter row while the page scrolls (under a pinned page header: set --fft-sticky-top to its height)
   hash: true,                       // keep the chosen section in the address (#<section id>)
   guides: false,                    // true opens every widget's How to read it guide from the start
 });
@@ -238,7 +249,7 @@ Each filter offers "All" plus every value of its field found in the widgets' dat
 
 ## Working with specs
 
-These need no DOM and work in Node: import them from `fft-widgets/core`.
+These need no DOM and work in Node: import them from `martcharts/core`.
 
 ### `fork(base, ...overrides) => spec`
 
@@ -270,6 +281,22 @@ Errors mean the widget cannot draw: missing `data` or `view`, unknown block type
 ### `suggestView(type, rows) => ViewSpec`
 
 A view of `type` with every required field option filled from the rows. Each field option declares the kind of field it expects (`kind`: `number`, `category` or `date`, listed in [blocks.md](blocks.md)), so amounts get number fields, names and groups get text fields, and periods get ISO-like dates, with no field used twice while another of its kind remains. Lists and objects are never picked. `suggestView("sankey", rows)` on `{ from, to, visits }` rows gives `{ type: "sankey", source: "from", target: "to", value: "visits" }`. The demo playground uses it to switch any widget to any view type.
+
+### The chart guide: `dataContract`, `switchChart`, `switchOptions`, `guideMarkdown`
+
+Work on any spec and rows (the spec's inline rows when `rows` is left out). Full output for the catalog is in [chart-guide.md](chart-guide.md) and [catalog/guide.html](../catalog/guide.html).
+
+| Function | Returns |
+| --- | --- |
+| `chartGuide(type)` | `{ purposes, grain, build, rows: { min, max }, positive?, bestFor, avoidFor }`: the jobs a chart does (1 to 3 per job in `PURPOSES`), what one row stands for, how rows become marks, the row counts it reads well with, and when to use it and not. `chartsFor(purpose)` lists the charts for a job, best first. |
+| `dataContract(spec, rows?)` | The table the chart needs: `needs` (every field option, its kind, whether required), `columns` (each column of the data: kind, the options that draw it, distinct count, range, examples), `rowMeans`, `build`, `rowsRead` and `warnings` (what does not fit: repeated categories, text for numbers, negatives in a part-to-whole chart, too few or too many rows). |
+| `switchChart(spec, to, rows?)` | The same data as chart `to`: `view` (filled from the columns the current chart draws first), `fit` (`fits`, `stretch`, `no`), `verdict` on the current chart's main job (`better`, `same`, `trade-off`, `different`, `worse`), `gains`, `losses`, `assessment` and `caveats`. |
+| `switchOptions(spec, rows?)` | `switchChart` for every other chart, those that fit and help first. |
+| `guideMarkdown(spec, rows?, { maxRows? })` | All of the above as Markdown with the data as a table and CSV: ready to hand to another model or system. `rowsToCsv` and `rowsToMarkdown` are exported too. |
+
+### `recommendCharts(rows, { limit? }) => ChartPick[]`
+
+Which chart for these rows? Reads the data's shape (how many rows; which fields hold numbers, categories or dates; how many distinct values; names such as `target`, `open`/`close`, `from`/`to`, `stage`) and ranks the views that suit it, best first (default 5). Each pick is `{ type, view, score, why }`: a complete view block for the rows, a 0 to 100 score, and one sentence such as `"revenue over month: a trend."`. A one-row table becomes tiles (or a gauge, with a target), dates make lines, start and end dates a timeline, shrinking named steps a funnel, flows a sankey (or a chord when they loop back). Every pick validates against the rows. The MCP tool `fft_recommend_charts` wraps it.
 
 ### `explainChart(spec, rows?) => string`
 
@@ -338,7 +365,7 @@ Every shipped palette reuses the validated hues in an order checked for colorbli
 Add your own with `registerPreset`. In its `css`, `&` stands for the widget root:
 
 ```ts
-import { registerPreset } from "fft-widgets";
+import { registerPreset } from "martcharts";
 
 registerPreset({
   name: "ink",
@@ -375,7 +402,7 @@ Register your own with `registerPalette({ name, label, description, colors, dark
 `createPalettePicker(target, options)` draws a professional color chooser: library chips, one editable swatch per color (color field and hex), an eyedropper per swatch that picks a color from anywhere on screen (in browsers with the EyeDropper API, such as Chrome and Edge), add and remove, and the live `checkPalette` readout.
 
 ```ts
-import { createPalettePicker } from "fft-widgets";
+import { createPalettePicker } from "martcharts";
 
 createPalettePicker(document.querySelector("#colors")!, {
   value: "apple",
@@ -392,7 +419,7 @@ Every block is a descriptor plus code. The descriptor (`type`, `description`, `o
 ### A data source
 
 ```ts
-import { registerSource } from "fft-widgets";
+import { registerSource } from "martcharts";
 
 registerSource({
   type: "csv",
@@ -452,7 +479,7 @@ A renderer gets a `ViewContext` and draws into `ctx.el`. It may return a cleanup
 | `select(row)` | Fires `fft-select` with the row. |
 
 ```ts
-import { registerView, html } from "fft-widgets";
+import { registerView, html } from "martcharts";
 
 registerView({
   type: "progress",
@@ -486,6 +513,7 @@ Chart helpers for custom charts are exported too: `niceTicks`, `linearScale`, `b
 
 | Import | Contents | Runs in |
 | --- | --- | --- |
-| `fft-widgets` | Everything, with the built-in renderers attached. | Browser |
-| `fft-widgets/core` | Specs, fork, registry, pipeline, formats, validation. | Browser, Node, workers |
-| `fft-widgets/mcp` | `createFftServer`, plus the store from `src/mcp/store.ts`. | Node |
+| `martcharts` | Everything, with the built-in renderers attached. | Browser |
+| `martcharts/core` | Specs, fork, registry, pipeline, formats, validation. | Browser, Node, workers |
+| `martcharts/mcp` | `createFftServer`, plus the store from `src/mcp/store.ts`. | Node |
+| `martcharts/standalone` | Built bundle (`dist/martcharts.js`, from `npm run build:lib`): everything in `martcharts`, compiled, with `<fft-widget>` registered. `dist/martcharts.iife.js` is the same as a classic script (`window.MartCharts`). Types in `dist/types`, with `HTMLElementTagNameMap["fft-widget"]`. | Browser, no bundler; imports safely in Node |

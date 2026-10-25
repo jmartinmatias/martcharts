@@ -10,7 +10,7 @@ import type { WidgetSpec } from "./types.ts";
  * Fork it and say only what is different.
  *
  * @example
- * import { baseWidget, fork } from "fft-widgets";
+ * import { baseWidget, fork } from "martcharts";
  *
  * const topCustomers = fork(baseWidget, {
  *   title: "Top customers",

@@ -1,0 +1,40 @@
+{
+  "id": "region-win-rate",
+  "title": "Win rate by region",
+  "subtitle": "First half against second half, 2026",
+  "description": "Share of qualified deals won in each region, first half against second half of 2026.",
+  "footer": "Source: CRM",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {"region":"East","h1":0.31,"h2":0.36},
+      {"region":"Central","h1":0.34,"h2":0.29},
+      {"region":"North","h1":0.28,"h2":0.33},
+      {"region":"West","h1":0.22,"h2":0.28},
+      {"region":"South","h1":0.26,"h2":0.21}
+    ]
+  },
+  "fields": {
+    "h1": {
+      "label": "H1 2026",
+      "format": {
+        "type": "percent",
+        "decimals": 0
+      }
+    },
+    "h2": {
+      "label": "H2 2026",
+      "format": {
+        "type": "percent",
+        "decimals": 0
+      }
+    }
+  },
+  "view": {
+    "type": "slope",
+    "label": "region",
+    "from": "h1",
+    "to": "h2"
+  }
+}

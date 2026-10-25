@@ -4,7 +4,7 @@
  *
  * @module
  */
-export type { DataSpec, FacetSpec, FieldSpec, FormatSpec, Issue, Row, StyleSpec, StyleToken, TransformSpec, ViewSpec, WidgetSpec } from "./types.ts";
+export type { DataSpec, FacetSpec, FieldSpec, FormatSpec, Issue, Row, StyleSpec, StyleToken, TransformSpec, ViewSpec, WidgetLink, WidgetSpec } from "./types.ts";
 export type { Tooltip, TooltipItem, ViewContext, ViewRenderer } from "./view-context.ts";
 export type {
   Block,
@@ -18,7 +18,8 @@ export type {
   TransformBlock,
   ViewBlock,
 } from "./registry.ts";
-export type { FnData, InlineData, UrlData } from "./sources.ts";
+export type { CsvData, FnData, InlineData, UrlData } from "./sources.ts";
+export { parseCsv } from "./sources.ts";
 export type { AggregateStep, BinStep, CalcStep, FilterOp, FilterStep, LimitStep, Measure, PivotStep, SortStep } from "./transforms.ts";
 export type { KpisItem, KpisView } from "./views.ts";
 export type { RidgelineView } from "./views.ts";
@@ -42,10 +43,14 @@ export { fork } from "./fork.ts";
 export { binValues, niceTicks, sturges } from "./scale.ts";
 export type { Bin } from "./scale.ts";
 export { suggestView } from "./suggest.ts";
+export { recommendCharts } from "./recommend.ts";
+export type { ChartPick } from "./recommend.ts";
 export { AUDIENCES, balanceOf, createVariants, fillsOf, huePalette, meaningOf, MOVES, noveltyOf, plainTags, PRINCIPLES, profileData, qualitiesOf, QUALITIES, rankVariants } from "./taller.ts";
 export { explainVariant } from "./taller-explain.ts";
 export type { Audience, Balance, ColorEmphasis, DataProfile, Lineage, Look, Marks, Move, Principle, Qualities, Quality, TallerOptions, Variant } from "./taller.ts";
 export { questionOf } from "./question.ts";
+export { describeChart, describeCharts, firstSentence, needsText } from "./catalog.ts";
+export type { ChartEntry, ChartNeed } from "./catalog.ts";
 export type { Question, QuestionKind } from "./question.ts";
 export { fillTemplate, hasTemplate, templateFields, templateRefs } from "./template.ts";
 export { applyTransforms, runPipeline } from "./pipeline.ts";
@@ -64,3 +69,5 @@ export {
   setRenderer,
   UnknownBlockError,
 } from "./registry.ts";
+export { chartGuide, chartGuides, chartsFor, dataContract, guideMarkdown, PURPOSES, rowsToCsv, rowsToMarkdown, switchChart, switchOptions } from "./guide.ts";
+export type { ChartGuide, ChartSwitch, ContractColumn, DataContract, Fit, Grain, Purpose, Verdict } from "./guide.ts";

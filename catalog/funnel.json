@@ -1,0 +1,29 @@
+{
+  "id": "signup-funnel",
+  "title": "Signup funnel",
+  "subtitle": "September 2026",
+  "description": "How visitors move from first visit to paying customer.",
+  "footer": "Source: product analytics",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {"stage":"Visits","people":48200},
+      {"stage":"Signups","people":6120},
+      {"stage":"Activated","people":3310},
+      {"stage":"Trial started","people":1480},
+      {"stage":"Paying","people":412}
+    ]
+  },
+  "fields": {
+    "people": {
+      "label": "People",
+      "format": "number"
+    }
+  },
+  "view": {
+    "type": "funnel",
+    "label": "stage",
+    "value": "people"
+  }
+}

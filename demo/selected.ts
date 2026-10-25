@@ -3,8 +3,9 @@
  * engine's runs because they are new and meaningful, each explained in plain
  * words. Reads public/selections.json; every widget is drawn live.
  */
-import { createWidget, explainChart, questionOf } from "../src/index.ts";
+import { createWidget, explainChart, fork, questionOf } from "../src/index.ts";
 import type { WidgetSpec } from "../src/index.ts";
+import { setLook, withLook } from "./look.ts";
 
 /** One picked variation, in plain words only. */
 interface Selection {
@@ -85,7 +86,7 @@ function render(selections: Selection[], made?: { variants?: number; charts?: nu
     title.id = `pick-${i}`;
     const slot = el("div", "slot");
     chart.append(number, title, slot);
-    const widget = createWidget(slot, pick.spec, { actions: ["expand"] });
+    const widget = createWidget(slot, withLook(pick.spec, fork), { actions: ["info", "expand"] });
 
     const notes = el("div", "notes");
     const asks = note("The question it answers", questionOf(pick.spec).text);
@@ -119,9 +120,7 @@ function render(selections: Selection[], made?: { variants?: number; charts?: nu
 // Theme switch for the page and every chart on it.
 for (const b of document.querySelectorAll<HTMLButtonElement>("#theme button")) {
   b.addEventListener("click", () => {
-    for (const other of document.querySelectorAll("#theme button")) other.setAttribute("aria-pressed", String(other === b));
-    if (b.dataset.value === "auto") delete document.documentElement.dataset.theme;
-    else document.documentElement.dataset.theme = b.dataset.value;
+    setLook({ theme: b.dataset.value });
   });
 }
 

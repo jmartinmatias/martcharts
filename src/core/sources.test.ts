@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { runPipeline } from "./pipeline.ts";
 import { registerSource } from "./registry.ts";
+import { parseCsv } from "./sources.ts";
 
 /** A fetch stand-in that answers every request with `body` and records the URLs asked for. */
 function fakeFetch(body: unknown, status = 200) {
@@ -134,5 +135,40 @@ describe("url source cache", () => {
     const again = await runPipeline(spec({ url: "/data/own.json" }), { fetch: first.fetch });
     (again as unknown[]).push({ a: 99 });
     expect(await runPipeline(spec({ url: "/data/own.json" }), { fetch: first.fetch })).toEqual([{ a: 1 }]);
+  });
+});
+
+describe("csv source", () => {
+  test("reads text with a header row, typing numbers and empty cells", async () => {
+    const rows = await runPipeline({ data: { type: "csv", text: "region,revenue,note\nNorth,120,\nSouth,-4.5e2,ok\n" } });
+    expect(rows).toEqual([
+      { region: "North", revenue: 120, note: null },
+      { region: "South", revenue: -450, note: "ok" },
+    ]);
+  });
+
+  test("keeps quoted separators, line breaks and doubled quotes inside a cell", () => {
+    expect(parseCsv('name,quote\r\n"Smith, J","said ""hi""\nthen left"\r\n')).toEqual([{ name: "Smith, J", quote: 'said "hi"\nthen left' }]);
+  });
+
+  test("ids with leading zeros, dates and text stay text; typed false keeps every cell as text", () => {
+    expect(parseCsv("id,day,n\n007,2026-01-05,0.5")).toEqual([{ id: "007", day: "2026-01-05", n: 0.5 }]);
+    expect(parseCsv("id,n\n1,2", { typed: false })).toEqual([{ id: "1", n: "2" }]);
+  });
+
+  test("picks a semicolon or tab separator from the header, skips blank lines and a byte order mark", () => {
+    expect(parseCsv("﻿region;revenue\n\nNorth;120\n")).toEqual([{ region: "North", revenue: 120 }]);
+    expect(parseCsv("a\tb\n1\t2")).toEqual([{ a: 1, b: 2 }]);
+  });
+
+  test("fetches a url as text, and says what is missing without url or text", async () => {
+    const urls: string[] = [];
+    const fetch = (async (input: string | URL | Request) => {
+      urls.push(String(input));
+      return new Response("month,orders\n2026-01,40\n");
+    }) as typeof globalThis.fetch;
+    expect(await runPipeline({ data: { type: "csv", url: "/data/orders.csv", cache: 0 } }, { fetch })).toEqual([{ month: "2026-01", orders: 40 }]);
+    expect(urls).toEqual(["/data/orders.csv"]);
+    await expect(runPipeline({ data: { type: "csv" } })).rejects.toThrow('needs "url"');
   });
 });

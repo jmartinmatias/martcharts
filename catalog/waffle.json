@@ -1,0 +1,32 @@
+{
+  "id": "revenue-sources",
+  "title": "Where revenue comes from",
+  "subtitle": "Q3 2026, each square one percent",
+  "description": "Q3 revenue by source. Subscriptions bring in 62 of every 100 euros.",
+  "footer": "Source: finance ledger",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {"source":"Subscriptions","revenue":802000},
+      {"source":"Services","revenue":298000},
+      {"source":"Licenses","revenue":142000},
+      {"source":"Other","revenue":52000}
+    ]
+  },
+  "fields": {
+    "revenue": {
+      "label": "Revenue",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
+  },
+  "view": {
+    "type": "waffle",
+    "label": "source",
+    "value": "revenue"
+  }
+}

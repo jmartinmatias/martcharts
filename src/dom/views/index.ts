@@ -1,6 +1,6 @@
 /**
  * Attaches the built-in renderers to the built-in view descriptors.
- * Importing this module (or `fft-widgets`) is what makes them drawable.
+ * Importing this module (or `martcharts`) is what makes them drawable.
  *
  * @module
  */

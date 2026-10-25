@@ -1,0 +1,61 @@
+{
+  "id": "revenue-icicle",
+  "title": "Revenue by region, product and plan",
+  "subtitle": "Q3 2026, largest region first",
+  "description": "Q3 revenue split three ways, one column per level. East leads at €338K. Core makes up about two thirds of revenue in every region and is mostly sold on annual plans; Plus leans monthly everywhere except East.",
+  "footer": "Source: finance ledger",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {"region":"East","product":"Core","plan":"Annual","revenue":156000},
+      {"region":"East","product":"Core","plan":"Monthly","revenue":64000},
+      {"region":"East","product":"Plus","plan":"Annual","revenue":65000},
+      {"region":"East","product":"Plus","plan":"Monthly","revenue":53000},
+      {"region":"North","product":"Core","plan":"Annual","revenue":116000},
+      {"region":"North","product":"Core","plan":"Monthly","revenue":66000},
+      {"region":"North","product":"Plus","plan":"Annual","revenue":43000},
+      {"region":"North","product":"Plus","plan":"Monthly","revenue":53000},
+      {"region":"Central","product":"Core","plan":"Annual","revenue":109000},
+      {"region":"Central","product":"Core","plan":"Monthly","revenue":56000},
+      {"region":"Central","product":"Plus","plan":"Annual","revenue":44000},
+      {"region":"Central","product":"Plus","plan":"Monthly","revenue":50000},
+      {"region":"West","product":"Core","plan":"Annual","revenue":79000},
+      {"region":"West","product":"Core","plan":"Monthly","revenue":52000},
+      {"region":"West","product":"Plus","plan":"Annual","revenue":31000},
+      {"region":"West","product":"Plus","plan":"Monthly","revenue":43000},
+      {"region":"South","product":"Core","plan":"Annual","revenue":83000},
+      {"region":"South","product":"Core","plan":"Monthly","revenue":60000},
+      {"region":"South","product":"Plus","plan":"Annual","revenue":23000},
+      {"region":"South","product":"Plus","plan":"Monthly","revenue":38000}
+    ]
+  },
+  "fields": {
+    "region": {
+      "label": "Region"
+    },
+    "product": {
+      "label": "Product"
+    },
+    "plan": {
+      "label": "Plan"
+    },
+    "revenue": {
+      "label": "Revenue",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
+  },
+  "view": {
+    "type": "icicle",
+    "levels": [
+      "region",
+      "product",
+      "plan"
+    ],
+    "value": "revenue"
+  }
+}
