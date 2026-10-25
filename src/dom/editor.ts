@@ -32,6 +32,8 @@ import { fieldList } from "./views/shared.ts";
 import { createWidget } from "./widget.ts";
 import type { Widget } from "./widget.ts";
 import { wordsFor, WORDS_EN } from "../core/words.ts";
+import { addChartToBoard, localBoardStore } from "./board-store.ts";
+import type { BoardStore, SavedBoard, SavedChart } from "./board-store.ts";
 
 /** A dataset offered on the first step: a name and either the text itself or an address to fetch. */
 export interface EditorSample {
@@ -54,6 +56,13 @@ export interface EditorOptions {
   onChange?(spec: WidgetSpec): void;
   /** Saves the finished chart (the host's store). Without it, charts are saved in the browser's localStorage. */
   save?(spec: WidgetSpec): Promise<void> | void;
+  /**
+   * Where saved charts and dashboards live, for "My charts" and "Add to dashboard". Default: this browser's
+   * localStorage, the same store the composer reads, so a chart added here is waiting there.
+   */
+  store?: BoardStore;
+  /** The composer's address for a board, linked after "Add to dashboard". Default: `composer.html#board=<id>`. */
+  composerHref?(boardId: string): string;
   /** The address the `src` embed code points at. Default: `widgets/<id>.json`. */
   srcOf?(spec: WidgetSpec): string;
   /** Keep the step and the spec in the page address, so a chart can be shared by link. Default true in a browser. */
@@ -117,7 +126,6 @@ const GROUPED = /^[+-]?\d{1,3}(,\d{3})+(\.\d+)?$/;
 const PREVIEW_ROWS = 50;
 const HISTORY = 50;
 const HASH_LIMIT = 60_000;
-const STORE_KEY = "martcharts:editor:charts";
 const SESSION_KEY = "martcharts:editor:spec";
 /** Fields a table view takes as columns; every other view's field options are found in the schema. */
 /** The cell formats a column can take, in the order offered; their names come from the words module. */
@@ -336,6 +344,21 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
     }
   })();
   const id = ++count;
+  // Saved charts and dashboards: the host's store, else this browser's, which the composer reads too.
+  const store: BoardStore = options.store ?? localBoardStore(local);
+  const cw = wordsFor(options.locale ?? doc.documentElement.lang).composer;
+  let savedCache: SavedChart[] = [];
+  let boardsCache: SavedBoard[] = [];
+  const refreshSaved = async () => {
+    try {
+      // A synchronous store (this browser's) answers at once, so the next paint already lists what was just saved.
+      const [charts, boards] = [store.charts(), store.boards()];
+      if (Array.isArray(charts) && Array.isArray(boards)) [savedCache, boardsCache] = [charts, boards];
+      else [savedCache, boardsCache] = await Promise.all([charts, boards]);
+    } catch {
+      // A host store that failed: show nothing saved rather than break the editor.
+    }
+  };
 
   // ---- State ----
   let data: DataState = { text: "", kind: "table", header: true, transpose: false };
@@ -758,7 +781,7 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
       panel.append(field(t("samples"), chips));
     }
 
-    const saved = savedCharts();
+    const saved = savedCache;
     if (saved.length) {
       const list = el("ul", "fft-ed-saved");
       list.setAttribute("aria-label", t("myCharts"));
@@ -770,8 +793,9 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
             setSpec(chart.spec);
             go(3);
           }, "fft-ed-chip"),
-          button(t("remove"), () => {
-            writeSaved(savedCharts().filter((c) => c.id !== chart.id));
+          button(t("remove"), async () => {
+            await store.removeChart(chart.id);
+            await refreshSaved();
             paint();
           }, "fft-ed-chip"),
         );
@@ -1807,33 +1831,68 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
     panel.append(
       button(t("save"), async (b) => {
         try {
-          if (options.save) await options.save(spec);
-          else {
-            const chart = { id: spec.id ?? slugOf(spec.title ?? "chart"), spec, savedAt: new Date().toISOString() };
-            writeSaved([chart, ...savedCharts().filter((c) => c.id !== chart.id)]);
-          }
+          await saveChart();
           say(b, t("saved"));
         } catch {
           say(b, t("saveFailed"), true);
         }
       }, "fft-ed-button fft-ed-primary"),
     );
+
+    // Add to dashboard: the chart saved, then added as a card to a board kept in the store (an existing one, or a
+    // new one under the name given), with a link to the composer to lay it out.
+    const adder = el("section", "fft-ed-addboard");
+    adder.append(el("h3", "fft-ed-subtitle", cw.addToBoard));
+    const choose = el("select", "fft-ed-input");
+    choose.setAttribute("aria-label", cw.board);
+    const fresh = el("option", undefined, cw.newBoard);
+    fresh.value = "";
+    choose.append(fresh);
+    for (const board of boardsCache) {
+      const option = el("option", undefined, board.spec.title || board.id);
+      option.value = board.id;
+      choose.append(option);
+    }
+    if (boardsCache[0]) choose.value = boardsCache[0].id;
+    const name = el("input", "fft-ed-input");
+    name.type = "text";
+    name.placeholder = cw.untitledBoard;
+    name.setAttribute("aria-label", cw.boardName);
+    const nameField = field(cw.boardName, name);
+    const sync = () => {
+      nameField.hidden = choose.value !== "";
+    };
+    choose.addEventListener("change", sync);
+    sync();
+    const result = el("p", "fft-ed-addboard-result");
+    result.setAttribute("role", "status");
+    adder.append(
+      field(cw.board, choose),
+      nameField,
+      button(cw.addToBoard, async (b) => {
+        try {
+          await saveChart();
+          const board = await addChartToBoard(store, spec, choose.value ? { id: choose.value } : { title: name.value.trim() || cw.untitledBoard });
+          await refreshSaved();
+          say(b, cw.addedToBoard(board.spec.title || board.id));
+          const link = el("a", "fft-ed-link", cw.openComposer);
+          link.href = options.composerHref?.(board.id) ?? `composer.html#board=${encodeURIComponent(board.id)}`;
+          result.replaceChildren(link);
+          result.dataset.board = board.id;
+        } catch {
+          say(b, t("saveFailed"), true);
+        }
+      }, "fft-ed-button"),
+      result,
+    );
+    panel.append(adder);
   }
 
-  function savedCharts(): { id: string; spec: WidgetSpec; savedAt: string }[] {
-    try {
-      const parsed: unknown = JSON.parse(local?.getItem(STORE_KEY) ?? "[]");
-      return Array.isArray(parsed) ? (parsed as { id: string; spec: WidgetSpec; savedAt: string }[]).filter((c) => c && c.spec && c.id) : [];
-    } catch {
-      return [];
-    }
-  }
-  function writeSaved(charts: { id: string; spec: WidgetSpec; savedAt: string }[]) {
-    try {
-      local?.setItem(STORE_KEY, JSON.stringify(charts));
-    } catch {
-      // Storage blocked: nothing kept, nothing broken.
-    }
+  /** The chart kept: through the host's save when there is one, else in the store "My charts" reads. */
+  async function saveChart() {
+    if (options.save) await options.save(spec);
+    else await store.saveChart({ id: spec.id ?? slugOf(spec.title ?? "chart"), spec, savedAt: new Date().toISOString() });
+    await refreshSaved();
   }
 
   function setSpec(next: WidgetSpec) {
@@ -1859,6 +1918,14 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
   doc.addEventListener("keydown", onKey);
 
   // ---- Start ----
+  // What is already saved: at once from a synchronous store (this browser's), or as soon as a host's store answers.
+  {
+    const charts = store.charts();
+    const boards = store.boards();
+    if (Array.isArray(charts)) savedCache = charts;
+    if (Array.isArray(boards)) boardsCache = boards;
+    if (!Array.isArray(charts) || !Array.isArray(boards)) void refreshSaved().then(() => paint());
+  }
   const opening = options.spec ?? (useHash && win ? readHash(win.location.hash, session).spec : undefined);
   const openingStep = useHash && win ? readHash(win.location.hash, session).step : undefined;
   if (opening) setSpec(opening);
@@ -2016,6 +2083,9 @@ export const EDITOR_CSS = `
 .fft-ed-saved { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 5px; }
 .fft-ed-saved li { display: flex; align-items: center; gap: 8px; }
 .fft-ed-saved-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fft-ed-addboard { display: flex; flex-direction: column; gap: 8px; margin-top: 21px; padding-top: 13px; border-top: 1px solid var(--fft-grid); }
+.fft-ed-addboard-result { margin: 0; min-height: 21px; font-size: 13px; }
+.fft-ed-link { color: var(--fft-accent); }
 .fft-ed-issues { margin: 8px 0 0; padding: 0; list-style: none; font-size: 12px; color: var(--fft-text-secondary); }
 .fft-ed-issues:empty { display: none; }
 .fft-ed-issues-title { font-weight: 600; color: var(--fft-text); }

@@ -122,7 +122,7 @@ describe("the words module", () => {
 
   test("no French or German word is left in English, apart from words the languages share", () => {
     // Same in English and the other language, on purpose: names, units, codes, abbreviations.
-    const SHARED = new Set(["Total", "Note", "Notes", "Format", "Options", "Style", "Auto", "Codes", "Widget", "Details", "Region", "Quadrant", "Median", "Status", "Text", "Sparkline", "Tooltip", "Sections", "Variance", "Description", "Date", "Locale", "Id", "Data", "Steps", "Embed", "Range", "Values"]);
+    const SHARED = new Set(["Total", "Note", "Notes", "Format", "Options", "Style", "Auto", "Codes", "Widget", "Details", "Region", "Quadrant", "Median", "Status", "Text", "Sparkline", "Tooltip", "Sections", "Variance", "Description", "Date", "Locale", "Id", "Data", "Steps", "Embed", "Range", "Values", "Dashboard"]);
     const leaves = (w: unknown, path = ""): [string, string][] =>
       w && typeof w === "object" && !Array.isArray(w)
         ? Object.entries(w).flatMap(([k, v]) => leaves(v, `${path}.${k}`))
