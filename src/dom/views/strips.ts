@@ -3,10 +3,10 @@ import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { StripsView } from "../../core/views.ts";
 import { allocate } from "../layout.ts";
-import { buildTable, fieldList, html, selectable, svg } from "./shared.ts";
+import { buildTable, CHAR_WIDTH, fieldList, html, legendList, selectable, shareFormat, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
+import { highlights } from "./chart.ts";
 
-const CHAR_WIDTH = 6;
 /** One square: 8px of color and a 2px gap. */
 const SIDE = 8;
 const PITCH = 10;
@@ -29,7 +29,7 @@ export const renderStrips: ViewRenderer<StripsView> = (ctx) => {
   const parts = fieldList(ctx.view.parts);
   const unit = typeof ctx.view.unit === "string" && ctx.view.unit.trim() ? ctx.view.unit.trim() : "provision";
   const units = pluralUnit(unit);
-  const share = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 0 });
+  const share = shareFormat(ctx.spec.locale);
   const density = new Intl.NumberFormat(ctx.spec.locale, { maximumFractionDigits: 1 });
   const perName = per ? ctx.label(per).toLowerCase().replace(/s$/, "") : "";
   const counts = ctx.rows.map((row) => parts.map((field) => Math.max(0, readNumber(row[field]) ?? 0)));
@@ -57,19 +57,8 @@ export const renderStrips: ViewRenderer<StripsView> = (ctx) => {
 
   const wrap = html(doc, "div", "fft-strips");
   wrap.style.setProperty("--fft-strip-label", `${Math.round(labelW)}px`);
-  if (parts.length > 1 && !ctx.inFacet) {
-    const legend = html(doc, "ul", "fft-legend");
-    parts.forEach((field, i) => {
-      const swatch = html(doc, "span", "fft-swatch");
-      swatch.dataset.shape = "rect";
-      swatch.style.background = ctx.color(i);
-      swatch.setAttribute("aria-hidden", "true");
-      const item = html(doc, "li");
-      item.append(swatch, ctx.label(field));
-      legend.append(item);
-    });
-    wrap.append(legend);
-  }
+  const key = legendList(ctx, parts.map((field, i) => ({ label: ctx.label(field), color: ctx.color(i) })), { min: 2 });
+  if (key) wrap.append(key);
   const list = html(doc, "div", "fft-strip-rows");
   list.setAttribute("role", "list");
   const rows: HTMLElement[] = [];
@@ -78,12 +67,16 @@ export const renderStrips: ViewRenderer<StripsView> = (ctx) => {
     for (const row of rows) row.removeAttribute("data-active");
     ctx.tooltip.hide();
   };
+  // highlight keeps the named rows in color and steps the rest back to grey, as on hbar and dot.
+  const picked = highlights((ctx.view as { highlight?: unknown }).highlight);
+  const muted = (row: Row) => picked.length > 0 && !picked.includes(String(row[label]));
   ctx.rows.forEach((row, i) => {
     const total = totals[i] ?? 0;
     const count = counts[i] ?? [];
     const n = total > 0 ? Math.max(1, Math.round(total / perSquare)) : 0;
     const perPart = allocate(count, n);
     const item = html(doc, "div", "fft-strip");
+    if (muted(row)) item.dataset.muted = "";
     item.setAttribute("role", "listitem");
     item.tabIndex = 0;
     item.style.setProperty("--fft-i", String(i));

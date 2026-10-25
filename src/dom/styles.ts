@@ -1700,4 +1700,14 @@ ul.fft-map-legend { margin-top: 0; }
 .fft-ragtrend-now { font-size: var(--fft-fs-s) !important; text-align: left !important; padding-left: 8px; }
 .fft-ragtrend-end { padding-left: 8px; white-space: nowrap; }
 .fft-widget[data-animate] :is(.fft-rag-row, .fft-ragtrend-row) { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 21ms); }
+/* WP3: row views on the shared kit. highlight keeps the named rows in color; the rest step back to the grey every view uses. */
+.fft-db-row[data-muted] :is(.fft-db-from, .fft-db-to, .fft-db-head) { fill: var(--fft-deemphasis) !important; }
+.fft-db-row[data-muted] .fft-db-shaft { stroke: var(--fft-deemphasis) !important; }
+.fft-pyr-row[data-muted] .fft-pyr-bar { fill: var(--fft-deemphasis) !important; }
+.fft-funnel-row[data-muted] .fft-funnel-bar { background: var(--fft-deemphasis); }
+.fft-strip[data-muted] .fft-strip-sq { fill: var(--fft-deemphasis) !important; }
+:is(.fft-db-row, .fft-pyr-row, .fft-funnel-row, .fft-strip)[data-muted] :is(.fft-db-label, .fft-pyr-label, .fft-funnel-label, .fft-strip-label) { color: var(--fft-text-secondary); fill: var(--fft-text-secondary); }
+/* Meters and funnels dim the rest while one is pointed at, like every other row view. */
+.fft-meters[data-active] .fft-meter:not([data-active]), .fft-funnel[data-active] .fft-funnel-row:not([data-active]) { opacity: var(--fft-dim); transition: opacity 377ms var(--fft-ease); }
+.fft-widget[data-animate] .fft-meter[style*="--fft-i"] .fft-meter-fill { animation-delay: calc(var(--fft-i, 0) * 55ms); }
 `;

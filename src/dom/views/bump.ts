@@ -4,12 +4,11 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { BumpView } from "../../core/views.ts";
 import { fitLabels } from "../layout.ts";
 import { DEEMPHASIS, highlights } from "./chart.ts";
-import { buildTable, html, selectable, svg } from "./shared.ts";
+import { buildTable, CHAR_WIDTH, html, ROW, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
 
-const CHAR_WIDTH = 6;
 /** Height of one rank row: a Fibonacci step, enough for a label and a ringed dot. */
-const ROW = 34;
+const LANE: number = ROW.roomy;
 
 interface Point {
   period: number;
@@ -67,7 +66,7 @@ export const renderBump: ViewRenderer<BumpView> = (ctx) => {
   const compact = ctx.width < nameRoom * 2 + 144;
   const margin = { top: 13, bottom: 26, left: compact ? (String(names.length).length + 1) * CHAR_WIDTH + 13 : nameRoom, right: nameRoom };
   const width = Math.max(ctx.width, margin.left + margin.right + 89);
-  const height = Math.max(ctx.height, margin.top + margin.bottom + names.length * ROW);
+  const height = Math.max(ctx.height, margin.top + margin.bottom + names.length * LANE);
   const plotW = width - margin.left - margin.right;
   const rowGap = (height - margin.top - margin.bottom) / Math.max(1, names.length);
   const px = (p: number) => (periods.length > 1 ? margin.left + (p * plotW) / (periods.length - 1) : margin.left + plotW / 2);

@@ -2,10 +2,10 @@ import { readNumber } from "../../core/formats.ts";
 import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { LikertView } from "../../core/views.ts";
-import { buildTable, fieldList, html, selectable, svg } from "./shared.ts";
+import { buildTable, fieldList, html, ROW, selectable, shareFormat, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
 
-const ROW = 55;
+const LANE: number = ROW.tall;
 const BAR = 21;
 const GAP = 2;
 /** Room beyond each end for the "20%" and "60%" labels. */
@@ -28,7 +28,7 @@ export const renderLikert: ViewRenderer<LikertView> = (ctx) => {
   const toneOf = (i: number) => (i < mid ? "neg" : i > mid ? "pos" : "neutral");
   const strength = (i: number) => (i === mid ? 1 : 0.45 + 0.55 * (Math.abs(i - mid) / (mid || 1)));
   const colorOf = (i: number) => (i < mid ? "var(--fft-down)" : i > mid ? "var(--fft-up)" : "var(--fft-deemphasis)");
-  const percent = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 0 });
+  const percent = shareFormat(ctx.spec.locale);
 
   const questions = ctx.rows.map((row) => {
     const counts = responses.map((field) => Math.max(0, readNumber(row[field]) ?? 0));
@@ -53,10 +53,11 @@ export const renderLikert: ViewRenderer<LikertView> = (ctx) => {
     item.append(swatch, ctx.label(field));
     legend.append(item);
   });
-  wrap.append(legend);
+  // Inside a small-multiples panel the widget draws one shared legend.
+  if (!ctx.inFacet) wrap.append(legend);
 
   const width = Math.max(ctx.width, 233);
-  const height = questions.length * ROW + 8;
+  const height = questions.length * LANE + 8;
   const center = width / 2;
   const scale = (width / 2 - 13 - END) / reach;
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
@@ -71,7 +72,7 @@ export const renderLikert: ViewRenderer<LikertView> = (ctx) => {
     ctx.tooltip.hide();
   };
   questions.forEach((q, r) => {
-    const top = r * ROW;
+    const top = r * LANE;
     const question = svg(doc, "text", { class: "fft-likert-question", x: 13, y: top + 13 });
     question.textContent = ctx.format(q.row[label], label);
     chart.append(question);
@@ -86,6 +87,8 @@ export const renderLikert: ViewRenderer<LikertView> = (ctx) => {
       const seg = svg(doc, "rect", { class: "fft-likert-seg", x: x0 + GAP / 2, y: barTop, width: Math.max(0.5, w - GAP), height: BAR, rx: 2, "data-share": round2(share), "data-tone": toneOf(i), "data-index": i });
       seg.style.fill = colorOf(i);
       seg.style.fillOpacity = String(strength(i));
+      // Questions fade in one after another.
+      seg.style.setProperty("--fft-i", String(r));
       chart.append(seg);
       segments.push(seg);
       const field = responses[i] as string;
@@ -94,7 +97,7 @@ export const renderLikert: ViewRenderer<LikertView> = (ctx) => {
         { label: ctx.label(field), value: ctx.format(q.row[field], field), color: colorOf(i) },
         { label: "Share", value: percent.format(share) },
       ];
-      const hit = svg(doc, "rect", { class: "fft-likert-hit", x: x0, y: top, width: Math.max(1, w), height: ROW, tabindex: 0, role: "img" });
+      const hit = svg(doc, "rect", { class: "fft-likert-hit", x: x0, y: top, width: Math.max(1, w), height: LANE, tabindex: 0, role: "img" });
       hit.setAttribute("aria-label", `${name}, ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
       const activate = () => {
         wrap.setAttribute("data-active", "");

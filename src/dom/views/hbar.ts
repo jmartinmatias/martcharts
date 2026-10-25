@@ -3,27 +3,13 @@ import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewContext, ViewRenderer } from "../../core/view-context.ts";
 import type { HbarView } from "../../core/views.ts";
 import { DEEMPHASIS, highlights } from "./chart.ts";
-import { buildTable, fieldList, html, selectable } from "./shared.ts";
+import { buildTable, endRoom, fieldList, hiddenTableOf, html, legendList, selectable, shareFormat } from "./shared.ts";
 import { roving } from "./focus.ts";
 
 /** A bar's share of the track, as a CSS width: 0% for nothing, missing values or a zero scale. */
 const widthOf = (amount: number | null, max: number) => `${amount === null || amount <= 0 || max === 0 ? 0 : Math.round((amount / max) * 1000) / 10}%`;
 
 /** A key above the bars: one square per series, in its color. Only when there is more than one series. */
-function key(ctx: ViewContext<HbarView>, series: string[], color: (s: number) => string): HTMLElement {
-  const doc = ctx.el.ownerDocument;
-  const list = html(doc, "ul", "fft-legend");
-  series.forEach((field, s) => {
-    const swatch = html(doc, "span", "fft-swatch");
-    swatch.dataset.shape = "rect";
-    swatch.style.background = color(s);
-    swatch.setAttribute("aria-hidden", "true");
-    const item = html(doc, "li");
-    item.append(swatch, ctx.label(field));
-    list.append(item);
-  });
-  return list;
-}
 
 /**
  * Draws the `hbar` view: one row per data row with the label on the left, a
@@ -103,12 +89,8 @@ function renderSingle(ctx: ViewContext<HbarView>, value: string): void {
     list.append(item);
   });
   roving(rows);
-  ctx.el.append(list);
-}
-
-/** Pixels a column of end labels needs: its longest text at 11px, plus the gap before it. */
-function endRoom(texts: string[]): number {
-  return Math.max(0, ...texts.map((text) => text.length)) * 6.5 + 8;
+  // Screen readers get the figures as a table too, as for every other row view.
+  ctx.el.append(list, hiddenTableOf(ctx, ctx.rows, [label, value]));
 }
 
 /**
@@ -137,7 +119,8 @@ function frame(ctx: ViewContext<HbarView>, series: string[], mode: "grouped" | "
   // A muted row keeps a hint of each series' hue, so its greys still say which is which.
   const color = (s: number, lit = true) => (lit ? ctx.color(s) : `color-mix(in srgb, ${ctx.color(s)} 30%, ${DEEMPHASIS})`);
   const wrap = html(doc, "div", "fft-hbar-wrap");
-  if (mode !== "split" && !ctx.inFacet) wrap.append(key(ctx, series, color));
+  const key = mode === "split" ? undefined : legendList(ctx, series.map((field, s) => ({ label: ctx.label(field), color: color(s) })));
+  if (key) wrap.append(key);
   const list = html(doc, "ol", "fft-hbars");
   list.dataset.mode = mode;
   const items: HTMLElement[] = [];
@@ -203,7 +186,7 @@ function renderStacked(ctx: ViewContext<HbarView>, series: string[]): void {
   const { doc, on, color, list, items, activate, deactivate, finish } = frame(ctx, series, "stacked");
   const { label } = ctx.view;
   const percent = ctx.view.stacked === "percent";
-  const share = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 0 });
+  const share = shareFormat(ctx.spec.locale);
   const parts = ctx.rows.map((row) => series.map((field) => Math.max(0, readNumber(row[field]) ?? 0)));
   const totals = parts.map((values) => values.reduce((sum, v) => sum + v, 0));
   const max = percent ? 1 : Math.max(0, ...totals, ...(ctx.extent ?? []));

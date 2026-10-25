@@ -5,10 +5,9 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { SlopeView } from "../../core/views.ts";
 import { dodge } from "../layout.ts";
 import { highlights } from "./chart.ts";
-import { buildTable, html, selectable, svg } from "./shared.ts";
+import { buildTable, CHAR_WIDTH, html, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
 
-const CHAR_WIDTH = 6;
 /** Closest two labels on one side may sit: one 11px line plus breathing room. */
 const LABEL_GAP = 14;
 /** Widest the slopes get: past this, lines flatten and change is harder to see. */
@@ -54,6 +53,8 @@ export const renderSlope: ViewRenderer<SlopeView> = (ctx) => {
   const plotBottom = height - bottom;
   // A tight scale: with no ticks to round, the highest value sits on the top line and the lowest on the bottom.
   const values = items.flatMap((it) => [it.a, it.b]);
+  // Small multiples pass a shared extent, so every panel draws on the same scale.
+  values.push(...(ctx.extent ?? []));
   const lo = Math.min(...values);
   const hi = Math.max(...values);
   const y = (v: number) => (hi === lo ? (top + plotBottom) / 2 : plotBottom - ((v - lo) / (hi - lo)) * (plotBottom - top));

@@ -3,12 +3,11 @@ import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { LifecycleView } from "../../core/views.ts";
 import { fitLabels } from "../layout.ts";
-import { buildTable, DAY, dayOf, fieldList, html, selectable, svg } from "./shared.ts";
+import { buildTable, CHAR_WIDTH, DAY, dayOf, fieldList, html, ROW, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
 
-const CHAR_WIDTH = 6;
-const ROW = 30;
-const GROUP_ROW = 24;
+const LANE: number = ROW.roomy;
+const GROUP_ROW: number = ROW.group;
 
 /** How deep a stage's tint is: the first stage light, the last full. */
 export function stageTint(index: number, count: number): number {
@@ -67,7 +66,7 @@ export const renderLifecycle: ViewRenderer<LifecycleView> = (ctx) => {
   const left = Math.max(55, Math.min(ctx.width * 0.34, Math.max(...items.map((it) => it.name.length)) * CHAR_WIDTH + 13));
   const margin = { top: 34, right: status ? statusW + 13 : 13, bottom: 8, left };
   const width = Math.max(ctx.width, left + margin.right + 144);
-  const heights = items.map((it) => (it.kind === "group" ? GROUP_ROW : ROW));
+  const heights = items.map((it) => (it.kind === "group" ? GROUP_ROW : LANE));
   const height = margin.top + heights.reduce((a, b) => a + b, 0) + margin.bottom;
   const plotW = width - margin.left - margin.right;
   const plotRight = margin.left + plotW;
@@ -120,7 +119,7 @@ export const renderLifecycle: ViewRenderer<LifecycleView> = (ctx) => {
   let cursorY = margin.top;
   let n = 0;
   items.forEach((item) => {
-    const rowH = item.kind === "group" ? GROUP_ROW : ROW;
+    const rowH = item.kind === "group" ? GROUP_ROW : LANE;
     const cy = cursorY + rowH / 2;
     cursorY += rowH;
     if (item.kind === "group") {

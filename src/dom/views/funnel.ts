@@ -1,8 +1,9 @@
 import { readNumber } from "../../core/formats.ts";
+import type { Row } from "../../core/types.ts";
 import type { ViewRenderer } from "../../core/view-context.ts";
+import { highlights } from "./chart.ts";
 import type { FunnelView } from "../../core/views.ts";
-import { html, selectable } from "./shared.ts";
-import { roving } from "./focus.ts";
+import { activeGroup, hiddenTableOf, html, roving, selectable, shareFormat } from "./shared.ts";
 
 /**
  * Draws the `funnel` view: one centered bar per stage, as wide as its share
@@ -15,10 +16,14 @@ export const renderFunnel: ViewRenderer<FunnelView> = (ctx) => {
   const amounts = ctx.rows.map((row) => readNumber(row[value]));
   const first = amounts[0] ?? null;
   const base = first !== null && first > 0 ? first : Math.max(0, ...amounts.filter((n): n is number => n !== null)) || 1;
-  const pct = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 0 });
+  const pct = shareFormat(ctx.spec.locale);
 
+  // highlight keeps the named rows in color and steps the rest back to grey, as on hbar and dot.
+  const picked = highlights((ctx.view as { highlight?: unknown }).highlight);
+  const muted = (row: Row) => picked.length > 0 && !picked.includes(String(row[label]));
   const funnel = html(doc, "div", "fft-funnel");
   funnel.setAttribute("role", "list");
+  const group = activeGroup(funnel, ctx.tooltip);
   ctx.rows.forEach((row, i) => {
     const amount = amounts[i] ?? null;
     const name = ctx.format(row[label], label);
@@ -26,6 +31,7 @@ export const renderFunnel: ViewRenderer<FunnelView> = (ctx) => {
     const ofFirst = amount === null ? "" : pct.format(amount / base);
 
     const item = html(doc, "div", "fft-funnel-row");
+    if (muted(row)) item.dataset.muted = "";
     item.setAttribute("role", "listitem");
     item.tabIndex = 0;
     item.style.setProperty("--fft-i", String(i));
@@ -45,11 +51,14 @@ export const renderFunnel: ViewRenderer<FunnelView> = (ctx) => {
       { label: "Of first stage", value: ofFirst },
     ];
     item.setAttribute("aria-label", `${name}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
-    const show = () => ctx.tooltip.show(bar, name, items);
+    const show = () => {
+      group.on(item);
+      ctx.tooltip.show(bar, name, items);
+    };
     item.addEventListener("pointerenter", show);
     item.addEventListener("focus", show);
-    item.addEventListener("pointerleave", () => ctx.tooltip.hide());
-    item.addEventListener("blur", () => ctx.tooltip.hide());
+    item.addEventListener("pointerleave", () => group.off());
+    item.addEventListener("blur", () => group.off());
     selectable(item, () => ctx.select(row));
     funnel.append(item);
 
@@ -62,5 +71,5 @@ export const renderFunnel: ViewRenderer<FunnelView> = (ctx) => {
     }
   });
   roving([...funnel.querySelectorAll(".fft-funnel-row")]);
-  ctx.el.append(funnel);
+  ctx.el.append(funnel, hiddenTableOf(ctx, ctx.rows, [label, value]));
 };

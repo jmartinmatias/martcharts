@@ -3,11 +3,9 @@ import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { TimelineView } from "../../core/views.ts";
 import { fitLabels } from "../layout.ts";
-import { buildTable, DAY, dayOf, html, selectable, svg } from "./shared.ts";
+import { buildTable, CHAR_WIDTH, DAY, dayOf, html, legendList, rowHeight, selectable, shareFormat, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
 
-const CHAR_WIDTH = 6;
-const ROW = 34;
 const BAR = 13;
 
 /**
@@ -19,7 +17,7 @@ const BAR = 13;
 export const renderTimeline: ViewRenderer<TimelineView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
   const { label, start, end, group, today, progress } = ctx.view;
-  const percent = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 0 });
+  const percent = shareFormat(ctx.spec.locale);
   /** Share done, 0 to 1; values above 1 are percentages. */
   const doneOf = (row: Row) => {
     const value = progress ? readNumber(row[progress]) : null;
@@ -34,6 +32,10 @@ export const renderTimeline: ViewRenderer<TimelineView> = (ctx) => {
     if (!groups.includes(key)) groups.push(key);
     tasks.push({ row, from, to: end ? dayOf(row[end]) : null, name: ctx.format(row[label], label), g: groups.indexOf(key) });
   }
+  // Rows tighten as the plan grows: roomy up to 8 tasks, regular to 16, compact past that (the shared row scale).
+  const LANE = rowHeight(tasks.length);
+  // A group keeps one color wherever it appears when the spec fixes colors per category.
+  const groupColor = (g: number) => (group ? (ctx.colorOf?.(groups[g]) ?? ctx.color(g)) : ctx.color(g));
   const days = tasks.flatMap((t) => (t.to === null ? [t.from] : [t.from, t.to]));
   const first = Math.min(...days);
   const last = Math.max(...days);
@@ -45,25 +47,14 @@ export const renderTimeline: ViewRenderer<TimelineView> = (ctx) => {
   // With progress, the right margin holds the "100%" after a bar that ends at the edge.
   const margin = { top: 34, right: progress ? 41 : 13, bottom: 8, left };
   const width = Math.max(ctx.width, left + 144);
-  const height = margin.top + tasks.length * ROW + margin.bottom;
+  const height = margin.top + tasks.length * LANE + margin.bottom;
   const plotW = width - margin.left - margin.right;
   const x = (day: number) => margin.left + ((day - lo) / (hi - lo)) * plotW;
   const bottom = height - margin.bottom;
 
   const wrap = html(doc, "div", "fft-chart");
-  if (group && groups.length > 1) {
-    const legend = html(doc, "ul", "fft-legend");
-    groups.forEach((name, i) => {
-      const swatch = html(doc, "span", "fft-swatch");
-      swatch.dataset.shape = "rect";
-      swatch.style.background = ctx.color(i);
-      swatch.setAttribute("aria-hidden", "true");
-      const item = html(doc, "li");
-      item.append(swatch, ctx.format(name, group));
-      legend.append(item);
-    });
-    wrap.append(legend);
-  }
+  const key = group ? legendList(ctx, groups.map((name, i) => ({ label: ctx.format(name, group), color: groupColor(i) })), { min: 2 }) : undefined;
+  if (key) wrap.append(key);
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
   chart.setAttribute("aria-label", `Timeline of ${ctx.label(label)} from ${ctx.label(start)}${end ? ` to ${ctx.label(end)}` : ""}`);
@@ -101,8 +92,8 @@ export const renderTimeline: ViewRenderer<TimelineView> = (ctx) => {
     ctx.tooltip.hide();
   };
   tasks.forEach((task, i) => {
-    const cy = margin.top + i * ROW + ROW / 2;
-    const color = ctx.color(task.g);
+    const cy = margin.top + i * LANE + LANE / 2;
+    const color = groupColor(task.g);
     const g = svg(doc, "g", { class: "fft-gantt", style: `--fft-i: ${i}` });
     const name = svg(doc, "text", { class: "fft-gantt-label", x: margin.left - 13, y: cy, "text-anchor": "end", "dominant-baseline": "middle" });
     name.textContent = task.name;
@@ -114,13 +105,13 @@ export const renderTimeline: ViewRenderer<TimelineView> = (ctx) => {
     } else {
       const x0 = x(Math.min(task.from, task.to));
       const barWidth = Math.max(3, Math.abs(x(task.to) - x(task.from)));
-      anchor = svg(doc, "rect", { class: "fft-gantt-bar", x: x0, y: cy - BAR / 2, width: barWidth, height: BAR, rx: 4 });
+      anchor = svg(doc, "rect", { class: "fft-gantt-bar", x: x0, y: cy - BAR / 2, width: barWidth, height: BAR, rx: 2 });
       const done = doneOf(task.row);
       if (done !== null) {
         // The bar becomes a faint track, filled solid as far as the work is done.
         anchor.setAttribute("data-tracked", "");
         if (done > 0) {
-          const fill = svg(doc, "rect", { class: "fft-gantt-done", x: x0, y: cy - BAR / 2, width: barWidth * done, height: BAR, rx: 4, "data-progress": Math.round(done * 100) / 100 });
+          const fill = svg(doc, "rect", { class: "fft-gantt-done", x: x0, y: cy - BAR / 2, width: barWidth * done, height: BAR, rx: 2, "data-progress": Math.round(done * 100) / 100 });
           fill.style.fill = color;
           g.append(fill);
         }
@@ -140,7 +131,7 @@ export const renderTimeline: ViewRenderer<TimelineView> = (ctx) => {
     if (group) items.push({ label: ctx.label(group), value: ctx.format(task.row[group], group) });
     const done = doneOf(task.row);
     if (done !== null && task.to !== null) items.push({ label: "Progress", value: percent.format(done) });
-    const hit = svg(doc, "rect", { class: "fft-gantt-hit", x: 0, y: cy - ROW / 2, width, height: ROW, tabindex: 0, role: "img" });
+    const hit = svg(doc, "rect", { class: "fft-gantt-hit", x: 0, y: cy - LANE / 2, width, height: LANE, tabindex: 0, role: "img" });
     hit.setAttribute("aria-label", `${task.name}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
     const activate = () => {
       wrap.setAttribute("data-active", "");

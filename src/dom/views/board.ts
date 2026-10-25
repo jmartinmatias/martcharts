@@ -3,7 +3,7 @@ import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import { BOARD_LIMIT } from "../../core/views.ts";
 import type { BoardView } from "../../core/views.ts";
-import { buildTable, html, selectable } from "./shared.ts";
+import { buildTable, html, legendList, selectable } from "./shared.ts";
 import { roving } from "./focus.ts";
 
 /** The column items land in when their stage is not among the stages listed. */
@@ -45,20 +45,11 @@ export const renderBoard: ViewRenderer<BoardView> = (ctx) => {
   };
   for (const row of ctx.rows) groupOf(row);
 
+  // A group keeps one color wherever it appears when the spec fixes colors per category.
+  const groupColor = (g: number) => ctx.colorOf?.(groups[g]) ?? ctx.color(g);
   const wrap = html(doc, "div", "fft-board-wrap");
-  if (group && groups.length > 1 && !ctx.inFacet) {
-    const legend = html(doc, "ul", "fft-legend");
-    groups.forEach((name, i) => {
-      const swatch = html(doc, "span", "fft-swatch");
-      swatch.dataset.shape = "dot";
-      swatch.style.background = ctx.color(i);
-      swatch.setAttribute("aria-hidden", "true");
-      const item = html(doc, "li");
-      item.append(swatch, name);
-      legend.append(item);
-    });
-    wrap.append(legend);
-  }
+  const key = group ? legendList(ctx, groups.map((name, i) => ({ label: name, color: groupColor(i), shape: "dot" as const })), { min: 2 }) : undefined;
+  if (key) wrap.append(key);
 
   const scroller = html(doc, "div", "fft-board-scroll");
   const boardEl = html(doc, "div", "fft-board");
@@ -89,7 +80,7 @@ export const renderBoard: ViewRenderer<BoardView> = (ctx) => {
       const title = html(doc, "span", "fft-board-title");
       if (g >= 0) {
         const dot = html(doc, "span", "fft-board-dot");
-        dot.style.background = ctx.color(g);
+        dot.style.background = groupColor(g);
         dot.setAttribute("aria-hidden", "true");
         title.append(dot);
       }
@@ -102,7 +93,7 @@ export const renderBoard: ViewRenderer<BoardView> = (ctx) => {
       const detailText = detail ? ctx.format(row[detail], detail) : "";
       if (detailText) card.append(html(doc, "span", "fft-board-detail", detailText));
       const items: TooltipItem[] = [{ label: ctx.label(stage), value: name }];
-      if (g >= 0 && group) items.push({ label: ctx.label(group), value: groups[g] as string, color: ctx.color(g) });
+      if (g >= 0 && group) items.push({ label: ctx.label(group), value: groups[g] as string, color: groupColor(g) });
       if (valueText && value) items.push({ label: ctx.label(value), value: valueText });
       if (detailText && detail) items.push({ label: ctx.label(detail), value: detailText });
       card.setAttribute("aria-label", `${nameText}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);

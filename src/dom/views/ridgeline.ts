@@ -4,10 +4,9 @@ import type { RidgelineView } from "../../core/views.ts";
 import { density, linearScale, quantile } from "../layout.ts";
 import { tickFormatter } from "./chart.ts";
 import { roving } from "./focus.ts";
-import { hiddenTable, html, selectable, svg } from "./shared.ts";
+import { CHAR_WIDTH, hiddenTable, html, ROW, selectable, svg } from "./shared.ts";
 
-const CHAR_WIDTH = 6;
-const ROW = 55;
+const LANE: number = ROW.tall;
 const GRID = 89;
 
 /**
@@ -42,17 +41,17 @@ export const renderRidgeline: ViewRenderer<RidgelineView> = (ctx) => {
   const grid = Array.from({ length: GRID }, (_, i) => start + ((end - start) * i) / (GRID - 1));
   const curves = groups.map((name) => density(values.get(name) ?? [], grid));
   const peak = Math.max(...curves.flat()) || 1;
-  const ridgeHeight = ROW * 1.618;
+  const ridgeHeight = LANE * 1.618;
 
   const labels = groups.map((name) => ctx.format(name, group));
   const ticks = linearScale(grid, [0, 1], { includeZero: low >= 0 && start === 0 }).ticks;
   const tickText = tickFormatter(ctx, value, ticks);
   const left = Math.max(34, Math.max(...labels.map((l) => l.length)) * CHAR_WIDTH + 13);
-  const margin = { top: Math.ceil(ridgeHeight - ROW) + 5, right: 13, bottom: 39, left };
+  const margin = { top: Math.ceil(ridgeHeight - LANE) + 5, right: 13, bottom: 39, left };
   const width = Math.max(ctx.width, left + 144);
-  const height = margin.top + groups.length * ROW + margin.bottom;
+  const height = margin.top + groups.length * LANE + margin.bottom;
   const x = linearScale(grid, [margin.left, width - margin.right], { includeZero: low >= 0 && start === 0 });
-  const plotBottom = margin.top + groups.length * ROW;
+  const plotBottom = margin.top + groups.length * LANE;
 
   const wrap = html(doc, "div", "fft-chart");
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
@@ -78,7 +77,7 @@ export const renderRidgeline: ViewRenderer<RidgelineView> = (ctx) => {
   };
   const summary: string[][] = [];
   groups.forEach((name, g) => {
-    const base = margin.top + (g + 1) * ROW;
+    const base = margin.top + (g + 1) * LANE;
     const points = grid.map((v, i) => `${Math.round(x(v) * 100) / 100},${Math.round((base - ((curves[g]?.[i] ?? 0) / peak) * ridgeHeight) * 100) / 100}`);
     const line = `M${points.join("L")}`;
     const area = `${line}L${x(grid[GRID - 1] as number)},${base}L${x(grid[0] as number)},${base}Z`;
@@ -102,7 +101,7 @@ export const renderRidgeline: ViewRenderer<RidgelineView> = (ctx) => {
       { label: "Count", value: String(list.length) },
     ];
     summary.push([labels[g] ?? name, ...items.map((it) => it.value)]);
-    const hit = svg(doc, "rect", { class: "fft-ridge-hit", x: 0, y: base - ROW, width, height: ROW, role: "img" });
+    const hit = svg(doc, "rect", { class: "fft-ridge-hit", x: 0, y: base - LANE, width, height: LANE, role: "img" });
     hit.setAttribute("aria-label", `${labels[g]}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
     const activate = () => {
       wrap.setAttribute("data-active", "");
