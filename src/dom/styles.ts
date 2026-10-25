@@ -207,7 +207,8 @@ export function parseTokens(css: string): Record<string, string> {
 export const BASE_CSS = `
 /* Fibonacci framing: spacing 2 3 5 8 13 21 34, type 11 13 21 34, motion 377 610 987 ms, golden-ratio proportions. */
 /* The shared scale every view draws with: one hover dimming, three radii (plus the card's and a pill), five type steps. */
-.fft-widget, .fft-overlay {
+/* The dashboard's own chrome (its filter row, tabs, Share) sits outside any card, so it takes the scale too. */
+.fft-widget, .fft-overlay, .fft-dashboard {
   --fft-dim: 0.38;
   --fft-dim-strong: 0.21;
   --fft-radius-s: 2px;
@@ -1086,7 +1087,7 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
   border-radius: calc(var(--fft-radius-l) + 2px); background: color-mix(in srgb, var(--fft-text) 8%, transparent);
 }
 .fft-range button {
-  font: inherit; font-size: var(--fft-fs-s); font-weight: 600; letter-spacing: 0.02em; font-variant-numeric: tabular-nums;
+  font: inherit; font-size: var(--fft-fs-m); font-weight: 600; letter-spacing: 0.02em; font-variant-numeric: tabular-nums;
   min-width: 34px; padding: 0 10px; border: 0; border-radius: var(--fft-radius-l); background: transparent; color: var(--fft-text-secondary); cursor: pointer;
   transition: background 233ms var(--fft-ease), color 233ms var(--fft-ease), box-shadow 233ms var(--fft-ease);
 }
@@ -1100,7 +1101,7 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 /* Section chips: pills as tall as every other control, quiet until chosen. */
 .fft-board-nav button {
   box-sizing: border-box; display: inline-flex; flex-direction: column; justify-content: center; align-items: center; min-height: var(--fft-control-h); padding: 0 11px; border: 0; border-radius: var(--fft-radius-pill); background: transparent; cursor: pointer;
-  font: inherit; font-size: var(--fft-fs-s); line-height: 21px; white-space: nowrap; color: var(--fft-text-secondary);
+  font: inherit; font-size: var(--fft-fs-m); line-height: 21px; white-space: nowrap; color: var(--fft-text-secondary);
   transition: background 233ms var(--fft-ease), color 233ms var(--fft-ease);
 }
 @media (hover: hover) { .fft-board-nav button:hover { color: var(--fft-text); background: color-mix(in srgb, var(--fft-text) 5%, transparent); } }

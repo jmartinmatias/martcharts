@@ -40,7 +40,8 @@ html { overflow-x: clip; }
 }
 /* A dashboard's filter row, once pinned under the bar, joins it as a second band of the same width and frost; at rest
    it sits in the page with no box of its own. */
-.fft-dashboard[data-sticky] .fft-filters { background: none; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; }
+/* body raises it above the library's own rule, which the page loads later. */
+body .fft-dashboard[data-sticky] .fft-filters { background: none; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; }
 .fft-dashboard[data-sticky] .fft-filters::before {
   content: "";
   position: absolute;

@@ -170,4 +170,10 @@ describe("the published site", () => {
     expect(nav).toMatch(/\.site-tabs \{[^}]*border-radius: 10px;[^}]*background:/);
     expect(readFileSync("dashboards.html", "utf8")).not.toMatch(/\.board-tabs \{[^}]*border: 1px/);
   });
+
+  test("the dashboard's chrome has the kit's radii and type sizes: the scale is defined on the dashboard, not only on cards", async () => {
+    const { BASE_CSS } = await import("./dom/styles.ts");
+    expect(BASE_CSS).toMatch(/\.fft-widget, \.fft-overlay, \.fft-dashboard \{[^}]*--fft-radius-l:[^}]*--fft-radius-pill:[^}]*--fft-fs-xs:/);
+    expect(readFileSync("demo/site-nav.css", "utf8")).toMatch(/body \.fft-dashboard\[data-sticky\] \.fft-filters \{ background: none;/);
+  });
 });
