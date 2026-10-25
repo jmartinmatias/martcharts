@@ -906,7 +906,8 @@ Rows and columns. The default view, and the one to use when people need exact va
 | `sortable` | boolean |  | `true` | Headers become buttons that sort the rows: ascending, then descending. Missing values stay last. |
 | `totals` | boolean |  | `false` | Adds a footer row summing each number column in its own format, over every row whatever the page or search shows. Percent columns stay blank, since summed shares mean nothing. |
 | `search` | boolean |  | `false` | A small search field above the table: typing keeps only the rows whose shown text matches, in any column, and says how many remain. For directories and long lists. |
-| `pageSize` | number |  |  | Rows shown at a time, with Previous and Next under the table (hidden while the rows fit on one page). Sorting or searching goes back to the first page. Leave out to show every row. |
+| `pageSize` | number |  |  | Rows shown at a time, with Previous and Next under the table (hidden while the rows fit on one page). Sorting or searching goes back to the first page. Leave out for the first 100 rows and a Show more button. |
+| `showAll` | boolean |  | `false` | Draws every row at once. By default a table without pages shows its first 100 rows and a Show more button that adds 100 at a time. |
 | `stickyFirst` | boolean |  | `false` | Keeps the first column in place while a wide table scrolls sideways, so every row keeps its name in view. |
 | `align` | object |  |  | Text alignment per column, overriding the default of numbers right and text left: { "status": "center" }. Values: left, center, right. |
 

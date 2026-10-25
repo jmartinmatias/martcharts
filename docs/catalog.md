@@ -44,13 +44,13 @@ Not sure which chart? `recommendCharts(rows)` (or MCP `fft_recommend_charts`) ra
 | [`icicle`](#icicle) | A hierarchy laid flat: a column for the total, then one per level left to right, each child splitting its parent's height by value, in lighter tints of its family's color. | Which region brings the most revenue, and from which product? | `levels` category (one or more), `value` number | [icicle.json](../catalog/icicle.json) |
 | [`kpi`](#kpi) | One headline number with its change against a comparison. | Is monthly churn going up or down? | `value` number | [kpi.json](../catalog/kpi.json) |
 | [`kpis`](#kpis) | A row of stat tiles in one widget, each with a label, value and change: the calm way to show a handful of headline numbers. | Where do the key numbers stand right now? | any rows | [kpis.json](../catalog/kpis.json) |
-| [`lifecycle`](#lifecycle) | Stage swimlanes: one row per item on a shared date axis, each stage drawn from its date to the next in a deepening tint of one hue, a tick at every stage date, and the last reached stage running on faintly while its next date is unknown. | Where does each stand stand, from proposed to applies? | `label` category, `stages` date (one or more) | [lifecycle.json](../catalog/lifecycle.json) |
+| [`lifecycle`](#lifecycle) | Stage swimlanes: one row per item on a shared date axis, each stage drawn from its date to the next in a deepening tint of one hue, a tick at every stage date, and the last reached stage running on faintly while its next date is unknown. | Where does each regulation stand, from proposed to applies? | `label` category, `stages` date (one or more) | [lifecycle.json](../catalog/lifecycle.json) |
 | [`likert`](#likert) | Survey answers as diverging stacked bars: one bar per question, its responses in order from one pole to the other, centered on the neutral middle so disagreement grows left and agreement right. | How do people answer each question? | `label` category, `value` number (one or more) | [likert.json](../catalog/likert.json) |
 | [`line`](#line) | Lines showing change over an ordered axis, usually time. | Is revenue on track to hit target? | `x` date, `y` number (one or more) | [line.json](../catalog/line.json) |
 | [`list`](#list) | A stacked list: one line per row with a label, optional detail underneath, and an optional value on the right. | Which customer has the most revenue? | `label` category | [list.json](../catalog/list.json) |
 | [`locator`](#locator) | A small, clean map that says where things are: a marker and an always-on name for each place, such as offices, stores or sites, with a second line of detail if there is one. | Where are the offices? | `label` category | [locator.json](../catalog/locator.json) |
 | [`marimekko`](#marimekko) | A mosaic: one column per category, as wide as its total, split into segments by each series' share of that column. | How big is each region, and how is it split by product? | `x` category, `series` category, `value` number | [marimekko.json](../catalog/marimekko.json) |
-| [`matrix`](#matrix) | A mark matrix (a punchcard): one mark per pair of x and y, sized by a value, shaded by another, or a square where a flag is yes. | Which must comply does each regulation bind? | `x` category, `y` category | [matrix.json](../catalog/matrix.json) |
+| [`matrix`](#matrix) | A mark matrix (a punchcard): one mark per pair of x and y, sized by a value, shaded by another, or a square where a flag is yes. | Which stakeholders must comply with each regulation? | `x` category, `y` category | [matrix.json](../catalog/matrix.json) |
 | [`meter`](#meter) | Progress against a target, one meter per row: attainment as a percentage, a bar that fills to the target, and where it stands in plain words: a check and Target met, or how far it has to go (€22K to go). | Which region is above or below target? | `value` number, `target` number | [meter.json](../catalog/meter.json) |
 | [`pareto`](#pareto) | The 80/20 view: categories sorted largest first as bars of their share of the total, a line through the running total, and a dashed line at the threshold. | Which few causes drive most of the tickets? | `label` category, `value` number | [pareto.json](../catalog/pareto.json) |
 | [`pie`](#pie) | Part-to-whole as a full disc: up to 6 slices from twelve o'clock clockwise, each wide in proportion to its share, with the shares written on the slices and a legend of values. | What share of revenue comes from each segment? | `label` category, `value` number | [pie.json](../catalog/pie.json) |
@@ -64,7 +64,7 @@ Not sure which chart? `recommendCharts(rows)` (or MCP `fft_recommend_charts`) ra
 | [`sankey`](#sankey) | Flows between stages as ribbons as thick as their volume, for example traffic source to landing page to outcome. | Where do visits flow, and how much goes each way? | `source` category, `target` category, `value` number | [sankey.json](../catalog/sankey.json) |
 | [`scatter`](#scatter) | One dot per row placed by two numbers, to show how they relate. | Does gross margin go up as revenue growth goes up? | `x` number, `y` number | [scatter.json](../catalog/scatter.json) |
 | [`slope`](#slope) | Each item's move between two points in time, as a line from a left column to a right one on one shared scale. | How did each region change from H1 2026 to H2 2026? | `label` category, `from` number, `to` number | [slope.json](../catalog/slope.json) |
-| [`strips`](#strips) | Unit strips: one row per item with a strip of small squares, one per unit, colored part by part in order (mandatory, recommended, optional), the total and the first part's share at the end. | How many provisions does each entry have, and how many are mandatory? | `label` category, `value` number (one or more) | [strips.json](../catalog/strips.json) |
+| [`strips`](#strips) | Unit strips: one row per item with a strip of small squares, one per unit, colored part by part in order (mandatory, recommended, optional), the total and the first part's share at the end. | How many provisions does each regulation have, and how many are mandatory? | `label` category, `value` number (one or more) | [strips.json](../catalog/strips.json) |
 | [`sunburst`](#sunburst) | A hierarchy as rings: the inner ring splits the total by the first level, each outer ring splits its parent's slice by the next level, in lighter tints of the parent's color. | Which product brings the most revenue, and from which region? | `levels` category (one or more), `value` number | [sunburst.json](../catalog/sunburst.json) |
 | [`symbols`](#symbols) | A map with a circle on each place, its area true to a value: customers by state, volume by port. | Where are the most customers? | `size` number | [symbols.json](../catalog/symbols.json) |
 | [`table`](#table) | Rows and columns. | What are the exact numbers for each deal, and which has the highest amount? | any rows | [table.json](../catalog/table.json) |
@@ -74,7 +74,7 @@ Not sure which chart? `recommendCharts(rows)` (or MCP `fft_recommend_charts`) ra
 | [`waffle`](#waffle) | Part to whole as a 10 by 10 grid where each square is one percent, filled category by category in reading order, with a legend of values and shares. | What share of revenue comes from each source? | `label` category, `value` number | [waffle.json](../catalog/waffle.json) |
 | [`waterfall`](#waterfall) | A bridge: how a total moves to another through increases and decreases, each floating from the running total, with totals standing on zero. | What took Q2 revenue to Q3 revenue? | `label` category, `value` number | [waterfall.json](../catalog/waterfall.json) |
 | [`whitespace`](#whitespace) | The cross-sell map (whitespace analysis): one cell per client and product, filled where the client holds the product, outlined where it is an opportunity (tinted by how likely), blank where the client is not eligible. | Which clients could take more products, and which ones first? | `row` category, `column` category, `state` category | [whitespace.json](../catalog/whitespace.json) |
-| [`xray`](#xray) | A client x-ray: one client on one card, from its first row. | How does this entry stand right now, and what should we do next? | `label` category | [xray.json](../catalog/xray.json) |
+| [`xray`](#xray) | A client x-ray: one client on one card, from its first row. | How does this client stand right now, and what should we do next? | `label` category | [xray.json](../catalog/xray.json) |
 
 ## `anomalies`
 
@@ -94,7 +94,7 @@ An anomaly tracker: one thin lane per metric over time, the band it was expected
 
 **Answers**: Which measures stepped out of their expected range, and when?
 
-**How to read it**: Each thin lane is one measure, along date. The line is what happened; the faint band is where it was expected to stay, with a thin line for the expected value. A filled dot marks an anomaly, a reading that stepped out of line. The lanes with the most anomalies come first, and each ends with its latest value and its count. Here, 6 readings were flagged across 6 of 6 measures; Net new money stepped out most, once, last on Oct 10, 2026 at 1M.
+**How to read it**: Each thin lane is one measure, day by day. The line is what happened; the faint band is where it was expected to stay, with a thin line for the expected value. A filled dot marks an anomaly, a reading that stepped out of line. The lanes with the most anomalies come first, and each ends with its latest value and its count. Here, every one of the 6 measures stepped out once; the latest was Complaints on Oct 21, 2026, reading 11 against 6 expected.
 
 **Drop it in**: `<fft-widget src="catalog/anomalies.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "anomalies" }` hands an agent this spec). The spec below shows 6 of its 144 rows; the [full file](../catalog/anomalies.json) has them all. Source widget: [widgets/metric-anomalies.json](../widgets/metric-anomalies.json).
 
@@ -1505,7 +1505,7 @@ A client's story as a vertical timeline: one event per row with its date, title,
 
 **Answers**: What happened with the client, and when?
 
-**How to read it**: Each dot is one event for the entry, newest at the top, with its date and what happened and, on the right, the amount. Each color and letter is one kind. Here, there are 15 events, 3 of them trades; the latest is Quarterly check-in call on Oct 21, 2026.
+**How to read it**: Each dot is one event for the client, newest at the top, with its date and what happened and, on the right, the amount. Each color and letter is one kind. Here, there are 15 events, 3 of them trades; the latest is Quarterly check-in call on Oct 21, 2026.
 
 **Drop it in**: `<fft-widget src="catalog/history.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "history" }` hands an agent this spec). The spec below shows 6 of its 15 rows; the [full file](../catalog/history.json) has them all. Source widget: [widgets/client-history.json](../widgets/client-history.json).
 
@@ -1912,9 +1912,9 @@ Stage swimlanes: one row per item on a shared date axis, each stage drawn from i
 
 **Settings**: `today`, `highlight`. All options with defaults are in [blocks.md](blocks.md#lifecycle).
 
-**Answers**: Where does each stand stand, from proposed to applies?
+**Answers**: Where does each regulation stand, from proposed to applies?
 
-**How to read it**: Each row is one entry, read left to right in time. Each colored stretch is one stage, proposed, adopted, in force and applies in turn, deeper as it goes; a tick marks where each began, and a faint stretch is a stage still running. The upright line is today, the word at the end of a row is its status, a thicker row means a higher impact. Here, 9 of 12 regulations have reached applies. AMLR moved last, to applies on 2027-07-10.
+**How to read it**: Each row is one regulation, read left to right in time. Each colored stretch is one stage, proposed, adopted, in force and applies in turn, deeper as it goes; a tick marks where each began, and a faint stretch is a stage still running. The upright line is today, the word at the end of a row is its status, a thicker row means a higher impact. Here, 9 of 12 regulations have reached applies. AMLR moved last, to applies on Jul 10, 2027.
 
 **Drop it in**: `<fft-widget src="catalog/lifecycle.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "lifecycle" }` hands an agent this spec). The spec below shows 6 of its 12 rows; the [full file](../catalog/lifecycle.json) has them all. Source widget: [widgets/regulation-lifecycle.json](../widgets/regulation-lifecycle.json).
 
@@ -2135,7 +2135,7 @@ A stacked list: one line per row with a label, optional detail underneath, and a
 
 **Answers**: Which customer has the most revenue?
 
-**How to read it**: Each line is one entry, with its revenue on the right. Here, Aurora Logistics is at the top, with €214K, €26K ahead of Bellwether Foods.
+**How to read it**: Each line is one customer, with its revenue on the right. Here, Aurora Logistics is at the top, with €214K, €26K ahead of Bellwether Foods.
 
 **Drop it in**: `<fft-widget src="catalog/list.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "list" }` hands an agent this spec). Source widget: [widgets/top-customers.json](../widgets/top-customers.json).
 
@@ -2325,9 +2325,9 @@ A mark matrix (a punchcard): one mark per pair of x and y, sized by a value, sha
 
 **Settings**: `highlight`. All options with defaults are in [blocks.md](blocks.md#matrix).
 
-**Answers**: Which must comply does each regulation bind?
+**Answers**: Which stakeholders must comply with each regulation?
 
-**How to read it**: Each row is one regulation and each column one must comply; a mark sits where the two meet. A square means yes for must comply, a faint dot means no. An empty cell means there is nothing for that pair. Here, DORA is marked must comply in all 5 must complies, the most of any regulation.
+**How to read it**: Each row is one regulation and each column one stakeholder; a mark sits where the two meet. A square means yes for must comply, a faint dot means no. An empty cell means there is nothing for that pair. Here, all 5 stakeholders must comply with DORA, more than with any other of the regulations.
 
 **Drop it in**: `<fft-widget src="catalog/matrix.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "matrix" }` hands an agent this spec). The spec below shows 6 of its 50 rows; the [full file](../catalog/matrix.json) has them all. Source widget: [widgets/obligation-matrix.json](../widgets/obligation-matrix.json).
 
@@ -3228,9 +3228,9 @@ Unit strips: one row per item with a strip of small squares, one per unit, color
 
 **Settings**: `unit`, `highlight`, `reference`, `sort`, `order`, `limit`, `other`. All options with defaults are in [blocks.md](blocks.md#strips).
 
-**Answers**: How many provisions does each entry have, and how many are mandatory?
+**Answers**: How many provisions does each regulation have, and how many are mandatory?
 
-**How to read it**: Each row is one entry, and each small square is one provision, so you can count them. The colors say the kind, in order: mandatory, recommended and optional; the figures at the end are the total, the mandatory share, then provisions per page. When a square stands for more than one, the note under the chart says how many. Here, CRR3 has the most provisions: 412, 85% of them mandatory; that is 1.0 per page.
+**How to read it**: Each row is one regulation, and each small square is one provision, so you can count them. The colors say the kind, in order: mandatory, recommended and optional; the figures at the end are the total, the mandatory share, then provisions per page. When a square stands for more than one, the note under the chart says how many. Here, CRR3 has the most provisions: 412, 85% of them mandatory; that is 1.0 per page.
 
 **Drop it in**: `<fft-widget src="catalog/strips.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "strips" }` hands an agent this spec). The spec below shows 6 of its 12 rows; the [full file](../catalog/strips.json) has them all. Source widget: [widgets/provision-strips.json](../widgets/provision-strips.json).
 
@@ -3426,7 +3426,7 @@ Rows and columns. The default view, and the one to use when people need exact va
 | --- | --- | --- | --- |
 | `columns` | any (one or more) |  | Fields to show, in order. Defaults to every field in the rows. |
 
-**Settings**: `sortable`, `totals`, `search`, `pageSize`, `stickyFirst`, `align`. All options with defaults are in [blocks.md](blocks.md#table).
+**Settings**: `sortable`, `totals`, `search`, `pageSize`, `showAll`, `stickyFirst`, `align`. All options with defaults are in [blocks.md](blocks.md#table).
 
 **Answers**: What are the exact numbers for each deal, and which has the highest amount?
 
@@ -3562,7 +3562,7 @@ Part-to-whole for many categories: tiles sized by value, kept close to square. U
 
 **Answers**: What share of revenue comes from each customer?
 
-**How to read it**: Each box is one entry. The bigger the box, the more revenue. Here, Aurora Logistics is the biggest box, with €214K.
+**How to read it**: Each box is one customer. The bigger the box, the more revenue. Here, Aurora Logistics is the biggest box, with €214K.
 
 **Drop it in**: `<fft-widget src="catalog/treemap.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "treemap" }` hands an agent this spec). The spec below shows 6 of its 8 rows; the [full file](../catalog/treemap.json) has them all. Source widget: [widgets/customer-treemap.json](../widgets/customer-treemap.json).
 
@@ -3887,9 +3887,9 @@ A client x-ray: one client on one card, from its first row. The name and a detai
 | `flags` | category |  | Field whose value is a list of short warnings, shown as quiet amber pills: ["No contact in 90 days", "Fee leakage"]. |
 | `actions` | category |  | Field whose value is a list of next best actions, shown as a short checklist. |
 
-**Answers**: How does this entry stand right now, and what should we do next?
+**Answers**: How does this client stand right now, and what should we do next?
 
-**How to read it**: This card is one entry, top to bottom: the key numbers, the products in color are the ones they hold, the bar is how much of their share of wallet is with us, the small line is the recent trend, the amber pills are things to watch, and the list is what to do next. Here, Aldana Holdings holds 3 of 8 products and has a share of wallet of 41%.
+**How to read it**: This card is one client, top to bottom: the key numbers, the products in color are the ones they hold, the bar is how much of their share of wallet is with us, the small line is the recent trend, the pills are things to watch, and the list is what to do next. Here, Aldana Holdings holds 3 of 8 products and has a share of wallet of 41%.
 
 **Drop it in**: `<fft-widget src="catalog/xray.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "xray" }` hands an agent this spec). Source widget: [widgets/client-xray.json](../widgets/client-xray.json).
 
