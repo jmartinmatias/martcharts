@@ -203,6 +203,10 @@ export const MAKING_EN = {
     showAll: (n: number) => `Show all fields (${n} more)`,
     showFewer: "Show fewer",
     order: "Order",
+    /** The title a chart is saved under, proposed from its fields. */
+    chartTitle: "Title",
+    /** A proposed title: the measures by the category ("Revenue and cost by month"). */
+    titleOf: (measures: string[], by?: string) => `${measures.length > 1 ? `${measures.slice(0, -1).join(", ")} and ${measures.at(-1)}` : (measures[0] ?? "Chart")}${by ? ` by ${by.toLowerCase()}` : ""}`,
   },
 };
 
@@ -405,6 +409,8 @@ export const MAKING_FR: MakingWords = {
     showAll: (n: number) => `Afficher tous les champs (${n} de plus)`,
     showFewer: "Afficher moins",
     order: "Ordre",
+    chartTitle: "Titre",
+    titleOf: (measures: string[], by?: string) => `${measures.length > 1 ? `${measures.slice(0, -1).join(", ")} et ${measures.at(-1)}` : (measures[0] ?? "Graphique")}${by ? ` par ${by.toLowerCase()}` : ""}`,
   },
 };
 
@@ -604,5 +610,7 @@ export const MAKING_DE: MakingWords = {
     showAll: (n: number) => `Alle Felder zeigen (${n} weitere)`,
     showFewer: "Weniger zeigen",
     order: "Reihenfolge",
+    chartTitle: "Titel",
+    titleOf: (measures: string[], by?: string) => `${measures.length > 1 ? `${measures.slice(0, -1).join(", ")} und ${measures.at(-1)}` : (measures[0] ?? "Diagramm")}${by ? ` nach ${by}` : ""}`,
   },
 };

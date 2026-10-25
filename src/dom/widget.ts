@@ -124,10 +124,15 @@ let count = 0;
  * widget.update({ view: { type: "table" } });
  */
 export function createWidget(target: HTMLElement, spec: WidgetSpec, options: WidgetOptions = {}): Widget {
-  // The widget's own words, in the language of its locale (kept in step with the spec as it changes).
-  let speaks = spec.locale;
-  const W = (): Words => wordsFor(speaks);
   const doc = target.ownerDocument;
+  /**
+   * The locale a spec without its own follows: the page's language (`<html lang>`), else English. Never the
+   * browser's: an English page must not write "1,5 M" because the reader's browser is French.
+   */
+  const pageLocale = (): string => doc.documentElement.lang || "en";
+  // The widget's own words, in the language of its locale (kept in step with the spec as it changes).
+  let speaks = spec.locale ?? pageLocale();
+  const W = (): Words => wordsFor(speaks);
   ensureStyles(doc);
   const id = `fft-${++count}`;
 
@@ -303,6 +308,10 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
   target.append(root);
 
   let current = spec;
+  /** The locale numbers, dates and words are written in: the spec's own, else the page's. */
+  const locale = (): string => current.locale ?? pageLocale();
+  /** The spec as views and readers see it: the author's, with the page's locale filled in when it named none. */
+  const localized = (): WidgetSpec => (current.locale ? current : { ...current, locale: pageLocale() });
   /**
    * The view as its renderer reads it at the card's width: the breakpoints (`spec.responsive`) for that width merged
    * in, canonical option names (value, color, flag) moved onto the renderer's own, and a highlight given as a rule
@@ -397,7 +406,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     }
 
     const list = make("dl", "fft-back-list");
-    detail(list, W().widget.answers, questionOf(current, rows).text);
+    detail(list, W().widget.answers, questionOf(localized(), rows).text);
     detail(list, W().widget.chart, entry ? `${view}: ${entry.summary}` : view);
     const data = current.data ?? { type: "" };
     const address = typeof data.url === "string" ? data.url : undefined;
@@ -406,7 +415,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     const steps = (current.transform ?? []).map((step) => step.type);
     detail(list, W().widget.steps, steps.length ? steps.join(" → ") : undefined);
     const names = [...new Set(rows.slice(0, 50).flatMap((row) => Object.keys(row)))];
-    detail(list, W().widget.rows, loaded ? W().widget.rowsDrawn(rows.length.toLocaleString(current.locale), names.length) : W().widget.notLoaded);
+    detail(list, W().widget.rows, loaded ? W().widget.rowsDrawn(rows.length.toLocaleString(locale()), names.length) : W().widget.notLoaded);
     if (names.length) {
       const shown = names.slice(0, 12).map((name) => {
         const label = fieldLabel(name, current.fields);
@@ -588,7 +597,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       [subtitle, current.subtitle],
       [footer, current.note ?? current.footer],
     ] as const) {
-      setText(node, text === undefined ? undefined : fillTemplate(text, rows, current.fields, current.locale));
+      setText(node, text === undefined ? undefined : fillTemplate(text, rows, current.fields, locale()));
       node.style.visibility = !loaded && text && hasTemplate(text) ? "hidden" : "";
     }
     paintCredit();
@@ -599,7 +608,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
   function paintCredit() {
     credit.replaceChildren();
     const source = current.source;
-    const byline = typeof current.byline === "string" && current.byline ? fillTemplate(current.byline, rows, current.fields, current.locale) : "";
+    const byline = typeof current.byline === "string" && current.byline ? fillTemplate(current.byline, rows, current.fields, locale()) : "";
     // The source and the byline each in their own span: a dashboard that says the source once under the board hides
     // a card's matching source (and the dot after it) without touching the text a copy or an export reads.
     if (source && typeof source.name === "string" && source.name) {
@@ -728,8 +737,8 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     const body = typeof raw === "string" ? raw : raw && typeof raw === "object" ? (raw as { body?: unknown }).body : undefined;
     const head = raw && typeof raw === "object" ? (raw as { title?: unknown }).title : undefined;
     if (typeof body !== "string" && typeof head !== "string") return tooltip;
-    const format = (value: unknown, field: string) => formatValue(value, current.fields?.[field]?.format, current.locale);
-    const fill = (text: string, row: Row) => fillRowTemplate(text, row, format, (t) => fillTemplate(t, rows, current.fields, current.locale));
+    const format = (value: unknown, field: string) => formatValue(value, current.fields?.[field]?.format, locale());
+    const fill = (text: string, row: Row) => fillRowTemplate(text, row, format, (t) => fillTemplate(t, rows, current.fields, locale()));
     const rowFor = (title: string): Row | undefined => {
       const first = rows[0];
       const field = first ? categoryField(drawView(), first) : undefined;
@@ -746,9 +755,9 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
         if (typeof body === "string" && isRich(body)) {
           const runs = richLines(body, row, {
             format,
-            formatAs: (value, name) => formatValue(value, name, current.locale),
+            formatAs: (value, name) => formatValue(value, name, locale()),
             max: (field) => Math.max(0, ...rows.map((r) => Math.abs(readNumber(r[field]) ?? 0))),
-            summarize: (token) => fillTemplate(token, rows, current.fields, current.locale),
+            summarize: (token) => fillTemplate(token, rows, current.fields, locale()),
           });
           const plainHead = typeof head === "string" ? fill(head, row).split("**").join("") : title;
           return tooltip.show(anchor, plainHead, runs.map((rich) => ({ label: "", value: "", rich })), options);
@@ -800,7 +809,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     list.setAttribute("aria-label", words.rulesKey);
     for (const rule of used) {
       const field = rule.field ?? category ?? "";
-      const show = (value: unknown) => formatValue(value, current.fields?.[field]?.format, current.locale);
+      const show = (value: unknown) => formatValue(value, current.fields?.[field]?.format, locale());
       const op: Record<string, string> = { ">": words.above, ">=": words.atLeast, "<": words.below, "<=": words.atMost, "==": words.is, "!=": words.isNot, in: words.isOneOf, "not in": words.isNoneOf };
       const value = Array.isArray(rule.value) ? rule.value.map(show).join(`, `).replace(/, ([^,]*)$/, ` ${words.or} $1`) : show(rule.value);
       const text = typeof rule.label === "string" && rule.label ? rule.label : `${fieldLabel(field, current.fields)} ${op[rule.op] ?? rule.op} ${value}`;
@@ -825,17 +834,17 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       el: body,
       rows: drawRows,
       view: drawView(),
-      spec: drawView() === current.view ? current : { ...current, view: drawView() },
+      spec: drawView() === current.view ? localized() : { ...localized(), view: drawView() },
       width,
       height: shown.style?.height ?? goldenHeight(width),
       label: (field) => fieldLabel(field, fields),
-      format: (value, field) => formatValue(value, field ? fields?.[field]?.format : undefined, current.locale),
+      format: (value, field) => formatValue(value, field ? fields?.[field]?.format : undefined, locale()),
       cell: (value, field, extra) => {
         const format = field ? fields?.[field]?.format : undefined;
-        if (!extra || format === undefined) return formatNode(value, format, current.locale, doc);
+        if (!extra || format === undefined) return formatNode(value, format, locale(), doc);
         // Column context goes under the field's own options: an explicit max still wins.
         const spec = typeof format === "string" ? { type: format } : format;
-        return formatNode(value, { ...extra, ...spec }, current.locale, doc);
+        return formatNode(value, { ...extra, ...spec }, locale(), doc);
       },
       color: (index) => `var(--fft-series-${(index % size) + 1})`,
       // Fixed colors for named category values (spec.colors) and colours by rule (spec.colorRules), for views that
@@ -875,7 +884,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     message.hidden = true;
     message.replaceChildren();
     root.dataset.state = "ready";
-    renderHeadline(headlineEl, current, rows);
+    renderHeadline(headlineEl, localized(), rows);
     try {
       const ctx = context();
       drawnWidth = ctx.width;
@@ -963,7 +972,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     for (const group of groups.values()) {
       const panel = make("section", "fft-facet");
       const heading = make("h4", "fft-facet-title");
-      heading.textContent = formatValue(group.value, current.fields?.[facet.field]?.format, current.locale);
+      heading.textContent = formatValue(group.value, current.fields?.[facet.field]?.format, locale());
       const panelBody = make("div", "fft-facet-body");
       panel.append(heading, panelBody);
       grid.append(panel);
@@ -1103,8 +1112,8 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     const label = make("strong", "fft-guide-label");
     label.textContent = W().widget.howToRead;
     const question = make("span", "fft-guide-question");
-    question.textContent = questionOf(current, rows).text;
-    guide.replaceChildren(label, question, explainChart(current, rows));
+    question.textContent = questionOf(localized(), rows).text;
+    guide.replaceChildren(label, question, explainChart(localized(), rows));
   }
 
   async function runAction(action: WidgetAction, button: HTMLButtonElement) {
@@ -1251,7 +1260,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       stamp.textContent = "";
       stamp.remove();
     } else {
-      const time = new Intl.DateTimeFormat(current.locale, { hour: "2-digit", minute: "2-digit" }).format(liveAt);
+      const time = new Intl.DateTimeFormat(locale(), { hour: "2-digit", minute: "2-digit" }).format(liveAt);
       stamp.textContent = liveFailed ? W().dw2.stale(time) : W().dw2.updated(time);
       stamp.hidden = false;
       stamp.dataset.stale = String(liveFailed);
@@ -1276,12 +1285,12 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     ready,
     update(override) {
       current = fork(current, override as Override<WidgetSpec>);
-    speaks = current.locale;
+    speaks = current.locale ?? pageLocale();
       return load();
     },
     setSpec(next) {
       current = next;
-    speaks = current.locale;
+    speaks = current.locale ?? pageLocale();
       return load();
     },
     refresh: () => load(true),

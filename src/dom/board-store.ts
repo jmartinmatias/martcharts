@@ -99,3 +99,17 @@ export async function addChartToBoard(store: BoardStore, spec: WidgetSpec, board
   await store.saveBoard(saved);
   return saved;
 }
+
+/**
+ * The address of the lite drop-in bundle for embed snippets: absolute, so a snippet pasted into another site still
+ * loads it. `href` overrides it (a CDN, or the site's own path); otherwise `dist/martcharts-lite.iife.js` next to the
+ * page that writes the snippet (the editor and composer sit at the site's root).
+ */
+export function liteBundleUrl(doc: Document, href?: string): string {
+  const path = href ?? "dist/martcharts-lite.iife.js";
+  try {
+    return new URL(path, doc.baseURI).href;
+  } catch {
+    return path;
+  }
+}

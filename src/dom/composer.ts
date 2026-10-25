@@ -16,7 +16,7 @@ import { fieldLabel } from "../core/display.ts";
 import { runPipeline } from "../core/pipeline.ts";
 import type { Row, WidgetSpec } from "../core/types.ts";
 import { wordsFor } from "../core/words.ts";
-import { localBoardStore, slugOf } from "./board-store.ts";
+import { liteBundleUrl, localBoardStore, slugOf } from "./board-store.ts";
 import type { BoardStore, SavedBoard, SavedChart } from "./board-store.ts";
 import { createDashboard } from "./dashboard.ts";
 import type { Dashboard } from "./dashboard.ts";
@@ -40,6 +40,8 @@ export interface ComposerOptions {
   pageHref?(spec: DashboardSpec): string;
   /** The address of `embed.html`, for the iframe embed code (a frame that sizes itself). Default: `embed.html`. */
   embedHref?: string;
+  /** Where the script embed loads the drop-in bundle from. Default: the lite bundle next to this page, as an absolute address. */
+  bundleHref?: string;
 }
 
 /** A live composer on the page. */
@@ -110,9 +112,9 @@ export function boardFromHash(hash: string): { spec?: DashboardSpec; id?: string
 }
 
 /** Code that puts the board on any page, with the drop-in bundle and no build step. */
-export function dashboardEmbed(spec: DashboardSpec): string {
+export function dashboardEmbed(spec: DashboardSpec, bundle = "martcharts-lite.iife.js"): string {
   const json = JSON.stringify(spec, null, 2).replace(/<\/script/gi, "<\\/script");
-  return `<script src="martcharts.iife.js"></script>\n<div id="board"></div>\n<script>\n  MartCharts.createDashboard(document.getElementById("board"), ${json.split("\n").join("\n  ")});\n</script>`;
+  return `<script src="${bundle}"></script>\n<div id="board"></div>\n<script>\n  MartCharts.createDashboard(document.getElementById("board"), ${json.split("\n").join("\n  ")});\n</script>`;
 }
 
 /** A card's name for lists and announcements. */
@@ -156,7 +158,8 @@ const CSS = `
 .fft-cmp-button:disabled { opacity: 0.4; cursor: default; }
 .fft-cmp-input, .fft-cmp-select { min-height: 30px; padding: 0 8px; border: 1px solid var(--fft-grid); border-radius: 5px; background: var(--fft-surface); color: inherit; font: inherit; font-size: 13px; }
 .fft-cmp-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(144px, 1fr)); gap: 8px; }
-.fft-cmp-meta label, .fft-cmp-field { display: flex; flex-direction: column; gap: 3px; color: var(--fft-text-secondary); font-size: 12px; }
+.fft-cmp-meta label, .fft-cmp-field { display: flex; flex-direction: column; gap: 3px; min-width: 0; color: var(--fft-text-secondary); font-size: 12px; }
+.fft-cmp-meta .fft-cmp-input, .fft-cmp-field .fft-cmp-input, .fft-cmp-field .fft-cmp-select { width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; }
 .fft-cmp-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .fft-cmp-columns button[aria-pressed="true"] { background: color-mix(in srgb, var(--fft-text) 10%, transparent); font-weight: 600; }
 .fft-cmp-filter { display: flex; align-items: center; gap: 8px; }
@@ -475,7 +478,7 @@ export function createComposer(target: HTMLElement, options: ComposerOptions = {
     open.target = "_blank";
     open.rel = "noopener";
     // The frame embed sizes itself in any page, where the script embed needs the page to run the library.
-    const frame = code(wordsFor(options.locale ?? doc.documentElement.lang).dw2.embedFrame, frameEmbed("board", board, options.embedHref ?? "embed.html", board.title ?? w.untitledBoard));
+    const frame = code(wordsFor(options.locale ?? doc.documentElement.lang).dw2.embedFrame, frameEmbed("board", board, options.embedHref ?? "embed.html", board.title || w.untitledBoard));
     frame.querySelector("pre")?.setAttribute("data-code", "frame");
     const fold = (key: string, label: string, ...content: HTMLElement[]) => {
       const box = el("details", "fft-cmp-more");
@@ -485,7 +488,7 @@ export function createComposer(target: HTMLElement, options: ComposerOptions = {
       box.append(el("summary", undefined, label), ...content);
       return box;
     };
-    publishWrap.append(frame, open, fold("embeds", sw.otherEmbeds, code(w.embed, dashboardEmbed(board))), fold("json", w.json, code(w.json, json, `${board.id ?? "dashboard"}.json`)));
+    publishWrap.append(frame, open, fold("embeds", sw.otherEmbeds, code(w.embed, dashboardEmbed(board, liteBundleUrl(doc, options.bundleHref)))), fold("json", w.json, code(w.json, json, `${board.id ?? "dashboard"}.json`)));
   }
 
   // ---- The live preview ----
