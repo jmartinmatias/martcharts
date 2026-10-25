@@ -66,6 +66,9 @@ export function validateSpec(spec: unknown, rows?: Row[]): Issue[] {
     else issues.push(...checkOptions(HEADLINE_OPTIONS, spec.headline, "headline"));
   }
 
+  if (spec.source !== undefined) issues.push(...checkSource(spec.source));
+  if (spec.byline !== undefined && typeof spec.byline !== "string") issues.push(error("byline", 'Must be text naming who made the chart, for example "Marta".'));
+
   if (!hasErrors(issues) && isPlainObject(spec.view)) issues.push(...checkSeriesCount(spec.view, spec.style));
   if (rows && isPlainObject(spec.view) && !hasErrors(issues)) {
     issues.push(...checkViewFields(spec.view, rows));
@@ -78,6 +81,16 @@ export function validateSpec(spec: unknown, rows?: Row[]): Issue[] {
     const check = getBlock("view", spec.view.type as string).checkData;
     if (check) for (const message of check(spec.view, rows)) issues.push({ level: "warning", path: "view", message });
   }
+  return issues;
+}
+
+/** The source line: a named publisher, with an address that a browser can open as a link (never a script). */
+function checkSource(source: unknown): Issue[] {
+  if (!isPlainObject(source)) return [error("source", 'Must be an object such as { "name": "Eurostat", "url": "https://ec.europa.eu/eurostat" }.')];
+  const issues: Issue[] = [];
+  if (typeof source.name !== "string" || source.name.trim() === "") issues.push(error("source.name", 'Must name the publisher, for example "Eurostat".'));
+  if (source.url !== undefined && (typeof source.url !== "string" || /^\s*(javascript|data|vbscript):/i.test(source.url))) issues.push(error("source.url", "Must be a web address, for example https://ec.europa.eu/eurostat."));
+  for (const key of Object.keys(source)) if (key !== "name" && key !== "url") issues.push({ level: "warning", path: `source.${key}`, message: "Unknown key. A source has a name and an optional url." });
   return issues;
 }
 
@@ -226,6 +239,7 @@ function checkTemplates(spec: Record<string, unknown>, rows: Row[]): Issue[] {
     ["title", spec.title],
     ["subtitle", spec.subtitle],
     ["footer", spec.footer],
+    ["byline", spec.byline],
     ["headline.caption", isPlainObject(spec.headline) ? spec.headline.caption : undefined],
   ];
   return texts.flatMap(([path, text]) =>

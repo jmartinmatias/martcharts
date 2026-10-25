@@ -1212,4 +1212,36 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
   .fft-widget *, .fft-widget *::before, .fft-widget *::after { animation: none !important; transition: none !important; }
   .fft-overlay, .fft-overlay-panel { animation: none !important; }
 }
+/* The small print: the footer, then the credit ("Source: Eurostat · Chart: Marta") in the same quiet type, the source underlined as a link. */
+.fft-small-print { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.fft-small-print[hidden] { display: none; }
+.fft-credit { margin: 0; font-size: 11px; line-height: 13px; color: var(--fft-muted); }
+.fft-credit[hidden] { display: none; }
+.fft-credit-link { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 38%, transparent); text-underline-offset: 2px; border-radius: 2px; }
+.fft-credit-link:hover, .fft-credit-link:focus-visible { color: var(--fft-text); text-decoration-color: currentColor; outline: none; }
+.fft-credit-link:focus-visible { box-shadow: 0 0 0 2px var(--fft-accent); }
+/* Table tools, each only there when asked for: a quiet search field with its live count, a pager of two small buttons, a pinned first column. */
+.fft-table-tools { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.fft-table-search {
+  flex: 1; min-width: 0; max-width: 233px; height: 28px; margin: 0; padding: 0 8px;
+  border: 1px solid var(--fft-border); border-radius: 5px; background: transparent; color: var(--fft-text);
+  font: inherit; font-size: 13px; line-height: 26px;
+}
+.fft-table-search::placeholder { color: var(--fft-muted); opacity: 1; }
+.fft-table-search:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 1px; }
+.fft-table-count { font-size: 11px; line-height: 13px; color: var(--fft-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.fft-table-count[hidden] { display: none; }
+.fft-table-empty { margin: 0; padding: 13px 0; font-size: 13px; line-height: 21px; color: var(--fft-text-secondary); }
+.fft-table-empty[hidden], .fft-table-wrap[hidden] { display: none; }
+.fft-pager { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 8px; font-size: 11px; line-height: 13px; color: var(--fft-muted); font-variant-numeric: tabular-nums; }
+.fft-pager[hidden] { display: none; }
+.fft-pager-button {
+  all: unset; display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 5px;
+  color: var(--fft-text-secondary); font-size: 13px; cursor: pointer;
+}
+.fft-pager-button:hover, .fft-pager-button:focus-visible { color: var(--fft-text); background: var(--fft-grid); }
+.fft-pager-button:focus-visible { box-shadow: 0 0 0 2px var(--fft-accent); }
+.fft-pager-button:disabled { opacity: 0.38; cursor: default; background: none; }
+.fft-table-wrap[data-sticky] .fft-table :is(th, td):first-child { position: sticky; left: 0; z-index: 1; background: var(--fft-surface); box-shadow: 1px 0 0 var(--fft-grid); }
+.fft-table-wrap[data-sticky] .fft-table tbody tr:is(:hover, :focus-visible) td:first-child { background: color-mix(in srgb, var(--fft-accent) 7%, var(--fft-surface)); }
 `;

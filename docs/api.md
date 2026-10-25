@@ -19,7 +19,9 @@ A `WidgetSpec` is a plain object. Only `data` and `view` are required.
 | `id` | string | Stable identifier. The file name in the widget store and the id used over MCP. Lowercase letters, digits and dashes. |
 | `title` | string | Heading at the top. |
 | `subtitle` | string | Smaller line under the title, for example the period covered. |
-| `footer` | string | Small print at the bottom, for example the source. |
+| `footer` | string | Small print at the bottom, for example a note on the data. |
+| `source` | `{ name, url? }` | Where the data came from, as a credit under the footer: "Source: Eurostat", the name a link opening in a new tab when `url` is set. |
+| `byline` | string | Who made the chart, in the same credit line: "Chart: Marta". Takes the text templates titles do. |
 | `description` | string | What the widget is for. Not drawn on the chart; read by people and agents, and shown on the Details side. |
 | `links` | `{ label, href }[]` | Related pages (a report, the data's owner, a runbook), listed on the Details side under **Linked**. |
 | `locale` | string | BCP 47 locale for number and date formats, for example `"en-US"`. Defaults to the runtime's. |

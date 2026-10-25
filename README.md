@@ -59,6 +59,7 @@ The [chart catalog](docs/catalog.md) has all 40 views, each with what it is for,
   "id": "revenue-by-region",
   "title": "Revenue by region",
   "subtitle": "Q3 2026, all products",
+  "source": { "name": "Finance ledger" },
   "locale": "en-US",
   "data": { "type": "url", "url": "/data/sales.json", "path": "data.items" },
   "transform": [
