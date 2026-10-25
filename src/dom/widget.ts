@@ -15,8 +15,9 @@ import { getBlock } from "../core/registry.ts";
 import type { Issue, Row, WidgetSpec } from "../core/types.ts";
 import { hasErrors, validateSpec } from "../core/validate.ts";
 import type { ViewBlock } from "../core/registry.ts";
+import { categoryField, fillRowTemplate } from "../core/view-context.ts";
 import type { Tooltip, TooltipItem, ViewContext } from "../core/view-context.ts";
-import { ACTION_ICONS, ACTION_LABELS, download, slug, svgToPng, toDelimited } from "./export.ts";
+import { ACTION_ICONS, ACTION_LABELS, cardToPng, cardToSvg, download, slug, svgToPng, toDelimited } from "./export.ts";
 import type { WidgetAction } from "./export.ts";
 import { countUp } from "./count-up.ts";
 import { fillTemplate, hasTemplate } from "../core/template.ts";
@@ -651,6 +652,41 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     showMessage("error", "Could not draw this widget", details);
   }
 
+  /**
+   * The views' tooltip, or, when the spec carries a `tooltip` template, a tooltip that writes the template filled from
+   * the row a mark stands for. `"Revenue: {revenue}\nOwner: {owner}"` gives two lines; a line "Label: value" shows its
+   * value strong and its label beside it, as built-in tooltips do. An object `{ title, body }` also sets the title.
+   * A mark that stands for no single row (a bin, a total) keeps the view's own tooltip.
+   */
+  function templatedTooltip(): Tooltip {
+    const raw = (current as { tooltip?: unknown }).tooltip;
+    const body = typeof raw === "string" ? raw : raw && typeof raw === "object" ? (raw as { body?: unknown }).body : undefined;
+    const head = raw && typeof raw === "object" ? (raw as { title?: unknown }).title : undefined;
+    if (typeof body !== "string" && typeof head !== "string") return tooltip;
+    const format = (value: unknown, field: string) => formatValue(value, current.fields?.[field]?.format, current.locale);
+    const fill = (text: string, row: Row) => fillRowTemplate(text, row, format, (t) => fillTemplate(t, rows, current.fields, current.locale));
+    const rowFor = (title: string): Row | undefined => {
+      const first = rows[0];
+      const field = first ? categoryField(current.view, first) : undefined;
+      if (!field) return undefined;
+      const matches = rows.filter((row) => format(row[field], field) === title);
+      return matches.length === 1 ? matches[0] : undefined;
+    };
+    return {
+      show(anchor, title, items, options) {
+        const row = rowFor(title);
+        if (!row) return tooltip.show(anchor, title, items, options);
+        const lines = typeof body === "string" ? fill(body, row).split("\n").filter((line) => line.trim() !== "") : undefined;
+        const filled = lines?.map((line) => {
+          const at = line.indexOf(": ");
+          return at > 0 ? { label: line.slice(0, at), value: line.slice(at + 2) } : { label: line, value: "" };
+        });
+        tooltip.show(anchor, typeof head === "string" ? fill(head, row) : title, filled ?? items, options);
+      },
+      hide: () => tooltip.hide(),
+    };
+  }
+
   function context(): ViewContext {
     const fields = current.fields;
     const size = paletteSize(current.style);
@@ -672,7 +708,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
         return formatNode(value, { ...extra, ...spec }, current.locale, doc);
       },
       color: (index) => `var(--fft-series-${(index % size) + 1})`,
-      tooltip,
+      tooltip: templatedTooltip(),
       select: (row) => root.dispatchEvent(new CustomEvent<SelectDetail>("fft-select", { bubbles: true, detail: { row, spec: current } })),
     };
   }
@@ -706,8 +742,13 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       }
       drawn = true;
       paintGuide();
-      const imageButton = actionButtons.get("image");
-      if (imageButton) imageButton.hidden = !chartSvg();
+      // Pictures of the card are offered whenever the view drew something to see: an SVG chart, or HTML marks (bars,
+      // bullets, strips, tables, maps), not a view that wrote plain text only.
+      const pictured = Boolean(chartSvg() || [...body.querySelectorAll("*")].some((node) => !node.closest(".fft-sr-only")));
+      for (const action of ["image", "svg"] as const) {
+        const button = actionButtons.get(action);
+        if (button) button.hidden = !pictured;
+      }
       if (!entered) {
         // Marks grow in once, on the first draw only, so redraws stay calm.
         entered = true;
@@ -934,10 +975,26 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       } else if (action === "copy") {
         await navigator.clipboard.writeText(toDelimited(rows, label, "\t"));
       } else {
-        const chart = chartSvg();
-        if (!chart) return;
-        const background = getComputedStyle(root).getPropertyValue("--fft-surface").trim() || "#ffffff";
-        download(doc, `${name}.png`, await svgToPng(chart, background.startsWith("rgba") || background === "transparent" ? "#ffffff" : background));
+        // The whole card (title, chart or HTML marks, legends, footer, credit), on the card's own surface; translucent
+        // surfaces (glass) sit on the page's color, or white.
+        const surface = getComputedStyle(root).getPropertyValue("--fft-surface").trim();
+        const page = getComputedStyle(doc.body).backgroundColor;
+        const opaque = (color: string) => color && !color.startsWith("rgba") && color !== "transparent";
+        const background = opaque(surface) ? surface : opaque(page) ? page : "#ffffff";
+        if (action === "svg") {
+          download(doc, `${name}.svg`, new Blob([cardToSvg(root, background).markup], { type: "image/svg+xml;charset=utf-8" }));
+        } else {
+          let png: Blob;
+          try {
+            png = await cardToPng(root, background);
+          } catch {
+            // A browser that will not draw HTML inside an SVG onto a canvas still gets the chart itself.
+            const chart = chartSvg();
+            if (!chart) throw new Error("Nothing to draw.");
+            png = await svgToPng(chart, background);
+          }
+          download(doc, `${name}.png`, png);
+        }
       }
       button.dataset.done = "";
       setTimeout(() => button.removeAttribute("data-done"), 1597);
