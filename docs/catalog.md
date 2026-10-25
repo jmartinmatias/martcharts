@@ -273,7 +273,7 @@ Vertical bars comparing amounts across categories. Several y fields draw grouped
 | `lines` | number (one or more) |  | Field or fields drawn as lines over the bars, on the same axis, for example a target. Never a second axis. Under one target line (a field named target, plan, goal, budget or quota), bars on the wrong side of it (see goodWhen) are drawn outlined and keyed Below target. |
 | `compare` | number |  | Field drawn as a wider, quieter column behind each bar, on the same axis, for a comparison such as last year or the plan. The key names it by its label and the tooltip gives its value. One y series, unstacked. |
 
-**Settings**: `stacked`, `highlight`, `reference`, `mark`, `goodWhen`, `annotations`. All options with defaults are in [blocks.md](blocks.md#bar).
+**Settings**: `stacked`, `highlight`, `reference`, `mark`, `goodWhen`, `annotations`, `sort`, `order`, `limit`, `other`. All options with defaults are in [blocks.md](blocks.md#bar).
 
 **Answers**: How is each region split between Core and Plus?
 
@@ -543,7 +543,7 @@ Actual against target, one compact row per item: a value bar and a target tick o
 | `value` | number | yes | Field with the actual amount. |
 | `target` | number | yes | Field with the target amount. |
 
-**Settings**: `ranges`, `goodWhen`. All options with defaults are in [blocks.md](blocks.md#bullet).
+**Settings**: `ranges`, `goodWhen`, `sort`, `order`, `limit`, `other`. All options with defaults are in [blocks.md](blocks.md#bullet).
 
 **Answers**: Which KPI is above or below target?
 
@@ -831,6 +831,8 @@ Flows between groups around a circle: each group an arc as long as everything it
 | `target` | category | yes | Field naming where each flow goes. |
 | `value` | number | yes | Field with each flow's size. |
 
+**Settings**: `highlight`. All options with defaults are in [blocks.md](blocks.md#chord).
+
 **Answers**: Where do customers flow, and how much goes each way?
 
 **How to read it**: Each group sits on the circle. Each band connects two groups: the thicker the band, the more moved between them. Here, the biggest move is from Starter to Growth: 120 customers; 30 went the other way, so Growth gained 90 from Starter.
@@ -884,8 +886,9 @@ A map with each region shaded by its value, from the weakest tint to the stronge
 | `id` | category | yes | Field with each row's region code: a country or state code on a built-in basemap (FR, TX), or the feature id in your GeoJSON. |
 | `value` | number |  | Field that shades each region on the sequential scale. Rows with no number stay grey. Give value or category, not both. |
 | `category` | category |  | Field that colors each region by its category instead, one series color per value with a key: a transposition status, a supervisor, a regime. Up to 8 categories stay distinct. |
+| `previous` | number |  | Field with the same measure in the previous period, such as last year's revenue. Each region's tooltip then gives the change, and show "change" shades by it. |
 
-**Settings**: `geo`, `key`, `labels`, `min`, `max`, `highlight`. All options with defaults are in [blocks.md](blocks.md#choropleth).
+**Settings**: `geo`, `key`, `labels`, `min`, `max`, `show`, `change`, `highlight`. All options with defaults are in [blocks.md](blocks.md#choropleth).
 
 **Answers**: Which countries have the most revenue, on the map?
 
@@ -945,7 +948,7 @@ Part-to-whole at a glance: a ring of up to 6 slices with the total in the middle
 | `label` | category | yes | Field naming each slice. |
 | `value` | number | yes | Field with each slice's amount. Zero, negative and missing values are left out. |
 
-**Settings**: `caption`, `arc`, `majority`, `highlight`. All options with defaults are in [blocks.md](blocks.md#donut).
+**Settings**: `caption`, `arc`, `majority`, `highlight`, `sort`, `order`, `limit`, `other`. All options with defaults are in [blocks.md](blocks.md#donut).
 
 **Answers**: What share of revenue comes from each segment?
 
@@ -998,7 +1001,7 @@ A dot plot: one row per item and one dot per measure on one shared axis, with a 
 | `label` | category | yes | Field naming each row. |
 | `value` | number (one or more) | yes | Field or fields placed as dots on the axis. Each field is one series with its own color; one field writes its value beside the dot. Also accepts `values`, the older name. |
 
-**Settings**: `highlight`, `reference`. All options with defaults are in [blocks.md](blocks.md#dot).
+**Settings**: `highlight`, `reference`, `sort`, `order`, `limit`, `other`. All options with defaults are in [blocks.md](blocks.md#dot).
 
 **Answers**: How do ease of use, value for money and support compare for each product?
 
@@ -1151,7 +1154,7 @@ Before and after per item on one shared axis: a muted dot for before, an accent 
 | `from` | number | yes | Field with the before value. |
 | `to` | number | yes | Field with the after value. |
 
-**Settings**: `mark`, `highlight`, `reference`. All options with defaults are in [blocks.md](blocks.md#dumbbell).
+**Settings**: `mark`, `highlight`, `reference`, `sort`, `order`, `limit`, `other`. All options with defaults are in [blocks.md](blocks.md#dumbbell).
 
 **Answers**: How did each region change from Q3 2025 to Q3 2026?
 
@@ -1318,7 +1321,7 @@ Horizontal bars for rankings and long labels: label on the left, bar, value at t
 | `label` | category | yes | Field naming each bar. |
 | `value` | number (one or more) | yes | Field or fields with each bar's amount. Bars start at zero. Several fields draw one bar per field in each row (grouped), stacked into one bar with stacked, or in separate columns with split. |
 
-**Settings**: `stacked`, `split`, `shared`, `highlight`, `mark`, `reference`. All options with defaults are in [blocks.md](blocks.md#hbar).
+**Settings**: `stacked`, `split`, `shared`, `highlight`, `mark`, `reference`, `sort`, `order`, `limit`, `other`. All options with defaults are in [blocks.md](blocks.md#hbar).
 
 **Answers**: Which feature has the most accounts using it?
 
@@ -1677,6 +1680,8 @@ A hierarchy laid flat: a column for the total, then one per level left to right,
 | --- | --- | --- | --- |
 | `levels` | category (one or more) | yes | Fields from the top level down, one column each, for example ["region", "product", "plan"]. Up to 4. |
 | `value` | number | yes | Field sizing the cells. Zero and negative values are left out. |
+
+**Settings**: `highlight`. All options with defaults are in [blocks.md](blocks.md#icicle).
 
 **Answers**: Which region brings the most revenue, and from which product?
 
@@ -2126,6 +2131,8 @@ A stacked list: one line per row with a label, optional detail underneath, and a
 | `detail` | category |  | Field for the smaller line under the label. |
 | `value` | number |  | Field for the number on the right. |
 
+**Settings**: `sort`, `order`, `limit`, `other`. All options with defaults are in [blocks.md](blocks.md#list).
+
 **Answers**: Which customer has the most revenue?
 
 **How to read it**: Each line is one entry, with its revenue on the right. Here, Aurora Logistics is at the top, with €214K, €26K ahead of Bellwether Foods.
@@ -2378,7 +2385,7 @@ Progress against a target, one meter per row: attainment as a percentage, a bar 
 | `target` | number | yes | Field holding the target amount. |
 | `label` | category |  | Field naming each meter, for example a region. Defaults to the value field's label. |
 
-**Settings**: `goodWhen`. All options with defaults are in [blocks.md](blocks.md#meter).
+**Settings**: `goodWhen`, `sort`, `order`, `limit`, `other`. All options with defaults are in [blocks.md](blocks.md#meter).
 
 **Answers**: Which region is above or below target?
 
@@ -2494,7 +2501,7 @@ Part-to-whole as a full disc: up to 6 slices from twelve o'clock clockwise, each
 | `label` | category | yes | Field naming each slice. |
 | `value` | number | yes | Field with each slice's amount. Zero, negative and missing values are left out. |
 
-**Settings**: `labels`, `highlight`. All options with defaults are in [blocks.md](blocks.md#pie).
+**Settings**: `labels`, `highlight`, `sort`, `order`, `limit`, `other`. All options with defaults are in [blocks.md](blocks.md#pie).
 
 **Answers**: What share of revenue comes from each segment?
 
@@ -2613,7 +2620,7 @@ Profiles across several attributes: one spoke per row, rings for one shared scal
 | `label` | category | yes | Field naming each spoke, such as an attribute. |
 | `y` | number (one or more) | yes | Field or fields with the scores; each field is one shape. Up to 3 stay readable. |
 
-**Settings**: `max`. All options with defaults are in [blocks.md](blocks.md#radar).
+**Settings**: `highlight`, `max`. All options with defaults are in [blocks.md](blocks.md#radar).
 
 **Answers**: How do our product and market average compare, attribute by attribute?
 
@@ -2681,7 +2688,7 @@ A RAG scorecard: one row per entity (a client, a relationship manager, a deal) a
 | `group` | category |  | Field that gathers rows under headings, such as segment or perspective. |
 | `note` | category |  | Field written small under each name, such as the action owner or the next step. |
 
-**Settings**: `previous`, `overall`, `sort`, `words`, `shapes`. All options with defaults are in [blocks.md](blocks.md#ragboard).
+**Settings**: `only`, `previous`, `overall`, `sort`, `words`, `shapes`. All options with defaults are in [blocks.md](blocks.md#ragboard).
 
 **Answers**: Which clients are off track, on what, and which need action first?
 
@@ -2889,7 +2896,7 @@ Concentric progress rings, one per row from the outside in, each filled to its s
 | `value` | number | yes | Field with the amount reached. |
 | `target` | number | yes | Field with the goal amount. |
 
-**Settings**: `goodWhen`. All options with defaults are in [blocks.md](blocks.md#rings).
+**Settings**: `goodWhen`, `sort`, `order`, `limit`, `other`. All options with defaults are in [blocks.md](blocks.md#rings).
 
 **Answers**: Which product is above or below target?
 
@@ -3018,6 +3025,8 @@ Flows between stages as ribbons as thick as their volume, for example traffic so
 | `source` | category | yes | Field naming where each flow starts. |
 | `target` | category | yes | Field naming where each flow ends. |
 | `value` | number | yes | Field with each flow's volume. |
+
+**Settings**: `highlight`. All options with defaults are in [blocks.md](blocks.md#sankey).
 
 **Answers**: Where do visits flow, and how much goes each way?
 
@@ -3154,7 +3163,7 @@ Each item's move between two points in time, as a line from a left column to a r
 | `from` | number | yes | Field with the earlier value (left column). |
 | `to` | number | yes | Field with the later value (right column). |
 
-**Settings**: `highlight`. All options with defaults are in [blocks.md](blocks.md#slope).
+**Settings**: `highlight`, `sort`, `order`, `limit`, `other`. All options with defaults are in [blocks.md](blocks.md#slope).
 
 **Answers**: How did each region change from H1 2026 to H2 2026?
 
@@ -3217,7 +3226,7 @@ Unit strips: one row per item with a strip of small squares, one per unit, color
 | `value` | number (one or more) | yes | Field or fields with each part's count, in the order they are drawn. The first part's share of the total is written at the end. Also accepts `parts`, the older name. |
 | `per` | number |  | Field with a denominator, such as pages: the density (units per one of them) is written at the end and in the tooltip. |
 
-**Settings**: `unit`, `highlight`, `reference`. All options with defaults are in [blocks.md](blocks.md#strips).
+**Settings**: `unit`, `highlight`, `reference`, `sort`, `order`, `limit`, `other`. All options with defaults are in [blocks.md](blocks.md#strips).
 
 **Answers**: How many provisions does each entry have, and how many are mandatory?
 
@@ -3289,7 +3298,7 @@ A hierarchy as rings: the inner ring splits the total by the first level, each o
 | `levels` | category (one or more) | yes | Fields from the top level down, one ring each, for example ["product", "region"]. Up to 3. |
 | `value` | number | yes | Field sizing the slices. Zero and negative values are left out. |
 
-**Settings**: `caption`. All options with defaults are in [blocks.md](blocks.md#sunburst).
+**Settings**: `highlight`, `caption`. All options with defaults are in [blocks.md](blocks.md#sunburst).
 
 **Answers**: Which product brings the most revenue, and from which region?
 
@@ -3359,7 +3368,7 @@ A map with a circle on each place, its area true to a value: customers by state,
 | `label` | category |  | Field naming each place in its tooltip. Defaults to the region's name, or the id. |
 | `color` | category |  | Field that colors the circles by group, with a key. |
 
-**Settings**: `geo`, `key`. All options with defaults are in [blocks.md](blocks.md#symbols).
+**Settings**: `highlight`, `geo`, `key`. All options with defaults are in [blocks.md](blocks.md#symbols).
 
 **Answers**: Where are the most customers?
 
@@ -3549,7 +3558,7 @@ Part-to-whole for many categories: tiles sized by value, kept close to square. U
 | `value` | number | yes | Field sizing each tile. Zero and negative values are left out. |
 | `group` | category |  | Field that colors related tiles alike, up to 8 groups. Without it every tile shares one color. |
 
-**Settings**: `highlight`. All options with defaults are in [blocks.md](blocks.md#treemap).
+**Settings**: `highlight`, `sort`, `order`, `limit`, `other`. All options with defaults are in [blocks.md](blocks.md#treemap).
 
 **Answers**: What share of revenue comes from each customer?
 
@@ -3610,7 +3619,7 @@ Variance against plan, as in financial reporting: per row a bar from a zero line
 | `value` | number | yes | Field with the actual amount. |
 | `target` | number | yes | Field with the plan, budget or target. |
 
-**Settings**: `percent`, `goodWhen`. All options with defaults are in [blocks.md](blocks.md#variance).
+**Settings**: `percent`, `goodWhen`, `sort`, `order`, `limit`, `other`. All options with defaults are in [blocks.md](blocks.md#variance).
 
 **Answers**: Which departments stayed within budget?
 
@@ -3676,7 +3685,7 @@ Part to whole as a 10 by 10 grid where each square is one percent, filled catego
 | `label` | category | yes | Field naming each category. |
 | `value` | number | yes | Field with each category's amount. Zero and negative values are left out. |
 
-**Settings**: `total`. All options with defaults are in [blocks.md](blocks.md#waffle).
+**Settings**: `highlight`, `total`, `sort`, `order`, `limit`, `other`. All options with defaults are in [blocks.md](blocks.md#waffle).
 
 **Answers**: What share of revenue comes from each source?
 
@@ -3794,7 +3803,7 @@ The cross-sell map (whitespace analysis): one cell per client and product, fille
 | `score` | number |  | Field with how likely each opportunity is, 0 to 100 (a propensity). An opportunity cell's tint strengthens with it. |
 | `value` | number |  | Field with the money in each cell: revenue where held, potential where open. Written in the tooltip; the open cells' sum ends each row. |
 
-**Settings**: `states`, `sort`. All options with defaults are in [blocks.md](blocks.md#whitespace).
+**Settings**: `states`, `sort`, `limit`. All options with defaults are in [blocks.md](blocks.md#whitespace).
 
 **Answers**: Which clients could take more products, and which ones first?
 

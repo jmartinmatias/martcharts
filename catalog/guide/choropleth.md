@@ -32,6 +32,7 @@ A map with each region shaded by its value, from the weakest tint to the stronge
 | `id` | category | yes | Field with each row's region code: a country or state code on a built-in basemap (FR, TX), or the feature id in your GeoJSON. |
 | `value` | number |  | Field that shades each region on the sequential scale. Rows with no number stay grey. Give value or category, not both. |
 | `category` | category |  | Field that colors each region by its category instead, one series color per value with a key: a transposition status, a supervisor, a regime. Up to 8 categories stay distinct. |
+| `previous` | number |  | Field with the same measure in the previous period, such as last year's revenue. Each region's tooltip then gives the change, and show "change" shades by it. |
 
 ## This example's columns (2 columns, 24 rows)
 

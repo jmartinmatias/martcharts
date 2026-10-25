@@ -280,6 +280,10 @@ Vertical bars comparing amounts across categories. Several y fields draw grouped
 | `goodWhen` | `up`, `down` |  | `"up"` | Which side of a target is good news: "up" for revenue, "down" for wait times and costs. Under one target (a lines field or a reference line labeled target, plan, goal, budget or quota), a bar on the wrong side is drawn outlined and keyed Below or Over the target. |
 | `compare` | field name (number) |  |  | Field drawn as a wider, quieter column behind each bar, on the same axis, for a comparison such as last year or the plan. The key names it by its label and the tooltip gives its value. One y series, unstacked. |
 | `annotations` | array |  |  | Short notes pinned to points of the chart, each { "x": <category or period>, "y"?: <value>, "text": "…" }. Without y the note sits on the value there. Each note is a few words beside a small dot, with a thin leader to it; on a narrow card the notes become numbered markers with the texts listed under the chart. Example: [{ "x": "2026-03", "text": "Price rise" }]. |
+| `sort` | `value`, `label`, `none` |  | `"none"` | Orders the rows before drawing: "value" ranks them by their number (largest first), "label" by name (A to Z), "none" keeps the data's order. Stacked bars and strips rank by their total. |
+| `order` | `desc`, `asc` |  |  | Turns the sort around: "asc" puts the smallest first, "desc" names Z to A. Defaults to largest first for value, A to Z for label. |
+| `limit` | number |  |  | Keeps the first N rows after sorting: the top 10, say. The rest are left out, or folded into one row with other. |
+| `other` | any |  |  | With limit, folds the rows past it into one last row, its numbers summed: true names it "Other", text names it as you like ("All other clients"). So the parts still add up to the whole. |
 
 ### `beeswarm`
 
@@ -326,6 +330,10 @@ Actual against target, one compact row per item: a value bar and a target tick o
 | `target` | field name (number) | yes |  | Field with the target amount. |
 | `ranges` | array |  | `[0.6,0.9,1.2]` | Where the three bands end, as multiples of the target: poor up to the first, fair up to the second, good up to the third. |
 | `goodWhen` | `up`, `down` |  | `"up"` | Whether more is better ("up", as for revenue) or less is better ("down", as for wait times and costs). It decides which side of the target reads as met. |
+| `sort` | `value`, `label`, `none` |  | `"none"` | Orders the rows before drawing: "value" ranks them by their number (largest first), "label" by name (A to Z), "none" keeps the data's order. Stacked bars and strips rank by their total. |
+| `order` | `desc`, `asc` |  |  | Turns the sort around: "asc" puts the smallest first, "desc" names Z to A. Defaults to largest first for value, A to Z for label. |
+| `limit` | number |  |  | Keeps the first N rows after sorting: the top 10, say. The rest are left out, or folded into one row with other. |
+| `other` | any |  |  | With limit, folds the rows past it into one last row, its numbers summed: true names it "Other", text names it as you like ("All other clients"). So the parts still add up to the whole. |
 
 ### `bump`
 
@@ -366,6 +374,7 @@ Flows between groups around a circle: each group an arc as long as everything it
 
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
 | `source` | field name (category) | yes |  | Field naming where each flow comes from. |
 | `target` | field name (category) | yes |  | Field naming where each flow goes. |
 | `value` | field name (number) | yes |  | Field with each flow's size. |
@@ -384,6 +393,9 @@ A map with each region shaded by its value, from the weakest tint to the stronge
 | `labels` | boolean |  | `true` | Write each region's code inside it, where it fits. Also takes the words other views use: "codes" (the same as true) or "none". |
 | `min` | number |  |  | Value of the weakest tint. Defaults to the lowest value. |
 | `max` | number |  |  | Value of the strongest tint. Defaults to the highest value. |
+| `previous` | field name (number) |  |  | Field with the same measure in the previous period, such as last year's revenue. Each region's tooltip then gives the change, and show "change" shades by it. |
+| `show` | `value`, `change` |  | `"value"` | "change" shades each region by its change since previous on a diverging scale: up one way, down the other, no change in the middle. Needs previous. |
+| `change` | `percent`, `difference` |  | `"percent"` | How a change is told: as a percent of the previous value, or as the difference in the value's own unit. |
 | `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
 
 ### `donut`
@@ -398,6 +410,10 @@ Part-to-whole at a glance: a ring of up to 6 slices with the total in the middle
 | `arc` | `full`, `half` |  | `"full"` | "half" draws a semicircle open at the bottom with the slices from left to right in the order given: an election donut, seats by party in the order they sit. |
 | `majority` | boolean |  | `false` | On a half ring, a thin tick at the halfway point labelled Majority and the seats it takes (more than half of the total); the slice that crosses it says so in its tooltip. |
 | `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `sort` | `value`, `label`, `none` |  | `"none"` | Orders the rows before drawing: "value" ranks them by their number (largest first), "label" by name (A to Z), "none" keeps the data's order. Stacked bars and strips rank by their total. |
+| `order` | `desc`, `asc` |  |  | Turns the sort around: "asc" puts the smallest first, "desc" names Z to A. Defaults to largest first for value, A to Z for label. |
+| `limit` | number |  |  | Keeps the first N rows after sorting: the top 10, say. The rest are left out, or folded into one row with other. |
+| `other` | any |  |  | With limit, folds the rows past it into one last row, its numbers summed: true names it "Other", text names it as you like ("All other clients"). So the parts still add up to the whole. |
 
 ### `dot`
 
@@ -409,6 +425,10 @@ A dot plot: one row per item and one dot per measure on one shared axis, with a 
 | `value` | field name or list (number) | yes |  | Field or fields placed as dots on the axis. Each field is one series with its own color; one field writes its value beside the dot. Also accepts `values`, the older name. |
 | `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
 | `reference` | array |  |  | Target lines and bands across the value axis. Each item is { value, label }, { field, agg, label } (agg: last, first, sum, avg, min, max; default avg), or { from, to, label } for a band. Example: [{ "value": 1200000, "label": "Target" }]. |
+| `sort` | `value`, `label`, `none` |  | `"none"` | Orders the rows before drawing: "value" ranks them by their number (largest first), "label" by name (A to Z), "none" keeps the data's order. Stacked bars and strips rank by their total. |
+| `order` | `desc`, `asc` |  |  | Turns the sort around: "asc" puts the smallest first, "desc" names Z to A. Defaults to largest first for value, A to Z for label. |
+| `limit` | number |  |  | Keeps the first N rows after sorting: the top 10, say. The rest are left out, or folded into one row with other. |
+| `other` | any |  |  | With limit, folds the rows past it into one last row, its numbers summed: true names it "Other", text names it as you like ("All other clients"). So the parts still add up to the whole. |
 
 ### `dual`
 
@@ -435,6 +455,10 @@ Before and after per item on one shared axis: a muted dot for before, an accent 
 | `mark` | `range`, `arrow` |  | `"range"` | "range" joins the two dots with a plain line, the gap between them. "arrow" points from the from value to the to value, so direction reads at a glance; between two periods a rise takes the up color and a fall the down color, keyed Rose and Fell. |
 | `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
 | `reference` | array |  |  | Target lines and bands across the value axis. Each item is { value, label }, { field, agg, label } (agg: last, first, sum, avg, min, max; default avg), or { from, to, label } for a band. Example: [{ "value": 1200000, "label": "Target" }]. |
+| `sort` | `value`, `label`, `none` |  | `"none"` | Orders the rows before drawing: "value" ranks them by their number (largest first), "label" by name (A to Z), "none" keeps the data's order. Stacked bars and strips rank by their total. |
+| `order` | `desc`, `asc` |  |  | Turns the sort around: "asc" puts the smallest first, "desc" names Z to A. Defaults to largest first for value, A to Z for label. |
+| `limit` | number |  |  | Keeps the first N rows after sorting: the top 10, say. The rest are left out, or folded into one row with other. |
+| `other` | any |  |  | With limit, folds the rows past it into one last row, its numbers summed: true names it "Other", text names it as you like ("All other clients"). So the parts still add up to the whole. |
 
 ### `funnel`
 
@@ -473,6 +497,10 @@ Horizontal bars for rankings and long labels: label on the left, bar, value at t
 | `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
 | `mark` | `bar`, `lollipop` |  | `"bar"` | "lollipop" draws a thin stem from the baseline and a dot at the value in place of each bar: the same reading with far less ink, for rankings of many similar values. |
 | `reference` | array |  |  | Target lines and bands across the value axis. Each item is { value, label }, { field, agg, label } (agg: last, first, sum, avg, min, max; default avg), or { from, to, label } for a band. Example: [{ "value": 1200000, "label": "Target" }]. |
+| `sort` | `value`, `label`, `none` |  | `"none"` | Orders the rows before drawing: "value" ranks them by their number (largest first), "label" by name (A to Z), "none" keeps the data's order. Stacked bars and strips rank by their total. |
+| `order` | `desc`, `asc` |  |  | Turns the sort around: "asc" puts the smallest first, "desc" names Z to A. Defaults to largest first for value, A to Z for label. |
+| `limit` | number |  |  | Keeps the first N rows after sorting: the top 10, say. The rest are left out, or folded into one row with other. |
+| `other` | any |  |  | With limit, folds the rows past it into one last row, its numbers summed: true names it "Other", text names it as you like ("All other clients"). So the parts still add up to the whole. |
 
 ### `heatmap`
 
@@ -529,6 +557,7 @@ A hierarchy laid flat: a column for the total, then one per level left to right,
 
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
 | `levels` | field name or list (category) | yes |  | Fields from the top level down, one column each, for example ["region", "product", "plan"]. Up to 4. |
 | `value` | field name (number) | yes |  | Field sizing the cells. Zero and negative values are left out. |
 
@@ -609,6 +638,10 @@ A stacked list: one line per row with a label, optional detail underneath, and a
 | `label` | field name (category) | yes |  | Field for the main text of each item. |
 | `detail` | field name (category) |  |  | Field for the smaller line under the label. |
 | `value` | field name (number) |  |  | Field for the number on the right. |
+| `sort` | `value`, `label`, `none` |  | `"none"` | Orders the rows before drawing: "value" ranks them by their number (largest first), "label" by name (A to Z), "none" keeps the data's order. Stacked bars and strips rank by their total. |
+| `order` | `desc`, `asc` |  |  | Turns the sort around: "asc" puts the smallest first, "desc" names Z to A. Defaults to largest first for value, A to Z for label. |
+| `limit` | number |  |  | Keeps the first N rows after sorting: the top 10, say. The rest are left out, or folded into one row with other. |
+| `other` | any |  |  | With limit, folds the rows past it into one last row, its numbers summed: true names it "Other", text names it as you like ("All other clients"). So the parts still add up to the whole. |
 
 ### `locator`
 
@@ -659,6 +692,10 @@ Progress against a target, one meter per row: attainment as a percentage, a bar 
 | `target` | field name (number) | yes |  | Field holding the target amount. |
 | `label` | field name (category) |  |  | Field naming each meter, for example a region. Defaults to the value field's label. |
 | `goodWhen` | `up`, `down` |  | `"up"` | Whether more is better ("up", as for revenue) or less is better ("down", as for wait times and costs). It decides which side of the target reads as met. |
+| `sort` | `value`, `label`, `none` |  | `"none"` | Orders the rows before drawing: "value" ranks them by their number (largest first), "label" by name (A to Z), "none" keeps the data's order. Stacked bars and strips rank by their total. |
+| `order` | `desc`, `asc` |  |  | Turns the sort around: "asc" puts the smallest first, "desc" names Z to A. Defaults to largest first for value, A to Z for label. |
+| `limit` | number |  |  | Keeps the first N rows after sorting: the top 10, say. The rest are left out, or folded into one row with other. |
+| `other` | any |  |  | With limit, folds the rows past it into one last row, its numbers summed: true names it "Other", text names it as you like ("All other clients"). So the parts still add up to the whole. |
 
 ### `pareto`
 
@@ -680,6 +717,10 @@ Part-to-whole as a full disc: up to 6 slices from twelve o'clock clockwise, each
 | `value` | field name (number) | yes |  | Field with each slice's amount. Zero, negative and missing values are left out. |
 | `labels` | `inside`, `outside`, `legend` |  | `"inside"` | "inside" writes each share on its slice (thin slices skip theirs) with a legend of names and values; "outside" writes names and shares beside the disc on short leader lines, with no legend; "legend" leaves the disc bare. |
 | `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `sort` | `value`, `label`, `none` |  | `"none"` | Orders the rows before drawing: "value" ranks them by their number (largest first), "label" by name (A to Z), "none" keeps the data's order. Stacked bars and strips rank by their total. |
+| `order` | `desc`, `asc` |  |  | Turns the sort around: "asc" puts the smallest first, "desc" names Z to A. Defaults to largest first for value, A to Z for label. |
+| `limit` | number |  |  | Keeps the first N rows after sorting: the top 10, say. The rest are left out, or folded into one row with other. |
+| `other` | any |  |  | With limit, folds the rows past it into one last row, its numbers summed: true names it "Other", text names it as you like ("All other clients"). So the parts still add up to the whole. |
 
 ### `pyramid`
 
@@ -698,6 +739,7 @@ Profiles across several attributes: one spoke per row, rings for one shared scal
 
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
 | `label` | field name (category) | yes |  | Field naming each spoke, such as an attribute. |
 | `y` | field name or list (number) | yes |  | Field or fields with the scores; each field is one shape. Up to 3 stay readable. |
 | `max` | number |  |  | End of the scale. Defaults to a round number at or above the highest score. |
@@ -708,6 +750,7 @@ A RAG scorecard: one row per entity (a client, a relationship manager, a deal) a
 
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
+| `only` | array |  |  | The statuses to show rows for, such as ["R", "A"] for what needs attention: the other rows fold into one line under the table ("and 33 on track"), so the counts still add up. |
 | `label` | field name (category) | yes |  | Field naming each row: the client, the relationship manager or the deal. |
 | `dimensions` | field name or list (category) | yes |  | Status fields, one column each, holding R, A, G or N (or red, amber, green, grey). The rag transform turns numbers into them. |
 | `previous` | object |  |  | Each dimension's previous-period status field, for the trend arrows: { "health": "healthLast", "pipeline": "pipelineLast" }. |
@@ -750,6 +793,10 @@ Concentric progress rings, one per row from the outside in, each filled to its s
 | `value` | field name (number) | yes |  | Field with the amount reached. |
 | `target` | field name (number) | yes |  | Field with the goal amount. |
 | `goodWhen` | `up`, `down` |  | `"up"` | Whether more is better ("up", as for revenue) or less is better ("down", as for wait times and costs). It decides which side of the target reads as met. |
+| `sort` | `value`, `label`, `none` |  | `"none"` | Orders the rows before drawing: "value" ranks them by their number (largest first), "label" by name (A to Z), "none" keeps the data's order. Stacked bars and strips rank by their total. |
+| `order` | `desc`, `asc` |  |  | Turns the sort around: "asc" puts the smallest first, "desc" names Z to A. Defaults to largest first for value, A to Z for label. |
+| `limit` | number |  |  | Keeps the first N rows after sorting: the top 10, say. The rest are left out, or folded into one row with other. |
+| `other` | any |  |  | With limit, folds the rows past it into one last row, its numbers summed: true names it "Other", text names it as you like ("All other clients"). So the parts still add up to the whole. |
 
 ### `rose`
 
@@ -767,6 +814,7 @@ Flows between stages as ribbons as thick as their volume, for example traffic so
 
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
 | `source` | field name (category) | yes |  | Field naming where each flow starts. |
 | `target` | field name (category) | yes |  | Field naming where each flow ends. |
 | `value` | field name (number) | yes |  | Field with each flow's volume. |
@@ -799,6 +847,10 @@ Each item's move between two points in time, as a line from a left column to a r
 | `from` | field name (number) | yes |  | Field with the earlier value (left column). |
 | `to` | field name (number) | yes |  | Field with the later value (right column). |
 | `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `sort` | `value`, `label`, `none` |  | `"none"` | Orders the rows before drawing: "value" ranks them by their number (largest first), "label" by name (A to Z), "none" keeps the data's order. Stacked bars and strips rank by their total. |
+| `order` | `desc`, `asc` |  |  | Turns the sort around: "asc" puts the smallest first, "desc" names Z to A. Defaults to largest first for value, A to Z for label. |
+| `limit` | number |  |  | Keeps the first N rows after sorting: the top 10, say. The rest are left out, or folded into one row with other. |
+| `other` | any |  |  | With limit, folds the rows past it into one last row, its numbers summed: true names it "Other", text names it as you like ("All other clients"). So the parts still add up to the whole. |
 
 ### `strips`
 
@@ -812,6 +864,10 @@ Unit strips: one row per item with a strip of small squares, one per unit, color
 | `unit` | string |  | `"provision"` | What one unit is, in the singular, for the note under the chart and the tooltip. |
 | `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
 | `reference` | array |  |  | Target lines and bands across the value axis. Each item is { value, label }, { field, agg, label } (agg: last, first, sum, avg, min, max; default avg), or { from, to, label } for a band. Example: [{ "value": 1200000, "label": "Target" }]. |
+| `sort` | `value`, `label`, `none` |  | `"none"` | Orders the rows before drawing: "value" ranks them by their number (largest first), "label" by name (A to Z), "none" keeps the data's order. Stacked bars and strips rank by their total. |
+| `order` | `desc`, `asc` |  |  | Turns the sort around: "asc" puts the smallest first, "desc" names Z to A. Defaults to largest first for value, A to Z for label. |
+| `limit` | number |  |  | Keeps the first N rows after sorting: the top 10, say. The rest are left out, or folded into one row with other. |
+| `other` | any |  |  | With limit, folds the rows past it into one last row, its numbers summed: true names it "Other", text names it as you like ("All other clients"). So the parts still add up to the whole. |
 
 ### `sunburst`
 
@@ -819,6 +875,7 @@ A hierarchy as rings: the inner ring splits the total by the first level, each o
 
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
 | `levels` | field name or list (category) | yes |  | Fields from the top level down, one ring each, for example ["product", "region"]. Up to 3. |
 | `value` | field name (number) | yes |  | Field sizing the slices. Zero and negative values are left out. |
 | `caption` | string |  |  | Text under the total in the middle. Defaults to the value field's label. |
@@ -829,6 +886,7 @@ A map with a circle on each place, its area true to a value: customers by state,
 
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
 | `geo` | any |  |  | The map's geometry: a built-in basemap by name (europe, us-states: tile grids keyed by country or state code), an inline GeoJSON FeatureCollection whose features carry an id, or the address of a GeoJSON file to fetch. |
 | `id` | field name (category) |  |  | Field with the region code that places each circle: a country or state code on a built-in basemap, or the feature id in your GeoJSON. Use lat and lon instead for coordinates. |
 | `lat` | field name (number) |  |  | Field with each row's latitude, for placing by coordinates on your own GeoJSON (not on a built-in grid). |
@@ -875,6 +933,10 @@ Part-to-whole for many categories: tiles sized by value, kept close to square. U
 | `value` | field name (number) | yes |  | Field sizing each tile. Zero and negative values are left out. |
 | `group` | field name (category) |  |  | Field that colors related tiles alike, up to 8 groups. Without it every tile shares one color. |
 | `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
+| `sort` | `value`, `label`, `none` |  | `"none"` | Orders the rows before drawing: "value" ranks them by their number (largest first), "label" by name (A to Z), "none" keeps the data's order. Stacked bars and strips rank by their total. |
+| `order` | `desc`, `asc` |  |  | Turns the sort around: "asc" puts the smallest first, "desc" names Z to A. Defaults to largest first for value, A to Z for label. |
+| `limit` | number |  |  | Keeps the first N rows after sorting: the top 10, say. The rest are left out, or folded into one row with other. |
+| `other` | any |  |  | With limit, folds the rows past it into one last row, its numbers summed: true names it "Other", text names it as you like ("All other clients"). So the parts still add up to the whole. |
 
 ### `variance`
 
@@ -887,6 +949,10 @@ Variance against plan, as in financial reporting: per row a bar from a zero line
 | `target` | field name (number) | yes |  | Field with the plan, budget or target. |
 | `percent` | boolean |  | `false` | Show the variance as a share of plan (+8%) instead of an amount. |
 | `goodWhen` | `up`, `down` |  | `"up"` | Whether being over plan is good ("up", as for revenue) or bad ("down", as for costs). |
+| `sort` | `value`, `label`, `none` |  | `"none"` | Orders the rows before drawing: "value" ranks them by their number (largest first), "label" by name (A to Z), "none" keeps the data's order. Stacked bars and strips rank by their total. |
+| `order` | `desc`, `asc` |  |  | Turns the sort around: "asc" puts the smallest first, "desc" names Z to A. Defaults to largest first for value, A to Z for label. |
+| `limit` | number |  |  | Keeps the first N rows after sorting: the top 10, say. The rest are left out, or folded into one row with other. |
+| `other` | any |  |  | With limit, folds the rows past it into one last row, its numbers summed: true names it "Other", text names it as you like ("All other clients"). So the parts still add up to the whole. |
 
 ### `waffle`
 
@@ -894,9 +960,14 @@ Part to whole as a 10 by 10 grid where each square is one percent, filled catego
 
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
+| `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. |
 | `label` | field name (category) | yes |  | Field naming each category. |
 | `value` | field name (number) | yes |  | Field with each category's amount. Zero and negative values are left out. |
 | `total` | number |  |  | The whole the values are part of, when they do not add up to it; the rest of the grid stays empty. Example: 100 for percentages. |
+| `sort` | `value`, `label`, `none` |  | `"none"` | Orders the rows before drawing: "value" ranks them by their number (largest first), "label" by name (A to Z), "none" keeps the data's order. Stacked bars and strips rank by their total. |
+| `order` | `desc`, `asc` |  |  | Turns the sort around: "asc" puts the smallest first, "desc" names Z to A. Defaults to largest first for value, A to Z for label. |
+| `limit` | number |  |  | Keeps the first N rows after sorting: the top 10, say. The rest are left out, or folded into one row with other. |
+| `other` | any |  |  | With limit, folds the rows past it into one last row, its numbers summed: true names it "Other", text names it as you like ("All other clients"). So the parts still add up to the whole. |
 
 ### `waterfall`
 
@@ -924,6 +995,7 @@ The cross-sell map (whitespace analysis): one cell per client and product, fille
 | `score` | field name (number) |  |  | Field with how likely each opportunity is, 0 to 100 (a propensity). An opportunity cell's tint strengthens with it. |
 | `value` | field name (number) |  |  | Field with the money in each cell: revenue where held, potential where open. Written in the tooltip; the open cells' sum ends each row. |
 | `sort` | `potential`, `penetration`, `none` |  | `"potential"` | Row order: "potential" puts the rows with the most to win first, "penetration" the least covered first, "none" keeps the rows as given. |
+| `limit` | number |  |  | Show only this many rows, the first in the sort order, with a line saying how many more there are. Applied after filters, so a filtered book still shows its own top rows. |
 
 ### `xray`
 
