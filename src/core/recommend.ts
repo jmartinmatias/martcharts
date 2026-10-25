@@ -336,6 +336,15 @@ const RULES: Record<string, Rule> = {
     const shared = high > low && spans.every(([a, b]) => (b - a) / (high - low) >= 0.2);
     return shared ? { score: 64, view: { type: "dot", label, values: measures }, why: `${measures.length} measures per ${label} as dots on one axis, each row's spread in view.` } : undefined;
   },
+  dual: (shape) => {
+    // Two measures over time on scales too far apart to share one axis (revenue and churn): one panel each.
+    const [x] = shape.dates;
+    const [y] = peers(shape, 1);
+    const y2 = shape.numbers.find((field) => field !== y && !TARGET.test(field) && !peers(shape, shape.numbers.length).includes(field));
+    if (!x || !y || !y2 || shape.rows.length < 3) return undefined;
+    const amount = nonNegative(shape, y) ? "bar" : "line";
+    return { score: 72, view: { type: "dual", x, y, y2, marks: [amount, "line"] }, why: `${y} and ${y2} over ${x}, in different units: a panel each, no second axis.` };
+  },
   table: ({ rows }) => (rows.length ? { score: 20, view: { type: "table" }, why: "Exact values, row by row." } : undefined),
   pyramid: (shape) => {
     // Two counts named for the two sides of a population (women and men, female and male) across ordered bands.

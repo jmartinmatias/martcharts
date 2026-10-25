@@ -264,6 +264,17 @@
     {
       "widget": "product-ratings",
       "span": 2
+    },
+    {
+      "section": "Two units, and notes",
+      "description": "Two measures on two panels, and a line that says what happened"
+    },
+    {
+      "widget": "revenue-and-churn",
+      "span": 2
+    },
+    {
+      "widget": "revenue-annotated"
     }
   ],
   "title": "Gallery",

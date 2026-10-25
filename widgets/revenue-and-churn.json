@@ -1,0 +1,43 @@
+{
+  "id": "revenue-and-churn",
+  "title": "Revenue and churn",
+  "subtitle": "{first:month} to {last:month}, each on its own scale",
+  "description": "Monthly revenue as bars above monthly churn as a line: two units, two panels, one time axis, no second axis.",
+  "footer": "Source: /data/monthly.json",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/monthly.json"
+  },
+  "fields": {
+    "month": {
+      "label": "Month",
+      "format": {
+        "type": "date",
+        "style": "month"
+      }
+    },
+    "revenue": {
+      "label": "Revenue",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "churn": {
+      "label": "Churn",
+      "format": {
+        "type": "percent",
+        "decimals": 1
+      }
+    }
+  },
+  "view": {
+    "type": "dual",
+    "x": "month",
+    "y": "revenue",
+    "y2": "churn",
+    "marks": ["bar", "line"]
+  }
+}

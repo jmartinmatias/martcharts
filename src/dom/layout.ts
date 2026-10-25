@@ -61,6 +61,28 @@ export function linearScale(values: number[], range: [number, number], opts: { i
   return Object.assign(scale, { domain, ticks });
 }
 
+/**
+ * A logarithmic scale over positive `values`: ticks at the powers of ten that
+ * enclose them, with 2 and 5 steps added when the range spans two decades or
+ * fewer, so the axis never reads as a single tick. Same shape as `linearScale`,
+ * so axes, references and marks draw the same way.
+ */
+export function logScale(values: number[], range: [number, number]): LinearScale {
+  const positive = values.filter((v) => v > 0);
+  const low = positive.length ? Math.min(...positive) : 1;
+  const high = positive.length ? Math.max(...positive) : 10;
+  const lo = Math.floor(Math.log10(low));
+  const hi = Math.max(lo + 1, Math.ceil(Math.log10(high)));
+  const steps = hi - lo <= 2 ? [1, 2, 5] : [1];
+  const ticks: number[] = [];
+  for (let e = lo; e <= hi; e++) for (const step of steps) if (e < hi || step === 1) ticks.push(step * 10 ** e);
+  const domain: [number, number] = [10 ** lo, 10 ** hi];
+  const [r0, r1] = range;
+  const span = Math.log10(domain[1]) - Math.log10(domain[0]) || 1;
+  const scale = (value: number) => r0 + ((Math.log10(Math.max(value, Number.MIN_VALUE)) - Math.log10(domain[0])) / span) * (r1 - r0);
+  return Object.assign(scale, { domain, ticks });
+}
+
 /** One equal slice of the horizontal axis for one category. */
 export interface Band {
   start: number;

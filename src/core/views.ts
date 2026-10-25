@@ -89,6 +89,18 @@ export interface AreaView {
   band?: { low: string; high: string; label?: string };
   /** How the line and its wash run between points. */
   curve?: "linear" | "smooth" | "step";
+  /** Short notes pinned to points of the chart. */
+  annotations?: Annotation[];
+}
+
+/**
+ * A short note pinned to one point of a bar, line or area chart: `x` names the
+ * category or period, `y` (optional) the height to pin it at, `text` the words.
+ */
+export interface Annotation {
+  x: unknown;
+  y?: number;
+  text: string;
 }
 
 /** `{ type: "meter", value, target, label? }`: one meter per row. */
@@ -392,6 +404,10 @@ export interface BarView {
   mark?: "bar" | "lollipop";
   /** Which side of a target is good: "up" (revenue, the default) or "down" (wait times, costs). */
   goodWhen?: "up" | "down";
+  /** Field drawn as a wider, quieter column behind each bar, for a comparison such as last year. One series only. */
+  compare?: string;
+  /** Short notes pinned to bars. */
+  annotations?: Annotation[];
 }
 
 /**
@@ -442,7 +458,29 @@ export interface LineView {
   band?: { low: string; high: string; label?: string };
   /** How the lines run between points: straight (default), smooth or in steps. */
   curve?: "linear" | "smooth" | "step";
+  /** A small symbol at every data point. */
+  points?: boolean;
+  /** "peaks" names the first series' highest and lowest points with a dot and their value. */
+  labels?: "none" | "peaks";
+  /** "log" draws the value axis logarithmically (ticks at powers of ten), for growth that multiplies. Positive values only. */
+  scale?: "linear" | "log";
+  /** Short notes pinned to points of the lines. */
+  annotations?: Annotation[];
 }
+
+/** `{ type: "dual", x, y, y2, marks? }`: two measures on two panels sharing one x axis, each on its own scale. */
+export interface DualView {
+  type: "dual";
+  x: string;
+  y: string;
+  y2: string;
+  /** How each panel draws its measure, top then bottom. Default ["bar", "line"]. */
+  marks?: [DualMark, DualMark];
+  /** The texture of lines between points. */
+  curve?: "linear" | "smooth" | "step";
+}
+
+export type DualMark = "bar" | "line";
 
 /** Whether a forecast flag is set: true, 1, "true" or "yes". */
 export function isForecast(value: unknown): boolean {
@@ -467,7 +505,9 @@ function seriesExtent(view: Record<string, unknown>, rows: Row[]): number[] {
   }
   const band = view.band as LineView["band"] | undefined;
   const banded = band ? [band.low, band.high] : [];
-  return rows.flatMap((row) => [...fields, ...banded].map((f) => readNumber(row[f]))).filter((n): n is number => n !== null);
+  // A comparison column behind the bars (last year) is on the same axis, so the panels cover it too.
+  const compared = typeof view.compare === "string" ? [view.compare] : [];
+  return rows.flatMap((row) => [...fields, ...banded, ...compared].map((f) => readNumber(row[f]))).filter((n): n is number => n !== null);
 }
 
 const highlightCategories: OptionSchema = {
@@ -580,6 +620,28 @@ const CURVE_OPTION = {
     '"smooth" curves through every point without ever swinging past one (a monotone curve), for a soft, calm trend; "step" holds each value until halfway to the next, for amounts that change in jumps such as prices or headcount. Stacked and stream areas keep their own shapes.',
 } as const;
 
+/** The notes option shared by bar, line and area: short texts pinned to points of the chart. */
+const ANNOTATIONS_OPTION: OptionSchema = {
+  type: "array",
+  description:
+    'Short notes pinned to points of the chart, each { "x": <category or period>, "y"?: <value>, "text": "…" }. Without y the note sits on the value there. Each note is a few words beside a small dot, with a thin leader to it; on a narrow card the notes become numbered markers with the texts listed under the chart. Example: [{ "x": "2026-03", "text": "Price rise" }].',
+};
+
+/** Each note needs an x and a text; y, when given, is a number. */
+function checkAnnotations(view: Record<string, unknown>): string[] {
+  const notes = view.annotations;
+  if (notes === undefined) return [];
+  if (!Array.isArray(notes)) return ['annotations must be a list of notes, for example [{ "x": "2026-03", "text": "Price rise" }].'];
+  return notes.flatMap((note, i) => {
+    const n = (note ?? {}) as Partial<Annotation>;
+    const problems: string[] = [];
+    if (n.x === undefined || n.x === null || n.x === "") problems.push(`annotations[${i}] needs an x: the category or period the note points at.`);
+    if (typeof n.text !== "string" || !n.text.trim()) problems.push(`annotations[${i}] needs a text.`);
+    if (n.y !== undefined && typeof n.y !== "number") problems.push(`annotations[${i}].y must be a number.`);
+    return problems;
+  });
+}
+
 /** The band must name its low and high fields. */
 function checkBand(view: Record<string, unknown>): string[] {
   const band = view.band as Record<string, unknown> | undefined;
@@ -608,12 +670,13 @@ const area: ViewBlock = {
     forecast: { ...FORECAST_OPTION, description: `${FORECAST_OPTION.description} On an area the forecast's wash is fainter too. Unstacked areas only.` },
     band: BAND_OPTION,
     curve: CURVE_OPTION,
+    annotations: ANNOTATIONS_OPTION,
   },
   validate(view) {
     const stacked = view.stacked;
     const problems = stacked === undefined || stacked === true || stacked === false || stacked === "percent" || stacked === "stream" ? [] : ['stacked must be true, false, "percent" or "stream".'];
     if (stacked && (view.forecast !== undefined || view.band !== undefined)) problems.push("forecast and band draw on an unstacked area: drop stacked, or use a line.");
-    return [...problems, ...checkBand(view), ...checkReference(view)];
+    return [...problems, ...checkBand(view), ...checkReference(view), ...checkAnnotations(view)];
   },
 };
 
@@ -1124,12 +1187,19 @@ const bar: ViewBlock = {
       default: "up",
       description: 'Which side of a target is good news: "up" for revenue, "down" for wait times and costs. Under one target (a lines field or a reference line labeled target, plan, goal, budget or quota), a bar on the wrong side is drawn outlined and keyed Below or Over the target.',
     },
+    compare: {
+      type: "field",
+      kind: "number",
+      description: "Field drawn as a wider, quieter column behind each bar, on the same axis, for a comparison such as last year or the plan. The key names it by its label and the tooltip gives its value. One y series, unstacked.",
+    },
+    annotations: ANNOTATIONS_OPTION,
   },
   validate(view) {
     const stacked = view.stacked;
     const problems = stacked === undefined || stacked === true || stacked === false || stacked === "percent" ? [] : ['stacked must be true, false or "percent".'];
     if (view.mark === "lollipop" && stacked) problems.push("A lollipop shows one dot per value, so it cannot stack: drop stacked, or use bars.");
-    return [...problems, ...checkReference(view)];
+    if (view.compare !== undefined && (stacked || (Array.isArray(view.y) && view.y.length > 1))) problems.push("compare draws behind one series of plain bars: drop stacked, or keep one y field.");
+    return [...problems, ...checkReference(view), ...checkAnnotations(view)];
   },
 };
 
@@ -1204,9 +1274,56 @@ const line: ViewBlock = {
     forecast: FORECAST_OPTION,
     band: BAND_OPTION,
     curve: CURVE_OPTION,
+    points: { type: "boolean", default: false, description: "A small symbol at every data point, in the line's color, so each reading is a mark of its own. Left out where points would sit closer than 8px." },
+    labels: {
+      type: "enum",
+      values: ["none", "peaks"],
+      default: "none",
+      description: '"peaks" marks the first series\' highest and lowest points with a dot and writes their values beside them, clear of the end label.',
+    },
+    scale: {
+      type: "enum",
+      values: ["linear", "log"],
+      default: "linear",
+      description: '"log" draws the value axis logarithmically, ticks at powers of ten (with 2 and 5 steps when it spans little), so steady growth reads as a straight line and small and large series share one chart. Positive values only: others are left out.',
+    },
+    annotations: ANNOTATIONS_OPTION,
   },
   validate(view) {
-    return [...checkBand(view), ...checkReference(view)];
+    return [...checkBand(view), ...checkReference(view), ...checkAnnotations(view)];
+  },
+  checkData(view, rows) {
+    if (view.scale !== "log") return [];
+    const fields = Array.isArray(view.y) ? view.y.map(String) : [String(view.y)];
+    const bad = rows.filter((row) => fields.some((f) => (readNumber(row[f]) ?? 1) <= 0)).length;
+    return bad ? [`${bad} rows have a zero or negative value, which a log scale cannot place; they are left out.`] : [];
+  },
+};
+
+const dual: ViewBlock = {
+  type: "dual",
+  description:
+    "Two measures with different units, such as revenue and churn, one above the other on two panels that share one time axis, each on its own scale. The honest form of a dual-axis chart: a second axis invites false crossings, where two lines meet only because of how the axes were drawn; two panels let the reader compare the shapes and read each value against its own axis. Pointing at a period lights it up on both panels.",
+  options: {
+    x: { type: "field", kind: "date", required: true, description: "Field for the shared axis, usually a date or period." },
+    y: { type: "field", kind: "number", required: true, description: "Measure on the top panel." },
+    y2: { type: "field", kind: "number", required: true, description: "Measure on the bottom panel, in its own unit." },
+    marks: {
+      type: "array",
+      default: ["bar", "line"],
+      description: 'How each panel draws its measure, top then bottom: "bar" for amounts (from zero) or "line" for rates and levels. Example: ["bar", "line"].',
+    },
+    curve: CURVE_OPTION,
+  },
+  validate(view) {
+    const marks = view.marks;
+    const ok = marks === undefined || (Array.isArray(marks) && marks.length === 2 && marks.every((m) => m === "bar" || m === "line"));
+    const problems = ok ? [] : ['marks must be two of "bar" or "line", top then bottom, for example ["bar", "line"].'];
+    if (typeof view.y === "string" && view.y === view.y2) problems.push("y and y2 are the same field: a dual draws two different measures.");
+    return problems;
+  },
+  checkData(_view, rows) {
+    return rows.length < 2 ? [`A dual needs at least 2 periods to show two shapes; with ${rows.length}, show the numbers instead.`] : [];
   },
 };
 
@@ -1251,4 +1368,4 @@ const rose: ViewBlock = {
   },
 };
 
-export const builtinViews: ViewBlock[] = [table, list, kpi, kpis, bar, hbar, line, area, meter, bullet, donut, treemap, funnel, waterfall, heatmap, calendar, scatter, beeswarm, ridgeline, sankey, dumbbell, slope, bump, marimekko, histogram, rings, timeline, waffle, variance, gauge, pareto, boxplot, likert, candlestick, sunburst, chord, radar, rose, horizon, icicle, dot, pyramid];
+export const builtinViews: ViewBlock[] = [table, list, kpi, kpis, bar, hbar, line, area, meter, bullet, donut, treemap, funnel, waterfall, heatmap, calendar, scatter, beeswarm, ridgeline, sankey, dumbbell, slope, bump, marimekko, histogram, rings, timeline, waffle, variance, gauge, pareto, boxplot, likert, candlestick, sunburst, chord, radar, rose, horizon, icicle, dot, pyramid, dual];

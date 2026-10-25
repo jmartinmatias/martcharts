@@ -976,6 +976,19 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const apart = widest && spread(widest) > 0 ? `, and ${text(widest, label)}'s dots sit furthest apart` : "";
       return `Here, ${text(row, label)} is highest on ${nameOf(first, spec)}, with ${text(row, first)}${apart}.`;
     }
+    case "dual": {
+      // Two measures over the same periods: where each went, and whether they moved the same way.
+      const [x, top, bottom] = [one(view.x), one(view.y), one(view.y2)];
+      if (!x || !top || !bottom) return "";
+      const known = (field: string) => rows.filter((row) => value(row, field) !== null);
+      const [a, b] = [known(top), known(bottom)];
+      const [a0, a1, b0, b1] = [a[0], a.at(-1), b[0], b.at(-1)];
+      if (!a0 || !a1 || a0 === a1 || !b0 || !b1 || b0 === b1) return "";
+      const dirA = Math.sign((value(a1, top) as number) - (value(a0, top) as number));
+      const dirB = Math.sign((value(b1, bottom) as number) - (value(b0, bottom) as number));
+      const together = dirA !== 0 && dirB !== 0 ? (dirA === dirB ? ", both moving the same way" : ", moving in opposite directions") : "";
+      return `Here, ${nameOf(top, spec)} went from ${text(a0, top)} ${when(a0, x)} to ${text(a1, top)} ${when(a1, x)}, and ${nameOf(bottom, spec)} from ${text(b0, bottom)} to ${text(b1, bottom)}${together}.`;
+    }
     default:
       return "";
   }
@@ -1032,12 +1045,18 @@ function guide(spec: WidgetSpec): string {
   const series = many(view.y);
   const colors = series.length > 1 ? ` Each color is one line: ${either(series.map((f) => name(f)))}.` : "";
   const forecast = view.forecast ? " The dashed part is a forecast, a careful guess about what comes next; the shaded area shows how sure it is: the wider, the less sure." : "";
+  // Notes pinned to the chart, symbols on the lines, named peaks and a log axis each add a sentence to the reading.
+  const noted = Array.isArray(view.annotations) && view.annotations.length ? ` The short notes with a small dot point out ${view.annotations.length === 1 ? "a moment worth knowing" : "moments worth knowing"}.` : "";
+  const dotted = view.points === true ? " Each dot on a line is one reading." : "";
+  const peaks = view.labels === "peaks" ? ` The two dots with numbers beside them are the highest and the lowest ${name(series[0])}.` : "";
+  const logged = view.scale === "log" ? " The axis grows by tens, not by equal steps, so steady growth looks like a straight line." : "";
 
   switch (view.type) {
     case "bar": {
       const lollipop = view.mark === "lollipop";
       const mark = lollipop ? "stick with a dot" : "bar";
       const more = lollipop ? "The higher the dot" : "The taller the bar";
+      const compared = typeof view.compare === "string" ? ` The wider grey bar behind each one is ${name(view.compare)}, to compare against.` : "";
       if (series.length > 1 && view.stacked) return `Each bar is one ${name(one(view.x))}, split into colored parts for ${both(series.map((f) => name(f)))}. ${view.stacked === "percent" ? "Every bar adds up to 100%, so compare the sizes of the parts." : "The parts add up to the total, so the whole bar is the total."}`;
       if (series.length > 1) return `Each group of bars is one ${name(one(view.x))}, with one color each for ${both(series.map((f) => name(f)))}. The taller the bar, the more.`;
       const goal = one(view.lines);
@@ -1050,7 +1069,7 @@ function guide(spec: WidgetSpec): string {
         : down
           ? ` The line is the ${name(goal)}. Lower is better here: a ${mark} under the line stayed within the ${name(goal)}${outlined}.`
           : ` The line is the ${name(goal)}: a ${mark} that reaches past it beat the ${name(goal)}${outlined}.`;
-      return `Each ${mark} is one ${name(one(view.x))}. ${more}, the more ${name(series[0])}.${line}`;
+      return `Each ${mark} is one ${name(one(view.x))}. ${more}, the more ${name(series[0])}.${line}${compared}${noted}`;
     }
     case "hbar": {
       const parts = many(view.value);
@@ -1064,11 +1083,13 @@ function guide(spec: WidgetSpec): string {
     case "pyramid":
       return `Each row is one ${noun(one(view.label), "band")}. The bar to the left is ${name(one(view.left))} and the bar to the right is ${name(one(view.right))}, both on the same scale, so the longer side has more; the whole shape says where the two differ.`;
     case "line":
-      return `The line shows how ${series.length > 1 ? "each value" : name(series[0])} changes ${over(one(view.x))}: going up means more.${colors}${forecast}`;
+      return `The line shows how ${series.length > 1 ? "each value" : name(series[0])} changes ${over(one(view.x))}: going up means more.${colors}${forecast}${logged}${dotted}${peaks}${noted}`;
     case "area":
-      if (view.stacked === "stream") return `Each colored band is one of ${either(series.map((f) => name(f)))}. The thicker a band at a moment, the more it had then; the whole stream's height is the total.`;
-      if (view.stacked) return `Colored layers stack on top of each other, ${over(one(view.x))}; the top edge is the total and each layer's thickness is its part.`;
-      return `The filled shape shows how ${name(series[0])} changes ${over(one(view.x))}: higher means more.${colors}${forecast}`;
+      if (view.stacked === "stream") return `Each colored band is one of ${either(series.map((f) => name(f)))}. The thicker a band at a moment, the more it had then; the whole stream's height is the total.${noted}`;
+      if (view.stacked) return `Colored layers stack on top of each other, ${over(one(view.x))}; the top edge is the total and each layer's thickness is its part.${noted}`;
+      return `The filled shape shows how ${name(series[0])} changes ${over(one(view.x))}: higher means more.${colors}${forecast}${noted}`;
+    case "dual":
+      return `Two small charts share the same ${name(one(view.x), "time")} line: ${name(one(view.y))} on top and ${name(one(view.y2))} below, each with its own scale, so look at the shapes, not at whether they cross. Higher means more on both.`;
     case "kpi": {
       // Lower is better (churn, costs): the line says whether it stayed under the target.
       const reached = view.goodWhen === "down" ? "stayed under its target" : "reached its target";

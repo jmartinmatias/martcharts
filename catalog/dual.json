@@ -1,0 +1,59 @@
+{
+  "id": "revenue-and-churn",
+  "title": "Revenue and churn",
+  "subtitle": "{first:month} to {last:month}, each on its own scale",
+  "description": "Monthly revenue as bars above monthly churn as a line: two units, two panels, one time axis, no second axis.",
+  "footer": "Source: /data/monthly.json",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {"month":"2025-10","revenue":820000,"cost":610000,"newCustomers":41,"churn":0.042,"target":850000},
+      {"month":"2025-11","revenue":860000,"cost":640000,"newCustomers":38,"churn":0.041,"target":870000},
+      {"month":"2025-12","revenue":910000,"cost":660000,"newCustomers":52,"churn":0.039,"target":900000},
+      {"month":"2026-01","revenue":870000,"cost":650000,"newCustomers":35,"churn":0.04,"target":900000},
+      {"month":"2026-02","revenue":900000,"cost":655000,"newCustomers":44,"churn":0.038,"target":920000},
+      {"month":"2026-03","revenue":960000,"cost":690000,"newCustomers":49,"churn":0.037,"target":950000},
+      {"month":"2026-04","revenue":1010000,"cost":720000,"newCustomers":57,"churn":0.036,"target":980000},
+      {"month":"2026-05","revenue":980000,"cost":700000,"newCustomers":46,"churn":0.035,"target":1000000},
+      {"month":"2026-06","revenue":1050000,"cost":740000,"newCustomers":61,"churn":0.037,"target":1030000},
+      {"month":"2026-07","revenue":1120000,"cost":780000,"newCustomers":58,"churn":0.036,"target":1080000},
+      {"month":"2026-08","revenue":1142000,"cost":790000,"newCustomers":54,"churn":0.036,"target":1120000},
+      {"month":"2026-09","revenue":1284000,"cost":860000,"newCustomers":66,"churn":0.031,"target":1200000}
+    ]
+  },
+  "fields": {
+    "month": {
+      "label": "Month",
+      "format": {
+        "type": "date",
+        "style": "month"
+      }
+    },
+    "revenue": {
+      "label": "Revenue",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "churn": {
+      "label": "Churn",
+      "format": {
+        "type": "percent",
+        "decimals": 1
+      }
+    }
+  },
+  "view": {
+    "type": "dual",
+    "x": "month",
+    "y": "revenue",
+    "y2": "churn",
+    "marks": [
+      "bar",
+      "line"
+    ]
+  }
+}

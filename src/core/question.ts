@@ -293,6 +293,11 @@ export function questionOf(spec: WidgetSpec, rows: Row[] = []): Question {
       if (x) return ask("trend", `how is each of the ${series.length} rows doing${against}, ${step(x, spec)}?`);
       break;
     }
+    case "dual": {
+      const [x, top, bottom] = [one(view.x), one(view.y), one(view.y2)];
+      if (x && top && bottom) return ask("trend", `do ${name(top)} and ${name(bottom)} move together, ${step(x, spec)}?`);
+      break;
+    }
     case "bump": {
       const [x, part] = [one(view.x), one(view.series)];
       if (!x || !part) break;
