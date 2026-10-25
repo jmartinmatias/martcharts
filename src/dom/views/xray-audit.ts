@@ -56,7 +56,9 @@ export async function auditRow(ctx: ViewContext<XrayView>, row: Row): Promise<{ 
   const key = config.key ?? ctx.view.label;
   const name = String(row[key] ?? "");
   const sources = config.sources ?? {};
-  const fetcher = ctx.fetch ?? (typeof fetch === "function" ? fetch : undefined);
+  // The host's fetch when given; else the pipeline's own default, already bound. Passing the global fetch unbound and
+  // calling it as a method elsewhere throws "Illegal invocation" in browsers (jsdom does not care, so tests would pass).
+  const fetcher = ctx.fetch;
   const input: WalletInput = { client: { ...row, name: row.name ?? name }, ...(currencyOf(ctx) ? { currency: currencyOf(ctx) } : {}) };
   let failed = false;
   await Promise.all(

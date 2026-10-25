@@ -167,4 +167,21 @@ describe("the wallet audit on the x-ray card", () => {
     const result = await axe.run(target, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"] }, rules: { "color-contrast": { enabled: false } } });
     expect(result.violations.map((v) => v.id)).toEqual([]);
   });
+  test("with no host fetch, the audit reads its sources through the page's own fetch, called the way browsers require", async () => {
+    // Browsers throw "Illegal invocation" when fetch is called as a method of another object; jsdom does not, so the
+    // stub enforces it: called with a this that is neither the global object nor undefined, it throws.
+    const strict = function (this: unknown, input: RequestInfo | URL) {
+      if (this !== undefined && this !== globalThis) throw new TypeError("Illegal invocation");
+      return (fetcher as (input: RequestInfo | URL) => Promise<Response>)(input);
+    };
+    vi.stubGlobal("fetch", strict);
+    const widget = createWidget(target, spec("Aster Trust"));
+    await widget.ready;
+    button("fft-xray-audit-open").click();
+    await settle();
+    const panel = target.querySelector(".fft-xray-audit-panel") as HTMLElement;
+    expect(panel.textContent).not.toMatch(/Could not read every source/);
+    expect(panel.textContent).toContain("FX: propensity 60%");
+    vi.unstubAllGlobals();
+  });
 });
