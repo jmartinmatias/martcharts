@@ -1763,4 +1763,26 @@ ul.fft-map-legend { margin-top: 0; }
 .fft-state-action { margin-top: 8px; min-height: 34px; padding: 0 13px; border: 1px solid color-mix(in srgb, var(--fft-text) 14%, transparent); border-radius: var(--fft-radius-pill); background: transparent; color: var(--fft-text); font: inherit; font-size: var(--fft-fs-m); cursor: pointer; }
 .fft-state-action:hover { background: color-mix(in srgb, var(--fft-text) 6%, transparent); }
 .fft-state-action:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 2px; }
+
+/* Scale: long tables show their first rows and a Show more button. */
+.fft-table-more { display: flex; align-items: center; justify-content: space-between; gap: 13px; margin-top: 8px; font-size: var(--fft-fs-s); color: var(--fft-text-secondary); }
+.fft-table-more[hidden] { display: none; }
+.fft-point-dense { stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 0.75; pointer-events: none; transition: opacity 377ms var(--fft-ease); }
+.fft-chart[data-active] .fft-point-dense { opacity: var(--fft-dim); }
+.fft-point-probe { stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 2; pointer-events: none; }
+.fft-point-layer { fill: transparent; cursor: crosshair; outline: none; }
+.fft-point-layer:focus-visible { stroke: var(--fft-accent); stroke-width: 2; }
+.fft-heat-scroll { max-width: 100%; overflow-x: auto; }
+.fft-heat-dense { display: block; }
+.fft-heat-step[data-step="1"] { fill: var(--fft-seq-1); }
+.fft-heat-step[data-step="2"] { fill: var(--fft-seq-2); }
+.fft-heat-step[data-step="3"] { fill: var(--fft-seq-3); }
+.fft-heat-step[data-step="4"] { fill: var(--fft-seq-4); }
+.fft-heat-step[data-step="5"] { fill: var(--fft-seq-5); }
+.fft-heat-step[data-step="6"] { fill: var(--fft-seq-6); }
+.fft-heat-step[data-step="7"] { fill: var(--fft-seq-7); }
+.fft-heat-dense-row, .fft-heat-dense-col { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); }
+.fft-heat-probe { fill: none; stroke: var(--fft-text); stroke-width: 1.5; pointer-events: none; }
+.fft-heat-layer { fill: transparent; cursor: crosshair; outline: none; }
+.fft-heat-layer:focus-visible { stroke: var(--fft-accent); stroke-width: 2; }
 `;

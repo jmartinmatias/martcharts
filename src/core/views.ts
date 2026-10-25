@@ -28,8 +28,10 @@ export interface TableView {
   totals?: boolean;
   /** A search field above the table that keeps the rows matching what is typed. Default false. */
   search?: boolean;
-  /** Rows shown at a time, with Previous and Next under the table. Default all of them. */
+  /** Rows shown at a time, with Previous and Next under the table. Default: the first 100, then Show more. */
   pageSize?: number;
+  /** Draw every row at once, with no Show more. Default false. */
+  showAll?: boolean;
   /** Keep the first column in place when the table scrolls sideways. Default false. */
   stickyFirst?: boolean;
   /** Text alignment per column, where the default (numbers right, text left) is not wanted. */
@@ -677,7 +679,8 @@ const table: ViewBlock = {
     sortable: { type: "boolean", default: true, description: "Headers become buttons that sort the rows: ascending, then descending. Missing values stay last." },
     totals: { type: "boolean", default: false, description: "Adds a footer row summing each number column in its own format, over every row whatever the page or search shows. Percent columns stay blank, since summed shares mean nothing." },
     search: { type: "boolean", default: false, description: "A small search field above the table: typing keeps only the rows whose shown text matches, in any column, and says how many remain. For directories and long lists." },
-    pageSize: { type: "number", description: "Rows shown at a time, with Previous and Next under the table (hidden while the rows fit on one page). Sorting or searching goes back to the first page. Leave out to show every row." },
+    pageSize: { type: "number", description: "Rows shown at a time, with Previous and Next under the table (hidden while the rows fit on one page). Sorting or searching goes back to the first page. Leave out for the first 100 rows and a Show more button." },
+    showAll: { type: "boolean", default: false, description: "Draws every row at once. By default a table without pages shows its first 100 rows and a Show more button that adds 100 at a time." },
     stickyFirst: { type: "boolean", default: false, description: "Keeps the first column in place while a wide table scrolls sideways, so every row keeps its name in view." },
     align: { type: "object", description: 'Text alignment per column, overriding the default of numbers right and text left: { "status": "center" }. Values: left, center, right.' },
   },
@@ -2355,6 +2358,48 @@ export function periodTime(value: unknown): number | null {
 // Views that took a reference or annotation list check its shape too, on top of their own rules.
 for (const block of [hbar, dot, dumbbell, histogram, boxplot, strips]) withChecks(block, checkReference);
 for (const block of [dual]) withChecks(block, checkAnnotations);
+
+/** Adds data checks to a view, after its own. */
+function withDataChecks(block: ViewBlock, check: (view: Record<string, unknown>, rows: Row[]) => string[]): void {
+  const own = block.checkData;
+  block.checkData = (view, rows) => [...(own ? own(view, rows) : []), ...check(view, rows)];
+}
+
+/**
+ * Volume: past these sizes a view still draws, but slowly and too densely to read. Each warning says what to do
+ * instead: show fewer (limit), sum them up (aggregate), or group a measure into bands (bin). A table with pages, or a
+ * ranking that already keeps its top rows, is fine at any size.
+ */
+export const VOLUME = { table: 200, categories: 50, points: 2000, cells: 1500, linePoints: 1000 } as const;
+const many = (n: number) => n.toLocaleString("en-US");
+withDataChecks(table, (view, rows) =>
+  rows.length > VOLUME.table && typeof view.pageSize !== "number" && view.showAll !== true
+    ? [`${many(rows.length)} rows make a long table: it shows the first 100 with a Show more button. Turn pages with pageSize, keep the top rows with limit, or sum them with an aggregate step.`]
+    : [],
+);
+for (const block of [bar, hbar]) {
+  withDataChecks(block, (view, rows) => {
+    const key = String(block.type === "bar" ? view.x : view.label);
+    const categories = new Set(rows.map((row) => String(row[key]))).size;
+    return categories > VOLUME.categories && typeof view.limit !== "number"
+      ? [`${many(categories)} categories make thin bars that cannot be read. Keep the top ones with limit (and other to fold the rest), or sum them with an aggregate step.`]
+      : [];
+  });
+}
+withDataChecks(scatter, (_view, rows) =>
+  rows.length > VOLUME.points ? [`${many(rows.length)} points overlap into a cloud. Sum them with an aggregate step, group a measure into bands with bin, or keep a sample with limit.`] : [],
+);
+withDataChecks(heatmap, (view, rows) => {
+  const cells = new Set(rows.map((row) => `${String(row[view.x as string])}\u0000${String(row[view.y as string])}`)).size;
+  return rows.length > VOLUME.cells
+    ? [`${many(rows.length)} cells${cells < rows.length ? ` (${many(cells)} distinct)` : ""}: sum them with an aggregate step by the two axes, or group the axes into bands with bin.`]
+    : [];
+});
+withDataChecks(line, (view, rows) => {
+  const fields = Array.isArray(view.y) ? view.y : [view.y];
+  const points = rows.filter((row) => fields.some((field) => readNumber(row[String(field)]) !== null)).length;
+  return points > VOLUME.linePoints ? [`${many(points)} points a series is more than a line can show: sum them by period with an aggregate step, or keep a recent window with limit.`] : [];
+});
 
 // Sort, top N and "Other" on every category view: declared once here, applied once after the transforms (see shape.ts).
 const SHAPED: Record<string, ViewBlock> = { bar, hbar, dot, dumbbell, slope, donut, pie, treemap, waffle, variance, bullet, meter, rings, strips, list };
