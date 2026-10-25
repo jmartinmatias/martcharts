@@ -1,0 +1,41 @@
+{
+  "id": "revenue-annotated",
+  "title": "Revenue, with what happened",
+  "subtitle": "{first:month} to {last:month}",
+  "description": "Monthly revenue as one line with a symbol at every reading, its high and low named, and short notes on the moments that explain the shape.",
+  "footer": "Source: /data/monthly.json",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/monthly.json"
+  },
+  "fields": {
+    "month": {
+      "label": "Month",
+      "format": {
+        "type": "date",
+        "style": "month"
+      }
+    },
+    "revenue": {
+      "label": "Revenue",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
+  },
+  "view": {
+    "type": "line",
+    "x": "month",
+    "y": "revenue",
+    "points": true,
+    "labels": "peaks",
+    "annotations": [
+      { "x": "2026-01", "text": "January dip after the holidays" },
+      { "x": "2026-05", "text": "Two large renewals slipped to June" },
+      { "x": "2026-09", "text": "New price list from September" }
+    ]
+  }
+}

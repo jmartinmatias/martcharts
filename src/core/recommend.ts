@@ -317,6 +317,15 @@ const RULES: Record<string, Rule> = {
     const [x] = shape.dates;
     return x && shape.numbers.length >= 4 && shape.rows.length >= 10 ? { score: 66, view: { type: "horizon", x, y: shape.numbers.slice(0, 12) }, why: `${shape.numbers.length} series over ${x}, each in its own thin band.` } : undefined;
   },
+  dual: (shape) => {
+    // Two measures over time on scales too far apart to share one axis (revenue and churn): one panel each.
+    const [x] = shape.dates;
+    const [y] = peers(shape, 1);
+    const y2 = shape.numbers.find((field) => field !== y && !TARGET.test(field) && !peers(shape, shape.numbers.length).includes(field));
+    if (!x || !y || !y2 || shape.rows.length < 3) return undefined;
+    const amount = nonNegative(shape, y) ? "bar" : "line";
+    return { score: 72, view: { type: "dual", x, y, y2, marks: [amount, "line"] }, why: `${y} and ${y2} over ${x}, in different units: a panel each, no second axis.` };
+  },
   table: ({ rows }) => (rows.length ? { score: 20, view: { type: "table" }, why: "Exact values, row by row." } : undefined),
 };
 

@@ -449,6 +449,15 @@ const GUIDES: ChartGuide[] = [
     bestFor: ["Bridges: what took revenue from Q2 to Q3, a profit and loss walk", "Explaining a move from a start to an end"],
     avoidFor: ["Amounts that are not changes to one total (use bar)"],
   },
+  {
+    type: "dual",
+    purposes: { trend: 3, relationship: 2, compare: 1 },
+    grain: "period",
+    build: "Two panels one above the other sharing the x axis: y on the top panel and y2 on the bottom, each on its own scale, drawn as bars (from zero) or lines.",
+    rows: { min: 3, max: 200 },
+    bestFor: ["Two measures in different units over the same periods: revenue and churn, visits and conversion rate", "Showing whether two shapes move together without a misleading second axis"],
+    avoidFor: ["Two series in the same unit (use line, one axis)", "More than two measures (use horizon or small multiples)", "Categories with no order (use bar)"],
+  },
 ];
 
 const BY_TYPE = new Map(GUIDES.map((guide) => [guide.type, guide]));
@@ -734,6 +743,10 @@ const NOTES: Record<string, string> = {
   "line>bump": "Shows rank changes clearly, but hides how big the gaps are.",
   "kpi>gauge": "Places the number on a scale against its goal; drops the change and the trend.",
   "gauge>kpi": "Adds the change against the previous period; drops the scale and goal.",
+  "line>dual": "Right when the two series have different units: each gets its own panel and scale, and no false crossings.",
+  "dual>line": "One panel and one axis; honest only when both series share a unit and a scale.",
+  "bar>dual": "Adds a second measure in its own unit on a panel of its own, sharing the periods.",
+  "dual>bar": "Keeps one measure as bars and drops the other.",
 };
 
 /** Optional options worth carrying to the new chart when it has one of the same name and kind. */
@@ -872,6 +885,7 @@ const MEANING: Record<string, string> = {
   meter: "needs a target, plan or budget column",
   rings: "needs a target, plan or budget column",
   variance: "needs a target, plan or budget column",
+  dual: "needs two measures over the same periods, in two columns",
 };
 
 const FIT_ORDER: Record<Fit, number> = { fits: 0, stretch: 1, no: 2 };

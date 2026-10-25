@@ -12,8 +12,8 @@ import { drawReferences, type LabelObstacles } from "./reference.ts";
 import type { FormatSpec } from "../../core/types.ts";
 import type { TooltipItem, ViewContext, ViewRenderer } from "../../core/view-context.ts";
 import { isForecast } from "../../core/views.ts";
-import type { AreaView, BarView, LineView } from "../../core/views.ts";
-import { bandPath, bands, barPath, curveArea, curveLine, evenLabels, layoutBars, layoutStacked, LINE_HEIGHT, linearScale, linePath, smoothBands, spread, wrapLabels } from "../layout.ts";
+import type { Annotation, AreaView, BarView, LineView } from "../../core/views.ts";
+import { bandPath, bands, barPath, curveArea, curveLine, evenLabels, layoutBars, layoutStacked, LINE_HEIGHT, linearScale, linePath, logScale, smoothBands, spread, wrapLabels } from "../layout.ts";
 import type { LabelBox } from "../layout.ts";
 import { buildTable, categoryLabel, fieldList, html, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
@@ -28,7 +28,11 @@ const STREAM_LABEL_ROOM = 15;
 let gradients = 0;
 
 /** Rough width of one character of 11px tick text, for spacing labels without measuring. */
-const CHAR_WIDTH = 6;
+export const CHAR_WIDTH = 6;
+/** The quiet fill of a comparison column behind a bar: a grey that stays a grey on light and dark cards. */
+export const COMPARE_FILL = "color-mix(in srgb, var(--fft-deemphasis) 55%, var(--fft-surface))";
+/** Under this width a chart's notes become numbered markers, their texts listed below (a phone, or a narrow card). */
+const NOTE_LIST_WIDTH = 480;
 
 /**
  * Tick labels: round and shortened (20K, $1.2M), in the first series' format
@@ -115,7 +119,12 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
   const seriesColor = (s: number) => (seriesOn(s) ? ctx.color(s) : DEEMPHASIS);
   // A muted category of grouped bars keeps a hint of each series' hue, so its two greys still say which is which.
   const mutedColor = (s: number) => (series.length > 1 ? `color-mix(in srgb, ${ctx.color(s)} 30%, ${DEEMPHASIS})` : DEEMPHASIS);
-  const raw = series.map((field) => rows.map((row) => readNumber(row[field])));
+  // A log axis places only positive values; the rest are left out (checkData says so).
+  const log = kind === "line" && (view as LineView).scale === "log";
+  const raw = series.map((field) => rows.map((row) => readNumber(row[field])).map((v) => (log && v !== null && v <= 0 ? null : v)));
+  // A comparison column behind each bar (last year, the plan): one series of plain bars only.
+  const compareField = kind === "bar" && series.length === 1 && !(view as BarView).stacked && typeof (view as BarView).compare === "string" ? ((view as BarView).compare as string) : undefined;
+  const compareValues = compareField ? rows.map((row) => readNumber(row[compareField])) : [];
   // Combo: extra series drawn as lines over the bars, on the same axis (never a second one).
   const overlayFields = kind === "bar" ? fieldList((view as BarView).lines) : [];
   const overlayValues = overlayFields.map((field) => rows.map((row) => readNumber(row[field])));
@@ -166,6 +175,7 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
       })
     : values.flat().filter((v): v is number => v !== null);
   present.push(...overlayValues.flat().filter((v): v is number => v !== null));
+  present.push(...compareValues.filter((v): v is number => v !== null));
   present.push(...banded.flatMap((i) => [bandLow[i] as number, bandHigh[i] as number]));
   // Small multiples pass a shared extent, so every panel draws on the same scale.
   if (ctx.extent) present.push(...ctx.extent);
@@ -173,7 +183,7 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
   const references = resolveReferences(view, rows);
   present.push(...referenceValues(references));
   const xLabels = rows.map((row) => ctx.format(row[view.x], view.x));
-  const labelTicks = linearScale(present, [1, 0], { includeZero: fromZero }).ticks;
+  const labelTicks = (log ? logScale(present, [1, 0]) : linearScale(present, [1, 0], { includeZero: fromZero })).ticks;
   // Stacked areas: each series' top edge is the running total of the series up to it.
   const tops =
     stacked && kind === "area" ? values.map((_, s) => rows.map((_, i) => values.slice(0, s + 1).reduce((sum, seriesValues) => sum + Math.max(0, seriesValues[i] ?? 0), floor(i)))) : null;
@@ -193,8 +203,9 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
 
   const wrap = html(doc, "div", "fft-chart");
   const markShape: LegendEntry["shape"] = kind !== "bar" ? "line" : (view as BarView).mark === "lollipop" ? "dot" : "rect";
-  const legendEntries = [
+  const legendEntries: LegendEntry[] = [
     ...series.map((field, s) => ({ field, color: seriesColor(s), shape: markShape })),
+    ...(compareField ? [{ field: compareField, color: COMPARE_FILL, shape: "rect" as const }] : []),
     ...overlayFields.map((field, k) => ({ field, color: overlayColor(k), shape: "line" as const })),
     ...(rows.some((_, i) => missed(i)) ? [{ field: series[0] as string, color: seriesColor(0), shape: markShape, label: `${lowerIsBetter ? "Over" : "Below"} ${goalName}`, tone: "miss" as const }] : []),
   ];
@@ -224,7 +235,7 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
   if (wrapped) margin.bottom += (Math.max(...wrapped.map((lines) => lines.length)) - 1) * LINE_HEIGHT;
   const height = ctx.height;
   const plot = { x: margin.left, y: margin.top, w: width - margin.left - margin.right, h: height - margin.top - margin.bottom };
-  const y = linearScale(present, [plot.y + plot.h, plot.y], { includeZero: fromZero, nice: !stream });
+  const y = log ? logScale(present, [plot.y + plot.h, plot.y]) : linearScale(present, [plot.y + plot.h, plot.y], { includeZero: fromZero, nice: !stream });
   // Bars sit in bands; lines and areas run edge to edge, one point per row, as time series do.
   const slots = kind === "bar" ? bands(rows.length, plot.x, plot.w) : spread(rows.length, plot.x, plot.w);
 
@@ -265,7 +276,22 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
     const marks = getPreset(ctx.spec.style?.preset)?.marks ?? {};
     const radius = marks.barRadius === "full" ? Number.POSITIVE_INFINITY : (marks.barRadius ?? 4);
     const lollipop = (view as BarView).mark === "lollipop";
-    for (const rect of stacked ? layoutStacked(values, slots, y) : layoutBars(values, slots, y)) {
+    const rects = stacked ? layoutStacked(values, slots, y) : layoutBars(values, slots, y);
+    if (compareField) {
+      // The comparison stands behind each bar, 4px wider on either side and quieter, so the bar reads against it.
+      const barWidth = rects[0]?.width ?? Math.min(21, ((slots[0]?.width ?? 21) * 0.618));
+      const baseline = y(Math.max(y.domain[0], Math.min(0, y.domain[1])));
+      compareValues.forEach((v, i) => {
+        if (v === null) return;
+        const end = y(v);
+        const rect = { series: 0, index: i, x: (slots[i]?.center ?? 0) - (barWidth + 8) / 2, y: Math.min(end, baseline), width: barWidth + 8, height: Math.abs(end - baseline), value: v, negative: v < 0 };
+        const ghost = svg(doc, "path", { class: "fft-bar-compare", d: barPath(rect, Math.min(radius, 5)) });
+        ghost.style.setProperty("fill", COMPARE_FILL);
+        obstacles.boxes.push(rect);
+        markGroups[i]?.append(ghost);
+      });
+    }
+    for (const rect of rects) {
       if (lollipop) {
         // A stem from the baseline and a dot at the value, centered where the bar would stand.
         const cx = rect.x + rect.width / 2;
@@ -351,6 +377,10 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
     }
     const order = series.map((_, s) => s).sort((a, b) => Number(seriesOn(a)) - Number(seriesOn(b)));
     const edge = (s: number) => rows.map((_, i) => ({ x: slots[i]?.center ?? 0, y: y(tops?.[s]?.[i] ?? 0) }));
+    // Symbols: a small dot at every reading, where readings sit at least 8px apart; the end dot already marks the last.
+    const symbols = svg(doc, "g", { class: "fft-points" });
+    const pointStep = slots.length > 1 ? (slots[1]?.center ?? 0) - (slots[0]?.center ?? 0) : Number.POSITIVE_INFINITY;
+    const withPoints = kind === "line" && (view as LineView).points === true && pointStep >= 8;
     if (stream) drawStream(chart, washes, { series, label: ctx.label, slots, plot, edge, base: rows.map((_, i) => ({ x: slots[i]?.center ?? 0, y: y(floor(i)) })), color: seriesColor });
     (stream ? [] : order).forEach((s) => {
       const seriesValues = values[s] ?? [];
@@ -411,6 +441,20 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
         chart.append(line);
       }
       const last = points.findLast((p) => p !== null);
+      if (withPoints) {
+        points.forEach((p, i) => {
+          if (!p || p === last) return;
+          const dot = svg(doc, "circle", { class: "fft-point-dot", cx: p.x, cy: p.y, r: 3.5 });
+          dot.dataset.series = series[s] ?? "";
+          // A forecast's readings are hollow, as its end dot is: values not yet real.
+          if (forecastAt >= 0 && i >= forecastAt) {
+            dot.setAttribute("data-forecast", "");
+            dot.style.setProperty("fill", "var(--fft-ring, var(--fft-surface))");
+            dot.style.setProperty("stroke", seriesColor(s));
+          } else dot.style.setProperty("fill", seriesColor(s));
+          symbols.append(dot);
+        });
+      }
       if (last) {
         const dot = svg(doc, "circle", { class: "fft-dot fft-end", cx: last.x, cy: last.y, r: 4 });
         // A forecast ends on a hollow dot: a value not yet real.
@@ -424,6 +468,7 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
         chart.append(dot);
       }
     });
+    chart.append(symbols);
     // End labels only when no two would collide; otherwise the legend and tooltip carry the values.
     const placed = endLabels.flatMap((label) => {
       const v = label ? values[label.s]?.[label.index] : null;
@@ -450,7 +495,104 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
       text.textContent = bandEndText[k] ?? "";
       chart.append(text);
     });
+    // Peaks: the first line's highest and lowest readings, each with a dot and its value, the high above and the low below.
+    if (kind === "line" && (view as LineView).labels === "peaks") {
+      const first = values[0] ?? [];
+      const known = first.map((v, i) => (v === null ? null : i)).filter((i): i is number => i !== null);
+      if (known.length > 1) {
+        const highAt = known.reduce((best, i) => ((first[i] as number) > (first[best] as number) ? i : best), known[0] as number);
+        const lowAt = known.reduce((best, i) => ((first[i] as number) < (first[best] as number) ? i : best), known[0] as number);
+        if (highAt !== lowAt) {
+          const lastKnown = known.at(-1);
+          for (const [i, side] of [[highAt, "high"], [lowAt, "low"]] as const) {
+            const px = slots[i]?.center ?? 0;
+            const py = y(tops?.[0]?.[i] ?? (first[i] as number));
+            const dot = svg(doc, "circle", { class: "fft-peak-dot", cx: px, cy: py, r: 4, "data-peak": side });
+            dot.style.setProperty("fill", seriesColor(0));
+            chart.append(dot);
+            // The last reading's end label already names it; the peak keeps its dot and lets the label be.
+            if (i === lastKnown && !collides && placed.some((label) => label.s === 0 && label.index === i)) continue;
+            const words = ctx.format(rows[i]?.[series[0] as string], series[0]);
+            const wide = words.length * CHAR_WIDTH;
+            // Above the high and below the low; a peak on the plot's edge takes its label beside it instead, away from the nearer side.
+            const room = side === "high" ? py - 19 >= 0 : py + 16 <= plot.y + plot.h + 6;
+            let anchor: "start" | "middle" | "end" = i === 0 ? "start" : i === rows.length - 1 ? "end" : "middle";
+            let [tx, ty] = [px + (anchor === "start" ? -4 : anchor === "end" ? 4 : 0), side === "high" ? py - 9 : py + 16];
+            if (!room) {
+              anchor = px + 8 + wide <= plot.x + plot.w ? "start" : "end";
+              [tx, ty] = [anchor === "start" ? px + 8 : px - 8, py + 4];
+            }
+            const label = svg(doc, "text", { class: "fft-peak-label", x: tx, y: ty, "text-anchor": anchor, "data-peak": side });
+            label.textContent = words;
+            obstacles.boxes.push({ x: anchor === "start" ? tx : anchor === "end" ? tx - wide : tx - wide / 2, y: ty - 10, width: wide, height: 12 });
+            chart.append(label);
+          }
+        }
+      }
+    }
     chart.append(crosshair);
+  }
+  // Notes pinned to points of the chart: beside their point on a wide card, numbered and listed under it on a narrow one.
+  const notes = Array.isArray(view.annotations) ? (view.annotations as Annotation[]) : [];
+  const noteAt = (note: Annotation) => rows.findIndex((row, i) => String(row[view.x]) === String(note.x) || xLabels[i] === String(note.x));
+  const noteValue = (i: number): number | null =>
+    stacked && kind === "area" ? (tops?.[series.length - 1]?.[i] ?? null) : stacked ? (percent ? 1 : positiveTotal(i)) : (values[0]?.[i] ?? null);
+  const pinned = notes.flatMap((note, n) => {
+    const i = noteAt(note);
+    const v = i < 0 ? null : typeof note.y === "number" ? note.y : noteValue(i);
+    return i < 0 || v === null || (log && v <= 0) ? [] : [{ n, i, text: note.text, x: slots[i]?.center ?? 0, y: y(v) }];
+  });
+  const noteList = pinned.length && ctx.width < NOTE_LIST_WIDTH ? html(doc, "ol", "fft-notes") : undefined;
+  if (pinned.length) {
+    const layer = svg(doc, "g", { class: "fft-note-layer" });
+    const placedNotes: { x: number; y: number; width: number; height: number }[] = [];
+    pinned.forEach((pin, k) => {
+      layer.append(svg(doc, "circle", { class: "fft-note-dot", cx: pin.x, cy: pin.y, r: 3 }));
+      if (noteList) {
+        // A numbered marker just above the point (below it at the plot's top); the words wait in the list under the chart.
+        const above = pin.y - 24 >= 0;
+        const cy = above ? pin.y - 16 : pin.y + 16;
+        layer.append(svg(doc, "line", { class: "fft-note-leader", x1: pin.x, y1: pin.y + (above ? -3 : 3), x2: pin.x, y2: cy + (above ? 8 : -8) }));
+        layer.append(svg(doc, "circle", { class: "fft-note-marker", cx: pin.x, cy, r: 8 }));
+        const index = svg(doc, "text", { class: "fft-note-index", x: pin.x, y: cy, "text-anchor": "middle", "dominant-baseline": "central" });
+        index.textContent = String(k + 1);
+        layer.append(index);
+        const item = html(doc, "li");
+        item.append(html(doc, "span", "fft-note-num", String(k + 1)), html(doc, "span", "fft-note-words", pin.text));
+        noteList.append(item);
+        return;
+      }
+      // The words beside the point, wrapped to a few short lines, to its right when there is room and else to its left,
+      // above the point unless that leaves the plot; shifted up when they would cover an earlier note.
+      const maxChars = Math.max(8, Math.floor(Math.min(144, plot.w / 2) / CHAR_WIDTH));
+      const lines: string[] = [];
+      for (const word of pin.text.split(/\s+/).filter(Boolean)) {
+        const line = lines.at(-1);
+        if (line !== undefined && `${line} ${word}`.length <= maxChars) lines[lines.length - 1] = `${line} ${word}`;
+        else lines.push(word);
+      }
+      const width = Math.max(...lines.map((line) => line.length)) * CHAR_WIDTH;
+      const height = lines.length * LINE_HEIGHT;
+      const right = pin.x + 13 + width <= plot.x + plot.w;
+      const tx = right ? pin.x + 13 : pin.x - 13;
+      let top = pin.y - 8 - height;
+      if (top < plot.y) top = pin.y + 10;
+      const box = () => ({ x: right ? tx : tx - width, y: top, width, height });
+      for (let tries = 0; tries < 6 && placedNotes.some((other) => other.x < box().x + width && other.x + other.width > box().x && other.y < top + height && other.y + other.height > top); tries++) top -= LINE_HEIGHT;
+      top = Math.max(plot.y, top);
+      placedNotes.push(box());
+      obstacles.boxes.push(box());
+      const nearY = top + height > pin.y ? top + height / 2 : top + height;
+      layer.append(svg(doc, "line", { class: "fft-note-leader", x1: pin.x + (right ? 4 : -4), y1: pin.y + (nearY < pin.y ? -3 : 0), x2: right ? tx - 3 : tx + 3, y2: nearY }));
+      const text = svg(doc, "text", { class: "fft-note-text", x: tx, y: top + 10, "text-anchor": right ? "start" : "end" });
+      lines.forEach((line, l) => {
+        const span = svg(doc, "tspan", { x: tx, dy: l === 0 ? 0 : LINE_HEIGHT });
+        span.textContent = line;
+        text.append(span);
+      });
+      layer.append(text);
+    });
+    chart.append(layer);
   }
   drawReferences(doc, references, y, plot, tickText, refsBelow, refsAbove, obstacles);
   chart.append(refsAbove, overlay);
@@ -473,7 +615,9 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
     const high = bandHigh[i];
     if (band && low != null && high != null && low !== high) items.push({ label: band.label ?? "Range", value: `${ctx.format(low, series[0])} to ${ctx.format(high, series[0])}` });
     const title = forecastField && isForecast(row[forecastField]) ? `${xLabels[i] ?? ""} (forecast)` : (xLabels[i] ?? "");
+    if (compareField) items.push({ label: ctx.label(compareField), value: ctx.format(row[compareField], compareField), color: COMPARE_FILL });
     overlayFields.forEach((field, k) => items.push({ label: ctx.label(field), value: ctx.format(row[field], field), color: overlayColor(k) }));
+    for (const pin of pinned) if (pin.i === i) items.push({ label: "Note", value: pin.text });
     const hit = svg(doc, "rect", { class: "fft-hit", x: slot.start, y: plot.y, width: slot.width, height: plot.h, tabindex: 0, role: "img" });
     hit.setAttribute("aria-label", `${title}: ${items.map((item) => `${item.label} ${item.value || "no value"}`).join(", ")}`);
     const activate = () => {
@@ -504,9 +648,10 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
 
   roving([...overlay.querySelectorAll(".fft-hit")]);
   wrap.append(chart);
+  if (noteList) wrap.append(noteList);
   // The same numbers as a table, for screen readers.
   const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, rows, [view.x, ...series, ...(band ? [band.low, band.high] : [])], false));
+  hidden.append(buildTable(ctx, rows, [view.x, ...series, ...(compareField ? [compareField] : []), ...(band ? [band.low, band.high] : [])], false));
   wrap.append(hidden);
   ctx.el.append(wrap);
 }

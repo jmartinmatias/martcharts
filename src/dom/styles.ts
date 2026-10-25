@@ -1208,6 +1208,26 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-widget[data-animate] .fft-kpi-value,
 .fft-widget[data-animate] .fft-kpi-delta,
 .fft-widget[data-animate] .fft-headline-value { animation: fft-rise 610ms var(--fft-ease) both; }
+/* Notes pinned to points of a chart: a dot, a hairline leader and a few words with a halo of the card, so they read over the marks. */
+.fft-note-dot { fill: var(--fft-text); stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 2; pointer-events: none; }
+.fft-note-leader { stroke: var(--fft-text-secondary); stroke-width: 1; pointer-events: none; }
+.fft-note-text { fill: var(--fft-text); font-size: 11px; paint-order: stroke; stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 3px; stroke-linejoin: round; pointer-events: none; }
+.fft-note-marker { fill: var(--fft-ring, var(--fft-surface)); stroke: var(--fft-text); stroke-width: 1.5; pointer-events: none; }
+.fft-note-index { fill: var(--fft-text); font-size: 10px; font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; }
+.fft-notes { margin: 5px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 3px; font-size: 11px; line-height: 15px; color: var(--fft-text-secondary); }
+.fft-notes li { display: flex; gap: 8px; align-items: baseline; }
+.fft-note-num { flex: none; width: 16px; height: 16px; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--fft-text); color: var(--fft-text); font-size: 10px; font-weight: 600; line-height: 16px; text-align: center; font-variant-numeric: tabular-nums; }
+/* Line symbols and peak labels. */
+.fft-point-dot { stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 1.5; pointer-events: none; transition: opacity 377ms var(--fft-ease); }
+.fft-peak-dot { stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 2; pointer-events: none; }
+.fft-peak-label { fill: var(--fft-text-secondary); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; paint-order: stroke; stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 3px; stroke-linejoin: round; pointer-events: none; }
+/* A comparison column behind a bar: quiet, a little wider, dimmed with its bar when another is active. */
+.fft-bar-compare { transition: opacity 377ms var(--fft-ease); }
+.fft-chart[data-active] .fft-marks:not([data-active]) .fft-bar-compare { opacity: 0.38; }
+/* Dual: two panels sharing one x axis; each panel's caption names its measure where a legend would. */
+.fft-dual-caption { fill: var(--fft-text-secondary); font-size: 11px; font-weight: 600; }
+.fft-widget[data-animate] .fft-point-dot { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: 610ms; }
+.fft-widget[data-animate] .fft-note-layer { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: 610ms; }
 @media (prefers-reduced-motion: reduce) {
   .fft-widget *, .fft-widget *::before, .fft-widget *::after { animation: none !important; transition: none !important; }
   .fft-overlay, .fft-overlay-panel { animation: none !important; }

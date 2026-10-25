@@ -132,6 +132,7 @@ const VIEW_GUIDE = [
   "Progress to a goal: meter, bullet (with poor, fair and good bands), rings (a few goals at once), gauge.",
   "A ranking or a comparison across categories: hbar, bar, dumbbell (before and after), slope (who moved between two periods).",
   "Change over time: line, area, bar, calendar (day by day), heatmap (two time scales, such as weekday by hour), candlestick (prices: open, high, low, close).",
+  "Two measures in different units over the same periods: dual (revenue and churn, one panel each sharing the time axis, each on its own scale; never a second axis).",
   "Many time series at once: horizon (one thin row each, values folded into bands of deepening color, blue above the baseline and red below).",
   "Rank over time: bump.",
   'Parts of a whole: donut (up to 6 parts), waffle (100 countable squares), treemap (many parts), sunburst (two or three levels), icicle (a hierarchy laid flat, up to four levels, easier to label), bar or area with stacked "percent".',
