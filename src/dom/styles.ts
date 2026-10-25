@@ -1806,4 +1806,23 @@ ul.fft-map-legend { margin-top: 0; }
 .fft-bump:hover .fft-bump-dot[data-mid], .fft-bump[data-active] .fft-bump-dot[data-mid], .fft-pareto-dot[data-mid][data-active] { opacity: 1; }
 .fft-widget[data-animate] .fft-bump-dot[data-mid], .fft-widget[data-animate] .fft-pareto-dot[data-mid] { animation: none; }
 .fft-history-dot { width: 11px; height: 11px; left: -24px; top: 6px; font-size: 0; }
+/* The wallet audit on the x-ray card: quiet buttons, a panel that reads worst news first. */
+.fft-xray-audit { display: flex; flex-direction: column; gap: 8px; margin-top: 13px; }
+.fft-xray-audit-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.fft-xray-audit-button { min-height: 34px; padding: 0 13px; border: 1px solid color-mix(in srgb, var(--fft-text) 14%, transparent); border-radius: var(--fft-radius-pill); background: transparent; color: var(--fft-text); font: inherit; font-size: var(--fft-fs-m); cursor: pointer; }
+.fft-xray-audit-button:hover { background: color-mix(in srgb, var(--fft-text) 6%, transparent); }
+.fft-xray-audit-button:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 2px; }
+.fft-xray-audit-status { font-size: var(--fft-fs-s); color: var(--fft-text-secondary); }
+.fft-xray-audit-panel { display: flex; flex-direction: column; gap: 13px; padding: 13px; border-radius: var(--fft-radius-l); background: color-mix(in srgb, var(--fft-text) 4%, transparent); font-size: var(--fft-fs-m); line-height: 21px; outline: none; }
+.fft-xray-audit-panel[hidden] { display: none; }
+.fft-xray-audit-panel:focus-visible { box-shadow: 0 0 0 2px var(--fft-accent); }
+.fft-xray-audit-part { display: flex; flex-direction: column; gap: 5px; }
+.fft-xray-audit-part p { margin: 0; }
+.fft-xray-audit-head { margin: 0; font-size: var(--fft-fs-s); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fft-text-secondary); }
+.fft-xray-audit-list { margin: 0; padding-left: 21px; display: flex; flex-direction: column; gap: 5px; }
+.fft-xray-audit-risk { list-style: none; margin-left: -21px; display: flex; gap: 8px; align-items: baseline; }
+.fft-xray-audit-severity { flex: none; min-width: 55px; font-size: var(--fft-fs-s); font-weight: 600; }
+.fft-xray-audit-risk[data-severity="high"] .fft-xray-audit-severity { color: var(--fft-rag-r, var(--fft-down)); }
+.fft-xray-audit-risk[data-severity="medium"] .fft-xray-audit-severity { color: var(--fft-rag-a, var(--fft-text-secondary)); }
+.fft-xray-audit-note, .fft-xray-audit-empty { color: var(--fft-text-secondary); font-size: var(--fft-fs-s); }
 `;

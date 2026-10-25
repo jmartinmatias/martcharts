@@ -385,6 +385,24 @@ const EN = {
     embedFrame: "In a page, sized to fit (iframe)",
   },
   // ---- The editor and composer surface: the common first, the rest a click away ----
+  // ---- The wallet audit on the x-ray card ----
+  wallet: {
+    audit: "Audit wallet",
+    hide: "Hide audit",
+    copy: "Copy strategy",
+    copied: "Strategy copied",
+    copyFailed: "Could not copy; download it instead",
+    download: "Download .md",
+    loading: "Reading the wallet…",
+    failed: "Could not read every source; the audit says what is missing.",
+    panel: (name: string) => `Wallet audit: ${name}`,
+    risks: "Risks",
+    opportunities: "Opportunities",
+    coverage: "Coverage",
+    standing: "Where it stands",
+    gaps: "Not checked",
+    none: "None",
+  },
 };
 
 /** Every word, by meaning. The French and German sets have exactly these keys. */
@@ -709,6 +727,23 @@ const FR: Words = {
     stale: (time: string) => `Mise à jour impossible ; données de ${time}`,
     embedFrame: "Dans une page, à la bonne hauteur (iframe)",
   },
+  wallet: {
+    audit: "Auditer le portefeuille",
+    hide: "Masquer l'audit",
+    copy: "Copier la stratégie",
+    copied: "Stratégie copiée",
+    copyFailed: "Copie impossible ; téléchargez-la",
+    download: "Télécharger .md",
+    loading: "Lecture du portefeuille…",
+    failed: "Certaines sources n'ont pas pu être lues ; l'audit indique ce qui manque.",
+    panel: (name) => `Audit du portefeuille : ${name}`,
+    risks: "Risques",
+    opportunities: "Opportunités",
+    coverage: "Couverture",
+    standing: "Situation",
+    gaps: "Non vérifié",
+    none: "Aucun",
+  },
 };
 
 const DE: Words = {
@@ -1029,6 +1064,23 @@ const DE: Words = {
     updated: (time: string) => `Aktualisiert ${time}`,
     stale: (time: string) => `Aktualisierung fehlgeschlagen; Daten von ${time}`,
     embedFrame: "In einer Seite, passende Höhe (iframe)",
+  },
+  wallet: {
+    audit: "Portfolio prüfen",
+    hide: "Prüfung ausblenden",
+    copy: "Strategie kopieren",
+    copied: "Strategie kopiert",
+    copyFailed: "Kopieren nicht möglich; bitte herunterladen",
+    download: ".md herunterladen",
+    loading: "Portfolio wird gelesen…",
+    failed: "Nicht alle Quellen konnten gelesen werden; die Prüfung nennt, was fehlt.",
+    panel: (name) => `Portfolioprüfung: ${name}`,
+    risks: "Risiken",
+    opportunities: "Chancen",
+    coverage: "Abdeckung",
+    standing: "Stand",
+    gaps: "Nicht geprüft",
+    none: "Keine",
   },
 };
 
