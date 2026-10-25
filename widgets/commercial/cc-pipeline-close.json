@@ -1,0 +1,60 @@
+{
+  "id": "cc-pipeline-close",
+  "title": "When the open deals should close",
+  "subtitle": "Open pipeline by expected close month, weighted by stage",
+  "description": "The open deals' weighted value by the month each is expected to close.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/deals.json"
+  },
+  "transform": [
+    {
+      "type": "filter",
+      "field": "open",
+      "op": "==",
+      "value": 1
+    },
+    {
+      "type": "aggregate",
+      "groupBy": "closeMonth",
+      "measures": [
+        {
+          "op": "sum",
+          "field": "weighted",
+          "as": "weighted"
+        }
+      ]
+    },
+    {
+      "type": "sort",
+      "field": "closeMonth"
+    }
+  ],
+  "fields": {
+    "closeMonth": {
+      "label": "Expected close",
+      "format": {
+        "type": "date",
+        "month": "short",
+        "year": "2-digit"
+      }
+    },
+    "weighted": {
+      "label": "Weighted pipeline",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
+  },
+  "view": {
+    "type": "bar",
+    "x": "closeMonth",
+    "y": "weighted"
+  }
+}

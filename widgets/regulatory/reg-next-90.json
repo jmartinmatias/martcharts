@@ -1,0 +1,91 @@
+{
+  "id": "reg-next-90",
+  "title": "What must be ready in the next 90 days",
+  "subtitle": "Every milestone due by 2027-01-23, soonest first, with the team that owns it and how ready it is",
+  "description": "The compliance officer's list: each deadline in the next ninety days, its rule, the owning team, and whether the work is done, in progress or not started.",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/regulatory-deadlines.json"
+  },
+  "transform": [
+    {
+      "type": "filter",
+      "field": "daysLeft",
+      "op": ">=",
+      "value": 0
+    },
+    {
+      "type": "filter",
+      "field": "daysLeft",
+      "op": "<=",
+      "value": 90
+    },
+    {
+      "type": "sort",
+      "field": "date"
+    }
+  ],
+  "fields": {
+    "date": {
+      "label": "Due",
+      "format": {
+        "type": "date"
+      }
+    },
+    "daysLeft": {
+      "label": "Days left"
+    },
+    "regulation": {
+      "label": "Rule"
+    },
+    "milestone": {
+      "label": "Milestone"
+    },
+    "owner": {
+      "label": "Owner"
+    },
+    "readiness": {
+      "label": "Readiness",
+      "format": {
+        "type": "badge",
+        "tones": {
+          "Done": "positive",
+          "In progress": "warning",
+          "Not started": "negative"
+        }
+      }
+    },
+    "readinessPct": {
+      "label": "Done so far",
+      "format": {
+        "type": "bar",
+        "max": 1,
+        "format": {
+          "type": "percent"
+        }
+      }
+    },
+    "topic": {
+      "label": "Topic"
+    }
+  },
+  "view": {
+    "type": "table",
+    "columns": [
+      "date",
+      "daysLeft",
+      "regulation",
+      "milestone",
+      "owner",
+      "readiness",
+      "readinessPct"
+    ],
+    "pageSize": 10,
+    "stickyFirst": true
+  },
+  "source": {
+    "name": "Regulatory watch (fictional)"
+  },
+  "byline": "Compliance office"
+}

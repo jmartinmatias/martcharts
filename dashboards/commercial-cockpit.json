@@ -1,8 +1,8 @@
 {
   "id": "commercial-cockpit",
   "title": "Commercial cockpit",
-  "subtitle": "Products, coverage, sales, campaigns, adoption, whitespace, clients and anomalies",
-  "description": "The commercial book on one page: what sells, who covers whom, where revenue comes from, which campaigns pay, how clients adopt, where the next sale is, and what stepped out of line.",
+  "subtitle": "Headline, what needs attention, where the money is, the pipeline, the next sale and who acts",
+  "description": "The commercial book as a story, for the relationship manager and the head of sales: the headline numbers first, then what needs attention, where the money is, the sales pipeline against target, who could buy what, and who acts this week. Below them the reference: coverage, the portfolio, where clients are, campaigns and adoption.",
   "asOf": "Data to {latest}",
   "columns": 3,
   "range": {
@@ -21,33 +21,116 @@
   "widgets": [
     {
       "section": "Headline numbers",
-      "description": "The book at a glance"
+      "description": "How is the book doing this month?"
     },
     {
       "widget": "cc-headline-kpis",
       "span": 3
     },
     {
-      "section": "Products",
-      "description": "What sells, how far it reaches, and how much it earns"
+      "section": "Needs attention",
+      "description": "What stepped out of line, and when?"
+    },
+    {
+      "widget": "cc-anomaly-kpis",
+      "span": 3
+    },
+    {
+      "widget": "cc-anomaly-tracker",
+      "span": 2
+    },
+    {
+      "widget": "cc-complaints-calendar"
+    },
+    {
+      "section": "Where the money is",
+      "description": "Which products and clients bring the revenue, and is it on plan?"
     },
     {
       "widget": "cc-product-revenue",
       "span": 2
     },
     {
-      "widget": "cc-product-mix"
+      "widget": "cc-revenue-bridge"
     },
     {
-      "widget": "cc-product-scorecard",
+      "widget": "cc-revenue-trades",
       "span": 2
+    },
+    {
+      "widget": "cc-fees-variance"
+    },
+    {
+      "widget": "cc-revenue-pareto",
+      "span": 2
+    },
+    {
+      "widget": "cc-product-scorecard"
+    },
+    {
+      "section": "Sales pipeline",
+      "description": "Will each banker make the target?"
+    },
+    {
+      "widget": "cc-pipeline-target"
+    },
+    {
+      "widget": "cc-win-rate"
+    },
+    {
+      "widget": "cc-new-money-target"
+    },
+    {
+      "widget": "cc-deal-funnel"
+    },
+    {
+      "widget": "cc-pipeline-close",
+      "span": 2
+    },
+    {
+      "section": "Who could buy what",
+      "description": "Where is the next sale, and how likely is it?"
+    },
+    {
+      "widget": "cc-whitespace",
+      "span": 3
     },
     {
       "widget": "cc-penetration-gap"
     },
     {
+      "widget": "cc-cross-sell-paths",
+      "span": 2
+    },
+    {
+      "section": "Who acts",
+      "description": "Who should each banker call this week, and why?"
+    },
+    {
+      "widget": "cc-call-list",
+      "span": 3
+    },
+    {
+      "widget": "cc-client-xray",
+      "follow": {
+        "field": "name"
+      }
+    },
+    {
+      "widget": "cc-client-story",
+      "span": 2,
+      "follow": {
+        "field": "name",
+        "as": "client"
+      }
+    },
+    {
+      "widget": "cc-client-list",
+      "span": 3
+    },
+    {
       "section": "Coverage",
-      "description": "Who covers whom, and how full each book is"
+      "description": "Is every client covered, and how full is each book?"
     },
     {
       "widget": "cc-rm-capacity"
@@ -59,26 +142,33 @@
       "widget": "cc-rm-books"
     },
     {
-      "section": "Sales and billing",
-      "description": "Where this year's revenue came from"
+      "section": "Portfolio",
+      "description": "Is the book allocated as the model says, and where do clients cluster?"
     },
     {
-      "widget": "cc-revenue-trades",
+      "widget": "cc-risk-return",
       "span": 2
     },
     {
-      "widget": "cc-revenue-bridge"
+      "widget": "cc-allocation-drift"
     },
     {
-      "widget": "cc-revenue-pareto",
+      "widget": "cc-allocation-bands"
+    },
+    {
+      "section": "Where clients are",
+      "description": "Where are the assets and the clients?"
+    },
+    {
+      "widget": "cc-aum-by-country",
       "span": 2
     },
     {
-      "widget": "cc-fees-variance"
+      "widget": "cc-clients-by-country"
     },
     {
       "section": "Campaigns",
-      "description": "What ran, what converted, what paid"
+      "description": "What ran, what converted, and what paid?"
     },
     {
       "widget": "cc-campaign-plan",
@@ -92,7 +182,7 @@
     },
     {
       "section": "Adoption",
-      "description": "How fast new clients take up the digital channel"
+      "description": "How fast do new clients take up the digital channel?"
     },
     {
       "widget": "cc-adoption-cohorts",
@@ -100,82 +190,6 @@
     },
     {
       "widget": "cc-adoption-curves"
-    },
-    {
-      "section": "Portfolio",
-      "description": "Allocation against the model, and where clients cluster"
-    },
-    {
-      "widget": "cc-risk-return",
-      "span": 2
-    },
-    {
-      "widget": "cc-allocation-drift"
-    },
-    {
-      "widget": "cc-allocation-bands"
-    },
-    {
-      "section": "Whitespace and cross-sell",
-      "description": "Who could buy what"
-    },
-    {
-      "widget": "cc-whitespace",
-      "span": 3
-    },
-    {
-      "widget": "cc-potential-by-product"
-    },
-    {
-      "widget": "cc-cross-sell-paths",
-      "span": 2
-    },
-    {
-      "section": "Where clients are",
-      "description": "The helicopter view"
-    },
-    {
-      "widget": "cc-aum-by-country",
-      "span": 2
-    },
-    {
-      "widget": "cc-offices"
-    },
-    {
-      "widget": "cc-clients-by-country",
-      "span": 2
-    },
-    {
-      "section": "Clients",
-      "description": "One client's story, and the whole book"
-    },
-    {
-      "widget": "cc-client-xray",
-      "follow": { "field": "name" }
-    },
-    {
-      "widget": "cc-client-story",
-      "span": 2,
-      "follow": { "field": "name", "as": "client" }
-    },
-    {
-      "widget": "cc-client-list",
-      "span": 3
-    },
-    {
-      "section": "Anomalies",
-      "description": "What stepped out of line"
-    },
-    {
-      "widget": "cc-anomaly-kpis",
-      "span": 3
-    },
-    {
-      "widget": "cc-anomaly-tracker",
-      "span": 2
-    },
-    {
-      "widget": "cc-complaints-calendar"
     }
   ]
 }

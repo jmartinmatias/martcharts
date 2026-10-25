@@ -1,0 +1,68 @@
+{
+  "id": "cc-call-list",
+  "title": "Who to call this week",
+  "subtitle": "The ten clients a call matters most for, and why: a long silence, a flagged anomaly, a client at risk of leaving, or a likely sale",
+  "description": "Each client is scored on days since the last contact, an open anomaly, the risk of leaving and the best open opportunity; the highest scores come first, with the reason and the next best action.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/clients.json"
+  },
+  "transform": [
+    {
+      "type": "sort",
+      "field": "callScore",
+      "order": "desc"
+    },
+    {
+      "type": "limit",
+      "count": 10
+    }
+  ],
+  "fields": {
+    "name": {
+      "label": "Client"
+    },
+    "rm": {
+      "label": "Relationship manager"
+    },
+    "callReason": {
+      "label": "Why now"
+    },
+    "nextAction": {
+      "label": "Next best action"
+    },
+    "daysSinceContact": {
+      "label": "Days since contact",
+      "format": {
+        "type": "heat"
+      }
+    },
+    "crossSellPotential": {
+      "label": "Potential a year",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "callScore": {
+      "label": "Call score"
+    }
+  },
+  "view": {
+    "type": "table",
+    "columns": [
+      "name",
+      "rm",
+      "callReason",
+      "nextAction",
+      "daysSinceContact",
+      "crossSellPotential"
+    ],
+    "stickyFirst": true
+  }
+}

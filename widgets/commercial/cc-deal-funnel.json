@@ -1,0 +1,40 @@
+{
+  "id": "cc-deal-funnel",
+  "title": "From qualified to won",
+  "subtitle": "Deals this year by the furthest stage they reached",
+  "description": "How many deals reached each stage, from qualified to won, and how many fell away between stages.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/deal-stages.json"
+  },
+  "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": "stage",
+      "measures": [
+        {
+          "op": "sum",
+          "field": "deals",
+          "as": "deals"
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "stage": {
+      "label": "Stage"
+    },
+    "deals": {
+      "label": "Deals"
+    }
+  },
+  "view": {
+    "type": "funnel",
+    "label": "stage",
+    "value": "deals"
+  }
+}

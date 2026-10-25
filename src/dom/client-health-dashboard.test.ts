@@ -81,6 +81,7 @@ describe("the client health dashboard", () => {
       "Relationship",
       "Movement",
       "Actions",
+      "Every client",
       "Thresholds",
     ]);
   });

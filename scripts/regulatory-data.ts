@@ -13,6 +13,7 @@
  * - regulatory-activity-split.json: the activity series shared across each topic's jurisdictions.
  * - regulatory-pressure-split.json: the monthly obligations and consultations shared across topics and jurisdictions.
  * - regulatory-transposition.json: gains each directive's topic and jurisdiction.
+ * - regulatory-deadlines.json: each rule's milestones over the coming year, with an owning team and its readiness.
  *
  * Deterministic, no randomness. Run with: node scripts/regulatory-data.ts
  */
@@ -150,7 +151,55 @@ const transposition = read<Record<string, unknown>[]>("regulatory-transposition.
   return { ...row, topic: rule?.topic ?? null, jurisdiction: rule?.jurisdiction ?? null };
 });
 
+// ---- Deadlines: each rule's next milestones over the coming year, with the team that owns it and how ready it is ----
+// Rules on their way to applying have a gap assessment, a tested implementation and the day they apply; rules already
+// applying have their annual compliance review; open consultations and proposals have a response or an assessment due.
+// Readiness follows a fixed rule (the nearer the date, the further along), so the register reads like a real one.
+const OWNERS: Record<string, string> = {
+  "Operational resilience": "IT risk",
+  "Data, AI & digital": "Data office",
+  "AML & sanctions": "Financial crime",
+  "ESG & sustainability": "Sustainability office",
+  Prudential: "Finance and risk",
+  "Consumer protection": "Conduct and compliance",
+  Markets: "Markets compliance",
+  Payments: "Payments operations",
+};
+const DAY = 86_400_000;
+const at = (date: string) => Date.parse(`${date}T00:00:00Z`);
+const shift = (date: string, days: number) => new Date(at(date) + days * DAY).toISOString().slice(0, 10);
+const hash = (text: string) => [...text].reduce((sum, ch, i) => sum + ch.charCodeAt(0) * (i + 1), 0);
+/** The next anniversary of a date after today. */
+function anniversary(date: string): string {
+  const [, m, d] = date.split("-");
+  const year = Number(TODAY.slice(0, 4));
+  const thisYear = `${year}-${m}-${d}`;
+  return thisYear > TODAY ? thisYear : `${year + 1}-${m}-${d}`;
+}
+/** A rule's milestones, each a name and a date. */
+function milestonesOf(r: Rule): [string, string][] {
+  if (r.status === "Repealed") return [];
+  if (r.applies && r.applies > TODAY) return [["Gap assessment complete", shift(r.applies, -150)], ["Implementation tested", shift(r.applies, -45)], ["Applies", r.applies]];
+  if (r.status === "Applies" || r.status === "In force") return [["Annual compliance review", anniversary(r.applies ?? r.inForce ?? TODAY)]];
+  if (r.status === "Consultation") return [["Consultation response due", shift(TODAY, 14 + (hash(r.id) % 60))]];
+  if (r.status === "Under review") return [["Review response due", shift(TODAY, 20 + (hash(r.id) % 90))]];
+  return [["Impact assessment complete", shift(TODAY, 30 + (hash(r.id) % 150))]];
+}
+const deadlineRows = rules.flatMap((r) =>
+  milestonesOf(r)
+    .filter(([, date]) => date > TODAY && date <= shift(TODAY, 365))
+    .map(([milestone, date]) => {
+      const daysLeft = Math.round((at(date) - at(TODAY)) / DAY);
+      const h = hash(`${r.id}${milestone}`) % 10;
+      const [done, going] = daysLeft <= 30 ? [5, 9] : daysLeft <= 90 ? [3, 7] : [1, 5];
+      const readiness = h < done ? "Done" : h < going ? "In progress" : "Not started";
+      const readinessPct = readiness === "Done" ? 1 : readiness === "In progress" ? Math.round((30 + ((h * 17) % 55)) / 5) * 0.05 : 0;
+      return { id: r.id, regulation: r.name, topic: r.topic, jurisdiction: r.jurisdiction, milestone, date, daysLeft, owner: OWNERS[r.topic] ?? "Compliance", readiness, readinessPct: Math.round(readinessPct * 100) / 100, impact: r.impact, deadlines: 1 };
+    }),
+).sort((a, b) => a.date.localeCompare(b.date) || a.regulation.localeCompare(b.regulation));
+
 write("regulation-stages.json", stages);
+write("regulatory-deadlines.json", deadlineRows);
 write("regulation-stakeholders.json", stakeholders);
 write("regulation-scope.json", scope);
 write("regulatory-countries.json", countryRows);
