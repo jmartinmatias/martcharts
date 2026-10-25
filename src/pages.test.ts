@@ -70,6 +70,14 @@ describe("every page goes to every page", () => {
     }
   });
 
+  test("pages that only show charts load the lite bundle; the embed page brings French and German in when its chart asks", () => {
+    for (const file of ["examples/embed.html", "examples/drop-in.html", "catalog/index.html", "catalog/guide.html"]) {
+      const sources = [...read(file).querySelectorAll("script[src]")].map((node) => node.getAttribute("src"));
+      expect([file, sources.includes("../dist/martcharts-lite.iife.js"), sources.includes("../dist/martcharts.iife.js")]).toEqual([file, true, false]);
+    }
+    expect(readFileSync("examples/embed.js", "utf8")).toContain("../dist/martcharts-reading.iife.js");
+  });
+
   test("no page runs an inline script: the published site's policy allows scripts from the site only", () => {
     // Data blocks (type="application/json") are not scripts and stay; anything that runs must come from a file.
     const files = [...PAGES.map(([file]) => file), "examples/embed.html"];

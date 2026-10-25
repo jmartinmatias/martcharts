@@ -12,6 +12,10 @@
       "types": "./dist/types/standalone.d.ts",
       "default": "./dist/martcharts.js"
     },
+    "./lite": {
+      "types": "./dist/types/lite.d.ts",
+      "default": "./dist/martcharts-lite.js"
+    },
     "./dist/*": "./dist/*"
   },
   "unpkg": "dist/martcharts.iife.js",
@@ -32,7 +36,7 @@
     "dev": "vite",
     "build:demo": "vite build",
     "build:site": "vite build && npm run build:lib && node scripts/site-pages.ts",
-    "build:lib": "vite build -c vite.lib.config.ts && node scripts/lib-types.ts",
+    "build:lib": "vite build -c vite.lib.config.ts && vite build -c vite.lite.config.ts && vite build -c vite.reading.config.ts && node scripts/lib-types.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",

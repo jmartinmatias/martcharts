@@ -9,7 +9,10 @@
 import { humanize } from "./display.ts";
 import type { Row, WidgetSpec } from "./types.ts";
 import { readable } from "./canonical.ts";
-import { distinctLabel, entityNoun, questionIn } from "./explain-words.ts";
+import { distinctLabel, entityNoun } from "./nouns.ts";
+import { readingLanguages } from "./reading.ts";
+// Registers French and German. The lite build maps this import to nothing, leaving English (see vite.lite.config.ts).
+import "./explain-words.ts";
 import { langOf } from "./words.ts";
 
 /** What kind of question a chart answers. */
@@ -114,7 +117,8 @@ export function questionOf(written: WidgetSpec, rows: Row[] = []): Question {
   const english = questionEn(written, rows);
   // French and German ask the same kind of question in their own words (explain-words.ts).
   const lang = langOf(written.locale);
-  return lang === "en" ? english : { kind: english.kind, text: questionIn(lang, readable(written), rows, english.kind) };
+  const other = lang === "en" ? undefined : readingLanguages();
+  return other && lang !== "en" ? { kind: english.kind, text: other.questionIn(lang, readable(written), rows, english.kind) } : english;
 }
 
 function questionEn(written: WidgetSpec, rows: Row[]): Question {
