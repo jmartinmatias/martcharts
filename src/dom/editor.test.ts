@@ -338,22 +338,27 @@ describe("step 3: the chart", () => {
 });
 
 describe("step 4: publish", () => {
-  test("shows the chart with its actions, the spec, four embed codes (the last an iframe that sizes itself), and saves to the browser when the host has no store", async () => {
+  test("shows the chart with its actions, one embed in view (the iframe that sizes itself), the other embeds and the spec folded, and saves to the browser when the host has no store", async () => {
     const ed = open();
     ed.setData(TSV);
     ed.setSpec({ ...ed.spec, id: "regions", title: "Regions", view: { type: "hbar", label: "region", value: "revenue" } });
     ed.go(4);
     await vi.waitFor(() => expect(one(".fft-ed-published .fft-widget")).not.toBeNull());
     expect(one(".fft-ed-published .fft-action[data-action='csv']")).not.toBeNull();
+    // Publish shows one embed now: the iframe in view; the script, file and JavaScript embeds and the spec are folded.
     const codes = texts(".fft-ed-pre");
     expect(codes).toHaveLength(5);
-    expect(codes[0]).toContain('"id": "regions"');
-    expect(codes[1]).toContain("<fft-widget actions=");
-    expect(codes[2]).toContain('src="widgets/regions.json"');
-    expect(codes[3]).toContain("createWidget(");
-    expect(codes[4]).toMatch(/^<iframe src="embed\.html\?spec=[\w-]+" title="Regions"/);
-    expect(codes[4]).toContain('<script src="embed-host.js"></script>');
-    (all(".fft-ed-primary").find((b) => b.textContent === "Save to this gallery") as HTMLButtonElement).click();
+    const inView = all(".fft-ed-pre").filter((pre) => !pre.closest("details:not([open])"));
+    expect(inView.map((pre) => pre.textContent)).toHaveLength(1);
+    expect(inView[0]?.textContent).toMatch(/^<iframe src="embed\.html\?spec=[\w-]+" title="Regions"/);
+    expect(inView[0]?.textContent).toContain('<script src="embed-host.js"></script>');
+    expect(codes.find((c) => c?.includes('"id": "regions"'))).toBeTruthy();
+    expect(codes.find((c) => c?.includes("<fft-widget actions="))).toBeTruthy();
+    expect(codes.find((c) => c?.includes('src="widgets/regions.json"'))).toBeTruthy();
+    expect(codes.find((c) => c?.includes("createWidget("))).toBeTruthy();
+    // One Save, to My charts by default.
+    expect((one("select[aria-label='Save to']") as HTMLSelectElement).value).toBe("");
+    (all(".fft-ed-primary").find((b) => b.textContent === "Save") as HTMLButtonElement).click();
     await vi.waitFor(() => expect(JSON.parse(localStorage.getItem("martcharts:editor:charts") ?? "[]")).toHaveLength(1));
     // Back on the data step, the saved chart is offered and reopens.
     ed.go(1);
@@ -365,7 +370,9 @@ describe("step 4: publish", () => {
     const ed = open({ save });
     ed.setData(TSV);
     ed.go(4);
-    (all(".fft-ed-primary").find((b) => b.textContent === "Save to this gallery") as HTMLButtonElement).click();
+    // The one Save button, its destination naming the site's charts when the host saves.
+    expect((one("select[aria-label='Save to']") as HTMLSelectElement).selectedOptions[0]?.textContent).toBe("The site's charts");
+    (all(".fft-ed-primary").find((b) => b.textContent === "Save") as HTMLButtonElement).click();
     await vi.waitFor(() => expect(save).toHaveBeenCalledTimes(1));
     expect(localStorage.getItem("martcharts:editor:charts")).toBeNull();
   });

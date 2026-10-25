@@ -561,6 +561,21 @@ const EN = {
     stale: (time: string) => `Could not update; showing data from ${time}`,
     embedFrame: "In a page, sized to fit (iframe)",
   },
+  // ---- The editor and composer surface: the common first, the rest a click away ----
+  surface: {
+    moreOptions: "More options",
+    style: "Style",
+    otherEmbeds: "Other ways to embed",
+    spec: "The spec (JSON)",
+    save: "Save",
+    saveTo: "Save to",
+    myCharts: "My charts, in this browser",
+    hostCharts: "The site's charts",
+    newBoard: "A new dashboard",
+    showAll: (n: number) => `Show all fields (${n} more)`,
+    showFewer: "Show fewer",
+    order: "Order",
+  },
 };
 
 /** Every word, by meaning. The French and German sets have exactly these keys. */
@@ -1065,6 +1080,20 @@ const FR: Words = {
     stale: (time: string) => `Mise à jour impossible ; données de ${time}`,
     embedFrame: "Dans une page, à la bonne hauteur (iframe)",
   },
+  surface: {
+    moreOptions: "Plus d'options",
+    style: "Apparence",
+    otherEmbeds: "Autres façons d'intégrer",
+    spec: "La spécification (JSON)",
+    save: "Enregistrer",
+    saveTo: "Enregistrer dans",
+    myCharts: "Mes graphiques, dans ce navigateur",
+    hostCharts: "Les graphiques du site",
+    newBoard: "Un nouveau tableau de bord",
+    showAll: (n: number) => `Afficher tous les champs (${n} de plus)`,
+    showFewer: "Afficher moins",
+    order: "Ordre",
+  },
 };
 
 const DE: Words = {
@@ -1565,6 +1594,20 @@ const DE: Words = {
     updated: (time: string) => `Aktualisiert ${time}`,
     stale: (time: string) => `Aktualisierung fehlgeschlagen; Daten von ${time}`,
     embedFrame: "In einer Seite, passende Höhe (iframe)",
+  },
+  surface: {
+    moreOptions: "Weitere Optionen",
+    style: "Darstellung",
+    otherEmbeds: "Weitere Einbettungen",
+    spec: "Die Spezifikation (JSON)",
+    save: "Speichern",
+    saveTo: "Speichern in",
+    myCharts: "Meine Diagramme, in diesem Browser",
+    hostCharts: "Die Diagramme der Website",
+    newBoard: "Ein neues Dashboard",
+    showAll: (n: number) => `Alle Felder zeigen (${n} weitere)`,
+    showFewer: "Weniger zeigen",
+    order: "Reihenfolge",
   },
 };
 

@@ -47,9 +47,12 @@ describe("from a CSV to a published dashboard, with no JSON written", () => {
     editor.setData(CSV);
     editor.setSpec({ ...editor.spec, id: "revenue", title: "Revenue by region", view: { type: "hbar", label: "region", value: "revenue" } });
     editor.go(4);
-    const addButton = () => all<HTMLButtonElement>("button").find((b) => b.textContent === "Add to dashboard") as HTMLButtonElement;
-    const choose = byLabel("Dashboard") as HTMLSelectElement;
-    expect(choose.value).toBe("");
+    // One Save now, asking where: My charts by default, a dashboard on demand.
+    const addButton = () => all<HTMLButtonElement>(".fft-ed-addboard button").find((b) => b.textContent === "Save") as HTMLButtonElement;
+    const choose = () => byLabel("Save to") as HTMLSelectElement;
+    expect(choose().value).toBe("");
+    choose().value = [...choose().options].find((o) => o.textContent === "A new dashboard")?.value ?? "";
+    choose().dispatchEvent(new Event("change"));
     (byLabel("Dashboard name") as HTMLInputElement).value = "Sales review";
     addButton().click();
     await vi.waitFor(() => expect(target.querySelector(".fft-ed-addboard-result a")).not.toBeNull());
@@ -57,8 +60,9 @@ describe("from a CSV to a published dashboard, with no JSON written", () => {
     expect(link.getAttribute("href")).toBe("composer.html#board=sales-review");
     editor.setSpec({ ...editor.spec, id: "cost", title: "Cost by region", view: { type: "bar", x: "region", y: "cost" } });
     editor.go(4);
-    // The board made a moment ago is offered first.
-    expect((byLabel("Dashboard") as HTMLSelectElement).value).toBe("sales-review");
+    // The board made a moment ago is offered, right after My charts.
+    expect([...choose().options].map((o) => o.value).slice(0, 2)).toEqual(["", "sales-review"]);
+    choose().value = "sales-review";
     addButton().click();
     await vi.waitFor(() => expect(localBoardStore().boards()).toSatisfy((boards: unknown) => Array.isArray(boards) && boards[0]?.spec.widgets.length === 2));
     // My charts lists both, from the same store.
