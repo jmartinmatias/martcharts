@@ -85,7 +85,7 @@ export interface ViewContext<V extends { type: string } = ViewSpec> {
 export type ViewRenderer<V extends { type: string } = any> = (ctx: ViewContext<V>) => void | (() => void);
 
 /** View options that name the category a mark stands for, in the order a click looks for them. */
-export const CATEGORY_OPTIONS = ["label", "x", "id", "row", "y", "group", "series", "stage", "column"] as const;
+export const CATEGORY_OPTIONS = ["label", "x", "id", "row", "y", "group", "series", "color", "stage", "column"] as const;
 
 /** True for a value that names a category rather than measuring something: text that is not a bare number, or a yes/no. */
 function isCategoryValue(value: unknown): boolean {

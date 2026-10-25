@@ -156,13 +156,13 @@ export interface DonutView {
   majority?: boolean;
 }
 
-/** `{ type: "pie", label, value, labels? }`: part-to-whole as a full disc, for up to 6 slices. */
+/** `{ type: "pie", label, value, labelPlace? }`: part-to-whole as a full disc, for up to 6 slices. */
 export interface PieView {
   type: "pie";
   label: string;
   value: string;
   /** Where the slices are named: shares inside the slices with a legend (default), names and shares outside with leader lines, or the legend alone. */
-  labels?: "inside" | "outside" | "legend";
+  labelPlace?: "inside" | "outside" | "legend";
 }
 
 /** `{ type: "waterfall", label, value, totals?, endLabel? }`: a bridge from one total to another. */
@@ -185,13 +185,14 @@ export interface HeatmapView {
   value: string;
 }
 
-/** `{ type: "scatter", x, y, series?, label? }`: one dot per row, two numbers each. */
+/** `{ type: "scatter", x, y, color?, label? }`: one dot per row, two numbers each. */
 export interface ScatterView {
   type: "scatter";
   x: string;
   y: string;
   size?: string;
-  series?: string;
+  /** Field that colors the dots by group. */
+  color?: string;
   label?: string;
   reference?: ReferenceMark[];
   /** Field naming each dot's cluster: a soft hull gathers each cluster's dots, named at its middle, and colors the dots unless series is set. */
@@ -297,11 +298,11 @@ export interface DumbbellView {
   mark?: "range" | "arrow";
 }
 
-/** `{ type: "dot", label, values, highlight? }`: one or more measures per row as dots on one shared axis (a dot plot). */
+/** `{ type: "dot", label, value, highlight? }`: one or more measures per row as dots on one shared axis (a dot plot). */
 export interface DotView {
   type: "dot";
   label: string;
-  values: string | string[];
+  value: string | string[];
   highlight?: string | string[];
 }
 
@@ -408,11 +409,12 @@ export interface BoxplotView {
   group?: string;
 }
 
-/** `{ type: "likert", label, responses }`: survey answers as diverging stacked bars centered on neutral. */
+/** `{ type: "likert", label, value }`: survey answers as diverging stacked bars centered on neutral. */
 export interface LikertView {
   type: "likert";
   label: string;
-  responses: string[];
+  /** The response count fields, from one pole to the other. */
+  value: string[];
 }
 
 /** `{ type: "candlestick", x, open, high, low, close, average? }`: price periods as wicks and bodies. */
@@ -553,22 +555,22 @@ export interface LineView {
   curve?: "linear" | "smooth" | "step";
   /** A small symbol at every data point. */
   points?: boolean;
-  /** "peaks" names the first series' highest and lowest points with a dot and their value. */
-  labels?: "none" | "peaks";
+  /** True names the first series' highest and lowest points with a dot and their value. */
+  peaks?: boolean;
   /** "log" draws the value axis logarithmically (ticks at powers of ten), for growth that multiplies. Positive values only. */
   scale?: "linear" | "log";
   /** Short notes pinned to points of the lines. */
   annotations?: Annotation[];
 }
 
-/** `{ type: "dual", x, y, y2, marks? }`: two measures on two panels sharing one x axis, each on its own scale. */
+/** `{ type: "dual", x, y, y2, panels? }`: two measures on two panels sharing one x axis, each on its own scale. */
 export interface DualView {
   type: "dual";
   x: string;
   y: string;
   y2: string;
   /** How each panel draws its measure, top then bottom. Default ["bar", "line"]. */
-  marks?: [DualMark, DualMark];
+  panels?: [DualMark, DualMark];
   /** The texture of lines between points. */
   curve?: "linear" | "smooth" | "step";
   /** Short notes pinned to periods on the top panel. */
@@ -886,14 +888,14 @@ const scatter: ViewBlock = {
     x: { type: "field", kind: "number", required: true, description: "Numeric field along the horizontal axis." },
     y: { type: "field", kind: "number", required: true, description: "Numeric field along the vertical axis." },
     size: { type: "field", kind: "number", description: "Field sizing each dot by area, making a bubble chart: four times the value, twice the radius. Bigger bubbles are drawn first." },
-    series: { type: "field", kind: "category", description: "Field that groups the dots by color. Up to 3 groups stay distinct." },
+    color: { type: "field", kind: "category", description: "Field that groups the dots by color. Up to 3 groups stay distinct." },
     label: { type: "field", kind: "category", description: "Field naming each dot in its tooltip." },
     reference: REFERENCE_OPTION,
     cluster: {
       type: "field",
       kind: "category",
       description:
-        "Field naming each dot's cluster, such as a segment found by analysis. A soft, rounded hull gathers each cluster's dots and carries its name at the middle, so the areas read as regions of the plot; the dots take the cluster's color unless series is set. Up to 6 clusters.",
+        "Field naming each dot's cluster, such as a segment found by analysis. A soft, rounded hull gathers each cluster's dots and carries its name at the middle, so the areas read as regions of the plot; the dots take the cluster's color unless color is set. Up to 6 clusters.",
     },
     labels: { type: "boolean", default: false, description: "Write each dot's label beside it, skipping names that would land on another, so the standouts are named on the chart itself." },
     quadrants: {
@@ -907,8 +909,8 @@ const scatter: ViewBlock = {
   validate: (view) => [...checkReference(view), ...checkQuadrants(view)],
   checkData(view, rows) {
     const messages: string[] = [];
-    if (typeof view.series === "string") {
-      const groups = new Set(rows.map((row) => String(row[view.series as string]))).size;
+    if (typeof view.color === "string") {
+      const groups = new Set(rows.map((row) => String(row[view.color as string]))).size;
       if (groups > 3) messages.push(`${groups} groups. Only 3 scatter colors stay distinct for colorblind readers: fold the rest into "Other" or split the chart.`);
     }
     if (typeof view.cluster === "string") {
@@ -1034,17 +1036,17 @@ const dumbbell: ViewBlock = {
 
 const dot: ViewBlock = {
   type: "dot",
-  extent: (view, rows) => fieldList(view.values).flatMap((field) => rows.map((row) => readNumber(row[field]))).filter((n): n is number => n !== null),
+  extent: (view, rows) => fieldList(view.value).flatMap((field) => rows.map((row) => readNumber(row[field]))).filter((n): n is number => n !== null),
   description:
     "A dot plot: one row per item and one dot per measure on one shared axis, with a hairline across each row. Several measures sit side by side in their series colors, so a row's spread and the ranking on any measure both read at once. For scores, rates or prices by item, with far less ink than bars.",
   options: {
     label: { type: "field", kind: "category", required: true, description: "Field naming each row." },
-    values: { type: "fields", kind: "number", required: true, description: "Field or fields placed as dots on the axis. Each field is one series with its own color; one field writes its value beside the dot." },
+    value: { type: "fields", kind: "number", required: true, description: "Field or fields placed as dots on the axis. Each field is one series with its own color; one field writes its value beside the dot." },
     highlight: highlightCategories,
     reference: REFERENCE_OPTION,
   },
   checkData(view, rows) {
-    const fields = fieldList(view.values);
+    const fields = fieldList(view.value);
     const messages: string[] = [];
     if (fields.length > 6) messages.push(`${fields.length} dots per row crowd a dot plot. Keep 6 or fewer measures, or use a table.`);
     if (rows.length > 30) messages.push(`${rows.length} rows. Past 30 the rows get thin and the axis far away: filter or limit to the rows that matter.`);
@@ -1233,11 +1235,11 @@ const likert: ViewBlock = {
   description: "Survey answers as diverging stacked bars: one bar per question, its responses in order from one pole to the other, centered on the neutral middle so disagreement grows left and agreement right. Shares disagreeing and agreeing are written at each end. Takes one row per question with a count field per response.",
   options: {
     label: { type: "field", kind: "category", required: true, description: "Field with each question." },
-    responses: { type: "fields", kind: "number", required: true, description: 'Count fields for the responses, in order from the negative pole to the positive, for example ["strongly_disagree", "disagree", "neutral", "agree", "strongly_agree"]. An odd count puts the middle one at the center.' },
+    value: { type: "fields", kind: "number", required: true, description: 'Count fields for the responses, in order from the negative pole to the positive, for example ["strongly_disagree", "disagree", "neutral", "agree", "strongly_agree"]. An odd count puts the middle one at the center.' },
   },
   validate(view) {
-    const responses = view.responses;
-    return Array.isArray(responses) && responses.length < 2 ? ["responses needs at least two fields, from one pole to the other."] : [];
+    const responses = view.value;
+    return Array.isArray(responses) && responses.length < 2 ? ["value needs at least two response fields, from one pole to the other."] : [];
   },
 };
 
@@ -1397,7 +1399,7 @@ const pie: ViewBlock = {
   options: {
     label: { type: "field", kind: "category", required: true, description: "Field naming each slice." },
     value: { type: "field", kind: "number", required: true, description: "Field with each slice's amount. Zero, negative and missing values are left out." },
-    labels: {
+    labelPlace: {
       type: "enum",
       values: ["inside", "outside", "legend"],
       default: "inside",
@@ -1526,11 +1528,10 @@ const line: ViewBlock = {
     band: BAND_OPTION,
     curve: CURVE_OPTION,
     points: { type: "boolean", default: false, description: "A small symbol at every data point, in the line's color, so each reading is a mark of its own. Left out where points would sit closer than 8px." },
-    labels: {
-      type: "enum",
-      values: ["none", "peaks"],
-      default: "none",
-      description: '"peaks" marks the first series\' highest and lowest points with a dot and writes their values beside them, clear of the end label.',
+    peaks: {
+      type: "boolean",
+      default: false,
+      description: "Marks the first series' highest and lowest points with a dot and writes their values beside them, clear of the end label.",
     },
     scale: {
       type: "enum",
@@ -1559,7 +1560,7 @@ const dual: ViewBlock = {
     x: { type: "field", kind: "date", required: true, description: "Field for the shared axis, usually a date or period." },
     y: { type: "field", kind: "number", required: true, description: "Measure on the top panel." },
     y2: { type: "field", kind: "number", required: true, description: "Measure on the bottom panel, in its own unit." },
-    marks: {
+    panels: {
       type: "array",
       values: ["bar", "line"],
       itemLabels: ["Top panel", "Bottom panel"],
@@ -1570,9 +1571,9 @@ const dual: ViewBlock = {
     annotations: ANNOTATIONS_OPTION,
   },
   validate(view) {
-    const marks = view.marks;
-    const ok = marks === undefined || (Array.isArray(marks) && marks.length === 2 && marks.every((m) => m === "bar" || m === "line"));
-    const problems = ok ? [] : ['marks must be two of "bar" or "line", top then bottom, for example ["bar", "line"].'];
+    const panels = view.panels;
+    const ok = panels === undefined || (Array.isArray(panels) && panels.length === 2 && panels.every((m) => m === "bar" || m === "line"));
+    const problems = ok ? [] : ['panels must be two of "bar" or "line", top then bottom, for example ["bar", "line"].'];
     if (typeof view.y === "string" && view.y === view.y2) problems.push("y and y2 are the same field: a dual draws two different measures.");
     return problems;
   },
@@ -1627,7 +1628,7 @@ const rose: ViewBlock = {
 /** What the map views accept as geometry: a built-in basemap's name, an inline GeoJSON FeatureCollection, or its address. */
 export type GeoOption = string | GeoCollection;
 
-/** `{ type: "choropleth", geo, id, value, key?, labels?, min?, max? }`: regions shaded by a value. */
+/** `{ type: "choropleth", geo, id, value, key?, codes?, min?, max? }`: regions shaded by a value. */
 export interface ChoroplethView {
   type: "choropleth";
   geo: GeoOption;
@@ -1637,7 +1638,8 @@ export interface ChoroplethView {
   /** The category that colors each region, one series color per value, with a key. One of value and category. */
   category?: string;
   key?: string;
-  labels?: boolean;
+  /** Write each region's code inside it, where it fits. Default true. */
+  codes?: boolean;
   min?: number;
   max?: number;
   /** The same measure in the previous period: the tooltip gives the change, and `show: "change"` shades by it. */
@@ -1673,7 +1675,7 @@ export interface SymbolsView {
   key?: string;
 }
 
-/** `{ type: "locator", geo?, id? | lat? lon?, label, note?, kind? }`: named markers on a map. */
+/** `{ type: "locator", geo?, id? | lat? lon?, label, note?, color? }`: named markers on a map. */
 export interface LocatorView {
   type: "locator";
   geo?: GeoOption;
@@ -1682,7 +1684,8 @@ export interface LocatorView {
   lon?: string;
   label: string;
   note?: string;
-  kind?: string;
+  /** Field that colors the markers by kind, with a key. */
+  color?: string;
   key?: string;
 }
 
@@ -1742,7 +1745,7 @@ const choropleth: ViewBlock = {
       description: "Field that colors each region by its category instead, one series color per value with a key: a transposition status, a supervisor, a regime. Up to 8 categories stay distinct.",
     },
     key: KEY_OPTION,
-    labels: { type: "boolean", default: true, description: 'Write each region\'s code inside it, where it fits. Also takes the words other views use: "codes" (the same as true) or "none".' },
+    codes: { type: "boolean", default: true, description: "Write each region's code inside it, where it fits." },
     min: { type: "number", description: "Value of the weakest tint. Defaults to the lowest value." },
     max: { type: "number", description: "Value of the strongest tint. Defaults to the highest value." },
     previous: {
@@ -1823,7 +1826,7 @@ const locator: ViewBlock = {
     lon: LON_OPTION,
     label: { type: "field", kind: "category", required: true, description: "Field with each place's name, written beside its marker." },
     note: { type: "field", kind: "category", description: "Field with a second, smaller line under the name, such as a city or a headcount." },
-    kind: { type: "field", kind: "category", description: "Field that colors the markers by kind, with a key." },
+    color: { type: "field", kind: "category", description: "Field that colors the markers by kind, with a key." },
     key: KEY_OPTION,
   },
   validate(view) {
@@ -1840,24 +1843,26 @@ const locator: ViewBlock = {
 
 // ---- Regulatory landscape: a mark matrix, unit strips and stage lifecycles ----
 
-/** `{ type: "matrix", x, y, size?, color?, mark?, label? }`: one mark per x and y pair on a grid, sized, shaded or ticked by value. */
+/** `{ type: "matrix", x, y, size?, color?, flag?, label? }`: one mark per x and y pair on a grid, sized, shaded or ticked by value. */
 export interface MatrixView {
   type: "matrix";
   x: string;
   y: string;
   size?: string;
   color?: string;
-  mark?: string;
+  /** A yes/no field: a filled square where it is yes. */
+  flag?: string;
   label?: string;
   /** Row or column values to keep in color; the other marks step back. */
   highlight?: string | string[];
 }
 
-/** `{ type: "strips", label, parts, per?, unit? }`: one square per unit in a strip per row, colored by part. */
+/** `{ type: "strips", label, value, per?, unit? }`: one square per unit in a strip per row, colored by part. */
 export interface StripsView {
   type: "strips";
   label: string;
-  parts: string | string[];
+  /** The count field or fields, one part each, in the order drawn. */
+  value: string | string[];
   per?: string;
   unit?: string;
 }
@@ -1894,12 +1899,12 @@ const matrix: ViewBlock = {
       kind: "category",
       description: "Field that shades each mark: a number takes the seven-step scale from lowest to highest (with a scale under the grid), a category takes one color per value (with a key).",
     },
-    mark: { type: "field", kind: "category", description: 'A yes/no field (true, 1, "yes", "x"): a filled square where it is yes, a faint dot where it is no. For who must comply.' },
+    flag: { type: "field", kind: "category", description: 'A yes/no field (true, 1, "yes", "x"): a filled square where it is yes, an empty cell where it is no. For who must comply.' },
     label: { type: "field", kind: "category", description: "Field (text or a number) written inside marks big enough to hold it; always in the tooltip." },
     highlight: highlightCategories,
   },
   validate(view) {
-    return view.mark && view.size ? ["mark draws a square for every yes; drop it, or drop size."] : [];
+    return view.flag && view.size ? ["flag draws a square for every yes; drop it, or drop size."] : [];
   },
   checkData(view, rows) {
     const [x, y] = [String(view.x), String(view.y)];
@@ -1916,19 +1921,19 @@ const matrix: ViewBlock = {
 
 const strips: ViewBlock = {
   type: "strips",
-  extent: (view, rows) => rows.map((row) => fieldList(view.parts).reduce((sum, field) => sum + Math.max(0, readNumber(row[field]) ?? 0), 0)),
+  extent: (view, rows) => rows.map((row) => fieldList(view.value).reduce((sum, field) => sum + Math.max(0, readNumber(row[field]) ?? 0), 0)),
   description:
     "Unit strips: one row per item with a strip of small squares, one per unit, colored part by part in order (mandatory, recommended, optional), the total and the first part's share at the end. When totals run long, one square stands for a round number of units, said under the chart. A per field adds a density: provisions per page. For how many provisions a regulation has and how binding they are.",
   options: {
     label: { type: "field", kind: "category", required: true, description: "Field naming each row." },
-    parts: { type: "fields", kind: "number", required: true, description: "Field or fields with each part's count, in the order they are drawn. The first part's share of the total is written at the end." },
+    value: { type: "fields", kind: "number", required: true, description: "Field or fields with each part's count, in the order they are drawn. The first part's share of the total is written at the end." },
     per: { type: "field", kind: "number", description: "Field with a denominator, such as pages: the density (units per one of them) is written at the end and in the tooltip." },
     unit: { type: "string", default: "provision", description: "What one unit is, in the singular, for the note under the chart and the tooltip." },
     highlight: highlightCategories,
     reference: REFERENCE_OPTION,
   },
   checkData(view, rows) {
-    const parts = Array.isArray(view.parts) ? view.parts.map(String) : [String(view.parts)];
+    const parts = Array.isArray(view.value) ? view.value.map(String) : [String(view.value)];
     const negative = rows.filter((row) => parts.some((field) => (readNumber(row[field]) ?? 0) < 0)).length;
     const messages: string[] = [];
     if (negative) messages.push(`${negative} ${negative === 1 ? "row has" : "rows have"} a negative count: squares cannot show less than nothing, so those parts are left out.`);

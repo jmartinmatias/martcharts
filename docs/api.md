@@ -19,8 +19,8 @@ A `WidgetSpec` is a plain object. Only `data` and `view` are required.
 | `id` | string | Stable identifier. The file name in the widget store and the id used over MCP. Lowercase letters, digits and dashes. |
 | `title` | string | Heading at the top. |
 | `subtitle` | string | Smaller line under the title, for example the period covered. |
-| `footer` | string | Small print at the bottom, for example a note on the data. |
-| `source` | `{ name, url? }` | Where the data came from, as a credit under the footer: "Source: Eurostat", the name a link opening in a new tab when `url` is set. |
+| `note` | string | A note in the small print at the bottom, on the data or how to read it. `footer`, its older name, still works. |
+| `source` | `{ name, url? }` | Where the data came from, as a credit under the note: "Source: Eurostat", the name a link opening in a new tab when `url` is set. |
 | `byline` | string | Who made the chart, in the same credit line: "Chart: Marta". Takes the text templates titles do. |
 | `description` | string | What the widget is for. Not drawn on the chart; read by people and agents, and shown on the Details side. |
 | `links` | `{ label, href }[]` | Related pages (a report, the data's owner, a runbook), listed on the Details side under **Linked**. |
@@ -637,3 +637,20 @@ Chart helpers for custom charts are exported too: `niceTicks`, `linearScale`, `b
 | `martcharts/core` | Specs, fork, registry, pipeline, formats, validation. | Browser, Node, workers |
 | `martcharts/mcp` | `createFftServer`, plus the store from `src/mcp/store.ts`. | Node |
 | `martcharts/standalone` | Built bundle (`dist/martcharts.js`, from `npm run build:lib`): everything in `martcharts`, compiled, with `<fft-widget>` registered. `dist/martcharts.iife.js` is the same as a classic script (`window.MartCharts`). Types in `dist/types`, with `HTMLElementTagNameMap["fft-widget"]`. | Browser, no bundler; imports safely in Node |
+
+## Colour: which rule wins
+
+A mark takes the first colour that applies, in this order:
+
+1. **`colorRules`**: the first rule its row matches ("revenue below 0 is the down colour").
+2. **`colors`**: the fixed colour named for its category ("Off track" is always red).
+3. **The palette**: the series or category colour, in order.
+
+`highlight` is not a colour of its own. It keeps the named marks in the colour they took from the list above and greys
+every other mark, so a highlight still reads on a chart coloured by rules. A rule that colours a mark the highlight does
+not name is greyed with the rest; its key line above the chart stays, so the rule is never hidden.
+
+## What `description` is for
+
+`description` says what a widget is for, in plain words. It is shown on the card's Details side (the `info` action) and
+read by agents through the MCP tools; it is never drawn on the chart itself.

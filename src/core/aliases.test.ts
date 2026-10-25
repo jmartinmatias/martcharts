@@ -9,25 +9,49 @@ const spec = (view: Record<string, unknown>, extra: Record<string, unknown> = {}
 const warnings = (s: WidgetSpec, rows?: Row[]) => validateSpec(s, rows).filter((i) => i.level === "warning").map((i) => `${i.path}: ${i.message}`);
 const errors = (s: WidgetSpec, rows?: Row[]) => validateSpec(s, rows).filter((i) => i.level === "error").map((i) => i.path);
 
-describe("one name per concept", () => {
-  test.each(OPTION_ALIASES.filter((a) => a.canonical !== a.legacy).map((a) => [a.view, a.canonical, a.legacy] as const))("%s: %s reads as the renderer's %s", (view, canonical, legacy) => {
-    const written = { type: view, [canonical]: "f" };
-    expect(normalizeView(written)).toEqual({ type: view, [legacy]: "f" });
-    // The older name is left as it is, and a view with no renamed option comes back as the same object.
+describe("one name per concept, one concept per name", () => {
+  // Same-kind renames move the value as it is; the three that change kind (line peaks, choropleth codes) have their own tests.
+  test.each(OPTION_ALIASES.filter((a) => !a.toCanonical).map((a) => [a.view, a.legacy, a.canonical] as const))("%s: the older %s reads as %s", (view, legacy, canonical) => {
     const old = { type: view, [legacy]: "f" };
-    expect(normalizeView(old)).toBe(old);
+    expect(normalizeView(old)).toEqual({ type: view, [canonical]: "f" });
+    // The canonical name is left as it is, and a view already in canonical names comes back as the same object.
+    const written = { type: view, [canonical]: "f" };
+    expect(normalizeView(written)).toBe(written);
     expect(canonicalName(view, legacy)).toBe(canonical);
   });
 
-  test("a legacy name already present wins, so nothing written is lost", () => {
-    expect(normalizeView({ type: "dot", label: "p", values: ["a"], value: ["b"] })).toEqual({ type: "dot", label: "p", values: ["a"] });
+  test("a canonical name already present wins, so nothing written is lost", () => {
+    expect(normalizeView({ type: "dot", label: "p", values: ["a"], value: ["b"] })).toEqual({ type: "dot", label: "p", value: ["b"] });
   });
 
-  test("choropleth labels take the words other views use, as well as true and false", () => {
-    expect(normalizeView({ type: "choropleth", labels: "none" })).toEqual({ type: "choropleth", labels: false });
-    expect(normalizeView({ type: "choropleth", labels: "codes" })).toEqual({ type: "choropleth", labels: true });
-    const bare = { type: "choropleth", labels: false };
-    expect(normalizeView(bare)).toBe(bare);
+  test("line labels \"peaks\" is now peaks: true", () => {
+    expect(normalizeView({ type: "line", labels: "peaks" })).toEqual({ type: "line", peaks: true });
+    expect(normalizeView({ type: "line", labels: "none" })).toEqual({ type: "line", peaks: false });
+  });
+
+  test("choropleth labels (true, false, \"codes\" or \"none\") is now codes: true or false", () => {
+    expect(normalizeView({ type: "choropleth", labels: "none" })).toEqual({ type: "choropleth", codes: false });
+    expect(normalizeView({ type: "choropleth", labels: false })).toEqual({ type: "choropleth", codes: false });
+    expect(normalizeView({ type: "choropleth", labels: "codes" })).toEqual({ type: "choropleth", codes: true });
+    expect(normalizeView({ type: "choropleth", labels: true })).toEqual({ type: "choropleth", codes: true });
+  });
+
+  test("pie labels is now labelPlace, and dual marks is now panels", () => {
+    expect(normalizeView({ type: "pie", labels: "outside" })).toEqual({ type: "pie", labelPlace: "outside" });
+    expect(normalizeView({ type: "dual", marks: ["bar", "line"] })).toEqual({ type: "dual", panels: ["bar", "line"] });
+  });
+
+  test("labels keeps one meaning: names written beside the marks, true or false, on scatter", () => {
+    const scatter = { type: "scatter", x: "a", y: "b", labels: true };
+    expect(normalizeView(scatter)).toBe(scatter);
+    expect(getBlock("view", "scatter").options.labels?.type).toBe("boolean");
+    for (const type of ["pie", "line", "choropleth"]) expect([type, getBlock("view", type).options.labels]).toEqual([type, undefined]);
+  });
+
+  test("mark keeps one meaning: how each item is drawn (bar, hbar, dumbbell); no view has marks", () => {
+    expect(getBlock("view", "matrix").options.mark).toBeUndefined();
+    expect(getBlock("view", "dual").options.marks).toBeUndefined();
+    for (const type of ["bar", "hbar", "dumbbell"]) expect(getBlock("view", type).options.mark?.type).toBe("enum");
   });
 
   test("views without renamed options, and odd input, pass through untouched", () => {
@@ -42,22 +66,29 @@ describe("one name per concept", () => {
 });
 
 describe("validation reads the spec as written", () => {
-  test("a canonical name validates, and a missing one is reported under the name the spec would use", () => {
+  test("a canonical name validates, and a wrong kind is reported under that name", () => {
     expect(errors(spec({ type: "dot", label: "p", value: ["a", "b"] }))).toEqual([]);
     expect(errors(spec({ type: "strips", label: "n", value: ["mandatory", "optional"] }))).toEqual([]);
     expect(errors(spec({ type: "matrix", x: "q", y: "t", flag: "must" }))).toEqual([]);
-    expect(errors(spec({ type: "choropleth", geo: "europe", id: "c", value: "v", labels: "none" }))).toEqual([]);
-    // A wrong kind on a canonical name is reported under that name.
+    expect(errors(spec({ type: "choropleth", geo: "europe", id: "c", value: "v", codes: false }))).toEqual([]);
     expect(errors(spec({ type: "scatter", x: "a", y: "b", color: 3 }))).toEqual(["view.color"]);
   });
 
-  test("an older name warns once, saying what it is now called, and still works", () => {
+  test("an older name warns once, saying what it is now called, still works, and a problem keeps its name", () => {
     const said = warnings(spec({ type: "scatter", x: "a", y: "b", series: "g" }));
-    expect(said).toEqual(['view.series: "series" is now called "color", the name every view uses for it. "series" still works.']);
+    expect(said).toEqual(['view.series: "series" is now called "color". "series" still works.']);
     expect(errors(spec({ type: "scatter", x: "a", y: "b", series: "g" }))).toEqual([]);
+    expect(errors(spec({ type: "scatter", x: "a", y: "b", series: 3 }))).toEqual(["view.series"]);
     expect(warnings(spec({ type: "likert", label: "q", responses: ["a", "b"] }))).toHaveLength(1);
     expect(warnings(spec({ type: "locator", geo: "europe", id: "c", label: "n", kind: "k" }))).toHaveLength(1);
+    expect(warnings(spec({ type: "line", x: "m", y: "v", labels: "peaks" }))).toEqual(['view.labels: "labels" is now called "peaks". "labels" still works.']);
     expect(warnings(spec({ type: "scatter", x: "a", y: "b", color: "g" }))).toEqual([]);
+  });
+
+  test("footer is now note, and still works", () => {
+    expect(warnings(spec({ type: "bar", x: "a", y: "b" }, { footer: "Q3 only" }))).toEqual(['footer: "footer" is now called "note". "footer" still works.']);
+    expect(warnings(spec({ type: "bar", x: "a", y: "b" }, { note: "Q3 only" }))).toEqual([]);
+    expect(errors(spec({ type: "bar", x: "a", y: "b" }, { note: 3 }))).toEqual(["note"]);
   });
 
   test("data checks run on the view as drawn, whichever name was used", () => {
@@ -67,7 +98,7 @@ describe("validation reads the spec as written", () => {
     expect(groups({ type: "scatter", x: "x", y: "y", series: "g" })).toHaveLength(1);
   });
 
-  test("aliasUse lists canonical and deprecated spellings", () => {
+  test("aliasUse lists canonical and older spellings", () => {
     expect(aliasUse({ type: "dot", value: "a" })).toEqual({ canonical: [["value", "values"]], deprecated: [] });
     expect(aliasUse({ type: "dot", values: "a" })).toEqual({ canonical: [], deprecated: [["values", "value"]] });
   });
@@ -144,5 +175,5 @@ describe("panel scales: every view with a value axis gives an extent", () => {
   test("candlestick spans low to high", () => expect(extent("candlestick", { low: "l", high: "h" }, [{ l: 5, h: 9 }, { l: 4, h: 7 }])).toEqual([4, 9]));
   test("bullet reaches the end of its last band", () => expect(extent("bullet", { value: "v", target: "t" }, [{ v: 50, t: 100 }])).toEqual([0, 120]));
   test("meter spans value and target", () => expect(extent("meter", { value: "v", target: "t" }, [{ v: 50, t: 80 }])).toEqual([50, 80]));
-  test("strips span each row's total", () => expect(extent("strips", { parts: ["a", "b"] }, [{ a: 3, b: 4 }, { a: 10, b: 0 }])).toEqual([7, 10]));
+  test("strips span each row's total", () => expect(extent("strips", { value: ["a", "b"] }, [{ a: 3, b: 4 }, { a: 10, b: 0 }])).toEqual([7, 10]));
 });

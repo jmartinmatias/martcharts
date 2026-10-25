@@ -76,7 +76,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "What drives support tickets",
   "subtitle": "Q3 2026, by cause, with the running total",
   "description": "Tickets by cause, largest first. Four causes make up over 80% of the volume: fix those first.",
-  "footer": "{sum:tickets} tickets",
+  "note": "{sum:tickets} tickets",
   "source": {
     "name": "Helpdesk"
   },

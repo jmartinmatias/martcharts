@@ -586,7 +586,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     for (const [node, text] of [
       [title, current.title],
       [subtitle, current.subtitle],
-      [footer, current.footer],
+      [footer, current.note ?? current.footer],
     ] as const) {
       setText(node, text === undefined ? undefined : fillTemplate(text, rows, current.fields, current.locale));
       node.style.visibility = !loaded && text && hasTemplate(text) ? "hidden" : "";

@@ -12,7 +12,7 @@
  * @module
  */
 import { normalizeView } from "./aliases.ts";
-import { canonicalSpec, canonicalView, readable, shownName } from "./canonical.ts";
+import { alsoAccepts, canonicalSpec, canonicalView, readable, shownName } from "./canonical.ts";
 import { firstSentence } from "./catalog.ts";
 import { recommendCharts } from "./recommend.ts";
 import { blockTypes, getBlock } from "./registry.ts";
@@ -733,7 +733,7 @@ function inlineRows(spec: WidgetSpec): Row[] {
  * and what does not fit.
  */
 export function dataContract(written: WidgetSpec, rows: Row[] = inlineRows(written)): DataContract {
-  // The contract reads the view in the renderer's names and speaks in the canonical ones.
+  // The contract reads and speaks in canonical names, noting the older ones that still work.
   const spec = readable(written);
   const { view } = spec;
   const shown = (option: string) => shownName(view.type, option);
@@ -748,9 +748,8 @@ export function dataContract(written: WidgetSpec, rows: Row[] = inlineRows(writt
   const required = new Set(needs.filter((need) => need.required).map((need) => need.option));
   // Shown under their canonical names, the older name noted once.
   for (const need of needs) {
-    const name = shown(need.option);
-    if (name !== need.option) need.description = `${need.description} Also accepts \`${need.option}\`, the older name.`;
-    need.option = name;
+    const older = alsoAccepts(view.type, need.option);
+    if (older.length) need.description = `${need.description} Also accepts ${older.map((o) => `\`${o}\``).join(", ")}, the older name.`;
   }
   const describe = (option: string) => (option.startsWith("items.") ? `A tile's ${option.slice(6)}.` : (block.options[option]?.description ?? ""));
   const order = [...new Set([...drawn.map((d) => d.field), ...kinds.keys()])];

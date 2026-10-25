@@ -3,7 +3,7 @@
   "title": "Gross profit",
   "subtitle": "{first:month} to {last:month}",
   "description": "Revenue minus cost, month by month.",
-  "footer": "Gross profit = revenue - cost",
+  "note": "Gross profit = revenue - cost",
   "source": {"name": "Finance ledger"},
   "locale": "en-US",
   "data": {

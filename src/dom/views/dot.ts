@@ -20,7 +20,7 @@ const RADIUS = { one: 6, many: 5 };
 export const renderDot: ViewRenderer<DotView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
   const { label } = ctx.view;
-  const measures = fieldList(ctx.view.values);
+  const measures = fieldList(ctx.view.value);
   const picked = highlights(ctx.view.highlight);
   const rows = ctx.rows;
   // Rows tighten as the list grows: roomy up to 8, regular to 16, compact past that (the shared row scale).

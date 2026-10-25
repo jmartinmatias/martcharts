@@ -71,8 +71,8 @@ describe("dual view", () => {
     expect(hits[2]?.getAttribute("aria-label")).toBe("2026-03: Revenue €960K, Churn 3.7%");
   });
 
-  test("marks choose bars or lines per panel; two lines run edge to edge", async () => {
-    await draw({ ...spec, view: { ...spec.view, marks: ["line", "line"] } });
+  test("panels choose bars or lines per panel; two lines run edge to edge", async () => {
+    await draw({ ...spec, view: { ...spec.view, panels: ["line", "line"] } });
     expect(all(".fft-bar").length).toBe(0);
     expect(all("path.fft-line").length).toBe(2);
     expect(all(".fft-tick-x")[0]?.getAttribute("text-anchor")).toBe("start");
@@ -83,10 +83,10 @@ describe("dual view", () => {
     expect(texts(".fft-sr-only th")).toEqual(["Month", "Revenue", "Churn"]);
   });
 
-  test("validation: marks must be two of bar or line, and the two measures must differ", () => {
+  test("validation: panels must be two of bar or line, and the two measures must differ", () => {
     const base = { data: { type: "inline", rows: months }, view: { type: "dual", x: "month", y: "revenue", y2: "churn" } };
     expect(hasErrors(validateSpec(base, months))).toBe(false);
-    expect(validateSpec({ ...base, view: { ...base.view, marks: ["bar"] } }, months).map((i) => i.message).join(" ")).toMatch(/two of "bar" or "line"/);
+    expect(validateSpec({ ...base, view: { ...base.view, panels: ["bar"] } }, months).map((i) => i.message).join(" ")).toMatch(/two of "bar" or "line"/);
     expect(validateSpec({ ...base, view: { ...base.view, y2: "revenue" } }, months).map((i) => i.message).join(" ")).toMatch(/same field/);
   });
 
@@ -100,7 +100,7 @@ describe("dual view", () => {
 
   test("recommended for two measures over time whose scales are too far apart to share an axis", () => {
     const pick = recommendCharts(months, { limit: 10 }).find((p) => p.type === "dual");
-    expect(pick?.view).toEqual({ type: "dual", x: "month", y: "revenue", y2: "churn", marks: ["bar", "line"] });
+    expect(pick?.view).toEqual({ type: "dual", x: "month", y: "revenue", y2: "churn", panels: ["bar", "line"] });
     const alike = months.map(({ month, revenue }) => ({ month, revenue, cost: revenue * 0.7 }));
     expect(recommendCharts(alike, { limit: 10 }).find((p) => p.type === "dual")).toBeUndefined();
   });

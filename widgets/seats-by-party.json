@@ -3,7 +3,7 @@
   "title": "Seats after the election",
   "subtitle": "Parties in the order they sit, left to right",
   "description": "An election donut: each party's seats as a slice of the half ring, with the majority line at the top. Which coalition reaches 301?",
-  "footer": "Final count",
+  "note": "Final count",
   "source": {"name": "Electoral commission"},
   "locale": "en-US",
   "data": {

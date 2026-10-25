@@ -108,7 +108,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Deal size spread",
   "subtitle": "Middle half, median and outliers, by region",
   "description": "Each region's deal values as a box plot. East's middle half sits well above the others; South has one far outlier and North a milder one.",
-  "footer": "{count} deals",
+  "note": "{count} deals",
   "source": {
     "name": "CRM"
   },

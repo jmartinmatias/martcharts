@@ -33,9 +33,11 @@ export interface WidgetSpec {
   title?: string;
   /** Smaller line under the title, for example the period covered. */
   subtitle?: string;
-  /** Small print at the bottom, for example a note on the data or its refresh time. */
+  /** A note in the small print at the bottom, on the data or how to read it. Takes the text templates titles do. */
+  note?: string;
+  /** @deprecated The older name for `note`; it still works and draws the same line. */
   footer?: string;
-  /** Where the data came from: "Source: Eurostat" in the small print under the footer, the name a link when `url` is set. See `SourceSpec`. */
+  /** Where the data came from: "Source: Eurostat" in the small print under the note, the name a link when `url` is set. See `SourceSpec`. */
   source?: SourceSpec;
   /** Who made the chart, a name or a team: "Chart: Marta" in the same small print. Takes the text templates titles do. */
   byline?: string;

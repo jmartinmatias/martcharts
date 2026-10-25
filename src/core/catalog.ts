@@ -5,7 +5,7 @@
  *
  * @module
  */
-import { shownName } from "./canonical.ts";
+import { alsoAccepts } from "./canonical.ts";
 import { explainChart } from "./explain.ts";
 import { questionOf } from "./question.ts";
 import { describeBlocks, getBlock } from "./registry.ts";
@@ -59,17 +59,17 @@ export function describeChart(type: string, example?: WidgetSpec): ChartEntry {
   const needs = entries
     .filter(([, option]) => isField(option))
     .map(([name, option]): ChartNeed => {
-      // Listed under the canonical name; the name the renderer reads is noted as one that still works.
-      const shown = shownName(type, name);
-      const need: ChartNeed = { option: shown, holds: option.kind ?? "any", many: option.type === "fields", required: option.required === true, description: option.description };
-      if (shown !== name) {
-        need.alsoAccepts = [name];
-        need.description = `${option.description} Also accepts \`${name}\`, the older name.`;
+      // Listed under the canonical name; an older name that still works is noted.
+      const need: ChartNeed = { option: name, holds: option.kind ?? "any", many: option.type === "fields", required: option.required === true, description: option.description };
+      const older = alsoAccepts(type, name);
+      if (older.length) {
+        need.alsoAccepts = older;
+        need.description = `${option.description} Also accepts ${older.map((o) => `\`${o}\``).join(", ")}, the older name.`;
       }
       return need;
     })
     .sort((a, b) => Number(b.required) - Number(a.required));
-  const settings = entries.filter(([, option]) => !isField(option)).map(([name]) => shownName(type, name));
+  const settings = entries.filter(([, option]) => !isField(option)).map(([name]) => name);
   const entry: ChartEntry = { type, summary: firstSentence(description), description, needs, settings };
   const rows = example?.data.type === "inline" ? (example.data.rows as Row[]) : undefined;
   if (example) {

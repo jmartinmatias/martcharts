@@ -34,7 +34,7 @@ A mark matrix (a punchcard): one mark per pair of x and y, sized by a value, sha
 | `y` | category | yes | Field for the rows: topics, regulations, teams. |
 | `size` | number |  | Field that sizes each circle, by area, against the largest value. |
 | `color` | category |  | Field that shades each mark: a number takes the seven-step scale from lowest to highest (with a scale under the grid), a category takes one color per value (with a key). |
-| `flag` | category |  | A yes/no field (true, 1, "yes", "x"): a filled square where it is yes, a faint dot where it is no. For who must comply. Also accepts `mark`, the older name. |
+| `flag` | category |  | A yes/no field (true, 1, "yes", "x"): a filled square where it is yes, an empty cell where it is no. For who must comply. Also accepts `mark`, the older name. |
 | `label` | category |  | Field (text or a number) written inside marks big enough to hold it; always in the tooltip. |
 
 ## This example's columns (3 columns, 50 rows)
@@ -166,7 +166,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Who must comply",
   "subtitle": "Regulations against the firms they bind",
   "description": "A square wherever a kind of firm must comply with a regulation, a faint dot where it need not: the compliance footprint of each rule and of each kind of firm at a glance.",
-  "footer": "Fictional scope; not legal advice",
+  "note": "Fictional scope; not legal advice",
   "source": {
     "name": "Regulatory watch register"
   },

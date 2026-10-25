@@ -14,7 +14,7 @@ The README keeps to one line per feature. This page has the rest: what each bloc
 | Combo | `"lines": "target"` on a bar chart draws lines over the bars on the same axis (never a second one); under a target line, bars that fall short are drawn outlined and keyed Below target; `"compare": "lastYear"` stands a wider, quieter column behind each bar |
 | Two units | `dual`: two measures in different units (revenue and churn) on two panels sharing one time axis, each on its own scale, as bars or lines. The honest form of a dual-axis chart: no second axis, so no false crossings |
 | Notes | `"annotations": [{ "x": "2026-03", "text": "Price rise" }]` on bar, line and area pins short notes to points, each a few words beside a dot with a thin leader; on a narrow card they become numbered markers with the texts listed under the chart |
-| Line marks | `"points": true` draws a symbol at every reading; `"labels": "peaks"` names the highest and lowest point; `"scale": "log"` draws the value axis by powers of ten, for growth that multiplies |
+| Line marks | `"points": true` draws a symbol at every reading; `"peaks": true` names the highest and lowest point; `"scale": "log"` draws the value axis by powers of ten, for growth that multiplies |
 | Part-to-whole | `"stacked": true` or `"percent"` on bar and hbar charts; `donut` for up to 6 slices |
 | Reference marks | `"reference": [{ "value": 1200000, "label": "Target" }]` draws target lines and bands on bar, line, area and scatter charts |
 | Sort and top N | `sort`, `order`, `limit` and `other` on category views keep the top N and fold the rest into one "Other" row, so the parts still add up |

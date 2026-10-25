@@ -3,7 +3,7 @@
   "title": "Account portfolio",
   "subtitle": "Growth against margin, year to date",
   "description": "Each account placed by its revenue growth and gross margin, the bubble sized by its revenue and colored by segment. Top right is where to invest; the big Enterprise accounts grow slowly but earn well.",
-  "footer": "{count} accounts",
+  "note": "{count} accounts",
   "source": {"name": "Finance ledger"},
   "locale": "en-US",
   "data": {

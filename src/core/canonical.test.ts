@@ -44,7 +44,7 @@ describe("stored specs speak the canonical names", () => {
   });
 
   test("no stored view writes a renamed option under its older name", () => {
-    const legacy = OPTION_ALIASES.filter((alias) => alias.deprecated && alias.canonical !== alias.legacy);
+    const legacy = OPTION_ALIASES.filter((alias) => alias.canonical !== alias.legacy);
     const found = storedWidgets().flatMap(({ file, spec }) =>
       legacy.filter((alias) => spec.view?.type === alias.view && (spec.view as Record<string, unknown>)[alias.legacy] !== undefined).map((alias) => `${file}: ${alias.view}.${alias.legacy}`),
     );
@@ -92,7 +92,7 @@ describe("the text layers read either spelling the same way", () => {
     expect(variants.length).toBeGreaterThan(0);
     for (const variant of variants) {
       const view = variant.spec.view as Record<string, unknown>;
-      for (const alias of OPTION_ALIASES.filter((a) => a.deprecated && a.view === view.type)) expect([view.type, alias.legacy, view[alias.legacy]]).toEqual([view.type, alias.legacy, undefined]);
+      for (const alias of OPTION_ALIASES.filter((a) => a.view === view.type)) expect([view.type, alias.legacy, view[alias.legacy]]).toEqual([view.type, alias.legacy, undefined]);
     }
   });
 });
@@ -116,14 +116,14 @@ describe("generated views are written in canonical names", () => {
     const picks = recommendCharts(ratings, { limit: 99 });
     for (const pick of picks) {
       const view = pick.view as Record<string, unknown>;
-      for (const alias of OPTION_ALIASES.filter((a) => a.deprecated && a.canonical !== a.legacy && a.view === pick.type)) expect([pick.type, view[alias.legacy]]).toEqual([pick.type, undefined]);
+      for (const alias of OPTION_ALIASES.filter((a) => a.canonical !== a.legacy && a.view === pick.type)) expect([pick.type, view[alias.legacy]]).toEqual([pick.type, undefined]);
     }
   });
 
-  test("canonicalView and readable are each other's inverse, and leave other views alone", () => {
+  test("canonicalView and readable both write older names under canonical ones, and leave other views alone", () => {
     const legacy = { type: "scatter", x: "a", y: "b", series: "c" };
     expect(canonicalView(legacy)).toEqual({ type: "scatter", x: "a", y: "b", color: "c" });
-    expect(readable(canonicalSpec(inline(legacy))).view).toEqual(legacy);
+    expect(readable(canonicalSpec(inline(legacy))).view).toEqual({ type: "scatter", x: "a", y: "b", color: "c" });
     const bar = { type: "bar", x: "a", y: "b" };
     expect(canonicalView(bar)).toBe(bar);
   });

@@ -278,7 +278,7 @@ function guideFr(c: Ctx): string {
   const forecast = view.forecast ? " La partie en pointillés est une prévision ; la zone ombrée indique sa fiabilité : plus elle est large, plus l'incertitude est grande." : "";
   const noted = Array.isArray(view.annotations) && view.annotations.length ? ` Les courtes notes signalées par un point indiquent ${view.annotations.length === 1 ? "un moment à retenir" : "des moments à retenir"}.` : "";
   const dotted = view.points === true ? " Chaque point sur une courbe est une mesure." : "";
-  const peaks = view.labels === "peaks" ? ` Les deux points chiffrés marquent la valeur la plus haute et la plus basse ${de(name(series[0]))}.` : "";
+  const peaks = view.peaks === true ? ` Les deux points chiffrés marquent la valeur la plus haute et la plus basse ${de(name(series[0]))}.` : "";
   const logged = view.scale === "log" ? " L'axe progresse par puissances de dix : une croissance régulière y apparaît comme une droite." : "";
   const valueOf = (field: string | undefined) => `plus la valeur ${de(name(field))} est élevée`;
   const parts = (percent: boolean) => (percent ? "Chaque barre fait 100 % : comparez la taille des parts." : "Les parts s'additionnent : la barre entière est le total.");
@@ -420,7 +420,7 @@ function guideFr(c: Ctx): string {
     case "icicle":
       return `La première colonne est le total. Chaque colonne vers la droite subdivise les blocs : plus un bloc est haut, ${valueOf(one(view.value))}.`;
     case "dot": {
-      const measures = many(view.values);
+      const measures = many(view.value);
       if (measures.length > 1) return `Une ligne par ${noun(one(view.label))}, avec un point pour chacun de ${list(measures.map((f) => name(f)))}. Plus un point est à droite, plus la valeur est élevée ; des points éloignés signalent un grand écart entre eux.`;
       return `Une ligne par ${noun(one(view.label))}. Plus le point est à droite, ${valueOf(measures[0])}.`;
     }
@@ -435,9 +435,9 @@ function guideFr(c: Ctx): string {
     case "symbols":
       return `Un cercle par ${noun(one(view.label) ?? one(view.id), "place")} sur la carte. Plus le cercle est grand, ${valueOf(one(view.size))}.${one(view.color) ? ` Chaque couleur correspond à une valeur ${de(name(one(view.color)))}.` : ""}`;
     case "locator":
-      return `Un repère par ${noun(one(view.label), "place")}, avec son nom à côté, à son emplacement sur la carte.${one(view.kind) ? ` Chaque couleur correspond à une valeur ${de(name(one(view.kind)))}.` : ""}`;
+      return `Un repère par ${noun(one(view.label), "place")}, avec son nom à côté, à son emplacement sur la carte.${one(view.color) ? ` Chaque couleur correspond à une valeur ${de(name(one(view.color)))}.` : ""}`;
     case "matrix": {
-      const [x, y, size, color, mark] = [one(view.x), one(view.y), one(view.size), one(view.color), one(view.mark)];
+      const [x, y, size, color, mark] = [one(view.x), one(view.y), one(view.size), one(view.color), one(view.flag)];
       const axis = (field: string | undefined) => (field ? (distinctLabel(field, c.spec, [x, y, size, color, mark]) ?? noun(field)) : noun(field));
       const marks = [
         size ? `Plus le cercle est grand, ${valueOf(size)}` : "",
@@ -447,7 +447,7 @@ function guideFr(c: Ctx): string {
       return `Une ligne par ${axis(y)} et une colonne par ${axis(x)} ; une marque se trouve à leur croisement. ${marks.length ? `${marks.join(" ; ")}. ` : ""}Une case vide signifie qu'il n'y a rien pour cette paire.`;
     }
     case "strips": {
-      const fields = many(view.parts);
+      const fields = many(view.value);
       const unit = unitIn(c);
       const dense = one(view.per) ? `, puis le nombre par ${name(one(view.per)).replace(/s$/, "")}` : "";
       const colored = fields.length > 1 ? `Les couleurs indiquent le type, dans l'ordre : ${list(fields.map((f) => name(f)))} ; les chiffres en fin de ligne donnent le total et la part ${de(name(fields[0]))}${dense}.` : `Le chiffre en fin de ligne est le total${dense}.`;
@@ -508,7 +508,7 @@ function guideDe(c: Ctx): string {
   const forecast = view.forecast ? " Der gestrichelte Teil ist eine Prognose; die schattierte Fläche zeigt ihre Unsicherheit: Je breiter, desto unsicherer." : "";
   const noted = Array.isArray(view.annotations) && view.annotations.length ? ` Die kurzen Notizen mit Punkt markieren ${view.annotations.length === 1 ? "einen wichtigen Moment" : "wichtige Momente"}.` : "";
   const dotted = view.points === true ? " Jeder Punkt auf einer Linie ist ein Messwert." : "";
-  const peaks = view.labels === "peaks" ? ` Die beiden beschrifteten Punkte sind der höchste und der niedrigste Wert für ${name(series[0])}.` : "";
+  const peaks = view.peaks === true ? ` Die beiden beschrifteten Punkte sind der höchste und der niedrigste Wert für ${name(series[0])}.` : "";
   const logged = view.scale === "log" ? " Die Achse wächst in Zehnerpotenzen, sodass stetiges Wachstum als Gerade erscheint." : "";
   const valueOf = (field: string | undefined) => `desto höher der Wert für ${name(field)}`;
   const parts = (percent: boolean) => (percent ? "Jeder Balken ergibt 100 %, vergleichen Sie also die Größe der Teile." : "Die Teile ergeben zusammen die Summe: Der ganze Balken ist der Gesamtwert.");
@@ -650,7 +650,7 @@ function guideDe(c: Ctx): string {
     case "icicle":
       return `Die erste Spalte ist die Summe. Jede Spalte weiter rechts teilt die Blöcke weiter auf: Je höher ein Block, ${valueOf(one(view.value))}.`;
     case "dot": {
-      const measures = many(view.values);
+      const measures = many(view.value);
       if (measures.length > 1) return `Eine Zeile je ${noun(one(view.label))}, mit einem Punkt für ${list(measures.map((f) => name(f)))}. Je weiter rechts ein Punkt, desto höher der Wert; weit auseinanderliegende Punkte zeigen einen großen Unterschied.`;
       return `Eine Zeile je ${noun(one(view.label))}. Je weiter rechts der Punkt, ${valueOf(measures[0])}.`;
     }
@@ -665,9 +665,9 @@ function guideDe(c: Ctx): string {
     case "symbols":
       return `Ein Kreis je ${noun(one(view.label) ?? one(view.id), "place")} auf der Karte. Je größer der Kreis, ${valueOf(one(view.size))}.${one(view.color) ? ` Jede Farbe steht für einen Wert von ${name(one(view.color))}.` : ""}`;
     case "locator":
-      return `Eine Markierung je ${noun(one(view.label), "place")}, mit ihrem Namen daneben, an ihrem Ort auf der Karte.${one(view.kind) ? ` Jede Farbe steht für einen Wert von ${name(one(view.kind))}.` : ""}`;
+      return `Eine Markierung je ${noun(one(view.label), "place")}, mit ihrem Namen daneben, an ihrem Ort auf der Karte.${one(view.color) ? ` Jede Farbe steht für einen Wert von ${name(one(view.color))}.` : ""}`;
     case "matrix": {
-      const [x, y, size, color, mark] = [one(view.x), one(view.y), one(view.size), one(view.color), one(view.mark)];
+      const [x, y, size, color, mark] = [one(view.x), one(view.y), one(view.size), one(view.color), one(view.flag)];
       const axis = (field: string | undefined) => (field ? (distinctLabel(field, c.spec, [x, y, size, color, mark]) ?? noun(field)) : noun(field));
       const marks = [
         size ? `Je größer der Kreis, ${valueOf(size)}` : "",
@@ -677,7 +677,7 @@ function guideDe(c: Ctx): string {
       return `Eine Zeile je ${axis(y)} und eine Spalte je ${axis(x)}; eine Markierung sitzt an ihrem Schnittpunkt. ${marks.length ? `${marks.join("; ")}. ` : ""}Ein leeres Feld heißt, dass es für dieses Paar nichts gibt.`;
     }
     case "strips": {
-      const fields = many(view.parts);
+      const fields = many(view.value);
       const unit = unitIn(c);
       const dense = one(view.per) ? `, dann die Anzahl je ${name(one(view.per)).replace(/s$/, "")}` : "";
       const colored = fields.length > 1 ? `Die Farben zeigen die Art, der Reihe nach: ${list(fields.map((f) => name(f)))}; die Zahlen am Ende sind die Summe und der Anteil ${name(fields[0])}${dense}.` : `Die Zahl am Ende ist die Summe${dense}.`;
@@ -1035,7 +1035,7 @@ function factOf(c: Ctx): Fact {
       return known.length ? { k: "timeline", done: known.filter((row) => (value(row, progress) as number) >= 1 || (value(row, progress) as number) >= 100).length, of: known.length } : { k: "none" };
     }
     case "likert": {
-      const [label, answers] = [one(view.label), many(view.responses)];
+      const [label, answers] = [one(view.label), many(view.value)];
       if (!label || answers.length < 2) return { k: "none" };
       const agreeing = answers.slice(Math.ceil(answers.length / 2));
       const share = (row: Row) => {
@@ -1068,7 +1068,7 @@ function factOf(c: Ctx): Fact {
       return best && x ? { k: "peak", where: `${name(best.field)} · ${text(best.row, x)}`, value: text(best.row, best.field), form: "band" } : { k: "none" };
     }
     case "dot": {
-      const [label, measures] = [one(view.label), many(view.values)];
+      const [label, measures] = [one(view.label), many(view.value)];
       return topOf(label, measures[0], measures.length > 1 ? name(measures[0]) : undefined);
     }
     case "choropleth": {
@@ -1102,7 +1102,7 @@ function factOf(c: Ctx): Fact {
       return busiest ? { k: "board", n: busiest[1], of: rows.length, stage: busiest[0], ...(best && field ? { best: text(best, label), bestV: text(best, field) } : {}) } : { k: "none" };
     }
     case "matrix": {
-      const [x, y, size, color, mark] = [one(view.x), one(view.y), one(view.size), one(view.color), one(view.mark)];
+      const [x, y, size, color, mark] = [one(view.x), one(view.y), one(view.size), one(view.color), one(view.flag)];
       if (!x || !y) return { k: "none" };
       const columns = new Set(rows.map((row) => text(row, x))).size;
       if (mark) {
@@ -1116,7 +1116,7 @@ function factOf(c: Ctx): Fact {
       return row && field ? { k: "matrixTop", at: `${text(row, y)} · ${text(row, x)}`, value: text(row, field) } : { k: "none" };
     }
     case "strips": {
-      const [label, fields] = [one(view.label), many(view.parts)];
+      const [label, fields] = [one(view.label), many(view.value)];
       if (!label || !fields.length) return { k: "none" };
       const total = (row: Row) => fields.reduce((s, f) => s + Math.max(0, value(row, f) ?? 0), 0);
       const row = rows.reduce<Row | undefined>((b, r) => (b && total(b) >= total(r) ? b : r), undefined);
@@ -1416,7 +1416,7 @@ export function questionIn(lang: Other, spec: WidgetSpec, rows: Row[], kind: str
   // What a row is and what it measures, by the view's own options: a heatmap's rows are its y, a bump's lines its series.
   const entityField =
     view.type === "heatmap" ? one(view.y) : view.type === "bump" ? one(view.series) : ["sunburst", "icicle"].includes(view.type) ? many(view.levels)[0] : (one(view.label) ?? one(view.x) ?? one(view.id) ?? one(view.row) ?? one(view.metric));
-  const measures = ["bar", "line", "area", "rose", "radar", "horizon"].includes(view.type) ? series : many(view.value).length ? many(view.value) : many(view.values).length ? many(view.values) : many(one(view.size) ?? one(view.close));
+  const measures = ["bar", "line", "area", "rose", "radar", "horizon"].includes(view.type) ? series : many(view.value).length ? many(view.value) : many(one(view.size) ?? one(view.close));
   const measureField = measures[0];
   const entity = noun(entityField);
   const measure = name(measureField);
@@ -1445,14 +1445,14 @@ export function questionIn(lang: Other, spec: WidgetSpec, rows: Row[], kind: str
       return ask(fr ? "Quelles mesures sont sorties de leur plage attendue, et quand" : "Welche Kennzahlen lagen außerhalb ihres erwarteten Bereichs, und wann");
     case "matrix": {
       const y = noun(one(view.y));
-      return one(view.mark) ? ask(fr ? `Qui est concerné, pour chaque ${y}` : `Wer ist je ${y} betroffen`) : ask(fr ? `Où se concentre ${measure}, par ${y} et par ${noun(one(view.x))}` : `Wo ballt sich ${measure}, nach ${y} und ${noun(one(view.x))}`);
+      return one(view.flag) ? ask(fr ? `Qui est concerné, pour chaque ${y}` : `Wer ist je ${y} betroffen`) : ask(fr ? `Où se concentre ${measure}, par ${y} et par ${noun(one(view.x))}` : `Wo ballt sich ${measure}, nach ${y} und ${noun(one(view.x))}`);
     }
     case "lifecycle": {
       const stages = many(view.stages);
       return ask(fr ? `Où en est chaque ${entity}, de ${name(stages[0])} à ${name(stages.at(-1))}` : `Wo steht es je ${entity}, von ${name(stages[0])} bis ${name(stages.at(-1))}`);
     }
     case "strips": {
-      const first = name(many(view.parts)[0]);
+      const first = name(many(view.value)[0]);
       return ask(fr ? `Combien d'unités compte chaque ${entity}, et quelle part relève ${de(first)}` : `Wie viele Einheiten je ${entity}, und welcher Anteil davon ist ${first}`);
     }
     case "board":

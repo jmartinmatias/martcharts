@@ -111,7 +111,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Customers by state",
   "subtitle": "Active accounts, September 2026",
   "description": "Active customer accounts per US state as circles on a tile grid, sized by count and colored by sales region, so the coasts' weight and the thin middle show at once.",
-  "footer": "Accounts with an active subscription",
+  "note": "Accounts with an active subscription",
   "source": {
     "name": "CRM"
   },

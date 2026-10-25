@@ -49,7 +49,7 @@ function candidates(at: Position, w: number, h: number): { box: Box; anchor: "st
 export const renderLocator: ViewRenderer<LocatorView> = (ctx) =>
   withGeo(ctx, ctx.view.geo, (collection) => {
     const doc = ctx.el.ownerDocument;
-    const { label, note, kind } = ctx.view;
+    const { label, note, color: kind } = ctx.view;
     const key = ctx.view.key ?? "id";
     const frame = collection ? mapFrame(ctx, collection, key) : undefined;
     if (!frame) {

@@ -133,11 +133,13 @@ describe("controls for the newer options", () => {
     expect(ed.spec.view.geo).toBe("https://example.org/regions.geojson");
   });
 
-  test("a choropleth's labels are a word: codes or none", () => {
+  test("a choropleth's country codes are a switch, written as codes", () => {
     const ed = refine(inline([{ country: "FR", revenue: 5 }], { type: "choropleth", geo: "europe", id: "country", value: "revenue" }));
-    const none = all("[data-option='labels'] .fft-ed-segment").find((b) => b.textContent === "None") as HTMLButtonElement;
-    none.click();
-    expect(ed.spec.view.labels).toBe("none");
+    const codes = one("[data-option='codes'] [role='switch']") as HTMLButtonElement;
+    expect(codes.getAttribute("aria-checked")).toBe("true");
+    codes.click();
+    expect(ed.spec.view.codes).toBe(false);
+    expect(ed.spec.view.labels).toBeUndefined();
   });
 
   test("quadrants: where the plot splits, and a word in each corner", () => {

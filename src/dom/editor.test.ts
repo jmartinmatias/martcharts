@@ -320,7 +320,7 @@ describe("step 3: the chart", () => {
     set(inputs[3], "Finance ledger");
     set(inputs[4], "https://example.test/ledger");
     set(inputs[5], "Chart: Marta");
-    expect(ed.spec).toMatchObject({ title: "Revenue by region", footer: "Internal figures", source: { name: "Finance ledger", url: "https://example.test/ledger" }, byline: "Chart: Marta" });
+    expect(ed.spec).toMatchObject({ title: "Revenue by region", note: "Internal figures", source: { name: "Finance ledger", url: "https://example.test/ledger" }, byline: "Chart: Marta" });
     const adds = all(".fft-ed-list > .fft-ed-chip").filter((b) => b.textContent === "Add") as HTMLButtonElement[];
     adds[0]?.click();
     expect(ed.spec.view.reference).toEqual([{ value: 1367, label: "Target" }]);

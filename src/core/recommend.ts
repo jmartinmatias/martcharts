@@ -338,7 +338,7 @@ const RULES: Record<string, Rule> = {
     const [label] = shape.categories;
     const responses = shape.numbers.filter((field) => LIKERT.test(field) && nonNegative(shape, field));
     if (!label || responses.length < 3 || shape.distinct(label) !== shape.rows.length) return undefined;
-    return { score: 95, view: { type: "likert", label, responses }, why: `Answers from ${responses[0]} to ${responses[responses.length - 1]} for each ${label}, centered on the middle.` };
+    return { score: 95, view: { type: "likert", label, value: responses }, why: `Answers from ${responses[0]} to ${responses[responses.length - 1]} for each ${label}, centered on the middle.` };
   },
   waterfall: (shape) => {
     const [label] = shape.categories;
@@ -401,7 +401,7 @@ const RULES: Record<string, Rule> = {
     const high = Math.max(...spans.map(([, b]) => b));
     // The measures must share a scale: every one's range covers at least a fifth of the whole, or the small ones vanish.
     const shared = high > low && spans.every(([a, b]) => (b - a) / (high - low) >= 0.2);
-    return shared ? { score: 64, view: { type: "dot", label, values: measures }, why: `${measures.length} measures per ${label} as dots on one axis, each row's spread in view.` } : undefined;
+    return shared ? { score: 64, view: { type: "dot", label, value: measures }, why: `${measures.length} measures per ${label} as dots on one axis, each row's spread in view.` } : undefined;
   },
   dual: (shape) => {
     // Two measures over time on scales too far apart to share one axis (revenue and churn): one panel each.
@@ -410,7 +410,7 @@ const RULES: Record<string, Rule> = {
     const y2 = shape.numbers.find((field) => field !== y && !TARGET.test(field) && !peers(shape, shape.numbers.length).includes(field));
     if (!x || !y || !y2 || shape.rows.length < 3) return undefined;
     const amount = nonNegative(shape, y) ? "bar" : "line";
-    return { score: 72, view: { type: "dual", x, y, y2, marks: [amount, "line"] }, why: `${y} and ${y2} over ${x}, in different units: a panel each, no second axis.` };
+    return { score: 72, view: { type: "dual", x, y, y2, panels: [amount, "line"] }, why: `${y} and ${y2} over ${x}, in different units: a panel each, no second axis.` };
   },
   table: ({ rows }) => (rows.length ? { score: 20, view: { type: "table" }, why: "Exact values, row by row." } : undefined),
   pyramid: (shape) => {
@@ -454,7 +454,7 @@ const RULES: Record<string, Rule> = {
     if (shape.distinct(x) * shape.distinct(y) < shape.rows.length) return undefined;
     const measures = shape.numbers.filter((field) => !TARGET.test(field));
     const [mark] = flags.filter((field) => shape.rows.some((row) => row[field] === true));
-    if (mark && measures.length === 0) return { score: 70, view: { type: "matrix", x, y, mark }, why: `A square for every ${y} and ${x} where ${mark} is yes.` };
+    if (mark && measures.length === 0) return { score: 70, view: { type: "matrix", x, y, flag: mark }, why: `A square for every ${y} and ${x} where ${mark} is yes.` };
     const [size, color] = measures;
     if (!size || !nonNegative(shape, size)) return undefined;
     return { score: 60, view: { type: "matrix", x, y, size, ...(color ? { color } : {}) }, why: `${size}${color ? ` and ${color}` : ""} for every ${y} and ${x}, as marks on one grid.` };
@@ -465,7 +465,7 @@ const RULES: Record<string, Rule> = {
     const parts = shape.numbers.filter((field) => /mandatory|binding|required|recommended|optional|provision|obligation|clause|article/i.test(field) && nonNegative(shape, field) && shape.values(field).every(Number.isInteger));
     if (!label || parts.length < 2 || shape.rows.length > 20 || shape.distinct(label) !== shape.rows.length) return undefined;
     const per = shape.numbers.find((field) => /page|article|word/i.test(field) && !parts.includes(field));
-    return { score: 86, view: { type: "strips", label, parts, ...(per ? { per } : {}) }, why: `One square per ${parts.join(", ")} for each ${label}, so the counts can be counted and compared.` };
+    return { score: 86, view: { type: "strips", label, value: parts, ...(per ? { per } : {}) }, why: `One square per ${parts.join(", ")} for each ${label}, so the counts can be counted and compared.` };
   },
   // Several dates per row in lifecycle order: each row's stages on one date axis.
   lifecycle: (shape) => {

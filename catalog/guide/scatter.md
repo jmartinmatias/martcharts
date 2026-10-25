@@ -33,7 +33,7 @@ One dot per row placed by two numbers, to show how they relate. An optional grou
 | `size` | number |  | Field sizing each dot by area, making a bubble chart: four times the value, twice the radius. Bigger bubbles are drawn first. |
 | `color` | category |  | Field that groups the dots by color. Up to 3 groups stay distinct. Also accepts `series`, the older name. |
 | `label` | category |  | Field naming each dot in its tooltip. |
-| `cluster` | category |  | Field naming each dot's cluster, such as a segment found by analysis. A soft, rounded hull gathers each cluster's dots and carries its name at the middle, so the areas read as regions of the plot; the dots take the cluster's color unless series is set. Up to 6 clusters. |
+| `cluster` | category |  | Field naming each dot's cluster, such as a segment found by analysis. A soft, rounded hull gathers each cluster's dots and carries its name at the middle, so the areas read as regions of the plot; the dots take the cluster's color unless color is set. Up to 6 clusters. |
 
 ## This example's columns (5 columns, 12 rows)
 
@@ -90,7 +90,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Account portfolio",
   "subtitle": "Growth against margin, year to date",
   "description": "Each account placed by its revenue growth and gross margin, the bubble sized by its revenue and colored by segment. Top right is where to invest; the big Enterprise accounts grow slowly but earn well.",
-  "footer": "{count} accounts",
+  "note": "{count} accounts",
   "source": {
     "name": "Finance ledger"
   },

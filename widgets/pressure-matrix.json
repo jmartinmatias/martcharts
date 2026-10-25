@@ -3,7 +3,7 @@
   "title": "Regulatory pressure by topic",
   "subtitle": "New binding obligations per quarter, and how hard they bite",
   "description": "One mark per topic and quarter: the bigger the circle, the more new obligations landed that quarter; the stronger its shade, the higher their mean impact. Where the pressure concentrates, and when.",
-  "footer": "Fictional counts",
+  "note": "Fictional counts",
   "source": { "name": "Regulatory watch register" },
   "locale": "en-US",
   "data": {

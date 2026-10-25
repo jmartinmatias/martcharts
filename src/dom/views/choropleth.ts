@@ -148,7 +148,7 @@ export const renderChoropleth: ViewRenderer<ChoroplethView> = (ctx) =>
       }
       regions.append(region);
       // The region's code, inside it, where there is room: tiles always have room for two letters.
-      if (ctx.view.labels !== false) {
+      if (ctx.view.codes !== false) {
         const code = shape.id || shape.name;
         if (code && labelFits(shape, code)) {
           const label = svg(doc, "text", { class: "fft-map-region-label", x: shape.centroid[0], y: shape.centroid[1], "text-anchor": "middle", "dominant-baseline": "central" });

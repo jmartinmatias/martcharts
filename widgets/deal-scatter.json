@@ -3,7 +3,7 @@
   "title": "Deal size and speed",
   "subtitle": "Value against days to close, by stage",
   "description": "Whether bigger deals take longer to close, and where lost deals sit.",
-  "footer": "Last two quarters",
+  "note": "Last two quarters",
   "source": {"name": "CRM"},
   "locale": "en-US",
   "data": {

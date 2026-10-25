@@ -151,7 +151,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "x": "month",
     "y": "revenue",
     "y2": "churn",
-    "marks": [
+    "panels": [
       "bar",
       "line"
     ]

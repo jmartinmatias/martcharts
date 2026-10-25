@@ -119,12 +119,12 @@ export function explainVariant(written: WidgetSpec, chartTitle: string, rowName?
     case "dot":
       form = "dots on one axis";
       mark = `each row is one ${name(view.label)}`;
-      read = `A dot further right means more ${list(view.values)}.`;
+      read = `A dot further right means more ${list(view.value)}.`;
       break;
     case "matrix":
       form = "a grid of marks";
       mark = `each mark is one ${name(view.y)} in one ${name(view.x)}`;
-      read = view.mark ? `A square means yes for ${name(view.mark)}.` : `A bigger or stronger mark means more ${name(view.size ?? view.color)}.`;
+      read = view.flag ? `A square means yes for ${name(view.flag)}.` : `A bigger or stronger mark means more ${name(view.size ?? view.color)}.`;
       break;
     case "strips":
       form = "strips of squares";

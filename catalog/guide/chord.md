@@ -76,7 +76,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Plan changes",
   "subtitle": "Q3 2026, customers moving between tiers",
   "description": "Every upgrade and downgrade between plans this quarter. Starter to Growth is the biggest move; downgrades are the thin ribbons running back.",
-  "footer": "{sum:customers} moves",
+  "note": "{sum:customers} moves",
   "source": {
     "name": "Billing"
   },

@@ -25,7 +25,7 @@ const round2 = (n: number) => Math.round(n * 100) / 100;
 export const renderLikert: ViewRenderer<LikertView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
   const { label } = ctx.view;
-  const responses = fieldList(ctx.view.responses);
+  const responses = fieldList(ctx.view.value);
   const mid = (responses.length - 1) / 2;
   const toneOf = (i: number) => (i < mid ? "neg" : i > mid ? "pos" : "neutral");
   const strength = (i: number) => (i === mid ? 1 : 0.45 + 0.55 * (Math.abs(i - mid) / (mid || 1)));
