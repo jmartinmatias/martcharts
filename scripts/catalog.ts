@@ -148,16 +148,19 @@ const page = `<!doctype html>
     button:hover { background: color-mix(in srgb, CanvasText 8%, transparent); }
     input { font: inherit; padding: 8px 10px; width: 100%; max-width: 420px; box-sizing: border-box; border-radius: 8px; border: 1px solid color-mix(in srgb, CanvasText 25%, transparent); background: Canvas; color: inherit; }
     .count { font-size: 13px; opacity: .7; margin-left: 8px; }
+    .ref-hits { margin: 0 0 21px; padding: 0; list-style: none; font-size: 14px; line-height: 1.6; }
+    .ref-hits code { font: 12px ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: 0.06em; }
   </style>
 </head>
-<body>
+<body data-fft-place="catalog">
 ${navBar("Catalog", "../", "  ")}
 ${catalogTabs("charts")}
   <header class="page">
     <h1>Catalog</h1>
     <p>${cards.length} chart types. Each is one tag, <code>&lt;fft-widget src="&lt;type&gt;.json"&gt;</code>, with its data built in and a spec to copy.</p>
   </header>
-  <p><label for="find">Find a chart by name, question or data</label><br><input id="find" type="search" placeholder="trend, share, date, flow…" autocomplete="off"><span class="count" id="count" aria-live="polite"></span></p>
+  <p><label for="find">Find a chart by name, question, data or ref (W-…)</label><br><input id="find" type="search" placeholder="trend, share, date, W-AM22…" autocomplete="off"><span class="count" id="count" aria-live="polite"></span></p>
+  <ul class="ref-hits" id="ref-hits" aria-live="polite" hidden></ul>
   <div class="grid">
 ${cards
   .map(
@@ -175,7 +178,32 @@ ${cards
     const find = document.getElementById("find");
     const count = document.getElementById("count");
     const cards = [...document.querySelectorAll(".card")];
-    find.addEventListener("input", () => {
+    // A ref (W-AM22) names one chart in one place on the site: the index (docs/refs.json) says which and where.
+    const hits = document.getElementById("ref-hits");
+    let index;
+    async function findRef(text) {
+      const ref = text.trim().toUpperCase();
+      if (!/^W-[0-9A-Z]{4}$/.test(ref)) {
+        hits.hidden = true;
+        return false;
+      }
+      index = index || (await fetch("../docs/refs.json").then((r) => r.json()).catch(() => []));
+      const found = index.filter((entry) => entry.ref === ref);
+      hits.replaceChildren(...(found.length ? found.map((entry) => {
+        const item = document.createElement("li");
+        const link = document.createElement("a");
+        link.href = "../" + entry.url;
+        link.textContent = (entry.title || entry.key) + ", " + entry.where;
+        const code = document.createElement("code");
+        code.textContent = entry.ref + " ";
+        item.append(code, link);
+        return item;
+      }) : [Object.assign(document.createElement("li"), { textContent: "No chart on the site has the ref " + ref + "." })]));
+      hits.hidden = false;
+      return true;
+    }
+    find.addEventListener("input", async () => {
+      if (await findRef(find.value)) return;
       const words = find.value.toLowerCase().split(/\\s+/).filter(Boolean);
       let shown = 0;
       for (const card of cards) {

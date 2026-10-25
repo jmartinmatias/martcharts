@@ -49,7 +49,7 @@
     "smoke": "node scripts/smoke.ts",
     "mcp:config": "node src/mcp/main.ts --print-config",
     "docs": "node scripts/docs.ts",
-    "catalog": "node scripts/catalog.ts && node scripts/guide.ts",
+    "catalog": "node scripts/catalog.ts && node scripts/guide.ts && node scripts/refs.ts",
     "prepare": "npm run build:lib"
   },
   "engines": {

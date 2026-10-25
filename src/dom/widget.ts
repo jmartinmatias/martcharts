@@ -11,7 +11,7 @@ import { runPipeline } from "../core/pipeline.ts";
 import { describeChart } from "../core/catalog.ts";
 import { explainChart } from "../core/explain.ts";
 import { questionOf } from "../core/question.ts";
-import { widgetRef } from "../core/ref.ts";
+import { placedRef, refKey, widgetRef } from "../core/ref.ts";
 import { getBlock } from "../core/registry.ts";
 import type { Issue, Row, WidgetSpec } from "../core/types.ts";
 import { hasErrors, validateSpec } from "../core/validate.ts";
@@ -634,14 +634,28 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     credit.style.visibility = !loaded && current.byline && hasTemplate(current.byline) ? "hidden" : "";
   }
 
-  /** The ghost ref: shown for widgets with an id, and on the root as data-fft-ref for scripts and tests. */
+  /** Whether an address ending in this chart's #W-XXXX has brought it into view already. */
+  let jumped = false;
+  /**
+   * The ref: unique to this chart in this place. The page names the place (`data-fft-place` on an ancestor) and a host
+   * may name the chart's key there (`data-fft-ref-key`, a dashboard cell's widget id); else the key is the id, then the
+   * title. With no place, only a widget with an id has a ref, its own. Also on the root as data-fft-ref for scripts and
+   * tests, and an address ending in #W-XXXX brings this chart into view.
+   */
   function paintRef() {
-    const ref = current.id ? widgetRef(current.id) : "";
+    const host = root.parentElement;
+    const place = host?.closest<HTMLElement>("[data-fft-place]")?.dataset.fftPlace || undefined;
+    const key = host?.closest<HTMLElement>("[data-fft-ref-key]")?.dataset.fftRefKey || (place ? refKey(current) : current.id);
+    const ref = placedRef(place, key);
+    if (ref && !jumped && doc.defaultView?.location.hash === `#${ref}`) {
+      jumped = true;
+      doc.defaultView.requestAnimationFrame?.(() => root.scrollIntoView?.({ block: "center" }));
+    }
     refButton.hidden = !ref;
     refButton.textContent = ref;
     if (ref) {
       root.dataset.fftRef = ref;
-      refButton.title = W().widget.refTitle(ref, String(current.id));
+      refButton.title = W().widget.refTitle(ref, String(key));
       refButton.setAttribute("aria-label", W().widget.copyRef(ref));
     } else {
       delete root.dataset.fftRef;

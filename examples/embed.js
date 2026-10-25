@@ -13,6 +13,8 @@
   } catch (error) {
     locale = "";
   }
+  // Charts drawn in a frame on another site: their refs are their own here, apart from the same chart on the site.
+  document.body.setAttribute("data-fft-place", "frame");
   var mount = function () {
     MartCharts.mountEmbed(document, location.search);
   };

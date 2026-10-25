@@ -5,10 +5,10 @@
  * board draws no title of its own (header: false). Every card can open in the Editor, which is where the old
  * gallery's playground went.
  */
-import { createDashboard } from "../src/index.ts";
+import { createDashboard, widgetRef } from "../src/index.ts";
 import type { Dashboard, DashboardSpec, WidgetSpec } from "../src/index.ts";
 import { lookStyle } from "./look.ts";
-import { cleanHash } from "./routes.ts";
+import { BOARD_TABS, cleanHash } from "./routes.ts";
 
 const files = import.meta.glob<DashboardSpec>("../dashboards/*.json", { eager: true, import: "default" });
 const stored = import.meta.glob<WidgetSpec>("../widgets/**/*.json", { eager: true, import: "default" });
@@ -16,19 +16,23 @@ const widgets: Record<string, WidgetSpec> = {};
 for (const spec of Object.values(stored)) if (spec.id) widgets[spec.id] = spec;
 const boardOf = (id: string) => Object.values(files).find((spec) => spec.id === id);
 
-/** The tabs, in reading order: the key in the address, the board file's id, the page header's words. */
-const TABS = [
-  { key: "sales", board: "gallery", title: "Sales", intro: "Revenue, regions, products, customers and the pipeline, for a sales team." },
-  { key: "commercial", board: "commercial-cockpit", title: "Commercial cockpit", intro: "The book at a glance, what needs attention, the pipeline and who to call, for relationship managers." },
-  { key: "health", board: "client-health", title: "Client health", intro: "Every client in red, amber or green on four perspectives, against written thresholds." },
-  { key: "regulatory", board: "regulatory-landscape", title: "Regulatory landscape", intro: "What is due, the pressure, whom it hits and where it binds, for a compliance officer." },
-].filter((tab) => boardOf(tab.board));
+const TABS = BOARD_TABS.filter((tab) => boardOf(tab.board));
 
 const $ = <T extends HTMLElement>(selector: string) => document.querySelector(selector) as T;
 const tabList = $("#tabs");
 const title = $("#board-title");
 const intro = $("#board-intro");
 const mount = $("#board");
+// The as-of line ("Data to October 2026") under the page's own title and intro, where a reader looks for when.
+const asOf = document.createElement("div");
+asOf.className = "board-asof";
+intro.after(asOf);
+/** The ref an address names (#W-XXXX), to bring that card into view once its board is drawn. */
+const REF = /^#[Ww]-[0-9A-Za-z]{4}$/;
+const wanted = REF.test(location.hash) ? location.hash.slice(1).toUpperCase() : undefined;
+/** The tab whose board holds a card with this ref (the dashboards keep each stored widget's own ref). */
+const tabWithRef = (ref: string) =>
+  TABS.find((tab) => (boardOf(tab.board)?.widgets ?? []).some((cell) => !cell.section && widgetRef(String(cell.widget ?? cell.spec?.id ?? "")) === ref));
 
 const EDIT_ICON = ["M4 20h4L18.5 9.5a2.1 2.1 0 0 0-4-4L4 16z", "M13.5 6.5l4 4"];
 /** The board's options. `header: false` keeps the page's header the only one; a library without it draws its own. */
@@ -39,6 +43,7 @@ const options = {
   sticky: true,
   hash: true,
   header: false,
+  asOfInto: asOf,
   decorate(_cell: unknown, id: string, widget: { addAction(label: string, icon: string[], run: () => void): unknown }) {
     if (!widgets[id]) return;
     widget.addAction("Edit in editor", EDIT_ICON, () => location.assign(`./editor.html?widget=${encodeURIComponent(id)}`));
@@ -69,8 +74,9 @@ function show(key: string, keepHash: boolean) {
   if (style) void board.setOverride({ style });
   // An old address may name a section this board no longer has (#maps): once the board is drawn, drop that part.
   const drawn = board;
-  void drawn.ready.then(() => {
+  void drawn.ready.then(async () => {
     if (drawn !== board) return;
+    if (wanted && keepHash && (await drawn.reveal(wanted))) return;
     const cleaned = cleanHash(location.hash, (id) => mount.querySelector(`[id="${CSS.escape(id)}"]`) !== null);
     if (cleaned !== location.hash) history.replaceState(history.state, "", `${location.pathname}${location.search}${cleaned}`);
   });
@@ -98,7 +104,7 @@ for (const tab of TABS) {
   tabList.append(b);
 }
 
-show(new URLSearchParams(location.search).get("board") ?? "sales", true);
+show((wanted ? tabWithRef(wanted)?.key : undefined) ?? new URLSearchParams(location.search).get("board") ?? "sales", true);
 
 // The Look menu's style: restyle the board in place.
 window.addEventListener("martcharts:look", (event) => {

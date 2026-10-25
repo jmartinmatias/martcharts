@@ -289,7 +289,7 @@ const page = `<!doctype html>
     @media (max-width: 800px) { .top { grid-template-columns: minmax(0, 1fr); gap: 21px; } h1 { font-size: 28px; } .jobs th[scope="row"] { white-space: normal; } }
   </style>
 </head>
-<body>
+<body data-fft-place="guide">
 ${navBar("Catalog", "../", "  ")}
 ${catalogTabs("guide")}
   <header class="page">

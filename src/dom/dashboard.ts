@@ -4,6 +4,7 @@
  *
  * @module
  */
+import { placedRef } from "../core/ref.ts";
 import { RANGE_OPTIONS, rangeStart } from "../core/dashboard.ts";
 import { getPreset } from "../core/presets.ts";
 import type { DashboardFollow, DashboardSpec } from "../core/dashboard.ts";
@@ -64,6 +65,24 @@ export interface DashboardOptions {
    * false: the board then starts with its filter row, and the as-of line moves into that row.
    */
   header?: boolean;
+  /**
+   * Where the board's as-of line goes when it has no header of its own: a host element beside the page's title. Without
+   * it, the line ends the filter row.
+   */
+  asOfInto?: HTMLElement;
+  /**
+   * The board's place on its site, for the cards' refs (see `placedRef`): with one, a card's ref is the hash of the place
+   * and its widget id, unique to that card there. Without it, a card keeps its widget's own ref, `widgetRef(id)`.
+   */
+  place?: string;
+}
+
+/** One card's ref on a board: the ref, the cell key it hashes (the widget id, or `cell-<index>`), and its section's title. */
+export interface BoardRef {
+  ref: string;
+  key: string;
+  title?: string;
+  section?: string;
 }
 
 /** The filter a click on a mark set: the field, its value, and the widget clicked (which keeps its data and highlights the value). */
@@ -97,6 +116,13 @@ export interface Dashboard {
   crossFilter(): CrossFilter | null;
   /** Merges a patch into every widget's spec (merge patch rules), for example a style preset. Survives filtering. */
   setOverride(patch: Record<string, unknown>): Promise<void>;
+  /** Every card's ref, drawn yet or not (a folded section's cards included), in board order. */
+  refs(): BoardRef[];
+  /**
+   * Brings the card with this ref into view: shows its section or tab, opens it if folded, then scrolls to the card and
+   * focuses it. Resolves false when no card on the board has the ref.
+   */
+  reveal(ref: string): Promise<boolean>;
   destroy(): void;
 }
 
@@ -123,6 +149,11 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   const columns = spec.columns ?? 3;
   const root = el("section", "fft-dashboard");
   if (options.sticky) root.dataset.sticky = "";
+  if (options.place) root.dataset.fftPlace = options.place;
+  /** Every card's ref, by its slot, for refs() and reveal(). */
+  const cardRefs: (Omit<BoardRef, "ref"> & { slot: HTMLElement })[] = [];
+  /** The board's place: its own, else the page's (`data-fft-place` on an ancestor), as the cards read it. */
+  const placeOf = () => options.place || root.parentElement?.closest<HTMLElement>("[data-fft-place]")?.dataset.fftPlace || undefined;
   // The as-of line: when the data was last true. A {latest} token waits for the widgets' dates.
   const asOf = typeof spec.asOf === "string" && spec.asOf.trim() !== "" ? el("p", "fft-dashboard-asof") : undefined;
   // Dates in the as-of line read in the board's language, the same as its words ("As of", "Data to"): the widgets'
@@ -178,9 +209,13 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   const cardHint = el("p", "fft-sr-only", A.cardHint);
   cardHint.id = `fft-card-hint-${Math.random().toString(36).slice(2, 8)}`;
   // The period and the filters, together: a sheet behind a "Filters (n)" button on a phone, inline on wider screens.
+  // Two lines: the bar (the phone's Filters button, the period and filters, a click filter, then Share at the end),
+  // and under it the section chips or tabs on a line of their own, so neither crowds the other out.
+  const bar = el("div", "fft-filters-bar");
+  filterRow.append(bar);
   const controls = el("div", "fft-filter-controls");
   controls.id = `fft-filter-controls-${Math.random().toString(36).slice(2, 8)}`;
-  filterRow.append(controls);
+  bar.append(controls);
   const filtersToggle = el("button", "fft-filters-toggle", C.filters);
   filtersToggle.type = "button";
   filtersToggle.setAttribute("aria-expanded", "false");
@@ -424,6 +459,11 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     const span = Math.min(columns, Math.max(1, cell.span ?? 1));
     const slot = el("div", "fft-cell-slot");
     slot.dataset.widget = id;
+    // The card's key for its ref: the widget's id, or the inline spec's own id, else its place in the board.
+    const refKeyOf = cell.widget ?? cell.spec?.id ?? id;
+    slot.dataset.fftRefKey = refKeyOf;
+    const cellTitle = (cell.spec ?? (cell.widget ? options.widgets?.[cell.widget] : undefined))?.title;
+    cardRefs.push({ key: refKeyOf, slot, ...(cellTitle ? { title: cellTitle } : {}), ...(sections.at(-1) ? { section: sections.at(-1)!.title } : {}) });
     slot.dataset.span = String(span);
     slot.style.gridColumn = `span ${span}`;
     const mount = el("div", "fft-board-cell");
@@ -514,6 +554,8 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     }
     // Tabs and chips alike move with the arrow keys: one stop for the whole list, as a toolbar of choices should be.
     roving(sectionButtons);
+    // The sections' own line, under the bar.
+    nav.classList.add("fft-board-sections");
     filterRow.append(nav);
   }
 
@@ -1018,7 +1060,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       chip.title = B.clearThis;
       if (chip.hidden) rowHiddenBefore = filterRow.hidden === true;
       // The chip joins the filter row the first time a click sets a filter, after the period and filters, before the sections.
-      if (!chip.isConnected) filterRow.insertBefore(chip, nav ?? filterRow.querySelector(":scope > .fft-board-tools"));
+      if (!chip.isConnected) bar.insertBefore(chip, bar.querySelector(":scope > .fft-board-tools"));
       chip.hidden = false;
       filterRow.hidden = false;
     } else if (!chip.hidden) {
@@ -1146,14 +1188,17 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
         openSheet(false);
         filtersToggle.focus();
       });
-      filterRow.insertBefore(filtersToggle, controls);
+      bar.insertBefore(filtersToggle, controls);
       paintFiltersToggle();
     } else controls.remove();
-    // Share sits at the row's end; with no header, the as-of line joins it there.
-    filterRow.append(buildTools());
+    // Share ends the bar. With no header, the as-of line goes beside the host's own title (asOfInto), else ends the bar.
+    bar.append(buildTools());
     if (asOf && !withHeader) {
-      asOf.classList.add("fft-dashboard-asof-inline");
-      filterRow.append(asOf);
+      if (options.asOfInto) options.asOfInto.replaceChildren(asOf);
+      else {
+        asOf.classList.add("fft-dashboard-asof-inline");
+        bar.append(asOf);
+      }
     }
     rowHiddenBefore = !(spec.filters?.length || range || nav);
     filterRow.hidden = rowHiddenBefore && chip.hidden;
@@ -1371,6 +1416,20 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       else delete root.dataset.scheme;
       await redraw();
     },
+    refs: () => cardRefs.map(({ slot: _slot, ...entry }) => ({ ref: placedRef(placeOf(), entry.key), ...entry })),
+    async reveal(ref) {
+      const place = placeOf();
+      const found = cardRefs.find((entry) => placedRef(place, entry.key) === ref);
+      if (!found) return false;
+      const section = sectionOf.get(found.slot);
+      if (section) {
+        if (tabs || (shownSection && shownSection !== section.id)) choose(tabs ? section : null);
+        if (folded.has(section)) await setFolded(section, false);
+      }
+      found.slot.scrollIntoView?.({ block: "center" });
+      found.slot.focus?.({ preventScroll: true });
+      return true;
+    },
     destroy() {
       doc.defaultView?.removeEventListener("hashchange", onHash);
       printView?.removeEventListener("beforeprint", onBeforePrint);
@@ -1387,6 +1446,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       if (barSize) page.style.removeProperty("--fft-filters-height");
       stuckSpy?.disconnect();
       for (const widget of widgets.values()) widget.destroy();
+      options.asOfInto?.replaceChildren();
       root.remove();
     },
   };
@@ -1430,10 +1490,13 @@ const BOARD_CSS = `
 .fft-unreached-item { position: relative; border-bottom: 1px dotted currentColor; cursor: help; outline: none; }
 .fft-unreached-item:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 2px; border-radius: 3px; }
 .fft-unreached-item:is(:hover, :focus-visible)::after { content: attr(data-cards); position: absolute; left: 0; top: calc(100% + 5px); z-index: 5; width: max-content; max-width: min(420px, 80vw); padding: 5px 8px; border-radius: 8px; background: var(--fft-raised, var(--fft-surface, #fff)); color: var(--fft-text, #1d1d1f); box-shadow: 0 0 0 1px var(--fft-border, rgba(0,0,0,.1)), 0 8px 21px rgba(0,0,0,.18); white-space: normal; }
-/* The filter row on one line on wide screens: controls, the click filter, the sections (scrolling sideways), Share. */
-.fft-dashboard .fft-filters { flex-wrap: nowrap; }
+/* The filter area, two lines: the bar (controls, a click filter, Share at the end), then the sections on their own
+   line, scrolling sideways when they outgrow it. */
+.fft-dashboard .fft-filters { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 8px; }
+.fft-filters-bar { display: flex; flex-wrap: nowrap; align-items: center; gap: 13px; min-width: 0; }
+.fft-filters-bar .fft-board-tools { margin-left: auto; }
 .fft-filter-controls { display: flex; flex: none; align-items: center; gap: 13px; }
-.fft-dashboard .fft-board-nav { flex: 1 1 auto; flex-wrap: nowrap; margin-left: 0; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; scroll-padding-inline: 34px; }
+.fft-dashboard .fft-board-nav { flex: none; width: 100%; box-sizing: border-box; flex-wrap: nowrap; margin-left: 0; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; scroll-padding-inline: 34px; }
 .fft-dashboard .fft-board-nav::-webkit-scrollbar { display: none; }
 .fft-dashboard .fft-board-nav button { flex: none; }
 .fft-dashboard .fft-board-nav[data-scroll="start"] { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 34px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 34px), transparent); }
@@ -1460,13 +1523,12 @@ const BOARD_CSS = `
 .fft-cell-slot[data-board-source] .fft-credit:not(:has(.fft-credit-byline)) { display: none; }
 /* Phones: the controls fold into a sheet behind "Filters (n)". */
 @media (max-width: 639px) {
-  .fft-dashboard .fft-filters { flex-wrap: wrap; }
+  .fft-filters-bar { flex-wrap: wrap; }
   .fft-filters-toggle { display: inline-flex; align-items: center; min-height: 34px; padding: 0 13px; border: 1px solid color-mix(in srgb, var(--fft-text, #1d1d1f) 14%, transparent); border-radius: 999px; background: transparent; color: inherit; font: inherit; font-size: 13px; cursor: pointer; }
   .fft-filters-toggle:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 2px; }
   .fft-filter-controls { display: none; }
   .fft-filters[data-sheet] .fft-filter-controls { display: flex; flex: 1 0 100%; order: 10; flex-direction: column; align-items: stretch; gap: 13px; padding: 13px; border-radius: 13px; background: var(--fft-raised, var(--fft-surface, #fff)); box-shadow: 0 0 0 1px var(--fft-border, rgba(0,0,0,.1)); }
   .fft-filters[data-sheet] .fft-sheet-done { display: block; align-self: flex-end; min-height: 34px; padding: 0 21px; border: 0; border-radius: 999px; background: var(--fft-accent); color: #fff; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
-  .fft-dashboard .fft-board-nav { flex: 1 0 100%; order: 5; }
   .fft-board-tools { margin-left: auto; }
   .fft-dashboard-asof-inline { flex: 1 0 100%; order: 6; }
 }
