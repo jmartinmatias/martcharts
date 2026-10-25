@@ -7,7 +7,7 @@
  * - `switchChart(spec, rows, to)`: the same data drawn as another chart, whether it fits, and what changes.
  * - `switchOptions(spec, rows)`: every other chart, best first.
  *
- * Shared by `npm run catalog` (catalog/guide.html, docs/chart-guide.md) and the MCP tools `fft_chart_guide` and `fft_switch_chart`.
+ * Shared by `npm run catalog` (catalog/guide.html, docs/chart-guide.md) and the MCP tools `fft_describe_chart` (guide) and `fft_suggest_charts` (switch).
  *
  * @module
  */

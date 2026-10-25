@@ -96,3 +96,35 @@ In the editor's Publish step, **Add to dashboard** saves the chart and puts it o
 Charts follow fixed rules: a validated, colorblind-checked 8-color palette with its own dark-mode set, bars at most 21px wide with rounded data ends, 2px lines, hairline gridlines, a legend only when there are two or more series, a tooltip on hover and keyboard focus, and a hidden data table for screen readers.
 
 The spacing follows Fibonacci steps of 2, 3, 5, 8, 13, 21 and 34 px, type sits at 11, 13, 21 and 34 px, motion at 377, 610 and 987 ms, and proportions are golden (charts are φ times wider than tall, bar groups fill 0.618 of their slot). A one-word `style.preset` switches the whole look.
+
+## Upgrading
+
+Each option now has one name and each name one meaning. Older specs keep working: every older spelling still draws
+the same chart, and `validateSpec` warns once per spelling, naming the new one. The editor, the chart guide and the MCP
+tools read either spelling and write the new one.
+
+| View | Older name | Now |
+| --- | --- | --- |
+| dot | `values` | `value` |
+| strips | `parts` | `value` |
+| likert | `responses` | `value` |
+| scatter | `series` | `color` |
+| locator | `kind` | `color` |
+| matrix | `mark` | `flag` |
+| dual | `marks` | `panels` |
+| pie | `labels` | `labelPlace` |
+| line | `labels: "peaks"` | `peaks: true` |
+| choropleth | `labels` (`true`, `false`, `"codes"`, `"none"`) | `codes: true` or `false` |
+| any spec | `footer` | `note` |
+
+After the renames, `labels` means only names written beside scatter dots (true or false), and `mark` only how bars,
+hbars and dumbbells draw each item. `target` keeps its two senses: a goal on a bullet, a destination on a sankey.
+
+The package's front door, `martcharts`, now holds the names most pages need. The drawing kit moved to
+`martcharts/kit`, colour science and palettes to `martcharts/color`, maps to `martcharts/geo`, and the Taller to
+`martcharts/taller`; `martcharts/core` keeps the DOM-free engine. The drop-in bundles and `window.MartCharts` still
+carry every name. The full list is under [Entry points](api.md#entry-points).
+
+Over MCP, five chart tools became two: `fft_describe_chart` (was `fft_list_charts`, `fft_get_chart` and
+`fft_chart_guide`) and `fft_suggest_charts` (was `fft_recommend_charts` and `fft_switch_chart`). The older names
+still work for one release; see [mcp.md](mcp.md#older-tool-names).

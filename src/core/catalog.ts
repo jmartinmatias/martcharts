@@ -1,7 +1,7 @@
 /**
  * The chart catalog: for each view, what it is, the data it needs and, given an
  * example spec, the question it answers and how to read it. Shared by
- * `npm run catalog` (docs/catalog.md) and the MCP tools `fft_list_charts` and `fft_get_chart`.
+ * `npm run catalog` (docs/catalog.md) and the MCP tool `fft_describe_chart`.
  *
  * @module
  */

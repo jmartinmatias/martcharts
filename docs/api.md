@@ -300,7 +300,7 @@ Work on any spec and rows (the spec's inline rows when `rows` is left out). Full
 
 ### `recommendCharts(rows, { limit? }) => ChartPick[]`
 
-Which chart for these rows? Reads the data's shape (how many rows; which fields hold numbers, categories or dates; how many distinct values; names such as `target`, `open`/`close`, `from`/`to`, `stage`) and ranks the views that suit it, best first (default 5). Each pick is `{ type, view, score, why }`: a complete view block for the rows, a 0 to 100 score, and one sentence such as `"revenue over month: a trend."`. A one-row table becomes tiles (or a gauge, with a target), dates make lines, start and end dates a timeline, shrinking named steps a funnel, flows a sankey (or a chord when they loop back). Every pick validates against the rows. The MCP tool `fft_recommend_charts` wraps it.
+Which chart for these rows? Reads the data's shape (how many rows; which fields hold numbers, categories or dates; how many distinct values; names such as `target`, `open`/`close`, `from`/`to`, `stage`) and ranks the views that suit it, best first (default 5). Each pick is `{ type, view, score, why }`: a complete view block for the rows, a 0 to 100 score, and one sentence such as `"revenue over month: a trend."`. A one-row table becomes tiles (or a gauge, with a target), dates make lines, start and end dates a timeline, shrinking named steps a funnel, flows a sankey (or a chord when they loop back). Every pick validates against the rows. The MCP tool `fft_suggest_charts` wraps it.
 
 ### `explainChart(spec, rows?) => string`
 

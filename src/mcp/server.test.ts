@@ -68,25 +68,35 @@ async function connect(options: Partial<FftServerOptions> = {}) {
 
 describe("tools", () => {
   test("the full server offers every widget tool", async () => {
-    const { client } = await connect();
+    const { client } = await connect({ olderToolNames: false });
     const { tools } = await client.listTools();
     expect(tools.map((t) => t.name).sort()).toEqual([
-      "fft_chart_guide",
       "fft_check_palette",
       "fft_create_variants",
       "fft_create_widget",
       "fft_delete_widget",
-      "fft_get_chart",
+      "fft_describe_chart",
       "fft_get_widget",
       "fft_get_widget_data",
       "fft_list_blocks",
-      "fft_list_charts",
       "fft_list_widgets",
-      "fft_recommend_charts",
-      "fft_switch_chart",
+      "fft_suggest_charts",
       "fft_update_widget",
       "fft_validate_spec",
     ]);
+  });
+
+  test("the older chart tool names are offered for one release, say what replaced them, and answer as before", async () => {
+    const { client, call } = await connect();
+    const { tools } = await client.listTools();
+    const older = ["fft_chart_guide", "fft_get_chart", "fft_list_charts", "fft_recommend_charts", "fft_switch_chart"];
+    for (const name of older) expect([name, tools.find((t) => t.name === name)?.description]).toEqual([name, expect.stringMatching(/kept for one release\. Use fft_(describe|suggest)_chart/)]);
+    expect((await call("fft_list_charts", { response_format: "json" })).data).toEqual((await call("fft_describe_chart", { response_format: "json" })).data);
+    const csv = { type: "csv", text: "month,revenue\n2026-01,100\n2026-02,120\n2026-03,90" };
+    expect((await call("fft_recommend_charts", { data: csv, response_format: "json" })).data).toEqual((await call("fft_suggest_charts", { data: csv, response_format: "json" })).data);
+    const spec = { data: { type: "inline", rows: [{ region: "East", revenue: 5 }, { region: "West", revenue: 3 }] }, view: { type: "bar", x: "region", y: "revenue" } };
+    expect((await call("fft_switch_chart", { spec, to: "hbar" })).data).toEqual((await call("fft_suggest_charts", { spec, to: "hbar" })).data);
+    expect((await call("fft_get_chart", { type: "hbar" })).text).toEqual((await call("fft_describe_chart", { type: "hbar" })).text);
   });
 
   test("a widget's ref, as shown faintly on its card, works in place of its id, in any case", async () => {
@@ -274,11 +284,11 @@ describe("tools", () => {
     expect(await store.has("visits")).toBe(false);
   });
 
-  test("fft_list_charts lists every view with the fields it needs, and which have a starter", async () => {
+  test("fft_describe_chart with no type lists every view with the fields it needs, and which have a starter", async () => {
     await mkdir(join(root, "catalog"));
     const catalog = createFileStore(join(root, "catalog"), "chart");
     await catalog.save("hbar", { title: "Teams", data: { type: "inline", rows: [{ team: "Ops", hours: 3 }] }, view: { type: "hbar", label: "team", value: "hours" } });
-    const { data } = await (await connect({ catalog })).call("fft_list_charts", { response_format: "json" });
+    const { data } = await (await connect({ catalog })).call("fft_describe_chart", { response_format: "json" });
     const charts = data?.charts as { type: string; has_starter: boolean; question?: string; needs: { option: string; holds: string; required: boolean }[] }[];
     expect(charts.length).toBe(data?.total);
     expect(charts.length).toBeGreaterThanOrEqual(40);
@@ -289,28 +299,28 @@ describe("tools", () => {
     expect(charts.find((c) => c.type === "sankey")?.has_starter).toBe(false);
   });
 
-  test("fft_get_chart returns a starter spec that validates, and names the known types for a wrong one", async () => {
+  test("fft_describe_chart with a type returns a starter spec that validates, and names the known types for a wrong one", async () => {
     await mkdir(join(root, "catalog"));
     const catalog = createFileStore(join(root, "catalog"), "chart");
     const rows = Array.from({ length: 5_000 }, (_, i) => ({ team: `Team ${i} with a long name`, hours: i }));
     await catalog.save("hbar", { title: "Teams", data: { type: "inline", rows }, view: { type: "hbar", label: "team", value: "hours" } });
     const { call } = await connect({ catalog });
-    const { data, text } = await call("fft_get_chart", { type: "hbar", response_format: "json" });
+    const { data, text } = await call("fft_describe_chart", { type: "hbar", response_format: "json" });
     const starter = data?.starter as { data: { rows: unknown[] } };
     expect(starter.data.rows.length).toBeLessThan(rows.length);
     expect(text.length).toBeLessThan(25_000);
     expect(data?.note).toContain("of its 5000 rows");
     expect((await call("fft_validate_spec", { spec: starter })).isError).toBe(false);
-    expect((await call("fft_get_chart", { type: "sankey" })).text).toContain("No starter spec");
-    const wrong = await call("fft_get_chart", { type: "sparkline" });
+    expect((await call("fft_describe_chart", { type: "sankey" })).text).toContain("No starter spec");
+    const wrong = await call("fft_describe_chart", { type: "sparkline" });
     expect(wrong.isError).toBe(true);
     expect(wrong.text).toContain("donut");
   });
 
-  test("fft_recommend_charts ranks charts for CSV text, and each pick saves as a widget", async () => {
+  test("fft_suggest_charts ranks charts for CSV text, and each pick saves as a widget", async () => {
     const { call } = await connect();
     const csv = "month,revenue\n2026-01,100\n2026-02,120\n2026-03,90\n2026-04,130";
-    const { data } = await call("fft_recommend_charts", { data: { type: "csv", text: csv }, response_format: "json" });
+    const { data } = await call("fft_suggest_charts", { data: { type: "csv", text: csv }, response_format: "json" });
     const picks = data?.picks as { type: string; why: string; spec: Record<string, unknown> }[];
     expect(data?.rows).toBe(4);
     expect(picks[0]?.type).toBe("line");
@@ -319,13 +329,14 @@ describe("tools", () => {
     expect(await store.has("revenue-trend")).toBe(true);
   });
 
-  test("fft_recommend_charts reads url data through transforms, and explains a bad source", async () => {
+  test("fft_suggest_charts reads url data through transforms, and explains a bad source", async () => {
     const { call } = await connect();
-    const { text } = await call("fft_recommend_charts", { data: { type: "url", url: "/data/sales.json" }, transform: [{ type: "aggregate", groupBy: "region", measures: [{ op: "sum", field: "revenue" }] }] });
+    const { text } = await call("fft_suggest_charts", { data: { type: "url", url: "/data/sales.json" }, transform: [{ type: "aggregate", groupBy: "region", measures: [{ op: "sum", field: "revenue" }] }] });
     expect(text).toContain("# Charts for 3 rows");
     expect(text).toMatch(/`(bar|hbar)`/);
-    const bad = await call("fft_recommend_charts", { data: { type: "nope" } });
+    const bad = await call("fft_suggest_charts", { data: { type: "nope" } });
     expect(bad.isError).toBe(true);
+    expect((await call("fft_suggest_charts", {})).text).toContain("Pass data (rows to chart) or spec");
   });
 
   test("fft_list_blocks describes every view and its options", async () => {
@@ -347,17 +358,18 @@ describe("tools", () => {
     expect(missing).toEqual([]);
   });
 
-  test("fft_chart_guide hands over a chart's table, data and switches; fft_switch_chart redraws a spec as another chart", async () => {
+  test("fft_describe_chart hands over a chart's guide for a spec or a type; fft_suggest_charts redraws a spec as another chart", async () => {
     const { call } = await connect();
-    const guide = await call("fft_chart_guide", { spec: { data: { type: "inline", rows: [{ region: "East", revenue: 5 }, { region: "West", revenue: 3 }, { region: "North", revenue: 4 }] }, view: { type: "bar", x: "region", y: "revenue" } } });
+    const guide = await call("fft_describe_chart", { spec: { data: { type: "inline", rows: [{ region: "East", revenue: 5 }, { region: "West", revenue: 3 }, { region: "North", revenue: 4 }] }, view: { type: "bar", x: "region", y: "revenue" } } });
     const { text } = guide;
     expect(text).toContain("## The data it needs");
     expect(text).toContain("region,revenue\nEast,5");
     expect(text).toContain("`hbar`");
     const spec = { data: { type: "inline", rows: [{ region: "East", revenue: 5 }, { region: "West", revenue: 3 }] }, view: { type: "bar", x: "region", y: "revenue" } };
-    const one = await call("fft_switch_chart", { spec, to: "hbar" });
+    expect((await call("fft_describe_chart", { type: "bar", guide: true })).text).toContain("Pass a type with a catalog example");
+    const one = await call("fft_suggest_charts", { spec, to: "hbar" });
     expect(one.data).toMatchObject({ fit: "fits", verdict: "better", view: { type: "hbar", label: "region", value: "revenue" } });
-    const all = await call("fft_switch_chart", { spec });
+    const all = await call("fft_suggest_charts", { spec });
     expect((all.data as { switches: { fit: string }[] }).switches.every((s) => s.fit !== "no")).toBe(true);
   });
 
@@ -496,9 +508,9 @@ describe("resources", () => {
 
 describe("a server linked to one widget", () => {
   test("offers only that widget's tools, with no id to pass", async () => {
-    const { client } = await connect({ widgetId: "visits" });
+    const { client } = await connect({ widgetId: "visits", olderToolNames: false });
     const { tools } = await client.listTools();
-    expect(tools.map((t) => t.name).sort()).toEqual(["fft_chart_guide", "fft_check_palette", "fft_create_variants", "fft_get_chart", "fft_get_widget", "fft_get_widget_data", "fft_list_blocks", "fft_list_charts", "fft_recommend_charts", "fft_switch_chart", "fft_update_widget", "fft_validate_spec"]);
+    expect(tools.map((t) => t.name).sort()).toEqual(["fft_check_palette", "fft_create_variants", "fft_describe_chart", "fft_get_widget", "fft_get_widget_data", "fft_list_blocks", "fft_suggest_charts", "fft_update_widget", "fft_validate_spec"]);
     const getWidget = tools.find((t) => t.name === "fft_get_widget");
     expect(Object.keys((getWidget?.inputSchema as { properties?: object }).properties ?? {})).not.toContain("id");
   });
