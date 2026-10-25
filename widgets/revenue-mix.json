@@ -3,7 +3,7 @@
   "title": "Revenue mix",
   "subtitle": "Q3 2026, Core and Plus by region",
   "description": "How each region's revenue splits between the two products, largest region first.",
-  "footer": "Source: /data/sales.json",
+  "source": {"name": "Sales ledger"},
   "locale": "en-US",
   "data": {
     "type": "url",

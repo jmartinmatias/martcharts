@@ -104,9 +104,11 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
 {
   "id": "deal-histogram",
   "title": "Deal sizes",
-  "subtitle": "Every deal closed this half, in €20K bands",
+  "subtitle": "Closed this half, in €20K bands",
   "description": "How many deals fall in each value band, with the median marked. Half the deals sit under €60K; a long tail runs to €180K.",
-  "footer": "Source: CRM",
+  "source": {
+    "name": "CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

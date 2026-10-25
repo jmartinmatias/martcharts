@@ -1,9 +1,9 @@
 {
   "id": "product-region-sunburst",
   "title": "Revenue by product, then region",
-  "subtitle": "Q3 2026: inner ring by product, outer ring by region",
+  "subtitle": "Q3 2026",
   "description": "Q3 revenue split first by product, then each product by region. Platform leads; East is the largest region for Platform and Analytics, Central for Services.",
-  "footer": "Source: finance ledger",
+  "source": {"name": "Finance ledger"},
   "locale": "en-US",
   "data": {
     "type": "inline",

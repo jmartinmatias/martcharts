@@ -69,7 +69,9 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Signup funnel",
   "subtitle": "September 2026",
   "description": "How visitors move from first visit to paying customer.",
-  "footer": "Source: product analytics",
+  "source": {
+    "name": "Product analytics"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

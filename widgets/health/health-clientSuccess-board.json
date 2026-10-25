@@ -5,7 +5,7 @@
     "name": "Client health model (fictional)"
   },
   "title": "Client success, measure by measure",
-  "subtitle": "The clients off track or at risk on client success, worst first, with the move since last quarter. Clients on track are counted under the scorecard; the table below lists everyone.",
+  "subtitle": "Off track or at risk, worst first, against last quarter",
   "description": "The client success scorecard: one row per client, one status per measure, the perspective's status and its move since last quarter, and the next step.",
   "data": {
     "type": "url",

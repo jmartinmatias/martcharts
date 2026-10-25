@@ -5,7 +5,7 @@
     "name": "Client health model (fictional)"
   },
   "title": "What changed this quarter",
-  "subtitle": "Clients by overall status, last quarter to this one",
+  "subtitle": "Clients by overall status, last period to now",
   "description": "Each band is a group of clients moving from last quarter's overall status to this quarter's; a band that stays level held its status.",
   "data": {
     "type": "url",

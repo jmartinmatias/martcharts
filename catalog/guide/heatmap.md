@@ -130,7 +130,10 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Support tickets",
   "subtitle": "By weekday and time of day",
   "description": "When customers open support tickets, to plan staffing.",
-  "footer": "Source: helpdesk, last 4 weeks",
+  "footer": "Last 4 weeks",
+  "source": {
+    "name": "Helpdesk"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

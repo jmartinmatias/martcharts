@@ -734,7 +734,8 @@ describe("how to read it", () => {
     await widget.ready;
     button()?.click();
     await widget.update({ view: { type: "hbar", label: "region", value: "revenue", x: null, y: null } });
-    expect(guide()?.textContent).toContain("Each row is one region.");
+    // The scale now joins the mark sentence.
+    expect(guide()?.textContent).toContain("Each row is one region:");
   });
 });
 

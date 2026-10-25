@@ -1,9 +1,9 @@
 {
   "id": "product-targets",
   "title": "Q3 targets",
-  "subtitle": "Revenue against target, by product",
+  "subtitle": "Revenue against plan, by product",
   "description": "Each product's Q3 revenue as a share of its target. Analytics beat its target; Services trails at 77%.",
-  "footer": "Source: finance ledger",
+  "source": {"name": "Finance ledger"},
   "locale": "en-US",
   "data": {
     "type": "inline",

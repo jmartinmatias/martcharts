@@ -134,9 +134,11 @@ describe("dot view (a dot plot)", () => {
     const spec = (view: WidgetSpec["view"]): WidgetSpec => ({ locale: "en-US", data: { type: "inline", rows: ratings }, view, fields: { ease: { label: "Ease of use" } } });
     expect(questionOf(spec(many)).text).toBe("How do ease of use, value and support compare for each product?");
     expect(questionOf(spec(oneOnly)).text).toBe("Which product has the most ease of use?");
-    expect(explainChart(spec(oneOnly), ratings)).toBe("Each row is one product. The further right the dot, the more ease of use. Here, Lite has the dot furthest right, with 8.9.");
+    // The scale now joins the mark sentence.
+    expect(explainChart(spec(oneOnly), ratings)).toBe("Each row is one product: the further right the dot, the more ease of use. Here, Lite has the dot furthest right, with 8.9.");
+    // The scale now joins the mark sentence.
     expect(explainChart(spec(many), ratings)).toBe(
-      "Each row is one product, with one dot for each of ease of use, value and support. The further right a dot, the higher that value; dots far apart mean a big difference between them. Here, Lite is highest on ease of use, with 8.9, and Enterprise's dots sit furthest apart.",
+      "Each row is one product, with one dot for each of ease of use, value and support: the further right a dot, the higher that value; dots far apart mean a big difference between them. Here, Lite is highest on ease of use, with 8.9, and Enterprise's dots sit furthest apart.",
     );
     const picks = recommendCharts(ratings);
     expect(picks.find((pick) => pick.type === "dot")?.view).toEqual({ type: "dot", label: "product", value: ["ease", "value", "support"] });

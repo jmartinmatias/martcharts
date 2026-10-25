@@ -1,9 +1,9 @@
 {
   "id": "product-mix-trend",
   "title": "Revenue mix by product",
-  "subtitle": "Share of monthly revenue, {first:month} to {last:month}",
+  "subtitle": "Monthly share, {first:month} to {last:month}",
   "description": "Each product's share of monthly revenue, stacked to 100%. Analytics and Integrations grow their share while Platform's shrinks.",
-  "footer": "Source: finance ledger",
+  "source": {"name": "Finance ledger"},
   "locale": "en-US",
   "data": {
     "type": "inline",

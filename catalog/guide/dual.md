@@ -89,7 +89,9 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Revenue and churn",
   "subtitle": "{first:month} to {last:month}, each on its own scale",
   "description": "Monthly revenue as bars above monthly churn as a line: two units, two panels, one time axis, no second axis.",
-  "footer": "Source: /data/monthly.json",
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

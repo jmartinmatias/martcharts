@@ -1,7 +1,7 @@
 {
   "id": "cc-risk-return",
   "title": "Risk, return and clusters",
-  "subtitle": "Each client by risk score and return this year, sized by assets",
+  "subtitle": "Every client, 2026 year to date",
   "description": "Clients placed by risk and return, gathered into the clusters the analysis found: where to grow, protect, review or rebalance.",
   "locale": "en-US",
   "source": {

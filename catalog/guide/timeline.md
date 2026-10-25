@@ -76,9 +76,11 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
 {
   "id": "launch-plan",
   "title": "Q4 launch plan",
-  "subtitle": "Discovery to launch, August to December 2026",
+  "subtitle": "Discovery to go-live, August to December 2026",
   "description": "Each workstream's dates by phase, filled to its share done, with the launch-day milestone and a line at today.",
-  "footer": "Source: project office",
+  "source": {
+    "name": "Project office"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

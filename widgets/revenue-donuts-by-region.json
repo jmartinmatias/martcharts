@@ -1,9 +1,9 @@
 {
   "id": "revenue-donuts-by-region",
   "title": "Product mix by region",
-  "subtitle": "Q3 2026, one donut per region",
+  "subtitle": "Q3 2026",
   "description": "Multiple donuts: how each region's revenue splits between the three products, the same product in the same color in every panel.",
-  "footer": "Source: /data/sales.json",
+  "source": {"name": "Sales ledger"},
   "locale": "en-US",
   "data": {
     "type": "inline",

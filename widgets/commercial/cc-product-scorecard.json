@@ -1,7 +1,7 @@
 {
   "id": "cc-product-scorecard",
   "title": "Product margin and revenue per holder",
-  "subtitle": "What each product earns, and how much a client holding it brings",
+  "subtitle": "What each line earns, and what a client holding it brings",
   "description": "Each product's margin and its revenue per client holding it, 2026 year to date.",
   "locale": "en-US",
   "source": {

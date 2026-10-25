@@ -3,7 +3,7 @@
   "title": "Revenue by region, month by month",
   "subtitle": "Small multiples on one shared scale",
   "description": "Each region's monthly revenue in its own panel, all on the same scale so they compare honestly.",
-  "footer": "Source: finance ledger",
+  "source": {"name": "Finance ledger"},
   "locale": "en-US",
   "data": {
     "type": "inline",

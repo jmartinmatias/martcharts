@@ -60,7 +60,10 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Net promoter score",
   "subtitle": "September 2026 survey, against a goal of 50",
   "description": "Share of promoters minus share of detractors, on its full -100 to 100 scale, with the goal marked.",
-  "footer": "Source: customer survey, 1,240 responses",
+  "footer": "1,240 responses",
+  "source": {
+    "name": "Customer survey"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

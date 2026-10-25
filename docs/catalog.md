@@ -94,7 +94,7 @@ An anomaly tracker: one thin lane per metric over time, the band it was expected
 
 **Answers**: Which measures stepped out of their expected range, and when?
 
-**How to read it**: Each thin lane is one measure, day by day. The line is what happened; the faint band is where it was expected to stay, with a thin line for the expected value. A filled dot marks an anomaly, a reading that stepped out of line. The lanes with the most anomalies come first, and each ends with its latest value and its count. Here, every one of the 6 measures stepped out once; the latest was Complaints on Oct 21, 2026, reading 11 against 6 expected.
+**How to read it**: Each lane is one measure, day by day: the line is what happened and the faint band where it was expected to stay. A filled dot is an anomaly, a reading that stepped out of line. Here, every one of the 6 measures stepped out once; the latest was Complaints on Oct 21, 2026, reading 11 against 6 expected.
 
 **Drop it in**: `<fft-widget src="catalog/anomalies.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "anomalies" }` hands an agent this spec). The spec below shows 6 of its 144 rows; the [full file](../catalog/anomalies.json) has them all. Source widget: [widgets/metric-anomalies.json](../widgets/metric-anomalies.json).
 
@@ -187,7 +187,7 @@ A line with a soft filled area down to zero, for a trend where the amount itself
 
 **Answers**: Where is cash heading next?
 
-**How to read it**: The filled shape shows how cash changes month by month: higher means more. The dashed part is a forecast, a careful guess about what comes next; the shaded area shows how sure it is: the wider, the less sure. Here, it went from €4.2M in Oct 2025 to €5.4M in Sep 2026, and is expected to reach €6.2M by Mar 2027, most likely between €4.5M and €8.2M.
+**How to read it**: The shape shows cash month by month: higher means more. The dashed part is a forecast, and the shaded band shows how sure it is: wider is less sure. Here, it went from €4.2M in Oct 2025 to €5.4M in Sep 2026, and is expected to reach €6.2M by Mar 2027, most likely between €4.5M and €8.2M.
 
 **Drop it in**: `<fft-widget src="catalog/area.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "area" }` hands an agent this spec). The spec below shows 6 of its 18 rows; the [full file](../catalog/area.json) has them all. Source widget: [widgets/cash-forecast.json](../widgets/cash-forecast.json).
 
@@ -197,7 +197,9 @@ A line with a soft filled area down to zero, for a trend where the amount itself
   "title": "Cash on hand",
   "subtitle": "Month-end balance, with a six-month forecast",
   "description": "Cash ended September at €5.36M, up from €4.21M a year earlier. The middle case reaches €6.21M by March 2027, inside an 80% range of €4.50M to €8.22M.",
-  "footer": "Source: treasury and planning model",
+  "source": {
+    "name": "Treasury and planning model"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -285,9 +287,11 @@ Vertical bars comparing amounts across categories. Several y fields draw grouped
 {
   "id": "product-share",
   "title": "Product share",
-  "subtitle": "Share of each region's revenue",
+  "subtitle": "Of each region's revenue",
   "description": "Core and Plus as a share of each region's revenue.",
-  "footer": "Source: /data/sales.json",
+  "source": {
+    "name": "Sales ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -349,9 +353,11 @@ A distribution: one dot per row along a value axis, nudged apart so none overlap
 {
   "id": "deal-swarm",
   "title": "Deal sizes by region",
-  "subtitle": "Every deal closed this half, one dot each",
+  "subtitle": "Every one closed this half",
   "description": "The spread of deal values per region, including outliers an average would hide.",
-  "footer": "Source: CRM",
+  "source": {
+    "name": "CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -404,7 +410,7 @@ A status board: one column per stage with its count in the header, and the items
 
 **Answers**: Where is each deal right now, and how many are at each stage?
 
-**How to read it**: Each column is one stage, with how many deals are in it; each card is one deal. Read left to right to see how far things have come. The dot on a card tells its region, as the key says. The number on a card is its amount. Here, 4 of 16 deals sit in Proposal, and Nordic Bank core upgrade has the highest amount, €240K.
+**How to read it**: Each column is one stage, read left to right; each card is one deal, with its amount. Here, 4 of 16 deals sit in Proposal, and Nordic Bank core upgrade has the highest amount, €240K.
 
 **Drop it in**: `<fft-widget src="catalog/board.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "board" }` hands an agent this spec). The spec below shows 6 of its 16 rows; the [full file](../catalog/board.json) has them all. Source widget: [widgets/deal-board.json](../widgets/deal-board.json).
 
@@ -412,7 +418,7 @@ A status board: one column per stage with its count in the header, and the items
 {
   "id": "deal-board",
   "title": "Deal board",
-  "subtitle": "Open and closed deals this quarter, by stage",
+  "subtitle": "Open and closed this quarter, by stage",
   "description": "Every deal on a board by stage, the dot colored by region and the amount on each card, so the shape of the quarter reads at a glance.",
   "locale": "en-US",
   "data": {
@@ -464,11 +470,9 @@ A status board: one column per stage with its count in the header, and the items
     "detail": "owner",
     "limit": 4
   },
-  "footer": "Source: CRM",
   "source": {
-    "name": "Regulatory watch (fictional)"
-  },
-  "byline": "Compliance office"
+    "name": "CRM"
+  }
 }
 ```
 
@@ -497,7 +501,10 @@ A box plot per group on one shared axis: a box over the middle half of the value
   "title": "Deal size spread",
   "subtitle": "Middle half, median and outliers, by region",
   "description": "Each region's deal values as a box plot. East's middle half sits well above the others; South has one far outlier and North a milder one.",
-  "footer": "Source: CRM, {count} deals",
+  "footer": "{count} deals",
+  "source": {
+    "name": "CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -558,6 +565,9 @@ Actual against target, one compact row per item: a value bar and a target tick o
   "subtitle": "Actual against target, with poor, fair and good bands",
   "description": "Each headline KPI against its quarterly target.",
   "footer": "Bands end at 60%, 90% and 120% of target",
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -610,7 +620,7 @@ Rank over time: in every period the series are ranked by value (highest first), 
 
 **Answers**: How does the ranking of products change, month by month?
 
-**How to read it**: Each line is one product's rank, month by month. Higher on the chart means a better rank; lines crossing mean places swapped. Analytics and Integrations stand out; the rest step back. Here, Analytics took 1st place from Platform in Jun 2026, and Integrations moved up the most, from 4th to 2nd.
+**How to read it**: Each line is one product's rank, month by month. Higher on the chart means a better rank; lines crossing mean places swapped. Here, Analytics took 1st place from Platform in Jun 2026, and Integrations moved up the most, from 4th to 2nd.
 
 **Drop it in**: `<fft-widget src="catalog/bump.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "bump" }` hands an agent this spec). The spec below shows 6 of its 36 rows; the [full file](../catalog/bump.json) has them all. Source widget: [widgets/product-ranking.json](../widgets/product-ranking.json).
 
@@ -620,7 +630,9 @@ Rank over time: in every period the series are ranked by value (highest first), 
   "title": "Product ranking",
   "subtitle": "By monthly revenue, {first:month} to {last:month}",
   "description": "Where each product ranks by revenue every month. Analytics overtook Platform in June, and Integrations climbed from fourth to second.",
-  "footer": "Source: finance ledger",
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -679,7 +691,7 @@ A calendar heatmap: one cell per day, weeks as columns from Monday, shaded on on
 
 **Answers**: Which days have the most orders?
 
-**How to read it**: Each square is one day, with weeks as columns. The stronger the color, the more orders; the key under the chart shows the scale. Here, weekdays are much busier than weekends: Wednesday averages the most, 170, and Sunday the least, 48. The top day was Sep 15, 2026, with 225.
+**How to read it**: Each square is one day, with weeks as columns: the stronger the color, the more orders. Here, weekdays are much busier than weekends: Wednesday averages the most, 170, and Sunday the least, 48. The top day was Sep 15, 2026, with 225.
 
 **Drop it in**: `<fft-widget src="catalog/calendar.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "calendar" }` hands an agent this spec). The spec below shows 6 of its 183 rows; the [full file](../catalog/calendar.json) has them all. Source widget: [widgets/order-calendar.json](../widgets/order-calendar.json).
 
@@ -689,7 +701,9 @@ A calendar heatmap: one cell per day, weeks as columns from Monday, shaded on on
   "title": "Daily orders",
   "subtitle": "{first:day} to {last:day}",
   "description": "Orders per day, to spot weekly rhythm, quiet weekends and growth.",
-  "footer": "Source: /data/daily-orders.json",
+  "source": {
+    "name": "Order system"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -746,7 +760,7 @@ Prices per period as candles: a thin wick from low to high around a body from op
 
 **Answers**: How did share price move each day, from open to close?
 
-**How to read it**: Each candle is one day. The thick box goes from the opening price to the closing price and the thin line from the lowest to the highest. Hollow candles went up, filled candles went down. The line is the average of the last 5 closing prices. Here, 19 of 30 days went up.
+**How to read it**: Each candle is one day: the box runs from the opening to the closing price and the thin line from the lowest to the highest; hollow went up, filled went down. The line is the average of the last 5 closing prices. Here, 19 of 30 days went up.
 
 **Drop it in**: `<fft-widget src="catalog/candlestick.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "candlestick" }` hands an agent this spec). The spec below shows 6 of its 30 rows; the [full file](../catalog/candlestick.json) has them all. Source widget: [widgets/share-price.json](../widgets/share-price.json).
 
@@ -756,7 +770,10 @@ Prices per period as candles: a thin wick from low to high around a body from op
   "title": "Share price",
   "subtitle": "Last 30 trading days, with a 5-day average",
   "description": "Daily open, high, low and close, up days in blue and down days in red, with the 5-day moving average of the close.",
-  "footer": "Source: market data, closing at {last:close}",
+  "footer": "Closing at {last:close}",
+  "source": {
+    "name": "Market data"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -843,9 +860,12 @@ Flows between groups around a circle: each group an arc as long as everything it
 {
   "id": "plan-moves",
   "title": "Plan changes",
-  "subtitle": "Q3 2026, customers moving between plans",
+  "subtitle": "Q3 2026, customers moving between tiers",
   "description": "Every upgrade and downgrade between plans this quarter. Starter to Growth is the biggest move; downgrades are the thin ribbons running back.",
-  "footer": "Source: billing, {sum:customers} moves",
+  "footer": "{sum:customers} moves",
+  "source": {
+    "name": "Billing"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -892,7 +912,7 @@ A map with each region shaded by its value, from the weakest tint to the stronge
 
 **Answers**: Which countries have the most revenue, on the map?
 
-**How to read it**: Each region on the map is one country. The stronger its shade, the more revenue; a faded region has no data. Here, Germany is the strongest, with €4.1M, and Slovenia the weakest, with €80K.
+**How to read it**: Each region on the map is one country: the stronger its shade, the more revenue; a faded region has no data. Here, Germany is the strongest, with €4.1M, and Slovenia the weakest, with €80K.
 
 **Drop it in**: `<fft-widget src="catalog/choropleth.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "choropleth" }` hands an agent this spec). The spec below shows 6 of its 24 rows; the [full file](../catalog/choropleth.json) has them all. Source widget: [widgets/revenue-by-country.json](../widgets/revenue-by-country.json).
 
@@ -902,7 +922,9 @@ A map with each region shaded by its value, from the weakest tint to the stronge
   "title": "Revenue by country",
   "subtitle": "2026 year to date, European markets",
   "description": "Year-to-date revenue per European country on a tile grid, every country the same size so Luxembourg reads as well as Germany; countries with no sales stay grey.",
-  "footer": "Source: finance ledger",
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -962,7 +984,9 @@ Part-to-whole at a glance: a ring of up to 6 slices with the total in the middle
   "title": "Revenue by segment",
   "subtitle": "Year to date",
   "description": "How revenue splits across customer segments.",
-  "footer": "Source: /data/customers.json",
+  "source": {
+    "name": "CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -1005,7 +1029,7 @@ A dot plot: one row per item and one dot per measure on one shared axis, with a 
 
 **Answers**: How do ease of use, value for money and support compare for each product?
 
-**How to read it**: Each row is one product, with one dot for each of ease of use, value for money and support. The further right a dot, the higher that value; dots far apart mean a big difference between them. Here, Lite is highest on ease of use, with 8.9, and Enterprise's dots sit furthest apart.
+**How to read it**: Each row is one product, with one dot for each of ease of use, value for money and support: the further right a dot, the higher that value; dots far apart mean a big difference between them. Here, Lite is highest on ease of use, with 8.9, and Enterprise's dots sit furthest apart.
 
 **Drop it in**: `<fft-widget src="catalog/dot.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "dot" }` hands an agent this spec). Source widget: [widgets/product-ratings.json](../widgets/product-ratings.json).
 
@@ -1015,7 +1039,10 @@ A dot plot: one row per item and one dot per measure on one shared axis, with a 
   "title": "Customer ratings by product",
   "subtitle": "Ease of use, value for money and support, scored 1 to 10, Q3 2026",
   "description": "A dot plot: each product's three ratings on one scale, so a product's spread and the ranking on any rating read at once. Enterprise leads on support but trails on value; Lite is the mirror image.",
-  "footer": "Source: quarterly customer survey, 2,140 answers",
+  "footer": "2,140 answers",
+  "source": {
+    "name": "Quarterly customer survey"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -1092,7 +1119,9 @@ Two measures with different units, such as revenue and churn, one above the othe
   "title": "Revenue and churn",
   "subtitle": "{first:month} to {last:month}, each on its own scale",
   "description": "Monthly revenue as bars above monthly churn as a line: two units, two panels, one time axis, no second axis.",
-  "footer": "Source: /data/monthly.json",
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -1168,7 +1197,9 @@ Before and after per item on one shared axis: a muted dot for before, an accent 
   "title": "Q3 revenue, year on year",
   "subtitle": "2025 against 2026, by region",
   "description": "Each region's Q3 revenue last year against this year.",
-  "footer": "Source: finance ledger",
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -1232,7 +1263,9 @@ Stages in order as centered bars narrowing from the first, with the conversion r
   "title": "Signup funnel",
   "subtitle": "September 2026",
   "description": "How visitors move from first visit to paying customer.",
-  "footer": "Source: product analytics",
+  "source": {
+    "name": "Product analytics"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -1283,7 +1316,10 @@ One headline number on a half-circle scale: an arc filled from min to the value,
   "title": "Net promoter score",
   "subtitle": "September 2026 survey, against a goal of 50",
   "description": "Share of promoters minus share of detractors, on its full -100 to 100 scale, with the goal marked.",
-  "footer": "Source: customer survey, 1,240 responses",
+  "footer": "1,240 responses",
+  "source": {
+    "name": "Customer survey"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -1325,7 +1361,7 @@ Horizontal bars for rankings and long labels: label on the left, bar, value at t
 
 **Answers**: Which feature has the most accounts using it?
 
-**How to read it**: Each row is one feature. The further right the dot, the more accounts using it. Here, Dashboards has the dot furthest right, with 91%.
+**How to read it**: Each row is one feature: the further right the dot, the more accounts using it. Here, Dashboards has the dot furthest right, with 91%.
 
 **Drop it in**: `<fft-widget src="catalog/hbar.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "hbar" }` hands an agent this spec). The spec below shows 6 of its 10 rows; the [full file](../catalog/hbar.json) has them all. Source widget: [widgets/feature-adoption.json](../widgets/feature-adoption.json).
 
@@ -1333,9 +1369,11 @@ Horizontal bars for rankings and long labels: label on the left, bar, value at t
 {
   "id": "feature-adoption",
   "title": "Feature adoption",
-  "subtitle": "Share of active accounts using each feature, September 2026",
+  "subtitle": "Share of active accounts using each one, September 2026",
   "description": "Which features active accounts actually use. Dashboards lead at 91%; Forecasting, SSO and the audit log reach fewer than two in five accounts.",
-  "footer": "Source: product analytics",
+  "source": {
+    "name": "Product analytics"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -1383,7 +1421,7 @@ A grid of cells shaded on one blue scale from light (low) to dark (high), for pa
 
 **Answers**: Which time and day have the most tickets?
 
-**How to read it**: Each square is one time and day together. The stronger the color, the more tickets. Here, 10-12 is the busiest time and Thu the busiest day; the strongest square is Thu at 10-12, with 79.
+**How to read it**: Each square is one time and day together: the stronger the color, the more tickets. Here, 10-12 is the busiest time and Thu the busiest day; the strongest square is Thu at 10-12, with 79.
 
 **Drop it in**: `<fft-widget src="catalog/heatmap.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "heatmap" }` hands an agent this spec). The spec below shows 6 of its 35 rows; the [full file](../catalog/heatmap.json) has them all. Source widget: [widgets/ticket-heatmap.json](../widgets/ticket-heatmap.json).
 
@@ -1393,7 +1431,10 @@ A grid of cells shaded on one blue scale from light (low) to dark (high), for pa
   "title": "Support tickets",
   "subtitle": "By weekday and time of day",
   "description": "When customers open support tickets, to plan staffing.",
-  "footer": "Source: helpdesk, last 4 weeks",
+  "footer": "Last 4 weeks",
+  "source": {
+    "name": "Helpdesk"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -1441,7 +1482,7 @@ A distribution as touching bars: the value's range is cut into bins on round edg
 
 **Answers**: How spread out is deal value?
 
-**How to read it**: Each bar is one range of deal value. The taller the bar, the more often a value in that range happened; the dashed line is the middle value. Here, the most common range is €20K to €40K, which happened 7 times.
+**How to read it**: Each bar is one range of deal value: the taller the bar, the more often a value in that range happened; the dashed line is the middle value. Here, the most common range is €20K to €40K, which happened 7 times.
 
 **Drop it in**: `<fft-widget src="catalog/histogram.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "histogram" }` hands an agent this spec). The spec below shows 6 of its 24 rows; the [full file](../catalog/histogram.json) has them all. Source widget: [widgets/deal-histogram.json](../widgets/deal-histogram.json).
 
@@ -1449,9 +1490,11 @@ A distribution as touching bars: the value's range is cut into bins on round edg
 {
   "id": "deal-histogram",
   "title": "Deal sizes",
-  "subtitle": "Every deal closed this half, in €20K bands",
+  "subtitle": "Closed this half, in €20K bands",
   "description": "How many deals fall in each value band, with the median marked. Half the deals sit under €60K; a long tail runs to €180K.",
-  "footer": "Source: CRM",
+  "source": {
+    "name": "CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -1505,7 +1548,7 @@ A client's story as a vertical timeline: one event per row with its date, title,
 
 **Answers**: What happened with the client, and when?
 
-**How to read it**: Each dot is one event for the client, newest at the top, with its date and what happened and, on the right, the amount. Each color and letter is one kind. Here, there are 15 events, 3 of them trades; the latest is Quarterly check-in call on Oct 21, 2026.
+**How to read it**: Each dot is one event for the client, newest at the top, with its date and what happened and, on the right, the amount. Here, there are 15 events, 3 of them trades; the latest is Quarterly check-in call on Oct 21, 2026.
 
 **Drop it in**: `<fft-widget src="catalog/history.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "history" }` hands an agent this spec). The spec below shows 6 of its 15 rows; the [full file](../catalog/history.json) has them all. Source widget: [widgets/client-history.json](../widgets/client-history.json).
 
@@ -1579,7 +1622,7 @@ Many time series at once, each in a thin row: values are measured from a baselin
 
 **Answers**: How is each of the 6 rows doing against plan, day by day?
 
-**How to read it**: Each row is one of North, South, East, West, Central or Online, day by day. Values above plan rise from the bottom of the row, and values below it hang from its top; the stronger the shade, the further from plan. Here, East was above plan on all 92 days, the most, and the furthest below was South on Aug 15, €14.6K under.
+**How to read it**: Each row is one of North, South, East, West, Central or Online, day by day. Above plan rises from the bottom and below it hangs from the top; the stronger the shade, the further from plan. Here, East was above plan on all 92 days, the most, and the furthest below was South on Aug 15, €14.6K under.
 
 **Drop it in**: `<fft-widget src="catalog/horizon.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "horizon" }` hands an agent this spec). The spec below shows 6 of its 92 rows; the [full file](../catalog/horizon.json) has them all. Source widget: [widgets/region-plan-horizon.json](../widgets/region-plan-horizon.json).
 
@@ -1589,7 +1632,9 @@ Many time series at once, each in a thin row: values are measured from a baselin
   "title": "Daily revenue against plan",
   "subtitle": "By region, {first:day} to {last:day}",
   "description": "Each region's daily revenue against plan, blue above and red below. East beats plan every day, by about €6K a day in July and €16K by September. South falls behind in mid-August, worst on Aug 15 at €14.6K under. West misses every weekend, Central turns positive with September's campaign, and Online swings both ways.",
-  "footer": "Source: finance ledger and daily plan",
+  "source": {
+    "name": "Finance ledger and daily plan"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -1693,9 +1738,11 @@ A hierarchy laid flat: a column for the total, then one per level left to right,
 {
   "id": "revenue-icicle",
   "title": "Revenue by region, product and plan",
-  "subtitle": "Q3 2026, largest region first",
+  "subtitle": "Q3 2026, largest first",
   "description": "Q3 revenue split three ways, one column per level. East leads at €338K. Core makes up about two thirds of revenue in every region and is mostly sold on annual plans; Plus leans monthly everywhere except East.",
-  "footer": "Source: finance ledger",
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -1766,7 +1813,9 @@ One headline number with its change against a comparison. Reads the first row, o
   "title": "Customer churn",
   "subtitle": "{last:month}",
   "description": "Share of customers lost each month. Lower is better.",
-  "footer": "Source: CRM",
+  "source": {
+    "name": "CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -1814,7 +1863,7 @@ A row of stat tiles in one widget, each with a label, value and change: the calm
 
 **Answers**: Where do the key numbers stand right now?
 
-**How to read it**: Each tile is one key number, with a small arrow that says whether it went up or down since last time. A line under a tile says whether it reached its target. Here, every number moved the right way since last time: revenue, gross profit and new customers went up, and churn went down. Revenue is past its target of €1.2M.
+**How to read it**: Each tile is one key number; its arrow says whether it went up or down since last time, and a line under it whether it reached its target. Here, every number moved the right way since last time: revenue, gross profit and new customers went up, and churn went down. Revenue is past its target of €1.2M.
 
 **Drop it in**: `<fft-widget src="catalog/kpis.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "kpis" }` hands an agent this spec). The spec below shows 6 of its 12 rows; the [full file](../catalog/kpis.json) has them all. Source widget: [widgets/q3-at-a-glance.json](../widgets/q3-at-a-glance.json).
 
@@ -1824,7 +1873,9 @@ A row of stat tiles in one widget, each with a label, value and change: the calm
   "title": "At a glance",
   "subtitle": "{last:month} against the month before, with trends from {first:month}",
   "description": "The four headline numbers in one row.",
-  "footer": "Source: finance ledger and CRM",
+  "source": {
+    "name": "Finance ledger and CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -1914,7 +1965,7 @@ Stage swimlanes: one row per item on a shared date axis, each stage drawn from i
 
 **Answers**: Where does each regulation stand, from proposed to applies?
 
-**How to read it**: Each row is one regulation, read left to right in time. Each colored stretch is one stage, proposed, adopted, in force and applies in turn, deeper as it goes; a tick marks where each began, and a faint stretch is a stage still running. The upright line is today, the word at the end of a row is its status, a thicker row means a higher impact. Here, 9 of 12 regulations have reached applies. AMLR moved last, to applies on Jul 10, 2027.
+**How to read it**: Each row is one regulation, read left to right in time; each stretch is one stage, proposed, adopted, in force and applies in turn, and a faint one is still running. The upright line is today; a thicker row means more impact. Here, 9 of 12 regulations have reached applies; AMLR moved last, to applies on Jul 10, 2027.
 
 **Drop it in**: `<fft-widget src="catalog/lifecycle.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "lifecycle" }` hands an agent this spec). The spec below shows 6 of its 12 rows; the [full file](../catalog/lifecycle.json) has them all. Source widget: [widgets/regulation-lifecycle.json](../widgets/regulation-lifecycle.json).
 
@@ -1924,7 +1975,7 @@ Stage swimlanes: one row per item on a shared date axis, each stage drawn from i
   "title": "Where each regulation stands",
   "subtitle": "From proposal to application, by topic",
   "description": "Every regulation in the compliance book as a lane on one date axis: proposed, adopted, in force and applies, each stage in a deeper tint, the stage still running drawn faintly, today marked, the current status at the end and thicker lanes for higher impact.",
-  "footer": "Fictional dates for illustration; not legal advice",
+  "footer": "Fictional dates; not legal advice",
   "source": {
     "name": "Regulatory watch register"
   },
@@ -1996,7 +2047,7 @@ Survey answers as diverging stacked bars: one bar per question, its responses in
 
 **Answers**: How do people answer each question?
 
-**How to read it**: Each bar splits the answers to one question, from disagree on the left to agree on the right, centered on neutral. The longer the right side, the more people agree. Here, the most agreed question is “I understand our strategy”: 71% agree, and the least agreed is “My workload is sustainable”: 32% agree.
+**How to read it**: Each bar splits the answers to one question, from disagree on the left to agree on the right, centered on neutral: the longer the right side, the more people agree. Here, the most agreed question is “I understand our strategy”: 71% agree, and the least agreed is “My workload is sustainable”: 32% agree.
 
 **Drop it in**: `<fft-widget src="catalog/likert.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "likert" }` hands an agent this spec). Source widget: [widgets/employee-survey.json](../widgets/employee-survey.json).
 
@@ -2006,7 +2057,10 @@ Survey answers as diverging stacked bars: one bar per question, its responses in
   "title": "Employee pulse survey",
   "subtitle": "Q3 2026, share disagreeing and agreeing",
   "description": "Answers to five statements, centered on neutral. Strategy and recommendation score well; workload is the one most people disagree with.",
-  "footer": "Source: HR pulse survey, 240 responses",
+  "footer": "240 responses",
+  "source": {
+    "name": "HR pulse survey"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -2048,7 +2102,7 @@ Lines showing change over an ordered axis, usually time. Several y fields draw s
 
 **Answers**: Is revenue on track to hit target?
 
-**How to read it**: The line shows how each value changes month by month: going up means more. Each color is one line: revenue or cost. The dashed line is the target. Here, revenue went from €820,000 in Oct 2025 to €1,284,000 in Sep 2026, past the target of €1,200,000.
+**How to read it**: The line shows how each value changes month by month: going up means more. The dashed line is the target. Here, revenue went from €820,000 in Oct 2025 to €1,284,000 in Sep 2026, past the target of €1,200,000.
 
 **Drop it in**: `<fft-widget src="catalog/line.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "line" }` hands an agent this spec). The spec below shows 6 of its 12 rows; the [full file](../catalog/line.json) has them all. Source widget: [widgets/monthly-revenue.json](../widgets/monthly-revenue.json).
 
@@ -2058,7 +2112,9 @@ Lines showing change over an ordered axis, usually time. Several y fields draw s
   "title": "Revenue and cost",
   "subtitle": "{first:month} to {last:month}",
   "description": "Monthly revenue and cost trend from the finance ledger.",
-  "footer": "Source: /data/monthly.json",
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -2145,7 +2201,9 @@ A stacked list: one line per row with a label, optional detail underneath, and a
   "title": "Top customers",
   "subtitle": "By revenue, year to date",
   "description": "The five customers with the most revenue.",
-  "footer": "Source: /data/customers.json",
+  "source": {
+    "name": "CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -2198,7 +2256,7 @@ A small, clean map that says where things are: a marker and an always-on name fo
 
 **Answers**: Where are the offices?
 
-**How to read it**: Each marker is one office, with its name beside it, where it is on the map. Each color is one role. Here, 9 places are marked, 4 of them Sales.
+**How to read it**: Each marker is one office, with its name beside it, where it is on the map. Here, 9 places are marked, 4 of them Sales.
 
 **Drop it in**: `<fft-widget src="catalog/locator.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "locator" }` hands an agent this spec). The spec below shows 6 of its 9 rows; the [full file](../catalog/locator.json) has them all. Source widget: [widgets/offices.json](../widgets/offices.json).
 
@@ -2208,7 +2266,10 @@ A small, clean map that says where things are: a marker and an always-on name fo
   "title": "Our offices",
   "subtitle": "Nine sites across Europe",
   "description": "Where the company's offices are, each named on a tile grid of Europe with its headcount under it, colored by what the site does.",
-  "footer": "Source: facilities register, October 2026",
+  "footer": "October 2026",
+  "source": {
+    "name": "Facilities register"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -2268,9 +2329,11 @@ A mosaic: one column per category, as wide as its total, split into segments by 
 {
   "id": "region-product-mix",
   "title": "Market size and mix",
-  "subtitle": "Q3 2026 revenue: column width is the region's size, segments its product mix",
+  "subtitle": "Q3 2026 revenue, by region and product",
   "description": "Each region's Q3 revenue as a column as wide as its share of the total, split by product share. East is the biggest market; West leans on Analytics, Central on Services.",
-  "footer": "Source: finance ledger",
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -2327,7 +2390,7 @@ A mark matrix (a punchcard): one mark per pair of x and y, sized by a value, sha
 
 **Answers**: Which stakeholders must comply with each regulation?
 
-**How to read it**: Each row is one regulation and each column one stakeholder; a mark sits where the two meet. A square means yes for must comply, a faint dot means no. An empty cell means there is nothing for that pair. Here, all 5 stakeholders must comply with DORA, more than with any other of the regulations.
+**How to read it**: Each row is one regulation and each column one stakeholder: a square means yes for must comply. Here, all 5 stakeholders must comply with DORA, more than with any other of the regulations.
 
 **Drop it in**: `<fft-widget src="catalog/matrix.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "matrix" }` hands an agent this spec). The spec below shows 6 of its 50 rows; the [full file](../catalog/matrix.json) has them all. Source widget: [widgets/obligation-matrix.json](../widgets/obligation-matrix.json).
 
@@ -2337,7 +2400,7 @@ A mark matrix (a punchcard): one mark per pair of x and y, sized by a value, sha
   "title": "Who must comply",
   "subtitle": "Regulations against the firms they bind",
   "description": "A square wherever a kind of firm must comply with a regulation, a faint dot where it need not: the compliance footprint of each rule and of each kind of firm at a glance.",
-  "footer": "Fictional scope for illustration; not legal advice",
+  "footer": "Fictional scope; not legal advice",
   "source": {
     "name": "Regulatory watch register"
   },
@@ -2397,9 +2460,11 @@ Progress against a target, one meter per row: attainment as a percentage, a bar 
 {
   "id": "region-targets",
   "title": "Target attainment",
-  "subtitle": "Q3 2026 revenue against target",
+  "subtitle": "Q3 2026 revenue against plan",
   "description": "How close each region is to its quarterly revenue target.",
-  "footer": "Source: /data/sales.json",
+  "source": {
+    "name": "Sales ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -2461,7 +2526,10 @@ The 80/20 view: categories sorted largest first as bars of their share of the to
   "title": "What drives support tickets",
   "subtitle": "Q3 2026, by cause, with the running total",
   "description": "Tickets by cause, largest first. Four causes make up over 80% of the volume: fix those first.",
-  "footer": "Source: helpdesk, {sum:tickets} tickets",
+  "footer": "{sum:tickets} tickets",
+  "source": {
+    "name": "Helpdesk"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -2515,7 +2583,9 @@ Part-to-whole as a full disc: up to 6 slices from twelve o'clock clockwise, each
   "title": "Where Q3 revenue came from",
   "subtitle": "Share by segment, Q3 2026",
   "description": "Each segment's slice of the quarter's revenue: the shares on the slices, the amounts in the legend.",
-  "footer": "Source: finance ledger",
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -2570,7 +2640,9 @@ A population pyramid: one row per band (an age group, a tenure band), with two c
   "title": "Workforce by age and gender",
   "subtitle": "Headcount at the end of September 2026",
   "description": "The shape of the company: women outnumber men under 35, men outnumber women from 40 up, and the 30 to 34 band is the widest on both sides.",
-  "footer": "Source: HR system",
+  "source": {
+    "name": "HR system"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -2624,7 +2696,7 @@ Profiles across several attributes: one spoke per row, rings for one shared scal
 
 **Answers**: How do our product and market average compare, attribute by attribute?
 
-**How to read it**: Each spoke is one attribute. The further a point sits from the center, the higher the score; a bigger shape is better overall. Here, our product is ahead of market average on 5 of 6 attributes, most on Support (8.2 against 6.4), and behind on Price (6.1 against 7.4).
+**How to read it**: Each spoke is one attribute: the further a point sits from the center, the higher the score; a bigger shape is better overall. Here, our product is ahead of market average on 5 of 6 attributes, most on Support (8.2 against 6.4), and behind on Price (6.1 against 7.4).
 
 **Drop it in**: `<fft-widget src="catalog/radar.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "radar" }` hands an agent this spec). Source widget: [widgets/product-compare.json](../widgets/product-compare.json).
 
@@ -2634,7 +2706,9 @@ Profiles across several attributes: one spoke per row, rings for one shared scal
   "title": "How we compare",
   "subtitle": "Customer ratings out of 10, against the market average",
   "description": "Average customer rating per attribute for our product and for the market. We lead on reliability and ease of use and trail only on price.",
-  "footer": "Source: customer survey and analyst panel",
+  "source": {
+    "name": "Customer survey and analyst panel"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -2692,7 +2766,7 @@ A RAG scorecard: one row per entity (a client, a relationship manager, a deal) a
 
 **Answers**: Which clients are off track, on what, and which need action first?
 
-**How to read it**: Each row is one client, each column one of client success, business development, coverage and relationship. A circle is on track, a triangle at risk, a square off track; the worst rows come first. Overall, first, is each row's worst status. An arrow means better or worse than last period. Here, 4 of 10 clients are off track on at least one count, and 4 more are at risk; Dr. M. Keller is off track on 2 of 4.
+**How to read it**: Each row is one client, each column one measure: a circle is on track, a triangle at risk, a square off track. Here, 4 of 10 clients are off track on at least one count, and 4 more are at risk; Dr. M. Keller is off track on 2 of 4.
 
 **Drop it in**: `<fft-widget src="catalog/ragboard.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "ragboard" }` hands an agent this spec). The spec below shows 6 of its 10 rows; the [full file](../catalog/ragboard.json) has them all. Source widget: [widgets/rag-scorecard.json](../widgets/rag-scorecard.json).
 
@@ -2702,7 +2776,6 @@ A RAG scorecard: one row per entity (a client, a relationship manager, a deal) a
   "title": "Client RAG scorecard",
   "subtitle": "October review against September, worst first",
   "description": "Every key client's Red, Amber or Green status from four perspectives: client success, business development, coverage and the relationship itself, with the worst of the four as Overall and arrows where a status moved since September.",
-  "footer": "Fictional clients for illustration",
   "source": {
     "name": "Client review (fictional)"
   },
@@ -2773,7 +2846,7 @@ RAG status over time: one row per entity and one small mark per period, shaped a
 
 **Answers**: Whose status got worse, when, and why?
 
-**How to read it**: Each row is one client, read left to right month by month. A filled circle is on track, a triangle at risk and a square off track; a thin upright line marks where the status changed, and pointing at it says why. The pill at the end is where it stands now, and the rows in the worst state come first. Here, 3 of 7 clients got worse over the period and 2 got better; Aldana Holdings went from on track to off track.
+**How to read it**: Each row is one client, month by month: a circle is on track, a triangle at risk, a square off track. A thin upright line marks a change; point at it to see why. Here, 3 of 7 clients got worse over the period and 2 got better; Aldana Holdings went from on track to off track.
 
 **Drop it in**: `<fft-widget src="catalog/ragtrend.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "ragtrend" }` hands an agent this spec). The spec below shows 6 of its 42 rows; the [full file](../catalog/ragtrend.json) has them all. Source widget: [widgets/rag-status-trend.json](../widgets/rag-status-trend.json).
 
@@ -2783,7 +2856,6 @@ RAG status over time: one row per entity and one small mark per period, shaped a
   "title": "Client status, month by month",
   "subtitle": "Overall RAG at each monthly review, May to October 2026",
   "description": "Each key client's overall Red, Amber or Green status at every monthly review, with a note on why it moved, so the review starts with who slipped and why.",
-  "footer": "Fictional clients for illustration",
   "source": {
     "name": "Client review (fictional)"
   },
@@ -2848,9 +2920,11 @@ One smooth distribution curve per group on a shared axis, overlapping like a mou
 {
   "id": "deal-ridgeline",
   "title": "How deal sizes spread",
-  "subtitle": "Distribution of deal values per region",
+  "subtitle": "Value distribution, per region",
   "description": "The shape of each region's deal sizes: where most deals land and how wide the spread is.",
-  "footer": "Source: CRM",
+  "source": {
+    "name": "CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -2908,9 +2982,11 @@ Concentric progress rings, one per row from the outside in, each filled to its s
 {
   "id": "product-targets",
   "title": "Q3 targets",
-  "subtitle": "Revenue against target, by product",
+  "subtitle": "Revenue against plan, by product",
   "description": "Each product's Q3 revenue as a share of its target. Analytics beat its target; Services trails at 77%.",
-  "footer": "Source: finance ledger",
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -2962,7 +3038,7 @@ A polar area chart (a Nightingale rose) for a cycle that wraps round, such as ho
 
 **Answers**: Which hours are busiest?
 
-**How to read it**: Each slice is one hour, going round like a clock. The bigger a slice's area, the more in that hour. The colors are Desktop and Mobile, stacked from the center out. Here, 12:00 is the busiest hour, with 1,900 in all; Mobile brings more than Desktop in 15 of 24 hours.
+**How to read it**: Each slice is one hour, going round like a clock: the bigger a slice's area, the more in that hour, the parts stacked from the center out. Here, 12:00 is the busiest hour, with 1,900 in all; Mobile brings more than Desktop in 15 of 24 hours.
 
 **Drop it in**: `<fft-widget src="catalog/rose.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "rose" }` hands an agent this spec). The spec below shows 6 of its 24 rows; the [full file](../catalog/rose.json) has them all. Source widget: [widgets/visits-by-hour.json](../widgets/visits-by-hour.json).
 
@@ -2970,9 +3046,12 @@ A polar area chart (a Nightingale rose) for a cycle that wraps round, such as ho
 {
   "id": "visits-by-hour",
   "title": "Visits by hour",
-  "subtitle": "Average visits per hour of the day, September 2026",
+  "subtitle": "Daily average, September 2026",
   "description": "The day has two shapes. Desktop builds through the working morning to an 11:00 peak and fades by 17:00; mobile spikes on the 08:00 commute and owns the evening, peaking at 21:00. Each wedge's area is its visits.",
-  "footer": "Source: web analytics, local time",
+  "footer": "Local time",
+  "source": {
+    "name": "Web analytics"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -3030,7 +3109,7 @@ Flows between stages as ribbons as thick as their volume, for example traffic so
 
 **Answers**: Where do visits flow, and how much goes each way?
 
-**How to read it**: Bands flow from left to right, splitting and joining. The thicker the band, the more goes that way. Here, the thickest band goes from Blog to Left, with 4.5K.
+**How to read it**: Bands flow from left to right, splitting and joining: the thicker the band, the more goes that way. Here, the thickest band goes from Blog to Left, with 4.5K.
 
 **Drop it in**: `<fft-widget src="catalog/sankey.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "sankey" }` hands an agent this spec). The spec below shows 6 of its 12 rows; the [full file](../catalog/sankey.json) has them all. Source widget: [widgets/traffic-sankey.json](../widgets/traffic-sankey.json).
 
@@ -3040,7 +3119,9 @@ Flows between stages as ribbons as thick as their volume, for example traffic so
   "title": "Where visitors go",
   "subtitle": "September 2026, source to page to outcome",
   "description": "How visits from each source flow through the site to signup or leaving.",
-  "footer": "Source: web analytics",
+  "source": {
+    "name": "Web analytics"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -3090,7 +3171,7 @@ One dot per row placed by two numbers, to show how they relate. An optional grou
 
 **Answers**: Does gross margin go up as revenue growth goes up?
 
-**How to read it**: Each dot is one account. Further right means more revenue growth; higher means more gross margin. Bigger dots mean more revenue. Here, more revenue growth tends to come with more gross margin, but not always. Ironwood Labs sits highest, with the most gross margin.
+**How to read it**: Each dot is one account: further right means more revenue growth, higher means more gross margin, and bigger means more revenue. Here, more revenue growth tends to come with more gross margin, but not always. Ironwood Labs sits highest, with the most gross margin.
 
 **Drop it in**: `<fft-widget src="catalog/scatter.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "scatter" }` hands an agent this spec). The spec below shows 6 of its 12 rows; the [full file](../catalog/scatter.json) has them all. Source widget: [widgets/account-portfolio.json](../widgets/account-portfolio.json).
 
@@ -3098,9 +3179,12 @@ One dot per row placed by two numbers, to show how they relate. An optional grou
 {
   "id": "account-portfolio",
   "title": "Account portfolio",
-  "subtitle": "Growth against margin, sized by revenue",
+  "subtitle": "Growth against margin, year to date",
   "description": "Each account placed by its revenue growth and gross margin, the bubble sized by its revenue and colored by segment. Top right is where to invest; the big Enterprise accounts grow slowly but earn well.",
-  "footer": "Source: finance ledger, {count} accounts",
+  "footer": "{count} accounts",
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -3177,7 +3261,9 @@ Each item's move between two points in time, as a line from a left column to a r
   "title": "Win rate by region",
   "subtitle": "First half against second half, 2026",
   "description": "Share of qualified deals won in each region, first half against second half of 2026.",
-  "footer": "Source: CRM",
+  "source": {
+    "name": "CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -3230,7 +3316,7 @@ Unit strips: one row per item with a strip of small squares, one per unit, color
 
 **Answers**: How many provisions does each regulation have, and how many are mandatory?
 
-**How to read it**: Each row is one regulation, and each small square is one provision, so you can count them. The colors say the kind, in order: mandatory, recommended and optional; the figures at the end are the total, the mandatory share, then provisions per page. When a square stands for more than one, the note under the chart says how many. Here, CRR3 has the most provisions: 412, 85% of them mandatory; that is 1.0 per page.
+**How to read it**: Each row is one regulation and each square one provision, in order of kind: mandatory, recommended and optional. The figures at the end are the total, the mandatory share, then provisions per page. Here, CRR3 has the most provisions: 412, 85% of them mandatory; that is 1.0 per page.
 
 **Drop it in**: `<fft-widget src="catalog/strips.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "strips" }` hands an agent this spec). The spec below shows 6 of its 12 rows; the [full file](../catalog/strips.json) has them all. Source widget: [widgets/provision-strips.json](../widgets/provision-strips.json).
 
@@ -3240,7 +3326,7 @@ Unit strips: one row per item with a strip of small squares, one per unit, color
   "title": "How binding each regulation is",
   "subtitle": "Provisions by kind, and provisions per page",
   "description": "One square per provision, colored mandatory, recommended or optional, so the size of each rulebook and the share that binds can be counted; the density per page says how dense the text is.",
-  "footer": "Fictional counts for illustration",
+  "footer": "Fictional counts",
   "source": {
     "name": "Regulatory watch register"
   },
@@ -3310,9 +3396,11 @@ A hierarchy as rings: the inner ring splits the total by the first level, each o
 {
   "id": "product-region-sunburst",
   "title": "Revenue by product, then region",
-  "subtitle": "Q3 2026: inner ring by product, outer ring by region",
+  "subtitle": "Q3 2026",
   "description": "Q3 revenue split first by product, then each product by region. Platform leads; East is the largest region for Platform and Analytics, Central for Services.",
-  "footer": "Source: finance ledger",
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -3372,7 +3460,7 @@ A map with a circle on each place, its area true to a value: customers by state,
 
 **Answers**: Where are the most customers?
 
-**How to read it**: Each circle sits on one state on the map. The bigger the circle, the more customers. Each color is one sales region. Here, the biggest circle is California, with 1,840, 14% of all 24 places.
+**How to read it**: Each circle sits on one state on the map: the bigger the circle, the more customers. Here, the biggest circle is California, with 1,840, 14% of all 24 places.
 
 **Drop it in**: `<fft-widget src="catalog/symbols.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "symbols" }` hands an agent this spec). The spec below shows 6 of its 24 rows; the [full file](../catalog/symbols.json) has them all. Source widget: [widgets/customers-by-state.json](../widgets/customers-by-state.json).
 
@@ -3382,7 +3470,10 @@ A map with a circle on each place, its area true to a value: customers by state,
   "title": "Customers by state",
   "subtitle": "Active accounts, September 2026",
   "description": "Active customer accounts per US state as circles on a tile grid, sized by count and colored by sales region, so the coasts' weight and the thin middle show at once.",
-  "footer": "Source: CRM, accounts with an active subscription",
+  "footer": "Accounts with an active subscription",
+  "source": {
+    "name": "CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -3440,7 +3531,9 @@ Rows and columns. The default view, and the one to use when people need exact va
   "title": "Open deals",
   "subtitle": "Largest first",
   "description": "Deals in progress with their stage.",
-  "footer": "Source: CRM",
+  "source": {
+    "name": "CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -3514,9 +3607,11 @@ A Gantt-style timeline: one row per task with a bar from its start to its end da
 {
   "id": "launch-plan",
   "title": "Q4 launch plan",
-  "subtitle": "Discovery to launch, August to December 2026",
+  "subtitle": "Discovery to go-live, August to December 2026",
   "description": "Each workstream's dates by phase, filled to its share done, with the launch-day milestone and a line at today.",
-  "footer": "Source: project office",
+  "source": {
+    "name": "Project office"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -3562,7 +3657,7 @@ Part-to-whole for many categories: tiles sized by value, kept close to square. U
 
 **Answers**: What share of revenue comes from each customer?
 
-**How to read it**: Each box is one customer. The bigger the box, the more revenue. Here, Aurora Logistics is the biggest box, with €214K.
+**How to read it**: Each box is one customer: the bigger the box, the more revenue. Here, Aurora Logistics is the biggest box, with €214K.
 
 **Drop it in**: `<fft-widget src="catalog/treemap.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "treemap" }` hands an agent this spec). The spec below shows 6 of its 8 rows; the [full file](../catalog/treemap.json) has them all. Source widget: [widgets/customer-treemap.json](../widgets/customer-treemap.json).
 
@@ -3570,9 +3665,11 @@ Part-to-whole for many categories: tiles sized by value, kept close to square. U
 {
   "id": "customer-treemap",
   "title": "Revenue by customer",
-  "subtitle": "Year to date, colored by segment",
+  "subtitle": "Year to date, by segment",
   "description": "Every customer's share of revenue, grouped by segment.",
-  "footer": "Source: /data/customers.json",
+  "source": {
+    "name": "CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -3623,7 +3720,7 @@ Variance against plan, as in financial reporting: per row a bar from a zero line
 
 **Answers**: Which departments stayed within budget?
 
-**How to read it**: Each bar shows how far one department is from its budget: to the right when above it, to the left when below, with the gap written beside it. Below the budget is better. The longer the bar, the bigger the gap. Here, 3 of 6 departments are over their budget, and Sales is furthest from it: €412K against €380K.
+**How to read it**: Each bar shows how far one department is from its budget: right when above, left when below, the longer the further. Below the budget is better. Here, 3 of 6 departments are over their budget, and Sales is furthest from it: €412K against €380K.
 
 **Drop it in**: `<fft-widget src="catalog/variance.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "variance" }` hands an agent this spec). Source widget: [widgets/opex-variance.json](../widgets/opex-variance.json).
 
@@ -3633,7 +3730,9 @@ Variance against plan, as in financial reporting: per row a bar from a zero line
   "title": "Operating costs against budget",
   "subtitle": "Q3 2026, by department",
   "description": "Each department's Q3 spend minus its budget. Sales and R&D ran over; Marketing, Support and IT came in under.",
-  "footer": "Source: finance ledger",
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -3697,9 +3796,11 @@ Part to whole as a 10 by 10 grid where each square is one percent, filled catego
 {
   "id": "revenue-sources",
   "title": "Where revenue comes from",
-  "subtitle": "Q3 2026, each square one percent",
+  "subtitle": "Q3 2026, in percent",
   "description": "Q3 revenue by source. Subscriptions bring in 62 of every 100 euros.",
-  "footer": "Source: finance ledger",
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -3753,7 +3854,9 @@ A bridge: how a total moves to another through increases and decreases, each flo
   "title": "Revenue bridge",
   "subtitle": "Q2 to Q3 2026",
   "description": "What moved quarterly revenue from Q2 to Q3: gains from new customers, upsell and pricing, losses from churn and discounts.",
-  "footer": "Source: finance ledger",
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -3807,7 +3910,7 @@ The cross-sell map (whitespace analysis): one cell per client and product, fille
 
 **Answers**: Which clients could take more products, and which ones first?
 
-**How to read it**: Each row is one client and each column one product. A filled square means they already have it, an outlined square means they could (the stronger its tint, the more likely), and a small dot means it is not for them. The end of each row counts what they hold and what is still to win. Here, 20 cells are held and 17 are open; Aldana Holdings has the most to win, €253K.
+**How to read it**: Each row is one client and each column one product: filled means they have it, outlined means they could (the stronger, the likelier), a dot means not for them. Each row ends with what they hold and what is left to win. Here, 20 cells are held and 17 are open; Aldana Holdings has the most to win, €253K.
 
 **Drop it in**: `<fft-widget src="catalog/whitespace.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "whitespace" }` hands an agent this spec). The spec below shows 6 of its 48 rows; the [full file](../catalog/whitespace.json) has them all. Source widget: [widgets/cross-sell-whitespace.json](../widgets/cross-sell-whitespace.json).
 
@@ -3889,7 +3992,7 @@ A client x-ray: one client on one card, from its first row. The name and a detai
 
 **Answers**: How does this client stand right now, and what should we do next?
 
-**How to read it**: This card is one client, top to bottom: the key numbers, the products in color are the ones they hold, the bar is how much of their share of wallet is with us, the small line is the recent trend, the pills are things to watch, and the list is what to do next. Here, Aldana Holdings holds 3 of 8 products and has a share of wallet of 41%.
+**How to read it**: This card is one client: the key numbers, the products they hold, their share of wallet with us, the recent trend, what to watch and what to do next. Here, Aldana Holdings holds 3 of 8 products and has a share of wallet of 41%.
 
 **Drop it in**: `<fft-widget src="catalog/xray.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "xray" }` hands an agent this spec). Source widget: [widgets/client-xray.json](../widgets/client-xray.json).
 

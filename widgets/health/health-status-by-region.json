@@ -5,7 +5,7 @@
     "name": "Client health model (fictional)"
   },
   "title": "Where the book stands, by region",
-  "subtitle": "Overall status by region, share of clients",
+  "subtitle": "Overall status, share of clients",
   "description": "Each region's clients split by their overall status, as shares of the region.",
   "data": {
     "type": "url",

@@ -111,10 +111,11 @@ describe("lifecycle view", () => {
 
   test("the guide, the question and the recommendation know the lifecycle", () => {
     const spec = { data: { type: "inline", rows: rules }, view } as WidgetSpec;
-    expect(explainChart(spec, rules)).toContain("Each colored stretch is one stage, proposed, adopted, in force and applies in turn");
-    expect(explainChart(spec, rules)).toContain("The upright line is today, the word at the end of a row is its status, a thicker row means a higher impact.");
+    // The stages share the opening sentence; the status word reads itself, so only today and thickness are said.
+    expect(explainChart(spec, rules)).toContain("each stretch is one stage, proposed, adopted, in force and applies in turn");
+    expect(explainChart(spec, rules)).toContain("The upright line is today; a thicker row means more impact.");
     // The example names the rows as the guide does (entries), and the date reads as a date.
-    expect(explainChart(spec, rules)).toContain("Here, 1 of 3 entries has reached applies. PSD3 moved last, to adopted on Mar 18, 2026.");
+    expect(explainChart(spec, rules)).toContain("Here, 1 of 3 entries has reached applies; PSD3 moved last, to adopted on Mar 18, 2026.");
     // A field called name says nothing about what the rows are: they are entries, unless the title says ("… by regulation").
     expect(questionOf(spec, rules).text).toBe("Where does each entry stand, from proposed to applies?");
     expect(questionOf({ ...spec, title: "Status by regulation" }, rules).text).toBe("Where does each regulation stand, from proposed to applies?");

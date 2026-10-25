@@ -72,7 +72,9 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Operating costs against budget",
   "subtitle": "Q3 2026, by department",
   "description": "Each department's Q3 spend minus its budget. Sales and R&D ran over; Marketing, Support and IT came in under.",
-  "footer": "Source: finance ledger",
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

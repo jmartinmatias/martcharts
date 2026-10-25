@@ -3,7 +3,8 @@
   "title": "Win rate, year on year",
   "subtitle": "Share of qualified deals won, 2025 against 2026, by region",
   "description": "An arrow plot: each region's win rate moves from last year to this year. Blue arrows rose, red ones fell. East and North gained the most; South slipped.",
-  "footer": "Source: CRM, closed deals",
+  "footer": "Closed deals",
+  "source": {"name": "CRM"},
   "locale": "en-US",
   "data": {
     "type": "inline",

@@ -3,7 +3,7 @@
   "title": "Leads and wins by channel",
   "subtitle": "Q3 2026",
   "description": "How many leads each channel brought in and how many turned into customers. Partner referrals bring a third of the leads of paid search but almost as many wins.",
-  "footer": "Source: CRM",
+  "source": {"name": "CRM"},
   "locale": "en-US",
   "data": {
     "type": "inline",

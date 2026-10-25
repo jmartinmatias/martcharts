@@ -99,9 +99,11 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
 {
   "id": "revenue-icicle",
   "title": "Revenue by region, product and plan",
-  "subtitle": "Q3 2026, largest region first",
+  "subtitle": "Q3 2026, largest first",
   "description": "Q3 revenue split three ways, one column per level. East leads at €338K. Core makes up about two thirds of revenue in every region and is mostly sold on annual plans; Plus leans monthly everywhere except East.",
-  "footer": "Source: finance ledger",
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

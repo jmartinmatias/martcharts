@@ -68,7 +68,9 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Open deals",
   "subtitle": "Largest first",
   "description": "Deals in progress with their stage.",
-  "footer": "Source: CRM",
+  "source": {
+    "name": "CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

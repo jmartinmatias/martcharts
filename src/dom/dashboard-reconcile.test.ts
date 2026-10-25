@@ -118,8 +118,10 @@ describe("regulatory landscape: the numbers agree, or say why they differ", () =
     expect(funnel.Proposed).toBe(rules.length);
     // The gap is exactly the rules that reached force and are now under review or repealed.
     expect(Number(funnel["In force"]) - kpi).toBe(reached.filter((r) => !["In force", "Applies"].includes(String(r.status))).length);
-    expect(widgets["reg-in-force-kpi"]?.subtitle).toMatch(/funnel/);
-    expect(widgets["reg-stage-funnel"]?.subtitle).toMatch(/whatever their status today/);
+    // A subtitle states period and scope only: the reason for the gap moved to the description.
+    expect(widgets["reg-in-force-kpi"]?.description).toMatch(/funnel/);
+    // The subtitle was shortened to fourteen words; it still says status does not matter.
+    expect(widgets["reg-stage-funnel"]?.subtitle).toMatch(/whatever the status now/);
   });
 
   test("the split series add back up to the landscape's own", async () => {
@@ -177,7 +179,7 @@ describe("client health: the counts agree", () => {
       const rows = await card(`health-${p}-board`);
       expect([p, rows.length]).toEqual([p, health.length]);
       expect(widgets[`health-${p}-board`]?.view.only).toEqual(["R", "A"]);
-      expect(widgets[`health-${p}-board`]?.subtitle).toMatch(/on track are counted under the scorecard/);
+      expect(widgets[`health-${p}-board`]?.subtitle).toMatch(/^Off track or at risk, worst first/);
     }
   });
 });

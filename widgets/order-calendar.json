@@ -3,7 +3,7 @@
   "title": "Daily orders",
   "subtitle": "{first:day} to {last:day}",
   "description": "Orders per day, to spot weekly rhythm, quiet weekends and growth.",
-  "footer": "Source: /data/daily-orders.json",
+  "source": {"name": "Order system"},
   "locale": "en-US",
   "data": {
     "type": "url",

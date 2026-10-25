@@ -1,9 +1,9 @@
 {
   "id": "region-product-mix",
   "title": "Market size and mix",
-  "subtitle": "Q3 2026 revenue: column width is the region's size, segments its product mix",
+  "subtitle": "Q3 2026 revenue, by region and product",
   "description": "Each region's Q3 revenue as a column as wide as its share of the total, split by product share. East is the biggest market; West leans on Analytics, Central on Services.",
-  "footer": "Source: finance ledger",
+  "source": {"name": "Finance ledger"},
   "locale": "en-US",
   "data": {
     "type": "inline",

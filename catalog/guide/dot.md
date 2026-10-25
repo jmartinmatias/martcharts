@@ -76,7 +76,10 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Customer ratings by product",
   "subtitle": "Ease of use, value for money and support, scored 1 to 10, Q3 2026",
   "description": "A dot plot: each product's three ratings on one scale, so a product's spread and the ranking on any rating read at once. Enterprise leads on support but trails on value; Lite is the mirror image.",
-  "footer": "Source: quarterly customer survey, 2,140 answers",
+  "footer": "2,140 answers",
+  "source": {
+    "name": "Quarterly customer survey"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

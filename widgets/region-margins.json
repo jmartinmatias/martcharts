@@ -4,6 +4,7 @@
   "subtitle": "Q3 2026",
   "description": "Revenue, profit and margin per region, best margin first.",
   "footer": "Margin = profit / revenue",
+  "source": {"name": "Sales ledger"},
   "locale": "en-US",
   "data": {
     "type": "url",

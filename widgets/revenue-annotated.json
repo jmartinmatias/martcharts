@@ -3,7 +3,7 @@
   "title": "Revenue, with what happened",
   "subtitle": "{first:month} to {last:month}",
   "description": "Monthly revenue as one line with a symbol at every reading, its high and low named, and short notes on the moments that explain the shape.",
-  "footer": "Source: /data/monthly.json",
+  "source": {"name": "Finance ledger"},
   "locale": "en-US",
   "data": {
     "type": "url",

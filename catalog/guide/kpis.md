@@ -84,7 +84,9 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "At a glance",
   "subtitle": "{last:month} against the month before, with trends from {first:month}",
   "description": "The four headline numbers in one row.",
-  "footer": "Source: finance ledger and CRM",
+  "source": {
+    "name": "Finance ledger and CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

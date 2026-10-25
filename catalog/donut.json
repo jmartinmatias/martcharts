@@ -3,7 +3,9 @@
   "title": "Revenue by segment",
   "subtitle": "Year to date",
   "description": "How revenue splits across customer segments.",
-  "footer": "Source: /data/customers.json",
+  "source": {
+    "name": "CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

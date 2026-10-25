@@ -5,7 +5,7 @@
     "name": "Client health model (fictional)"
   },
   "title": "Where coverage is slipping",
-  "subtitle": "Coverage status by segment, clients",
+  "subtitle": "Status by segment, in clients",
   "description": "How many clients in each segment are green, amber or red on coverage.",
   "data": {
     "type": "url",

@@ -101,7 +101,9 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Cash on hand",
   "subtitle": "Month-end balance, with a six-month forecast",
   "description": "Cash ended September at €5.36M, up from €4.21M a year earlier. The middle case reaches €6.21M by March 2027, inside an 80% range of €4.50M to €8.22M.",
-  "footer": "Source: treasury and planning model",
+  "source": {
+    "name": "Treasury and planning model"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

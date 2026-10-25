@@ -1,7 +1,7 @@
 {
   "id": "cc-product-revenue",
   "title": "Revenue by product",
-  "subtitle": "2026 year to date; the products add up to the book's revenue",
+  "subtitle": "2026 year to date; the parts add up to the whole book",
   "description": "Each product's revenue as a tile: the bigger the tile, the more it brings.",
   "locale": "en-US",
   "source": {

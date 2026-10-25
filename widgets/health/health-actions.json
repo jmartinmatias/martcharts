@@ -5,7 +5,7 @@
     "name": "Client health model (fictional)"
   },
   "title": "Who owns the next step",
-  "subtitle": "Every red and amber client, worst first, with the action and how long it has been open",
+  "subtitle": "Off track and at risk, worst first, with the action and days open",
   "description": "The action list: one row per client not on track, red before amber, the oldest open action first.",
   "data": {
     "type": "url",

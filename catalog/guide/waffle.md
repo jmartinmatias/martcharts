@@ -64,9 +64,11 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
 {
   "id": "revenue-sources",
   "title": "Where revenue comes from",
-  "subtitle": "Q3 2026, each square one percent",
+  "subtitle": "Q3 2026, in percent",
   "description": "Q3 revenue by source. Subscriptions bring in 62 of every 100 euros.",
-  "footer": "Source: finance ledger",
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

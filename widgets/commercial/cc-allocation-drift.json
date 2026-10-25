@@ -1,7 +1,7 @@
 {
   "id": "cc-allocation-drift",
   "title": "Allocation against the model",
-  "subtitle": "Current weight and model target by asset class",
+  "subtitle": "Current weight and target, by asset class",
   "description": "Where the house portfolio drifted from its model, and which way to rebalance.",
   "locale": "en-US",
   "source": {

@@ -90,7 +90,9 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Revenue and cost",
   "subtitle": "{first:month} to {last:month}",
   "description": "Monthly revenue and cost trend from the finance ledger.",
-  "footer": "Source: /data/monthly.json",
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

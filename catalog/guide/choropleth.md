@@ -110,7 +110,9 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Revenue by country",
   "subtitle": "2026 year to date, European markets",
   "description": "Year-to-date revenue per European country on a tile grid, every country the same size so Luxembourg reads as well as Germany; countries with no sales stay grey.",
-  "footer": "Source: finance ledger",
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

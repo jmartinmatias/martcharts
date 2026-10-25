@@ -5,7 +5,7 @@
     "name": "Client health model (fictional)"
   },
   "title": "Which relationships are at risk",
-  "subtitle": "Relationship status by segment, clients",
+  "subtitle": "Status by segment, in clients",
   "description": "How many clients in each segment are green, amber or red on relationship.",
   "data": {
     "type": "url",

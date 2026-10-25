@@ -1,7 +1,7 @@
 {
   "id": "cc-whitespace",
   "title": "The cross-sell map",
-  "subtitle": "The twelve clients with the most to win, by product: held, open, or not eligible",
+  "subtitle": "Twelve clients with the most to win: held, open or not eligible",
   "description": "Every client against every product: what they hold, where an opportunity is open and how likely it is.",
   "locale": "en-US",
   "source": {

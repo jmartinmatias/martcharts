@@ -3,7 +3,7 @@
   "title": "Lead pipeline",
   "subtitle": "Q3 2026, by stage",
   "description": "How many leads reached each stage of the sales pipeline.",
-  "footer": "Source: CRM",
+  "source": {"name": "CRM"},
   "locale": "en-US",
   "data": {
     "type": "inline",

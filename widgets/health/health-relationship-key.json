@@ -5,7 +5,7 @@
     "name": "Client health model (fictional)"
   },
   "title": "Attrition risk by banker",
-  "subtitle": "Average model score of each banker's clients: green up to 30, amber up to 60",
+  "subtitle": "Average model score across each book",
   "description": "The key relationship measure, averaged over each banker's clients, against the thresholds that set its status.",
   "data": {
     "type": "url",

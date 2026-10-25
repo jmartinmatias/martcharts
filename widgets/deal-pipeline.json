@@ -3,7 +3,7 @@
   "title": "Open deals",
   "subtitle": "Largest first",
   "description": "Deals in progress with their stage.",
-  "footer": "Source: CRM",
+  "source": {"name": "CRM"},
   "locale": "en-US",
   "data": {
     "type": "inline",

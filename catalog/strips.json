@@ -3,7 +3,7 @@
   "title": "How binding each regulation is",
   "subtitle": "Provisions by kind, and provisions per page",
   "description": "One square per provision, colored mandatory, recommended or optional, so the size of each rulebook and the share that binds can be counted; the density per page says how dense the text is.",
-  "footer": "Fictional counts for illustration",
+  "footer": "Fictional counts",
   "source": {
     "name": "Regulatory watch register"
   },

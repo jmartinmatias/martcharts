@@ -5,7 +5,7 @@
     "name": "Client health model (fictional)"
   },
   "title": "Every client, on all four perspectives",
-  "subtitle": "Worst first; search by client, banker or segment, and read across to see where each one slips",
+  "subtitle": "Worst first; search by name, banker or segment",
   "description": "Every client's overall status beside its four perspective statuses: client success, business development, coverage and the relationship.",
   "data": {
     "type": "url",

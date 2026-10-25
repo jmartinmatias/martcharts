@@ -75,17 +75,19 @@ describe("headline number guides where lower is better", () => {
 
   test("a row of tiles says it for the churn tile that carries the target", () => {
     expect(explainChart(tiles([{ value: "revenue" }, { value: "churn", target: "cap", goodWhen: "down" }]))).toBe(
-      "Each tile is one key number, with a small arrow that says whether it went up or down since last time. A line under a tile says whether it stayed under its target.",
+      // Arrow and target line now share one sentence.
+      "Each tile is one key number; its arrow says whether it went up or down since last time, and a line under it whether it stayed under its target.",
     );
   });
 
   test("tiles with both kinds of target name both sides", () => {
     expect(explainChart(tiles([{ value: "revenue", target: "goal" }, { value: "churn", target: "cap", goodWhen: "down" }]))).toContain(
-      "A line under a tile says whether it reached its target, or stayed under it where lower is better.",
+      // Arrow and target line now share one sentence.
+      "a line under it whether it reached its target, or stayed under it where lower is better.",
     );
   });
 
   test("a churn tile without a target changes nothing", () => {
-    expect(explainChart(tiles([{ value: "revenue", target: "goal" }, { value: "churn", goodWhen: "down" }]))).toContain("A line under a tile says whether it reached its target.");
+    expect(explainChart(tiles([{ value: "revenue", target: "goal" }, { value: "churn", goodWhen: "down" }]))).toContain("a line under it whether it reached its target.");
   });
 });

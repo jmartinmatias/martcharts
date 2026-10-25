@@ -77,9 +77,11 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
 {
   "id": "product-share",
   "title": "Product share",
-  "subtitle": "Share of each region's revenue",
+  "subtitle": "Of each region's revenue",
   "description": "Core and Plus as a share of each region's revenue.",
-  "footer": "Source: /data/sales.json",
+  "source": {
+    "name": "Sales ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

@@ -1,9 +1,9 @@
 {
   "id": "traffic-stream",
   "title": "Visits by channel",
-  "subtitle": "Weekly site visits, {first:week} to {last:week}",
+  "subtitle": "Weekly, {first:week} to {last:week}",
   "description": "How the traffic mix flows week by week. Social peaks the week of Jul 13 at four times its usual level, paid traffic grows fivefold from late July, referrals double from May to July, and email pulses every other week with the newsletter.",
-  "footer": "Source: web analytics",
+  "source": {"name": "Web analytics"},
   "locale": "en-US",
   "data": {
     "type": "inline",

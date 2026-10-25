@@ -71,7 +71,9 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Top customers",
   "subtitle": "By revenue, year to date",
   "description": "The five customers with the most revenue.",
-  "footer": "Source: /data/customers.json",
+  "source": {
+    "name": "CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

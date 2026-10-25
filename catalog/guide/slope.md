@@ -70,7 +70,9 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Win rate by region",
   "subtitle": "First half against second half, 2026",
   "description": "Share of qualified deals won in each region, first half against second half of 2026.",
-  "footer": "Source: CRM",
+  "source": {
+    "name": "CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

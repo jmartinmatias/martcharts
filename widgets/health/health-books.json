@@ -4,8 +4,8 @@
   "source": {
     "name": "Client health model (fictional)"
   },
-  "title": "Each banker's book at a glance",
-  "subtitle": "Clients, how many are off track, at risk and on track overall, and how many are off track on each perspective",
+  "title": "Each banker's book",
+  "subtitle": "Clients overall, and off track per perspective",
   "description": "One row per relationship manager, counted from the clients themselves, so the segment and region filters reach it.",
   "data": {
     "type": "url",

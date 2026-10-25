@@ -1,8 +1,8 @@
 {
   "id": "reg-obligations-dual",
   "title": "New obligations and the pressure index",
-  "subtitle": "{first:month} to {last:month}, each on its own scale; the index is for the whole landscape, the obligations follow the filters",
-  "description": "Monthly new obligations as bars above the pressure index as a line: two units, two panels, one time axis.",
+  "subtitle": "{first:month} to {last:month}",
+  "description": "Monthly new obligations as bars above the pressure index as a line: two units, two panels, one time axis. The index covers the whole landscape; the obligations follow the filters.",
   "locale": "en-US",
   "data": {
     "type": "url",

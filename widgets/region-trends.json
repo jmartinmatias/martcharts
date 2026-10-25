@@ -3,7 +3,7 @@
   "title": "Regional trends",
   "subtitle": "Monthly revenue, April to September",
   "description": "Each region's six-month revenue trend and its total.",
-  "footer": "Source: finance ledger",
+  "source": {"name": "Finance ledger"},
   "locale": "en-US",
   "data": {
     "type": "inline",

@@ -40,7 +40,8 @@ const judging = (v: Variant) => sides(v).length > 0;
 describe("bars against a budget where lower is better", () => {
   test("the guide says a bar under the line stayed within the budget, and an outlined bar went over it", () => {
     const text = explainChart(costVsBudget, costs);
-    expect(text).toContain("The line is the budget. Lower is better here: a bar under the line stayed within the budget, and an outlined bar went over it.");
+    // One sentence now names the line and how to read it.
+    expect(text).toContain("The line is the budget, and lower is better here: a bar under it stayed within the budget, and an outlined bar went over it.");
     expect(text).not.toContain("beat");
   });
 
@@ -50,7 +51,8 @@ describe("bars against a budget where lower is better", () => {
 
   test("lollipops say the same, with a dot for a bar", () => {
     const lollipops: WidgetSpec = { ...costVsBudget, view: { ...costVsBudget.view, mark: "lollipop" } };
-    expect(explainChart(lollipops, costs)).toContain("Lower is better here: a stick with a dot under the line stayed within the budget.");
+    // One sentence now names the line and how to read it.
+    expect(explainChart(lollipops, costs)).toContain("lower is better here: a stick with a dot under it stayed within the budget.");
   });
 
   test("without goodWhen, higher is better and the words stay as they were", () => {

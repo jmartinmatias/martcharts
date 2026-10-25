@@ -126,8 +126,9 @@ describe("board view (a status board)", () => {
     expect(questionOf(spec, rules).text).toBe("Where is each entry right now, and how many are at each status?");
     expect(questionOf(spec, rules).kind).toBe("detail");
     const guide = explainChart(spec, rules);
-    expect(guide).toMatch(/Each column is one status, with how many entries are in it; each card is one entry\./);
-    expect(guide).toMatch(/The dot on a card tells its topic/);
+    // The count sits on each column heading and the topic dot is in the key, so the guide no longer teaches them.
+    expect(guide).toMatch(/Each column is one status, read left to right; each card is one entry, with its impact\./);
+    expect(guide).not.toMatch(/The dot on a card/);
     expect(guide).toMatch(/Here, 3 of 6 entries sit in Applies, and DORA has the highest impact, 5\./);
     const pick = recommendCharts(rules, { limit: 10 }).find((p) => p.type === "board");
     expect(pick?.view).toEqual({ type: "board", label: "name", stage: "status", group: "topic", value: "impact" });

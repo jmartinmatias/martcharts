@@ -3,7 +3,10 @@
   "title": "Employee pulse survey",
   "subtitle": "Q3 2026, share disagreeing and agreeing",
   "description": "Answers to five statements, centered on neutral. Strategy and recommendation score well; workload is the one most people disagree with.",
-  "footer": "Source: HR pulse survey, 240 responses",
+  "footer": "240 responses",
+  "source": {
+    "name": "HR pulse survey"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

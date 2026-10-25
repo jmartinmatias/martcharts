@@ -105,9 +105,11 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
 {
   "id": "deal-ridgeline",
   "title": "How deal sizes spread",
-  "subtitle": "Distribution of deal values per region",
+  "subtitle": "Value distribution, per region",
   "description": "The shape of each region's deal sizes: where most deals land and how wide the spread is.",
-  "footer": "Source: CRM",
+  "source": {
+    "name": "CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

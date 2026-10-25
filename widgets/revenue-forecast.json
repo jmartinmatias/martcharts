@@ -1,9 +1,9 @@
 {
   "id": "revenue-forecast",
   "title": "Revenue forecast",
-  "subtitle": "Monthly revenue, {first:month} to {last:month}, with a six-month forecast",
+  "subtitle": "Monthly, {first:month} to {last:month}, six months ahead",
   "description": "Revenue reached \u20ac1.28M in September. The middle case reaches \u20ac1.47M by March 2027, inside an 80% range of \u20ac1.15M to \u20ac1.82M that widens with each month further out.",
-  "footer": "Source: finance ledger and planning model",
+  "source": {"name": "Finance ledger and planning model"},
   "locale": "en-US",
   "data": {
     "type": "inline",

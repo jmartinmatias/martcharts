@@ -132,11 +132,13 @@ describe("the RAG views in the plain-words layers", () => {
   const rowsOf = (spec: WidgetSpec) => spec.data.rows as Row[];
 
   test("explain: what each shape means, then the standout", () => {
+    // Shapes, Overall and arrows now fit in two sentences; the order of rows is visible.
     expect(explainChart(board, rowsOf(board))).toBe(
-      "Each row is one client, each column one of success, growth and coverage. A circle is on track, a triangle at risk, a square off track; the worst rows come first. Overall, first, is each row's worst status. An arrow means better or worse than last period. Here, 2 of 3 clients are off track on at least one count; Keller is off track on 2 of 3.",
+      "Each row is one client, each column one measure: a circle is on track, a triangle at risk, a square off track. Overall is the worst of them; an arrow marks a change since last period. Here, 2 of 3 clients are off track on at least one count; Keller is off track on 2 of 3.",
     );
+    // Shapes and the change line now fit in two sentences; the end pill and row order are visible on the chart.
     expect(explainChart(trend, rowsOf(trend))).toBe(
-      "Each row is one client, read left to right month by month. A filled circle is on track, a triangle at risk and a square off track; a thin upright line marks where the status changed. The pill at the end is where it stands now, and the rows in the worst state come first. Here, 1 of 2 clients got worse over the period and 1 got better; Aldana went from on track to off track.",
+      "Each row is one client, month by month: a circle is on track, a triangle at risk, a square off track. A thin upright line marks a change. Here, 1 of 2 clients got worse over the period and 1 got better; Aldana went from on track to off track.",
     );
   });
 
