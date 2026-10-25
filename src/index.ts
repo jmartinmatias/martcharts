@@ -20,7 +20,7 @@ export { createEditor, columnKind, embedCodes, ensureEditorStyles, gridOf, readH
 export type { Editor, EditorOptions, EditorSample } from "./dom/editor.ts";
 export { createDashboard } from "./dom/dashboard.ts";
 export type { Dashboard, DashboardOptions } from "./dom/dashboard.ts";
-export { download, svgToPng, toDelimited } from "./dom/export.ts";
+export { cardToPng, cardToSvg, download, svgToPng, toDelimited } from "./dom/export.ts";
 export type { WidgetAction } from "./dom/export.ts";
 export type { PalettePicker, PalettePickerOptions } from "./dom/palette-picker.ts";
 export type { FftWidgetElement } from "./dom/element.ts";
