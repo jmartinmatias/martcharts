@@ -2151,7 +2151,8 @@ export interface RagboardView {
   dimensions: string | string[];
   /** Each dimension's previous-period field, for the trend arrows: { "health": "healthLast" }. */
   previous?: Record<string, string>;
-  overall?: boolean;
+  /** true for the worst of the dimensions, false for none, or a status field with the model's own roll-up. */
+  overall?: boolean | string;
   sort?: "worst" | "name" | "none";
   group?: string;
   note?: string;
@@ -2195,7 +2196,11 @@ const ragboard: ViewBlock = {
       type: "object",
       description: 'Each dimension\'s previous-period status field, for the trend arrows: { "health": "healthLast", "pipeline": "pipelineLast" }.',
     },
-    overall: { type: "boolean", default: true, description: "A first column with each row's worst status, the one to act on." },
+    overall: {
+      type: "any",
+      default: true,
+      description: 'A first column with each row\'s overall status, the one to act on: true for the worst of its dimensions, false for none, or a status field holding a roll-up your model already worked out (for example "two reds make red").',
+    },
     sort: { type: "enum", values: ["worst", "name", "none"], default: "worst", description: "Rows worst first (by overall status, then the number of reds and ambers), by name, or as given." },
     group: { type: "field", kind: "category", description: "Field that gathers rows under headings, such as segment or perspective." },
     note: { type: "field", kind: "category", description: "Field written small under each name, such as the action owner or the next step." },
@@ -2204,6 +2209,7 @@ const ragboard: ViewBlock = {
   },
   validate(view) {
     const problems: string[] = [];
+    if (view.overall !== undefined && typeof view.overall !== "boolean" && !(typeof view.overall === "string" && view.overall !== "")) problems.push("overall must be true, false or the name of a status field.");
     const prev = view.previous;
     if (prev !== undefined && (!prev || typeof prev !== "object" || Array.isArray(prev) || Object.values(prev).some((v) => typeof v !== "string"))) {
       problems.push('previous must map each dimension field to its previous-period field, such as { "health": "healthLast" }.');

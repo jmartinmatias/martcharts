@@ -34,12 +34,14 @@ export const renderRagboard: ViewRenderer<RagboardView> = (ctx) => {
   const dims = fieldList(view.dimensions);
   const previousOf = (view.previous && typeof view.previous === "object" ? view.previous : {}) as Record<string, string>;
   const overall = view.overall !== false;
+  // overall may name a stored status field: the model's own roll-up (two reds make red) rather than the plain worst.
+  const overallField = typeof view.overall === "string" && view.overall !== "" ? view.overall : undefined;
   const label = view.label;
 
   const lines: Line[] = ctx.rows.map((row) => {
     const statuses = dims.map((field) => ragOf(row[field]));
     const previous = dims.map((field) => (previousOf[field] ? ragOf(row[previousOf[field] as string]) : undefined));
-    return { row, name: ctx.format(row[label], label), statuses, previous, overall: worstOf(statuses) };
+    return { row, name: ctx.format(row[label], label), statuses, previous, overall: overallField ? ragOf(row[overallField]) : worstOf(statuses) };
   });
   const order = view.sort ?? "worst";
   const reds = (line: Line) => line.statuses.filter((s) => s === "R").length;

@@ -104,4 +104,14 @@ describe("ragboard view", () => {
     const issues = validateSpec({ data: { type: "inline", rows: [{ client: "X", success: "great" }] }, view: { type: "ragboard", label: "client", dimensions: ["success"] } }, [{ client: "X", success: "great" }]);
     expect(issues.map((i) => i.level)).toEqual(["warning"]);
   });
+  test("overall can name a stored roll-up field instead of the worst of the dimensions", async () => {
+    const rows = [
+      { client: "Aster", nps: "A", tickets: "A", health: "G" },
+      { client: "Birch", nps: "G", tickets: "R", health: "A" },
+    ];
+    await createWidget(target, { locale: "en-US", data: { type: "inline", rows }, view: { type: "ragboard", label: "client", dimensions: ["nps", "tickets"], overall: "health", sort: "none" } } as WidgetSpec).ready;
+    const overall = [...target.querySelectorAll("td[data-overall]")].map((td) => td.getAttribute("data-rag"));
+    expect(overall).toEqual(["G", "A"]);
+    expect(validateSpec({ data: { type: "inline", rows }, view: { type: "ragboard", label: "client", dimensions: ["nps"], overall: 3 } } as unknown as WidgetSpec, rows).some((i) => i.level === "error")).toBe(true);
+  });
 });

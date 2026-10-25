@@ -12,7 +12,7 @@ const SHAPES: Record<string, SkeletonShape> = {
   // Columns.
   bar: "bars", waterfall: "bars", histogram: "bars", pareto: "bars", candlestick: "bars", marimekko: "bars",
   // Labelled rows.
-  table: "rows", list: "rows", hbar: "rows", meter: "rows", bullet: "rows", funnel: "rows", dumbbell: "rows", dot: "rows",
+  table: "rows", list: "rows", ragboard: "grid", ragtrend: "grid", hbar: "rows", meter: "rows", bullet: "rows", funnel: "rows", dumbbell: "rows", dot: "rows",
   variance: "rows", likert: "rows", pyramid: "rows", strips: "rows", history: "rows", board: "rows",
   // Rows along a time or value axis.
   timeline: "lanes", lifecycle: "lanes", horizon: "lanes", ridgeline: "lanes", boxplot: "lanes", anomalies: "lanes", beeswarm: "lanes",
