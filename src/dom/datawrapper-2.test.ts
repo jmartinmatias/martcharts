@@ -396,7 +396,8 @@ describe("embeds that size themselves", () => {
 
   test("the static embed page loads the bundle and mounts the address; the host snippet sizes frames on its own", () => {
     const page = readFileSync("examples/embed.html", "utf8");
-    expect(page).toContain('<script src="../dist/martcharts.iife.js"></script>');
+    // Pages that only show charts load the lite bundle.
+    expect(page).toContain('<script src="../dist/martcharts-lite.iife.js"></script>');
     // Mounted from a file, never inline: the site's policy runs scripts from the site only.
     expect(page).toContain('<script src="embed.js"></script>');
     expect(readFileSync("examples/embed.js", "utf8")).toContain("MartCharts.mountEmbed(document, location.search)");

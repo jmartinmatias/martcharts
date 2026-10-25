@@ -1,10 +1,12 @@
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
+import { cssLiterals } from "./scripts/css-minify.ts";
 
 // The drop-in library build (npm run build:lib): one self-contained file per format, no dependencies,
 // with <fft-widget> registered on load. The demo gallery has its own config in vite.config.ts.
 export default defineConfig({
   publicDir: false,
+  plugins: [cssLiterals()],
   build: {
     outDir: "dist",
     emptyOutDir: true,

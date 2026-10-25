@@ -19,6 +19,22 @@ The package is not on npm. Two ways in:
 
 Both files register `<fft-widget>` on load and have no dependencies. In a project that compiles TypeScript itself, `import ... from "martcharts"` uses the source instead; that path needs `defineWidgetElement()` for the tag.
 
+## Which bundle
+
+| File | For | Size (gzipped) |
+| --- | --- | --- |
+| `dist/martcharts-lite.iife.js` (`.js` as a module, `martcharts/lite`) | Pages that show charts and dashboards: `<fft-widget>`, `createWidget`, `createDashboard`, embeds, export, every view, the reading guides in English | about 207 KB |
+| `dist/martcharts.iife.js` (`.js` as a module, `martcharts/standalone`) | Pages where people make charts: the editor, the composer, the Taller, the palette picker, the chart guide, and reading guides in French and German | about 292 KB |
+| `dist/martcharts-reading.iife.js` | Beside the lite bundle on a French or German page: brings the reading guides and questions in those languages | about 77 KB |
+
+The lite bundle reads its explanations in English: load `martcharts-reading.iife.js` after it and they read in the card's own language, as in the full build. Every other word on a chart (keys, tooltips, buttons) is already in English, French and German in both bundles.
+
+```html
+<script src="martcharts-lite.iife.js"></script>
+<script src="martcharts-reading.iife.js"></script> <!-- only on French or German pages -->
+<fft-widget src="/widgets/revenue-by-region.json"></fft-widget>
+```
+
 ## Plain HTML
 
 ```html

@@ -42,7 +42,7 @@ The demo is <!-- pages -->12<!-- /pages --> pages, linked from one row at the to
 
 ## Drop it into any page
 
-`npm run build:lib` writes `dist/martcharts.iife.js` (a classic script, `window.MartCharts`) and `dist/martcharts.js` (an ES module). Both register `<fft-widget>`, so a page needs no bundler and no JavaScript of its own.
+`npm run build:lib` writes `dist/martcharts.iife.js` (a classic script, `window.MartCharts`) and `dist/martcharts.js` (an ES module). Both register `<fft-widget>`, so a page needs no bundler and no JavaScript of its own. A page that only shows charts can load `dist/martcharts-lite.iife.js` instead, about 30% lighter; see [frameworks.md](docs/frameworks.md#which-bundle).
 
 ```html
 <script src="martcharts.iife.js"></script>

@@ -10,6 +10,6 @@
     "outDir": "dist/types",
     "rootDir": "src"
   },
-  "include": ["src/standalone.ts"],
+  "include": ["src/standalone.ts", "src/lite.ts"],
   "exclude": ["src/**/*.test.ts"]
 }

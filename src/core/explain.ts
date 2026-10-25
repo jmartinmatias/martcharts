@@ -17,7 +17,10 @@ import { ragOf, ragRank, ragTrend, ragWord, worstOf } from "./rag.ts";
 import type { Rag } from "./rag.ts";
 import { readable } from "./canonical.ts";
 import { concise } from "./concise.ts";
-import { cardNoun, distinctLabel, entityNoun, explainIn } from "./explain-words.ts";
+import { cardNoun, distinctLabel, entityNoun } from "./nouns.ts";
+import { readingLanguages } from "./reading.ts";
+// Registers French and German. The lite build maps this import to nothing, leaving English (see vite.lite.config.ts).
+import "./explain-words.ts";
 import { langOf } from "./words.ts";
 
 type View = Record<string, unknown> & { type: string };
@@ -37,7 +40,9 @@ export function explainChart(written: WidgetSpec, rows: Row[] = []): string {
   // French and German are built in their own words, from the same facts (explain-words.ts).
   const lang = langOf(spec.locale);
   // Every language is cut to three sentences and sixty words, and never teaches the legend (concise.ts).
-  if (lang !== "en") return concise(explainIn(lang, spec, rows));
+  // French and German come from explain-words.ts when it is loaded (always, but in the lite build); else English.
+  const other = lang === "en" ? undefined : readingLanguages();
+  if (lang !== "en" && other) return concise(other.explainIn(lang, spec, rows));
   const facet = (spec.facet as { field?: string } | undefined)?.field;
   // A dashed target line says what it is, so the chart reads against it.
   const goal = targetLine(spec);
