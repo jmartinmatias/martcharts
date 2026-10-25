@@ -62,7 +62,7 @@ export const renderAnomalies: ViewRenderer<AnomaliesView> = (ctx) => {
   const sameCount = lanes.every((lane) => lane.flagged === lanes[0]?.flagged);
 
   // The right column: the longest name or "latest · n anomalies", within two fifths of the card.
-  const countText = (n: number) => (n === 0 ? "none" : n === 1 ? "1 anomaly" : `${n} anomalies`);
+  const countText = (n: number) => wordsFor(ctx).anomalyCount(n);
   const latestText = (lane: Lane) => (lane.latest ? ctx.format(lane.latest[value], value) : "");
   // Measured: the name in bold, or the latest value beside its count pill, whichever is wider.
   const pillWidth = (words: string) => textWidth(words, 10, 600) + 10;
