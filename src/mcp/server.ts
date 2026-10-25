@@ -153,6 +153,7 @@ const VIEW_GUIDE = [
   "Where things are: choropleth (regions shaded by a value), symbols (circles sized by a value on their regions or at coordinates), locator (named markers); geo takes a built-in tile grid (europe, us-states) or your own GeoJSON.",
   "Records to read: table (with spark and badge cells), list.",
   "Regulation and compliance: matrix (one mark per x and y pair, sized, shaded or a square per yes: pressure per topic per quarter, who must comply), strips (one square per provision, colored mandatory to optional, with a density per page), lifecycle (each rule's stages from proposal to application on one date axis, a today line and a status pill).",
+  "Clients and cross-sell: whitespace (the cross-sell map: one cell per client and product, held, open or not eligible, with the potential per row), xray (one client on one card: facts, holdings, share of wallet, trend, flags, next best actions), history (a client's events as a vertical timeline, newest first).",
 ];
 
 function blocksMarkdown(kinds: BlockKind[]): string {

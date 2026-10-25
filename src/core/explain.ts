@@ -1077,6 +1077,46 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const moved = mover && stage && Number.isFinite(lastDate(mover)) ? ` ${text(mover, label)} moved last, to ${nameOf(stage, spec).toLowerCase()} on ${text(mover, stage)}.` : "";
       return `Here, ${count} ${plural(entity)} ${reached.length === 1 ? "has" : "have"} reached ${nameOf(last, spec).toLowerCase()}.${moved}`;
     }
+    case "whitespace": {
+      // The map's point: how many open cells there are, and which client has the most to win.
+      const [client, product, state, amount] = [one(view.row), one(view.column), one(view.state), one(view.value)];
+      if (!client || !product || !state) return "";
+      const names = Array.isArray(view.states) && view.states.length === 3 ? view.states.map(String) : ["Holds", "Opportunity", "Not eligible"];
+      const held = rows.filter((r) => String(r[state]) === names[0]).length;
+      const open = rows.filter((r) => String(r[state]) === names[1]);
+      if (!held && !open.length) return "";
+      const potential = new Map<string, number>();
+      for (const r of open) potential.set(text(r, client), (potential.get(text(r, client)) ?? 0) + (amount ? (value(r, amount) ?? 0) : 1));
+      const best = [...potential.entries()].sort((a, b) => b[1] - a[1])[0];
+      const most = best ? (amount && best[1] > 0 ? `; ${best[0]} has the most to win, ${formatValue(best[1], spec.fields?.[amount]?.format, spec.locale)}` : `; ${best[0]} has the most open cells`) : "";
+      return `Here, ${held} cell${held === 1 ? " is" : "s are"} held and ${open.length} ${open.length === 1 ? "is" : "are"} open${most}.`;
+    }
+    case "xray": {
+      const [label, wallet] = [one(view.label), one(view.wallet)];
+      const row = rows[0];
+      if (!label || !row) return "";
+      const holdings = many(view.holdings);
+      const count = holdings.filter((f) => row[f] === true || row[f] === 1 || /^(true|yes|y)$/i.test(String(row[f] ?? ""))).length;
+      const parts = [
+        ...(holdings.length ? [`holds ${count} of ${holdings.length} products`] : []),
+        ...(wallet && value(row, wallet) !== null ? [`has a ${nameOf(wallet, spec)} of ${percent(Math.min(1, (value(row, wallet) as number) > 1 ? (value(row, wallet) as number) / 100 : (value(row, wallet) as number)))}`] : []),
+      ];
+      return parts.length ? `Here, ${text(row, label)} ${parts.join(" and ")}.` : `Here, the card is ${text(row, label)}'s.`;
+    }
+    case "history": {
+      const [date, title, kind] = [one(view.date), one(view.title), one(view.kind)];
+      if (!date || !title) return "";
+      const dated = rows.filter((r) => /^\d{4}-\d{2}-\d{2}/.test(String(r[date] ?? "")));
+      if (!dated.length) return "";
+      const latest = dated.reduce((best, r) => (String(r[date]) > String(best[date]) ? r : best));
+      const kinds = kind ? new Map<string, number>() : undefined;
+      if (kind && kinds) for (const r of dated) kinds.set(text(r, kind), (kinds.get(text(r, kind)) ?? 0) + 1);
+      const commonest = kinds ? [...kinds.entries()].sort((a, b) => b[1] - a[1])[0] : undefined;
+      const mostly = commonest && kinds && kinds.size > 1 ? `, ${commonest[1]} of them ${commonest[0].toLowerCase()}s` : "";
+      // A bare ISO day reads as a calendar date (Oct 21, 2026), unless the field has its own format.
+      const day = spec.fields?.[date]?.format !== undefined ? text(latest, date) : formatValue(latest[date], { type: "date" }, spec.locale);
+      return `Here, there are ${dated.length} events${mostly}; the latest is ${text(latest, title)} on ${day}.`;
+    }
     default:
       return "";
   }
@@ -1329,6 +1369,12 @@ function guide(spec: WidgetSpec): string {
       const tail = extras.length ? ` ${extras.join(", ").replace(/^./, (c) => c.toUpperCase())}.` : "";
       return `Each row is one ${noun(one(view.label))}, read left to right in time. Each colored stretch is one stage, ${both(stages.map((f) => name(f)))} in turn, deeper as it goes; a tick marks where each began, and a faint stretch is a stage still running.${tail}`;
     }
+    case "whitespace":
+      return `Each row is one ${noun(one(view.row), "client")} and each column one ${noun(one(view.column), "product")}. A filled square means they already have it, an outlined square means they could (the stronger its tint, the more likely), and a small dot means it is not for them. The end of each row counts what they hold and what is still to win.`;
+    case "xray":
+      return `This card is one ${noun(one(view.label), "client")}, top to bottom: the key numbers${many(view.holdings).length ? ", the products in color are the ones they hold" : ""}${one(view.wallet) ? `, the bar is how much of their ${name(one(view.wallet))} is with us` : ""}${one(view.trend) ? ", the small line is the recent trend" : ""}${one(view.flags) ? ", the amber pills are things to watch" : ""}${one(view.actions) ? ", and the list is what to do next" : ""}.`;
+    case "history":
+      return `Each dot is one event for the ${noun(one(view.group) ?? one(view.title), "client")}, ${view.order === "asc" ? "oldest first" : "newest at the top"}, with its date and what happened${one(view.amount) ? ` and, on the right, the ${name(one(view.amount))}` : ""}.${one(view.kind) ? ` Each color and letter is one ${name(one(view.kind))}.` : ""}`;
     case "list":
       // A field called name, title or label says nothing about what the lines are: they are entries.
       return `Each line is one ${/^(name|title|label)$/i.test(one(view.label) ?? "") ? "entry" : name(one(view.label))}${one(view.value) ? `, with its ${name(one(view.value))} on the right` : ""}.`;

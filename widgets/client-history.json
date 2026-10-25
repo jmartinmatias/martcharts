@@ -1,0 +1,44 @@
+{
+  "id": "client-history",
+  "title": "Aldana Holdings, the story so far",
+  "subtitle": "Every touchpoint since onboarding",
+  "description": "A client's events as a vertical timeline, newest first: meetings, calls, trades, campaigns and complaints, each in its own color, with the amount where there is one.",
+  "source": { "name": "CRM activity log (fictional)" },
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      { "date": "2026-10-21", "kind": "Call", "title": "Quarterly check-in call", "note": "CFO asked about lending terms for the warehouse purchase; sent the term sheet the same day.", "amount": null },
+      { "date": "2026-10-03", "kind": "Trade", "title": "Bought EUR corporate bond ladder", "note": "Three tranches, 2028 to 2032.", "amount": 2400000 },
+      { "date": "2026-09-17", "kind": "Campaign", "title": "Discretionary mandate campaign opened", "note": "Opened the mailing twice; no reply yet.", "amount": null },
+      { "date": "2026-09-02", "kind": "Payment", "title": "Custody fees invoiced", "note": null, "amount": 46000 },
+      { "date": "2026-08-12", "kind": "Complaint", "title": "FX spread queried on USD payment", "note": "Resolved with a goodwill credit; pricing review promised before renewal.", "amount": -1800 },
+      { "date": "2026-07-19", "kind": "Meeting", "title": "Annual review with the board", "note": "Agreed to revisit the treasury policy; board wants a lower cash balance.", "amount": null },
+      { "date": "2026-06-30", "kind": "Trade", "title": "Sold short-dated T-bills", "note": null, "amount": -1100000 },
+      { "date": "2026-06-05", "kind": "Call", "title": "Lending enquiry: warehouse purchase", "note": "Indicative appetite given; awaiting valuation.", "amount": null },
+      { "date": "2026-05-14", "kind": "Review", "title": "KYC refresh completed", "note": null, "amount": null },
+      { "date": "2026-03-20", "kind": "Meeting", "title": "FX hedging workshop", "note": "Treasurer and two analysts attended.", "amount": null },
+      { "date": "2026-03-03", "kind": "Payment", "title": "Advisory fees invoiced", "note": null, "amount": 24000 },
+      { "date": "2026-01-15", "kind": "Trade", "title": "Rolled USD forward hedges", "note": "Six months, same notional.", "amount": 850000 },
+      { "date": "2025-11-28", "kind": "Campaign", "title": "Year-end structured notes offer", "note": "Declined: no appetite for equity-linked notes.", "amount": null },
+      { "date": "2025-09-09", "kind": "Meeting", "title": "Onboarding of the treasury team", "note": "Platform training for three users.", "amount": null },
+      { "date": "2025-08-22", "kind": "Onboarding", "title": "Account opened", "note": "Custody and advisory mandates signed.", "amount": null }
+    ]
+  },
+  "fields": {
+    "date": { "label": "Date" },
+    "kind": { "label": "Kind" },
+    "title": { "label": "Event" },
+    "note": { "label": "Note" },
+    "amount": { "label": "Amount", "format": { "type": "currency", "currency": "EUR", "compact": true } }
+  },
+  "view": {
+    "type": "history",
+    "date": "date",
+    "title": "title",
+    "kind": "kind",
+    "note": "note",
+    "amount": "amount",
+    "limit": 12
+  }
+}

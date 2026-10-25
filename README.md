@@ -175,6 +175,7 @@ Start from what you want the reader to see. Every view takes plain rows; `sugges
 | Regulatory pressure, or who must comply | `matrix` (one mark per topic and quarter, sized by new obligations and shaded by impact; or a square per stakeholder that must comply with each rule) |
 | Provisions and how binding they are | `strips` (one square per provision, colored mandatory, recommended, optional, with the mandatory share and the density per page at the end) |
 | Where each rule stands | `lifecycle` (every regulation's stages from proposal to application on one date axis, a today line, a status pill, thicker rows for higher impact) |
+| Clients and cross-sell | `whitespace` (the cross-sell map: one cell per client and product, filled where held, outlined where open and tinted by propensity, with the potential summed per row), `xray` (one client on one card: facts, holdings as pills, share of wallet, trend, flags, next best actions), `history` (a client's story: events on a vertical timeline, newest first, colored by kind) |
 
 Charts follow fixed rules: a validated, colorblind-checked 8-color palette with its own dark-mode set, bars at most 21px wide with rounded data ends, 2px lines, hairline gridlines, a legend only when there are two or more series, a tooltip on hover and keyboard focus, and a hidden data table for screen readers.
 

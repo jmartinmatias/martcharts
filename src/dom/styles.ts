@@ -1454,4 +1454,85 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-lc-note { margin: 0; font-size: 11px; line-height: 13px; color: var(--fft-muted); }
 .fft-widget[data-animate] .fft-lc-seg, .fft-widget[data-animate] .fft-lc-open { transform-box: fill-box; transform-origin: 0 50%; animation: fft-grow-x 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 34ms); }
 .fft-widget[data-animate] .fft-lc-tick { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(377ms + var(--fft-i, 0) * 34ms); }
+/* Whitespace: the cross-sell map. Held is a filled square, an opportunity an outlined one tinted by its score, not eligible a faint dot. */
+.fft-ws { display: flex; flex-direction: column; gap: 8px; }
+.fft-ws-grid { display: grid; gap: 2px; align-items: stretch; font-size: 11px; line-height: 13px; }
+.fft-ws-corner { min-height: 1px; }
+.fft-ws-col { display: flex; align-items: flex-end; justify-content: center; padding-bottom: 3px; color: var(--fft-muted); text-align: center; min-width: 0; }
+.fft-ws-col-name { overflow-wrap: anywhere; }
+.fft-ws-grid[data-tight] .fft-ws-col { justify-content: center; align-items: flex-end; height: 76px; }
+.fft-ws-grid[data-tight] .fft-ws-col-name { writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-height: 76px; }
+.fft-ws-head-sum, .fft-ws-foot-label { display: flex; align-items: flex-end; color: var(--fft-muted); white-space: nowrap; padding: 0 0 3px 8px; }
+.fft-ws-foot-label { align-items: center; padding: 3px 8px 0 0; justify-content: flex-end; }
+.fft-ws-row { display: flex; align-items: center; padding-right: 8px; color: var(--fft-text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fft-ws-cell { position: relative; display: flex; align-items: center; justify-content: center; aspect-ratio: 1; min-height: 21px; border-radius: 3px; outline: none; transition: opacity 377ms var(--fft-ease); }
+.fft-ws-cell:not([data-state="empty"]) { cursor: pointer; }
+.fft-ws-cell:hover, .fft-ws-cell:focus-visible { box-shadow: 0 0 0 2px var(--fft-ring, var(--fft-surface)), 0 0 0 3px var(--fft-accent); }
+.fft-ws-cell[data-state="empty"] { box-shadow: inset 0 0 0 1px var(--fft-grid); }
+.fft-ws-mark { display: block; width: 62%; height: 62%; border-radius: 3px; }
+.fft-ws-cell[data-state="holds"] .fft-ws-mark { border-radius: 3px; }
+.fft-ws-cell[data-state="opportunity"] .fft-ws-mark { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--fft-ws-color, var(--fft-accent)) 70%, var(--fft-text)); background: color-mix(in srgb, var(--fft-ws-color, var(--fft-accent)) 10%, transparent); }
+.fft-ws-cell[data-state="opportunity"] .fft-ws-mark[data-step="2"] { background: color-mix(in srgb, var(--fft-ws-color, var(--fft-accent)) 18%, transparent); }
+.fft-ws-cell[data-state="opportunity"] .fft-ws-mark[data-step="3"] { background: color-mix(in srgb, var(--fft-ws-color, var(--fft-accent)) 26%, transparent); }
+.fft-ws-cell[data-state="opportunity"] .fft-ws-mark[data-step="4"] { background: color-mix(in srgb, var(--fft-ws-color, var(--fft-accent)) 34%, transparent); }
+.fft-ws-cell[data-state="opportunity"] .fft-ws-mark[data-step="5"] { background: color-mix(in srgb, var(--fft-ws-color, var(--fft-accent)) 44%, transparent); }
+.fft-ws-cell[data-state="opportunity"] .fft-ws-mark[data-step="6"] { background: color-mix(in srgb, var(--fft-ws-color, var(--fft-accent)) 55%, transparent); }
+.fft-ws-cell[data-state="opportunity"] .fft-ws-mark[data-step="7"] { background: color-mix(in srgb, var(--fft-ws-color, var(--fft-accent)) 68%, transparent); }
+.fft-ws-cell[data-state="none"] .fft-ws-mark { width: 5px; height: 5px; border-radius: 50%; background: var(--fft-grid); }
+.fft-ws-grid[data-active] .fft-ws-cell:not([data-active]) .fft-ws-mark { opacity: 0.45; }
+.fft-ws-sum { display: flex; flex-direction: column; justify-content: center; align-items: flex-end; padding-left: 8px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.fft-ws-count { color: var(--fft-text-secondary); }
+.fft-ws-potential { font-weight: 600; color: var(--fft-text); }
+.fft-ws-foot { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 3px; color: var(--fft-muted); font-variant-numeric: tabular-nums; }
+.fft-ws-foot-holds { color: var(--fft-text-secondary); font-weight: 600; }
+.fft-ws-swatch[data-state="opportunity"] { background: color-mix(in srgb, var(--fft-ws-color, var(--fft-accent)) 26%, transparent); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--fft-ws-color, var(--fft-accent)) 70%, var(--fft-text)); }
+.fft-ws-swatch[data-state="none"] { width: 5px; height: 5px; border-radius: 50%; background: var(--fft-grid); margin: 0 1.5px; }
+.fft-widget[data-animate] .fft-ws-mark { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 21ms); }
+/* X-ray: one client on one card, part under part. */
+.fft-xray { display: flex; flex-direction: column; gap: 13px; }
+.fft-xray-head { display: flex; flex-direction: column; gap: 2px; }
+.fft-xray-name { margin: 0; font-size: 21px; line-height: 26px; font-weight: 600; letter-spacing: -0.01em; }
+.fft-xray-detail { margin: 0; color: var(--fft-text-secondary); }
+.fft-xray-facts { display: grid; grid-template-columns: repeat(var(--fft-xray-facts, 3), minmax(0, 1fr)); gap: 8px 13px; margin: 0; }
+.fft-xray-fact { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.fft-xray-fact-label { font-size: 11px; line-height: 13px; color: var(--fft-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fft-xray-fact-value { margin: 0; font-size: 17px; line-height: 21px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fft-xray-section { display: flex; flex-direction: column; gap: 5px; }
+.fft-xray-title { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 11px; line-height: 13px; color: var(--fft-muted); }
+.fft-xray-title-count { color: var(--fft-text-secondary); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.fft-xray-holdings { display: flex; flex-wrap: wrap; gap: 5px; margin: 0; padding: 0; list-style: none; }
+.fft-xray-pill { padding: 2px 8px; border-radius: 13px; font-size: 11px; line-height: 13px; color: var(--fft-text-secondary); box-shadow: inset 0 0 0 1px var(--fft-grid); }
+.fft-xray-pill[data-held] { color: color-mix(in srgb, var(--fft-xray-color, var(--fft-accent)) 60%, var(--fft-text)); background: color-mix(in srgb, var(--fft-xray-color, var(--fft-accent)) 16%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fft-xray-color, var(--fft-accent)) 55%, transparent); font-weight: 600; }
+.fft-xray-track { height: 8px; border-radius: 5px; background: color-mix(in srgb, var(--fft-accent) 16%, transparent); overflow: hidden; }
+.fft-xray-fill { height: 100%; border-radius: 5px; transform-origin: 0 50%; }
+.fft-xray-trend .fft-sparkline { display: block; max-width: 100%; }
+.fft-xray-flags { display: flex; flex-wrap: wrap; gap: 5px; margin: 0; padding: 0; list-style: none; }
+.fft-xray-actions { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 5px; }
+.fft-xray-action { display: flex; align-items: flex-start; gap: 8px; }
+.fft-xray-check { flex: none; margin-top: 2px; fill: none; stroke: var(--fft-muted); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.fft-widget[data-animate] .fft-xray-fill { animation: fft-grow-x 610ms var(--fft-ease) both; }
+/* History: a vertical timeline, newest first, a dot per event on a hairline rail. */
+.fft-history-wrap { display: flex; flex-direction: column; gap: 13px; }
+.fft-history-group { display: flex; flex-direction: column; gap: 5px; }
+.fft-history-heading { margin: 0; font-size: 13px; line-height: 21px; font-weight: 600; }
+.fft-history { position: relative; margin: 0; padding: 0 0 0 29px; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.fft-history::before { content: ""; position: absolute; left: 10px; top: 8px; bottom: 8px; width: 1px; background: var(--fft-grid); }
+.fft-history-month { position: relative; margin: 5px 0 0; font-size: 11px; line-height: 13px; color: var(--fft-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.fft-history-month::before { content: ""; position: absolute; left: -21px; top: 5px; width: 5px; height: 5px; border-radius: 50%; background: var(--fft-grid); box-shadow: 0 0 0 2px var(--fft-ring, var(--fft-surface)); }
+.fft-history-month:first-child { margin-top: 0; }
+.fft-history-event { position: relative; display: flex; gap: 8px; border-radius: 5px; outline: none; transition: opacity 377ms var(--fft-ease); cursor: pointer; }
+.fft-history-event:focus-visible { box-shadow: 0 0 0 2px var(--fft-ring, var(--fft-surface)), 0 0 0 3px var(--fft-accent); }
+.fft-history-dot { position: absolute; left: -29px; top: 1px; width: 21px; height: 21px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #fff; box-shadow: 0 0 0 2px var(--fft-ring, var(--fft-surface)); }
+.fft-history-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.fft-history-line { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.fft-history-date { flex: none; font-size: 11px; line-height: 13px; color: var(--fft-muted); font-variant-numeric: tabular-nums; min-width: 42px; }
+.fft-history-title { flex: 1; min-width: 0; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fft-history-amount { flex: none; font-weight: 600; font-variant-numeric: tabular-nums; }
+.fft-history-note { margin: 0 0 0 50px; font-size: 11px; line-height: 15px; color: var(--fft-text-secondary); }
+.fft-history-more { font-size: 11px; line-height: 13px; color: var(--fft-muted); }
+.fft-widget[data-animate] .fft-history-event { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 34ms); }
+@container (max-width: 380px) {
+  .fft-xray-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fft-history-note { margin-left: 0; }
+}
 `;

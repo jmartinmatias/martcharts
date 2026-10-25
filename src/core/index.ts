@@ -26,6 +26,8 @@ export type { RidgelineView } from "./views.ts";
 export type { ChoroplethView, GeoOption, LocatorView, SymbolsView } from "./views.ts";
 export type { LifecycleView, MatrixView, StripsView } from "./views.ts";
 export { isYes } from "./views.ts";
+export type { HistoryView, WhitespaceView, XrayView } from "./views.ts";
+export { WHITESPACE_STATES } from "./views.ts";
 export { basemap, basemapNames, basemapTiles, describeBasemaps, featureId, featureName, geoAspect, geoProblem, guessBasemap, isGeoCollection, isGeoUrl, normalizeId, project, resolveGeo, SEQUENTIAL_STEPS, sequentialStep } from "./geo.ts";
 export type { GeoCollection, GeoFeature, GeoGeometry, Position, ProjectedShape, Projection } from "./geo.ts";
 export type { AreaView, BarView, BeeswarmView, BulletView, CalendarView, DotView, DumbbellView, SankeyView, DonutView, PieView, FunnelView, TreemapView, HbarView, HeatmapView, KpiView, LineView, ListView, MeterView, ScatterView, SlopeView, BumpView, MarimekkoView, HistogramView, RingsView, TimelineView, WaffleView, VarianceView, GaugeView, ParetoView, BoxplotView, LikertView, CandlestickView, SunburstView, ChordView, RadarView, TableView, WaterfallView } from "./views.ts";

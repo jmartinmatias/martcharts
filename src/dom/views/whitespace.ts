@@ -1,0 +1,202 @@
+import { readNumber } from "../../core/formats.ts";
+import { sequentialStep } from "../../core/geo.ts";
+import type { Row } from "../../core/types.ts";
+import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
+import { WHITESPACE_STATES } from "../../core/views.ts";
+import type { WhitespaceView } from "../../core/views.ts";
+import { hiddenTable, html, selectable } from "./shared.ts";
+import { roving } from "./focus.ts";
+
+/** A column narrower than this, in pixels, turns its header on its side. */
+const TIGHT = 55;
+
+type State = "holds" | "opportunity" | "none";
+
+interface Line {
+  key: string;
+  name: string;
+  /** Cells by column key. */
+  cells: Map<string, { row: Row; state: State | undefined; score: number | null; value: number | null }>;
+  holds: number;
+  open: number;
+  potential: number;
+}
+
+/**
+ * Draws the `whitespace` view, the cross-sell map: a grid with one row per client
+ * and one column per product. A held product is a filled square, an opportunity an
+ * outlined one whose tint strengthens with its score, a client not eligible for a
+ * product a faint dot, and a pair with no row stays blank. Each row ends with its
+ * penetration and the potential still open; each column with how many hold it and how
+ * many could. Built from HTML, so names stay crisp and the grid reflows with the card.
+ */
+export const renderWhitespace: ViewRenderer<WhitespaceView> = (ctx) => {
+  const doc = ctx.el.ownerDocument;
+  const { row: rowField, column: columnField, state: stateField, score: scoreField, value: valueField } = ctx.view;
+  const names = (Array.isArray(ctx.view.states) && ctx.view.states.length === 3 ? ctx.view.states : WHITESPACE_STATES).map(String);
+  const stateOf = (value: unknown): State | undefined => {
+    const text = String(value);
+    return text === names[0] ? "holds" : text === names[1] ? "opportunity" : text === names[2] ? "none" : undefined;
+  };
+
+  const columns: { key: string; name: string; holds: number; open: number }[] = [];
+  const lines: Line[] = [];
+  for (const row of ctx.rows) {
+    const cKey = String(row[columnField]);
+    let column = columns.find((c) => c.key === cKey);
+    if (!column) {
+      column = { key: cKey, name: ctx.format(row[columnField], columnField), holds: 0, open: 0 };
+      columns.push(column);
+    }
+    const lKey = String(row[rowField]);
+    let line = lines.find((l) => l.key === lKey);
+    if (!line) {
+      line = { key: lKey, name: ctx.format(row[rowField], rowField), cells: new Map(), holds: 0, open: 0, potential: 0 };
+      lines.push(line);
+    }
+    const state = stateOf(row[stateField]);
+    const score = scoreField ? readNumber(row[scoreField]) : null;
+    const value = valueField ? readNumber(row[valueField]) : null;
+    line.cells.set(cKey, { row, state, score, value });
+    if (state === "holds") {
+      line.holds++;
+      column.holds++;
+    } else if (state === "opportunity") {
+      line.open++;
+      column.open++;
+      line.potential += value ?? 0;
+    }
+  }
+  const eligible = (line: Line) => line.holds + line.open;
+  const sort = ctx.view.sort ?? "potential";
+  if (sort === "potential") lines.sort((a, b) => b.potential - a.potential || b.open - a.open);
+  else if (sort === "penetration") lines.sort((a, b) => (eligible(a) ? a.holds / eligible(a) : 1) - (eligible(b) ? b.holds / eligible(b) : 1) || b.open - a.open);
+
+  const scores = ctx.rows.map((row) => (scoreField ? readNumber(row[scoreField]) : null)).filter((n): n is number => n !== null);
+  const [low, high] = scores.length ? [Math.min(...scores), Math.max(...scores)] : [0, 100];
+  const money = (n: number) => (valueField ? ctx.format(n, valueField) : String(n));
+  const hasValue = Boolean(valueField) && lines.some((line) => line.potential > 0);
+
+  const wrap = html(doc, "div", "fft-ws");
+  // The legend: the three states as the marks themselves.
+  if (!ctx.inFacet) {
+    const legend = html(doc, "ul", "fft-legend fft-ws-legend");
+    for (const [state, label] of [
+      ["holds", names[0]],
+      ["opportunity", names[1]],
+      ["none", names[2]],
+    ] as const) {
+      const swatch = html(doc, "span", "fft-swatch fft-ws-swatch");
+      swatch.dataset.state = state;
+      if (state === "holds") swatch.style.background = ctx.color(0);
+      if (state === "opportunity") swatch.style.setProperty("--fft-ws-color", ctx.color(0));
+      swatch.setAttribute("aria-hidden", "true");
+      const item = html(doc, "li");
+      item.append(swatch, label ?? "");
+      legend.append(item);
+    }
+    wrap.append(legend);
+  }
+
+  const grid = html(doc, "div", "fft-ws-grid");
+  grid.setAttribute("role", "group");
+  grid.setAttribute("aria-label", `Whitespace map of ${ctx.label(columnField)} by ${ctx.label(rowField)}`);
+  grid.style.gridTemplateColumns = `minmax(55px, max-content) repeat(${columns.length}, minmax(21px, 1fr)) max-content`;
+  // Narrow columns turn their names on their side, so every product keeps its full name.
+  const perColumn = (ctx.width - 89 - (hasValue ? 89 : 55)) / Math.max(1, columns.length);
+  if (perColumn < TIGHT) grid.dataset.tight = "";
+  grid.append(html(doc, "div", "fft-ws-corner"));
+  for (const column of columns) {
+    const head = html(doc, "div", "fft-ws-col");
+    head.append(html(doc, "span", "fft-ws-col-name", column.name));
+    grid.append(head);
+  }
+  grid.append(html(doc, "div", "fft-ws-head-sum", hasValue ? "Held · to win" : "Held"));
+
+  const cells: HTMLElement[] = [];
+  const deactivate = () => {
+    grid.removeAttribute("data-active");
+    for (const cell of cells) cell.removeAttribute("data-active");
+    ctx.tooltip.hide();
+  };
+  lines.forEach((line, i) => {
+    grid.append(html(doc, "div", "fft-ws-row", line.name));
+    for (const column of columns) {
+      const entry = line.cells.get(column.key);
+      const cell = html(doc, "div", "fft-ws-cell");
+      cell.style.setProperty("--fft-i", String(i));
+      if (!entry || !entry.state) {
+        cell.dataset.state = "empty";
+        grid.append(cell);
+        continue;
+      }
+      cell.dataset.state = entry.state;
+      const mark = html(doc, "span", "fft-ws-mark");
+      mark.setAttribute("aria-hidden", "true");
+      if (entry.state === "holds") mark.style.background = ctx.color(0);
+      if (entry.state === "opportunity") {
+        mark.style.setProperty("--fft-ws-color", ctx.color(0));
+        if (entry.score !== null) mark.dataset.step = String(sequentialStep(entry.score, Math.min(0, low), Math.max(high, low + 1)));
+      }
+      cell.append(mark);
+      const stateName = entry.state === "holds" ? names[0] : entry.state === "opportunity" ? names[1] : names[2];
+      const items: TooltipItem[] = [{ label: ctx.label(stateField), value: stateName ?? "" }];
+      if (entry.state === "opportunity" && entry.score !== null && scoreField) items.push({ label: ctx.label(scoreField), value: ctx.format(entry.row[scoreField], scoreField) });
+      if (entry.state !== "none" && entry.value !== null && valueField) items.push({ label: entry.state === "holds" ? ctx.label(valueField) : "Potential", value: ctx.format(entry.row[valueField], valueField) });
+      cell.tabIndex = 0;
+      // A labelled mark: the label says what the square only shows (aria-label needs a role on a div).
+      cell.setAttribute("role", "img");
+      cell.setAttribute("aria-label", `${line.name}, ${column.name}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
+      const activate = () => {
+        grid.setAttribute("data-active", "");
+        for (const other of cells) other.removeAttribute("data-active");
+        cell.setAttribute("data-active", "");
+        ctx.tooltip.show(cell, `${line.name} · ${column.name}`, items);
+      };
+      cell.addEventListener("pointerenter", activate);
+      cell.addEventListener("focus", activate);
+      cell.addEventListener("pointerleave", deactivate);
+      cell.addEventListener("blur", deactivate);
+      selectable(cell, () => ctx.select(entry.row));
+      cells.push(cell);
+      grid.append(cell);
+    }
+    const sum = html(doc, "div", "fft-ws-sum");
+    const count = html(doc, "span", "fft-ws-count", `${line.holds} of ${eligible(line)}`);
+    sum.append(count);
+    if (hasValue) sum.append(html(doc, "span", "fft-ws-potential", line.potential > 0 ? money(line.potential) : "–"));
+    sum.setAttribute("role", "img");
+    sum.setAttribute("aria-label", `${line.name}: holds ${line.holds} of ${eligible(line)}${hasValue && line.potential > 0 ? `, ${money(line.potential)} to win` : ""}`);
+    grid.append(sum);
+  });
+  // The column foot: how many hold it, how many could.
+  grid.append(html(doc, "div", "fft-ws-foot-label", "Hold · could"));
+  for (const column of columns) {
+    const foot = html(doc, "div", "fft-ws-foot");
+    foot.append(html(doc, "span", "fft-ws-foot-holds", String(column.holds)), html(doc, "span", "fft-ws-foot-open", String(column.open)));
+    foot.setAttribute("role", "img");
+    foot.setAttribute("aria-label", `${column.name}: ${column.holds} hold it, ${column.open} could`);
+    grid.append(foot);
+  }
+  grid.append(html(doc, "div", "fft-ws-corner"));
+  // A complete grid moves by rows with up and down; a sparse one moves cell to cell.
+  roving(cells, cells.length === lines.length * columns.length ? { down: columns.length } : {});
+  wrap.append(grid);
+
+  wrap.append(
+    hiddenTable(
+      doc,
+      [ctx.label(rowField), ...columns.map((c) => c.name), "Held", ...(hasValue ? ["To win"] : [])],
+      lines.map((line) => [
+        line.name,
+        ...columns.map((c) => {
+          const entry = line.cells.get(c.key);
+          return entry?.state === "holds" ? (names[0] ?? "") : entry?.state === "opportunity" ? (names[1] ?? "") : entry?.state === "none" ? (names[2] ?? "") : "";
+        }),
+        `${line.holds} of ${eligible(line)}`,
+        ...(hasValue ? [line.potential > 0 ? money(line.potential) : ""] : []),
+      ]),
+    ),
+  );
+  ctx.el.append(wrap);
+};

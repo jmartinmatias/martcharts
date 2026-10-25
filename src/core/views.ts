@@ -1705,4 +1705,152 @@ const lifecycle: ViewBlock = {
   },
 };
 
-export const builtinViews: ViewBlock[] = [table, list, kpi, kpis, bar, hbar, line, area, meter, bullet, donut, treemap, funnel, waterfall, heatmap, calendar, scatter, beeswarm, ridgeline, sankey, dumbbell, slope, bump, marimekko, histogram, rings, timeline, waffle, variance, gauge, pareto, boxplot, likert, candlestick, sunburst, chord, radar, rose, horizon, icicle, dot, pyramid, dual, choropleth, symbols, locator, pie, matrix, strips, lifecycle];
+/** The three states a whitespace cell can be in, in order: held, open to sell, not for this client. */
+export const WHITESPACE_STATES = ["Holds", "Opportunity", "Not eligible"] as const;
+
+/** `{ type: "whitespace", row, column, state, states?, score?, value?, sort? }`: the cross-sell map, one cell per client and product. */
+export interface WhitespaceView {
+  type: "whitespace";
+  row: string;
+  column: string;
+  state: string;
+  /** The names the state field uses for held, opportunity and not eligible, in that order. Default Holds, Opportunity, Not eligible. */
+  states?: [string, string, string];
+  /** Number field, 0 to 100: how likely the opportunity is; tints an opportunity cell. */
+  score?: string;
+  /** Number field: revenue where held, potential where open; written in the tooltip and summed at the row's end. */
+  value?: string;
+  /** Row order: by potential (most to sell first), by penetration (least covered first), or as given. */
+  sort?: "potential" | "penetration" | "none";
+}
+
+/** `{ type: "xray", label, detail?, facts?, holdings?, wallet?, trend?, flags?, actions? }`: one client on one card. */
+export interface XrayView {
+  type: "xray";
+  label: string;
+  detail?: string;
+  facts?: string | string[];
+  holdings?: string | string[];
+  wallet?: string;
+  trend?: string;
+  flags?: string;
+  actions?: string;
+}
+
+/** `{ type: "history", date, title, kind?, note?, amount?, group?, limit?, order? }`: what happened, newest first. */
+export interface HistoryView {
+  type: "history";
+  date: string;
+  title: string;
+  kind?: string;
+  note?: string;
+  amount?: string;
+  group?: string;
+  limit?: number;
+  order?: "desc" | "asc";
+}
+
+const whitespace: ViewBlock = {
+  type: "whitespace",
+  description:
+    "The cross-sell map (whitespace analysis): one cell per client and product, filled where the client holds the product, outlined where it is an opportunity (tinted by how likely), blank where the client is not eligible. Each row ends with its penetration (3 of 8) and the revenue still to win; each column ends with how many hold it and how many could. Rows sort with the most to sell first.",
+  options: {
+    row: { type: "field", kind: "category", required: true, description: "Field naming each row, usually the client." },
+    column: { type: "field", kind: "category", required: true, description: "Field naming each column, usually the product." },
+    state: { type: "field", kind: "category", required: true, description: "Field saying whether the row holds the column, could (an opportunity), or is not eligible. See states." },
+    states: {
+      type: "array",
+      default: [...WHITESPACE_STATES],
+      description: 'The three values the state field uses, in order: held, opportunity, not eligible. Default ["Holds", "Opportunity", "Not eligible"].',
+    },
+    score: { type: "field", kind: "number", description: "Field with how likely each opportunity is, 0 to 100 (a propensity). An opportunity cell's tint strengthens with it." },
+    value: { type: "field", kind: "number", description: "Field with the money in each cell: revenue where held, potential where open. Written in the tooltip; the open cells' sum ends each row." },
+    sort: {
+      type: "enum",
+      values: ["potential", "penetration", "none"],
+      default: "potential",
+      description: 'Row order: "potential" puts the rows with the most to win first, "penetration" the least covered first, "none" keeps the rows as given.',
+    },
+  },
+  validate(view) {
+    const states = view.states;
+    if (states === undefined) return [];
+    const ok = Array.isArray(states) && states.length === 3 && states.every((s) => typeof s === "string" && s) && new Set(states).size === 3;
+    return ok ? [] : ['states must be three different names, in order: held, opportunity, not eligible. Example: ["Holds", "Opportunity", "Not eligible"].'];
+  },
+  checkData(view, rows) {
+    const names = (Array.isArray(view.states) && view.states.length === 3 ? view.states : WHITESPACE_STATES).map(String);
+    const field = String(view.state);
+    const unknown = new Set(rows.map((row) => String(row[field])).filter((s) => !names.includes(s)));
+    const warnings: string[] = [];
+    if (unknown.size) warnings.push(`${unknown.size} state value${unknown.size === 1 ? "" : "s"} (${[...unknown].slice(0, 3).join(", ")}) match none of ${names.join(", ")}: those cells stay blank. Name the values with states.`);
+    const columns = new Set(rows.map((row) => String(row[view.column as string]))).size;
+    if (columns > 16) warnings.push(`${columns} columns crowd the map; keep about 16 products or fewer, or group them.`);
+    return warnings;
+  },
+};
+
+const xray: ViewBlock = {
+  type: "xray",
+  description:
+    "A client x-ray: one client on one card, from its first row. The name and a detail line, a grid of key facts, the products it holds as pills (held in color, not held outlined), a share-of-wallet meter, a small trend, quiet warning flags and a short list of next best actions. For a client page, a pre-meeting brief or a relationship manager's cockpit.",
+  options: {
+    label: { type: "field", kind: "category", required: true, description: "Field with the client's name." },
+    detail: { type: "field", kind: "category", description: "Field for the line under the name, such as the segment or the relationship manager." },
+    facts: { type: "fields", kind: "number", description: "Up to six fields shown as small labelled figures: assets, revenue, products held, client since." },
+    holdings: { type: "fields", kind: "category", description: "True/false fields, one per product, drawn as a strip of named pills: held in color, not held outlined." },
+    wallet: { type: "field", kind: "number", description: "Field with the share of wallet, 0 to 1, drawn as a meter with its percent." },
+    trend: { type: "field", kind: "category", description: "Field whose value is a list of numbers (revenue by month, say), drawn as a small trend with its first and last values written." },
+    flags: { type: "field", kind: "category", description: 'Field whose value is a list of short warnings, shown as quiet amber pills: ["No contact in 90 days", "Fee leakage"].' },
+    actions: { type: "field", kind: "category", description: "Field whose value is a list of next best actions, shown as a short checklist." },
+  },
+  validate(view) {
+    const some = ["facts", "holdings", "wallet", "trend"].some((name) => {
+      const value = view[name];
+      return value !== undefined && value !== null && value !== "" && !(Array.isArray(value) && !value.length);
+    });
+    const problems = some ? [] : ["An x-ray needs something to show besides the name: facts, holdings, wallet or trend."];
+    if (Array.isArray(view.facts) && view.facts.length > 6) problems.push(`${view.facts.length} facts are too many for one card; keep six or fewer.`);
+    return problems;
+  },
+  checkData(view, rows) {
+    const row = rows[0];
+    if (!row) return [];
+    const warnings: string[] = [];
+    for (const name of ["trend", "flags", "actions"]) {
+      const field = view[name];
+      if (typeof field !== "string" || !field) continue;
+      const value = row[field];
+      if (value !== undefined && value !== null && !Array.isArray(value)) warnings.push(`${name} points at "${field}", whose value is not a list; it needs one (${name === "trend" ? "numbers" : "short texts"}).`);
+    }
+    if (rows.length > 1) warnings.push(`${rows.length} rows, but an x-ray shows one client: the first row. Filter to one, or use a table.`);
+    return warnings;
+  },
+};
+
+const history: ViewBlock = {
+  type: "history",
+  description:
+    "A client's story as a vertical timeline: one event per row with its date, title, an optional second line and an amount, newest first, a dot per event colored by kind with a key, and the month written wherever it changes. With a group field, one list per client under its own heading. For meetings, calls, trades, campaigns and complaints in one scroll.",
+  options: {
+    date: { type: "field", kind: "date", required: true, description: "Field with when the event happened." },
+    title: { type: "field", kind: "category", required: true, description: "Field with the event in a few words." },
+    kind: { type: "field", kind: "category", description: "Field with the kind of event (Meeting, Call, Trade); each kind takes a color and a letter, keyed." },
+    note: { type: "field", kind: "category", description: "Field with a second, smaller line under the title." },
+    amount: { type: "field", kind: "number", description: "Field with an amount to write at the right of the event, where there is one." },
+    group: { type: "field", kind: "category", description: "Field that splits the events into one list per value (one per client), each under its own heading." },
+    limit: { type: "number", default: 30, description: "Events shown per list before a line says how many more there are." },
+    order: { type: "enum", values: ["desc", "asc"], default: "desc", description: '"desc" puts the newest event first (the default), "asc" tells the story from the start.' },
+  },
+  validate(view) {
+    const limit = view.limit;
+    return limit === undefined || (typeof limit === "number" && Number.isInteger(limit) && limit >= 1) ? [] : ["limit must be a whole number, 1 or more."];
+  },
+  checkData(view, rows) {
+    const field = String(view.date);
+    const undated = rows.filter((row) => !/^\d{4}-\d{2}-\d{2}/.test(String(row[field] ?? "")) && !(row[field] instanceof Date) && typeof row[field] !== "number").length;
+    return undated ? [`${undated} row${undated === 1 ? " has" : "s have"} no readable date in "${field}" (YYYY-MM-DD) and ${undated === 1 ? "is" : "are"} left out.`] : [];
+  },
+};
+
+export const builtinViews: ViewBlock[] = [table, list, kpi, kpis, bar, hbar, line, area, meter, bullet, donut, treemap, funnel, waterfall, heatmap, calendar, scatter, beeswarm, ridgeline, sankey, dumbbell, slope, bump, marimekko, histogram, rings, timeline, waffle, variance, gauge, pareto, boxplot, likert, candlestick, sunburst, chord, radar, rose, horizon, icicle, dot, pyramid, dual, choropleth, symbols, locator, pie, matrix, strips, lifecycle, whitespace, xray, history];

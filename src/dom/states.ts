@@ -17,6 +17,9 @@ const SHAPES: Record<string, SkeletonShape> = {
   kpis: "stat",
   donut: "ring",
   pie: "ring",
+  xray: "stat",
+  history: "rows",
+  whitespace: "rows",
 };
 
 /** Bar heights for the bars skeleton, as percentages: an uneven skyline, so it reads as a chart. */
