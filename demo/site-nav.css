@@ -74,6 +74,9 @@ html { overflow-x: clip; }
   position: absolute;
   right: 0;
   top: calc(100% + 8px);
+  box-sizing: border-box;
+  width: max-content;
+  max-width: calc(100vw - 32px);
   display: grid;
   gap: 8px;
   padding: 13px;
@@ -82,7 +85,7 @@ html { overflow-x: clip; }
   background: var(--field, Canvas);
   box-shadow: 0 8px 34px rgba(0, 0, 0, 0.18);
 }
-.site-look-group { display: flex; align-items: center; gap: 2px; }
+.site-look-group { display: flex; flex-wrap: wrap; align-items: center; gap: 2px; }
 .site-look-label { min-width: 46px; color: var(--ink-2, color-mix(in srgb, CanvasText 70%, transparent)); }
 .site-look-group button {
   appearance: none;
