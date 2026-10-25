@@ -1,0 +1,30 @@
+{
+  "id": "win-rate-arrows",
+  "title": "Win rate, year on year",
+  "subtitle": "Share of qualified deals won, 2025 against 2026, by region",
+  "description": "An arrow plot: each region's win rate moves from last year to this year. Blue arrows rose, red ones fell. East and North gained the most; South slipped.",
+  "footer": "Source: CRM, closed deals",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      { "region": "East", "won_2025": 0.24, "won_2026": 0.31 },
+      { "region": "North", "won_2025": 0.22, "won_2026": 0.28 },
+      { "region": "Central", "won_2025": 0.27, "won_2026": 0.29 },
+      { "region": "West", "won_2025": 0.19, "won_2026": 0.21 },
+      { "region": "South", "won_2025": 0.26, "won_2026": 0.22 }
+    ]
+  },
+  "fields": {
+    "region": { "label": "Region" },
+    "won_2025": { "label": "2025", "format": { "type": "percent", "decimals": 0 } },
+    "won_2026": { "label": "2026", "format": { "type": "percent", "decimals": 0 } }
+  },
+  "view": {
+    "type": "dumbbell",
+    "label": "region",
+    "from": "won_2025",
+    "to": "won_2026",
+    "mark": "arrow"
+  }
+}

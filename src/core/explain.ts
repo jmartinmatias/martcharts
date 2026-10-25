@@ -922,6 +922,22 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const ahead = gap !== null && gap > 0 && amount ? `, ${formatValue(gap, spec.fields?.[amount]?.format, spec.locale)} ahead of ${text(next as Row, label)}` : "";
       return `Here, ${text(row, label)} is at the top${lead}${ahead}.`;
     }
+    case "dot": {
+      // One measure: who is furthest right. Several: which row is highest on the first measure, and whose dots sit furthest apart.
+      const label = one(view.label);
+      const measures = many(view.values);
+      const first = measures[0];
+      const row = first ? top(first) : undefined;
+      if (!label || !first || !row) return "";
+      if (measures.length === 1) return `Here, ${text(row, label)} has the dot furthest right, with ${text(row, first)}.`;
+      const spread = (r: Row) => {
+        const got = measures.map((f) => value(r, f)).filter((v): v is number => v !== null);
+        return got.length > 1 ? Math.max(...got) - Math.min(...got) : -1;
+      };
+      const widest = rows.reduce<Row | undefined>((best, r) => (best && spread(best) >= spread(r) ? best : r), undefined);
+      const apart = widest && spread(widest) > 0 ? `, and ${text(widest, label)}'s dots sit furthest apart` : "";
+      return `Here, ${text(row, label)} is highest on ${nameOf(first, spec)}, with ${text(row, first)}${apart}.`;
+    }
     default:
       return "";
   }
@@ -1050,6 +1066,10 @@ function guide(spec: WidgetSpec): string {
     case "dumbbell": {
       const [from, to] = [one(view.from), one(view.to)];
       const change = from && to && PERIOD.test(from) && PERIOD.test(to);
+      if (view.mark === "arrow") {
+        const colored = change ? " A blue arrow rose and a red one fell;" : " The dot is the first value;";
+        return `Each row is an arrow from ${name(from, "the first value")} to ${name(to, "the second")}.${colored} the longer the arrow, the bigger the ${change ? "change" : "gap"}.`;
+      }
       return `Each row has two dots: ${name(from, "the first value")} and ${name(to, "the second")}. The line between them is the ${change ? "change" : "gap"}.`;
     }
     case "slope":
@@ -1103,6 +1123,11 @@ function guide(spec: WidgetSpec): string {
     }
     case "icicle":
       return `The first column is the total. Each column to the right splits the boxes into smaller parts: the taller the box, the more ${name(one(view.value))}.`;
+    case "dot": {
+      const measures = many(view.values);
+      if (measures.length > 1) return `Each row is one ${noun(one(view.label))}, with one dot for each of ${both(measures.map((f) => name(f)))}. The further right a dot, the higher that value; dots far apart mean a big difference between them.`;
+      return `Each row is one ${noun(one(view.label))}. The further right the dot, the more ${name(measures[0])}.`;
+    }
     case "list":
       // A field called name, title or label says nothing about what the lines are: they are entries.
       return `Each line is one ${/^(name|title|label)$/i.test(one(view.label) ?? "") ? "entry" : name(one(view.label))}${one(view.value) ? `, with its ${name(one(view.value))} on the right` : ""}.`;

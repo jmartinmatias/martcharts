@@ -139,7 +139,7 @@ Start from what you want the reader to see. Every view takes plain rows; `sugges
 | --- | --- |
 | One number and how it moved | `kpi`, `kpis` (a row of them), `gauge` (on a known scale), or a `headline` above any chart |
 | Progress to a goal | `meter`, `bullet` (with poor, fair and good bands), `rings` (a few goals at once), `gauge`, or `"target"` on a `kpi` or a `kpis` tile. Each says where it stands in plain words: a check and Target met, or how far it has to go ("€22K to go") |
-| A ranking or a comparison across categories | `hbar`, `bar` (either with `"mark": "lollipop"`: a thin stem and a dot, for many similar values), `dumbbell` (before and after), `slope` (who moved between two periods) |
+| A ranking or a comparison across categories | `hbar`, `bar` (either with `"mark": "lollipop"`: a thin stem and a dot, for many similar values), `dumbbell` (before and after, or `"mark": "arrow"` for arrows that point the way each moved), `slope` (who moved between two periods), `dot` (several measures per item as dots on one axis: scores, rates, prices) |
 | Change over time | `line`, `area`, `bar`, `calendar` (day by day), `heatmap` (two time scales, such as weekday by hour), `candlestick` (prices: open, high, low and close) |
 | What comes next | `line` (or an unstacked `area`) with `"forecast"` and `"band"`: a forecast fan, dashed after the last actual inside a shaded zone, with its low to high range fanning out (dashboard periods count back from the last actual) |
 | Many time series at once | `horizon` (a thin row per series, values folded into bands of deepening color, blue above the baseline and red below) |

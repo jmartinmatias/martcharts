@@ -910,6 +910,15 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-db-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-db-hit:hover, .fft-db-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 6%, transparent); }
 .fft-db-key-from { background: var(--fft-muted); }
+.fft-db-row { --fft-db-color: var(--fft-axis); }
+.fft-db-row[data-direction="up"] { --fft-db-color: var(--fft-up); }
+.fft-db-row[data-direction="down"] { --fft-db-color: var(--fft-down); }
+.fft-db-shaft { stroke: var(--fft-db-color); stroke-width: 2; stroke-linecap: butt; pointer-events: none; }
+.fft-db-head { fill: var(--fft-db-color); pointer-events: none; }
+.fft-db-still { fill: var(--fft-surface); stroke: var(--fft-db-color); stroke-width: 2; pointer-events: none; }
+.fft-db-key-up { background: var(--fft-up); }
+.fft-db-key-down { background: var(--fft-down); }
+.fft-chart[data-mark="arrow"] .fft-db-from { fill: var(--fft-muted); }
 .fft-slope-axis { stroke: var(--fft-axis); stroke-width: 1; }
 .fft-slope-head { fill: var(--fft-text-secondary); font-size: 11px; font-weight: 600; letter-spacing: 0.02em; }
 .fft-slope { --fft-slope-color: var(--fft-muted); }
@@ -940,6 +949,13 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-chart[data-active] .fft-hist:not([data-active]) .fft-hist-bar { opacity: 0.38; }
 .fft-hist-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-hist-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 8%, transparent); }
+.fft-dot-line { stroke: var(--fft-grid); stroke-width: 1; shape-rendering: crispEdges; pointer-events: none; }
+.fft-dot-mark { stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 2; pointer-events: none; transition: opacity 377ms var(--fft-ease); }
+.fft-dot-label { fill: var(--fft-text-secondary); font-size: 11px; }
+.fft-dot-value { fill: var(--fft-text); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; transition: opacity 377ms var(--fft-ease); }
+.fft-dot-hit { fill: transparent; cursor: pointer; outline: none; }
+.fft-dot-hit:hover, .fft-dot-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 6%, transparent); }
+.fft-dots[data-active] .fft-dot-row:not([data-active]) :is(.fft-dot-mark, .fft-dot-value) { opacity: 0.38; }
 .fft-mekko-seg { fill-opacity: 0.24; pointer-events: none; transition: fill-opacity 377ms var(--fft-ease); }
 .fft-mekko[data-active] .fft-mekko-seg { fill-opacity: 0.38; }
 .fft-chart[data-active] .fft-mekko:not([data-active]) { opacity: 0.38; }
@@ -1204,6 +1220,8 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-widget[data-animate] .fft-slope-dot,
 .fft-widget[data-animate] .fft-slope-label { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(377ms + var(--fft-i, 0) * 55ms); }
 .fft-widget[data-animate] .fft-hbar-fill { animation: fft-grow-x 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 34ms); }
+.fft-widget[data-animate] .fft-dot-mark, .fft-widget[data-animate] .fft-dot-value { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 34ms); }
+.fft-widget[data-animate] .fft-db-head, .fft-widget[data-animate] .fft-db-shaft, .fft-widget[data-animate] .fft-db-still { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(233ms + var(--fft-i, 0) * 34ms); }
 .fft-widget[data-animate] .fft-stat-value,
 .fft-widget[data-animate] .fft-kpi-value,
 .fft-widget[data-animate] .fft-kpi-delta,

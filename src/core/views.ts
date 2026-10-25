@@ -172,12 +172,22 @@ export interface SankeyView {
   value: string;
 }
 
-/** `{ type: "dumbbell", label, from, to }`: before and after per item on one axis. */
+/** `{ type: "dumbbell", label, from, to, mark? }`: before and after per item on one axis (a range plot), or as arrows (an arrow plot). */
 export interface DumbbellView {
   type: "dumbbell";
   label: string;
   from: string;
   to: string;
+  /** "range" joins the two dots with a line (the default); "arrow" points from the first value to the second, colored up or down when they are two periods. */
+  mark?: "range" | "arrow";
+}
+
+/** `{ type: "dot", label, values, highlight? }`: one or more measures per row as dots on one shared axis (a dot plot). */
+export interface DotView {
+  type: "dot";
+  label: string;
+  values: string | string[];
+  highlight?: string | string[];
 }
 
 /** `{ type: "slope", label, from, to, highlight? }`: each item's move between two points, as a line across two columns. */
@@ -707,13 +717,46 @@ const sankey: ViewBlock = {
 
 const dumbbell: ViewBlock = {
   type: "dumbbell",
-  description: "Before and after per item on one shared axis: a muted dot for before, an accent dot for after, joined by a line. For this year against last year, by region.",
+  description:
+    'Before and after per item on one shared axis: a muted dot for before, an accent dot for after, joined by a line (a range plot). With mark "arrow" the line becomes an arrow from the first value to the second (an arrow plot), blue when it rose and red when it fell. For this year against last year, by region.',
   options: {
     label: { type: "field", kind: "category", required: true, description: "Field naming each row." },
     from: { type: "field", kind: "number", required: true, description: "Field with the before value." },
     to: { type: "field", kind: "number", required: true, description: "Field with the after value." },
+    mark: {
+      type: "enum",
+      values: ["range", "arrow"],
+      default: "range",
+      description:
+        '"range" joins the two dots with a plain line, the gap between them. "arrow" points from the from value to the to value, so direction reads at a glance; between two periods a rise takes the up color and a fall the down color, keyed Rose and Fell.',
+    },
   },
 };
+
+const dot: ViewBlock = {
+  type: "dot",
+  extent: (view, rows) => fieldList(view.values).flatMap((field) => rows.map((row) => readNumber(row[field]))).filter((n): n is number => n !== null),
+  description:
+    "A dot plot: one row per item and one dot per measure on one shared axis, with a hairline across each row. Several measures sit side by side in their series colors, so a row's spread and the ranking on any measure both read at once. For scores, rates or prices by item, with far less ink than bars.",
+  options: {
+    label: { type: "field", kind: "category", required: true, description: "Field naming each row." },
+    values: { type: "fields", kind: "number", required: true, description: "Field or fields placed as dots on the axis. Each field is one series with its own color; one field writes its value beside the dot." },
+    highlight: highlightCategories,
+  },
+  checkData(view, rows) {
+    const fields = fieldList(view.values);
+    const messages: string[] = [];
+    if (fields.length > 6) messages.push(`${fields.length} dots per row crowd a dot plot. Keep 6 or fewer measures, or use a table.`);
+    if (rows.length > 30) messages.push(`${rows.length} rows. Past 30 the rows get thin and the axis far away: filter or limit to the rows that matter.`);
+    return messages;
+  },
+};
+
+/** One name or a list of names, as a list (the view's fields options take either). */
+function fieldList(value: unknown): string[] {
+  if (Array.isArray(value)) return value.map(String);
+  return value === undefined || value === null ? [] : [String(value)];
+}
 
 const slope: ViewBlock = {
   type: "slope",
@@ -1120,4 +1163,4 @@ const rose: ViewBlock = {
   },
 };
 
-export const builtinViews: ViewBlock[] = [table, list, kpi, kpis, bar, hbar, line, area, meter, bullet, donut, treemap, funnel, waterfall, heatmap, calendar, scatter, beeswarm, ridgeline, sankey, dumbbell, slope, bump, marimekko, histogram, rings, timeline, waffle, variance, gauge, pareto, boxplot, likert, candlestick, sunburst, chord, radar, rose, horizon, icicle];
+export const builtinViews: ViewBlock[] = [table, list, kpi, kpis, bar, hbar, line, area, meter, bullet, donut, treemap, funnel, waterfall, heatmap, calendar, scatter, beeswarm, ridgeline, sankey, dumbbell, slope, bump, marimekko, histogram, rings, timeline, waffle, variance, gauge, pareto, boxplot, likert, candlestick, sunburst, chord, radar, rose, horizon, icicle, dot];
