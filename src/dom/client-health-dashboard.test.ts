@@ -8,6 +8,8 @@ import type { Row, WidgetSpec } from "../core/types.ts";
 import { hasErrors } from "../core/validate.ts";
 import { createLocalFetch } from "../mcp/store.ts";
 import { createDashboard } from "./dashboard.ts";
+/** A widget id from a perspective's field name: clientSuccess is health-client-success-board. */
+const kebab = (field: string) => field.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
 import "./views/index.ts";
 
 /** Client health: dashboards/client-health.json over widgets/health/*.json, reading public/data. */
@@ -37,7 +39,7 @@ const drawable = (id: string) => {
   return hasBlock("view", spec.view.type) && (spec.transform ?? []).every((step) => hasBlock("transform", step.type)) && ragNeeds(spec).every((need) => !need.startsWith("format:") || hasBlock("format", "rag"));
 };
 // The live-rules demo left the board (noise plan: the Rules tab shows the thresholds and roll-ups, not a developer demo).
-const FILE_ONLY = ["health-bizDev-board", "health-clientSuccess-board", "health-coverage-board", "health-relationship-board", "health-trend"];
+const FILE_ONLY = ["health-biz-dev-board", "health-client-success-board", "health-coverage-board", "health-relationship-board", "health-trend"];
 
 type Rag = "R" | "A" | "G" | "N";
 interface Threshold {
@@ -105,7 +107,7 @@ describe("the client health dashboard", () => {
     }
     // Each perspective has a scorecard over its own measures, worst first, with last quarter's status to compare.
     for (const p of PERSPECTIVES) {
-      const view = widgets[`health-${p}-board`]?.view as Record<string, unknown>;
+      const view = widgets[`health-${kebab(p)}-board`]?.view as Record<string, unknown>;
       expect(view.dimensions).toEqual(thresholds.filter((t) => t.perspectiveKey === p).map((t) => t.status));
       expect([view.overall, view.previous, view.sort]).toEqual([`${p}Rag`, { [`${p}Rag`]: `${p}PrevRag` }, "worst"]);
     }

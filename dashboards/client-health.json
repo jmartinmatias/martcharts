@@ -37,14 +37,14 @@
       "description": "Are clients well served: onboarding, adoption, service, satisfaction and complaints?"
     },
     {
-      "widget": "health-clientSuccess-board",
+      "widget": "health-client-success-board",
       "span": 3
     },
     {
-      "widget": "health-clientSuccess-by-segment"
+      "widget": "health-client-success-by-segment"
     },
     {
-      "widget": "health-clientSuccess-key",
+      "widget": "health-client-success-key",
       "span": 2
     },
     {
@@ -52,14 +52,14 @@
       "description": "Is growth on plan: pipeline, win rate, new money and products added?"
     },
     {
-      "widget": "health-bizDev-board",
+      "widget": "health-biz-dev-board",
       "span": 3
     },
     {
-      "widget": "health-bizDev-by-segment"
+      "widget": "health-biz-dev-by-segment"
     },
     {
-      "widget": "health-bizDev-key",
+      "widget": "health-biz-dev-key",
       "span": 2
     },
     {

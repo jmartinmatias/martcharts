@@ -59,11 +59,40 @@ export function createFileStore(dir: string, noun = "widget"): WidgetStore {
     checkId(id);
     return join(dir, `${id}.json`);
   };
+  /**
+   * Where a widget lives: at the top of the folder, or one folder down (widgets/commercial/, health/, regulatory/
+   * hold the worked dashboards' widgets). A new widget goes at the top.
+   */
+  async function locate(id: string): Promise<string> {
+    const top = file(id);
+    try {
+      await readFile(top);
+      return top;
+    } catch (caught) {
+      if (!isMissingFile(caught)) throw caught;
+    }
+    let entries: import("node:fs").Dirent[] = [];
+    try {
+      entries = await readdir(dir, { withFileTypes: true });
+    } catch (caught) {
+      if (!isMissingFile(caught)) throw caught;
+    }
+    for (const entry of entries.filter((e) => e.isDirectory()).sort((a, b) => a.name.localeCompare(b.name))) {
+      const nested = join(dir, entry.name, `${id}.json`);
+      try {
+        await readFile(nested);
+        return nested;
+      } catch (caught) {
+        if (!isMissingFile(caught)) throw caught;
+      }
+    }
+    return top;
+  }
 
   async function get(id: string): Promise<WidgetSpec> {
     let text: string;
     try {
-      text = await readFile(file(id), "utf8");
+      text = await readFile(await locate(id), "utf8");
     } catch (caught) {
       if (isMissingFile(caught)) throw new WidgetNotFoundError(id, noun);
       throw caught;
@@ -87,7 +116,13 @@ export function createFileStore(dir: string, noun = "widget"): WidgetStore {
       }
     },
     async list() {
-      const names = (await readdir(dir)).filter((name) => name.endsWith(".json")).sort();
+      // The top of the folder and one folder down, each widget once.
+      const entries = await readdir(dir, { withFileTypes: true });
+      const top = entries.filter((e) => e.isFile() && e.name.endsWith(".json")).map((e) => e.name);
+      const nested = (
+        await Promise.all(entries.filter((e) => e.isDirectory()).map(async (e) => (await readdir(join(dir, e.name))).filter((name) => name.endsWith(".json"))))
+      ).flat();
+      const names = [...new Set([...top, ...nested])].sort();
       return Promise.all(
         names.map(async (name): Promise<StoredWidget> => {
           const id = name.slice(0, -".json".length);
@@ -100,7 +135,7 @@ export function createFileStore(dir: string, noun = "widget"): WidgetStore {
       );
     },
     async save(id, spec) {
-      const path = file(id);
+      const path = await locate(id);
       const { id: _ignored, ...rest } = spec;
       // Write then rename, so readers never see a half-written file.
       const temp = `${path}.${process.pid}.tmp`;
@@ -109,7 +144,7 @@ export function createFileStore(dir: string, noun = "widget"): WidgetStore {
     },
     async delete(id) {
       try {
-        await unlink(file(id));
+        await unlink(await locate(id));
       } catch (caught) {
         if (isMissingFile(caught)) throw new WidgetNotFoundError(id, noun);
         throw caught;

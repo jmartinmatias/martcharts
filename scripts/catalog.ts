@@ -89,7 +89,7 @@ for (const view of views) {
   sections.push(`**Answers**: ${entry.question}`, "");
   sections.push(`**How to read it**: ${entry.howToRead}`, "");
   const more = rows.length > DOC_ROWS ? ` The spec below shows ${DOC_ROWS} of its ${rows.length} rows; the [full file](../catalog/${view.type}.json) has them all.` : "";
-  sections.push(`**Drop it in**: \`<fft-widget src="catalog/${view.type}.json"></fft-widget>\`, or paste the spec into \`createWidget(el, spec)\`, a \`<script type="application/json">\` inside \`<fft-widget>\`, or MCP \`fft_create_widget\` (\`fft_get_chart { "type": "${view.type}" }\` hands an agent this spec).${more} Source widget: [widgets/${example.id}.json](../widgets/${example.id}.json).`, "");
+  sections.push(`**Drop it in**: \`<fft-widget src="catalog/${view.type}.json"></fft-widget>\`, or paste the spec into \`createWidget(el, spec)\`, a \`<script type="application/json">\` inside \`<fft-widget>\`, or MCP \`fft_create_widget\` (\`fft_describe_chart { "type": "${view.type}" }\` hands an agent this spec).${more} Source widget: [widgets/${example.id}.json](../widgets/${example.id}.json).`, "");
   sections.push("```json", stringify(spec, DOC_ROWS), "```");
 }
 
@@ -108,7 +108,7 @@ const doc = [
   '<fft-widget src="catalog/bar.json" actions="csv image"></fft-widget>',
   "```",
   "",
-  "Not sure which chart? `recommendCharts(rows)` (or MCP `fft_recommend_charts`) ranks the ones that suit your data, each with a filled view. Or swap the data for yours: keep the `view` block, change `data` (`inline` rows, a `url`, or a `fn` in code) so each row has the fields the view names. `validateSpec(spec, rows)` says what is missing. In a bundler, `import { createWidget } from \"martcharts\"` instead. Agents do the same through the MCP server ([mcp.md](mcp.md)): `fft_list_charts` lists this catalog, `fft_get_chart` returns one entry with its starter spec, `fft_validate_spec` checks a spec, `fft_create_widget` saves one.",
+  "Not sure which chart? `recommendCharts(rows)` (or MCP `fft_suggest_charts`) ranks the ones that suit your data, each with a filled view. Or swap the data for yours: keep the `view` block, change `data` (`inline` rows, a `url`, or a `fn` in code) so each row has the fields the view names. `validateSpec(spec, rows)` says what is missing. In a bundler, `import { createWidget } from \"martcharts\"` instead. Agents do the same through the MCP server ([mcp.md](mcp.md)): `fft_describe_chart` lists this catalog, or returns one entry with its starter spec, `fft_validate_spec` checks a spec, `fft_create_widget` saves one.",
   "",
   "## Index",
   "",

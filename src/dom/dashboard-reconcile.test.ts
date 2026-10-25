@@ -5,6 +5,8 @@ import { runPipeline } from "../core/pipeline.ts";
 import { getBlock } from "../core/registry.ts";
 import type { Row, WidgetSpec } from "../core/types.ts";
 import { validateSpec } from "../core/validate.ts";
+/** A widget id from a perspective's field name: clientSuccess is health-client-success-board. */
+const kebab = (field: string) => field.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
 import { createLocalFetch } from "../mcp/store.ts";
 
 /**
@@ -157,10 +159,10 @@ describe("client health: the counts agree", () => {
     for (const p of ["clientSuccess", "bizDev", "coverage", "relationship"]) {
       // Every client stays in the data, so the summary counts the whole book; the scorecard lists the reds and ambers
       // and folds the rest into "and 33 on track".
-      const rows = await card(`health-${p}-board`);
+      const rows = await card(`health-${kebab(p)}-board`);
       expect([p, rows.length]).toEqual([p, health.length]);
-      expect(widgets[`health-${p}-board`]?.view.only).toEqual(["R", "A"]);
-      expect(widgets[`health-${p}-board`]?.subtitle).toMatch(/^Off track or at risk, worst first/);
+      expect(widgets[`health-${kebab(p)}-board`]?.view.only).toEqual(["R", "A"]);
+      expect(widgets[`health-${kebab(p)}-board`]?.subtitle).toMatch(/^Off track or at risk, worst first/);
     }
   });
 });

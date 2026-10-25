@@ -1,12 +1,12 @@
 {
-  "id": "health-clientSuccess-by-segment",
+  "id": "health-biz-dev-by-segment",
   "locale": "en-US",
   "source": {
     "name": "Client health model (fictional)"
   },
-  "title": "How clients are served",
-  "subtitle": "Success status by segment",
-  "description": "How many clients in each segment are green, amber or red on client success.",
+  "title": "Where growth is on plan",
+  "subtitle": "Business development status by segment, clients",
+  "description": "How many clients in each segment are green, amber or red on business development.",
   "data": {
     "type": "url",
     "url": "/data/client-health.json"
@@ -15,7 +15,7 @@
     {
       "type": "pivot",
       "row": "segment",
-      "column": "clientSuccessStatus",
+      "column": "bizDevStatus",
       "value": "id",
       "op": "count",
       "fill": 0

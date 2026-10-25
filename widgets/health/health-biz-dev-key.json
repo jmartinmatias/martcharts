@@ -1,12 +1,12 @@
 {
-  "id": "health-clientSuccess-key",
+  "id": "health-biz-dev-key",
   "locale": "en-US",
   "source": {
     "name": "Client health model (fictional)"
   },
-  "title": "Client sentiment by banker",
-  "subtitle": "Average NPS across each book",
-  "description": "The key client success measure, averaged over each banker's clients, against the thresholds that set its status.",
+  "title": "Pipeline cover by banker",
+  "subtitle": "Average open deals against target",
+  "description": "The key business development measure, averaged over each banker's clients, against the thresholds that set its status.",
   "data": {
     "type": "url",
     "url": "/data/client-health.json"
@@ -18,13 +18,13 @@
       "measures": [
         {
           "op": "avg",
-          "field": "nps"
+          "field": "pipelineCoverage"
         }
       ]
     },
     {
       "type": "sort",
-      "field": "nps",
+      "field": "pipelineCoverage",
       "order": "desc"
     }
   ],
@@ -32,26 +32,26 @@
     "rm": {
       "label": "Relationship manager"
     },
-    "nps": {
-      "label": "NPS",
+    "pipelineCoverage": {
+      "label": "Pipeline cover",
       "format": {
         "type": "number",
-        "decimals": 0
+        "decimals": 1
       }
     }
   },
   "view": {
     "type": "bar",
     "x": "rm",
-    "y": "nps",
+    "y": "pipelineCoverage",
     "reference": [
       {
-        "value": 30,
-        "label": "Green from 30"
+        "value": 3,
+        "label": "Green from 3×"
       },
       {
-        "value": 0,
-        "label": "Amber from 0"
+        "value": 1.5,
+        "label": "Amber from 1.5×"
       }
     ]
   }

@@ -12,7 +12,7 @@ Open [catalog/index.html](../catalog/index.html) through any static server to se
 <fft-widget src="catalog/bar.json" actions="csv image"></fft-widget>
 ```
 
-Not sure which chart? `recommendCharts(rows)` (or MCP `fft_recommend_charts`) ranks the ones that suit your data, each with a filled view. Or swap the data for yours: keep the `view` block, change `data` (`inline` rows, a `url`, or a `fn` in code) so each row has the fields the view names. `validateSpec(spec, rows)` says what is missing. In a bundler, `import { createWidget } from "martcharts"` instead. Agents do the same through the MCP server ([mcp.md](mcp.md)): `fft_list_charts` lists this catalog, `fft_get_chart` returns one entry with its starter spec, `fft_validate_spec` checks a spec, `fft_create_widget` saves one.
+Not sure which chart? `recommendCharts(rows)` (or MCP `fft_suggest_charts`) ranks the ones that suit your data, each with a filled view. Or swap the data for yours: keep the `view` block, change `data` (`inline` rows, a `url`, or a `fn` in code) so each row has the fields the view names. `validateSpec(spec, rows)` says what is missing. In a bundler, `import { createWidget } from "martcharts"` instead. Agents do the same through the MCP server ([mcp.md](mcp.md)): `fft_describe_chart` lists this catalog, or returns one entry with its starter spec, `fft_validate_spec` checks a spec, `fft_create_widget` saves one.
 
 ## Index
 
@@ -96,7 +96,7 @@ An anomaly tracker: one thin lane per metric over time, the band it was expected
 
 **How to read it**: Each lane is one measure, day by day: the line is what happened and the faint band where it was expected to stay. A filled dot is an anomaly, a reading that stepped out of line. Here, every one of the 6 measures stepped out once; the latest was Complaints on Oct 21, 2026, reading 11 against 6 expected.
 
-**Drop it in**: `<fft-widget src="catalog/anomalies.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "anomalies" }` hands an agent this spec). The spec below shows 6 of its 144 rows; the [full file](../catalog/anomalies.json) has them all. Source widget: [widgets/metric-anomalies.json](../widgets/metric-anomalies.json).
+**Drop it in**: `<fft-widget src="catalog/anomalies.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "anomalies" }` hands an agent this spec). The spec below shows 6 of its 144 rows; the [full file](../catalog/anomalies.json) has them all. Source widget: [widgets/metric-anomalies.json](../widgets/metric-anomalies.json).
 
 ```json
 {
@@ -189,7 +189,7 @@ A line with a soft filled area down to zero, for a trend where the amount itself
 
 **How to read it**: The shape shows cash month by month: higher means more. The dashed part is a forecast, and the shaded band shows how sure it is: wider is less sure. Here, it went from €4.2M in Oct 2025 to €5.4M in Sep 2026, and is expected to reach €6.2M by Mar 2027, most likely between €4.5M and €8.2M.
 
-**Drop it in**: `<fft-widget src="catalog/area.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "area" }` hands an agent this spec). The spec below shows 6 of its 18 rows; the [full file](../catalog/area.json) has them all. Source widget: [widgets/cash-forecast.json](../widgets/cash-forecast.json).
+**Drop it in**: `<fft-widget src="catalog/area.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "area" }` hands an agent this spec). The spec below shows 6 of its 18 rows; the [full file](../catalog/area.json) has them all. Source widget: [widgets/cash-forecast.json](../widgets/cash-forecast.json).
 
 ```json
 {
@@ -281,7 +281,7 @@ Vertical bars comparing amounts across categories. Several y fields draw grouped
 
 **How to read it**: Each bar is one region, split into colored parts for Core and Plus. Every bar adds up to 100%, so compare the sizes of the parts. Here, Core is the biggest part in every region, from 64% in Central to 70% in South.
 
-**Drop it in**: `<fft-widget src="catalog/bar.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "bar" }` hands an agent this spec). Source widget: [widgets/product-share.json](../widgets/product-share.json).
+**Drop it in**: `<fft-widget src="catalog/bar.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "bar" }` hands an agent this spec). Source widget: [widgets/product-share.json](../widgets/product-share.json).
 
 ```json
 {
@@ -347,7 +347,7 @@ A distribution: one dot per row along a value axis, nudged apart so none overlap
 
 **How to read it**: Each dot is one deal, placed by its deal value. Dots pile up where many values are close together. Here, East's dots sit furthest right, with a middle value of €115K, and the dot furthest right of all is South deal 16, at €180K.
 
-**Drop it in**: `<fft-widget src="catalog/beeswarm.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "beeswarm" }` hands an agent this spec). The spec below shows 6 of its 24 rows; the [full file](../catalog/beeswarm.json) has them all. Source widget: [widgets/deal-swarm.json](../widgets/deal-swarm.json).
+**Drop it in**: `<fft-widget src="catalog/beeswarm.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "beeswarm" }` hands an agent this spec). The spec below shows 6 of its 24 rows; the [full file](../catalog/beeswarm.json) has them all. Source widget: [widgets/deal-swarm.json](../widgets/deal-swarm.json).
 
 ```json
 {
@@ -412,7 +412,7 @@ A status board: one column per stage with its count in the header, and the items
 
 **How to read it**: Each column is one stage, read left to right; each card is one deal, with its amount. Here, 4 of 16 deals sit in Proposal, and Nordic Bank core upgrade has the highest amount, €240K.
 
-**Drop it in**: `<fft-widget src="catalog/board.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "board" }` hands an agent this spec). The spec below shows 6 of its 16 rows; the [full file](../catalog/board.json) has them all. Source widget: [widgets/deal-board.json](../widgets/deal-board.json).
+**Drop it in**: `<fft-widget src="catalog/board.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "board" }` hands an agent this spec). The spec below shows 6 of its 16 rows; the [full file](../catalog/board.json) has them all. Source widget: [widgets/deal-board.json](../widgets/deal-board.json).
 
 ```json
 {
@@ -493,7 +493,7 @@ A box plot per group on one shared axis: a box over the middle half of the value
 
 **How to read it**: The box holds the middle half of the values and the line inside is the middle value. The whiskers reach the normal range; dots beyond are unusual values. Here, East has the highest middle value, €115K, and varies the most: its middle half runs from €102.8K to €136.3K.
 
-**Drop it in**: `<fft-widget src="catalog/boxplot.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "boxplot" }` hands an agent this spec). The spec below shows 6 of its 24 rows; the [full file](../catalog/boxplot.json) has them all. Source widget: [widgets/deal-boxplot.json](../widgets/deal-boxplot.json).
+**Drop it in**: `<fft-widget src="catalog/boxplot.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "boxplot" }` hands an agent this spec). The spec below shows 6 of its 24 rows; the [full file](../catalog/boxplot.json) has them all. Source widget: [widgets/deal-boxplot.json](../widgets/deal-boxplot.json).
 
 ```json
 {
@@ -556,7 +556,7 @@ Actual against target, one compact row per item: a value bar and a target tick o
 
 **How to read it**: The solid bar is the real number and the thin line is the goal. The shaded bands behind show poor, fair and good. Here, 2 of 5 KPIs have passed their goal: New customers and Gross margin (%).
 
-**Drop it in**: `<fft-widget src="catalog/bullet.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "bullet" }` hands an agent this spec). Source widget: [widgets/kpi-scorecard.json](../widgets/kpi-scorecard.json).
+**Drop it in**: `<fft-widget src="catalog/bullet.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "bullet" }` hands an agent this spec). Source widget: [widgets/kpi-scorecard.json](../widgets/kpi-scorecard.json).
 
 ```json
 {
@@ -622,7 +622,7 @@ Rank over time: in every period the series are ranked by value (highest first), 
 
 **How to read it**: Each line is one product's rank, month by month. Higher on the chart means a better rank; lines crossing mean places swapped. Here, Analytics took 1st place from Platform in Jun 2026, and Integrations moved up the most, from 4th to 2nd.
 
-**Drop it in**: `<fft-widget src="catalog/bump.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "bump" }` hands an agent this spec). The spec below shows 6 of its 36 rows; the [full file](../catalog/bump.json) has them all. Source widget: [widgets/product-ranking.json](../widgets/product-ranking.json).
+**Drop it in**: `<fft-widget src="catalog/bump.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "bump" }` hands an agent this spec). The spec below shows 6 of its 36 rows; the [full file](../catalog/bump.json) has them all. Source widget: [widgets/product-ranking.json](../widgets/product-ranking.json).
 
 ```json
 {
@@ -693,7 +693,7 @@ A calendar heatmap: one cell per day, weeks as columns from Monday, shaded on on
 
 **How to read it**: Each square is one day, with weeks as columns: the stronger the color, the more orders. Here, weekdays are much busier than weekends: Wednesday averages the most, 170, and Sunday the least, 48. The top day was Sep 15, 2026, with 225.
 
-**Drop it in**: `<fft-widget src="catalog/calendar.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "calendar" }` hands an agent this spec). The spec below shows 6 of its 183 rows; the [full file](../catalog/calendar.json) has them all. Source widget: [widgets/order-calendar.json](../widgets/order-calendar.json).
+**Drop it in**: `<fft-widget src="catalog/calendar.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "calendar" }` hands an agent this spec). The spec below shows 6 of its 183 rows; the [full file](../catalog/calendar.json) has them all. Source widget: [widgets/order-calendar.json](../widgets/order-calendar.json).
 
 ```json
 {
@@ -762,7 +762,7 @@ Prices per period as candles: a thin wick from low to high around a body from op
 
 **How to read it**: Each candle is one day: the box runs from the opening to the closing price and the thin line from the lowest to the highest; hollow went up, filled went down. The line is the average of the last 5 closing prices. Here, 19 of 30 days went up.
 
-**Drop it in**: `<fft-widget src="catalog/candlestick.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "candlestick" }` hands an agent this spec). The spec below shows 6 of its 30 rows; the [full file](../catalog/candlestick.json) has them all. Source widget: [widgets/share-price.json](../widgets/share-price.json).
+**Drop it in**: `<fft-widget src="catalog/candlestick.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "candlestick" }` hands an agent this spec). The spec below shows 6 of its 30 rows; the [full file](../catalog/candlestick.json) has them all. Source widget: [widgets/share-price.json](../widgets/share-price.json).
 
 ```json
 {
@@ -854,7 +854,7 @@ Flows between groups around a circle: each group an arc as long as everything it
 
 **How to read it**: Each group sits on the circle. Each band connects two groups: the thicker the band, the more moved between them. Here, the biggest move is from Starter to Growth: 120 customers; 30 went the other way, so Growth gained 90 from Starter.
 
-**Drop it in**: `<fft-widget src="catalog/chord.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "chord" }` hands an agent this spec). The spec below shows 6 of its 8 rows; the [full file](../catalog/chord.json) has them all. Source widget: [widgets/plan-moves.json](../widgets/plan-moves.json).
+**Drop it in**: `<fft-widget src="catalog/chord.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "chord" }` hands an agent this spec). The spec below shows 6 of its 8 rows; the [full file](../catalog/chord.json) has them all. Source widget: [widgets/plan-moves.json](../widgets/plan-moves.json).
 
 ```json
 {
@@ -914,7 +914,7 @@ A map with each region shaded by its value, from the weakest tint to the stronge
 
 **How to read it**: Each region on the map is one country: the stronger its shade, the more revenue; a faded region has no data. Here, Germany is the strongest, with €4.1M, and Slovenia the weakest, with €80K.
 
-**Drop it in**: `<fft-widget src="catalog/choropleth.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "choropleth" }` hands an agent this spec). The spec below shows 6 of its 24 rows; the [full file](../catalog/choropleth.json) has them all. Source widget: [widgets/revenue-by-country.json](../widgets/revenue-by-country.json).
+**Drop it in**: `<fft-widget src="catalog/choropleth.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "choropleth" }` hands an agent this spec). The spec below shows 6 of its 24 rows; the [full file](../catalog/choropleth.json) has them all. Source widget: [widgets/revenue-by-country.json](../widgets/revenue-by-country.json).
 
 ```json
 {
@@ -976,7 +976,7 @@ Part-to-whole at a glance: a ring of up to 6 slices with the total in the middle
 
 **How to read it**: The ring is the whole. Each slice is one segment: the bigger the slice, the bigger its share of revenue. Here, Enterprise is the biggest slice, with 55% of the whole.
 
-**Drop it in**: `<fft-widget src="catalog/donut.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "donut" }` hands an agent this spec). Source widget: [widgets/revenue-by-segment.json](../widgets/revenue-by-segment.json).
+**Drop it in**: `<fft-widget src="catalog/donut.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "donut" }` hands an agent this spec). Source widget: [widgets/revenue-by-segment.json](../widgets/revenue-by-segment.json).
 
 ```json
 {
@@ -1031,7 +1031,7 @@ A dot plot: one row per item and one dot per measure on one shared axis, with a 
 
 **How to read it**: Each row is one product, with one dot for each of ease of use, value for money and support: the further right a dot, the higher that value; dots far apart mean a big difference between them. Here, Lite is highest on ease of use, with 8.9, and Enterprise's dots sit furthest apart.
 
-**Drop it in**: `<fft-widget src="catalog/dot.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "dot" }` hands an agent this spec). Source widget: [widgets/product-ratings.json](../widgets/product-ratings.json).
+**Drop it in**: `<fft-widget src="catalog/dot.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "dot" }` hands an agent this spec). Source widget: [widgets/product-ratings.json](../widgets/product-ratings.json).
 
 ```json
 {
@@ -1111,7 +1111,7 @@ Two measures with different units, such as revenue and churn, one above the othe
 
 **How to read it**: Two small charts share the same month line: revenue on top and churn below, each with its own scale, so look at the shapes, not at whether they cross. Higher means more on both. Here, revenue went from €820K in Oct 2025 to €1.3M in Sep 2026, and churn from 4.2% to 3.1%, moving in opposite directions.
 
-**Drop it in**: `<fft-widget src="catalog/dual.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "dual" }` hands an agent this spec). The spec below shows 6 of its 12 rows; the [full file](../catalog/dual.json) has them all. Source widget: [widgets/revenue-and-churn.json](../widgets/revenue-and-churn.json).
+**Drop it in**: `<fft-widget src="catalog/dual.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "dual" }` hands an agent this spec). The spec below shows 6 of its 12 rows; the [full file](../catalog/dual.json) has them all. Source widget: [widgets/revenue-and-churn.json](../widgets/revenue-and-churn.json).
 
 ```json
 {
@@ -1189,7 +1189,7 @@ Before and after per item on one shared axis: a muted dot for before, an accent 
 
 **How to read it**: Each row has two dots: Q3 2025 and Q3 2026. The line between them is the change. Here, 4 of 5 regions went up, and East moved the most, from €291K to €338K.
 
-**Drop it in**: `<fft-widget src="catalog/dumbbell.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "dumbbell" }` hands an agent this spec). Source widget: [widgets/region-yoy.json](../widgets/region-yoy.json).
+**Drop it in**: `<fft-widget src="catalog/dumbbell.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "dumbbell" }` hands an agent this spec). Source widget: [widgets/region-yoy.json](../widgets/region-yoy.json).
 
 ```json
 {
@@ -1255,7 +1255,7 @@ Stages in order as centered bars narrowing from the first, with the conversion r
 
 **How to read it**: Each step keeps fewer people than the one before. The number between two steps says how many made it through. Here, the biggest drop is from Visits to Signups: 87% stop there.
 
-**Drop it in**: `<fft-widget src="catalog/funnel.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "funnel" }` hands an agent this spec). Source widget: [widgets/signup-funnel.json](../widgets/signup-funnel.json).
+**Drop it in**: `<fft-widget src="catalog/funnel.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "funnel" }` hands an agent this spec). Source widget: [widgets/signup-funnel.json](../widgets/signup-funnel.json).
 
 ```json
 {
@@ -1308,7 +1308,7 @@ One headline number on a half-circle scale: an arc filled from min to the value,
 
 **How to read it**: The needle points to the number on a scale from low to high. The small mark on the arc is the goal. Here, the needle is at 42, short of the goal of 50.
 
-**Drop it in**: `<fft-widget src="catalog/gauge.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "gauge" }` hands an agent this spec). Source widget: [widgets/nps-gauge.json](../widgets/nps-gauge.json).
+**Drop it in**: `<fft-widget src="catalog/gauge.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "gauge" }` hands an agent this spec). Source widget: [widgets/nps-gauge.json](../widgets/nps-gauge.json).
 
 ```json
 {
@@ -1363,7 +1363,7 @@ Horizontal bars for rankings and long labels: label on the left, bar, value at t
 
 **How to read it**: Each row is one feature: the further right the dot, the more accounts using it. Here, Dashboards has the dot furthest right, with 91%.
 
-**Drop it in**: `<fft-widget src="catalog/hbar.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "hbar" }` hands an agent this spec). The spec below shows 6 of its 10 rows; the [full file](../catalog/hbar.json) has them all. Source widget: [widgets/feature-adoption.json](../widgets/feature-adoption.json).
+**Drop it in**: `<fft-widget src="catalog/hbar.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "hbar" }` hands an agent this spec). The spec below shows 6 of its 10 rows; the [full file](../catalog/hbar.json) has them all. Source widget: [widgets/feature-adoption.json](../widgets/feature-adoption.json).
 
 ```json
 {
@@ -1423,7 +1423,7 @@ A grid of cells shaded on one blue scale from light (low) to dark (high), for pa
 
 **How to read it**: Each square is one time and day together: the stronger the color, the more tickets. Here, 10-12 is the busiest time and Thu the busiest day; the strongest square is Thu at 10-12, with 79.
 
-**Drop it in**: `<fft-widget src="catalog/heatmap.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "heatmap" }` hands an agent this spec). The spec below shows 6 of its 35 rows; the [full file](../catalog/heatmap.json) has them all. Source widget: [widgets/ticket-heatmap.json](../widgets/ticket-heatmap.json).
+**Drop it in**: `<fft-widget src="catalog/heatmap.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "heatmap" }` hands an agent this spec). The spec below shows 6 of its 35 rows; the [full file](../catalog/heatmap.json) has them all. Source widget: [widgets/ticket-heatmap.json](../widgets/ticket-heatmap.json).
 
 ```json
 {
@@ -1484,7 +1484,7 @@ A distribution as touching bars: the value's range is cut into bins on round edg
 
 **How to read it**: Each bar is one range of deal value: the taller the bar, the more often a value in that range happened; the dashed line is the middle value. Here, the most common range is €20K to €40K, which happened 7 times.
 
-**Drop it in**: `<fft-widget src="catalog/histogram.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "histogram" }` hands an agent this spec). The spec below shows 6 of its 24 rows; the [full file](../catalog/histogram.json) has them all. Source widget: [widgets/deal-histogram.json](../widgets/deal-histogram.json).
+**Drop it in**: `<fft-widget src="catalog/histogram.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "histogram" }` hands an agent this spec). The spec below shows 6 of its 24 rows; the [full file](../catalog/histogram.json) has them all. Source widget: [widgets/deal-histogram.json](../widgets/deal-histogram.json).
 
 ```json
 {
@@ -1550,7 +1550,7 @@ A client's story as a vertical timeline: one event per row with its date, title,
 
 **How to read it**: Each dot is one event for the client, newest at the top, with its date and what happened and, on the right, the amount. Here, there are 15 events, 3 of them trades; the latest is Quarterly check-in call on Oct 21, 2026.
 
-**Drop it in**: `<fft-widget src="catalog/history.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "history" }` hands an agent this spec). The spec below shows 6 of its 15 rows; the [full file](../catalog/history.json) has them all. Source widget: [widgets/client-history.json](../widgets/client-history.json).
+**Drop it in**: `<fft-widget src="catalog/history.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "history" }` hands an agent this spec). The spec below shows 6 of its 15 rows; the [full file](../catalog/history.json) has them all. Source widget: [widgets/client-history.json](../widgets/client-history.json).
 
 ```json
 {
@@ -1624,7 +1624,7 @@ Many time series at once, each in a thin row: values are measured from a baselin
 
 **How to read it**: Each row is one of North, South, East, West, Central or Online, day by day. Above plan rises from the bottom and below it hangs from the top; the stronger the shade, the further from plan. Here, East was above plan on all 92 days, the most, and the furthest below was South on Aug 15, €14.6K under.
 
-**Drop it in**: `<fft-widget src="catalog/horizon.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "horizon" }` hands an agent this spec). The spec below shows 6 of its 92 rows; the [full file](../catalog/horizon.json) has them all. Source widget: [widgets/region-plan-horizon.json](../widgets/region-plan-horizon.json).
+**Drop it in**: `<fft-widget src="catalog/horizon.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "horizon" }` hands an agent this spec). The spec below shows 6 of its 92 rows; the [full file](../catalog/horizon.json) has them all. Source widget: [widgets/region-plan-horizon.json](../widgets/region-plan-horizon.json).
 
 ```json
 {
@@ -1732,7 +1732,7 @@ A hierarchy laid flat: a column for the total, then one per level left to right,
 
 **How to read it**: The first column is the total. Each column to the right splits the boxes into smaller parts: the taller the box, the more revenue. Here, East is the biggest region, with 26% of the total; inside it, Core brings the most, 65% of East.
 
-**Drop it in**: `<fft-widget src="catalog/icicle.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "icicle" }` hands an agent this spec). The spec below shows 6 of its 20 rows; the [full file](../catalog/icicle.json) has them all. Source widget: [widgets/revenue-icicle.json](../widgets/revenue-icicle.json).
+**Drop it in**: `<fft-widget src="catalog/icicle.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "icicle" }` hands an agent this spec). The spec below shows 6 of its 20 rows; the [full file](../catalog/icicle.json) has them all. Source widget: [widgets/revenue-icicle.json](../widgets/revenue-icicle.json).
 
 ```json
 {
@@ -1805,7 +1805,7 @@ One headline number with its change against a comparison. Reads the first row, o
 
 **How to read it**: The big number is monthly churn. The small arrow says whether it went up or down since last time. Here, it is 3.1%, down from 3.6%.
 
-**Drop it in**: `<fft-widget src="catalog/kpi.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "kpi" }` hands an agent this spec). The spec below shows 6 of its 12 rows; the [full file](../catalog/kpi.json) has them all. Source widget: [widgets/churn-kpi.json](../widgets/churn-kpi.json).
+**Drop it in**: `<fft-widget src="catalog/kpi.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "kpi" }` hands an agent this spec). The spec below shows 6 of its 12 rows; the [full file](../catalog/kpi.json) has them all. Source widget: [widgets/churn-kpi.json](../widgets/churn-kpi.json).
 
 ```json
 {
@@ -1865,7 +1865,7 @@ A row of stat tiles in one widget, each with a label, value and change: the calm
 
 **How to read it**: Each tile is one key number; its arrow says whether it went up or down since last time, and a line under it whether it reached its target. Here, every number moved the right way since last time: revenue, gross profit and new customers went up, and churn went down. Revenue is past its target of €1.2M.
 
-**Drop it in**: `<fft-widget src="catalog/kpis.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "kpis" }` hands an agent this spec). The spec below shows 6 of its 12 rows; the [full file](../catalog/kpis.json) has them all. Source widget: [widgets/q3-at-a-glance.json](../widgets/q3-at-a-glance.json).
+**Drop it in**: `<fft-widget src="catalog/kpis.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "kpis" }` hands an agent this spec). The spec below shows 6 of its 12 rows; the [full file](../catalog/kpis.json) has them all. Source widget: [widgets/q3-at-a-glance.json](../widgets/q3-at-a-glance.json).
 
 ```json
 {
@@ -1967,7 +1967,7 @@ Stage swimlanes: one row per item on a shared date axis, each stage drawn from i
 
 **How to read it**: Each row is one regulation, read left to right in time; each stretch is one stage, proposed, adopted, in force and applies in turn, and a faint one is still running. The upright line is today; a thicker row means more impact. Here, 9 of 12 regulations have reached applies; AMLR moved last, to applies on Jul 10, 2027.
 
-**Drop it in**: `<fft-widget src="catalog/lifecycle.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "lifecycle" }` hands an agent this spec). The spec below shows 6 of its 12 rows; the [full file](../catalog/lifecycle.json) has them all. Source widget: [widgets/regulation-lifecycle.json](../widgets/regulation-lifecycle.json).
+**Drop it in**: `<fft-widget src="catalog/lifecycle.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "lifecycle" }` hands an agent this spec). The spec below shows 6 of its 12 rows; the [full file](../catalog/lifecycle.json) has them all. Source widget: [widgets/regulation-lifecycle.json](../widgets/regulation-lifecycle.json).
 
 ```json
 {
@@ -2049,7 +2049,7 @@ Survey answers as diverging stacked bars: one bar per question, its responses in
 
 **How to read it**: Each bar splits the answers to one question, from disagree on the left to agree on the right, centered on neutral: the longer the right side, the more people agree. Here, the most agreed question is “I understand our strategy”: 71% agree, and the least agreed is “My workload is sustainable”: 32% agree.
 
-**Drop it in**: `<fft-widget src="catalog/likert.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "likert" }` hands an agent this spec). Source widget: [widgets/employee-survey.json](../widgets/employee-survey.json).
+**Drop it in**: `<fft-widget src="catalog/likert.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "likert" }` hands an agent this spec). Source widget: [widgets/employee-survey.json](../widgets/employee-survey.json).
 
 ```json
 {
@@ -2104,7 +2104,7 @@ Lines showing change over an ordered axis, usually time. Several y fields draw s
 
 **How to read it**: The line shows how each value changes month by month: going up means more. The dashed line is the target. Here, revenue went from €820,000 in Oct 2025 to €1,284,000 in Sep 2026, past the target of €1,200,000.
 
-**Drop it in**: `<fft-widget src="catalog/line.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "line" }` hands an agent this spec). The spec below shows 6 of its 12 rows; the [full file](../catalog/line.json) has them all. Source widget: [widgets/monthly-revenue.json](../widgets/monthly-revenue.json).
+**Drop it in**: `<fft-widget src="catalog/line.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "line" }` hands an agent this spec). The spec below shows 6 of its 12 rows; the [full file](../catalog/line.json) has them all. Source widget: [widgets/monthly-revenue.json](../widgets/monthly-revenue.json).
 
 ```json
 {
@@ -2193,7 +2193,7 @@ A stacked list: one line per row with a label, optional detail underneath, and a
 
 **How to read it**: Each line is one customer, with its revenue on the right. Here, Aurora Logistics is at the top, with €214K, €26K ahead of Bellwether Foods.
 
-**Drop it in**: `<fft-widget src="catalog/list.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "list" }` hands an agent this spec). Source widget: [widgets/top-customers.json](../widgets/top-customers.json).
+**Drop it in**: `<fft-widget src="catalog/list.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "list" }` hands an agent this spec). Source widget: [widgets/top-customers.json](../widgets/top-customers.json).
 
 ```json
 {
@@ -2258,7 +2258,7 @@ A small, clean map that says where things are: a marker and an always-on name fo
 
 **How to read it**: Each marker is one office, with its name beside it, where it is on the map. Here, 9 places are marked, 4 of them Sales.
 
-**Drop it in**: `<fft-widget src="catalog/locator.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "locator" }` hands an agent this spec). The spec below shows 6 of its 9 rows; the [full file](../catalog/locator.json) has them all. Source widget: [widgets/offices.json](../widgets/offices.json).
+**Drop it in**: `<fft-widget src="catalog/locator.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "locator" }` hands an agent this spec). The spec below shows 6 of its 9 rows; the [full file](../catalog/locator.json) has them all. Source widget: [widgets/offices.json](../widgets/offices.json).
 
 ```json
 {
@@ -2323,7 +2323,7 @@ A mosaic: one column per category, as wide as its total, split into segments by 
 
 **How to read it**: Each column is one region: the wider the column, the bigger its total, and its colored parts show how it splits by product. Here, East is the widest column, with €348K; Platform is its biggest part, 46%.
 
-**Drop it in**: `<fft-widget src="catalog/marimekko.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "marimekko" }` hands an agent this spec). The spec below shows 6 of its 15 rows; the [full file](../catalog/marimekko.json) has them all. Source widget: [widgets/region-product-mix.json](../widgets/region-product-mix.json).
+**Drop it in**: `<fft-widget src="catalog/marimekko.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "marimekko" }` hands an agent this spec). The spec below shows 6 of its 15 rows; the [full file](../catalog/marimekko.json) has them all. Source widget: [widgets/region-product-mix.json](../widgets/region-product-mix.json).
 
 ```json
 {
@@ -2392,7 +2392,7 @@ A mark matrix (a punchcard): one mark per pair of x and y, sized by a value, sha
 
 **How to read it**: Each row is one regulation and each column one stakeholder: a square means yes for must comply. Here, all 5 stakeholders must comply with DORA, more than with any other of the regulations.
 
-**Drop it in**: `<fft-widget src="catalog/matrix.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "matrix" }` hands an agent this spec). The spec below shows 6 of its 50 rows; the [full file](../catalog/matrix.json) has them all. Source widget: [widgets/obligation-matrix.json](../widgets/obligation-matrix.json).
+**Drop it in**: `<fft-widget src="catalog/matrix.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "matrix" }` hands an agent this spec). The spec below shows 6 of its 50 rows; the [full file](../catalog/matrix.json) has them all. Source widget: [widgets/obligation-matrix.json](../widgets/obligation-matrix.json).
 
 ```json
 {
@@ -2454,7 +2454,7 @@ Progress against a target, one meter per row: attainment as a percentage, a bar 
 
 **How to read it**: Each bar fills up toward its target. A full bar means the goal for revenue is reached; the percentage says how close it is. Here, 2 of 5 regions have reached their goal: North and Central.
 
-**Drop it in**: `<fft-widget src="catalog/meter.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "meter" }` hands an agent this spec). Source widget: [widgets/region-targets.json](../widgets/region-targets.json).
+**Drop it in**: `<fft-widget src="catalog/meter.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "meter" }` hands an agent this spec). Source widget: [widgets/region-targets.json](../widgets/region-targets.json).
 
 ```json
 {
@@ -2518,7 +2518,7 @@ The 80/20 view: categories sorted largest first as bars of their share of the to
 
 **How to read it**: Bars are sorted from biggest to smallest. The line adds them up as it goes, so you can see which few causes make up most of the total. Here, 4 of 8 causes make up 84% of the tickets: Login problems, Billing questions, Slow pages and Integrations.
 
-**Drop it in**: `<fft-widget src="catalog/pareto.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "pareto" }` hands an agent this spec). The spec below shows 6 of its 8 rows; the [full file](../catalog/pareto.json) has them all. Source widget: [widgets/ticket-causes.json](../widgets/ticket-causes.json).
+**Drop it in**: `<fft-widget src="catalog/pareto.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "pareto" }` hands an agent this spec). The spec below shows 6 of its 8 rows; the [full file](../catalog/pareto.json) has them all. Source widget: [widgets/ticket-causes.json](../widgets/ticket-causes.json).
 
 ```json
 {
@@ -2575,7 +2575,7 @@ Part-to-whole as a full disc: up to 6 slices from twelve o'clock clockwise, each
 
 **How to read it**: The circle is the whole. Each slice is one segment: the wider the slice, the bigger its share of revenue. Here, Enterprise is the biggest slice, with 47% of the whole.
 
-**Drop it in**: `<fft-widget src="catalog/pie.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "pie" }` hands an agent this spec). Source widget: [widgets/revenue-pie.json](../widgets/revenue-pie.json).
+**Drop it in**: `<fft-widget src="catalog/pie.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "pie" }` hands an agent this spec). Source widget: [widgets/revenue-pie.json](../widgets/revenue-pie.json).
 
 ```json
 {
@@ -2632,7 +2632,7 @@ A population pyramid: one row per band (an age group, a tenure band), with two c
 
 **How to read it**: Each row is one age. The bar to the left is women and the bar to the right is men, both on the same scale, so the longer side has more; the whole shape says where the two differ. Here, men outnumber women in all, 51% to 49%, and 30-34 is the widest band.
 
-**Drop it in**: `<fft-widget src="catalog/pyramid.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "pyramid" }` hands an agent this spec). The spec below shows 6 of its 9 rows; the [full file](../catalog/pyramid.json) has them all. Source widget: [widgets/workforce-pyramid.json](../widgets/workforce-pyramid.json).
+**Drop it in**: `<fft-widget src="catalog/pyramid.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "pyramid" }` hands an agent this spec). The spec below shows 6 of its 9 rows; the [full file](../catalog/pyramid.json) has them all. Source widget: [widgets/workforce-pyramid.json](../widgets/workforce-pyramid.json).
 
 ```json
 {
@@ -2698,7 +2698,7 @@ Profiles across several attributes: one spoke per row, rings for one shared scal
 
 **How to read it**: Each spoke is one attribute: the further a point sits from the center, the higher the score; a bigger shape is better overall. Here, our product is ahead of market average on 5 of 6 attributes, most on Support (8.2 against 6.4), and behind on Price (6.1 against 7.4).
 
-**Drop it in**: `<fft-widget src="catalog/radar.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "radar" }` hands an agent this spec). Source widget: [widgets/product-compare.json](../widgets/product-compare.json).
+**Drop it in**: `<fft-widget src="catalog/radar.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "radar" }` hands an agent this spec). Source widget: [widgets/product-compare.json](../widgets/product-compare.json).
 
 ```json
 {
@@ -2768,7 +2768,7 @@ A RAG scorecard: one row per entity (a client, a relationship manager, a deal) a
 
 **How to read it**: Each row is one client, each column one measure: a circle is on track, a triangle at risk, a square off track. Here, 4 of 10 clients are off track on at least one count, and 4 more are at risk; Dr. M. Keller is off track on 2 of 4.
 
-**Drop it in**: `<fft-widget src="catalog/ragboard.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "ragboard" }` hands an agent this spec). The spec below shows 6 of its 10 rows; the [full file](../catalog/ragboard.json) has them all. Source widget: [widgets/rag-scorecard.json](../widgets/rag-scorecard.json).
+**Drop it in**: `<fft-widget src="catalog/ragboard.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "ragboard" }` hands an agent this spec). The spec below shows 6 of its 10 rows; the [full file](../catalog/ragboard.json) has them all. Source widget: [widgets/rag-scorecard.json](../widgets/rag-scorecard.json).
 
 ```json
 {
@@ -2848,7 +2848,7 @@ RAG status over time: one row per entity and one small mark per period, shaped a
 
 **How to read it**: Each row is one client, month by month: a circle is on track, a triangle at risk, a square off track. A thin upright line marks a change; point at it to see why. Here, 3 of 7 clients got worse over the period and 2 got better; Aldana Holdings went from on track to off track.
 
-**Drop it in**: `<fft-widget src="catalog/ragtrend.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "ragtrend" }` hands an agent this spec). The spec below shows 6 of its 42 rows; the [full file](../catalog/ragtrend.json) has them all. Source widget: [widgets/rag-status-trend.json](../widgets/rag-status-trend.json).
+**Drop it in**: `<fft-widget src="catalog/ragtrend.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "ragtrend" }` hands an agent this spec). The spec below shows 6 of its 42 rows; the [full file](../catalog/ragtrend.json) has them all. Source widget: [widgets/rag-status-trend.json](../widgets/rag-status-trend.json).
 
 ```json
 {
@@ -2914,7 +2914,7 @@ One smooth distribution curve per group on a shared axis, overlapping like a mou
 
 **How to read it**: Each hill shows how deal value spreads in one group. Where the hill is tallest is where most values are; a hill further right has bigger values. Here, East sits furthest right, with a middle value of €115K, and varies the most: its middle half runs from €102.8K to €136.3K.
 
-**Drop it in**: `<fft-widget src="catalog/ridgeline.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "ridgeline" }` hands an agent this spec). The spec below shows 6 of its 24 rows; the [full file](../catalog/ridgeline.json) has them all. Source widget: [widgets/deal-ridgeline.json](../widgets/deal-ridgeline.json).
+**Drop it in**: `<fft-widget src="catalog/ridgeline.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "ridgeline" }` hands an agent this spec). The spec below shows 6 of its 24 rows; the [full file](../catalog/ridgeline.json) has them all. Source widget: [widgets/deal-ridgeline.json](../widgets/deal-ridgeline.json).
 
 ```json
 {
@@ -2976,7 +2976,7 @@ Concentric progress rings, one per row from the outside in, each filled to its s
 
 **How to read it**: Each ring fills up toward its goal. A full circle means the goal is met. Here, 1 of 3 products has reached its goal: Analytics.
 
-**Drop it in**: `<fft-widget src="catalog/rings.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "rings" }` hands an agent this spec). Source widget: [widgets/product-targets.json](../widgets/product-targets.json).
+**Drop it in**: `<fft-widget src="catalog/rings.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "rings" }` hands an agent this spec). Source widget: [widgets/product-targets.json](../widgets/product-targets.json).
 
 ```json
 {
@@ -3040,7 +3040,7 @@ A polar area chart (a Nightingale rose) for a cycle that wraps round, such as ho
 
 **How to read it**: Each slice is one hour, going round like a clock: the bigger a slice's area, the more in that hour, the parts stacked from the center out. Here, 12:00 is the busiest hour, with 1,900 in all; Mobile brings more than Desktop in 15 of 24 hours.
 
-**Drop it in**: `<fft-widget src="catalog/rose.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "rose" }` hands an agent this spec). The spec below shows 6 of its 24 rows; the [full file](../catalog/rose.json) has them all. Source widget: [widgets/visits-by-hour.json](../widgets/visits-by-hour.json).
+**Drop it in**: `<fft-widget src="catalog/rose.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "rose" }` hands an agent this spec). The spec below shows 6 of its 24 rows; the [full file](../catalog/rose.json) has them all. Source widget: [widgets/visits-by-hour.json](../widgets/visits-by-hour.json).
 
 ```json
 {
@@ -3111,7 +3111,7 @@ Flows between stages as ribbons as thick as their volume, for example traffic so
 
 **How to read it**: Bands flow from left to right, splitting and joining: the thicker the band, the more goes that way. Here, the thickest band goes from Blog to Left, with 4.5K.
 
-**Drop it in**: `<fft-widget src="catalog/sankey.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "sankey" }` hands an agent this spec). The spec below shows 6 of its 12 rows; the [full file](../catalog/sankey.json) has them all. Source widget: [widgets/traffic-sankey.json](../widgets/traffic-sankey.json).
+**Drop it in**: `<fft-widget src="catalog/sankey.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "sankey" }` hands an agent this spec). The spec below shows 6 of its 12 rows; the [full file](../catalog/sankey.json) has them all. Source widget: [widgets/traffic-sankey.json](../widgets/traffic-sankey.json).
 
 ```json
 {
@@ -3173,7 +3173,7 @@ One dot per row placed by two numbers, to show how they relate. An optional grou
 
 **How to read it**: Each dot is one account: further right means more revenue growth, higher means more gross margin, and bigger means more revenue. Here, more revenue growth tends to come with more gross margin, but not always. Ironwood Labs sits highest, with the most gross margin.
 
-**Drop it in**: `<fft-widget src="catalog/scatter.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "scatter" }` hands an agent this spec). The spec below shows 6 of its 12 rows; the [full file](../catalog/scatter.json) has them all. Source widget: [widgets/account-portfolio.json](../widgets/account-portfolio.json).
+**Drop it in**: `<fft-widget src="catalog/scatter.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "scatter" }` hands an agent this spec). The spec below shows 6 of its 12 rows; the [full file](../catalog/scatter.json) has them all. Source widget: [widgets/account-portfolio.json](../widgets/account-portfolio.json).
 
 ```json
 {
@@ -3253,7 +3253,7 @@ Each item's move between two points in time, as a line from a left column to a r
 
 **How to read it**: Each line joins the before and the after for one region. A line going up means it grew; a steeper line means a bigger change. Here, 3 of 5 regions went up, and West moved the most, from 22% to 28%.
 
-**Drop it in**: `<fft-widget src="catalog/slope.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "slope" }` hands an agent this spec). Source widget: [widgets/region-win-rate.json](../widgets/region-win-rate.json).
+**Drop it in**: `<fft-widget src="catalog/slope.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "slope" }` hands an agent this spec). Source widget: [widgets/region-win-rate.json](../widgets/region-win-rate.json).
 
 ```json
 {
@@ -3318,7 +3318,7 @@ Unit strips: one row per item with a strip of small squares, one per unit, color
 
 **How to read it**: Each row is one regulation and each square one provision, in order of kind: mandatory, recommended and optional. The figures at the end are the total, the mandatory share, then provisions per page. Here, CRR3 has the most provisions: 412, 85% of them mandatory; that is 1.0 per page.
 
-**Drop it in**: `<fft-widget src="catalog/strips.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "strips" }` hands an agent this spec). The spec below shows 6 of its 12 rows; the [full file](../catalog/strips.json) has them all. Source widget: [widgets/provision-strips.json](../widgets/provision-strips.json).
+**Drop it in**: `<fft-widget src="catalog/strips.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "strips" }` hands an agent this spec). The spec below shows 6 of its 12 rows; the [full file](../catalog/strips.json) has them all. Source widget: [widgets/provision-strips.json](../widgets/provision-strips.json).
 
 ```json
 {
@@ -3390,7 +3390,7 @@ A hierarchy as rings: the inner ring splits the total by the first level, each o
 
 **How to read it**: The inner ring shows the biggest groups. Each ring further out splits them into smaller parts; a wider slice means more. Here, Platform is the biggest product, with 40% of the total; inside it, East brings the most, 31% of Platform.
 
-**Drop it in**: `<fft-widget src="catalog/sunburst.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "sunburst" }` hands an agent this spec). The spec below shows 6 of its 15 rows; the [full file](../catalog/sunburst.json) has them all. Source widget: [widgets/product-region-sunburst.json](../widgets/product-region-sunburst.json).
+**Drop it in**: `<fft-widget src="catalog/sunburst.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "sunburst" }` hands an agent this spec). The spec below shows 6 of its 15 rows; the [full file](../catalog/sunburst.json) has them all. Source widget: [widgets/product-region-sunburst.json](../widgets/product-region-sunburst.json).
 
 ```json
 {
@@ -3462,7 +3462,7 @@ A map with a circle on each place, its area true to a value: customers by state,
 
 **How to read it**: Each circle sits on one state on the map: the bigger the circle, the more customers. Here, the biggest circle is California, with 1,840, 14% of all 24 places.
 
-**Drop it in**: `<fft-widget src="catalog/symbols.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "symbols" }` hands an agent this spec). The spec below shows 6 of its 24 rows; the [full file](../catalog/symbols.json) has them all. Source widget: [widgets/customers-by-state.json](../widgets/customers-by-state.json).
+**Drop it in**: `<fft-widget src="catalog/symbols.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "symbols" }` hands an agent this spec). The spec below shows 6 of its 24 rows; the [full file](../catalog/symbols.json) has them all. Source widget: [widgets/customers-by-state.json](../widgets/customers-by-state.json).
 
 ```json
 {
@@ -3523,7 +3523,7 @@ Rows and columns. The default view, and the one to use when people need exact va
 
 **How to read it**: Each row is one record and each column one detail. Click a column heading to sort by it. Here, Aurora Logistics renewal is the top row by amount, at €240,000.
 
-**Drop it in**: `<fft-widget src="catalog/table.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "table" }` hands an agent this spec). Source widget: [widgets/deal-pipeline.json](../widgets/deal-pipeline.json).
+**Drop it in**: `<fft-widget src="catalog/table.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "table" }` hands an agent this spec). Source widget: [widgets/deal-pipeline.json](../widgets/deal-pipeline.json).
 
 ```json
 {
@@ -3601,7 +3601,7 @@ A Gantt-style timeline: one row per task with a bar from its start to its end da
 
 **How to read it**: Each bar is one task, from its start date to its end date; the solid part is how much is done. The vertical line marks today. Here, 3 of 7 tasks are done and 2 are under way; the longest, Platform build, is 55% done.
 
-**Drop it in**: `<fft-widget src="catalog/timeline.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "timeline" }` hands an agent this spec). The spec below shows 6 of its 8 rows; the [full file](../catalog/timeline.json) has them all. Source widget: [widgets/launch-plan.json](../widgets/launch-plan.json).
+**Drop it in**: `<fft-widget src="catalog/timeline.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "timeline" }` hands an agent this spec). The spec below shows 6 of its 8 rows; the [full file](../catalog/timeline.json) has them all. Source widget: [widgets/launch-plan.json](../widgets/launch-plan.json).
 
 ```json
 {
@@ -3659,7 +3659,7 @@ Part-to-whole for many categories: tiles sized by value, kept close to square. U
 
 **How to read it**: Each box is one customer: the bigger the box, the more revenue. Here, Aurora Logistics is the biggest box, with €214K.
 
-**Drop it in**: `<fft-widget src="catalog/treemap.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "treemap" }` hands an agent this spec). The spec below shows 6 of its 8 rows; the [full file](../catalog/treemap.json) has them all. Source widget: [widgets/customer-treemap.json](../widgets/customer-treemap.json).
+**Drop it in**: `<fft-widget src="catalog/treemap.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "treemap" }` hands an agent this spec). The spec below shows 6 of its 8 rows; the [full file](../catalog/treemap.json) has them all. Source widget: [widgets/customer-treemap.json](../widgets/customer-treemap.json).
 
 ```json
 {
@@ -3722,7 +3722,7 @@ Variance against plan, as in financial reporting: per row a bar from a zero line
 
 **How to read it**: Each bar shows how far one department is from its budget: right when above, left when below, the longer the further. Below the budget is better. Here, 3 of 6 departments are over their budget, and Sales is furthest from it: €412K against €380K.
 
-**Drop it in**: `<fft-widget src="catalog/variance.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "variance" }` hands an agent this spec). Source widget: [widgets/opex-variance.json](../widgets/opex-variance.json).
+**Drop it in**: `<fft-widget src="catalog/variance.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "variance" }` hands an agent this spec). Source widget: [widgets/opex-variance.json](../widgets/opex-variance.json).
 
 ```json
 {
@@ -3790,7 +3790,7 @@ Part to whole as a 10 by 10 grid where each square is one percent, filled catego
 
 **How to read it**: There are 100 squares, so each colored square is one percent of the whole. Here, Subscriptions fills the most squares: 62%.
 
-**Drop it in**: `<fft-widget src="catalog/waffle.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "waffle" }` hands an agent this spec). Source widget: [widgets/revenue-sources.json](../widgets/revenue-sources.json).
+**Drop it in**: `<fft-widget src="catalog/waffle.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "waffle" }` hands an agent this spec). Source widget: [widgets/revenue-sources.json](../widgets/revenue-sources.json).
 
 ```json
 {
@@ -3846,7 +3846,7 @@ A bridge: how a total moves to another through increases and decreases, each flo
 
 **How to read it**: Start at the first bar. Each bar after it goes up for something that added and down for something that took away, and you land on the final total. Here, it went from €1.2M (Q2 revenue) to €1.3M (Q3 revenue): New customers added the most, €142K, and Churn took the most away, €84K.
 
-**Drop it in**: `<fft-widget src="catalog/waterfall.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "waterfall" }` hands an agent this spec). Source widget: [widgets/revenue-bridge.json](../widgets/revenue-bridge.json).
+**Drop it in**: `<fft-widget src="catalog/waterfall.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "waterfall" }` hands an agent this spec). Source widget: [widgets/revenue-bridge.json](../widgets/revenue-bridge.json).
 
 ```json
 {
@@ -3912,7 +3912,7 @@ The cross-sell map (whitespace analysis): one cell per client and product, fille
 
 **How to read it**: Each row is one client and each column one product: filled means they have it, outlined means they could (the stronger, the likelier), a dot means not for them. Each row ends with what they hold and what is left to win. Here, 20 cells are held and 17 are open; Aldana Holdings has the most to win, €253K.
 
-**Drop it in**: `<fft-widget src="catalog/whitespace.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "whitespace" }` hands an agent this spec). The spec below shows 6 of its 48 rows; the [full file](../catalog/whitespace.json) has them all. Source widget: [widgets/cross-sell-whitespace.json](../widgets/cross-sell-whitespace.json).
+**Drop it in**: `<fft-widget src="catalog/whitespace.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "whitespace" }` hands an agent this spec). The spec below shows 6 of its 48 rows; the [full file](../catalog/whitespace.json) has them all. Source widget: [widgets/cross-sell-whitespace.json](../widgets/cross-sell-whitespace.json).
 
 ```json
 {
@@ -3996,7 +3996,7 @@ A client x-ray: one client on one card, from its first row. The name and a detai
 
 **How to read it**: This card is one client: the key numbers, the products they hold, their share of wallet with us, the recent trend, what to watch and what to do next. Here, Aldana Holdings holds 3 of 8 products and has a share of wallet of 41%.
 
-**Drop it in**: `<fft-widget src="catalog/xray.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_get_chart { "type": "xray" }` hands an agent this spec). Source widget: [widgets/client-xray.json](../widgets/client-xray.json).
+**Drop it in**: `<fft-widget src="catalog/xray.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "xray" }` hands an agent this spec). Source widget: [widgets/client-xray.json](../widgets/client-xray.json).
 
 ```json
 {
