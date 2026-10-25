@@ -187,4 +187,10 @@ describe("the published site", () => {
     expect(css).toMatch(/@property --site-fade-r \{[^}]*initial-value: 0px/);
     expect(css).toMatch(/\.site-nav, \.board-tabs \{[^}]*animation-timeline: scroll\(self inline\)/);
   });
+
+  test("every page's head is the same: one title size and one intro style, set once for the site", () => {
+    const css = readFileSync("demo/site-nav.css", "utf8");
+    expect(css).toMatch(/html body h1 \{[^}]*font-size: 28px; font-weight: 650;/);
+    expect(css).toMatch(/html body h1 \+ p \{[^}]*font-size: 16px;/);
+  });
 });

@@ -221,7 +221,7 @@ const page = `<!doctype html>
     * { box-sizing: border-box; }
     body { font: 15px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif; margin: 0 auto; max-width: 1280px; padding: 24px 16px 89px; background: Canvas; color: CanvasText; }
     h1 { font-size: 34px; letter-spacing: -.02em; margin: 13px 0 8px; line-height: 1.15; }
-    .lede { max-width: 68ch; color: var(--muted); font-size: 17px; margin: 0 0 34px; }
+    .lede { max-width: 68ch; color: var(--muted); font-size: 16px; margin: 0 0 34px; }
     h2 { font-size: 21px; margin: 0; }
     h2 code { font: 650 21px/1.3 ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace; }
     h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 34px 0 8px; font-weight: 600; }

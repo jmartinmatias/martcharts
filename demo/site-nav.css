@@ -162,3 +162,8 @@ body .fft-dashboard[data-sticky] .fft-filters { background: none; -webkit-backdr
     animation-timeline: scroll(self inline);
   }
 }
+
+/* One page head on every page: the title at Home's size and weight, the sentence under it in the secondary ink, the
+   same distance under the menu. (html body raises this above each page's own head styles.) */
+html body h1 { margin: 8px 0 0; font-size: 28px; font-weight: 650; line-height: 1.2; letter-spacing: -0.01em; }
+html body h1 + p { margin: 5px 0 0; max-width: 68ch; font-size: 16px; line-height: 1.5; color: var(--ink-2, color-mix(in srgb, CanvasText 66%, transparent)); }
