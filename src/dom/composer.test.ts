@@ -248,4 +248,11 @@ describe("helpers", () => {
     const again = await addChartToBoard(store, chart("b", { type: "list", label: "region" }), { id: "weekly-pack" });
     expect(again.spec.widgets.map((c) => c.spec?.id)).toEqual(["a", "b"]);
   });
+
+test("the composer's layouts follow its host's width: a container query reads an ancestor, never the element itself", async () => {
+  const { readFileSync } = await import("node:fs");
+  const COMPOSER_CSS = readFileSync("src/dom/composer.ts", "utf8");
+  expect(COMPOSER_CSS).toMatch(/:has\(> \.fft-composer\) \{ container-type: inline-size; \}/);
+  expect(/\.fft-composer \{[^}]*\}/.exec(COMPOSER_CSS)?.[0]).not.toMatch(/container-type/);
+});
 });

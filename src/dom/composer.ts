@@ -134,7 +134,9 @@ function filterable(rows: Row[], field: string): boolean {
 }
 
 const CSS = `
-.fft-composer { --fft-cmp-gap: 21px; display: grid; grid-template-columns: minmax(0, 233px) minmax(0, 1fr); grid-template-areas: "tray board" "preview preview" "publish publish"; gap: var(--fft-cmp-gap); container-type: inline-size; color: var(--fft-text); font-size: 13px; }
+.fft-composer { --fft-cmp-gap: 21px; display: grid; grid-template-columns: minmax(0, 233px) minmax(0, 1fr); grid-template-areas: "tray board" "preview preview" "publish publish"; gap: var(--fft-cmp-gap); color: var(--fft-text); font-size: 13px; }
+/* A container query reads an ancestor, never the element itself: the composer's host is the container its layouts follow. */
+:has(> .fft-composer) { container-type: inline-size; }
 .fft-cmp-tray { grid-area: tray; }
 .fft-cmp-board { grid-area: board; }
 .fft-cmp-publish { grid-area: publish; display: flex; flex-direction: column; gap: 13px; min-width: 0; }
