@@ -534,11 +534,50 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     const keep = shown ? members.get(shown) : undefined;
     for (const child of grid.children) {
       const node = child as HTMLElement;
+      // While printing, everything shows: every tab and every folded section, each section on a page of its own.
+      if (printing) {
+        node.hidden = false;
+        continue;
+      }
       const bySection = keep ? !keep.has(node) : false;
       const parent = sectionOf.get(node);
       node.hidden = bySection || Boolean(parent && folded.has(parent));
     }
   }
+
+  /** True between beforeprint and afterprint: the board shows every section and tab, folded or not. */
+  let printing = false;
+  /**
+   * Gets the board ready for paper: the cards of folded sections are drawn (with the filters in force), and every
+   * section and tab shows. Returns once those cards are drawn. The screen state comes back on afterprint.
+   */
+  async function preparePrint(): Promise<void> {
+    if (printing) return;
+    printing = true;
+    root.dataset.printing = "";
+    const drawn: [string, Widget][] = [];
+    for (const [id, draw] of [...waiting]) {
+      waiting.delete(id);
+      drawn.push([id, draw()]);
+    }
+    applyVisibility();
+    void writeState();
+    if (settled) await Promise.all(drawn.map(async ([id, widget]) => widget.setSpec(await specFor(id))));
+    else await Promise.all(drawn.map(([, widget]) => widget.ready));
+  }
+  /** Back to the screen: the tab and the folds as they were before printing. */
+  function endPrint() {
+    if (!printing) return;
+    printing = false;
+    delete root.dataset.printing;
+    applyVisibility();
+    void writeState();
+  }
+  const printView = target.ownerDocument.defaultView;
+  const onBeforePrint = () => void preparePrint();
+  const onAfterPrint = () => endPrint();
+  printView?.addEventListener("beforeprint", onBeforePrint);
+  printView?.addEventListener("afterprint", onAfterPrint);
 
   /** Opens or folds a section the spec folds. Its cards draw the first time it opens, with the filters in force. */
   async function setFolded(section: HTMLElement, shut: boolean) {
@@ -890,7 +929,11 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
         const fields = (await rawFields.get(id)) ?? new Set<string>();
         const missed = Object.keys(filters).filter((field) => !fields.has(field)).map(filterName);
         if (range && period !== "All" && !rangeFields.some((field) => fields.has(field))) missed.push(range.label ?? B.period);
-        if (cross && cross.source !== id && !fields.has(cross.field) && follows.get(id)?.follow.field !== cross.field) missed.push(fieldLabel(cross.field));
+        // The click filter is for the cards that carry its field, or follow it; a card it does not reach says so on its
+        // own pill (on hover), but the line under the filter row speaks only of the row's filters and the period.
+        const crossMissed = cross && cross.source !== id && !fields.has(cross.field) && follows.get(id)?.follow.field !== cross.field ? fieldLabel(cross.field) : undefined;
+        const lineNames = [...new Set(missed)];
+        if (crossMissed) missed.push(crossMissed);
         let note = slot.querySelector<HTMLElement>(":scope > .fft-unfiltered");
         if (!missed.length) {
           note?.remove();
@@ -904,12 +947,12 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
         const names = [...new Set(missed)];
         note.textContent = B.notFilteredBy(names);
         slot.dataset.unfiltered = "";
-        for (const name of names) missedBy.set(name, [...(missedBy.get(name) ?? []), id]);
+        for (const name of lineNames) missedBy.set(name, [...(missedBy.get(name) ?? []), id]);
       }),
     );
     // One line, in filter order: "Segment does not apply to 7 cards · Period does not apply to 3 cards".
     unreached.replaceChildren();
-    const order = [...Object.keys(filters).map(filterName), range?.label ?? B.period, ...(cross ? [fieldLabel(cross.field)] : [])];
+    const order = [...Object.keys(filters).map(filterName), range?.label ?? B.period];
     const rank = (name: string) => (order.indexOf(name) < 0 ? order.length : order.indexOf(name));
     const ids = [...slots.keys()];
     for (const [name, missing] of [...missedBy].sort((a, b) => rank(a[0]) - rank(b[0]))) {
@@ -939,7 +982,9 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     const asOfLine = asOf ? asOfText(spec.asOf as string, range ? await drawnLatest() : "", boardLocale) : "";
     paintFiltersToggle();
     if (asOf) asOf.textContent = asOfLine;
-    printState.textContent = [spec.title, parts.length ? parts.join(" · ") : B.unfiltered, asOfLine].filter(Boolean).join(" · ");
+    // A printout of a board that folds or tabs sections away holds every one of them, and says so.
+    const all = printing && (foldable.size > 0 || tabs) ? C.printedAll : "";
+    printState.textContent = [spec.title, parts.length ? parts.join(" · ") : B.unfiltered, all, asOfLine].filter(Boolean).join(" · ");
     await markUnreached();
   }
 
@@ -1189,12 +1234,14 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     }
     item(B.print, B.printTitle, () => {
       close(true);
-      void writeState();
-      try {
-        doc.defaultView?.print();
-      } catch {
-        // No print dialog here (a test page, a locked-down browser): nothing to do.
-      }
+      // Every section and tab drawn first, so the printout has them all; the browser's afterprint restores the screen.
+      void preparePrint().then(() => {
+        try {
+          doc.defaultView?.print();
+        } catch {
+          // No print dialog here (a test page, a locked-down browser): nothing to do.
+        }
+      });
     });
     button.addEventListener("click", () => (menu.hidden ? open() : close(false)));
     button.addEventListener("keydown", (event) => {
@@ -1326,6 +1373,8 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     },
     destroy() {
       doc.defaultView?.removeEventListener("hashchange", onHash);
+      printView?.removeEventListener("beforeprint", onBeforePrint);
+      printView?.removeEventListener("afterprint", onAfterPrint);
       doc.removeEventListener("keydown", onKey);
       grid.removeEventListener("fft-select", onSelect);
       grid.removeEventListener("pointerdown", pressed, true);
