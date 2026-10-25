@@ -5,7 +5,7 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { ChordView } from "../../core/views.ts";
 import { polar, sectorPath } from "../layout.ts";
 import { hiddenTableOf, html, selectable, shareFormat, svg } from "./shared.ts";
-import { categoryColor, emphasis, WORDS } from "./words.ts";
+import { categoryColor, emphasis, wordsFor } from "./words.ts";
 import { roving } from "./focus.ts";
 
 const FULL = Math.PI * 2;
@@ -99,7 +99,7 @@ export const renderChord: ViewRenderer<ChordView> = (ctx) => {
   const wrap = html(doc, "div", "fft-chart fft-chord");
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Chord diagram of ${ctx.label(value)} from ${ctx.label(source)} to ${ctx.label(target)}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.chord(ctx.label(value), ctx.label(source), ctx.label(target)));
   const ribbons: SVGPathElement[] = [];
   const deactivate = () => {
     wrap.removeAttribute("data-active");
@@ -121,14 +121,14 @@ export const renderChord: ViewRenderer<ChordView> = (ctx) => {
     const [a0, a1, b0, b1] = [p(f.from0), p(f.from1), p(f.to0), p(f.to1)];
     const big = (span: number) => (span > Math.PI ? 1 : 0);
     const d = `M${a0.x},${a0.y}A${r},${r} 0 ${big(f.from1 - f.from0)} 1 ${a1.x},${a1.y}Q${cx},${cy} ${b0.x},${b0.y}A${r},${r} 0 ${big(f.to1 - f.to0)} 1 ${b1.x},${b1.y}Q${cx},${cy} ${a0.x},${a0.y}Z`;
-    const flowName = `${names.get(f.from)} ${WORDS.to} ${names.get(f.to)}`;
+    const flowName = `${names.get(f.from)} ${wordsFor(ctx).to} ${names.get(f.to)}`;
     const ribbon = svg(doc, "path", { class: "fft-chord-ribbon", d, "data-flow": flowName, style: `--fft-i: ${i}` });
     ribbon.style.fill = colorOf(f.from);
     chart.append(ribbon);
     ribbons.push(ribbon);
     const items: TooltipItem[] = [
       { label: ctx.label(value), value: amountText(f.value), color: colorOf(f.from) },
-      { label: WORDS.shareOfAll, value: share.format(f.value / moves) },
+      { label: wordsFor(ctx).shareOfAll, value: share.format(f.value / moves) },
     ];
     const hit = svg(doc, "path", { class: "fft-chord-hit", d, "data-flow": flowName, tabindex: 0, role: "img" });
     hit.setAttribute("aria-label", `${flowName}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
@@ -157,8 +157,8 @@ export const renderChord: ViewRenderer<ChordView> = (ctx) => {
     label.textContent = name;
     chart.append(label);
     const items: TooltipItem[] = [
-      { label: WORDS.sends, value: amountText(sent(g)), color: colorOf(g) },
-      { label: WORDS.receives, value: amountText(received(g)) },
+      { label: wordsFor(ctx).sends, value: amountText(sent(g)), color: colorOf(g) },
+      { label: wordsFor(ctx).receives, value: amountText(received(g)) },
     ];
     const hit = svg(doc, "path", { class: "fft-chord-arc-hit", d: sectorPath(cx, cy, inner - 3, outer + 5, arc.start, arc.end), "data-group": g, tabindex: 0, role: "img" });
     hit.setAttribute("aria-label", `${name}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);

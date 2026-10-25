@@ -6,6 +6,7 @@ import { quantize } from "../layout.ts";
 import { activeGroup, DAY, dayOf, hiddenTable, html, selectable, svg } from "./shared.ts";
 import { drawsScaleKey, sharedRange } from "./facet-key.ts";
 import { roving } from "./focus.ts";
+import { wordsFor } from "./words.ts";
 
 const STEPS = 7;
 
@@ -26,7 +27,7 @@ export const renderCalendar: ViewRenderer<CalendarView> = (ctx) => {
   if (!keys.length) {
     // No dated row: say what is missing rather than drawing an empty grid of no width.
     const empty = html(doc, "div", "fft-heat");
-    empty.append(html(doc, "p", "fft-empty-note", `No row has a date in ${ctx.label(date)}.`));
+    empty.append(html(doc, "p", "fft-empty-note", wordsFor(ctx).noRowDate(ctx.label(date))));
     ctx.el.append(empty);
     return;
   }
@@ -56,7 +57,7 @@ export const renderCalendar: ViewRenderer<CalendarView> = (ctx) => {
   const wrap = html(doc, "div", "fft-heat");
   const chart = svg(doc, "svg", { class: "fft-calendar", width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Calendar of ${ctx.label(value)} by day`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.calendar(ctx.label(value)));
   // While one day is pointed at, the others step back.
   const group = activeGroup(chart, ctx.tooltip);
   // Weekday labels on Monday, Wednesday and Friday rows (1970-01-05 was a Monday).

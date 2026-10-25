@@ -7,6 +7,7 @@ import { DEEMPHASIS } from "./chart.ts";
 import { drawReferences } from "./reference.ts";
 import { categoryLabel, hiddenTableOf, html, legendList, selectable, shareFormat, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
+import { wordsFor } from "./words.ts";
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
@@ -38,8 +39,8 @@ export const renderPareto: ViewRenderer<ParetoView> = (ctx) => {
 
   const wrap = html(doc, "div", "fft-chart");
   const legend = legendList(ctx, [
-    { label: "Share", shape: "rect", color: hue },
-    { label: "Running total", shape: "line", color: "var(--fft-text-secondary)" },
+    { label: wordsFor(ctx).share, shape: "rect", color: hue },
+    { label: wordsFor(ctx).runningTotal, shape: "line", color: "var(--fft-text-secondary)" },
   ]);
   if (legend) wrap.append(legend);
 
@@ -58,7 +59,7 @@ export const renderPareto: ViewRenderer<ParetoView> = (ctx) => {
 
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Pareto chart of ${ctx.label(value)} by ${ctx.label(label)}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.pareto(ctx.label(value), ctx.label(label)));
   for (const tick of y.ticks) {
     const ty = y(tick);
     chart.append(svg(doc, "line", { class: tick === 0 ? "fft-baseline" : "fft-gridline", x1: plot.x, x2: plot.x + plot.w, y1: ty, y2: ty }));
@@ -110,8 +111,8 @@ export const renderPareto: ViewRenderer<ParetoView> = (ctx) => {
     if (!it) return;
     const items: TooltipItem[] = [
       { label: ctx.label(value), value: ctx.format(it.row[value], value), color: i < vital ? (ctx.colorOf?.(it.row[label]) ?? hue) : DEEMPHASIS },
-      { label: "Share", value: percent.format(it.share) },
-      { label: "Running total", value: percent.format(it.cumulative) },
+      { label: wordsFor(ctx).share, value: percent.format(it.share) },
+      { label: wordsFor(ctx).runningTotal, value: percent.format(it.cumulative) },
     ];
     const hit = svg(doc, "rect", { class: "fft-hit", x: slot.start, y: plot.y, width: slot.width, height: plot.h, tabindex: 0, role: "img" });
     hit.setAttribute("aria-label", `${it.name}: ${items.map((item) => `${item.label} ${item.value}`).join(", ")}`);
@@ -132,7 +133,7 @@ export const renderPareto: ViewRenderer<ParetoView> = (ctx) => {
   chart.append(overlay);
   roving([...overlay.children]);
   wrap.append(chart);
-  if (!shares.length) wrap.append(html(doc, "p", "fft-empty-note", `No ${ctx.label(label).toLowerCase()} has a positive ${ctx.label(value).toLowerCase()}.`));
+  if (!shares.length) wrap.append(html(doc, "p", "fft-empty-note", wordsFor(ctx).nonePositive(ctx.label(label).toLowerCase(), ctx.label(value).toLowerCase())));
   wrap.append(hiddenTableOf(ctx, shares.map((it) => it.row), [label, value]));
   ctx.el.append(wrap);
 };

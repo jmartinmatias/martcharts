@@ -7,7 +7,7 @@ import { roving } from "./focus.ts";
 import { ensureRagGridStyles, ragColor, ragMark, srText } from "./rag-shared.ts";
 import type { RagLook } from "./rag-shared.ts";
 import { fieldList, html, selectable, textWidth } from "./shared.ts";
-import { WORDS } from "./words.ts";
+import { wordsFor } from "./words.ts";
 
 /** The column key of the overall (worst-of) status. */
 const OVERALL = "\u0000overall";
@@ -30,8 +30,8 @@ interface Line {
 export const renderRagboard: ViewRenderer<RagboardView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
   const view = ctx.view;
-  const look: RagLook = { words: view.words, shapes: view.shapes };
-  const word = (status: Rag) => ragWord(status, look.words);
+  const look: RagLook = { words: view.words, shapes: view.shapes, locale: ctx.spec.locale };
+  const word = (status: Rag) => ragWord(status, look.words, look.locale);
   const dims = fieldList(view.dimensions);
   const previousOf = (view.previous && typeof view.previous === "object" ? view.previous : {}) as Record<string, string>;
   const overall = view.overall !== false;
@@ -53,7 +53,7 @@ export const renderRagboard: ViewRenderer<RagboardView> = (ctx) => {
   else if (order === "name") lines.sort((a, b) => a.name.localeCompare(b.name, ctx.spec.locale));
 
   // The columns: Overall first (the one to act on), then each dimension.
-  const columns = [...(overall ? [{ key: OVERALL, title: WORDS.overall }] : []), ...dims.map((field) => ({ key: field, title: ctx.label(field) }))];
+  const columns = [...(overall ? [{ key: OVERALL, title: wordsFor(ctx).overall }] : []), ...dims.map((field) => ({ key: field, title: ctx.label(field) }))];
   const statusAt = (line: Line, c: number): Rag => (overall ? (c === 0 ? line.overall : (line.statuses[c - 1] as Rag)) : (line.statuses[c] as Rag));
   const previousAt = (line: Line, c: number): Rag | undefined => {
     const d = overall ? c - 1 : c;
@@ -68,7 +68,7 @@ export const renderRagboard: ViewRenderer<RagboardView> = (ctx) => {
   const rowCounts = ragCounts(lines.map((line) => line.overall));
   const share = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 0 });
   const summary = html(doc, "ul", "fft-rag-summary");
-  summary.setAttribute("aria-label", WORDS.rowsByStatus(lines.length));
+  summary.setAttribute("aria-label", wordsFor(ctx).rowsByStatus(lines.length));
   for (const status of RAG_ORDER) {
     const n = overall ? rowCounts[status] : counts[status];
     const total = overall ? rowCounts.total : counts.total;
@@ -143,7 +143,7 @@ export const renderRagboard: ViewRenderer<RagboardView> = (ctx) => {
     const body = html(doc, "tbody");
     if (groupField) {
       const tr = html(doc, "tr", "fft-rag-group");
-      const th = html(doc, "th", undefined, groupName || WORDS.other);
+      const th = html(doc, "th", undefined, groupName || wordsFor(ctx).other);
       th.scope = "colgroup";
       th.colSpan = columns.length + 1;
       tr.append(th);
@@ -179,11 +179,11 @@ export const renderRagboard: ViewRenderer<RagboardView> = (ctx) => {
           mark.setAttribute("aria-hidden", "true");
           td.append(mark);
         }
-        const change = trend === "same" ? "" : WORDS.movedSince(trend === "improved", word(before as Rag));
+        const change = trend === "same" ? "" : wordsFor(ctx).movedSince(trend === "improved", word(before as Rag));
         td.append(srText(doc, `${word(status)}${change}`));
         const items: TooltipItem[] = [{ label: column.title, value: word(status), color: ragColor(status) }];
-        if (before !== undefined) items.push({ label: WORDS.lastPeriod, value: word(before), color: ragColor(before) });
-        if (trend !== "same") items.push({ label: WORDS.change, value: trend === "improved" ? WORDS.better : WORDS.worse });
+        if (before !== undefined) items.push({ label: wordsFor(ctx).lastPeriod, value: word(before), color: ragColor(before) });
+        if (trend !== "same") items.push({ label: wordsFor(ctx).change, value: trend === "improved" ? wordsFor(ctx).better : wordsFor(ctx).worse });
         const show = () => {
           table.setAttribute("data-active", "");
           for (const other of rowsOut) other.removeAttribute("data-active");
@@ -207,7 +207,7 @@ export const renderRagboard: ViewRenderer<RagboardView> = (ctx) => {
   // The footer: each column's count of off track, at risk and on track, shapes and figures.
   const foot = html(doc, "tfoot");
   const footRow = html(doc, "tr", "fft-rag-foot");
-  const footHead = html(doc, "th", undefined, WORDS.count);
+  const footHead = html(doc, "th", undefined, wordsFor(ctx).count);
   footHead.scope = "row";
   footRow.append(footHead);
   columns.forEach((_, c) => {
@@ -223,7 +223,7 @@ export const renderRagboard: ViewRenderer<RagboardView> = (ctx) => {
       td.append(part);
       said.push(`${tally[status]} ${word(status).toLowerCase()}`);
     }
-    td.append(srText(doc, said.join(", ") || WORDS.noStatus));
+    td.append(srText(doc, said.join(", ") || wordsFor(ctx).noStatus));
     footRow.append(td);
   });
   foot.append(footRow);
@@ -236,7 +236,7 @@ export const renderRagboard: ViewRenderer<RagboardView> = (ctx) => {
   if (shown) {
     const left = RAG_ORDER.filter((status) => !shown.has(status)).map((status) => [status, lines.filter((line) => line.overall === status).length] as const).filter(([, n]) => n > 0);
     if (left.length) {
-      const fold = html(doc, "p", "fft-rag-fold", WORDS.andMore(left.map(([status, n]) => `${n} ${word(status).toLowerCase()}`)));
+      const fold = html(doc, "p", "fft-rag-fold", wordsFor(ctx).andMore(left.map(([status, n]) => `${n} ${word(status).toLowerCase()}`)));
       wrap.append(fold);
     }
   }

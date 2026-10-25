@@ -12,7 +12,7 @@ import type { Row } from "../../core/types.ts";
 import type { ViewContext } from "../../core/view-context.ts";
 import { buildSkeleton } from "../states.ts";
 import { html, legendList, svg, textWidth } from "./shared.ts";
-import { WORDS } from "./words.ts";
+import { WORDS, type Words } from "./words.ts";
 
 /** Air around the map inside its box. */
 export const MAP_PAD = 8;
@@ -160,8 +160,8 @@ export function labelFits(shape: ProjectedShape, text: string): boolean {
 }
 
 /** The words that key a group's color: the value as formatted, or "Other" for a blank. */
-export function groupName(value: unknown, format: (value: unknown) => string): string {
-  return value === null || value === undefined || value === "" ? WORDS.other : format(value);
+export function groupName(value: unknown, format: (value: unknown) => string, words: Words = WORDS): string {
+  return value === null || value === undefined || value === "" ? words.other : format(value);
 }
 
 /**
@@ -173,8 +173,8 @@ export function dotLegend(ctx: ViewContext<{ type: string }>, entries: { name: s
 }
 
 /** A note under the map for rows it could not place. */
-export function unplacedNote(doc: Document, count: number): HTMLElement | undefined {
-  return count ? html(doc, "p", "fft-map-note", WORDS.notPlaced(count)) : undefined;
+export function unplacedNote(doc: Document, count: number, words: Words = WORDS): HTMLElement | undefined {
+  return count ? html(doc, "p", "fft-map-note", words.notPlaced(count)) : undefined;
 }
 
 /** The point on a circle's edge toward another point, for leader lines. */

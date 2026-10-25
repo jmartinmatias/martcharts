@@ -6,6 +6,7 @@ import { linearScale, swarm } from "../layout.ts";
 import { tickFormatter } from "./chart.ts";
 import { activeGroup, hiddenTableOf, html, roving, rowHit, svg } from "./shared.ts";
 import { edgeAnchor, edgeX, nameColumn, writeLabel } from "./label-fit.ts";
+import { wordsFor } from "./words.ts";
 
 const RADIUS = 4;
 
@@ -55,7 +56,7 @@ export const renderBeeswarm: ViewRenderer<BeeswarmView> = (ctx) => {
   const wrap = html(doc, "div", "fft-chart");
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Beeswarm of ${ctx.label(value)}${group ? ` by ${ctx.label(group)}` : ""}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.beeswarm(ctx.label(value), group ? ctx.label(group) : undefined));
   for (const tick of x.ticks) {
     const tx = x(tick);
     chart.append(svg(doc, "line", { class: "fft-gridline", x1: tx, x2: tx, y1: margin.top, y2: margin.top + plotHeight }));

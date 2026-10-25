@@ -5,7 +5,7 @@ import type { GaugeView } from "../../core/views.ts";
 import { countable } from "../count-up.ts";
 import { arcPath, niceTicks, polar } from "../layout.ts";
 import { hiddenTableOf, html, roving, selectable, shareFormat, svg } from "./shared.ts";
-import { WORDS } from "./words.ts";
+import { wordsFor } from "./words.ts";
 import { checkMark, standing } from "./target.ts";
 
 const HALF = Math.PI / 2;
@@ -39,7 +39,7 @@ export const renderGauge: ViewRenderer<GaugeView> = (ctx) => {
   const wrap = html(doc, "div", "fft-gauge");
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Gauge of ${ctx.label(field)} from ${show(min)} to ${show(max)}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.gauge(ctx.label(field), show(min), show(max)));
   chart.style.setProperty("--fft-gauge-color", ctx.color(0));
   const track = arcPath(c, c, r, -HALF, HALF);
   chart.append(svg(doc, "path", { class: "fft-gauge-track", d: track, "stroke-width": thickness }));
@@ -54,7 +54,7 @@ export const renderGauge: ViewRenderer<GaugeView> = (ctx) => {
     const at = polar(c, c, r - thickness / 2 - 13, angle(ratio(goal)));
     const side = ratio(goal) < 0.4 ? "start" : ratio(goal) > 0.6 ? "end" : "middle";
     const name = svg(doc, "text", { class: "fft-gauge-goal", x: at.x, y: at.y, "text-anchor": side, "dominant-baseline": "middle" });
-    name.textContent = `${target ? ctx.label(target) : WORDS.target} ${show(goal)}`;
+    name.textContent = `${target ? ctx.label(target) : wordsFor(ctx).target} ${show(goal)}`;
     chart.append(name);
   }
   const number = svg(doc, "text", { class: "fft-gauge-value", x: c, y: c - 6, "text-anchor": "middle" });
@@ -74,7 +74,7 @@ export const renderGauge: ViewRenderer<GaugeView> = (ctx) => {
   const items: TooltipItem[] = [{ label: ctx.label(field), value: show(row[field]), color: ctx.color(0) }];
   if (target && goal !== null) {
     items.push({ label: ctx.label(target), value: hasFormat || ctx.spec.fields?.[target]?.format ? ctx.format(row[target], target) : show(goal) });
-    if (value !== null && goal !== 0) items.push({ label: WORDS.ofTarget, value: shareFormat(ctx.spec.locale).format(value / goal) });
+    if (value !== null && goal !== 0) items.push({ label: wordsFor(ctx).ofTarget, value: shareFormat(ctx.spec.locale).format(value / goal) });
   }
   const hit = svg(doc, "path", { class: "fft-gauge-hit", d: track, "stroke-width": thickness + 8, tabindex: 0, role: "img" });
   hit.setAttribute("aria-label", items.map((it) => `${it.label} ${it.value}`).join(", "));

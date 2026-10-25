@@ -2,7 +2,7 @@ import { readNumber } from "../../core/formats.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { SymbolsView } from "../../core/views.ts";
 import { evenFormat, hiddenTableOf, html, selectable, svg, textWidth } from "./shared.ts";
-import { categoryColor, emphasis, WORDS } from "./words.ts";
+import { categoryColor, emphasis, wordsFor } from "./words.ts";
 import { roving } from "./focus.ts";
 import { dotLegend, groupName, mapCanvas, mapFrame, placeRows, unplacedNote, withGeo } from "./map-shared.ts";
 
@@ -24,7 +24,7 @@ export const renderSymbols: ViewRenderer<SymbolsView> = (ctx) =>
     const key = ctx.view.key ?? "id";
     const frame = collection ? mapFrame(ctx, collection, key) : undefined;
     if (!frame) {
-      ctx.el.append(html(doc, "p", "fft-map-note", WORDS.noGeometry));
+      ctx.el.append(html(doc, "p", "fft-map-note", wordsFor(ctx).noGeometry));
       return;
     }
     const { width, height, projection } = frame;
@@ -43,7 +43,7 @@ export const renderSymbols: ViewRenderer<SymbolsView> = (ctx) =>
     const groupKeys: unknown[] = [];
     const groupOf = (row: Record<string, unknown>) => {
       if (!color) return 0;
-      const text = groupName(row[color], (v) => ctx.format(v, color));
+      const text = groupName(row[color], (v) => ctx.format(v, color), wordsFor(ctx));
       if (!groups.includes(text)) {
         groups.push(text);
         groupKeys.push(row[color]);
@@ -59,7 +59,7 @@ export const renderSymbols: ViewRenderer<SymbolsView> = (ctx) =>
     const amountText = evenFormat(ctx, size, sized.map((p) => p.amount));
 
     const wrap = html(doc, "div", "fft-chart fft-map-wrap");
-    const canvas = mapCanvas(doc, width, height, `Symbol map of ${ctx.label(size)}${label ? ` by ${ctx.label(label)}` : ""}`, collection, projection.shapes);
+    const canvas = mapCanvas(doc, width, height, wordsFor(ctx).aria.symbols(ctx.label(size), label ? ctx.label(label) : undefined), collection, projection.shapes);
     const layer = svg(doc, "g", { class: "fft-map-symbols" });
     const marks: SVGCircleElement[] = [];
     const deactivate = () => {
@@ -77,7 +77,7 @@ export const renderSymbols: ViewRenderer<SymbolsView> = (ctx) =>
       const title = p.name || p.shape?.name || "";
       const items: TooltipItem[] = [{ label: ctx.label(size), value: amountText(p.amount), color: paint }];
       if (color) items.push({ label: ctx.label(color), value: groups[group] as string });
-      if (p.shape && p.name && p.name !== p.shape.name) items.push({ label: WORDS.region, value: p.shape.name });
+      if (p.shape && p.name && p.name !== p.shape.name) items.push({ label: wordsFor(ctx).region, value: p.shape.name });
       circle.setAttribute("aria-label", `${title}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
       const activate = () => {
         wrap.setAttribute("data-active", "");
@@ -108,7 +108,7 @@ export const renderSymbols: ViewRenderer<SymbolsView> = (ctx) =>
       const keyHeight = big * 2 + 4;
       const sizeKey = svg(doc, "svg", { class: "fft-map-sizekey", width: keyWidth, height: keyHeight, viewBox: `0 0 ${keyWidth} ${keyHeight}` });
       sizeKey.setAttribute("role", "img");
-      sizeKey.setAttribute("aria-label", WORDS.circleSize(ctx.label(size), amountText(largest)));
+      sizeKey.setAttribute("aria-label", wordsFor(ctx).circleSize(ctx.label(size), amountText(largest)));
       const cx = big + 2;
       const bottom = keyHeight - 2;
       for (const [r, amount] of [
@@ -131,7 +131,7 @@ export const renderSymbols: ViewRenderer<SymbolsView> = (ctx) =>
     const columns = [ctx.view.id ?? label ?? "", label && label !== ctx.view.id ? label : "", size, color ?? ""].filter((c, i, all) => c && all.indexOf(c) === i);
     const hidden = hiddenTableOf(ctx, ctx.rows, columns);
     wrap.append(canvas, keys);
-    const note = unplacedNote(doc, unplaced);
+    const note = unplacedNote(doc, unplaced, wordsFor(ctx));
     if (note) wrap.append(note);
     wrap.append(hidden);
     ctx.el.append(wrap);

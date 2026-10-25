@@ -11,6 +11,8 @@ import { hiddenTableOf, html, svg } from "./shared.ts";
 import { targetLine } from "./target.ts";
 import { ragFromValue } from "../../core/rag.ts";
 import { ragPill } from "./rag-shared.ts";
+import { WORDS, wordsFor } from "./words.ts";
+import type { Words } from "./words.ts";
 
 /** Sparkline height in pixels: a Fibonacci step. */
 const SPARK_HEIGHT = 34;
@@ -22,13 +24,13 @@ export const NO_VALUE = "\u2014";
  * The headline figure: the value as text, counting up when it is a number. A missing value shows a quiet dash and
  * says "No value" to screen readers, never an empty box.
  */
-export function figure(doc: Document, className: string, value: unknown, show: (v: unknown) => string): HTMLElement {
+export function figure(doc: Document, className: string, value: unknown, show: (v: unknown) => string, words: Words = WORDS): HTMLElement {
   const amount = readNumber(value);
   const text = amount === null ? "" : show(value);
   if (!text) {
     const empty = html(doc, "div", className, NO_VALUE);
     empty.dataset.empty = "";
-    empty.setAttribute("aria-label", "No value");
+    empty.setAttribute("aria-label", words.noValue);
     return empty;
   }
   const number = html(doc, "div", className, text);
@@ -71,22 +73,22 @@ export const renderKpi: ViewRenderer<KpiView> = (ctx) => {
     tile.append(glyph);
     box.append(tile);
   }
-  box.append(html(doc, "div", "fft-kpi-label", label ?? ctx.label(field)), figure(doc, "fft-kpi-value", value, show));
+  box.append(html(doc, "div", "fft-kpi-label", label ?? ctx.label(field)), figure(doc, "fft-kpi-value", value, show, wordsFor(ctx)));
 
   const now = readNumber(value);
   // With RAG thresholds, a pill says where the number stands: its shape and its words, never color alone.
-  if (ctx.view.rag && now !== null) box.append(ragPill(doc, ragFromValue(now, ctx.view.rag), {}, "fft-kpi-rag"));
+  if (ctx.view.rag && now !== null) box.append(ragPill(doc, ragFromValue(now, ctx.view.rag), { locale: ctx.spec.locale }, "fft-kpi-rag"));
   const before = compare ? readNumber(row[compare]) : previous ? readNumber(previous[field]) : null;
   if (now !== null && before !== null && before !== 0) {
     const fallbackLabel = compare
-      ? `vs ${ctx.label(compare)}`
+      ? wordsFor(ctx).versus(ctx.label(compare))
       : x && previous
-        ? `vs ${ctx.format(previous[x], x)}`
+        ? wordsFor(ctx).versus(ctx.format(previous[x], x))
         : "vs previous period";
     box.append(deltaElement(doc, (now - before) / Math.abs(before), goodWhen, ctx.view.compareLabel ?? fallbackLabel, ctx.spec.locale));
   }
   // With a target, one plain line says where the latest stands: met, or how far it has to go (or, when lower is better, how far above).
-  const line = targetLine(doc, "fft-kpi-target", now, target ? readNumber(row[target]) : null, goodWhen, show);
+  const line = targetLine(doc, "fft-kpi-target", now, target ? readNumber(row[target]) : null, goodWhen, show, wordsFor(ctx));
   if (line) box.append(line);
   if (series && rows.length > 1) {
     box.append(sparkline(ctx, rows.map((r) => readNumber(r[field])), ctx.width, trendColor(ctx, field, label)));

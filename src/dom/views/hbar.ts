@@ -5,6 +5,7 @@ import type { HbarView } from "../../core/views.ts";
 import { DEEMPHASIS, highlights } from "./chart.ts";
 import { activeGroup, endRoom, fieldList, hiddenTableOf, html, legendList, rowHit, shareFormat, textWidth } from "./shared.ts";
 import { roving } from "./focus.ts";
+import { wordsFor } from "./words.ts";
 
 /** A bar's share of the track, as a CSS width: 0% for nothing, missing values or a zero scale. */
 const widthOf = (amount: number | null, max: number) => `${amount === null || amount <= 0 || max === 0 ? 0 : Math.round((amount / max) * 1000) / 10}%`;
@@ -206,7 +207,7 @@ function renderStacked(ctx: ViewContext<HbarView>, series: string[]): void {
     const totalText = ctx.format(total, series[0]);
     // A percent stack's end would only ever say 100%, so the shares are written inside the parts instead.
     item.append(nameLabel(doc, name), track, ...(percent ? [] : [html(doc, "span", "fft-hbar-value", totalText)]));
-    wire(item, row, name, lines, track, percent ? "" : `, total ${totalText}`);
+    wire(item, row, name, lines, track, percent ? "" : wordsFor(ctx).totalSaid(totalText));
     list.append(item);
   });
   finish();

@@ -4,7 +4,7 @@ import type { RadarView } from "../../core/views.ts";
 import { niceTicks, polar, sectorPath } from "../layout.ts";
 import { tickFormatter } from "./chart.ts";
 import { fieldList, hiddenTableOf, html, legendList, selectable, svg } from "./shared.ts";
-import { categoryColor, emphasis } from "./words.ts";
+import { categoryColor, emphasis, wordsFor } from "./words.ts";
 import { roving } from "./focus.ts";
 
 const FULL = Math.PI * 2;
@@ -49,7 +49,7 @@ export const renderRadar: ViewRenderer<RadarView> = (ctx) => {
   if (key) wrap.append(key);
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Radar chart of ${series.map((f) => ctx.label(f)).join(", ")} across ${ctx.label(label)}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.radar(series.map((f) => ctx.label(f)).join(", "), ctx.label(label)));
 
   // Ring values sit half a spoke round from the first spoke, in the gap, clear of every data point.
   const gap = Math.PI / Math.max(1, n);

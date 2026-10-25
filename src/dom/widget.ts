@@ -25,6 +25,8 @@ import { fillTemplate, hasTemplate } from "../core/template.ts";
 import { renderHeadline } from "./headline.ts";
 import { goldenHeight } from "./layout.ts";
 import { buildSkeleton, skeletonShape, stateIcon } from "./states.ts";
+import { wordsFor } from "../core/words.ts";
+import type { Words } from "../core/words.ts";
 import { applyStyle, ensureStyles, paletteSize } from "./styles.ts";
 
 /** Options for `createWidget`. */
@@ -115,6 +117,9 @@ let count = 0;
  * widget.update({ view: { type: "table" } });
  */
 export function createWidget(target: HTMLElement, spec: WidgetSpec, options: WidgetOptions = {}): Widget {
+  // The widget's own words, in the language of its locale (kept in step with the spec as it changes).
+  let speaks = spec.locale;
+  const W = (): Words => wordsFor(speaks);
   const doc = target.ownerDocument;
   ensureStyles(doc);
   const id = `fft-${++count}`;
@@ -204,15 +209,15 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     if (!more || !menu) {
       more = make("button", "fft-action fft-more");
       more.type = "button";
-      more.setAttribute("aria-label", "More actions");
-      more.title = "More actions";
+      more.setAttribute("aria-label", W().widget.moreActions);
+      more.title = W().widget.moreActions;
       more.setAttribute("aria-haspopup", "menu");
       more.setAttribute("aria-expanded", "false");
       more.append(icon(["M5 12h.01", "M12 12h.01", "M19 12h.01"]));
       menu = make("div", "fft-menu");
       menu.id = `${id}-menu`;
       menu.setAttribute("role", "menu");
-      menu.setAttribute("aria-label", "More actions");
+      menu.setAttribute("aria-label", W().widget.moreActions);
       menu.hidden = true;
       more.setAttribute("aria-controls", menu.id);
       more.addEventListener("click", () => setMenu(Boolean(menu?.hidden)));
@@ -272,7 +277,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     } else if (event.key === "Tab") setMenu(false);
   }
   for (const action of options.actions ?? []) {
-    const button = actionButton(ACTION_LABELS[action], ACTION_ICONS[action]);
+    const button = actionButton(W().widget.actions[action] ?? ACTION_LABELS[action], ACTION_ICONS[action]);
     button.dataset.action = action;
     if (action === "explain") {
       button.setAttribute("aria-expanded", String(!guide.hidden));
@@ -314,7 +319,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
   back.id = `${id}-back`;
   back.hidden = true;
   back.setAttribute("role", "region");
-  back.setAttribute("aria-label", "Details");
+  back.setAttribute("aria-label", W().widget.details);
   root.append(back);
   let turning = false;
   const canTurn = (options.actions ?? []).includes("info");
@@ -342,9 +347,9 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     const view = typeof drawView()?.type === "string" ? drawView().type : "";
     const entry = view ? describeChart(view) : undefined;
     const kicker = make("p", "fft-back-kicker");
-    kicker.textContent = "Details";
+    kicker.textContent = W().widget.details;
     const heading = make("h3", "fft-back-title");
-    heading.textContent = title.textContent || current.id || "Widget";
+    heading.textContent = title.textContent || current.id || W().widget.widget;
     const parts: Node[] = [kicker, heading];
     if (current.description) {
       const about = make("p", "fft-back-about");
@@ -353,16 +358,16 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     }
 
     const list = make("dl", "fft-back-list");
-    detail(list, "Answers", questionOf(current, rows).text);
-    detail(list, "Chart", entry ? `${view}: ${entry.summary}` : view);
+    detail(list, W().widget.answers, questionOf(current, rows).text);
+    detail(list, W().widget.chart, entry ? `${view}: ${entry.summary}` : view);
     const data = current.data ?? { type: "" };
     const address = typeof data.url === "string" ? data.url : undefined;
-    detail(list, "Data", address ? link(address, address) : data.type === "inline" ? "Written into the spec" : data.type === "fn" ? "Loaded by the page's own code" : data.type);
-    if (typeof data.path === "string") detail(list, "Inside", data.path);
+    detail(list, W().widget.data, address ? link(address, address) : data.type === "inline" ? W().widget.writtenInSpec : data.type === "fn" ? W().widget.loadedByPage : data.type);
+    if (typeof data.path === "string") detail(list, W().widget.inside, data.path);
     const steps = (current.transform ?? []).map((step) => step.type);
-    detail(list, "Steps", steps.length ? steps.join(" → ") : undefined);
+    detail(list, W().widget.steps, steps.length ? steps.join(" → ") : undefined);
     const names = [...new Set(rows.slice(0, 50).flatMap((row) => Object.keys(row)))];
-    detail(list, "Rows", loaded ? `${rows.length.toLocaleString()} drawn, ${names.length} field${names.length === 1 ? "" : "s"}` : "Not loaded yet");
+    detail(list, W().widget.rows, loaded ? W().widget.rowsDrawn(rows.length.toLocaleString(current.locale), names.length) : W().widget.notLoaded);
     if (names.length) {
       const shown = names.slice(0, 12).map((name) => {
         const label = fieldLabel(name, current.fields);
@@ -370,19 +375,19 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
         const kind = typeof format === "string" ? format : format && typeof format === "object" && "type" in format ? String(format.type) : "";
         return `${label === name ? name : `${label} (${name})`}${kind ? `: ${kind}` : ""}`;
       });
-      detail(list, "Fields", shown.join(", ") + (names.length > 12 ? `, and ${names.length - 12} more` : ""));
+      detail(list, W().widget.fields, shown.join(", ") + (names.length > 12 ? W().widget.andMore(names.length - 12) : ""));
     }
-    if (current.facet?.field) detail(list, "Panels", `One per ${fieldLabel(current.facet.field, current.fields)}`);
-    if (current.locale) detail(list, "Locale", current.locale);
-    if (current.id) detail(list, "Id", `${current.id} (ref ${widgetRef(current.id)})`);
+    if (current.facet?.field) detail(list, W().widget.panels, W().widget.onePer(fieldLabel(current.facet.field, current.fields)));
+    if (current.locale) detail(list, W().widget.locale, current.locale);
+    if (current.id) detail(list, W().widget.id, W().widget.idRef(current.id, widgetRef(current.id)));
     const warnings = issues.filter((issue) => issue.level !== "error");
-    if (warnings.length) detail(list, "Notes", warnings.map((issue) => `${issue.path}: ${issue.message}`).join(" "));
+    if (warnings.length) detail(list, W().widget.notes, warnings.map((issue) => `${issue.path}: ${issue.message}`).join(" "));
     parts.push(list);
 
     const links = (current.links ?? []).filter((item) => item && typeof item.href === "string");
     if (links.length) {
       const label = make("p", "fft-back-kicker");
-      label.textContent = "Linked";
+      label.textContent = W().widget.linked;
       const items = make("ul", "fft-back-links");
       for (const item of links) {
         const li = make("li", "");
@@ -395,19 +400,19 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     const tools = make("div", "fft-back-tools");
     const close = make("button", "fft-back-button");
     close.type = "button";
-    close.textContent = "Back to chart";
+    close.textContent = W().widget.backToChart;
     close.addEventListener("click", () => void turn(false));
     const copy = make("button", "fft-back-button");
     copy.type = "button";
-    copy.textContent = "Copy spec";
+    copy.textContent = W().widget.copySpec;
     copy.addEventListener("click", async () => {
       try {
         await navigator.clipboard.writeText(JSON.stringify(current, null, 2));
-        copy.textContent = "Copied";
+        copy.textContent = W().widget.copied;
       } catch {
-        copy.textContent = "Could not copy";
+        copy.textContent = W().widget.couldNotCopy;
       }
-      setTimeout(() => (copy.textContent = "Copy spec"), 1597);
+      setTimeout(() => (copy.textContent = W().widget.copySpec), 1597);
     });
     tools.append(close, copy);
     parts.push(tools);
@@ -556,7 +561,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     credit.replaceChildren();
     const source = current.source;
     if (source && typeof source.name === "string" && source.name) {
-      credit.append("Source: ");
+      credit.append(W().widget.source);
       if (source.url) {
         const link = make("a", "fft-credit-link");
         link.href = source.url;
@@ -567,7 +572,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       } else credit.append(source.name);
     }
     const byline = typeof current.byline === "string" && current.byline ? fillTemplate(current.byline, rows, current.fields, current.locale) : "";
-    if (byline) credit.append(`${credit.childNodes.length ? " · " : ""}Chart: ${byline}`);
+    if (byline) credit.append(credit.childNodes.length ? ` ·${W().widget.chartBy(byline)}` : W().widget.chartBy(byline).trimStart());
     credit.hidden = credit.childNodes.length === 0;
     credit.style.visibility = !loaded && current.byline && hasTemplate(current.byline) ? "hidden" : "";
   }
@@ -579,8 +584,8 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     refButton.textContent = ref;
     if (ref) {
       root.dataset.fftRef = ref;
-      refButton.title = `Widget ref ${ref} (id ${current.id}). Click to copy; agents can use it in place of the id.`;
-      refButton.setAttribute("aria-label", `Copy widget ref ${ref}`);
+      refButton.title = W().widget.refTitle(ref, String(current.id));
+      refButton.setAttribute("aria-label", W().widget.copyRef(ref));
     } else {
       delete root.dataset.fftRef;
     }
@@ -661,7 +666,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     clearBody();
     drawn = false;
     root.setAttribute("aria-busy", "false");
-    showMessage("error", "Could not draw this widget", details);
+    showMessage("error", W().widget.couldNotDraw, details);
   }
 
   /**
@@ -735,7 +740,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       drawn = false;
       const note = options.emptyNote?.();
       if (note) {
-        showMessage("empty", note.text, [], "Clear the filter to see this card's data again.");
+        showMessage("empty", note.text, [], W().widget.clearHint);
         if (note.action) {
           const button = doc.createElement("button");
           button.type = "button";
@@ -744,7 +749,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
           button.addEventListener("click", note.action.run);
           message.append(button);
         }
-      } else showMessage("empty", "No data to show", [], "The source returned no rows, or every row was filtered out.");
+      } else showMessage("empty", W().widget.noData, [], W().widget.noDataHint);
       return;
     }
     const render = block.render;
@@ -879,13 +884,13 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       b.append(icon);
       return b;
     };
-    const shut = iconButton("fft-overlay-close", "Close", ["M6 6l12 12", "M18 6L6 18"]);
+    const shut = iconButton("fft-overlay-close", W().widget.close, ["M6 6l12 12", "M18 6L6 18"]);
     const slot = make("div", "fft-overlay-slot");
     panel.append(shut, slot);
     overlay.append(panel);
     // Inside a dashboard, a pill at the bottom steps through its widgets.
     const nav = options.neighbors
-      ? { bar: make("div", "fft-overlay-nav"), prev: iconButton("fft-overlay-prev", "Previous widget", ["M15 5l-7 7 7 7"]), next: iconButton("fft-overlay-next", "Next widget", ["M9 5l7 7-7 7"]), count: make("span", "fft-overlay-count") }
+      ? { bar: make("div", "fft-overlay-nav"), prev: iconButton("fft-overlay-prev", W().widget.previousWidget, ["M15 5l-7 7 7 7"]), next: iconButton("fft-overlay-next", W().widget.nextWidget, ["M9 5l7 7-7 7"]), count: make("span", "fft-overlay-count") }
       : undefined;
     if (nav) {
       nav.bar.append(nav.prev, nav.count, nav.next);
@@ -903,7 +908,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       big?.destroy();
       slot.replaceChildren();
       shown = target;
-      overlay.setAttribute("aria-label", target.spec.title ?? "Widget");
+      overlay.setAttribute("aria-label", target.spec.title ?? W().widget.widget);
       big = createWidget(slot, fork(target.spec, { style: { height: tall } }), {
         fetch: options.fetch,
         actions: (options.actions ?? []).filter((action) => action !== "expand"),
@@ -914,7 +919,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       if (nav && around) {
         nav.prev.disabled = !around.previous;
         nav.next.disabled = !around.next;
-        nav.count.textContent = around.position && around.total ? `${around.position} of ${around.total}` : "";
+        nav.count.textContent = around.position && around.total ? W().widget.position(String(around.position), String(around.total)) : "";
       }
     };
     const step = (direction: 1 | -1) => {
@@ -977,7 +982,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
   function paintGuide() {
     if (guide.hidden) return;
     const label = make("strong", "fft-guide-label");
-    label.textContent = "How to read it";
+    label.textContent = W().widget.howToRead;
     const question = make("span", "fft-guide-question");
     question.textContent = questionOf(current, rows).text;
     guide.replaceChildren(label, question, explainChart(current, rows));
@@ -1019,7 +1024,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
           } catch {
             // A browser that will not draw HTML inside an SVG onto a canvas still gets the chart itself.
             const chart = chartSvg();
-            if (!chart) throw new Error("Nothing to draw.");
+            if (!chart) throw new Error(W().widget.nothingToDraw);
             png = await svgToPng(chart, background);
           }
           download(doc, `${name}.png`, png);
@@ -1045,7 +1050,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     root.setAttribute("aria-busy", "true");
     if (!drawn) {
       clearBody();
-      showMessage("loading", "Loading");
+      showMessage("loading", W().widget.loading);
     }
     try {
       const loadedRows = await runPipeline(current, { fetch: options.fetch, fresh });
@@ -1077,10 +1082,12 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     ready,
     update(override) {
       current = fork(current, override as Override<WidgetSpec>);
+    speaks = current.locale;
       return load();
     },
     setSpec(next) {
       current = next;
+    speaks = current.locale;
       return load();
     },
     refresh: () => load(true),

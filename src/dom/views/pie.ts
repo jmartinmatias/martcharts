@@ -2,7 +2,7 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { PieView } from "../../core/views.ts";
 import { dodge, polar } from "../layout.ts";
 import { evenFormat, figureSize, hiddenTableOf, html, selectable, shareFormat, svg, textWidth } from "./shared.ts";
-import { WORDS } from "./words.ts";
+import { wordsFor } from "./words.ts";
 import { roving } from "./focus.ts";
 import { slicesOf, sliceColor, sliceLegend } from "./donut.ts";
 import type { Slice } from "./donut.ts";
@@ -59,7 +59,7 @@ export const renderPie: ViewRenderer<PieView> = (ctx) => {
   figure.style.height = `${size}px`;
   const disc = svg(doc, "svg", { width, height: size, viewBox: `${-room} 0 ${width} ${size}` });
   disc.setAttribute("role", "group");
-  disc.setAttribute("aria-label", `Pie chart of ${ctx.label(value)} by ${ctx.label(label)}`);
+  disc.setAttribute("aria-label", wordsFor(ctx).aria.pie(ctx.label(value), ctx.label(label)));
 
   const marks: SVGPathElement[] = [];
   const deactivate = () => {
@@ -80,7 +80,7 @@ export const renderPie: ViewRenderer<PieView> = (ctx) => {
     const name = names[i] as string;
     const items: TooltipItem[] = [
       { label: ctx.label(value), value: amountText(slice.amount), color: color(i) },
-      { label: WORDS.share, value: shares[i] as string },
+      { label: wordsFor(ctx).share, value: shares[i] as string },
     ];
     mark.setAttribute("aria-label", `${name}: ${items[0]?.value}, ${items[1]?.value}`);
     const activate = () => {

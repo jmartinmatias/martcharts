@@ -19,6 +19,7 @@ import type { WidgetAction } from "./export.ts";
 import { ensureStyles } from "./styles.ts";
 import { createWidget } from "./widget.ts";
 import type { Widget } from "./widget.ts";
+import { wordsFor } from "../core/words.ts";
 
 /** Options for `createDashboard`. */
 export interface DashboardOptions {
@@ -116,6 +117,8 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   // locale, else the page's, never the browser's own (which wrote "Data to octobre 2026" on an English page).
   const firstSpec = spec.widgets.map((cell) => cell.spec ?? (cell.widget ? options.widgets?.[cell.widget] : undefined)).find((s) => s?.locale);
   const boardLocale = firstSpec?.locale ?? (target.ownerDocument.documentElement.lang || "en");
+  // The board's own words (filter row, share and print tools, notes), in the same language.
+  const B = wordsFor(boardLocale).board;
   if (asOf) asOf.textContent = asOfText(spec.asOf as string, "", boardLocale);
   if (spec.title || spec.subtitle || asOf) {
     const header = el("header", "fft-dashboard-header");
@@ -223,7 +226,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     opened?.add(slot);
     const found = cell.spec ?? (cell.widget ? (options.widgets?.[cell.widget] ?? options.resolve?.(cell.widget)) : undefined);
     if (!found) {
-      mount.append(el("p", "fft-cell-missing", `No widget "${cell.widget ?? index}".`));
+      mount.append(el("p", "fft-cell-missing", B.noWidget(String(cell.widget ?? index))));
       return;
     }
     originals.set(id, found);
@@ -250,9 +253,9 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   const sectionButtons: HTMLButtonElement[] = [];
   if (nav) {
     nav.setAttribute("role", "group");
-    nav.setAttribute("aria-label", "Sections");
+    nav.setAttribute("aria-label", B.sections);
     for (const entry of [null, ...sections]) {
-      const button = el("button", "", entry ? entry.title : "All");
+      const button = el("button", "", entry ? entry.title : B.all);
       // The label again, for the stylesheet to reserve its semibold width, so choosing a chip never shifts the row.
       button.dataset.label = button.textContent ?? "";
       button.type = "button";
@@ -495,7 +498,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       [...slots.entries()].map(async ([id, slot]) => {
         const fields = (await rawFields.get(id)) ?? new Set<string>();
         const missed = Object.keys(filters).filter((field) => !fields.has(field)).map(filterName);
-        if (range && period !== "All" && !rangeFields.some((field) => fields.has(field))) missed.push(range.label ?? "Period");
+        if (range && period !== "All" && !rangeFields.some((field) => fields.has(field))) missed.push(range.label ?? B.period);
         if (cross && cross.source !== id && !fields.has(cross.field) && follows.get(id)?.follow.field !== cross.field) missed.push(fieldLabel(cross.field));
         let note = slot.querySelector<HTMLElement>(":scope > .fft-unfiltered");
         if (!missed.length) {
@@ -508,7 +511,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
           slot.append(note);
         }
         const names = [...new Set(missed)];
-        note.textContent = `Not filtered by ${names.length > 1 ? `${names.slice(0, -1).join(", ")} or ${names.at(-1)}` : names[0]}`;
+        note.textContent = B.notFilteredBy(names);
         slot.dataset.unfiltered = "";
       }),
     );
@@ -518,13 +521,13 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   async function writeState() {
     const parts: string[] = [];
     const section = sections.find(({ node }) => node.id === shownSection);
-    if (section) parts.push(`Section: ${section.title}`);
+    if (section) parts.push(B.section(section.title));
     for (const [field, value] of Object.entries(chosenFilters())) parts.push(`${filterName(field)}: ${formatValue(value, undefined, undefined)}`);
-    if (range) parts.push(`${range.label ?? "Period"}: ${period}`);
+    if (range) parts.push(`${range.label ?? B.period}: ${period === "All" ? B.all : period}`);
     if (cross) parts.push(`${fieldLabel(cross.field)}: ${formatValue(cross.value, undefined, undefined)}`);
     const asOfLine = asOf ? asOfText(spec.asOf as string, range ? await latest() : "", boardLocale) : "";
     if (asOf) asOf.textContent = asOfLine;
-    printState.textContent = [spec.title, parts.length ? parts.join(" · ") : "Everything, unfiltered", asOfLine].filter(Boolean).join(" · ");
+    printState.textContent = [spec.title, parts.length ? parts.join(" · ") : B.unfiltered, asOfLine].filter(Boolean).join(" · ");
     await markUnreached();
   }
 
@@ -548,8 +551,8 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     if (cross) {
       const text = `${fieldLabel(cross.field)}: ${formatValue(cross.value, undefined, undefined)}`;
       chip.replaceChildren(el("span", "fft-crossfilter-text", text), el("span", "fft-crossfilter-x", "\u00d7"));
-      chip.setAttribute("aria-label", `Clear filter ${text}`);
-      chip.title = "Clear this filter (Escape)";
+      chip.setAttribute("aria-label", B.clearFilter(text));
+      chip.title = B.clearThis;
       if (chip.hidden) rowHiddenBefore = filterRow.hidden === true;
       // The chip joins the filter row the first time a click sets a filter, after the period and filters, before the sections.
       if (!chip.isConnected) filterRow.insertBefore(chip, nav ?? null);
@@ -592,12 +595,13 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     if (!range) return;
     const group = el("div", "fft-range");
     group.setAttribute("role", "group");
-    const label = el("span", "fft-range-label", range.label ?? "Period");
+    const label = el("span", "fft-range-label", range.label ?? B.period);
     label.id = `fft-range-${Math.random().toString(36).slice(2, 7)}`;
     group.setAttribute("aria-labelledby", label.id);
     const track = el("div", "fft-range-track");
     for (const option of periods) {
-      const button = el("button", "", option);
+      // "All" is the period's key and English word; on screen it reads in the board's language.
+      const button = el("button", "", option === "All" ? B.all : option);
       button.type = "button";
       button.dataset.value = option;
       button.setAttribute("aria-pressed", String(option === period));
@@ -636,7 +640,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       label.htmlFor = selectId;
       const select = el("select", "");
       select.id = selectId;
-      select.add(new Option("All", ""));
+      select.add(new Option(B.all, ""));
       seen.forEach((value, i) => select.add(new Option(formatValue(value, undefined, undefined), String(i))));
       select.addEventListener("change", () => void setFilter(filter.field, select.value === "" ? null : seen[Number(select.value)]));
       selects.set(filter.field, { select, values: seen });
@@ -652,13 +656,13 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   function buildTools(): HTMLElement {
     const tools = el("div", "fft-board-tools");
     tools.setAttribute("role", "group");
-    tools.setAttribute("aria-label", "Share");
+    tools.setAttribute("aria-label", B.share);
     const status = el("span", "fft-sr-only");
     status.setAttribute("aria-live", "polite");
     if (options.hash) {
-      const copy = el("button", "fft-board-tool", "Copy link");
+      const copy = el("button", "fft-board-tool", B.copyLink);
       copy.type = "button";
-      copy.title = "Copy a link to this view, with its filters";
+      copy.title = B.copyLinkTitle;
       copy.addEventListener("click", async () => {
         const url = shareLink();
         let done = false;
@@ -668,16 +672,16 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
         } catch {
           done = false;
         }
-        copy.textContent = done ? "Link copied" : "Copy failed";
-        status.textContent = done ? "Link to this view copied" : "The link could not be copied";
+        copy.textContent = done ? B.linkCopied : B.copyFailed;
+        status.textContent = done ? B.linkCopiedSaid : B.linkFailedSaid;
         root.dispatchEvent(new CustomEvent<{ url: string; copied: boolean }>("fft-share", { bubbles: true, detail: { url, copied: done } }));
-        setTimeout(() => (copy.textContent = "Copy link"), 1597);
+        setTimeout(() => (copy.textContent = B.copyLink), 1597);
       });
       tools.append(copy);
     }
-    const print = el("button", "fft-board-tool", "Print");
+    const print = el("button", "fft-board-tool", B.print);
     print.type = "button";
-    print.title = "Print this view, or save it as a PDF";
+    print.title = B.printTitle;
     print.addEventListener("click", () => {
       void writeState();
       try {
@@ -711,7 +715,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       clears.push(() => setFilter(field, null));
     }
     if (range && period !== "All" && rangeFields.some((field) => fields.has(field))) {
-      said.push(`${range.label ?? "Period"}: ${period}`);
+      said.push(`${range.label ?? B.period}: ${period === "All" ? B.all : period}`);
       clears.push(() => setRange("All"));
     }
     if (cross && cross.source !== id && fields.has(cross.field)) {
@@ -720,8 +724,8 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     }
     if (!said.length) return undefined;
     return {
-      text: `Nothing for ${said.join(" and ")}`,
-      action: { label: said.length === 1 ? "Clear filter" : "Clear these filters", run: () => void (async () => { for (const clear of clears) await clear(); })() },
+      text: B.nothingFor(said),
+      action: { label: said.length === 1 ? B.clearOne : B.clearMany, run: () => void (async () => { for (const clear of clears) await clear(); })() },
     };
   }
 
@@ -807,7 +811,7 @@ function dateWords(text: string, locale?: string): string {
  */
 export function asOfText(asOf: string, latest: string, locale?: string): string {
   const text = asOf.trim();
-  if (/^\d{4}-\d{2}(-\d{2})?$/.test(text)) return `As of ${dateWords(text, locale)}`;
+  if (/^\d{4}-\d{2}(-\d{2})?$/.test(text)) return wordsFor(locale).board.asOf(dateWords(text, locale));
   if (!text.includes("{latest}")) return text;
   return latest ? text.split("{latest}").join(dateWords(latest, locale)) : "";
 }

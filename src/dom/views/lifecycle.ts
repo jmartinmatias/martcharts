@@ -6,6 +6,7 @@ import { fitLabels } from "../layout.ts";
 import { DAY, ROW, activeGroup, dayOf, fieldList, hiddenTableOf, html, legendList, roving, rowHit, svg, textWidth } from "./shared.ts";
 import { DEEMPHASIS, highlights } from "./chart.ts";
 import { edgeAnchor, edgeX, fitLabel, nameColumn, writeLabel } from "./label-fit.ts";
+import { wordsFor } from "./words.ts";
 
 const LANE: number = ROW.roomy;
 const GROUP_ROW: number = ROW.group;
@@ -90,7 +91,7 @@ export const renderLifecycle: ViewRenderer<LifecycleView> = (ctx) => {
   const wrap = html(doc, "div", "fft-chart fft-lifecycle");
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Lifecycle of ${ctx.label(label)} from ${ctx.label(stages[0] as string)} to ${ctx.label(stages.at(-1) as string)}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.lifecycle(ctx.label(label), ctx.label(stages[0] as string), ctx.label(stages.at(-1) as string)));
 
   // The date axis: a gridline per month with labels where they fit, or Januaries alone with the year over long spans.
   const monthName = new Intl.DateTimeFormat(locale, { month: "short", timeZone: "UTC" });
@@ -191,7 +192,7 @@ export const renderLifecycle: ViewRenderer<LifecycleView> = (ctx) => {
       const coming = stages.map((field, s) => ({ field, day: item.days[s] })).find((stage) => stage.day !== null && stage.day !== undefined && stage.day > now);
       if (coming) {
         const days = (coming.day as number) - now;
-        tooltip.push({ label: "Next", value: `${ctx.label(coming.field)} in ${days} ${days === 1 ? "day" : "days"}` });
+        tooltip.push({ label: wordsFor(ctx).next, value: wordsFor(ctx).nextIn(ctx.label(coming.field), wordsFor(ctx).days(days)) });
       }
     }
     if (status) tooltip.push({ label: ctx.label(status), value: ctx.format(item.row[status], status) });
@@ -206,9 +207,9 @@ export const renderLifecycle: ViewRenderer<LifecycleView> = (ctx) => {
   if (now !== null && now >= lo && now <= hi) {
     const tx = x(now);
     chart.append(svg(doc, "line", { class: "fft-gantt-today", x1: tx, x2: tx, y1: margin.top - 6, y2: bottom }));
-    const anchor = edgeAnchor(tx, "Today", width, 10, 600);
+    const anchor = edgeAnchor(tx, wordsFor(ctx).today, width, 10, 600);
     const text = svg(doc, "text", { class: "fft-gantt-today-label", x: edgeX(tx, anchor, width), y: margin.top - 10, "text-anchor": anchor });
-    text.textContent = "Today";
+    text.textContent = wordsFor(ctx).today;
     chart.append(text);
   }
   roving(hits);
@@ -217,7 +218,7 @@ export const renderLifecycle: ViewRenderer<LifecycleView> = (ctx) => {
   // The key: each stage's tint, and what a thicker row means.
   if (!ctx.inFacet) {
     const tints = stages.map((field, s) => ({ label: ctx.label(field), color: `color-mix(in srgb, ${base} ${Math.round(stageTint(s, stages.length) * 100)}%, var(--fft-surface))` }));
-    const legend = legendList(ctx, [...tints, { label: "Still running", color: "" }]);
+    const legend = legendList(ctx, [...tints, { label: wordsFor(ctx).stillRunning, color: "" }]);
     if (legend) {
       legend.classList.add("fft-lc-key");
       const open = legend.querySelectorAll<HTMLElement>(".fft-swatch")[stages.length];
@@ -229,7 +230,7 @@ export const renderLifecycle: ViewRenderer<LifecycleView> = (ctx) => {
       // Above the lanes, as every row view's key.
       wrap.prepend(legend);
     }
-    if (impact) wrap.append(html(doc, "p", "fft-lc-note", `Thicker rows: higher ${ctx.label(impact).toLowerCase()}.`));
+    if (impact) wrap.append(html(doc, "p", "fft-lc-note", wordsFor(ctx).thickerRows(ctx.label(impact).toLowerCase())));
   }
   wrap.append(hiddenTableOf(ctx, drawn.map((it) => it.row), [label, ...stages, ...(status ? [status] : []), ...(group ? [group] : []), ...(impact ? [impact] : [])]));
   ctx.el.append(wrap);

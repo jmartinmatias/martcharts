@@ -8,6 +8,7 @@ import { activeGroup, hiddenTable, html, legendList, roving, rowHit, svg, textWi
 import { DEEMPHASIS, highlights } from "./chart.ts";
 import { drawsScaleKey, sharedRange } from "./facet-key.ts";
 import { fitLabel, nameColumn, writeLabel } from "./label-fit.ts";
+import { wordsFor } from "./words.ts";
 
 /** Steps in the sequential scale, shared with heat cells and the choropleth. */
 const STEPS = 7;
@@ -83,7 +84,7 @@ export const renderMatrix: ViewRenderer<MatrixView> = (ctx) => {
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
   const measure = size ?? (numericColor ? color : undefined);
-  chart.setAttribute("aria-label", `Matrix of ${measure ? ctx.label(measure) : mark ? ctx.label(mark) : "rows"} by ${ctx.label(y)} and ${ctx.label(x)}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.matrix(measure ? ctx.label(measure) : mark ? ctx.label(mark) : wordsFor(ctx).aria.rows, ctx.label(y), ctx.label(x)));
 
   // Headers: row names on the left, column names above (wrapped, or leaning when long).
   // highlight names rows or columns (y or x values) to keep in color; every other mark steps back to grey.
@@ -149,7 +150,7 @@ export const renderMatrix: ViewRenderer<MatrixView> = (ctx) => {
       let room = 0;
       if (mark) {
         const yes = isYes(row[mark]);
-        items.push({ label: ctx.label(mark), value: yes ? "Yes" : "No" });
+        items.push({ label: ctx.label(mark), value: yes ? wordsFor(ctx).yes : wordsFor(ctx).no });
         if (yes) {
           const side = Math.round(cell * 0.56);
           node = svg(doc, "rect", { class: "fft-mx-yes", x: cx - side / 2, y: cy - side / 2, width: side, height: side, rx: Math.min(4, side / 4) });
@@ -184,7 +185,7 @@ export const renderMatrix: ViewRenderer<MatrixView> = (ctx) => {
       const hit = svg(doc, "rect", { class: "fft-mx-hit", x: x0, y: y0, width: cell, height: cell });
       hits.push(rowHit(ctx, { node: hit, row, name, items, anchor: node ?? hit, active: node ?? hit, group: active }));
       // A bare mark (no size, color or label) says it is there.
-      if (!items.length) hit.setAttribute("aria-label", `${name}: present`);
+      if (!items.length) hit.setAttribute("aria-label", `${name}: ${wordsFor(ctx).present}`);
       chart.append(hit);
     });
   });
@@ -240,9 +241,9 @@ export const renderMatrix: ViewRenderer<MatrixView> = (ctx) => {
   // The grid as a table for screen readers: one row per line, one column per column.
   const cellText = (row: Row | undefined) => {
     if (!row) return "";
-    if (mark) return isYes(row[mark]) ? "Yes" : "No";
+    if (mark) return isYes(row[mark]) ? wordsFor(ctx).yes : wordsFor(ctx).no;
     const bits = [size, color, label].filter((f): f is string => Boolean(f)).map((f) => ctx.format(row[f], f));
-    return bits.join(", ") || "Yes";
+    return bits.join(", ") || wordsFor(ctx).yes;
   };
   wrap.append(hiddenTable(doc, [ctx.label(y), ...colNames], lines.map((line, r) => [rowNames[r] as string, ...columns.map((column) => cellText(cells.get(JSON.stringify([line, column]))))])));
   ctx.el.append(wrap);

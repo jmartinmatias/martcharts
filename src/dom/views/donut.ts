@@ -5,7 +5,7 @@ import type { TooltipItem, ViewContext, ViewRenderer } from "../../core/view-con
 import type { DonutView } from "../../core/views.ts";
 import { arcPath } from "../layout.ts";
 import { evenFormat, figureSize, hiddenTableOf, html, ringThickness, selectable, shareFormat, svg } from "./shared.ts";
-import { categoryColor, emphasis, WORDS } from "./words.ts";
+import { categoryColor, emphasis, wordsFor } from "./words.ts";
 import { roving } from "./focus.ts";
 import { countable } from "../count-up.ts";
 
@@ -97,7 +97,7 @@ export const renderDonut: ViewRenderer<DonutView> = (ctx) => {
   if (half) figure.dataset.arc = "half";
   const ring = svg(doc, "svg", { width: size, height, viewBox: `0 0 ${size} ${height}` });
   ring.setAttribute("role", "group");
-  ring.setAttribute("aria-label", `${half ? "Half donut" : "Donut"} chart of ${ctx.label(value)} by ${ctx.label(label)}`);
+  ring.setAttribute("aria-label", wordsFor(ctx).aria.donut(half, ctx.label(value), ctx.label(label)));
   if (half) ring.append(svg(doc, "path", { class: "fft-donut-track", d: arcPath(c, cy, r, origin, origin + sweep), "stroke-width": thickness }));
   else ring.append(svg(doc, "circle", { class: "fft-donut-track", cx: c, cy, r, "stroke-width": thickness }));
 
@@ -128,11 +128,11 @@ export const renderDonut: ViewRenderer<DonutView> = (ctx) => {
     const name = ctx.format(slice.row[label], label);
     const items: TooltipItem[] = [
       { label: ctx.label(value), value: amountText(slice.amount), color: color(i) },
-      { label: WORDS.share, value: share.format(slice.amount / total) },
-      ...(i === crossing ? [{ label: WORDS.majority, value: WORDS.crossesMajority }] : []),
+      { label: wordsFor(ctx).share, value: share.format(slice.amount / total) },
+      ...(i === crossing ? [{ label: wordsFor(ctx).majority, value: wordsFor(ctx).crossesMajority }] : []),
     ];
     const hit = svg(doc, "path", { class: "fft-slice-hit", d, "stroke-width": thickness + 13, tabindex: 0, role: "img" });
-    hit.setAttribute("aria-label", `${name}: ${items[0]?.value}, ${items[1]?.value}${i === crossing ? `, ${WORDS.crossesMajorityAria}` : ""}`);
+    hit.setAttribute("aria-label", `${name}: ${items[0]?.value}, ${items[1]?.value}${i === crossing ? `, ${wordsFor(ctx).crossesMajorityAria}` : ""}`);
     const activate = () => {
       wrap.setAttribute("data-active", "");
       for (const other of marks) other.removeAttribute("data-active");
@@ -152,14 +152,14 @@ export const renderDonut: ViewRenderer<DonutView> = (ctx) => {
     const reach = thickness / 2 + 4;
     ring.append(svg(doc, "line", { class: "fft-donut-majority", x1: c, x2: c, y1: cy - r - reach, y2: cy - r + reach }));
     const text = svg(doc, "text", { class: "fft-donut-majority-label", x: c, y: 11, "text-anchor": "middle" });
-    text.textContent = WORDS.majorityLabel(amountText(needed));
+    text.textContent = wordsFor(ctx).majorityLabel(amountText(needed));
     ring.append(text);
   }
 
   const center = html(doc, "div", "fft-donut-center");
   const totalEl = html(doc, "div", "fft-donut-total", amountText(total));
   countable(totalEl, total, amountText);
-  center.append(totalEl, html(doc, "div", "fft-donut-caption", caption ?? (half && SEATS.test(value) ? WORDS.seats : ctx.label(value))));
+  center.append(totalEl, html(doc, "div", "fft-donut-caption", caption ?? (half && SEATS.test(value) ? wordsFor(ctx).seats : ctx.label(value))));
   figure.append(ring, center);
 
   const hidden = hiddenTableOf(ctx, slices.map((slice) => slice.row), [label, value]);

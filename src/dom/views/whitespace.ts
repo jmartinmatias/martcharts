@@ -5,6 +5,7 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import { WHITESPACE_STATES } from "../../core/views.ts";
 import type { WhitespaceView } from "../../core/views.ts";
 import { activeGroup, hiddenTable, html, labelColumn, legendList, roving, rowHit, textWidth } from "./shared.ts";
+import { wordsFor } from "./words.ts";
 
 /** A column narrower than this, in pixels, turns its header on its side. */
 const TIGHT = 55;
@@ -29,10 +30,6 @@ interface Line {
  * penetration and the potential still open; each column with how many hold it and how
  * many could. Built from HTML, so names stay crisp and the grid reflows with the card.
  */
-/** A plain English plural for a row noun: client to clients, company to companies. */
-function plural(word: string): string {
-  return /[^aeiou]y$/.test(word) ? `${word.slice(0, -1)}ies` : /s$/.test(word) ? word : `${word}s`;
-}
 
 export const renderWhitespace: ViewRenderer<WhitespaceView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
@@ -106,13 +103,13 @@ export const renderWhitespace: ViewRenderer<WhitespaceView> = (ctx) => {
 
   const grid = html(doc, "div", "fft-ws-grid");
   grid.setAttribute("role", "group");
-  grid.setAttribute("aria-label", `Whitespace map of ${ctx.label(columnField)} by ${ctx.label(rowField)}`);
+  grid.setAttribute("aria-label", wordsFor(ctx).aria.whitespace(ctx.label(columnField), ctx.label(rowField)));
   // The name column is as wide as the longest name, measured, up to a third of the card; longer names end in an ellipsis.
   const nameWidth = labelColumn(lines.map((line) => line.name), ctx.width, { min: 55, size: 13 });
   grid.style.gridTemplateColumns = `minmax(55px, ${nameWidth}px) repeat(${columns.length}, minmax(21px, 1fr)) max-content`;
   // The narrowest the grid can be: the names' floor, a tappable 21px per product and the row ends' figures. On a
   // card narrower than that, the cells keep their size and the grid scrolls sideways, never squeezing a cell.
-  const endTexts = lines.flatMap((line) => [`${line.holds} of ${eligible(line)}`, ...(hasValue && line.potential > 0 ? [money(line.potential)] : []), hasValue ? "Held · to win" : "Held"]);
+  const endTexts = lines.flatMap((line) => [wordsFor(ctx).outOf(String(line.holds), String(eligible(line))), ...(hasValue && line.potential > 0 ? [money(line.potential)] : []), hasValue ? wordsFor(ctx).heldToWin : wordsFor(ctx).held]);
   const floor = 55 + columns.length * 23 + Math.max(...endTexts.map((text) => textWidth(text, 11, 600))) + 13;
   if (floor > ctx.width) wrap.dataset.scrolls = "";
   // Narrow columns turn their names on their side, so every product keeps its full name.
@@ -124,7 +121,7 @@ export const renderWhitespace: ViewRenderer<WhitespaceView> = (ctx) => {
     head.append(html(doc, "span", "fft-ws-col-name", column.name));
     grid.append(head);
   }
-  grid.append(html(doc, "div", "fft-ws-head-sum", hasValue ? "Held · to win" : "Held"));
+  grid.append(html(doc, "div", "fft-ws-head-sum", hasValue ? wordsFor(ctx).heldToWin : wordsFor(ctx).held));
 
   const cells: Element[] = [];
   const active = activeGroup(grid, ctx.tooltip);
@@ -153,7 +150,7 @@ export const renderWhitespace: ViewRenderer<WhitespaceView> = (ctx) => {
       const stateName = entry.state === "holds" ? names[0] : entry.state === "opportunity" ? names[1] : names[2];
       const items: TooltipItem[] = [{ label: ctx.label(stateField), value: stateName ?? "" }];
       if (entry.state === "opportunity" && entry.score !== null && scoreField) items.push({ label: ctx.label(scoreField), value: ctx.format(entry.row[scoreField], scoreField) });
-      if (entry.state !== "none" && entry.value !== null && valueField) items.push({ label: entry.state === "holds" ? ctx.label(valueField) : "Potential", value: ctx.format(entry.row[valueField], valueField) });
+      if (entry.state !== "none" && entry.value !== null && valueField) items.push({ label: entry.state === "holds" ? ctx.label(valueField) : wordsFor(ctx).potential, value: ctx.format(entry.row[valueField], valueField) });
       // A labelled mark: the label says what the square only shows (aria-label needs a role on a div).
       cell.setAttribute("role", "img");
       cells.push(rowHit(ctx, { node: cell, row: entry.row, name: `${line.name} · ${column.name}`, items, group: active }));
@@ -161,39 +158,39 @@ export const renderWhitespace: ViewRenderer<WhitespaceView> = (ctx) => {
       grid.append(cell);
     }
     const sum = html(doc, "div", "fft-ws-sum");
-    const count = html(doc, "span", "fft-ws-count", `${line.holds} of ${eligible(line)}`);
+    const count = html(doc, "span", "fft-ws-count", wordsFor(ctx).outOf(String(line.holds), String(eligible(line))));
     sum.append(count);
     if (hasValue) sum.append(html(doc, "span", "fft-ws-potential", line.potential > 0 ? money(line.potential) : "–"));
     sum.setAttribute("role", "img");
-    sum.setAttribute("aria-label", `${line.name}: holds ${line.holds} of ${eligible(line)}${hasValue && line.potential > 0 ? `, ${money(line.potential)} to win` : ""}`);
+    sum.setAttribute("aria-label", `${line.name}: ${wordsFor(ctx).holdsOf(String(line.holds), String(eligible(line)))}${hasValue && line.potential > 0 ? `, ${wordsFor(ctx).toWinAmount(money(line.potential))}` : ""}`);
     grid.append(sum);
   });
   // The column foot: how many hold it, how many could.
-  grid.append(html(doc, "div", "fft-ws-foot-label", "Hold · could"));
+  grid.append(html(doc, "div", "fft-ws-foot-label", wordsFor(ctx).holdCould));
   for (const column of columns) {
     const foot = html(doc, "div", "fft-ws-foot");
     foot.append(html(doc, "span", "fft-ws-foot-holds", String(column.holds)), html(doc, "span", "fft-ws-foot-open", String(column.open)));
     foot.setAttribute("role", "img");
-    foot.setAttribute("aria-label", `${column.name}: ${column.holds} hold it, ${column.open} could`);
+    foot.setAttribute("aria-label", `${column.name}: ${wordsFor(ctx).holdCouldOf(String(column.holds), String(column.open))}`);
     grid.append(foot);
   }
   grid.append(html(doc, "div", "fft-ws-corner"));
   // A complete grid moves by rows with up and down; a sparse one moves cell to cell.
   roving(cells, cells.length === lines.length * columns.length ? { down: columns.length } : {});
   wrap.append(grid);
-  if (hidden) wrap.append(html(doc, "p", "fft-ws-more", `and ${hidden} more ${hidden === 1 ? ctx.label(rowField).toLowerCase() : plural(ctx.label(rowField).toLowerCase())}, with less to win`));
+  if (hidden) wrap.append(html(doc, "p", "fft-ws-more", wordsFor(ctx).andMoreRows(hidden, ctx.label(rowField).toLowerCase())));
 
   wrap.append(
     hiddenTable(
       doc,
-      [ctx.label(rowField), ...columns.map((c) => c.name), "Held", ...(hasValue ? ["To win"] : [])],
+      [ctx.label(rowField), ...columns.map((c) => c.name), wordsFor(ctx).held, ...(hasValue ? [wordsFor(ctx).toWin] : [])],
       lines.map((line) => [
         line.name,
         ...columns.map((c) => {
           const entry = line.cells.get(c.key);
           return entry?.state === "holds" ? (names[0] ?? "") : entry?.state === "opportunity" ? (names[1] ?? "") : entry?.state === "none" ? (names[2] ?? "") : "";
         }),
-        `${line.holds} of ${eligible(line)}`,
+        wordsFor(ctx).outOf(String(line.holds), String(eligible(line))),
         ...(hasValue ? [line.potential > 0 ? money(line.potential) : ""] : []),
       ]),
     ),

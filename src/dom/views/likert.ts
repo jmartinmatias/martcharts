@@ -5,6 +5,7 @@ import type { LikertView } from "../../core/views.ts";
 import { ROW, fieldList, hiddenTableOf, html, legendList, roving, rowHit, shareFormat, svg } from "./shared.ts";
 import type { ActiveGroup } from "./shared.ts";
 import { fitLabel, writeLabel } from "./label-fit.ts";
+import { wordsFor } from "./words.ts";
 
 const LANE: number = ROW.tall;
 const BAR = 21;
@@ -54,7 +55,7 @@ export const renderLikert: ViewRenderer<LikertView> = (ctx) => {
   const scale = (width / 2 - 13 - END) / reach;
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Survey responses by ${ctx.label(label)}, centered on neutral`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.likert(ctx.label(label)));
 
   const segments: SVGRectElement[] = [];
   const hits: Element[] = [];
@@ -98,7 +99,7 @@ export const renderLikert: ViewRenderer<LikertView> = (ctx) => {
       const name = ctx.format(q.row[label], label);
       const items: TooltipItem[] = [
         { label: ctx.label(field), value: ctx.format(q.row[field], field), color: colorOf(i) },
-        { label: "Share", value: percent.format(share) },
+        { label: wordsFor(ctx).share, value: percent.format(share) },
       ];
       const hit = svg(doc, "rect", { class: "fft-likert-hit", x: x0, y: top, width: Math.max(1, w), height: LANE });
       const row: Row = q.row;

@@ -6,6 +6,7 @@ import { quantize } from "../layout.ts";
 import { activeGroup, hiddenTable, html, selectable, textWidth } from "./shared.ts";
 import { drawsScaleKey, sharedRange } from "./facet-key.ts";
 import { roving } from "./focus.ts";
+import { wordsFor } from "./words.ts";
 
 /** Steps in the sequential scale. */
 const STEPS = 7;
@@ -50,7 +51,7 @@ export const renderHeatmap: ViewRenderer<HeatmapView> = (ctx) => {
   const scrolls = nameW + (cell + GAP) * columns.length > ctx.width + 1;
   if (scrolls) wrap.dataset.scrolls = "";
   grid.setAttribute("role", "group");
-  grid.setAttribute("aria-label", `Heatmap of ${ctx.label(value)} by ${ctx.label(y)} and ${ctx.label(x)}`);
+  grid.setAttribute("aria-label", wordsFor(ctx).aria.heatmap(ctx.label(value), ctx.label(y), ctx.label(x)));
   grid.append(html(doc, "div", "fft-heat-corner"));
   for (const column of columns) grid.append(html(doc, "div", "fft-heat-col", sample(column, x)));
   // While one cell is pointed at, the others step back, as every view's marks do.
@@ -118,6 +119,6 @@ export const renderHeatmap: ViewRenderer<HeatmapView> = (ctx) => {
   );
   // With no number at all there is no range to key: say so instead of a scale from Infinity to -Infinity.
   if (numbers.length) wrap.append(grid, ...(drawsScaleKey(ctx) ? [legend] : []), table);
-  else wrap.append(grid, html(doc, "p", "fft-empty-note", `No cell has a number in ${ctx.label(value)}.`), table);
+  else wrap.append(grid, html(doc, "p", "fft-empty-note", wordsFor(ctx).noCellNumber(ctx.label(value))), table);
   ctx.el.append(wrap);
 };

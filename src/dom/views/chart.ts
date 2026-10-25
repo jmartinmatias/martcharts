@@ -18,10 +18,10 @@ import type { LabelBox } from "../layout.ts";
 import { categoryLabel, fieldList, hiddenTableOf, html, legendList, selectable, svg } from "./shared.ts";
 import type { LegendEntry as KitLegendEntry } from "./shared.ts";
 import { roving } from "./focus.ts";
+import { wordsFor } from "./words.ts";
 
 type Kind = "bar" | "line" | "area";
 
-const KIND_NAMES: Record<Kind, string> = { bar: "Bar", line: "Line", area: "Area" };
 /** Pixels of band a stream label needs: its 11px text and a little air. */
 const STREAM_LABEL_ROOM = 15;
 
@@ -323,7 +323,7 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
 
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `${stream ? "Streamgraph" : `${KIND_NAMES[kind]} chart`} of ${series.map(ctx.label).join(", ")} by ${ctx.label(view.x)}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.cartesian(stream ? wordsFor(ctx).streamgraph : wordsFor(ctx)[kind], series.map(ctx.label).join(", "), ctx.label(view.x)));
 
   // Gridlines and y ticks: hairlines, recessive. A stream has none: only thickness means anything there.
   const axis = svg(doc, "g");
@@ -433,7 +433,7 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
       // The notes keep inside the zone: one that does not fit gives way (the tooltip still names the range), except
       // Forecast itself, which then aligns to the zone's end.
       const room = plot.x + plot.w - from - 13;
-      const notes = ["Forecast", ...(band?.label ? [`Shaded: ${band.label}`] : [])];
+      const notes = [wordsFor(ctx).forecast, ...(band?.label ? [wordsFor(ctx).shaded(band.label)] : [])];
       notes.forEach((note, k) => {
         // Forecast is set in spaced capitals, a little wider per character than the note under it.
         const fits = note.length * (k === 0 ? 7.5 : CHAR_WIDTH) <= room;
@@ -641,14 +641,14 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
   slots.forEach((slot, i) => {
     const row = rows[i] ?? {};
     const items: TooltipItem[] = series.map((field, s) => ({ label: ctx.label(field), value: ctx.format(row[field], field), color: categoryOn(i) ? seriesColor(s) : mutedColor(s) }));
-    if (stacked) items.push({ label: "Total", value: ctx.format(raw.reduce((sum, seriesValues) => sum + (seriesValues[i] ?? 0), 0), series[0]) });
+    if (stacked) items.push({ label: wordsFor(ctx).total, value: ctx.format(raw.reduce((sum, seriesValues) => sum + (seriesValues[i] ?? 0), 0), series[0]) });
     const low = bandLow[i];
     const high = bandHigh[i];
-    if (band && low != null && high != null && low !== high) items.push({ label: band.label ?? "Range", value: `${ctx.format(low, series[0])} to ${ctx.format(high, series[0])}` });
-    const title = forecastField && isForecast(row[forecastField]) ? `${xLabels[i] ?? ""} (forecast)` : (xLabels[i] ?? "");
+    if (band && low != null && high != null && low !== high) items.push({ label: band.label ?? wordsFor(ctx).range, value: wordsFor(ctx).between(ctx.format(low, series[0]), ctx.format(high, series[0])) });
+    const title = forecastField && isForecast(row[forecastField]) ? wordsFor(ctx).forecastOf(xLabels[i] ?? "") : (xLabels[i] ?? "");
     if (compareField) items.push({ label: ctx.label(compareField), value: ctx.format(row[compareField], compareField), color: COMPARE_FILL });
     overlayFields.forEach((field, k) => items.push({ label: ctx.label(field), value: ctx.format(row[field], field), color: overlayColor(k) }));
-    for (const pin of pinned) if (pin.i === i) items.push({ label: "Note", value: pin.text });
+    for (const pin of pinned) if (pin.i === i) items.push({ label: wordsFor(ctx).note, value: pin.text });
     const hit = svg(doc, "rect", { class: "fft-hit", x: slot.start, y: plot.y, width: slot.width, height: plot.h, tabindex: 0, role: "img" });
     hit.setAttribute("aria-label", `${title}: ${items.map((item) => `${item.label} ${item.value || "no value"}`).join(", ")}`);
     const activate = () => {

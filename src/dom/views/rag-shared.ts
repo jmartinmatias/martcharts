@@ -39,6 +39,8 @@ export const ragColor = (status: Rag): string => `var(--fft-rag-${status.toLower
 export interface RagLook {
   words?: unknown;
   shapes?: unknown;
+  /** The widget's locale, for the status words in its own language. */
+  locale?: string;
 }
 
 /** A status's mark: its shape in its color, hidden from screen readers (the words beside it say the status). */
@@ -50,7 +52,7 @@ export function ragMark(doc: Document, status: Rag, look: RagLook = {}, size = 1
 export function ragPill(doc: Document, status: Rag, look: RagLook = {}, className = ""): HTMLElement {
   const pill = html(doc, "span", `fft-rag-pill${className ? ` ${className}` : ""}`);
   pill.dataset.rag = status;
-  pill.append(ragMark(doc, status, look), html(doc, "span", "fft-rag-word", ragWord(status, look.words)));
+  pill.append(ragMark(doc, status, look), html(doc, "span", "fft-rag-word", ragWord(status, look.words, look.locale)));
   return pill;
 }
 
@@ -67,7 +69,7 @@ export function ragLegend(doc: Document, present: Iterable<Rag>, look: RagLook =
     if (!seen.has(status)) continue;
     const item = html(doc, "li");
     item.dataset.rag = status;
-    item.append(ragMark(doc, status, look, 11), ragWord(status, look.words));
+    item.append(ragMark(doc, status, look, 11), ragWord(status, look.words, look.locale));
     list.append(item);
   }
   return list;

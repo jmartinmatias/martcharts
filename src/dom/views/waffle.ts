@@ -4,7 +4,7 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { WaffleView } from "../../core/views.ts";
 import { allocate } from "../layout.ts";
 import { evenFormat, figureSize, hiddenTableOf, html, selectable, shareFormat, svg } from "./shared.ts";
-import { categoryColor, emphasis, WORDS } from "./words.ts";
+import { categoryColor, emphasis, wordsFor } from "./words.ts";
 import { roving } from "./focus.ts";
 
 const SIDE = 10;
@@ -40,7 +40,7 @@ export const renderWaffle: ViewRenderer<WaffleView> = (ctx) => {
   const wrap = html(doc, "div", "fft-waffle");
   const chart = svg(doc, "svg", { width: size, height: size, viewBox: `0 0 ${size} ${size}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Waffle chart of ${ctx.label(value)} by ${ctx.label(label)}, each square one percent`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.waffle(ctx.label(value), ctx.label(label)));
   const square = (k: number, cls: string) =>
     svg(doc, "rect", { class: cls, x: (k % SIDE) * (cell + GAP), y: Math.floor(k / SIDE) * (cell + GAP), width: cell, height: cell, rx: 2, style: `--fft-k: ${k}` });
 
@@ -60,7 +60,7 @@ export const renderWaffle: ViewRenderer<WaffleView> = (ctx) => {
     const color = lit.paint(part.row[label], categoryColor(ctx, part.row[label], i));
     const items: TooltipItem[] = [
       { label: ctx.label(value), value: amountText(part), color },
-      { label: WORDS.share, value: share.format(part.amount / whole) },
+      { label: wordsFor(ctx).share, value: share.format(part.amount / whole) },
     ];
     const activate = () => {
       wrap.setAttribute("data-active", "");

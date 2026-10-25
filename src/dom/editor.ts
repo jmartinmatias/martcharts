@@ -31,6 +31,7 @@ import { DARK, LIGHT } from "./styles.ts";
 import { fieldList } from "./views/shared.ts";
 import { createWidget } from "./widget.ts";
 import type { Widget } from "./widget.ts";
+import { wordsFor, WORDS_EN } from "../core/words.ts";
 
 /** A dataset offered on the first step: a name and either the text itself or an address to fetch. */
 export interface EditorSample {
@@ -59,7 +60,9 @@ export interface EditorOptions {
   hash?: boolean;
   /** Toolbar actions on the published chart. Default csv, image, copy and explain. */
   actions?: WidgetAction[];
-  /** Words to replace, for another language. */
+  /** The editor's language, as a locale ("fr-LU", "de-DE"). Default: the page's own `lang`, then English. */
+  locale?: string;
+  /** Words to replace, on top of the language's own. */
   strings?: Partial<typeof STRINGS>;
 }
 
@@ -85,126 +88,8 @@ export interface Editor {
   destroy(): void;
 }
 
-/** Every word the editor shows, in one place. */
-export const STRINGS = {
-  steps: ["Upload data", "Check & describe", "Visualize", "Publish & embed"],
-  stepOf: "Step {n} of 4",
-  back: "Back",
-  proceed: "Proceed",
-  undo: "Undo",
-  dropHere: "Drop a CSV, TSV, JSON or Excel-pasted table here, or paste it",
-  dropHint: "The first row names the columns. Numbers, dates and text are told apart for you.",
-  chooseFile: "Choose a file",
-  orAddress: "Or load from an address",
-  address: "Address of a CSV or JSON file",
-  load: "Load",
-  samples: "Start from a sample",
-  myCharts: "My charts",
-  open: "Open",
-  remove: "Remove",
-  headerRow: "First row is the header",
-  transpose: "Transpose rows and columns",
-  rowsCount: "{rows} rows, {columns} columns",
-  noData: "No data yet. Drop a file or paste a table to begin.",
-  preview: "The first {n} rows",
-  kinds: { number: "Number", category: "Text", date: "Date" } as Record<string, string>,
-  columns: "Columns",
-  columnsHint: "Name each column as readers should see it, pick how its values are written, and put them in order.",
-  label: "Label",
-  format: "Format",
-  noFormat: "As is",
-  decimals: "Decimals",
-  compact: "Short figures (1.2M)",
-  currency: "Currency code",
-  datePattern: "Date style",
-  hide: "Hide",
-  moveUp: "Move up",
-  moveDown: "Move down",
-  dragHandle: "Drag to reorder",
-  tabs: ["Chart type", "Refine", "Annotate"],
-  recommended: "Recommended for this data",
-  allCharts: "All charts",
-  fitsLess: "May not fit",
-  options: "Options",
-  none: "None",
-  highlight: "Highlight",
-  highlightHint: "Click a mark on the chart, or a name here, to keep it in color and grey the rest.",
-  facet: "Small multiples by",
-  style: "Style",
-  preset: "Look",
-  theme: "Theme",
-  themes: { auto: "Auto", light: "Light", dark: "Dark" } as Record<string, string>,
-  palette: "Colors",
-  height: "Height (px)",
-  heightAuto: "Auto",
-  density: "Density",
-  densities: { comfortable: "Comfortable", compact: "Compact" } as Record<string, string>,
-  title: "Title",
-  subtitle: "Description",
-  footer: "Notes",
-  sourceName: "Source name",
-  sourceUrl: "Source address",
-  byline: "Byline",
-  headline: "Headline number",
-  headlineCompare: "Compared with",
-  references: "Reference lines",
-  referenceValue: "Value",
-  referenceLabel: "Label",
-  add: "Add",
-  annotations: "Text annotations",
-  annotationAt: "At",
-  annotationY: "Height (optional)",
-  annotationText: "Text",
-  left: "Earlier",
-  right: "Later",
-  annotationsHint: "Drag a note on the chart to move it, or step it with the arrows.",
-  json: "The spec",
-  copy: "Copy",
-  copied: "Copied",
-  download: "Download JSON",
-  embed: "Embed",
-  embedInline: "One tag, the spec inside",
-  embedSrc: "One tag, the spec in a file",
-  embedJs: "From JavaScript",
-  save: "Save to this gallery",
-  saved: "Saved",
-  saveFailed: "Could not save",
-  problems: "Before it can draw",
-  liveChart: "Live chart",
-  publishedChart: "Your chart",
-  legendHint: "Click a legend entry to drop that series; add it back under Refine.",
-  dragOver: "Drop to load",
-  loadFailed: "Could not load {what}",
-  notATable: "This does not read as a table.",
-  moreColumns: "and {n} more",
-  order: "Order",
-  orderHint: "Drag a field, or use its arrows, to set the order it is drawn in.",
-  basemap: "Map",
-  basemapAddress: "A GeoJSON address…",
-  basemapUrl: "GeoJSON address",
-  todayLine: "Today line",
-  todayDate: "On this date (blank for today)",
-  labelModes: { codes: "Codes", none: "None" } as Record<string, string>,
-  quadrantX: "Split at x",
-  quadrantY: "Split at y",
-  quadrantWords: ["Top left", "Top right", "Bottom right", "Bottom left"],
-  ragGreen: "On track from",
-  ragAmber: "At risk from",
-  ragGoodWhen: "Good when",
-  ragDirections: { up: "Higher", down: "Lower" } as Record<string, string>,
-  ragRules: "Statuses (red, amber, green)",
-  ragRulesHint: "Each rule turns a number into a status column: on track from one value, at risk from another.",
-  ragField: "Measure",
-  ragOverall: "Overall status column",
-  overallWorst: "Worst of the columns",
-  previousOf: "Last period of {field}",
-  colors: "Fixed colors",
-  colorsHint: "Give a category the same color on every chart.",
-  clearColor: "Clear",
-  tooltip: "Tooltip",
-  tooltipHint: "Write the tooltip; {field} is filled from the mark's row. Leave blank for the chart's own.",
-  insertField: "Insert",
-};
+/** Every word the editor shows, in English: the editor's set in the one words module (core/words.ts), which has French and German too. */
+export const STRINGS = WORDS_EN.editor;
 
 type Strings = typeof STRINGS;
 type Kind = "number" | "category" | "date";
@@ -235,18 +120,8 @@ const HASH_LIMIT = 60_000;
 const STORE_KEY = "martcharts:editor:charts";
 const SESSION_KEY = "martcharts:editor:spec";
 /** Fields a table view takes as columns; every other view's field options are found in the schema. */
-const FORMATS: { type: string; label: string }[] = [
-  { type: "number", label: "Number" },
-  { type: "currency", label: "Currency" },
-  { type: "percent", label: "Percent" },
-  { type: "date", label: "Date" },
-  { type: "badge", label: "Status pill" },
-  { type: "bar", label: "In-cell bar" },
-  { type: "heat", label: "Heat shade" },
-  { type: "delta", label: "Signed change" },
-  { type: "spark", label: "Sparkline" },
-  { type: "text", label: "Text" },
-];
+/** The cell formats a column can take, in the order offered; their names come from the words module. */
+const FORMATS = ["number", "currency", "percent", "date", "badge", "bar", "heat", "delta", "spark", "text"] as const;
 const DATE_STYLES = ["short", "medium", "long", "day", "month", "year"];
 /** View options the Refine form leaves to other places: highlight has its own picker, references and annotations live under Annotate. */
 const ELSEWHERE = new Set(["highlight", "reference", "annotations"]);
@@ -442,7 +317,7 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
   const doc = target.ownerDocument;
   const win = doc.defaultView;
   ensureEditorStyles(doc);
-  const strings: Strings = { ...STRINGS, ...options.strings } as Strings;
+  const strings: Strings = { ...wordsFor(options.locale ?? doc.documentElement.lang).editor, ...options.strings } as Strings;
   const t = <K extends keyof Strings>(key: K): Strings[K] => strings[key];
   const fetcher = options.fetch ?? win?.fetch?.bind(win) ?? globalThis.fetch;
   const useHash = options.hash ?? Boolean(win && win.location);
@@ -545,9 +420,9 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
   };
 
   const root = el("section", "fft-editor");
-  root.setAttribute("aria-label", "Chart editor");
+  root.setAttribute("aria-label", t("editorName"));
   const stepper = el("ol", "fft-ed-stepper");
-  stepper.setAttribute("aria-label", "Steps");
+  stepper.setAttribute("aria-label", t("stepsName"));
   const compact = el("p", "fft-ed-step-compact");
   const live = el("p", "fft-ed-live");
   live.setAttribute("aria-live", "polite");
@@ -1097,7 +972,7 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
       label.addEventListener("change", () => commit({ fields: { [f]: { label: label.value || null } } }));
       const format = el("select", "fft-ed-select");
       format.add(new Option(t("noFormat"), ""));
-      for (const { type, label: name } of FORMATS) format.add(new Option(name, type));
+      for (const type of FORMATS) format.add(new Option(t("formats")[type] ?? type, type));
       const formatType = typeof current.format === "string" ? current.format : current.format?.type ?? "";
       format.value = formatType;
       const sub = el("div", "fft-ed-sub");
@@ -1813,7 +1688,7 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
       headline.value = spec.headline?.value ?? "";
       const compare = el("select", "fft-ed-select");
       compare.add(new Option(t("none"), ""));
-      compare.add(new Option("Previous row", "previous"));
+      compare.add(new Option(t("previousRow"), "previous"));
       for (const f of numbers) compare.add(new Option(labelOf(f), f));
       compare.value = typeof spec.headline?.compare === "string" ? spec.headline.compare : "";
       const apply = () => commit({ headline: headline.value ? { value: headline.value, compare: compare.value || null } : null });
@@ -1843,7 +1718,7 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
         list.append(row);
       });
       const values = rows().flatMap((row) => numbers.map((f) => row[f])).filter((v): v is number => typeof v === "number");
-      list.append(button(t("add"), () => write([...refs, { value: values.length ? Math.round(values.reduce((a, b) => a + b, 0) / values.length) : 0, label: "Target" }]), "fft-ed-chip"));
+      list.append(button(t("add"), () => write([...refs, { value: values.length ? Math.round(values.reduce((a, b) => a + b, 0) / values.length) : 0, label: t("target") }]), "fft-ed-chip"));
       form.append(field(t("references"), list));
     }
 
@@ -1884,7 +1759,7 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
         row.append(earlier, at, later, y, text, button(t("remove"), () => write(notes.filter((_, k) => k !== i)), "fft-ed-chip"));
         list.append(row);
       });
-      list.append(button(t("add"), () => write([...notes, { x: categories[Math.floor(categories.length / 2)], text: "Note" }]), "fft-ed-chip"));
+      list.append(button(t("add"), () => write([...notes, { x: categories[Math.floor(categories.length / 2)], text: t("note") }]), "fft-ed-chip"));
       form.append(field(t("annotations"), list, t("annotationsHint")));
     }
   }

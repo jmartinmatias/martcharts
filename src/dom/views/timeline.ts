@@ -5,6 +5,7 @@ import type { TimelineView } from "../../core/views.ts";
 import { fitLabels } from "../layout.ts";
 import { activeGroup, DAY, dayOf, hiddenTableOf, html, legendList, roving, rowHeight, rowHit, shareFormat, svg, textWidth } from "./shared.ts";
 import { nameColumn, writeLabel } from "./label-fit.ts";
+import { wordsFor } from "./words.ts";
 
 const BAR = 13;
 
@@ -59,7 +60,7 @@ export const renderTimeline: ViewRenderer<TimelineView> = (ctx) => {
   if (key) wrap.append(key);
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Timeline of ${ctx.label(label)} from ${ctx.label(start)}${end ? ` to ${ctx.label(end)}` : ""}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.timeline(ctx.label(label), ctx.label(start), end ? ctx.label(end) : undefined));
 
   // Month ticks; quarters only when months would crowd.
   const locale = ctx.spec.locale;
@@ -124,11 +125,11 @@ export const renderTimeline: ViewRenderer<TimelineView> = (ctx) => {
     const items: TooltipItem[] = [{ label: ctx.label(start), value: dateText(task.row, start, task.from), color }];
     if (task.to !== null && end) {
       const length = task.to - task.from;
-      items.push({ label: ctx.label(end), value: dateText(task.row, end, task.to) }, { label: "Duration", value: `${length} ${Math.abs(length) === 1 ? "day" : "days"}` });
+      items.push({ label: ctx.label(end), value: dateText(task.row, end, task.to) }, { label: wordsFor(ctx).duration, value: wordsFor(ctx).days(length) });
     }
     if (group) items.push({ label: ctx.label(group), value: ctx.format(task.row[group], group) });
     const done = doneOf(task.row);
-    if (done !== null && task.to !== null) items.push({ label: "Progress", value: percent.format(done) });
+    if (done !== null && task.to !== null) items.push({ label: wordsFor(ctx).progress, value: percent.format(done) });
     const hit = svg(doc, "rect", { class: "fft-gantt-hit", x: 0, y: cy - LANE / 2, width, height: LANE });
     hits.push(rowHit(ctx, { node: hit, row: task.row, name: task.name, items, anchor, active: g, group: active }));
     g.append(hit);
@@ -141,7 +142,7 @@ export const renderTimeline: ViewRenderer<TimelineView> = (ctx) => {
     const tx = x(now);
     chart.append(svg(doc, "line", { class: "fft-gantt-today", x1: tx, x2: tx, y1: margin.top - 6, y2: bottom }));
     const text = svg(doc, "text", { class: "fft-gantt-today-label", x: tx, y: margin.top - 10, "text-anchor": "middle" });
-    text.textContent = "Today";
+    text.textContent = wordsFor(ctx).today;
     chart.append(text);
   }
 

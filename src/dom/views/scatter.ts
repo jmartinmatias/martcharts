@@ -8,6 +8,7 @@ import { drawReferences } from "./reference.ts";
 import { DEEMPHASIS, drawNotes, highlights, pinNotes, tickFormatter } from "./chart.ts";
 import { hiddenTableOf, html, legendList, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
+import { wordsFor } from "./words.ts";
 
 /** Radius of the biggest bubble: a Fibonacci step. */
 const MAX_BUBBLE = 21;
@@ -81,7 +82,7 @@ export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) =>
   const quadrantOf = (px: number, py: number): number => (quadrants ? (py >= quadrants.y ? (px < quadrants.x ? 0 : 1) : px >= quadrants.x ? 2 : 3) : -1);
   const quadrantName = (px: number, py: number): string => {
     const i = quadrantOf(px, py);
-    return i < 0 ? "" : quadrants?.labels?.[i] ?? ["Top left", "Top right", "Bottom right", "Bottom left"][i]!;
+    return i < 0 ? "" : quadrants?.labels?.[i] ?? wordsFor(ctx).quadrants[i]!;
   };
   const ys = linearScale(yValues, [plot.y + plot.h, plot.y], { includeZero: false });
 
@@ -91,14 +92,14 @@ export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) =>
     const keys = colorField && groups.length > 1 ? groups.map((group, i) => ({ label: ctx.format(group, colorField), color: groupColor(i), shape: "dot" as const })) : [];
     const legend = legendList(ctx, keys, { min: 0 });
     if (legend) {
-      if (size) legend.append(html(doc, "li", "fft-scatter-size", `Bubble size: ${ctx.label(size)}`));
+      if (size) legend.append(html(doc, "li", "fft-scatter-size", wordsFor(ctx).bubbleSize(ctx.label(size))));
       wrap.append(legend);
     }
   }
 
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Scatter chart of ${ctx.label(yField)} against ${ctx.label(xField)}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.scatter(ctx.label(yField), ctx.label(xField)));
   for (const tick of ys.ticks) {
     const ty = ys(tick);
     chart.append(svg(doc, "line", { class: tick === ys.ticks[0] ? "fft-baseline" : "fft-gridline", x1: plot.x, x2: plot.x + plot.w, y1: ty, y2: ty }));
@@ -204,8 +205,8 @@ export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) =>
     if (size) items.push({ label: ctx.label(size), value: ctx.format(point.row[size], size) });
     if (series) items.push({ label: ctx.label(series), value: ctx.format(point.row[series], series), color });
     if (cluster) items.push({ label: ctx.label(cluster), value: ctx.format(point.row[cluster], cluster), ...(series ? {} : { color }) });
-    if (quadrants) items.push({ label: "Quadrant", value: quadrantName(point.x, point.y) });
-    for (const pin of pinned) if (pin.i === i) items.push({ label: "Note", value: pin.text });
+    if (quadrants) items.push({ label: wordsFor(ctx).quadrant, value: quadrantName(point.x, point.y) });
+    for (const pin of pinned) if (pin.i === i) items.push({ label: wordsFor(ctx).note, value: pin.text });
     const hit = svg(doc, "circle", { class: "fft-point-hit", cx, cy, r: Math.max(13, point.r + 3), tabindex: 0, role: "img" });
     hit.setAttribute("aria-label", `${name ? `${name}: ` : ""}${items.map((item) => `${item.label} ${item.value}`).join(", ")}`);
     const activate = () => {
@@ -261,9 +262,9 @@ export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) =>
   roving([...overlay.children]);
   wrap.append(chart);
   if (noteList) wrap.append(noteList);
-  if (!points.length) wrap.append(html(doc, "p", "fft-empty-note", `No row has both ${ctx.label(xField)} and ${ctx.label(yField)}.`));
+  if (!points.length) wrap.append(html(doc, "p", "fft-empty-note", wordsFor(ctx).noRowBoth(ctx.label(xField), ctx.label(yField))));
 
   const columns = [label, xField, yField, size, series, cluster].filter((f): f is string => Boolean(f));
-  wrap.append(hiddenTableOf(ctx, quadrants ? points.map((p) => ({ ...p.row, Quadrant: quadrantName(p.x, p.y) })) : points.map((p) => p.row), quadrants ? [...columns, "Quadrant"] : columns));
+  wrap.append(hiddenTableOf(ctx, quadrants ? points.map((p) => ({ ...p.row, [wordsFor(ctx).quadrant]: quadrantName(p.x, p.y) })) : points.map((p) => p.row), quadrants ? [...columns, wordsFor(ctx).quadrant] : columns));
   ctx.el.append(wrap);
 };

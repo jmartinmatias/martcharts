@@ -6,6 +6,7 @@ import { linearScale } from "../layout.ts";
 import { highlights, tickFormatter } from "./chart.ts";
 import { activeGroup, hiddenTableOf, html, roving, rowHeight, rowHit, svg, textWidth } from "./shared.ts";
 import { fitLabel, writeLabel } from "./label-fit.ts";
+import { wordsFor } from "./words.ts";
 
 /** The gap between the two halves and their labels. */
 const GUTTER = 8;
@@ -59,7 +60,7 @@ export const renderPyramid: ViewRenderer<PyramidView> = (ctx) => {
   const wrap = html(doc, "div", "fft-chart fft-pyramid");
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Pyramid of ${ctx.label(left)} and ${ctx.label(right)} by ${ctx.label(label)}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.pyramid(ctx.label(left), ctx.label(right), ctx.label(label)));
 
   // Each half's heading, in its color, over the bars it names.
   for (const [field, color, x, anchor] of [
@@ -121,7 +122,7 @@ export const renderPyramid: ViewRenderer<PyramidView> = (ctx) => {
     const items: TooltipItem[] = [
       { label: ctx.label(left), value: leftText[i] ?? "", color: leftColor },
       { label: ctx.label(right), value: rightText[i] ?? "", color: rightColor },
-      { label: "Total", value: ctx.format(total, right) },
+      { label: wordsFor(ctx).total, value: ctx.format(total, right) },
     ];
     const hit = svg(doc, "rect", { class: "fft-pyr-hit", x: 0, y: top, width, height: LANE });
     hits.push(rowHit(ctx, { node: hit, row, name: names[i] ?? "", items, anchor: name, active: group, group: active }));

@@ -8,6 +8,7 @@ import { fieldList, hiddenTableOf, html, ROW, roving, rowHit, svg, textWidth } f
 import type { ActiveGroup } from "./shared.ts";
 import { drawsScaleKey } from "./facet-key.ts";
 import { nameColumn, writeLabel } from "./label-fit.ts";
+import { wordsFor } from "./words.ts";
 
 const LANE: number = ROW.roomy;
 const GAP = 2;
@@ -66,7 +67,7 @@ export const renderHorizon: ViewRenderer<HorizonView> = (ctx) => {
   // A named baseline ("plan") reads in its own words; otherwise the key gives its value.
   const named = ctx.view.baselineLabel?.trim();
   const baseText = named || valueText(base);
-  for (const [sign, text] of [["up", `Above ${baseText}, rising`], ["down", `Below ${baseText}, hanging`]] as const) {
+  for (const [sign, text] of [["up", wordsFor(ctx).aboveRising(baseText)], ["down", wordsFor(ctx).belowHanging(baseText)]] as const) {
     const ramp = html(doc, "span", "fft-horizon-ramp");
     ramp.setAttribute("aria-hidden", "true");
     for (let k = 0; k < count; k++) {
@@ -76,12 +77,12 @@ export const renderHorizon: ViewRenderer<HorizonView> = (ctx) => {
     }
     key.append(html(doc, "span", "fft-horizon-key-text", text), ramp);
   }
-  key.append(html(doc, "span", "fft-horizon-key-text", `Each shade ${tickFormatter(ctx, series[0], [step])(step)}`));
+  key.append(html(doc, "span", "fft-horizon-key-text", wordsFor(ctx).eachShade(tickFormatter(ctx, series[0], [step])(step))));
   if (drawsScaleKey(ctx)) wrap.append(key);
 
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Horizon chart of ${names.join(", ")} by ${ctx.label(x)}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.horizon(names.join(", "), ctx.label(x)));
 
   series.forEach((field, s) => {
     const top = s * (LANE + GAP);
@@ -161,7 +162,7 @@ export const renderHorizon: ViewRenderer<HorizonView> = (ctx) => {
     const items: TooltipItem[] = series.map((field, s) => {
       const v = values[s]?.[i];
       // Against a named baseline, how far from it and which side: "€6.5K above plan", "On plan".
-      const away = v === null || v === undefined ? undefined : v === base ? `On ${named}` : `${ctx.format(Math.abs(v - base), field)} ${v > base ? "above" : "below"} ${named}`;
+      const away = v === null || v === undefined ? undefined : v === base ? wordsFor(ctx).onDate(named ?? "") : wordsFor(ctx).awayFrom(ctx.format(Math.abs(v - base), field), v > base, named ?? "");
       return { label: names[s] ?? field, value: named && away ? away : ctx.format(row[field], field), ...(v === null || v === undefined || v === base ? {} : { color: `var(--fft-${v > base ? "up" : "down"})` }) };
     });
     const hit = svg(doc, "rect", { class: "fft-horizon-hit", x: slot.start, y: 0, width: slot.width, height: rowsHeight, "data-center": slot.center });
