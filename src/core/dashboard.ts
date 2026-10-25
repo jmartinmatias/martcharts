@@ -76,6 +76,11 @@ export interface DashboardSpec {
   columns?: number;
   filters?: DashboardFilter[];
   range?: DashboardRange;
+  /**
+   * Clicking a mark (a bar, a slice, a region, a table row) filters every other widget whose data has that mark's
+   * field to its value, with a chip in the filter row to clear it. Default true; `false` turns it off for this board.
+   */
+  crossFilter?: boolean;
   widgets: DashboardCell[];
 }
 
@@ -118,6 +123,7 @@ export function validateDashboard(spec: unknown): Issue[] {
       }
     }
   }
+  if (spec.crossFilter !== undefined && typeof spec.crossFilter !== "boolean") issues.push(error("crossFilter", "Must be true or false."));
   if (!Array.isArray(spec.widgets)) {
     issues.push(error("widgets", 'Required. A list of cells such as { "widget": "revenue-kpi", "span": 2 }.'));
     return issues;

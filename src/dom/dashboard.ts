@@ -11,6 +11,8 @@ import { fieldLabel, formatValue } from "../core/display.ts";
 import { fork } from "../core/fork.ts";
 import { runPipeline } from "../core/pipeline.ts";
 import { compareValues } from "../core/transforms.ts";
+import { getBlock, hasBlock } from "../core/registry.ts";
+import { categoryField } from "../core/view-context.ts";
 import { isForecast } from "../core/views.ts";
 import type { Row, TransformSpec, WidgetSpec } from "../core/types.ts";
 import type { WidgetAction } from "./export.ts";
@@ -44,6 +46,18 @@ export interface DashboardOptions {
   hash?: boolean;
   /** Opens every widget's "How to read it" guide from the start. */
   guides?: boolean;
+  /**
+   * Clicking a mark filters every other widget whose data has the mark's field to its value, with a chip in the
+   * filter row (and Escape) to clear it. Default: the board's own `crossFilter`, which defaults to true.
+   */
+  crossFilter?: boolean;
+}
+
+/** The filter a click on a mark set: the field, its value, and the widget clicked (which keeps its data and highlights the value). */
+export interface CrossFilter {
+  field: string;
+  value: unknown;
+  source?: string;
 }
 
 /** A live dashboard. */
@@ -61,6 +75,13 @@ export interface Dashboard {
   setSection(section: string | null): void;
   /** Opens or closes the "How to read it" guide on every widget at once. */
   setGuides(open: boolean): void;
+  /**
+   * Sets the click filter: every widget whose data has `field` keeps only rows with `value`, except `source`, which
+   * keeps its data and highlights the value. `null` clears it. Fires `fft-crossfilter` on the board's root.
+   */
+  setCrossFilter(field: string | null, value?: unknown, source?: string): Promise<void>;
+  /** The click filter in force, or null. */
+  crossFilter(): CrossFilter | null;
   /** Merges a patch into every widget's spec (merge patch rules), for example a style preset. Survives filtering. */
   setOverride(patch: Record<string, unknown>): Promise<void>;
   destroy(): void;
@@ -79,6 +100,7 @@ export interface Dashboard {
 export function createDashboard(target: HTMLElement, spec: DashboardSpec, options: DashboardOptions = {}): Dashboard {
   const doc = target.ownerDocument;
   ensureStyles(doc);
+  ensureBoardStyles(doc);
   const el = <K extends keyof HTMLElementTagNameMap>(tag: K, className: string, text?: string) => {
     const node = doc.createElement(tag);
     node.className = className;
@@ -106,6 +128,11 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   const rawRows = new Map<string, Promise<Row[]>>();
   const active = new Map<string, unknown>();
   let override: Record<string, unknown> = {};
+  /** The click filter, when one is set. */
+  let cross: CrossFilter | undefined;
+  const crossOn = options.crossFilter ?? spec.crossFilter ?? true;
+  /** The section in view, for the address. */
+  let shownSection: string | null = null;
   const range = spec.range;
   const rangeFields = range ? (Array.isArray(range.field) ? range.field : [range.field]) : [];
   const periods = range?.options ?? RANGE_OPTIONS;
@@ -238,23 +265,61 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
         nav.scrollBy({ left: chip.left - box.left - (box.width - chip.width) / 2 });
       }
     });
-    if (options.hash) {
-      const view = doc.defaultView;
-      view?.history.replaceState(view.history.state, "", section ? `#${section.id}` : `${view.location.pathname}${view.location.search}`);
-    }
+    shownSection = section?.id ?? null;
+    writeHash();
     if (root.getBoundingClientRect().top < 0) root.scrollIntoView?.({ block: "start" });
+  }
+
+  /**
+   * The address, when the board keeps it: the section in view and the click filter, as `#<section>&cf=<filter>`.
+   * The filter is JSON ([field, value, source]) so numbers stay numbers through a reload.
+   */
+  function writeHash() {
+    if (!options.hash) return;
+    const view = doc.defaultView;
+    if (!view) return;
+    const parts = [shownSection, cross ? `cf=${encodeURIComponent(JSON.stringify([cross.field, cross.value, cross.source ?? null]))}` : null].filter(Boolean);
+    view.history.replaceState(view.history.state, "", parts.length ? `#${parts.join("&")}` : `${view.location.pathname}${view.location.search}`);
+  }
+
+  /** The two parts of the address: the section named, and the click filter written there. */
+  function readHash(): { section: string; cross?: CrossFilter } {
+    const parts = (doc.defaultView?.location.hash.slice(1) ?? "").split("&");
+    let found: CrossFilter | undefined;
+    const named = parts.filter((part) => {
+      if (!part.startsWith("cf=")) return true;
+      try {
+        const [field, value, source] = JSON.parse(decodeURIComponent(part.slice(3))) as [unknown, unknown, unknown];
+        if (typeof field === "string" && field) found = { field, value, ...(typeof source === "string" ? { source } : {}) };
+      } catch {
+        // A filter that does not read is ignored, like an unknown section.
+      }
+      return false;
+    });
+    return { section: named[0] ?? "", ...(found ? { cross: found } : {}) };
   }
 
   // An address naming one of this board's sections opens the board on it, and the board follows the address as it
   // changes (links, back and forward): a section's id shows it, an empty address shows them all, anything else is left alone.
+  let pendingCross: CrossFilter | undefined;
   const fromAddress = (initial: boolean) => {
-    const named = doc.defaultView?.location.hash.slice(1) ?? "";
-    const match = sections.find(({ node }) => node.id === named);
-    if (match) choose(match.node);
-    else if (!named && !initial) choose(null);
+    const { section: named, cross: wanted } = readHash();
+    if (nav) {
+      const match = sections.find(({ node }) => node.id === named);
+      if (match) choose(match.node);
+      else if (!named && !initial) choose(null);
+    }
+    // The click filter follows the address too; on first load it waits until the widgets know their fields.
+    if (!crossOn) return;
+    if (initial) {
+      pendingCross = wanted;
+      return;
+    }
+    const same = wanted && cross && wanted.field === cross.field && wanted.value === cross.value && wanted.source === cross.source;
+    if (!same && (wanted || cross)) void setCrossFilter(wanted?.field ?? null, wanted?.value, wanted?.source);
   };
   const onHash = () => fromAddress(false);
-  if (options.hash && nav) {
+  if (options.hash) {
     fromAddress(true);
     doc.defaultView?.addEventListener("hashchange", onHash);
   }
@@ -292,12 +357,78 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     const field = rangeFields.find((f) => fields.has(f));
     const from = field ? rangeStart(period, await latest()) : null;
     if (field && from) steps.push({ type: "filter", field, op: ">=", value: from });
-    return steps.length ? fork(base, { transform: [...steps, ...(base.transform ?? [])] }) : base;
+    // The click filter: the clicked widget keeps its rows and lights the value up; every other widget with the field keeps only its rows.
+    let shaped = base;
+    if (cross && fields.has(cross.field)) {
+      if (id === cross.source) {
+        if (canHighlight(base.view, cross.field)) shaped = fork(base, { view: { highlight: String(cross.value) } });
+      } else steps.push({ type: "filter", field: cross.field, op: "==", value: cross.value });
+    }
+    return steps.length ? fork(shaped, { transform: [...steps, ...(shaped.transform ?? [])] }) : shaped;
   }
 
   async function redraw() {
     await Promise.all([...widgets.entries()].map(async ([id, widget]) => widget.setSpec(await specFor(id))));
   }
+
+  /** Whether a view lights up categories with `highlight` (bars and the like), and draws this field as its categories. */
+  function canHighlight(view: WidgetSpec["view"], field: string): boolean {
+    if (!hasBlock("view", view.type)) return false;
+    const option = getBlock("view", view.type).options.highlight;
+    // Lines and areas highlight series (fields), not categories; their option says so.
+    return Boolean(option && /^Category/.test(option.description)) && ["label", "x"].some((name) => view[name] === field);
+  }
+
+  // The chip that names the click filter and clears it: "Region: East x".
+  const chip = el("button", "fft-crossfilter");
+  chip.type = "button";
+  chip.hidden = true;
+  chip.addEventListener("click", () => void setCrossFilter(null));
+  let rowHiddenBefore = false;
+
+  async function setCrossFilter(field: string | null, value?: unknown, source?: string) {
+    cross = field === null ? undefined : { field, value, ...(source ? { source } : {}) };
+    if (cross) {
+      const text = `${fieldLabel(cross.field)}: ${formatValue(cross.value, undefined, undefined)}`;
+      chip.replaceChildren(el("span", "fft-crossfilter-text", text), el("span", "fft-crossfilter-x", "\u00d7"));
+      chip.setAttribute("aria-label", `Clear filter ${text}`);
+      chip.title = "Clear this filter (Escape)";
+      if (chip.hidden) rowHiddenBefore = filterRow.hidden === true;
+      // The chip joins the filter row the first time a click sets a filter, after the period and filters, before the sections.
+      if (!chip.isConnected) filterRow.insertBefore(chip, nav ?? null);
+      chip.hidden = false;
+      filterRow.hidden = false;
+    } else if (!chip.hidden) {
+      chip.hidden = true;
+      filterRow.hidden = rowHiddenBefore;
+    }
+    writeHash();
+    root.dispatchEvent(new CustomEvent<CrossFilter | null>("fft-crossfilter", { bubbles: true, detail: cross ? { ...cross } : null }));
+    await redraw();
+  }
+
+  // A click on a mark filters the rest of the board by what it stands for; the same mark again clears it.
+  const onSelect = (event: Event) => {
+    if (!crossOn) return;
+    const detail = (event as CustomEvent<{ row?: Row; spec?: WidgetSpec }>).detail;
+    const slot = (event.target as Element | null)?.closest?.(".fft-cell-slot") as HTMLElement | null;
+    const source = slot?.dataset.widget;
+    const row = detail?.row;
+    const view = detail?.spec?.view;
+    if (!row || !view) return;
+    const field = categoryField(view, row);
+    if (!field) return;
+    const value = row[field];
+    if (cross && cross.field === field && cross.value === value && cross.source === source) void setCrossFilter(null);
+    else void setCrossFilter(field, value, source);
+  };
+  grid.addEventListener("fft-select", onSelect);
+  // Escape clears the click filter, unless something else (a tooltip, a menu, an expanded card) took it first.
+  const onKey = (event: KeyboardEvent) => {
+    if (event.key !== "Escape" || event.defaultPrevented || !cross || doc.querySelector(".fft-overlay")) return;
+    void setCrossFilter(null);
+  };
+  doc.addEventListener("keydown", onKey);
 
   const periodButtons: HTMLButtonElement[] = [];
   function buildRange() {
@@ -354,7 +485,8 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       wrap.append(label, select);
       filterRow.insertBefore(wrap, nav ?? null);
     }
-    filterRow.hidden = !(spec.filters?.length || range || nav);
+    rowHiddenBefore = !(spec.filters?.length || range || nav);
+    filterRow.hidden = rowHiddenBefore && chip.hidden;
   }
 
   async function setFilter(field: string, value: unknown) {
@@ -370,7 +502,8 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   const ready = (async () => {
     await buildFilters();
     await Promise.all([...widgets.values()].map((widget) => widget.ready));
-    if (period !== "All") await redraw();
+    if (pendingCross) await setCrossFilter(pendingCross.field, pendingCross.value, pendingCross.source);
+    else if (period !== "All") await redraw();
   })();
 
   return {
@@ -379,6 +512,8 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     ready,
     setFilter,
     setRange,
+    setCrossFilter,
+    crossFilter: () => (cross ? { ...cross } : null),
     setGuides(open) {
       for (const widget of widgets.values()) widget.showGuide(open);
     },
@@ -399,6 +534,8 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     },
     destroy() {
       doc.defaultView?.removeEventListener("hashchange", onHash);
+      doc.removeEventListener("keydown", onKey);
+      grid.removeEventListener("fft-select", onSelect);
       barSize?.disconnect();
       navSize?.disconnect();
       if (barSize) page.style.removeProperty("--fft-filters-height");
@@ -407,4 +544,24 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       root.remove();
     },
   };
+}
+
+/** The click filter's chip, on the library's tokens; injected once per document. */
+const BOARD_CSS = `
+.fft-crossfilter { display: inline-flex; align-items: center; gap: 8px; min-height: 34px; padding: 0 8px 0 13px; border: 1px solid color-mix(in srgb, var(--fft-accent) 55%, transparent); border-radius: 999px; background: color-mix(in srgb, var(--fft-accent) 12%, transparent); color: inherit; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.fft-crossfilter[hidden] { display: none; }
+.fft-crossfilter:hover { background: color-mix(in srgb, var(--fft-accent) 20%, transparent); }
+.fft-crossfilter:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 2px; }
+.fft-crossfilter-x { display: inline-grid; place-items: center; width: 21px; height: 21px; border-radius: 50%; font-size: 15px; line-height: 1; opacity: 0.75; }
+.fft-crossfilter:hover .fft-crossfilter-x { opacity: 1; background: color-mix(in srgb, var(--fft-accent) 18%, transparent); }
+@media (prefers-reduced-motion: no-preference) { .fft-crossfilter:not([hidden]) { animation: fft-chip-in 233ms ease-out both; } }
+@keyframes fft-chip-in { from { opacity: 0; transform: scale(0.94); } }
+`;
+
+function ensureBoardStyles(doc: Document): void {
+  if (doc.getElementById("fft-board-styles")) return;
+  const style = doc.createElement("style");
+  style.id = "fft-board-styles";
+  style.textContent = BOARD_CSS;
+  doc.head.append(style);
 }

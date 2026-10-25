@@ -68,3 +68,35 @@ export interface ViewContext<V extends { type: string } = ViewSpec> {
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ViewRenderer<V extends { type: string } = any> = (ctx: ViewContext<V>) => void | (() => void);
+
+/** View options that name the category a mark stands for, in the order a click looks for them. */
+export const CATEGORY_OPTIONS = ["label", "x", "id", "row", "y", "group", "series", "stage", "column"] as const;
+
+/** True for a value that names a category rather than measuring something: text that is not a bare number, or a yes/no. */
+function isCategoryValue(value: unknown): boolean {
+  return (typeof value === "string" && value.trim() !== "" && !/^-?\d+(\.\d+)?$/.test(value.trim())) || typeof value === "boolean";
+}
+
+/**
+ * The field a picked row stands for: the first of the view's category options (`label`, `x`, `id`, `row`, `y`...)
+ * naming one field that holds a category in the row, or else the row's first text field (a table row). Undefined
+ * when the row has no category at all. Dashboards cross-filter on it; tooltip templates find their row by it.
+ */
+export function categoryField(view: { type: string; [option: string]: unknown }, row: Row): string | undefined {
+  for (const option of CATEGORY_OPTIONS) {
+    const field = view[option];
+    if (typeof field === "string" && field in row && isCategoryValue(row[field])) return field;
+  }
+  return Object.keys(row).find((key) => isCategoryValue(row[key]));
+}
+
+const ROW_TOKEN = /\{([^{}:]+)\}/g;
+
+/**
+ * A tooltip template filled from one row: `{field}` is that row's value in the field's own format, and the summary
+ * tokens (`{sum:field}`, `{count}`...) are filled first by `summarize`, as in titles. Words in braces that name no
+ * field are left alone.
+ */
+export function fillRowTemplate(text: string, row: Row, format: (value: unknown, field: string) => string, summarize: (text: string) => string = (t) => t): string {
+  return summarize(text).replace(ROW_TOKEN, (match, field: string) => (field in row ? format(row[field], field) : match));
+}
