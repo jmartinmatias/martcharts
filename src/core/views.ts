@@ -21,7 +21,17 @@ export interface TableView {
   sortable?: boolean;
   /** A footer row summing each number column. Default false. */
   totals?: boolean;
+  /** A search field above the table that keeps the rows matching what is typed. Default false. */
+  search?: boolean;
+  /** Rows shown at a time, with Previous and Next under the table. Default all of them. */
+  pageSize?: number;
+  /** Keep the first column in place when the table scrolls sideways. Default false. */
+  stickyFirst?: boolean;
+  /** Text alignment per column, where the default (numbers right, text left) is not wanted. */
+  align?: Record<string, "left" | "center" | "right">;
 }
+
+const ALIGNMENTS = ["left", "center", "right"];
 
 /** `{ type: "list", label, detail?, value? }` */
 export interface ListView {
@@ -448,7 +458,21 @@ const table: ViewBlock = {
   options: {
     columns: { type: "fields", description: "Fields to show, in order. Defaults to every field in the rows." },
     sortable: { type: "boolean", default: true, description: "Headers become buttons that sort the rows: ascending, then descending. Missing values stay last." },
-    totals: { type: "boolean", default: false, description: "Adds a footer row summing each number column in its own format. Percent columns stay blank, since summed shares mean nothing." },
+    totals: { type: "boolean", default: false, description: "Adds a footer row summing each number column in its own format, over every row whatever the page or search shows. Percent columns stay blank, since summed shares mean nothing." },
+    search: { type: "boolean", default: false, description: "A small search field above the table: typing keeps only the rows whose shown text matches, in any column, and says how many remain. For directories and long lists." },
+    pageSize: { type: "number", description: "Rows shown at a time, with Previous and Next under the table (hidden while the rows fit on one page). Sorting or searching goes back to the first page. Leave out to show every row." },
+    stickyFirst: { type: "boolean", default: false, description: "Keeps the first column in place while a wide table scrolls sideways, so every row keeps its name in view." },
+    align: { type: "object", description: 'Text alignment per column, overriding the default of numbers right and text left: { "status": "center" }. Values: left, center, right.' },
+  },
+  validate(view) {
+    const problems: string[] = [];
+    if (view.pageSize !== undefined && !(typeof view.pageSize === "number" && Number.isInteger(view.pageSize) && view.pageSize >= 1)) problems.push("pageSize must be a whole number, 1 or more, for example 10.");
+    if (view.align !== undefined) {
+      const align = view.align;
+      if (!align || typeof align !== "object" || Array.isArray(align)) problems.push('align must map columns to left, center or right, for example { "status": "center" }.');
+      else for (const [field, value] of Object.entries(align)) if (!ALIGNMENTS.includes(String(value))) problems.push(`align.${field} must be left, center or right, not ${JSON.stringify(value)}.`);
+    }
+    return problems;
   },
 };
 

@@ -1115,7 +1115,9 @@ function guide(spec: WidgetSpec): string {
         const format = spec.fields?.[c]?.format;
         return (typeof format === "object" ? (format as { type?: string }).type : format) === "heat";
       });
-      return `${shape}${shaded ? " The stronger the shade, the bigger the number." : ""}${view.sortable === false ? "" : " Click a column heading to sort by it."}`;
+      const search = view.search ? " Type in the search box to keep only the rows that match." : "";
+      const pages = typeof view.pageSize === "number" && view.pageSize >= 1 ? ` ${view.pageSize} rows show at a time; Next and Previous turn the pages.` : "";
+      return `${shape}${shaded ? " The stronger the shade, the bigger the number." : ""}${view.sortable === false ? "" : " Click a column heading to sort by it."}${search}${pages}`;
     }
     default:
       return "Each mark stands for one value. Bigger, longer or stronger marks mean more.";
