@@ -5,7 +5,7 @@
  * Deterministic: the same seed writes the same files. Run with: node scripts/client-health-data.ts
  *
  * Writes public/data/client-health.json, client-health-history.json, rm-health.json, rag-thresholds.json,
- * rag-transitions.json and rag-by-rm.json.
+ * rag-transitions.json, rag-by-rm.json and client-health-perspectives.json (one row per client and perspective).
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -239,6 +239,7 @@ for (const client of clients) {
     row[`${p}Rag`] = per[p];
     row[`${p}Status`] = WORD[per[p]];
     row[`${p}PrevRag`] = previous[p];
+    row[`${p}Red`] = per[p] === "R" ? 1 : 0;
   }
   const prevOverall = rollup(PERSPECTIVES.map((p) => previous[p]), "overall");
   row.overallRag = overall;
@@ -246,6 +247,13 @@ for (const client of clients) {
   row.overallPrevRag = prevOverall;
   row.overallPrevStatus = WORD[prevOverall];
   row.overallRank = RANK[overall];
+  // One-and-zero flags and the move's two ends, so the books, the reds and the moves are counted from these rows
+  // with transforms: a segment, banker or region filter then reaches them too.
+  row.overallRed = overall === "R" ? 1 : 0;
+  row.overallAmber = overall === "A" ? 1 : 0;
+  row.overallGreen = overall === "G" ? 1 : 0;
+  row.movedFrom = `${WORD[prevOverall]} in Q3`;
+  row.movedTo = `${WORD[overall]} in Q4`;
   // The next step: the worst perspective's worst metric, with its owner, for clients not on track.
   const target = [...PERSPECTIVES].sort((a, b) => RANK[per[a]] - RANK[per[b]])[0] as Perspective;
   const metric = worst[target];
@@ -307,6 +315,23 @@ for (const from of ["G", "A", "R"] as Rag[]) {
   }
 }
 
+// The same in long form, one row per client and perspective, carrying the filter fields: the heatmap of reds
+// counts these, so a filter on segment, banker or region reaches it.
+const perspectiveRows = health.flatMap((r) =>
+  PERSPECTIVES.map((p) => ({
+    id: r.id,
+    name: r.name,
+    segment: r.segment,
+    rm: r.rm,
+    region: r.region,
+    perspective: LABELS[p],
+    status: r[`${p}Rag`],
+    red: r[`${p}Rag`] === "R" ? 1 : 0,
+    amber: r[`${p}Rag`] === "A" ? 1 : 0,
+    green: r[`${p}Rag`] === "G" ? 1 : 0,
+  })),
+);
+
 const thresholds = [
   ...THRESHOLDS.map(({ perspective, ...t }) => ({ ...t, perspectiveKey: perspective, kind: "Metric" })),
 ];
@@ -319,6 +344,7 @@ write("rag-thresholds.json", thresholds);
 write("rag-rollups.json", ROLLUPS);
 write("rag-transitions.json", transitions);
 write("rag-by-rm.json", byRm);
+write("client-health-perspectives.json", perspectiveRows);
 
 const tally = (s: Rag) => health.filter((r) => r.overallRag === s).length;
 console.log(`client-health: ${health.length} (R ${tally("R")}, A ${tally("A")}, G ${tally("G")}); history: ${history.length}; rm-health: ${rmRows.length}; thresholds: ${thresholds.length}; transitions: ${transitions.length}; by RM: ${byRm.length}`);

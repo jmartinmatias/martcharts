@@ -1,15 +1,15 @@
 {
   "id": "cc-campaign-funnel",
-  "title": "The best campaign, step by step",
-  "subtitle": "{first:campaign}: targeted to converted",
-  "description": "How many clients each step of the best-converting campaign kept.",
+  "title": "Campaigns, step by step",
+  "subtitle": "Every campaign this year, from clients targeted to clients converted",
+  "description": "How many clients this year's campaigns targeted, reached, heard back from and converted, all campaigns together.",
   "locale": "en-US",
   "source": {
     "name": "Commercial data mart (fictional)"
   },
   "data": {
     "type": "url",
-    "url": "/data/campaign-funnel.json"
+    "url": "/data/campaign-stages.json"
   },
   "fields": {
     "stage": {
@@ -23,5 +23,18 @@
     "type": "funnel",
     "label": "stage",
     "value": "clients"
-  }
+  },
+  "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": "stage",
+      "measures": [
+        {
+          "op": "sum",
+          "field": "clients",
+          "as": "clients"
+        }
+      ]
+    }
+  ]
 }

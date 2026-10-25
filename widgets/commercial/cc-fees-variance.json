@@ -9,7 +9,7 @@
   },
   "data": {
     "type": "url",
-    "url": "/data/segment-targets.json"
+    "url": "/data/fees-by-book.json"
   },
   "fields": {
     "segment": {
@@ -38,5 +38,23 @@
     "value": "fees",
     "target": "target",
     "percent": true
-  }
+  },
+  "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": "segment",
+      "measures": [
+        {
+          "op": "sum",
+          "field": "fees",
+          "as": "fees"
+        },
+        {
+          "op": "sum",
+          "field": "target",
+          "as": "target"
+        }
+      ]
+    }
+  ]
 }

@@ -2,14 +2,14 @@
   "id": "cc-headline-kpis",
   "title": "The book at a glance",
   "subtitle": "{last:month}, against the month before",
-  "description": "Assets, revenue so far this year, net new money, open opportunities, cross-sell potential and anomalies, month by month.",
+  "description": "Assets, revenue so far this year, net new money, open opportunities and cross-sell potential, month by month, summed from each client's rows so the filters reach them. Anomalies have their own watch below.",
   "locale": "en-US",
   "source": {
     "name": "Commercial data mart (fictional)"
   },
   "data": {
     "type": "url",
-    "url": "/data/commercial-summary.json"
+    "url": "/data/client-activity.json"
   },
   "fields": {
     "month": {
@@ -53,9 +53,6 @@
         "currency": "EUR",
         "compact": true
       }
-    },
-    "anomalies": {
-      "label": "Anomalies"
     }
   },
   "view": {
@@ -86,13 +83,44 @@
         "value": "potential",
         "label": "Cross-sell potential",
         "compare": "previous"
-      },
-      {
-        "value": "anomalies",
-        "label": "Anomalies this month",
-        "compare": "previous",
-        "goodWhen": "down"
       }
     ]
-  }
+  },
+  "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": "month",
+      "measures": [
+        {
+          "op": "sum",
+          "field": "aum",
+          "as": "aum"
+        },
+        {
+          "op": "sum",
+          "field": "revenueYtd",
+          "as": "revenueYtd"
+        },
+        {
+          "op": "sum",
+          "field": "netNewMoney",
+          "as": "netNewMoney"
+        },
+        {
+          "op": "sum",
+          "field": "openOpportunity",
+          "as": "openOpportunities"
+        },
+        {
+          "op": "sum",
+          "field": "potential",
+          "as": "potential"
+        }
+      ]
+    },
+    {
+      "type": "sort",
+      "field": "month"
+    }
+  ]
 }

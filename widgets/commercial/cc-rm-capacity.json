@@ -9,7 +9,7 @@
   },
   "data": {
     "type": "url",
-    "url": "/data/rm-coverage.json"
+    "url": "/data/clients.json"
   },
   "fields": {
     "rm": {
@@ -27,5 +27,22 @@
     "label": "rm",
     "value": "clients",
     "target": "capacity"
-  }
+  },
+  "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": "rm",
+      "measures": [
+        {
+          "op": "count",
+          "as": "clients"
+        },
+        {
+          "op": "max",
+          "field": "rmCapacity",
+          "as": "capacity"
+        }
+      ]
+    }
+  ]
 }

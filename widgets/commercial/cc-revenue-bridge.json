@@ -1,7 +1,7 @@
 {
   "id": "cc-revenue-bridge",
   "title": "From last year's revenue to this year's",
-  "subtitle": "What added and what took away",
+  "subtitle": "January to October, 2025 against 2026: what added and what took away",
   "description": "The revenue bridge from 2025 to 2026.",
   "locale": "en-US",
   "source": {
@@ -9,7 +9,7 @@
   },
   "data": {
     "type": "url",
-    "url": "/data/commercial-bridge.json"
+    "url": "/data/bridge-by-client.json"
   },
   "fields": {
     "step": {
@@ -29,9 +29,22 @@
     "label": "step",
     "value": "amount",
     "totals": [
-      "Revenue 2025"
+      "Revenue 2025, January to October"
     ],
-    "endLabel": "Revenue 2026",
+    "endLabel": "Revenue 2026, January to October",
     "fit": true
-  }
+  },
+  "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": "step",
+      "measures": [
+        {
+          "op": "sum",
+          "field": "amount",
+          "as": "amount"
+        }
+      ]
+    }
+  ]
 }

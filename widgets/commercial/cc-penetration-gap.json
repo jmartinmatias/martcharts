@@ -1,7 +1,7 @@
 {
   "id": "cc-penetration-gap",
   "title": "Penetration against target",
-  "subtitle": "Where each product stands and where it should be by year end",
+  "subtitle": "Where each product stands and where it should be by year end; the target is set for the whole book",
   "description": "Each product's penetration today and its year-end target; the arrow points the way it has to move.",
   "locale": "en-US",
   "source": {
@@ -9,9 +9,36 @@
   },
   "data": {
     "type": "url",
-    "url": "/data/products.json"
+    "url": "/data/holdings.json"
   },
   "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": "product",
+      "measures": [
+        {
+          "op": "sum",
+          "field": "held",
+          "as": "holders"
+        },
+        {
+          "op": "count",
+          "as": "clients"
+        },
+        {
+          "op": "max",
+          "field": "penetrationTarget",
+          "as": "penetrationTarget"
+        }
+      ]
+    },
+    {
+      "type": "calc",
+      "as": "penetration",
+      "op": "divide",
+      "left": "holders",
+      "right": "clients"
+    },
     {
       "type": "sort",
       "field": "penetration",

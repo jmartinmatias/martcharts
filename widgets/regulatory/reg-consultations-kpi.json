@@ -6,7 +6,7 @@
   "locale": "en-US",
   "data": {
     "type": "url",
-    "url": "/data/regulatory-pressure.json"
+    "url": "/data/regulatory-pressure-split.json"
   },
   "transform": [
     {
@@ -14,6 +14,21 @@
       "field": "forecast",
       "op": "==",
       "value": false
+    },
+    {
+      "type": "aggregate",
+      "groupBy": "month",
+      "measures": [
+        {
+          "op": "sum",
+          "field": "consultationsOpen",
+          "as": "consultationsOpen"
+        }
+      ]
+    },
+    {
+      "type": "sort",
+      "field": "month"
     }
   ],
   "fields": {
