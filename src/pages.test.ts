@@ -149,4 +149,11 @@ describe("the published site", () => {
     }
     expect(readFileSync("demo/site-nav.css", "utf8")).toMatch(/\.site-bar::before\s*\{[^}]*clip-path: inset\(0 -100vmax -1px -100vmax\)/);
   });
+
+  test("a grid of examples never grows wider than its page: its column is bounded, so long code scrolls inside its box", () => {
+    // An unbounded grid column takes the min-content width of the longest code line, and the cards run off the page.
+    const css = readFileSync("examples/drop-in.html", "utf8");
+    expect(css).toMatch(/\.examples \{[^}]*grid-template-columns: minmax\(0, 1fr\)/);
+    expect(css).toMatch(/\.snippet pre \{[^}]*overflow-x: auto/);
+  });
 });
