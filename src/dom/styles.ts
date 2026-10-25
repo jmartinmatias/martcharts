@@ -1268,9 +1268,13 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-hbar-wrap { display: flex; flex-direction: column; container-type: inline-size; }
 .fft-hbars[data-mode="grouped"] .fft-hbar { grid-template-columns: minmax(55px, 38%) 1fr; align-items: start; }
 .fft-hbar-group { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.fft-hbar-bar { display: flex; align-items: center; gap: 5px; min-width: 0; }
-.fft-hbar-bar .fft-hbar-fill { height: 9px; flex: none; }
-.fft-hbar-end { font-size: 11px; line-height: 13px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--fft-text-secondary); }
+.fft-hbar-bar { display: flex; align-items: center; min-width: 0; }
+.fft-hbar-run { position: relative; width: calc(100% - var(--fft-end-room, 0px)); height: 13px; }
+.fft-hbar-run .fft-hbar-fill { position: absolute; left: 0; top: 2px; height: 9px; }
+.fft-hbar-end { position: absolute; top: 0; margin-left: 5px; font-size: 11px; line-height: 13px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--fft-text-secondary); }
+.fft-hbar-seg { position: relative; overflow: hidden; }
+.fft-hbar-seg-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; font-variant-numeric: tabular-nums; color: #fff; text-shadow: 0 0 2px rgba(0, 0, 0, 0.45); pointer-events: none; }
+.fft-hbars[data-mode="stacked"] .fft-hbar-track { height: 15px; }
 .fft-hbars[data-mode="grouped"] .fft-hbar-label { align-self: center; }
 .fft-hbar-stack { display: flex; gap: 2px; }
 .fft-hbar-seg { height: 100%; flex: none; min-width: 0; border-radius: 2px; transform-origin: 0 50%; transition: opacity 377ms var(--fft-ease); }
@@ -1280,6 +1284,7 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-hbars[data-mode="split"] { gap: 5px; }
 .fft-hbars[data-mode="split"] .fft-hbar { grid-template-columns: minmax(55px, 26%) repeat(var(--fft-splits, 2), minmax(0, 1fr)); gap: 13px; }
 .fft-hbars[data-mode="split"] .fft-hbar-bar { padding-right: 3px; }
+.fft-map-code { fill: var(--fft-text-secondary); opacity: 0.5; font-size: 9px; font-weight: 600; letter-spacing: 0.02em; pointer-events: none; }
 .fft-hbar-head { cursor: default; margin-bottom: 3px; }
 .fft-hbar-col-title { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; line-height: 13px; color: var(--fft-text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 @container (max-width: 420px) {

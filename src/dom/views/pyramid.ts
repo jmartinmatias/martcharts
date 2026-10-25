@@ -1,5 +1,4 @@
 import { readNumber } from "../../core/formats.ts";
-import { getPreset } from "../../core/presets.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { PyramidView } from "../../core/views.ts";
 import { linearScale } from "../layout.ts";
@@ -50,8 +49,8 @@ export const renderPyramid: ViewRenderer<PyramidView> = (ctx) => {
   const leftEdge = mid - center / 2;
   const rightEdge = mid + center / 2;
   const span = (value: number) => (value / max) * half;
-  const radius = getPreset(ctx.spec.style?.preset)?.marks?.barRadius;
-  const rx = radius === "full" ? ROW : (radius ?? 2);
+  // A pyramid reads as a silhouette: its bars nearly touch, with square corners whatever the preset's bar radius.
+  const rx = 2;
   const [leftColor, rightColor] = [ctx.color(0), ctx.color(1)];
 
   const wrap = html(doc, "div", "fft-chart fft-pyramid");
@@ -96,7 +95,7 @@ export const renderPyramid: ViewRenderer<PyramidView> = (ctx) => {
   };
   rows.forEach((row, i) => {
     const top = plotTop + i * ROW;
-    const barTop = top + Math.max(2, Math.round(ROW * 0.15));
+    const barTop = top + 1;
     const barHeight = ROW - 2 * (barTop - top);
     const cy = top + ROW / 2;
     const group = svg(doc, "g", { class: "fft-pyr-row", style: `--fft-i: ${i}` });

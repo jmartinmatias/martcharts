@@ -138,6 +138,16 @@ export function mapCanvas(doc: Document, width: number, height: number, label: s
   const land = svg(doc, "g", { class: "fft-map-landscape" });
   land.setAttribute("aria-hidden", "true");
   for (const shape of shapes) land.append(svg(doc, "path", { class: "fft-map-land", d: shape.path }));
+  // On a tile grid the squares say nothing by themselves, so each wears its code, faintly, under the marks.
+  if (collection?.grid) {
+    for (const shape of shapes) {
+      const code = shape.id || shape.name;
+      if (!code || !labelFits(shape, code)) continue;
+      const text = svg(doc, "text", { class: "fft-map-code", x: shape.centroid[0], y: shape.bounds[3] - 3, "text-anchor": "middle" });
+      text.textContent = code;
+      land.append(text);
+    }
+  }
   canvas.append(land);
   return canvas;
 }

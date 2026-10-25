@@ -106,6 +106,29 @@ function renderSingle(ctx: ViewContext<HbarView>, value: string): void {
   ctx.el.append(list);
 }
 
+/** Pixels a column of end labels needs: its longest text at 11px, plus the gap before it. */
+function endRoom(texts: string[]): number {
+  return Math.max(0, ...texts.map((text) => text.length)) * 6.5 + 8;
+}
+
+/**
+ * One thin bar with its value at its end: the fill runs over a track shortened by the room the longest label needs,
+ * and the label sits where the fill ends, so the longest bar's number still fits inside the column.
+ */
+function endBar(doc: Document, share: string, background: string, text: string, room: number): HTMLElement {
+  const bar = html(doc, "div", "fft-hbar-bar");
+  const run = html(doc, "div", "fft-hbar-run");
+  run.style.setProperty("--fft-end-room", `${Math.round(room)}px`);
+  const fill = html(doc, "div", "fft-hbar-fill");
+  fill.style.width = share;
+  fill.style.background = background;
+  const end = html(doc, "span", "fft-hbar-end", text);
+  end.style.left = share;
+  run.append(fill, end);
+  bar.append(run);
+  return bar;
+}
+
 /** What the rows of a grouped, stacked or split chart share: emphasis, the active-row dance, and the hidden table. */
 function frame(ctx: ViewContext<HbarView>, series: string[], mode: "grouped" | "stacked" | "split") {
   const doc = ctx.el.ownerDocument;
@@ -146,6 +169,8 @@ function renderGrouped(ctx: ViewContext<HbarView>, series: string[]): void {
   const { label } = ctx.view;
   const amounts = ctx.rows.map((row) => series.map((field) => readNumber(row[field])));
   const max = Math.max(0, ...amounts.flat().filter((n): n is number => n !== null), ...(ctx.extent ?? []));
+  // Every bar leaves room for the longest value written at a bar's end, so the longest bar's label is never cut.
+  const room = endRoom(ctx.rows.flatMap((row) => series.map((field) => ctx.format(row[field], field))));
   ctx.rows.forEach((row, i) => {
     const name = ctx.format(row[label], label);
     const lit = on(row);
@@ -156,12 +181,7 @@ function renderGrouped(ctx: ViewContext<HbarView>, series: string[]): void {
     series.forEach((field, s) => {
       const amount = amounts[i]?.[s] ?? null;
       const text = ctx.format(row[field], field);
-      const bar = html(doc, "div", "fft-hbar-bar");
-      const fill = html(doc, "div", "fft-hbar-fill");
-      fill.style.width = widthOf(amount, max);
-      fill.style.background = color(s, lit);
-      bar.append(fill, html(doc, "span", "fft-hbar-end", text));
-      group.append(bar);
+      group.append(endBar(doc, widthOf(amount, max), color(s, lit), text, room));
       lines.push({ label: ctx.label(field), value: text, color: color(s, lit) });
     });
     item.setAttribute("aria-label", `${name}: ${lines.map((line) => `${line.label} ${line.value || "no value"}`).join(", ")}`);
@@ -187,6 +207,8 @@ function renderStacked(ctx: ViewContext<HbarView>, series: string[]): void {
   const parts = ctx.rows.map((row) => series.map((field) => Math.max(0, readNumber(row[field]) ?? 0)));
   const totals = parts.map((values) => values.reduce((sum, v) => sum + v, 0));
   const max = percent ? 1 : Math.max(0, ...totals, ...(ctx.extent ?? []));
+  // About how wide the track is: the card less the label column, so a share is only written where it fits.
+  const trackPx = Math.max(144, ctx.width * 0.55);
   ctx.rows.forEach((row, i) => {
     const name = ctx.format(row[label], label);
     const lit = on(row);
@@ -201,6 +223,11 @@ function renderStacked(ctx: ViewContext<HbarView>, series: string[]): void {
       const seg = html(doc, "div", "fft-hbar-seg");
       seg.style.width = widthOf(fraction, max);
       seg.style.background = color(s, lit);
+      // Percent stacks write each share inside its part, where the part is wide enough to hold the figure.
+      if (percent && total > 0) {
+        const shareText = share.format(amount / total);
+        if ((amount / total) * trackPx >= shareText.length * 6.5 + 8) seg.append(html(doc, "span", "fft-hbar-seg-text", shareText));
+      }
       const line: TooltipItem = { label: ctx.label(field), value: `${ctx.format(row[field], field)}${total > 0 ? ` (${share.format(amount / total)})` : ""}`, color: color(s, lit) };
       lines.push(line);
       // Pointing at one part names it alone; the row's focus names every part.
@@ -211,9 +238,10 @@ function renderStacked(ctx: ViewContext<HbarView>, series: string[]): void {
       seg.addEventListener("pointerleave", () => activate(item, track, name, lines));
       track.append(seg);
     });
-    const totalText = percent ? share.format(total > 0 ? 1 : 0) : ctx.format(total, series[0]);
+    const totalText = ctx.format(total, series[0]);
     item.setAttribute("aria-label", `${name}: ${lines.map((line) => `${line.label} ${line.value}`).join(", ")}${percent ? "" : `, total ${totalText}`}`);
-    item.append(html(doc, "span", "fft-hbar-label", name), track, html(doc, "span", "fft-hbar-value", totalText));
+    // A percent stack's end would only ever say 100%, so the shares are written inside the parts instead.
+    item.append(html(doc, "span", "fft-hbar-label", name), track, ...(percent ? [] : [html(doc, "span", "fft-hbar-value", totalText)]));
     const show = () => activate(item, track, name, lines);
     item.addEventListener("pointerenter", show);
     item.addEventListener("focus", show);
@@ -235,6 +263,8 @@ function renderSplit(ctx: ViewContext<HbarView>, series: string[]): void {
   const all = Math.max(0, ...own, ...(ctx.extent ?? []));
   const maxOf = (s: number) => (ctx.view.shared ? all : (own[s] ?? 0));
   list.style.setProperty("--fft-splits", String(series.length));
+  // Each column keeps room for its own longest value, so its longest bar's label is never cut.
+  const rooms = series.map((field) => endRoom(ctx.rows.map((row) => ctx.format(row[field], field))));
   // The heading row names each column once, where its bars start.
   const head = html(doc, "li", "fft-hbar fft-hbar-head");
   head.setAttribute("aria-hidden", "true");
@@ -258,12 +288,7 @@ function renderSplit(ctx: ViewContext<HbarView>, series: string[]): void {
     series.forEach((field, s) => {
       const amount = amounts[i]?.[s] ?? null;
       const text = ctx.format(row[field], field);
-      const bar = html(doc, "div", "fft-hbar-bar");
-      const fill = html(doc, "div", "fft-hbar-fill");
-      fill.style.width = widthOf(amount, maxOf(s));
-      fill.style.background = color(s, lit);
-      bar.append(fill, html(doc, "span", "fft-hbar-end", text));
-      item.append(bar);
+      item.append(endBar(doc, widthOf(amount, maxOf(s)), color(s, lit), text, rooms[s] ?? 0));
       lines.push({ label: ctx.label(field), value: text, color: color(s, lit) });
     });
     item.setAttribute("aria-label", `${name}: ${lines.map((line) => `${line.label} ${line.value || "no value"}`).join(", ")}`);

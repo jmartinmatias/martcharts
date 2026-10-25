@@ -98,10 +98,11 @@ describe("stacked hbar", () => {
     expect(all(".fft-hbar-seg").map((s) => (s as HTMLElement).style.background).slice(0, 2)).toEqual(["var(--fft-series-1)", "var(--fft-series-2)"]);
   });
 
-  test("percent stacks every row to 100% and says so at the end", async () => {
+  test("percent stacks every row to 100%, writing each share inside its part where it fits, and nothing at the end", async () => {
     await draw({ rows: channels, view: { type: "hbar", label: "channel", value: ["leads", "won"], stacked: "percent" } });
     expect(widths(".fft-hbar-seg")).toEqual(["80%", "20%", "66.7%", "33.3%", "100%", "0%"]);
-    expect(texts(".fft-hbar-value")).toEqual(["100%", "100%", "100%"]);
+    expect(texts(".fft-hbar-seg-text")).toEqual(["80%", "20%", "67%", "33%", "100%"]);
+    expect(all(".fft-hbar-value")).toHaveLength(0);
   });
 
   test("focus names every part with its share; pointing at one part names it alone", async () => {
