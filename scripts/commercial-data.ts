@@ -2,7 +2,9 @@
  * Writes the Commercial cockpit's fictional dataset into public/data: sixty
  * wealth-management clients and everything the cockpit draws about them
  * (holdings and whitespace, history, monthly activity, daily metrics with
- * anomalies, campaigns, adoption cohorts, products, coverage, allocation).
+ * anomalies, campaigns, adoption cohorts, products, coverage, allocation), plus
+ * the call list on each client, the deals and their stages, and each book's
+ * pipeline, win rate and new money against target.
  * Seeded, so the same files come out every run. Run with: node scripts/commercial-data.ts
  */
 import { mkdir, writeFile } from "node:fs/promises";
@@ -557,6 +559,95 @@ const stageRows = STAGES.flatMap(([stage, field]) => campaignRows.map((r) => ({ 
 // History rows carry the client's segment beside its banker, so the story follows the segment filter too.
 const historyRows = history.map((h) => ({ ...h, segment: clientOf.get(h.client)?.segment ?? null }));
 
+// ---- Who acts: the call list, and the pipeline against target ----
+// A generator of its own, so every file above keeps its draws exactly.
+const dealRandom = seeded(20261101);
+const dealBetween = (low: number, high: number) => low + dealRandom() * (high - low);
+const daysSince = (date: string) => Math.round((TODAY.getTime() - Date.parse(`${date}T00:00:00Z`)) / DAY);
+
+// The call list: every client scored on how much a call this week matters, with the reasons and the next best action.
+// A long silence, a flagged anomaly, a client at risk of leaving and a likely sale each add to the score.
+for (const row of clientRows) {
+  const days = daysSince(row.lastContact);
+  const best = holdings
+    .filter((h) => h.client === row.name && h.state === "Opportunity")
+    .sort((a, b) => b.propensity * b.potential - a.propensity * a.potential)[0];
+  const reasons = [
+    ...(row.anomaly ? ["Unusual activity flagged"] : []),
+    ...(days > 90 ? [`No contact in ${days} days`] : []),
+    ...(row.cluster === "At risk" ? ["At risk of leaving"] : []),
+    ...(best && best.propensity >= 60 ? [`Ready for ${best.product}`] : []),
+  ];
+  const first = row.anomaly ? "Check the flagged activity" : days > 90 ? "Book a review meeting" : best ? `Propose ${best.product}` : "Keep the regular check-in";
+  const action = best && !first.startsWith("Propose") ? `${first}, then propose ${best.product}` : first;
+  Object.assign(row, {
+    daysSinceContact: days,
+    callScore: Math.round((Math.min(days, 180) / 180) * 35 + (row.anomaly ? 25 : 0) + (row.cluster === "At risk" ? 15 : 0) + (best ? best.propensity * 0.25 : 0)),
+    callReason: reasons.join("; ") || "Regular check-in",
+    nextAction: action,
+    crossSellPotential: potentialOf.get(row.name) ?? 0,
+  });
+}
+
+// Deals, sized as the new assets they would bring. Open deals are each client's best open opportunities, at a stage;
+// decided deals are the ones won or lost this year, two to three a client, at a win rate that differs by banker.
+const DEAL_STAGES = ["Qualified", "Proposal", "Negotiation", "Won"] as const;
+const PROBABILITY: Record<string, number> = { Qualified: 0.2, Proposal: 0.45, Negotiation: 0.7, Won: 1, Lost: 0 };
+const WIN_RATE = Object.fromEntries(RMS.map((rm) => [rm, dealBetween(0.24, 0.52)]));
+const deals: { deal: string; client: string; segment: string; rm: string; product: string; stage: string; reached: number; value: number; probability: number; weighted: number; closeDate: string; closeMonth: string; open: number }[] = [];
+const addDeal = (c: Client, product: string, stage: string, reached: number, closeDate: string) => {
+  const value = Math.max(10_000, round((c.aum * dealBetween(0.04, 0.16)) / 10_000) * 10_000);
+  const probability = PROBABILITY[stage] ?? 0;
+  deals.push({ deal: `d${String(deals.length + 1).padStart(3, "0")}`, client: c.name, segment: c.segment, rm: c.rm, product, stage, reached, value, probability, weighted: round(value * probability), closeDate, closeMonth: closeDate.slice(0, 7), open: stage === "Won" || stage === "Lost" ? 0 : 1 });
+};
+for (const c of clients) {
+  const open = holdings.filter((h) => h.client === c.name && h.state === "Opportunity").sort((a, b) => b.potential - a.potential);
+  const count = Math.min(open.length, c.segment === "Institutional" ? 3 : c.segment === "Corporate" ? 2 : dealRandom() < 0.5 ? 2 : 1);
+  for (const h of open.slice(0, count)) {
+    const r = dealRandom();
+    const stage = r < 0.45 ? "Qualified" : r < 0.78 ? "Proposal" : "Negotiation";
+    addDeal(c, h.product, stage, DEAL_STAGES.indexOf(stage), iso(new Date(TODAY.getTime() + Math.round(dealBetween(7, 160)) * DAY)));
+  }
+  const products = holdings.filter((h) => h.client === c.name && h.state !== "Not eligible");
+  const decided = 2 + (dealRandom() < 0.4 ? 1 : 0);
+  for (let k = 0; k < decided; k++) {
+    const won = dealRandom() < (WIN_RATE[c.rm] ?? 0.35);
+    const product = (products[Math.floor(dealRandom() * products.length)] ?? products[0])?.product ?? "Custody";
+    // A lost deal got as far as a proposal or a negotiation before it was lost.
+    addDeal(c, product, won ? "Won" : "Lost", won ? 3 : dealRandom() < 0.5 ? 1 : 2, daysAgo(Math.round(dealBetween(10, 290))));
+  }
+}
+// The funnel: one row per deal and stage it reached, stage by stage, so an aggregate keeps the stages in order.
+const dealStageRows = DEAL_STAGES.flatMap((stage, i) => deals.filter((d) => d.reached >= i).map((d) => ({ stage, deal: d.deal, client: d.client, segment: d.segment, rm: d.rm, deals: 1, value: d.value })));
+
+// Each book (segment and banker) against its targets: the open pipeline weighted by stage, the deals decided this
+// year (won against a 35% win-rate target, kept as a count so it adds up across books), and net new money this year.
+// Each banker's targets come from one ambition, so some books are ahead of plan and some behind.
+const AMBITION = Object.fromEntries(RMS.map((rm) => [rm, { pipeline: dealBetween(0.8, 1.3), money: dealBetween(0.82, 1.25) }]));
+const bookRows = Object.keys(SEGMENTS).flatMap((segment) =>
+  RMS.map((rm) => {
+    const own = deals.filter((d) => d.segment === segment && d.rm === rm);
+    const book = clients.filter((c) => c.segment === segment && c.rm === rm);
+    const weighted = own.filter((d) => d.open).reduce((sum, d) => sum + d.weighted, 0);
+    const decided = own.filter((d) => !d.open).length;
+    const newMoney = activityRows.filter((r) => book.some((c) => c.name === r.client) && String(r.month).startsWith("2026")).reduce((sum, r) => sum + Number(r.netNewMoney), 0);
+    const aim = AMBITION[rm] as { pipeline: number; money: number };
+    return {
+      segment,
+      rm,
+      clients: book.length,
+      pipeline: own.filter((d) => d.open).reduce((sum, d) => sum + d.value, 0),
+      weighted,
+      pipelineTarget: round(((weighted > 0 ? weighted * aim.pipeline : 0) || book.reduce((sum, c) => sum + c.aum, 0) * 0.002) / 10_000) * 10_000,
+      won: own.filter((d) => d.stage === "Won").length,
+      decided,
+      wonTarget: round(decided * 0.35, 2),
+      newMoney: round(newMoney),
+      newMoneyTarget: round(((newMoney > 0 ? newMoney * aim.money : 0) || book.reduce((sum, c) => sum + c.aum, 0) * 0.002) / 10_000) * 10_000,
+    };
+  }),
+).filter((r) => r.clients > 0);
+
 await mkdir(out(""), { recursive: true });
 const files: Record<string, unknown> = {
   "clients.json": clientRows,
@@ -581,6 +672,9 @@ const files: Record<string, unknown> = {
   "fees-by-book.json": feeRows,
   "campaign-reach.json": campaignRows,
   "campaign-stages.json": stageRows,
+  "deals.json": deals,
+  "deal-stages.json": dealStageRows,
+  "pipeline-by-book.json": bookRows,
 };
 for (const [name, rows] of Object.entries(files)) {
   const list = rows as Record<string, unknown>[];

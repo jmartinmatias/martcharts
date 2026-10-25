@@ -2,7 +2,7 @@
   "id": "client-health",
   "title": "Client health",
   "subtitle": "Red, amber and green from four perspectives: client success, business development, coverage and the relationship",
-  "description": "Every client's health on one page, scored against written thresholds: who is on track, where it is slipping, what changed this quarter, and who owns the next step.",
+  "description": "Every client's health as a story: the overview, then each perspective in turn (client success, business development, coverage and the relationship), the movement since last quarter, the actions and who owns them, every client on all four perspectives, and the thresholds behind every status.",
   "asOf": "2026-10-25",
   "columns": 3,
   "filters": [
@@ -22,7 +22,7 @@
   "widgets": [
     {
       "section": "Overview",
-      "description": "The book's health this quarter, and how it moved"
+      "description": "How healthy is the book this quarter, and how did it move?"
     },
     {
       "widget": "health-on-track",
@@ -37,7 +37,7 @@
     },
     {
       "section": "Client success",
-      "description": "Onboarding, adoption, service, satisfaction and complaints"
+      "description": "Are clients well served: onboarding, adoption, service, satisfaction and complaints?"
     },
     {
       "widget": "health-clientSuccess-board",
@@ -51,12 +51,8 @@
       "span": 2
     },
     {
-      "widget": "health-clientSuccess-table",
-      "span": 3
-    },
-    {
       "section": "Business development",
-      "description": "Pipeline, win rate, new money and products added"
+      "description": "Is growth on plan: pipeline, win rate, new money and products added?"
     },
     {
       "widget": "health-bizDev-board",
@@ -70,12 +66,8 @@
       "span": 2
     },
     {
-      "widget": "health-bizDev-table",
-      "span": 3
-    },
-    {
       "section": "Coverage",
-      "description": "Meetings, cadence, banker load and reviews"
+      "description": "Is every client seen often enough: meetings, cadence, banker load and reviews?"
     },
     {
       "widget": "health-coverage-board",
@@ -89,12 +81,8 @@
       "span": 2
     },
     {
-      "widget": "health-coverage-table",
-      "span": 3
-    },
-    {
       "section": "Relationship",
-      "description": "Wallet share, attrition risk, fees, KYC and sentiment"
+      "description": "Which relationships are at risk: wallet share, attrition, fees, KYC and sentiment?"
     },
     {
       "widget": "health-relationship-board",
@@ -108,12 +96,8 @@
       "span": 2
     },
     {
-      "widget": "health-relationship-table",
-      "span": 3
-    },
-    {
       "section": "Movement",
-      "description": "What changed since last quarter, and where the reds sit"
+      "description": "What changed since last quarter, and where do the reds sit?"
     },
     {
       "widget": "health-trend",
@@ -132,15 +116,23 @@
     },
     {
       "section": "Actions",
-      "description": "Every client not on track, with an owner and a next step"
+      "description": "Who owns the next step for every client not on track?"
     },
     {
       "widget": "health-actions",
       "span": 3
     },
     {
+      "section": "Every client",
+      "description": "How does each client stand on all four perspectives?"
+    },
+    {
+      "widget": "health-clients",
+      "span": 3
+    },
+    {
       "section": "Thresholds",
-      "description": "The written rules behind every status"
+      "description": "Which written rules set every status?"
     },
     {
       "widget": "health-thresholds",

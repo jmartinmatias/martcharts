@@ -33,7 +33,9 @@ describe("the commercial cockpit", () => {
 
   test("every section of the brief is there", () => {
     const sections = board.widgets.flatMap((cell) => (cell.section ? [cell.section] : []));
-    expect(sections).toEqual(["Headline numbers", "Products", "Coverage", "Sales and billing", "Campaigns", "Adoption", "Portfolio", "Whitespace and cross-sell", "Where clients are", "Clients", "Anomalies"]);
+    // A story for the banker and the head of sales: the headline, what needs attention, where the money is, the
+    // pipeline, the next sale and who acts; then the reference sections.
+    expect(sections).toEqual(["Headline numbers", "Needs attention", "Where the money is", "Sales pipeline", "Who could buy what", "Who acts", "Coverage", "Portfolio", "Where clients are", "Campaigns", "Adoption"]);
   });
 
   test("every widget it names has a registered view, whitespace, x-ray and history included", () => {

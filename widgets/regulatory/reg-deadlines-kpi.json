@@ -1,0 +1,48 @@
+{
+  "id": "reg-deadlines-kpi",
+  "title": "Deadlines in the next 90 days",
+  "subtitle": "Milestones from 2026-10-25 to 2027-01-23, listed below with their owners",
+  "description": "Milestones due in the next ninety days: gap assessments, tests, application dates, reviews and responses.",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/regulatory-deadlines.json"
+  },
+  "transform": [
+    {
+      "type": "filter",
+      "field": "daysLeft",
+      "op": ">=",
+      "value": 0
+    },
+    {
+      "type": "filter",
+      "field": "daysLeft",
+      "op": "<=",
+      "value": 90
+    },
+    {
+      "type": "aggregate",
+      "measures": [
+        {
+          "op": "count",
+          "as": "count"
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "count": {
+      "label": "Deadlines in the next 90 days"
+    }
+  },
+  "view": {
+    "type": "kpi",
+    "value": "count",
+    "icon": "alert"
+  },
+  "source": {
+    "name": "Regulatory watch (fictional)"
+  },
+  "byline": "Compliance office"
+}

@@ -1,8 +1,8 @@
 {
   "id": "regulatory-landscape",
   "title": "Regulatory landscape",
-  "subtitle": "Activity, impact and lifecycle of the rules that bind financial firms, as of October 2026 (fictional data)",
-  "description": "What is coming, where it binds, how heavy it is and who must comply: the regulatory watch on one page.",
+  "subtitle": "What is due, how the pressure builds, whom it hits, where it binds and how heavy it is (fictional data)",
+  "description": "The regulatory watch as a story, for the compliance officer: the headline numbers, then what applies next and who owns each deadline, the pressure building by topic, the impact on each kind of firm, where the rules bind, and their volume and density.",
   "asOf": "2026-10-25",
   "columns": 4,
   "range": {
@@ -21,7 +21,7 @@
   "widgets": [
     {
       "section": "Headline numbers",
-      "description": "The landscape at a glance"
+      "description": "How heavy is the landscape today?"
     },
     {
       "widget": "reg-in-force-kpi"
@@ -30,68 +30,18 @@
       "widget": "reg-applying-soon-kpi"
     },
     {
+      "widget": "reg-deadlines-kpi"
+    },
+    {
       "widget": "reg-consultations-kpi"
     },
     {
-      "widget": "reg-pressure-kpi"
+      "section": "What applies next",
+      "description": "What must be ready in the next 90 days, and who owns it?"
     },
     {
-      "section": "Geography",
-      "description": "Where the rules bind, and where national law lags"
-    },
-    {
-      "widget": "reg-rules-by-country",
-      "span": 2
-    },
-    {
-      "widget": "reg-transposition-map"
-    },
-    {
-      "widget": "reg-days-late-map"
-    },
-    {
-      "section": "Volume per topic",
-      "description": "How much each topic carries"
-    },
-    {
-      "widget": "reg-topic-status",
-      "span": 2
-    },
-    {
-      "widget": "reg-provisions-treemap",
-      "span": 2
-    },
-    {
-      "section": "Pressure",
-      "description": "Where and when the obligations land"
-    },
-    {
-      "widget": "reg-pressure-matrix",
-      "span": 2
-    },
-    {
-      "widget": "reg-obligations-dual",
-      "span": 2
-    },
-    {
-      "section": "Trend",
-      "description": "How the pressure built, and how the topics traded places"
-    },
-    {
-      "widget": "reg-pressure-trend",
-      "span": 2
-    },
-    {
-      "widget": "reg-topic-bump",
-      "span": 2
-    },
-    {
-      "widget": "reg-topic-horizon",
+      "widget": "reg-next-90",
       "span": 4
-    },
-    {
-      "section": "Status and lifecycle",
-      "description": "Where each rule stands on its way to applying"
     },
     {
       "widget": "reg-status-board",
@@ -105,8 +55,20 @@
       "widget": "reg-stage-funnel"
     },
     {
-      "section": "Impact and stakeholders",
-      "description": "What matters most, and to whom"
+      "section": "Pressure",
+      "description": "When and where do the obligations land?"
+    },
+    {
+      "widget": "reg-pressure-matrix",
+      "span": 2
+    },
+    {
+      "widget": "reg-obligations-dual",
+      "span": 2
+    },
+    {
+      "section": "Impact",
+      "description": "Which rules matter most, and to whom?"
     },
     {
       "widget": "reg-impact-scatter",
@@ -119,8 +81,30 @@
       "widget": "reg-stakeholder-sankey"
     },
     {
-      "section": "Density",
-      "description": "How heavy each rule is, page by page"
+      "section": "Where the rules bind",
+      "description": "Where do the rules apply, and where does national law lag?"
+    },
+    {
+      "widget": "reg-rules-by-country",
+      "span": 2
+    },
+    {
+      "widget": "reg-transposition-map"
+    },
+    {
+      "widget": "reg-days-late-map"
+    },
+    {
+      "section": "Volume and density",
+      "description": "How much does each topic carry, and how heavy is each rule?"
+    },
+    {
+      "widget": "reg-topic-status",
+      "span": 2
+    },
+    {
+      "widget": "reg-provisions-treemap",
+      "span": 2
     },
     {
       "widget": "reg-density-strips",

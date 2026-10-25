@@ -1,0 +1,64 @@
+{
+  "id": "cc-pipeline-target",
+  "title": "Pipeline against target, by banker",
+  "subtitle": "Open deals weighted by stage (20% qualified, 45% proposal, 70% negotiation), against each banker's target",
+  "description": "Each relationship manager's open pipeline, weighted by how far each deal has got, against the pipeline the plan needs.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/pipeline-by-book.json"
+  },
+  "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": "rm",
+      "measures": [
+        {
+          "op": "sum",
+          "field": "weighted",
+          "as": "weighted"
+        },
+        {
+          "op": "sum",
+          "field": "pipelineTarget",
+          "as": "pipelineTarget"
+        }
+      ]
+    },
+    {
+      "type": "sort",
+      "field": "weighted",
+      "order": "desc"
+    }
+  ],
+  "fields": {
+    "rm": {
+      "label": "Relationship manager"
+    },
+    "weighted": {
+      "label": "Weighted pipeline",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "pipelineTarget": {
+      "label": "Target",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
+  },
+  "view": {
+    "type": "bullet",
+    "label": "rm",
+    "value": "weighted",
+    "target": "pipelineTarget"
+  }
+}

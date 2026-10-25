@@ -43,7 +43,7 @@ describe("the regulatory landscape dashboard", () => {
   test("is a valid dashboard with four columns, a period on month, and filters on topic and jurisdiction", () => {
     expect(hasErrors(validateDashboard(board))).toBe(false);
     expect([board.columns, board.range, board.filters?.map((f) => f.field)]).toEqual([4, { field: "month" }, ["topic", "jurisdiction"]]);
-    expect(board.widgets.filter((cell) => cell.section).map((cell) => cell.section)).toEqual(["Headline numbers", "Geography", "Volume per topic", "Pressure", "Trend", "Status and lifecycle", "Impact and stakeholders", "Density"]);
+    expect(board.widgets.filter((cell) => cell.section).map((cell) => cell.section)).toEqual(["Headline numbers", "What applies next", "Pressure", "Impact", "Where the rules bind", "Volume and density"]);
   });
 
   test("every widget it names exists, including the matrix, strips and lifecycle specs", () => {

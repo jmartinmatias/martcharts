@@ -53,10 +53,35 @@ describe("commercial cockpit: the numbers agree", () => {
     near(sum(await card("cc-rm-books"), "aum"), aum);
   });
 
-  test("cross-sell potential is one figure on the headline and by product", async () => {
+  test("cross-sell potential is one figure on the headline, the cross-sell map and the call list's clients", async () => {
     const potential = sum(data("holdings.json").filter((h) => h.state === "Opportunity"), "potential");
     near(Number(last(await card("cc-headline-kpis")).potential), potential);
-    near(sum(await card("cc-potential-by-product"), "potential"), potential);
+    near(sum((await card("cc-whitespace")).filter((r) => r.state === "Opportunity"), "potential"), potential);
+    near(sum(clients, "crossSellPotential"), potential);
+  });
+
+  test("the pipeline cards add up to the deals, and new money to the monthly activity", async () => {
+    const deals = data("deals.json");
+    const open = deals.filter((d) => d.open === 1);
+    near(sum(await card("cc-pipeline-target"), "weighted"), sum(open, "weighted"));
+    near(sum(await card("cc-pipeline-close"), "weighted"), sum(open, "weighted"));
+    const rates = await card("cc-win-rate");
+    const books = data("pipeline-by-book.json");
+    expect(sum(books, "won")).toBe(deals.filter((d) => d.stage === "Won").length);
+    expect(sum(books, "decided")).toBe(deals.filter((d) => d.stage === "Won" || d.stage === "Lost").length);
+    // The win-rate target is 35% for every banker, whatever the filter, because it is kept as a count of deals.
+    for (const row of rates) near(Number(row.winRateTarget) * 1000, 350);
+    near(sum(await card("cc-new-money-target"), "newMoney"), sum(data("client-activity.json").filter((r) => String(r.month).startsWith("2026")), "netNewMoney"));
+    // The funnel counts every deal at qualified, and the won ones at the end.
+    const funnel = Object.fromEntries((await card("cc-deal-funnel")).map((r) => [r.stage, r.deals]));
+    expect([funnel.Qualified, funnel.Won]).toEqual([deals.length, deals.filter((d) => d.stage === "Won").length]);
+  });
+
+  test("the call list is the ten clients with the highest call score, each with a reason and a next step", async () => {
+    const list = await card("cc-call-list");
+    const expected = [...clients].sort((a, b) => Number(b.callScore) - Number(a.callScore)).slice(0, 10);
+    expect(list.map((r) => r.name)).toEqual(expected.map((r) => r.name));
+    for (const row of list) expect([row.name, Boolean(row.callReason), Boolean(row.nextAction)]).toEqual([row.name, true, true]);
   });
 
   test("anomalies this month are counted one way, the calendar month, on the watch and the tracker; the headline leaves them to the watch", async () => {
@@ -103,6 +128,17 @@ describe("regulatory landscape: the numbers agree, or say why they differ", () =
     expect((await card("reg-obligations-dual")).map((r) => [r.month, r.newObligations, r.pressureIndex])).toEqual(pressure.map((r) => [r.month, r.newObligations, r.pressureIndex]));
     const activity = data("regulatory-activity.json");
     near(sum(await card("reg-pressure-matrix"), "obligations"), sum(activity, "obligations"));
+  });
+
+  test("the next 90 days: the tile counts the deadlines the list shows, each with an owner and its readiness", async () => {
+    const list = await card("reg-next-90");
+    const due = data("regulatory-deadlines.json").filter((d) => Number(d.daysLeft) >= 0 && Number(d.daysLeft) <= 90);
+    expect(Number((await card("reg-deadlines-kpi"))[0]?.count)).toBe(due.length);
+    expect(list.map((r) => r.date)).toEqual([...list.map((r) => r.date)].sort());
+    expect(list).toHaveLength(due.length);
+    for (const row of list) expect([row.regulation, Boolean(row.owner), ["Done", "In progress", "Not started"].includes(String(row.readiness))]).toEqual([row.regulation, true, true]);
+    // Every deadline belongs to a tracked rule, on its own topic and jurisdiction.
+    for (const row of due) expect([row.regulation, rules.find((r) => r.id === row.id)?.topic]).toEqual([row.regulation, row.topic]);
   });
 
   test("the country map and the stakeholder views count the tracked rules", async () => {
@@ -162,18 +198,18 @@ describe("filters reach the cards", () => {
 
   // The cards no filter can reach, and why: each holds firm-wide or reference data with no client, segment or rule in it.
   const EXEMPT: Record<string, string[]> = {
-    // Digital adoption cohorts, the model allocation, office locations and the daily anomaly metrics are firm-wide.
-    "commercial-cockpit": ["cc-adoption-cohorts", "cc-adoption-curves", "cc-allocation-drift", "cc-allocation-bands", "cc-offices", "cc-anomaly-kpis", "cc-anomaly-tracker", "cc-complaints-calendar"],
-    // The pressure index is one figure for the whole landscape.
-    "regulatory-landscape": ["reg-pressure-kpi", "reg-pressure-trend"],
+    // Digital adoption cohorts, the model allocation and the daily anomaly metrics are firm-wide.
+    "commercial-cockpit": ["cc-adoption-cohorts", "cc-adoption-curves", "cc-allocation-drift", "cc-allocation-bands", "cc-anomaly-kpis", "cc-anomaly-tracker", "cc-complaints-calendar"],
+    // Every card carries topic and jurisdiction: the pressure index now rides on the obligations card, which does.
+    "regulatory-landscape": [],
     // The thresholds and the roll-up rules are reference tables.
     "client-health": ["health-thresholds", "health-rollups"],
   };
 
-  test.each(Object.keys(EXEMPT))("%s: every filter reaches at least 70% of the cards, and misses only the listed ones", async (id) => {
+  test.each(Object.keys(EXEMPT))("%s: every filter reaches at least 75% of the cards, and misses only the listed ones", async (id) => {
     for (const { field, total, missed } of await reach(id)) {
       expect([field, [...missed].sort()]).toEqual([field, [...(EXEMPT[id] as string[])].sort()]);
-      expect((total - missed.length) / total).toBeGreaterThanOrEqual(0.7);
+      expect((total - missed.length) / total).toBeGreaterThanOrEqual(0.75);
     }
   });
 

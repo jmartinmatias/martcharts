@@ -1,0 +1,111 @@
+{
+  "id": "health-clients",
+  "locale": "en-US",
+  "source": {
+    "name": "Client health model (fictional)"
+  },
+  "title": "Every client, on all four perspectives",
+  "subtitle": "Worst first; search by client, banker or segment, and read across to see where each one slips",
+  "description": "Every client's overall status beside its four perspective statuses: client success, business development, coverage and the relationship.",
+  "data": {
+    "type": "url",
+    "url": "/data/client-health.json"
+  },
+  "transform": [
+    {
+      "type": "sort",
+      "field": "priority",
+      "order": "desc"
+    }
+  ],
+  "fields": {
+    "name": {
+      "label": "Client"
+    },
+    "rm": {
+      "label": "Relationship manager"
+    },
+    "segment": {
+      "label": "Segment"
+    },
+    "region": {
+      "label": "Region"
+    },
+    "overallStatus": {
+      "label": "Overall",
+      "format": {
+        "type": "badge",
+        "tones": {
+          "Red": "negative",
+          "Amber": "warning",
+          "Green": "positive",
+          "No data": "neutral"
+        }
+      }
+    },
+    "clientSuccessStatus": {
+      "label": "Client success",
+      "format": {
+        "type": "badge",
+        "tones": {
+          "Red": "negative",
+          "Amber": "warning",
+          "Green": "positive",
+          "No data": "neutral"
+        }
+      }
+    },
+    "bizDevStatus": {
+      "label": "Business development",
+      "format": {
+        "type": "badge",
+        "tones": {
+          "Red": "negative",
+          "Amber": "warning",
+          "Green": "positive",
+          "No data": "neutral"
+        }
+      }
+    },
+    "coverageStatus": {
+      "label": "Coverage",
+      "format": {
+        "type": "badge",
+        "tones": {
+          "Red": "negative",
+          "Amber": "warning",
+          "Green": "positive",
+          "No data": "neutral"
+        }
+      }
+    },
+    "relationshipStatus": {
+      "label": "Relationship",
+      "format": {
+        "type": "badge",
+        "tones": {
+          "Red": "negative",
+          "Amber": "warning",
+          "Green": "positive",
+          "No data": "neutral"
+        }
+      }
+    }
+  },
+  "view": {
+    "type": "table",
+    "columns": [
+      "name",
+      "rm",
+      "segment",
+      "overallStatus",
+      "clientSuccessStatus",
+      "bizDevStatus",
+      "coverageStatus",
+      "relationshipStatus"
+    ],
+    "search": true,
+    "pageSize": 10,
+    "stickyFirst": true
+  }
+}

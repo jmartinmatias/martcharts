@@ -1,0 +1,60 @@
+{
+  "id": "cc-new-money-target",
+  "title": "Net new money against target, by banker",
+  "subtitle": "2026 year to date, over or under each banker's plan",
+  "description": "Net new money each relationship manager brought in this year, against the plan.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/pipeline-by-book.json"
+  },
+  "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": "rm",
+      "measures": [
+        {
+          "op": "sum",
+          "field": "newMoney",
+          "as": "newMoney"
+        },
+        {
+          "op": "sum",
+          "field": "newMoneyTarget",
+          "as": "newMoneyTarget"
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "rm": {
+      "label": "Relationship manager"
+    },
+    "newMoney": {
+      "label": "Net new money",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "newMoneyTarget": {
+      "label": "Target",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
+  },
+  "view": {
+    "type": "variance",
+    "label": "rm",
+    "value": "newMoney",
+    "target": "newMoneyTarget",
+    "percent": true
+  }
+}

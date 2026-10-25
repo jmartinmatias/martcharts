@@ -1,0 +1,79 @@
+{
+  "id": "cc-win-rate",
+  "title": "Win rate, by banker",
+  "subtitle": "Deals won out of deals decided this year, against the 35% the plan expects",
+  "description": "Each relationship manager's deals won as a share of the deals won or lost this year, against the plan's win rate.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/pipeline-by-book.json"
+  },
+  "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": "rm",
+      "measures": [
+        {
+          "op": "sum",
+          "field": "won",
+          "as": "won"
+        },
+        {
+          "op": "sum",
+          "field": "decided",
+          "as": "decided"
+        },
+        {
+          "op": "sum",
+          "field": "wonTarget",
+          "as": "wonTarget"
+        }
+      ]
+    },
+    {
+      "type": "calc",
+      "as": "winRate",
+      "op": "divide",
+      "left": "won",
+      "right": "decided"
+    },
+    {
+      "type": "calc",
+      "as": "winRateTarget",
+      "op": "divide",
+      "left": "wonTarget",
+      "right": "decided"
+    },
+    {
+      "type": "sort",
+      "field": "winRate",
+      "order": "desc"
+    }
+  ],
+  "fields": {
+    "rm": {
+      "label": "Relationship manager"
+    },
+    "winRate": {
+      "label": "Win rate",
+      "format": {
+        "type": "percent"
+      }
+    },
+    "winRateTarget": {
+      "label": "Target",
+      "format": {
+        "type": "percent"
+      }
+    }
+  },
+  "view": {
+    "type": "bullet",
+    "label": "rm",
+    "value": "winRate",
+    "target": "winRateTarget"
+  }
+}
