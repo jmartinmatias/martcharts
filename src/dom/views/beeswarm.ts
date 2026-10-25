@@ -4,8 +4,8 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { BeeswarmView } from "../../core/views.ts";
 import { linearScale, swarm } from "../layout.ts";
 import { tickFormatter } from "./chart.ts";
-import { buildTable, CHAR_WIDTH, html, selectable, svg } from "./shared.ts";
-import { roving } from "./focus.ts";
+import { activeGroup, hiddenTableOf, html, roving, rowHit, svg } from "./shared.ts";
+import { nameColumn, writeLabel } from "./label-fit.ts";
 
 const RADIUS = 4;
 
@@ -32,7 +32,9 @@ export const renderBeeswarm: ViewRenderer<BeeswarmView> = (ctx) => {
   const ticks = linearScale(domain, [0, 1], { includeZero: false }).ticks;
   const tickText = tickFormatter(ctx, value, ticks);
   const groupLabels = groups.map((name) => (group ? ctx.format(name, group) : ""));
-  const left = group ? Math.max(34, Math.max(...groupLabels.map((g) => g.length)) * CHAR_WIDTH + 13) : 13;
+  // Group names in a measured column, cut with an ellipsis past a third of the card.
+  const column = group ? nameColumn(groupLabels, ctx.width) : undefined;
+  const left = column ? column.width + 8 : 13;
   const margin = { top: 8, right: 13, bottom: 39, left };
   const width = Math.max(ctx.width, left + 144);
   const plotWidth = width - margin.left - margin.right;
@@ -68,9 +70,9 @@ export const renderBeeswarm: ViewRenderer<BeeswarmView> = (ctx) => {
   groups.forEach((_, g) => {
     const top = rowTops[g] ?? 0;
     if (g > 0) chart.append(svg(doc, "line", { class: "fft-gridline", x1: 0, x2: margin.left + plotWidth, y1: top, y2: top }));
-    if (group) {
-      const text = svg(doc, "text", { class: "fft-swarm-group", x: margin.left - 13, y: top + (rowHeights[g] ?? 0) / 2, "text-anchor": "end", "dominant-baseline": "middle" });
-      text.textContent = groupLabels[g] ?? "";
+    if (group && column) {
+      const text = svg(doc, "text", { class: "fft-swarm-group", x: column.end, y: top + (rowHeights[g] ?? 0) / 2, "text-anchor": "end", "dominant-baseline": "middle" });
+      writeLabel(text, column.shown[g] ?? "", groupLabels[g] ?? "");
       chart.append(text);
     }
   });
@@ -78,11 +80,8 @@ export const renderBeeswarm: ViewRenderer<BeeswarmView> = (ctx) => {
   const dots = svg(doc, "g");
   const overlay = svg(doc, "g");
   const marks: SVGCircleElement[] = [];
-  const deactivate = () => {
-    wrap.removeAttribute("data-active");
-    for (const mark of marks) mark.removeAttribute("data-active");
-    ctx.tooltip.hide();
-  };
+  const hits: Element[] = [];
+  const active = activeGroup(wrap, ctx.tooltip);
   points.forEach((point, i) => {
     const cx = x(point.amount);
     const cy = (rowTops[point.group] ?? 0) + (rowHeights[point.group] ?? 0) / 2 + (offsets.get(point.row) ?? 0);
@@ -93,26 +92,15 @@ export const renderBeeswarm: ViewRenderer<BeeswarmView> = (ctx) => {
     const name = label ? ctx.format(point.row[label], label) : "";
     const items: TooltipItem[] = [{ label: ctx.label(value), value: ctx.format(point.row[value], value) }];
     if (group) items.push({ label: ctx.label(group), value: ctx.format(point.row[group], group) });
-    const hit = svg(doc, "circle", { class: "fft-bee-hit", cx, cy, r: 9, tabindex: 0, role: "img" });
-    hit.setAttribute("aria-label", `${name ? `${name}: ` : ""}${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
-    const activate = () => {
-      wrap.setAttribute("data-active", "");
-      for (const mark of marks) mark.removeAttribute("data-active");
-      dot.setAttribute("data-active", "");
-      ctx.tooltip.show(hit, name, items);
-    };
-    hit.addEventListener("pointerenter", activate);
-    hit.addEventListener("focus", activate);
-    hit.addEventListener("pointerleave", deactivate);
-    hit.addEventListener("blur", deactivate);
-    selectable(hit, () => ctx.select(point.row));
+    const hit = svg(doc, "circle", { class: "fft-bee-hit", cx, cy, r: 9 });
+    hits.push(rowHit(ctx, { node: hit, row: point.row, name, items, active: dot, group: active }));
+    // A dot with no name is read by its values alone.
+    if (!name) hit.setAttribute("aria-label", items.map((it) => `${it.label} ${it.value}`).join(", "));
     overlay.append(hit);
   });
   chart.append(dots, overlay);
-  roving([...overlay.children]);
+  roving(hits);
   wrap.append(chart);
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, points.map((p) => p.row), [label, value, group].filter((f): f is string => Boolean(f)), false));
-  wrap.append(hidden);
+  wrap.append(hiddenTableOf(ctx, points.map((p) => p.row), [label, value, group].filter((f): f is string => Boolean(f))));
   ctx.el.append(wrap);
 };

@@ -99,7 +99,7 @@ describe("dot view (a dot plot)", () => {
     const labels = all(".fft-dot-label");
     expect(labels[0]?.textContent?.endsWith("…")).toBe(true);
     expect(labels[0]?.getAttribute("aria-label")).toBe(rows[0]?.product);
-    expect([all("circle.fft-dot-mark").length, all(".fft-dot-hit")[1]?.getAttribute("aria-label")]).toEqual([1, "Core: no value"]);
+    expect([all("circle.fft-dot-mark").length, all(".fft-dot-hit")[1]?.getAttribute("aria-label")]).toEqual([1, "Core: Ease no value"]);
   });
 
   test("a hidden table carries the label and every measure for assistive technology", async () => {

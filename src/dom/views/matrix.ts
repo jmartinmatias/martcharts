@@ -4,8 +4,9 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import { isYes } from "../../core/views.ts";
 import type { MatrixView } from "../../core/views.ts";
 import { quantize, wrapLabels } from "../layout.ts";
-import { CHAR_WIDTH, hiddenTable, html, selectable, svg } from "./shared.ts";
-import { roving } from "./focus.ts";
+import { activeGroup, hiddenTable, html, roving, rowHit, svg, textWidth } from "./shared.ts";
+import { DEEMPHASIS, highlights } from "./chart.ts";
+import { fitLabel, nameColumn, writeLabel } from "./label-fit.ts";
 
 /** Steps in the sequential scale, shared with heat cells and the choropleth. */
 const STEPS = 7;
@@ -54,8 +55,12 @@ export const renderMatrix: ViewRenderer<MatrixView> = (ctx) => {
   const smax = Math.max(0, ...sizes.filter((v): v is number => v !== null));
 
   // Geometry: square cells, as wide as the card allows between 21px and 55px.
-  const left = Math.max(34, Math.min(ctx.width * 0.38, Math.max(...rowNames.map((n) => n.length)) * CHAR_WIDTH + 13));
-  const widest = Math.max(...colNames.map((n) => n.length)) * CHAR_WIDTH;
+  // Row names in a measured column (up to 38% of the card, as a matrix's names carry the grid), cut with an ellipsis.
+  const column = nameColumn(rowNames, ctx.width, { max: 0.38 });
+  const left = column.width + 3;
+  // Column names lean no longer than 120px; a longer one is cut with an ellipsis.
+  const leanNames = colNames.map((name) => fitLabel(name, 120));
+  const widest = Math.max(...colNames.map((n) => textWidth(n)));
   // Columns first sized with a hairline margin; if their names must lean, the last one leans past the grid's right edge,
   // so the grid gives up that room and the cells are sized again.
   const fit = (right: number) => Math.max(MIN_CELL, Math.min(MAX_CELL, Math.floor((ctx.width - left - right) / columns.length)));
@@ -78,16 +83,20 @@ export const renderMatrix: ViewRenderer<MatrixView> = (ctx) => {
   chart.setAttribute("aria-label", `Matrix of ${measure ? ctx.label(measure) : mark ? ctx.label(mark) : "rows"} by ${ctx.label(y)} and ${ctx.label(x)}`);
 
   // Headers: row names on the left, column names above (wrapped, or leaning when long).
+  // highlight names rows or columns (y or x values) to keep in color; every other mark steps back to grey.
+  const picked = highlights((ctx.view as { highlight?: unknown }).highlight);
+  const lit = (row: Row) => picked.length === 0 || picked.includes(String(row[y])) || picked.includes(String(row[x]));
   rowNames.forEach((name, i) => {
-    const text = svg(doc, "text", { class: "fft-mx-row", x: left - 8, y: top + i * cell + cell / 2, "text-anchor": "end", "dominant-baseline": "middle" });
-    text.textContent = name;
+    const text = svg(doc, "text", { class: "fft-mx-row", x: column.end, y: top + i * cell + cell / 2, "text-anchor": "end", "dominant-baseline": "middle" });
+    writeLabel(text, column.shown[i] ?? name, name);
+    if (picked.length && !picked.includes(lines[i] as string)) text.dataset.muted = "";
     chart.append(text);
   });
   colNames.forEach((name, i) => {
     const cx = left + i * cell + cell / 2;
     if (leaning) {
       const text = svg(doc, "text", { class: "fft-mx-col", x: cx + 4, y: top - 8, "text-anchor": "start", transform: `rotate(-45 ${cx + 4} ${top - 8})` });
-      text.textContent = name;
+      writeLabel(text, leanNames[i] ?? name, name);
       chart.append(text);
       return;
     }
@@ -105,14 +114,14 @@ export const renderMatrix: ViewRenderer<MatrixView> = (ctx) => {
     chart.append(text);
   });
 
-  const hits: SVGElement[] = [];
-  const marks: SVGElement[] = [];
-  const deactivate = () => {
-    wrap.removeAttribute("data-active");
-    for (const m of marks) m.removeAttribute("data-active");
-    ctx.tooltip.hide();
-  };
+  const hits: Element[] = [];
+  const active = activeGroup(wrap, ctx.tooltip);
   const fillOf = (row: Row, node: SVGElement) => {
+    if (!lit(row)) {
+      node.dataset.muted = "";
+      node.style.setProperty("fill", DEEMPHASIS);
+      return;
+    }
     if (numericColor && color) {
       const v = readNumber(row[color]);
       if (v !== null) {
@@ -159,10 +168,9 @@ export const renderMatrix: ViewRenderer<MatrixView> = (ctx) => {
       if (node) {
         node.style.setProperty("--fft-i", String(r * columns.length + c));
         chart.append(node);
-        marks.push(node);
         // The label fits inside when the mark has room for its characters.
         const labelText = label ? ctx.format(row[label], label) : "";
-        if (labelText && room >= labelText.length * 5 + 6) {
+        if (labelText && room >= textWidth(labelText, 10, 600) + 6) {
           const text = svg(doc, "text", { class: "fft-mx-label", x: cx, y: cy, "text-anchor": "middle", "dominant-baseline": "central" });
           if (node.dataset.step) text.dataset.step = node.dataset.step;
           text.textContent = labelText;
@@ -170,22 +178,11 @@ export const renderMatrix: ViewRenderer<MatrixView> = (ctx) => {
         }
       }
       const name = `${rowNames[r]}, ${colNames[c]}`;
-      const hit = svg(doc, "rect", { class: "fft-mx-hit", x: x0, y: y0, width: cell, height: cell, tabindex: 0, role: "img" });
-      hit.setAttribute("aria-label", `${name}: ${items.map((it) => `${it.label} ${it.value}`).join(", ") || "present"}`);
-      const anchor = node ?? hit;
-      const activate = () => {
-        wrap.setAttribute("data-active", "");
-        for (const m of marks) m.removeAttribute("data-active");
-        node?.setAttribute("data-active", "");
-        ctx.tooltip.show(anchor, name, items);
-      };
-      hit.addEventListener("pointerenter", activate);
-      hit.addEventListener("focus", activate);
-      hit.addEventListener("pointerleave", deactivate);
-      hit.addEventListener("blur", deactivate);
-      selectable(hit, () => ctx.select(row));
+      const hit = svg(doc, "rect", { class: "fft-mx-hit", x: x0, y: y0, width: cell, height: cell });
+      hits.push(rowHit(ctx, { node: hit, row, name, items, anchor: node ?? hit, active: node ?? hit, group: active }));
+      // A bare mark (no size, color or label) says it is there.
+      if (!items.length) hit.setAttribute("aria-label", `${name}: present`);
       chart.append(hit);
-      hits.push(hit);
     });
   });
   // A complete grid moves by rows with up and down; a sparse one moves mark to mark.

@@ -3,18 +3,11 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { DotView } from "../../core/views.ts";
 import { linearScale } from "../layout.ts";
 import { DEEMPHASIS, highlights, tickFormatter } from "./chart.ts";
-import { buildTable, CHAR_WIDTH, fieldList, html, legendList, rowHeight, selectable, svg } from "./shared.ts";
-import { roving } from "./focus.ts";
+import { activeGroup, endRoom, fieldList, hiddenTableOf, html, legendList, roving, rowHeight, rowHit, svg } from "./shared.ts";
+import { nameColumn, writeLabel } from "./label-fit.ts";
 
 /** Dot radius: one measure gets a slightly bigger dot, several stay small so they can sit close. */
 const RADIUS = { one: 6, many: 5 };
-/** The widest a name column may grow, as a share of the card, before names are cut with an ellipsis. */
-const NAME_SHARE = 0.38;
-
-/** A name cut to `max` characters with an ellipsis, or whole when it fits. */
-function clip(name: string, max: number): string {
-  return name.length <= max ? name : `${name.slice(0, Math.max(1, max - 1)).trimEnd()}…`;
-}
 
 /**
  * Draws the `dot` view, a dot plot: one row per data row with its name on the
@@ -39,11 +32,11 @@ export const renderDot: ViewRenderer<DotView> = (ctx) => {
 
   const names = rows.map((row) => ctx.format(row[label], label));
   const valueTexts = rows.map((row, i) => measures.map((field, m) => (values[i]?.[m] === null ? "" : ctx.format(row[field], field))));
-  // Margins: names on the left (cut past a share of the card), the value beside a lone dot on the right.
-  const maxChars = Math.max(4, Math.floor((ctx.width * NAME_SHARE) / CHAR_WIDTH));
-  const shown = names.map((name) => clip(name, maxChars));
-  const left = Math.max(34, Math.max(0, ...shown.map((n) => n.length)) * CHAR_WIDTH + 13);
-  const valueRoom = single ? Math.max(0, ...valueTexts.map((t) => (t[0] ?? "").length)) * CHAR_WIDTH + radius + 13 : radius + 8;
+  // Margins: the names' measured column on the left (cut with an ellipsis past a third of the card), the value beside a lone dot on the right.
+  const column = nameColumn(names, ctx.width);
+  const shown = column.shown;
+  const left = column.width + 8;
+  const valueRoom = single ? endRoom(valueTexts.map((t) => t[0] ?? "")) + radius : radius + 8;
   const margin = { top: 5, right: Math.max(13, valueRoom), bottom: 26, left };
   const width = Math.max(ctx.width, left + margin.right + 89);
   const plotBottom = margin.top + rows.length * LANE;
@@ -67,19 +60,14 @@ export const renderDot: ViewRenderer<DotView> = (ctx) => {
     chart.append(text);
   }
 
-  const groups: SVGGElement[] = [];
-  const deactivate = () => {
-    wrap.removeAttribute("data-active");
-    for (const group of groups) group.removeAttribute("data-active");
-    ctx.tooltip.hide();
-  };
+  const active = activeGroup(wrap, ctx.tooltip);
+  const hits: Element[] = [];
   rows.forEach((row, i) => {
     const cy = margin.top + i * LANE + LANE / 2;
     const name = names[i] ?? "";
     const group = svg(doc, "g", { class: "fft-dot-row", style: `--fft-i: ${i}` });
-    const text = svg(doc, "text", { class: "fft-dot-label", x: margin.left - 13, y: cy, "text-anchor": "end", "dominant-baseline": "middle" });
-    text.textContent = shown[i] ?? name;
-    if (shown[i] !== name) text.setAttribute("aria-label", name);
+    const text = svg(doc, "text", { class: "fft-dot-label", x: column.end, y: cy, "text-anchor": "end", "dominant-baseline": "middle" });
+    writeLabel(text, shown[i] ?? name, name);
     group.append(text);
     group.append(svg(doc, "line", { class: "fft-dot-line", x1: margin.left, x2: width - margin.right, y1: cy, y2: cy }));
     const items: TooltipItem[] = [];
@@ -101,27 +89,13 @@ export const renderDot: ViewRenderer<DotView> = (ctx) => {
       value.textContent = valueTexts[i]?.[0] ?? "";
       group.append(value);
     }
-    const hit = svg(doc, "rect", { class: "fft-dot-hit", x: 0, y: cy - LANE / 2, width, height: LANE, tabindex: 0, role: "img" });
-    hit.setAttribute("aria-label", `${name}: ${items.length ? items.map((it) => `${it.label} ${it.value}`).join(", ") : "no value"}`);
-    const activate = () => {
-      wrap.setAttribute("data-active", "");
-      for (const other of groups) other.removeAttribute("data-active");
-      group.setAttribute("data-active", "");
-      if (anchor) ctx.tooltip.show(anchor, name, items);
-    };
-    hit.addEventListener("pointerenter", activate);
-    hit.addEventListener("focus", activate);
-    hit.addEventListener("pointerleave", deactivate);
-    hit.addEventListener("blur", deactivate);
-    selectable(hit, () => ctx.select(row));
+    const hit = svg(doc, "rect", { class: "fft-dot-hit", x: 0, y: cy - LANE / 2, width, height: LANE });
+    hits.push(rowHit(ctx, { node: hit, row, name, items: items.length ? items : [{ label: ctx.label(measures[0] as string), value: "" }], anchor: anchor ?? text, active: group, group: active }));
     group.append(hit);
-    groups.push(group);
     chart.append(group);
   });
-  roving([...chart.querySelectorAll(".fft-dot-hit")]);
+  roving(hits);
   wrap.append(chart);
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, rows, [label, ...measures], false));
-  wrap.append(hidden);
+  wrap.append(hiddenTableOf(ctx, rows, [label, ...measures]));
   ctx.el.append(wrap);
 };

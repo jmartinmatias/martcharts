@@ -3,8 +3,8 @@ import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { StripsView } from "../../core/views.ts";
 import { allocate } from "../layout.ts";
-import { buildTable, CHAR_WIDTH, fieldList, html, legendList, selectable, shareFormat, svg } from "./shared.ts";
-import { roving } from "./focus.ts";
+import { activeGroup, fieldList, hiddenTableOf, html, legendList, roving, rowHit, shareFormat, svg, textWidth } from "./shared.ts";
+import { nameColumn, writeLabel } from "./label-fit.ts";
 import { highlights } from "./chart.ts";
 
 /** One square: 8px of color and a 2px gap. */
@@ -39,7 +39,8 @@ export const renderStrips: ViewRenderer<StripsView> = (ctx) => {
   const first = parts[0] as string;
 
   // Room for the strip: the card less the label column and the figures at the end.
-  const labelW = Math.max(34, Math.min(ctx.width * 0.34, Math.max(...names.map((n) => n.length)) * CHAR_WIDTH + 8));
+  const column = nameColumn(names, ctx.width);
+  const labelW = column.width;
   const endTexts = ctx.rows.map((row, i) => {
     const total = ctx.format(totals[i], first);
     const part = parts.length > 1 && (totals[i] ?? 0) > 0 ? share.format((counts[i]?.[0] ?? 0) / (totals[i] as number)) : "";
@@ -48,8 +49,8 @@ export const renderStrips: ViewRenderer<StripsView> = (ctx) => {
     return { total, part, dense };
   });
   // The end column holds the total, the share and the density side by side: room for the longest of the three together.
-  const shareWord = parts.length > 1 ? ctx.label(first).length + 1 : 0;
-  const endW = Math.max(...endTexts.map((t) => (t.total.length + (t.part ? t.part.length + shareWord + 3 : 0) + (t.dense ? t.dense.length + 3 : 0)) * CHAR_WIDTH)) + 13;
+  const shareWord = parts.length > 1 ? ` ${ctx.label(first).toLowerCase()}` : "";
+  const endW = Math.max(...endTexts.map((t) => textWidth(t.total, 11, 600) + (t.part ? textWidth(`${t.part}${shareWord}`) + 8 : 0) + (t.dense ? textWidth(t.dense) + 8 : 0))) + 13;
   const capacity = Math.max(10, Math.floor((ctx.width - labelW - endW - 16) / PITCH));
   const perSquare = UNITS.find((u) => Math.ceil(maxTotal / u) <= capacity) ?? UNITS.at(-1) ?? 1;
   const squares = Math.max(1, ...totals.map((t) => Math.round(t / perSquare)));
@@ -61,12 +62,8 @@ export const renderStrips: ViewRenderer<StripsView> = (ctx) => {
   if (key) wrap.append(key);
   const list = html(doc, "div", "fft-strip-rows");
   list.setAttribute("role", "list");
-  const rows: HTMLElement[] = [];
-  const deactivate = () => {
-    list.removeAttribute("data-active");
-    for (const row of rows) row.removeAttribute("data-active");
-    ctx.tooltip.hide();
-  };
+  const rows: Element[] = [];
+  const active = activeGroup(list, ctx.tooltip);
   // highlight keeps the named rows in color and steps the rest back to grey, as on hbar and dot.
   const picked = highlights((ctx.view as { highlight?: unknown }).highlight);
   const muted = (row: Row) => picked.length > 0 && !picked.includes(String(row[label]));
@@ -78,7 +75,6 @@ export const renderStrips: ViewRenderer<StripsView> = (ctx) => {
     const item = html(doc, "div", "fft-strip");
     if (muted(row)) item.dataset.muted = "";
     item.setAttribute("role", "listitem");
-    item.tabIndex = 0;
     item.style.setProperty("--fft-i", String(i));
     const strip = svg(doc, "svg", { class: "fft-strip-squares", width: stripW, height: SIDE, viewBox: `0 0 ${stripW} ${SIDE}` });
     strip.setAttribute("aria-hidden", "true");
@@ -95,33 +91,21 @@ export const renderStrips: ViewRenderer<StripsView> = (ctx) => {
     end.append(html(doc, "span", "fft-strip-total", text.total));
     if (text.part) end.append(html(doc, "span", "fft-strip-share", `${text.part} ${ctx.label(first).toLowerCase()}`));
     if (text.dense) end.append(html(doc, "span", "fft-strip-density", text.dense));
-    item.append(html(doc, "span", "fft-strip-label", names[i] ?? ""), strip, end);
+    const nameNode = html(doc, "span", "fft-strip-label");
+    writeLabel(nameNode, column.shown[i] ?? names[i] ?? "", names[i] ?? "");
+    item.append(nameNode, strip, end);
 
     const items: TooltipItem[] = parts.map((field, p) => ({ label: ctx.label(field), value: ctx.format(row[field], field), color: ctx.color(p) }));
     if (parts.length > 1) items.push({ label: "Total", value: text.total });
     if (text.part) items.push({ label: `${ctx.label(first)} share`, value: text.part });
     if (text.dense) items.push({ label: "Density", value: text.dense });
-    item.setAttribute("aria-label", `${names[i]}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
-    const activate = () => {
-      list.setAttribute("data-active", "");
-      for (const other of rows) other.removeAttribute("data-active");
-      item.setAttribute("data-active", "");
-      ctx.tooltip.show(strip, names[i] ?? "", items);
-    };
-    item.addEventListener("pointerenter", activate);
-    item.addEventListener("focus", activate);
-    item.addEventListener("pointerleave", deactivate);
-    item.addEventListener("blur", deactivate);
-    selectable(item, () => ctx.select(row));
-    rows.push(item);
+    rows.push(rowHit(ctx, { node: item, row, name: names[i] ?? "", items, anchor: strip, group: active }));
     list.append(item);
   });
   roving(rows);
   wrap.append(list);
   const note = html(doc, "p", "fft-strips-note", perSquare === 1 ? `One square is one ${unit}.` : `One square is ${ctx.format(perSquare, first)} ${units}; strips are rounded to the nearest square.`);
   wrap.append(note);
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, ctx.rows as Row[], [label, ...parts, ...(per ? [per] : [])], false));
-  wrap.append(hidden);
+  wrap.append(hiddenTableOf(ctx, ctx.rows as Row[], [label, ...parts, ...(per ? [per] : [])]));
   ctx.el.append(wrap);
 };

@@ -3,8 +3,8 @@ import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { TimelineView } from "../../core/views.ts";
 import { fitLabels } from "../layout.ts";
-import { buildTable, CHAR_WIDTH, DAY, dayOf, html, legendList, rowHeight, selectable, shareFormat, svg } from "./shared.ts";
-import { roving } from "./focus.ts";
+import { activeGroup, DAY, dayOf, hiddenTableOf, html, legendList, roving, rowHeight, rowHit, shareFormat, svg, textWidth } from "./shared.ts";
+import { nameColumn, writeLabel } from "./label-fit.ts";
 
 const BAR = 13;
 
@@ -43,7 +43,9 @@ export const renderTimeline: ViewRenderer<TimelineView> = (ctx) => {
   const lo = first - pad;
   const hi = last + pad;
 
-  const left = Math.max(55, Math.max(...tasks.map((t) => t.name.length)) * CHAR_WIDTH + 13);
+  // The names' measured column, cut with an ellipsis past a third of the card.
+  const column = nameColumn(tasks.map((t) => t.name), ctx.width, { min: 55 });
+  const left = column.width + 8;
   // With progress, the right margin holds the "100%" after a bar that ends at the edge.
   const margin = { top: 34, right: progress ? 41 : 13, bottom: 8, left };
   const width = Math.max(ctx.width, left + 144);
@@ -76,7 +78,7 @@ export const renderTimeline: ViewRenderer<TimelineView> = (ctx) => {
     return (i === 0 || when.getUTCMonth() === 0 ? monthYear : monthName).format(when);
   });
   for (const day of months) chart.append(svg(doc, "line", { class: "fft-gridline", x1: x(day), x2: x(day), y1: margin.top - 8, y2: bottom }));
-  for (const i of fitLabels(months.map((day, k) => ({ x: x(day) + 4, width: (tickText[k] ?? "").length * CHAR_WIDTH, anchor: "start" as const })))) {
+  for (const i of fitLabels(months.map((day, k) => ({ x: x(day) + 4, width: textWidth(tickText[k] ?? ""), anchor: "start" as const })))) {
     const text = svg(doc, "text", { class: "fft-tick fft-gantt-tick", x: x(months[i] as number) + 4, y: 13 });
     text.textContent = tickText[i] ?? "";
     chart.append(text);
@@ -86,17 +88,13 @@ export const renderTimeline: ViewRenderer<TimelineView> = (ctx) => {
   const dateText = (row: Row, field: string, day: number) => (ctx.spec.fields?.[field]?.format !== undefined ? ctx.format(row[field], field) : longDate.format(new Date(day * DAY)));
   const rows: SVGGElement[] = [];
   const hits: Element[] = [];
-  const deactivate = () => {
-    wrap.removeAttribute("data-active");
-    for (const row of rows) row.removeAttribute("data-active");
-    ctx.tooltip.hide();
-  };
+  const active = activeGroup(wrap, ctx.tooltip);
   tasks.forEach((task, i) => {
     const cy = margin.top + i * LANE + LANE / 2;
     const color = groupColor(task.g);
     const g = svg(doc, "g", { class: "fft-gantt", style: `--fft-i: ${i}` });
-    const name = svg(doc, "text", { class: "fft-gantt-label", x: margin.left - 13, y: cy, "text-anchor": "end", "dominant-baseline": "middle" });
-    name.textContent = task.name;
+    const name = svg(doc, "text", { class: "fft-gantt-label", x: column.end, y: cy, "text-anchor": "end", "dominant-baseline": "middle" });
+    writeLabel(name, column.shown[i] ?? task.name, task.name);
     g.append(name);
     let anchor: SVGElement;
     if (task.to === null) {
@@ -131,24 +129,11 @@ export const renderTimeline: ViewRenderer<TimelineView> = (ctx) => {
     if (group) items.push({ label: ctx.label(group), value: ctx.format(task.row[group], group) });
     const done = doneOf(task.row);
     if (done !== null && task.to !== null) items.push({ label: "Progress", value: percent.format(done) });
-    const hit = svg(doc, "rect", { class: "fft-gantt-hit", x: 0, y: cy - LANE / 2, width, height: LANE, tabindex: 0, role: "img" });
-    hit.setAttribute("aria-label", `${task.name}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
-    const activate = () => {
-      wrap.setAttribute("data-active", "");
-      for (const other of rows) other.removeAttribute("data-active");
-      g.setAttribute("data-active", "");
-      ctx.tooltip.show(anchor, task.name, items);
-    };
-    hit.addEventListener("pointerenter", activate);
-    hit.addEventListener("focus", activate);
-    hit.addEventListener("pointerleave", deactivate);
-    hit.addEventListener("blur", deactivate);
-    const row = task.row;
-    selectable(hit, () => ctx.select(row));
+    const hit = svg(doc, "rect", { class: "fft-gantt-hit", x: 0, y: cy - LANE / 2, width, height: LANE });
+    hits.push(rowHit(ctx, { node: hit, row: task.row, name: task.name, items, anchor, active: g, group: active }));
     g.append(hit);
     chart.append(g);
     rows.push(g);
-    hits.push(hit);
   });
 
   const now = today === true ? dayOf(new Date()) : typeof today === "string" ? dayOf(today) : null;
@@ -162,8 +147,6 @@ export const renderTimeline: ViewRenderer<TimelineView> = (ctx) => {
 
   roving(hits);
   wrap.append(chart);
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, tasks.map((t) => t.row), [label, start, ...(end ? [end] : []), ...(group ? [group] : [])], false));
-  wrap.append(hidden);
+  wrap.append(hiddenTableOf(ctx, tasks.map((t) => t.row), [label, start, ...(end ? [end] : []), ...(group ? [group] : [])]));
   ctx.el.append(wrap);
 };

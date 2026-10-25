@@ -3,7 +3,7 @@ import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import { BOARD_LIMIT } from "../../core/views.ts";
 import type { BoardView } from "../../core/views.ts";
-import { buildTable, html, legendList, selectable } from "./shared.ts";
+import { activeGroup, hiddenTableOf, html, legendList, rowHit } from "./shared.ts";
 import { roving } from "./focus.ts";
 
 /** The column items land in when their stage is not among the stages listed. */
@@ -56,13 +56,9 @@ export const renderBoard: ViewRenderer<BoardView> = (ctx) => {
   boardEl.setAttribute("role", "group");
   boardEl.setAttribute("aria-label", `Board of ${ctx.label(label)} by ${ctx.label(stage)}`);
   boardEl.style.setProperty("--fft-columns", String(columns.size));
-  const cards: HTMLElement[] = [];
+  const cards: Element[] = [];
   const count = new Intl.NumberFormat(ctx.spec.locale);
-  const deactivate = () => {
-    boardEl.removeAttribute("data-active");
-    for (const card of cards) card.removeAttribute("data-active");
-    ctx.tooltip.hide();
-  };
+  const active = activeGroup(boardEl, ctx.tooltip);
 
   let index = 0;
   for (const [name, rows] of columns) {
@@ -85,7 +81,10 @@ export const renderBoard: ViewRenderer<BoardView> = (ctx) => {
         title.append(dot);
       }
       const nameText = ctx.format(row[label], label);
-      title.append(html(doc, "span", "fft-board-name", nameText));
+      const nameNode = html(doc, "span", "fft-board-name", nameText);
+      // A name longer than its card ends in an ellipsis (CSS); the pointer's title and the card's aria-label keep it whole.
+      nameNode.title = nameText;
+      title.append(nameNode);
       card.append(title);
       const amount = value ? readNumber(row[value]) : null;
       const valueText = value && amount !== null ? ctx.format(row[value], value) : "";
@@ -96,19 +95,7 @@ export const renderBoard: ViewRenderer<BoardView> = (ctx) => {
       if (g >= 0 && group) items.push({ label: ctx.label(group), value: groups[g] as string, color: groupColor(g) });
       if (valueText && value) items.push({ label: ctx.label(value), value: valueText });
       if (detailText && detail) items.push({ label: ctx.label(detail), value: detailText });
-      card.setAttribute("aria-label", `${nameText}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
-      const activate = () => {
-        boardEl.setAttribute("data-active", "");
-        for (const other of cards) other.removeAttribute("data-active");
-        card.setAttribute("data-active", "");
-        ctx.tooltip.show(card, nameText, items);
-      };
-      card.addEventListener("pointerenter", activate);
-      card.addEventListener("focus", activate);
-      card.addEventListener("pointerleave", deactivate);
-      card.addEventListener("blur", deactivate);
-      selectable(card, () => ctx.select(row));
-      cards.push(card);
+      cards.push(rowHit(ctx, { node: card, row, name: nameText, items, group: active }));
       list.append(card);
     });
     column.append(list);
@@ -135,8 +122,6 @@ export const renderBoard: ViewRenderer<BoardView> = (ctx) => {
   scroller.addEventListener("scroll", edge, { passive: true });
   edge();
 
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, ctx.rows, [label, stage, group, value, detail].filter((f): f is string => Boolean(f)), false));
-  wrap.append(hidden);
+  wrap.append(hiddenTableOf(ctx, ctx.rows, [label, stage, group, value, detail].filter((f): f is string => Boolean(f))));
   ctx.el.append(wrap);
 };

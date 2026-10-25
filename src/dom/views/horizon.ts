@@ -4,8 +4,9 @@ import type { HorizonView } from "../../core/views.ts";
 import { areaPath, evenLabels, spread } from "../layout.ts";
 import type { LabelBox } from "../layout.ts";
 import { tickFormatter } from "./chart.ts";
-import { buildTable, CHAR_WIDTH, fieldList, html, ROW, selectable, svg } from "./shared.ts";
-import { roving } from "./focus.ts";
+import { fieldList, hiddenTableOf, html, ROW, roving, rowHit, svg, textWidth } from "./shared.ts";
+import type { ActiveGroup } from "./shared.ts";
+import { nameColumn, writeLabel } from "./label-fit.ts";
 
 const LANE: number = ROW.roomy;
 const GAP = 2;
@@ -48,7 +49,9 @@ export const renderHorizon: ViewRenderer<HorizonView> = (ctx) => {
   const valueText = tickFormatter(ctx, series[0], [base, ...Array.from({ length: count + 1 }, (_, k) => base + k * step)]);
 
   const names = series.map((field) => ctx.label(field));
-  const left = Math.max(...names.map((name) => name.length)) * CHAR_WIDTH + 13;
+  // Series names in a measured column, cut with an ellipsis past a third of the card.
+  const column = nameColumn(names, ctx.width);
+  const left = column.width + 5;
   const width = Math.max(ctx.width, left + 144);
   const plot = { x: left, w: width - left - 13 };
   const rowsHeight = series.length * LANE + Math.max(0, series.length - 1) * GAP;
@@ -113,8 +116,8 @@ export const renderHorizon: ViewRenderer<HorizonView> = (ctx) => {
         group.append(band);
       }
     }
-    const label = svg(doc, "text", { class: "fft-horizon-label", x: plot.x - 8, y: top + LANE / 2, "text-anchor": "end", "dominant-baseline": "middle" });
-    label.textContent = names[s] ?? field;
+    const label = svg(doc, "text", { class: "fft-horizon-label", x: column.end, y: top + LANE / 2, "text-anchor": "end", "dominant-baseline": "middle" });
+    writeLabel(label, column.shown[s] ?? field, names[s] ?? field);
     group.append(label);
     chart.append(group);
   });
@@ -122,9 +125,9 @@ export const renderHorizon: ViewRenderer<HorizonView> = (ctx) => {
   // Period labels under the rows, thinned, the first and last always named.
   const xLabels = rows.map((row) => ctx.format(row[x], x));
   const anchorOf = (i: number) => (rows.length < 2 ? "middle" : i === 0 ? "start" : i === rows.length - 1 ? "end" : "middle");
-  const widest = Math.max(...xLabels.map((text) => text.length)) * CHAR_WIDTH + 8;
+  const widest = Math.max(...xLabels.map((text) => textWidth(text))) + 8;
   // An even rhythm: every gap the same but the closing one.
-  const box = (i: number): LabelBox => ({ x: slots[i]?.center ?? 0, width: (xLabels[i] ?? "").length * CHAR_WIDTH, anchor: anchorOf(i) });
+  const box = (i: number): LabelBox => ({ x: slots[i]?.center ?? 0, width: textWidth(xLabels[i] ?? ""), anchor: anchorOf(i) });
   for (const i of evenLabels(rows.length, Math.ceil((rows.length * widest) / plot.w), box)) {
     const text = svg(doc, "text", { class: "fft-tick fft-tick-x", x: slots[i]?.center ?? 0, y: rowsHeight + 18, "text-anchor": anchorOf(i) });
     text.textContent = xLabels[i] ?? "";
@@ -135,11 +138,22 @@ export const renderHorizon: ViewRenderer<HorizonView> = (ctx) => {
   const crosshair = svg(doc, "line", { class: "fft-crosshair", y1: 0, y2: rowsHeight, x1: 0, x2: 0, hidden: "" });
   chart.append(crosshair);
   const overlay = svg(doc, "g");
-  const deactivate = () => {
-    wrap.removeAttribute("data-active");
-    crosshair.setAttribute("hidden", "");
-    ctx.tooltip.hide();
+  // The active period is a hairline down every row, not one row lit: an active group that moves the crosshair.
+  const period: ActiveGroup = {
+    on(node) {
+      wrap.setAttribute("data-active", "");
+      const center = (node as SVGElement).dataset.center ?? "0";
+      crosshair.setAttribute("x1", center);
+      crosshair.setAttribute("x2", center);
+      crosshair.removeAttribute("hidden");
+    },
+    off() {
+      wrap.removeAttribute("data-active");
+      crosshair.setAttribute("hidden", "");
+      ctx.tooltip.hide();
+    },
   };
+  const hits: Element[] = [];
   slots.forEach((slot, i) => {
     const row = rows[i] ?? {};
     const items: TooltipItem[] = series.map((field, s) => {
@@ -148,27 +162,13 @@ export const renderHorizon: ViewRenderer<HorizonView> = (ctx) => {
       const away = v === null || v === undefined ? undefined : v === base ? `On ${named}` : `${ctx.format(Math.abs(v - base), field)} ${v > base ? "above" : "below"} ${named}`;
       return { label: names[s] ?? field, value: named && away ? away : ctx.format(row[field], field), ...(v === null || v === undefined || v === base ? {} : { color: `var(--fft-${v > base ? "up" : "down"})` }) };
     });
-    const hit = svg(doc, "rect", { class: "fft-horizon-hit", x: slot.start, y: 0, width: slot.width, height: rowsHeight, tabindex: 0, role: "img" });
-    hit.setAttribute("aria-label", `${xLabels[i]}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
-    const activate = () => {
-      wrap.setAttribute("data-active", "");
-      crosshair.setAttribute("x1", String(slot.center));
-      crosshair.setAttribute("x2", String(slot.center));
-      crosshair.removeAttribute("hidden");
-      ctx.tooltip.show(hit, xLabels[i] ?? "", items);
-    };
-    hit.addEventListener("pointerenter", activate);
-    hit.addEventListener("focus", activate);
-    hit.addEventListener("pointerleave", deactivate);
-    hit.addEventListener("blur", deactivate);
-    selectable(hit, () => ctx.select(row));
+    const hit = svg(doc, "rect", { class: "fft-horizon-hit", x: slot.start, y: 0, width: slot.width, height: rowsHeight, "data-center": slot.center });
+    hits.push(rowHit(ctx, { node: hit, row, name: xLabels[i] ?? "", items, group: period }));
     overlay.append(hit);
   });
   chart.append(overlay);
-  roving([...overlay.children]);
+  roving(hits);
   wrap.append(chart);
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, rows, [x, ...series], false));
-  wrap.append(hidden);
+  wrap.append(hiddenTableOf(ctx, rows, [x, ...series]));
   ctx.el.append(wrap);
 };

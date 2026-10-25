@@ -4,8 +4,7 @@ import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import { WHITESPACE_STATES } from "../../core/views.ts";
 import type { WhitespaceView } from "../../core/views.ts";
-import { hiddenTable, html, selectable } from "./shared.ts";
-import { roving } from "./focus.ts";
+import { activeGroup, hiddenTable, html, labelColumn, roving, rowHit } from "./shared.ts";
 
 /** A column narrower than this, in pixels, turns its header on its side. */
 const TIGHT = 55;
@@ -101,7 +100,9 @@ export const renderWhitespace: ViewRenderer<WhitespaceView> = (ctx) => {
   const grid = html(doc, "div", "fft-ws-grid");
   grid.setAttribute("role", "group");
   grid.setAttribute("aria-label", `Whitespace map of ${ctx.label(columnField)} by ${ctx.label(rowField)}`);
-  grid.style.gridTemplateColumns = `minmax(55px, max-content) repeat(${columns.length}, minmax(21px, 1fr)) max-content`;
+  // The name column is as wide as the longest name, measured, up to a third of the card; longer names end in an ellipsis.
+  const nameWidth = labelColumn(lines.map((line) => line.name), ctx.width, { min: 55, size: 13 });
+  grid.style.gridTemplateColumns = `minmax(55px, ${nameWidth}px) repeat(${columns.length}, minmax(21px, 1fr)) max-content`;
   // Narrow columns turn their names on their side, so every product keeps its full name.
   const perColumn = (ctx.width - 89 - (hasValue ? 89 : 55)) / Math.max(1, columns.length);
   if (perColumn < TIGHT) grid.dataset.tight = "";
@@ -113,14 +114,12 @@ export const renderWhitespace: ViewRenderer<WhitespaceView> = (ctx) => {
   }
   grid.append(html(doc, "div", "fft-ws-head-sum", hasValue ? "Held · to win" : "Held"));
 
-  const cells: HTMLElement[] = [];
-  const deactivate = () => {
-    grid.removeAttribute("data-active");
-    for (const cell of cells) cell.removeAttribute("data-active");
-    ctx.tooltip.hide();
-  };
+  const cells: Element[] = [];
+  const active = activeGroup(grid, ctx.tooltip);
   lines.forEach((line, i) => {
-    grid.append(html(doc, "div", "fft-ws-row", line.name));
+    const rowName = html(doc, "div", "fft-ws-row", line.name);
+    rowName.title = line.name;
+    grid.append(rowName);
     for (const column of columns) {
       const entry = line.cells.get(column.key);
       const cell = html(doc, "div", "fft-ws-cell");
@@ -143,22 +142,10 @@ export const renderWhitespace: ViewRenderer<WhitespaceView> = (ctx) => {
       const items: TooltipItem[] = [{ label: ctx.label(stateField), value: stateName ?? "" }];
       if (entry.state === "opportunity" && entry.score !== null && scoreField) items.push({ label: ctx.label(scoreField), value: ctx.format(entry.row[scoreField], scoreField) });
       if (entry.state !== "none" && entry.value !== null && valueField) items.push({ label: entry.state === "holds" ? ctx.label(valueField) : "Potential", value: ctx.format(entry.row[valueField], valueField) });
-      cell.tabIndex = 0;
       // A labelled mark: the label says what the square only shows (aria-label needs a role on a div).
       cell.setAttribute("role", "img");
+      cells.push(rowHit(ctx, { node: cell, row: entry.row, name: `${line.name} · ${column.name}`, items, group: active }));
       cell.setAttribute("aria-label", `${line.name}, ${column.name}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
-      const activate = () => {
-        grid.setAttribute("data-active", "");
-        for (const other of cells) other.removeAttribute("data-active");
-        cell.setAttribute("data-active", "");
-        ctx.tooltip.show(cell, `${line.name} · ${column.name}`, items);
-      };
-      cell.addEventListener("pointerenter", activate);
-      cell.addEventListener("focus", activate);
-      cell.addEventListener("pointerleave", deactivate);
-      cell.addEventListener("blur", deactivate);
-      selectable(cell, () => ctx.select(entry.row));
-      cells.push(cell);
       grid.append(cell);
     }
     const sum = html(doc, "div", "fft-ws-sum");

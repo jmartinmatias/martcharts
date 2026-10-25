@@ -4,8 +4,8 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { BumpView } from "../../core/views.ts";
 import { fitLabels } from "../layout.ts";
 import { DEEMPHASIS, highlights } from "./chart.ts";
-import { buildTable, CHAR_WIDTH, html, ROW, selectable, svg } from "./shared.ts";
-import { roving } from "./focus.ts";
+import { activeGroup, hiddenTableOf, html, ROW, roving, rowHit, svg, textWidth } from "./shared.ts";
+import { fitLabel } from "./label-fit.ts";
 
 /** Height of one rank row: a Fibonacci step, enough for a label and a ringed dot. */
 const LANE: number = ROW.roomy;
@@ -60,11 +60,15 @@ export const renderBump: ViewRenderer<BumpView> = (ctx) => {
     ranked.forEach((entry, i) => points.get(entry.name)?.push({ period: p, rank: i + 1, row: entry.row }));
   });
 
-  const nameWidth = Math.max(...names.map((name) => ctx.format(name, series).length)) + 3;
-  const nameRoom = nameWidth * CHAR_WIDTH + 13;
+  // Labels are a rank and a name, measured: a side takes at most 30% of the card, and longer names are cut with an
+  // ellipsis (the tooltip and the aria-label keep them whole).
+  const rankRoom = textWidth(String(names.length), 11, 600) + 5;
+  const sideCap = Math.max(55, ctx.width * 0.3);
+  const fitted = new Map(names.map((name) => [name, fitLabel(ctx.format(name, series), Math.max(21, sideCap - rankRoom - 13))]));
+  const nameRoom = Math.max(0, ...[...fitted.values()].map((name) => textWidth(name))) + rankRoom + 13;
   // In a narrow card the left labels shrink to the rank alone; the names stay on the right.
   const compact = ctx.width < nameRoom * 2 + 144;
-  const margin = { top: 13, bottom: 26, left: compact ? (String(names.length).length + 1) * CHAR_WIDTH + 13 : nameRoom, right: nameRoom };
+  const margin = { top: 13, bottom: 26, left: compact ? rankRoom + 8 : nameRoom, right: nameRoom };
   const width = Math.max(ctx.width, margin.left + margin.right + 89);
   const height = Math.max(ctx.height, margin.top + margin.bottom + names.length * LANE);
   const plotW = width - margin.left - margin.right;
@@ -78,7 +82,7 @@ export const renderBump: ViewRenderer<BumpView> = (ctx) => {
   chart.setAttribute("aria-label", `Bump chart of ${ctx.label(series)} rank by ${ctx.label(value)} over ${ctx.label(x)}`);
   periods.forEach((_, p) => chart.append(svg(doc, "line", { class: "fft-gridline", x1: px(p), x2: px(p), y1: margin.top, y2: height - margin.bottom })));
   // Period labels where they fit, always including the last.
-  for (const p of fitLabels(periods.map((period, i) => ({ x: px(i), width: period.text.length * CHAR_WIDTH })), { keepLast: true })) {
+  for (const p of fitLabels(periods.map((period, i) => ({ x: px(i), width: textWidth(period.text) })), { keepLast: true })) {
     const label = svg(doc, "text", { class: "fft-tick fft-tick-x", x: px(p), y: height - 8, "text-anchor": "middle" });
     label.textContent = periods[p]?.text ?? "";
     chart.append(label);
@@ -86,11 +90,7 @@ export const renderBump: ViewRenderer<BumpView> = (ctx) => {
 
   const groups: SVGGElement[] = [];
   const hits: Element[] = [];
-  const deactivate = () => {
-    wrap.removeAttribute("data-active");
-    for (const group of groups) group.removeAttribute("data-active");
-    ctx.tooltip.hide();
-  };
+  const active = activeGroup(wrap, ctx.tooltip);
   const label = (cls: string, at: { x: number; y: number }, anchor: "start" | "end", parts: [string, string][]) => {
     const text = svg(doc, "text", { class: `fft-bump-label ${cls}`, x: at.x, y: at.y, "text-anchor": anchor, "dominant-baseline": "middle" });
     parts.forEach(([partClass, content], i) => {
@@ -109,6 +109,7 @@ export const renderBump: ViewRenderer<BumpView> = (ctx) => {
     const on = picked.length === 0 || picked.includes(name);
     const color = on ? ctx.color(s) : DEEMPHASIS;
     const shown = ctx.format(name, series);
+    const cut = fitted.get(name) ?? shown;
     const group = svg(doc, "g", { class: "fft-bump", "data-series": name, style: `--fft-i: ${s}` });
     if (!on) group.setAttribute("data-muted", "");
     const coords = track.map((point) => ({ x: px(point.period), y: py(point.rank) }));
@@ -124,16 +125,20 @@ export const renderBump: ViewRenderer<BumpView> = (ctx) => {
     }
     const start = coords[0] as { x: number; y: number };
     const finish = coords.at(-1) as { x: number; y: number };
-    group.append(
-      label("fft-bump-label-from", { x: start.x - 10, y: start.y }, "end", compact ? [["fft-bump-rank", String(first.rank)]] : [
-        ["fft-bump-name", shown],
-        ["fft-bump-rank", String(first.rank)],
-      ]),
-      label("fft-bump-label-to", { x: finish.x + 10, y: finish.y }, "start", [
-        ["fft-bump-rank", String(last.rank)],
-        ["fft-bump-name", shown],
-      ]),
-    );
+    const fromLabel = label("fft-bump-label-from", { x: start.x - 10, y: start.y }, "end", compact ? [["fft-bump-rank", String(first.rank)]] : [
+      ["fft-bump-name", cut],
+      ["fft-bump-rank", String(first.rank)],
+    ]);
+    const toLabel = label("fft-bump-label-to", { x: finish.x + 10, y: finish.y }, "start", [
+      ["fft-bump-rank", String(last.rank)],
+      ["fft-bump-name", cut],
+    ]);
+    // A cut name keeps its whole self for screen readers.
+    if (cut !== shown) {
+      if (!compact) fromLabel.setAttribute("aria-label", `${shown} ${first.rank}`);
+      toLabel.setAttribute("aria-label", `${last.rank} ${shown}`);
+    }
+    group.append(fromLabel, toLabel);
 
     const lastText = periods[last.period]?.text ?? "";
     const tips: TooltipItem[] = [
@@ -141,31 +146,15 @@ export const renderBump: ViewRenderer<BumpView> = (ctx) => {
       ...(track.length > 1 ? [{ label: lastText, value: `#${last.rank}` }] : []),
       { label: ctx.label(value), value: ctx.format(last.row[value], value), color },
     ];
-    const hit = svg(doc, "path", { class: "fft-bump-hit", d: track.length > 1 ? d : `${d}h0.01`, tabindex: 0, role: "img" });
-    hit.setAttribute("aria-label", `${shown}: ${tips.map((tip) => `${tip.label} ${tip.value}`).join(", ")}`);
-    const anchor = end as SVGCircleElement;
-    const activate = () => {
-      wrap.setAttribute("data-active", "");
-      for (const other of groups) other.removeAttribute("data-active");
-      group.setAttribute("data-active", "");
-      ctx.tooltip.show(anchor, shown, tips);
-    };
-    hit.addEventListener("pointerenter", activate);
-    hit.addEventListener("focus", activate);
-    hit.addEventListener("pointerleave", deactivate);
-    hit.addEventListener("blur", deactivate);
-    const latest = last.row;
-    selectable(hit, () => ctx.select(latest));
+    const hit = svg(doc, "path", { class: "fft-bump-hit", d: track.length > 1 ? d : `${d}h0.01` });
+    hits.push(rowHit(ctx, { node: hit, row: last.row, name: shown, items: tips, anchor: end as SVGCircleElement, active: group, group: active }));
     group.append(hit);
     groups.push(group);
-    hits.push(hit);
   });
   // Muted series first, so the highlighted ones draw on top.
   for (const group of [...groups].sort((a, b) => Number(!a.hasAttribute("data-muted")) - Number(!b.hasAttribute("data-muted")))) chart.append(group);
   roving(hits);
   wrap.append(chart);
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, ctx.rows, [x, series, value], false));
-  wrap.append(hidden);
+  wrap.append(hiddenTableOf(ctx, ctx.rows, [x, series, value]));
   ctx.el.append(wrap);
 };

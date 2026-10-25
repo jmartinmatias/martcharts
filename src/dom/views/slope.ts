@@ -5,8 +5,8 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { SlopeView } from "../../core/views.ts";
 import { dodge } from "../layout.ts";
 import { highlights } from "./chart.ts";
-import { buildTable, CHAR_WIDTH, html, selectable, svg } from "./shared.ts";
-import { roving } from "./focus.ts";
+import { activeGroup, hiddenTableOf, html, roving, rowHit, svg, textWidth } from "./shared.ts";
+import { fitLabel } from "./label-fit.ts";
 
 /** Closest two labels on one side may sit: one 11px line plus breathing room. */
 const LABEL_GAP = 14;
@@ -41,7 +41,16 @@ export const renderSlope: ViewRenderer<SlopeView> = (ctx) => {
   });
   const change = minusFormat(new Intl.NumberFormat(ctx.spec.locale, { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1, signDisplay: "exceptZero" }));
 
-  const labelWidth = (side: "from" | "to") => Math.max(34, ...items.map((it) => (it.name.length + 1 + (side === "from" ? it.fromText : it.toText).length) * CHAR_WIDTH)) + 13;
+  // Each side's labels are name and value, measured: a side takes at most 30% of the card, and names longer than the
+  // room its values leave are cut with an ellipsis (the tooltip and the aria-label keep them whole).
+  const valueOf = (it: (typeof items)[number], side: "from" | "to") => (side === "from" ? it.fromText : it.toText);
+  const sideCap = Math.max(55, ctx.width * 0.3);
+  const shownName = (side: "from" | "to") => {
+    const values = Math.max(0, ...items.map((it) => textWidth(valueOf(it, side), 11, 600)));
+    return items.map((it) => fitLabel(it.name, Math.max(21, sideCap - values - 18)));
+  };
+  const shown = { from: shownName("from"), to: shownName("to") };
+  const labelWidth = (side: "from" | "to") => Math.max(34, ...items.map((it, i) => textWidth(shown[side][i] ?? "") + 5 + textWidth(valueOf(it, side), 11, 600))) + 13;
   const top = 34;
   const bottom = 13;
   const height = Math.max(ctx.height, top + bottom + items.length * LABEL_GAP);
@@ -76,11 +85,7 @@ export const renderSlope: ViewRenderer<SlopeView> = (ctx) => {
   }
 
   const groups: SVGGElement[] = [];
-  const deactivate = () => {
-    wrap.removeAttribute("data-active");
-    for (const group of groups) group.removeAttribute("data-active");
-    ctx.tooltip.hide();
-  };
+  const active = activeGroup(wrap, ctx.tooltip);
   const tspans = (text: SVGTextElement, parts: [string, string][]) => {
     for (const [cls, content] of parts) {
       const span = svg(doc, "tspan", { class: cls });
@@ -102,16 +107,18 @@ export const renderSlope: ViewRenderer<SlopeView> = (ctx) => {
     group.append(svg(doc, "circle", { class: "fft-slope-dot", cx: left, cy: y1, r: 4 }), end);
     const before = svg(doc, "text", { class: "fft-slope-label fft-slope-label-from", x: left - 10, y: fromY[i] ?? y1, "text-anchor": "end", "dominant-baseline": "middle" });
     tspans(before, [
-      ["fft-slope-name", it.name],
+      ["fft-slope-name", shown.from[i] ?? it.name],
       ["fft-slope-value", it.fromText],
     ]);
     before.lastElementChild?.setAttribute("dx", "5");
     const after = svg(doc, "text", { class: "fft-slope-label fft-slope-label-to", x: right + 10, y: toY[i] ?? y2, "dominant-baseline": "middle" });
     tspans(after, [
       ["fft-slope-value", it.toText],
-      ["fft-slope-name", it.name],
+      ["fft-slope-name", shown.to[i] ?? it.name],
     ]);
     after.lastElementChild?.setAttribute("dx", "5");
+    if (shown.from[i] !== it.name) before.setAttribute("aria-label", `${it.name} ${it.fromText}`);
+    if (shown.to[i] !== it.name) after.setAttribute("aria-label", `${it.toText} ${it.name}`);
     group.append(before, after);
 
     const tips: TooltipItem[] = [
@@ -119,29 +126,15 @@ export const renderSlope: ViewRenderer<SlopeView> = (ctx) => {
       { label: ctx.label(to), value: it.toText },
       ...(it.a !== 0 ? [{ label: "Change", value: change.format((it.b - it.a) / Math.abs(it.a)) }] : []),
     ];
-    const hit = svg(doc, "path", { class: "fft-slope-hit", d, tabindex: 0, role: "img" });
-    hit.setAttribute("aria-label", `${it.name}: ${tips.map((tip) => `${tip.label} ${tip.value}`).join(", ")}`);
-    const activate = () => {
-      wrap.setAttribute("data-active", "");
-      for (const other of groups) other.removeAttribute("data-active");
-      group.setAttribute("data-active", "");
-      ctx.tooltip.show(end, it.name, tips);
-    };
-    hit.addEventListener("pointerenter", activate);
-    hit.addEventListener("focus", activate);
-    hit.addEventListener("pointerleave", deactivate);
-    hit.addEventListener("blur", deactivate);
+    const hit = svg(doc, "path", { class: "fft-slope-hit", d });
     const row: Row = it.row;
-    selectable(hit, () => ctx.select(row));
+    hits.push(rowHit(ctx, { node: hit, row, name: it.name, items: tips, anchor: end, active: group, group: active }));
     group.append(hit);
     groups.push(group);
-    hits.push(hit);
   });
   for (const i of order) chart.append(groups[i] as SVGGElement);
   roving(hits);
   wrap.append(chart);
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, rows, [label, from, to], false));
-  wrap.append(hidden);
+  wrap.append(hiddenTableOf(ctx, rows, [label, from, to]));
   ctx.el.append(wrap);
 };

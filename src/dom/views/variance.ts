@@ -3,8 +3,8 @@ import { readNumber } from "../../core/formats.ts";
 import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { VarianceView } from "../../core/views.ts";
-import { buildTable, CHAR_WIDTH, html, ROW, selectable, svg } from "./shared.ts";
-import { roving } from "./focus.ts";
+import { activeGroup, endRoom, hiddenTableOf, html, ROW, roving, rowHit, svg } from "./shared.ts";
+import { nameColumn, writeLabel } from "./label-fit.ts";
 
 const LANE: number = ROW.roomy;
 const BAR = 21;
@@ -41,8 +41,10 @@ export const renderVariance: ViewRenderer<VarianceView> = (ctx) => {
 
   const low = Math.min(0, ...items.map((it) => it.measure));
   const high = Math.max(0, ...items.map((it) => it.measure));
-  const labelRoom = Math.max(...items.map((it) => text(it).length)) * CHAR_WIDTH + 8;
-  const left = Math.max(55, Math.max(...items.map((it) => it.name.length)) * CHAR_WIDTH + 21);
+  const labelRoom = endRoom(items.map((it) => text(it)));
+  // The names' measured column, cut with an ellipsis past a third of the card.
+  const column = nameColumn(items.map((it) => it.name), ctx.width, { min: 55 });
+  const left = column.width + 13;
   const width = Math.max(ctx.width, left + 144);
   const height = items.length * LANE + 8;
   // Room for a value label beyond each end that has bars.
@@ -57,18 +59,14 @@ export const renderVariance: ViewRenderer<VarianceView> = (ctx) => {
   chart.setAttribute("aria-label", `Variance of ${ctx.label(value)} against ${ctx.label(target)} by ${ctx.label(label)}`);
   const groups: SVGGElement[] = [];
   const hits: Element[] = [];
-  const deactivate = () => {
-    wrap.removeAttribute("data-active");
-    for (const group of groups) group.removeAttribute("data-active");
-    ctx.tooltip.hide();
-  };
+  const active = activeGroup(wrap, ctx.tooltip);
   items.forEach((it, i) => {
     const top = 4 + i * LANE;
     const cy = top + LANE / 2;
     const tone = it.delta === 0 ? "even" : (it.delta > 0) === (goodWhen === "up") ? "good" : "bad";
     const g = svg(doc, "g", { class: "fft-var", "data-tone": tone, style: `--fft-i: ${i}` });
-    const name = svg(doc, "text", { class: "fft-var-label", x: left - 21, y: cy, "text-anchor": "end", "dominant-baseline": "middle" });
-    name.textContent = it.name;
+    const name = svg(doc, "text", { class: "fft-var-label", x: column.end, y: cy, "text-anchor": "end", "dominant-baseline": "middle" });
+    writeLabel(name, column.shown[i] ?? it.name, it.name);
     g.append(name);
     const end = x(it.measure);
     let anchor: SVGElement = name;
@@ -87,30 +85,16 @@ export const renderVariance: ViewRenderer<VarianceView> = (ctx) => {
       { label: "Variance", value: it.signed },
       ...(it.rel ? [{ label: `vs ${ctx.label(target).toLowerCase()}`, value: it.rel }] : []),
     ];
-    const hit = svg(doc, "rect", { class: "fft-var-hit", x: 0, y: top, width, height: LANE, tabindex: 0, role: "img" });
-    hit.setAttribute("aria-label", `${it.name}: ${tips.map((tip) => `${tip.label} ${tip.value}`).join(", ")}`);
-    const activate = () => {
-      wrap.setAttribute("data-active", "");
-      for (const other of groups) other.removeAttribute("data-active");
-      g.setAttribute("data-active", "");
-      ctx.tooltip.show(anchor, it.name, tips);
-    };
-    hit.addEventListener("pointerenter", activate);
-    hit.addEventListener("focus", activate);
-    hit.addEventListener("pointerleave", deactivate);
-    hit.addEventListener("blur", deactivate);
+    const hit = svg(doc, "rect", { class: "fft-var-hit", x: 0, y: top, width, height: LANE });
     const row: Row = it.row;
-    selectable(hit, () => ctx.select(row));
+    hits.push(rowHit(ctx, { node: hit, row, name: it.name, items: tips, anchor, active: g, group: active }));
     g.append(hit);
     chart.append(g);
     groups.push(g);
-    hits.push(hit);
   });
   chart.append(svg(doc, "line", { class: "fft-var-zero", x1: zero, x2: zero, y1: 0, y2: height }));
   roving(hits);
   wrap.append(chart);
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, items.map((it) => it.row), [label, value, target], false));
-  wrap.append(hidden);
+  wrap.append(hiddenTableOf(ctx, items.map((it) => it.row), [label, value, target]));
   ctx.el.append(wrap);
 };

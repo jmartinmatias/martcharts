@@ -2,7 +2,7 @@ import { readNumber } from "../../core/formats.ts";
 import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { HistoryView } from "../../core/views.ts";
-import { buildTable, DAY, dayOf, html, legendList, selectable } from "./shared.ts";
+import { activeGroup, DAY, dayOf, hiddenTableOf, html, legendList, rowHit } from "./shared.ts";
 import { roving } from "./focus.ts";
 
 const DEFAULT_LIMIT = 30;
@@ -59,8 +59,8 @@ export const renderHistory: ViewRenderer<HistoryView> = (ctx) => {
     wrap.append(key);
   }
 
-  const stops: HTMLElement[] = [];
-  const deactivate = () => ctx.tooltip.hide();
+  const stops: Element[] = [];
+  const active = activeGroup(wrap, ctx.tooltip);
   const drawList = (list: Event[]) => {
     const rail = html(doc, "ol", "fft-history");
     let lastMonth = "";
@@ -74,14 +74,17 @@ export const renderHistory: ViewRenderer<HistoryView> = (ctx) => {
       const color = colorOf(event);
       const item = html(doc, "li", "fft-history-event");
       item.style.setProperty("--fft-i", String(i));
-      item.tabIndex = 0;
       const dot = html(doc, "span", "fft-history-dot", kind ? kindText(String(row[kind])).charAt(0).toUpperCase() : "");
       dot.style.background = color;
       dot.setAttribute("aria-hidden", "true");
       const body = html(doc, "div", "fft-history-body");
       const line = html(doc, "div", "fft-history-line");
       const when = dateText(row, event.day);
-      line.append(html(doc, "span", "fft-history-date", when), html(doc, "span", "fft-history-title", ctx.format(row[title], title)));
+      const titleText = ctx.format(row[title], title);
+      const titleNode = html(doc, "span", "fft-history-title", titleText);
+      // A title longer than its line ends in an ellipsis (CSS); the pointer's title and the event's aria-label keep it whole.
+      titleNode.title = titleText;
+      line.append(html(doc, "span", "fft-history-date", when), titleNode);
       const sum = amount ? readNumber(row[amount]) : null;
       if (sum !== null && amount) line.append(html(doc, "span", "fft-history-amount", ctx.format(row[amount], amount)));
       body.append(line);
@@ -92,14 +95,9 @@ export const renderHistory: ViewRenderer<HistoryView> = (ctx) => {
       const items: TooltipItem[] = [{ label: ctx.label(date), value: when }];
       if (kind) items.push({ label: ctx.label(kind), value: kindText(String(row[kind])), color });
       if (sum !== null && amount) items.push({ label: ctx.label(amount), value: ctx.format(row[amount], amount) });
-      item.setAttribute("aria-label", `${when}: ${ctx.format(row[title], title)}${kind ? `, ${kindText(String(row[kind]))}` : ""}${sum !== null && amount ? `, ${ctx.format(row[amount], amount)}` : ""}${noteText ? `. ${noteText}` : ""}`);
-      const show = () => ctx.tooltip.show(dot, ctx.format(row[title], title), items);
-      item.addEventListener("pointerenter", show);
-      item.addEventListener("focus", show);
-      item.addEventListener("pointerleave", deactivate);
-      item.addEventListener("blur", deactivate);
-      selectable(item, () => ctx.select(row));
-      stops.push(item);
+      stops.push(rowHit(ctx, { node: item, row, name: titleText, items, anchor: dot, group: active }));
+      // An event is read as a sentence: its date, what happened, its kind and amount, then the note.
+      item.setAttribute("aria-label", `${when}: ${titleText}${kind ? `, ${kindText(String(row[kind]))}` : ""}${sum !== null && amount ? `, ${ctx.format(row[amount], amount)}` : ""}${noteText ? `. ${noteText}` : ""}`);
       rail.append(item);
     });
     if (list.length > limit) {
@@ -119,8 +117,6 @@ export const renderHistory: ViewRenderer<HistoryView> = (ctx) => {
   } else wrap.append(drawList(events));
   roving(stops);
 
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, events.map((event) => event.row), [date, title, ...(kind ? [kind] : []), ...(amount ? [amount] : []), ...(note ? [note] : [])], false));
-  wrap.append(hidden);
+  wrap.append(hiddenTableOf(ctx, events.map((event) => event.row), [date, title, ...(kind ? [kind] : []), ...(amount ? [amount] : []), ...(note ? [note] : [])]));
   ctx.el.append(wrap);
 };
