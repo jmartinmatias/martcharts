@@ -5,7 +5,7 @@ import { isForecast } from "../../core/views.ts";
 import type { AnomaliesView } from "../../core/views.ts";
 import { bandPath, evenLabels, linearScale, linePath, spread } from "../layout.ts";
 import type { LabelBox } from "../layout.ts";
-import { activeGroup, hiddenTableOf, html, ROW, roving, rowHit, svg, textWidth } from "./shared.ts";
+import { ROW, activeGroup, hiddenTableOf, html, legendList, roving, rowHit, svg, textWidth } from "./shared.ts";
 import { fitLabel, writeLabel } from "./label-fit.ts";
 
 const LANE: number = ROW.roomy;
@@ -102,7 +102,7 @@ export const renderAnomalies: ViewRenderer<AnomaliesView> = (ctx) => {
       group.append(svg(doc, "path", { class: "fft-anom-expected", d: linePath(points) }));
     }
     const line = svg(doc, "path", { class: "fft-anom-line", d: linePath(lane.rows.map((row, i) => (reading(row, value) !== null ? { x: at(i), y: y(reading(row, value) as number) } : null))) });
-    line.style.setProperty("stroke", ctx.color(0));
+    line.style.setProperty("stroke", ctx.colorOf?.(lane.name) ?? ctx.color(0));
     group.append(line);
 
     // Flagged readings: a halo and a filled dot in the alert color, each a keyboard stop with the reading's story.
@@ -160,24 +160,21 @@ export const renderAnomalies: ViewRenderer<AnomaliesView> = (ctx) => {
   wrap.append(chart);
 
   // The key: what the band and the dots mean, in a few words.
-  const key = html(doc, "ul", "fft-legend fft-anom-key");
-  const keyItem = (className: string, label: string) => {
-    const swatch = html(doc, "span", `fft-swatch ${className}`);
-    swatch.setAttribute("aria-hidden", "true");
-    const item = html(doc, "li");
-    item.append(swatch, label);
-    return item;
-  };
-  if (banded) key.append(keyItem("fft-anom-key-band", "Expected band"));
-  const valueKey = keyItem("fft-anom-key-line", ctx.label(value));
-  (valueKey.firstChild as HTMLElement).style.background = ctx.color(0);
-  (valueKey.firstChild as HTMLElement).dataset.shape = "line";
-  key.append(valueKey);
-  const flagKey = keyItem("fft-anom-key-flag", "Anomaly");
-  (flagKey.firstChild as HTMLElement).dataset.shape = "dot";
-  key.append(flagKey);
-  // Inside a small-multiples panel the widget draws one shared legend.
-  if (!ctx.inFacet) wrap.prepend(key);
+  // The key, above the lanes like every row view's: the band, the line and the flag, each its own swatch class.
+  const keys = [
+    ...(banded ? [{ label: "Expected band", color: "", shape: "rect" as const, cls: "fft-anom-key-band" }] : []),
+    { label: ctx.label(value), color: ctx.color(0), shape: "line" as const, cls: "fft-anom-key-line" },
+    { label: "Anomaly", color: "", shape: "dot" as const, cls: "fft-anom-key-flag" },
+  ];
+  const key = legendList(ctx, keys);
+  if (key) {
+    key.classList.add("fft-anom-key");
+    key.querySelectorAll<HTMLElement>(".fft-swatch").forEach((swatch, i) => {
+      swatch.classList.add(keys[i]?.cls ?? "");
+      if (!keys[i]?.color) swatch.style.removeProperty("background");
+    });
+    wrap.prepend(key);
+  }
 
   const columns = [x, metric, value, expected, low, high].filter((f): f is string => Boolean(f));
   wrap.append(hiddenTableOf(ctx, flaggedRows.length ? flaggedRows : ctx.rows, columns));

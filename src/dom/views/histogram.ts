@@ -7,6 +7,7 @@ import { barPath, binValues, CHAR_WIDTH, linearScale, quantile } from "../layout
 import { tickFormatter } from "./chart.ts";
 import { drawVerticalReferences } from "./reference.ts";
 import { hiddenTable, html, selectable, shareFormat, svg } from "./shared.ts";
+import { edgeAnchor, edgeX } from "./label-fit.ts";
 import { roving } from "./focus.ts";
 
 /**
@@ -22,6 +23,8 @@ import { roving } from "./focus.ts";
 export const renderHistogram: ViewRenderer<HistogramView & { reference?: unknown }> = (ctx) => {
   const doc = ctx.el.ownerDocument;
   const { value, median = true, countLabel = "Count" } = ctx.view;
+  // The measure keeps its fixed color when the widget names one.
+  const hue = ctx.colorOf?.(value) ?? ctx.colorOf?.(ctx.label(value)) ?? ctx.color(0);
   const values = ctx.rows.map((row) => readNumber(row[value])).filter((n): n is number => n !== null);
   const bins = binValues(values, ctx.view.bins ?? sturges(values.length));
   const edges = bins.length ? [bins[0]?.start as number, ...bins.map((bin) => bin.end)] : [];
@@ -61,8 +64,10 @@ export const renderHistogram: ViewRenderer<HistogramView & { reference?: unknown
   const every = Math.max(1, Math.ceil((edges.length * widest) / plot.w));
   edges.forEach((edge, i) => {
     if (i % every !== 0 && i !== edges.length - 1) return;
-    const label = svg(doc, "text", { class: "fft-tick fft-tick-x", x: xs(edge), y: base + 18, "text-anchor": "middle" });
-    label.textContent = edgeText(edge);
+    const word = edgeText(edge);
+    const anchor = edgeAnchor(xs(edge), word, width);
+    const label = svg(doc, "text", { class: "fft-tick fft-tick-x", x: edgeX(xs(edge), anchor, width), y: base + 18, "text-anchor": anchor });
+    label.textContent = word;
     chart.append(label);
   });
   const refsBelow = svg(doc, "g");
@@ -87,12 +92,12 @@ export const renderHistogram: ViewRenderer<HistogramView & { reference?: unknown
         d: barPath({ series: 0, index: i, x: x0 + 1, y: top, width: Math.max(1, x1 - x0 - 2), height: base - top, value: bin.count, negative: false }, 4),
         "data-count": bin.count,
       });
-      bar.style.setProperty("fill", ctx.color(0));
+      bar.style.setProperty("fill", hue);
       group.append(bar);
     }
     const range = `${edgeText(bin.start)} to ${edgeText(bin.end)}`;
     const items: TooltipItem[] = [
-      { label: countLabel, value: String(bin.count), color: ctx.color(0) },
+      { label: countLabel, value: new Intl.NumberFormat(ctx.spec.locale).format(bin.count), color: hue },
       { label: "Share", value: share.format(values.length ? bin.count / values.length : 0) },
     ];
     const hit = svg(doc, "rect", { class: "fft-hist-hit", x: x0, y: plot.y, width: x1 - x0, height: plot.h, tabindex: 0, role: "img" });

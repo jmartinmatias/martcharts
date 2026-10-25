@@ -5,6 +5,7 @@ import type { WaterfallView } from "../../core/views.ts";
 import { bands, CHAR_WIDTH, layoutWaterfall, linearScale } from "../layout.ts";
 import { highlights, tickFormatter } from "./chart.ts";
 import { hiddenTableOf, html, selectable, svg } from "./shared.ts";
+import { edgeAnchor, edgeX } from "./label-fit.ts";
 import { roving } from "./focus.ts";
 
 /**
@@ -94,8 +95,10 @@ export const renderWaterfall: ViewRenderer<WaterfallView & { highlight?: string 
       marks.append(svg(doc, "line", { class: "fft-connector", x1: x + barWidth, x2: next.center - barWidth / 2, y1: level, y2: level }));
     }
     if (i % every === 0) {
-      const text = svg(doc, "text", { class: "fft-tick fft-tick-x", x: slot.center, y: plot.y + plot.h + 18, "text-anchor": "middle" });
-      text.textContent = names[i] ?? "";
+      const word = names[i] ?? "";
+      const anchor = edgeAnchor(slot.center, word, width);
+      const text = svg(doc, "text", { class: "fft-tick fft-tick-x", x: edgeX(slot.center, anchor, width), y: plot.y + plot.h + 18, "text-anchor": anchor });
+      text.textContent = word;
       chart.append(text);
     }
 

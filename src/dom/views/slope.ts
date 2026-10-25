@@ -98,6 +98,9 @@ export const renderSlope: ViewRenderer<SlopeView> = (ctx) => {
   const hits: Element[] = [];
   items.forEach((it, i) => {
     const group = svg(doc, "g", { class: "fft-slope", "data-direction": it.direction, style: `--fft-i: ${i}` });
+    // A row with a fixed colour keeps it; the rest take the rise and fall colours.
+    const fixed = ctx.colorOf?.(it.row[label]);
+    if (fixed) group.style.setProperty("--fft-slope-color", fixed);
     if (!it.on) group.setAttribute("data-muted", "");
     const y1 = y(it.a);
     const y2 = y(it.b);

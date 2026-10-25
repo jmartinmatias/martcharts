@@ -40,7 +40,10 @@ export const renderBullet: ViewRenderer<BulletView> = (ctx) => {
       chart.append(svg(doc, "rect", { class: "fft-bullet-band", "data-band": band + 1, x: pct(start), y: 0, width: pct(stop - start), height: 21 }));
       start = stop;
     });
-    chart.append(svg(doc, "rect", { class: "fft-bullet-value", x: 0, y: 7, width: pct((actual ?? 0) / domain), height: 7, rx: 1 }));
+    const bar = svg(doc, "rect", { class: "fft-bullet-value", x: 0, y: 7, width: pct((actual ?? 0) / domain), height: 7, rx: 1 });
+    const fixed = ctx.colorOf?.(row[label]);
+    if (fixed) bar.style.setProperty("fill", fixed);
+    chart.append(bar);
     if (goal !== null) {
       const x = pct(goal / domain);
       chart.append(svg(doc, "line", { class: "fft-bullet-target", x1: x, x2: x, y1: 2, y2: 19 }));

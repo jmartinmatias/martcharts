@@ -193,9 +193,13 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
   const picked = highlights(view.highlight);
   const categoryOn = (i: number) => kind !== "bar" || picked.length === 0 || picked.includes(String(rows[i]?.[view.x]));
   const seriesOn = (s: number) => kind === "bar" || picked.length === 0 || picked.includes(series[s] as string);
-  const seriesColor = (s: number) => (seriesOn(s) ? ctx.color(s) : DEEMPHASIS);
+  // A series keeps its fixed color (spec.colors, by field name or its label) wherever it appears; else the palette's.
+  const hue = (s: number) => ctx.colorOf?.(series[s]) ?? ctx.colorOf?.(ctx.label(series[s] as string)) ?? ctx.color(s);
+  // One series of bars: a category with a fixed color takes it, so "East" is the same blue on every chart.
+  const barHue = (i: number, s: number) => (series.length === 1 ? ctx.colorOf?.(rows[i]?.[view.x]) : undefined) ?? hue(s);
+  const seriesColor = (s: number) => (seriesOn(s) ? hue(s) : DEEMPHASIS);
   // A muted category of grouped bars keeps a hint of each series' hue, so its two greys still say which is which.
-  const mutedColor = (s: number) => (series.length > 1 ? `color-mix(in srgb, ${ctx.color(s)} 30%, ${DEEMPHASIS})` : DEEMPHASIS);
+  const mutedColor = (s: number) => (series.length > 1 ? `color-mix(in srgb, ${hue(s)} 30%, ${DEEMPHASIS})` : DEEMPHASIS);
   // A log axis places only positive values; the rest are left out (checkData says so).
   const log = kind === "line" && (view as LineView).scale === "log";
   const raw = series.map((field) => rows.map((row) => readNumber(row[field])).map((v) => (log && v !== null && v <= 0 ? null : v)));
@@ -375,7 +379,7 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
         const cx = rect.x + rect.width / 2;
         const base = rect.negative ? rect.y : rect.y + rect.height;
         const tip = rect.negative ? rect.y + rect.height : rect.y;
-        const color = categoryOn(rect.index) ? ctx.color(rect.series) : mutedColor(rect.series);
+        const color = categoryOn(rect.index) ? barHue(rect.index, rect.series) : mutedColor(rect.series);
         const stem = svg(doc, "line", { class: "fft-lolli-stem", x1: cx, x2: cx, y1: base, y2: tip });
         stem.style.setProperty("stroke", color);
         const dot = svg(doc, "circle", { class: "fft-lolli-dot", cx, cy: tip, r: 5 });
@@ -395,7 +399,7 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
       }
       obstacles.boxes.push(rect);
       const bar = svg(doc, "path", { class: "fft-bar", d: barPath(rect, radius) });
-      const fill = categoryOn(rect.index) ? ctx.color(rect.series) : mutedColor(rect.series);
+      const fill = categoryOn(rect.index) ? barHue(rect.index, rect.series) : mutedColor(rect.series);
       if (missed(rect.index)) {
         // Short of its target: a light fill outlined in the bar's own color, so the miss reads by shape too.
         bar.dataset.tone = "miss";

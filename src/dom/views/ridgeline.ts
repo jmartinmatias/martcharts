@@ -4,7 +4,7 @@ import type { RidgelineView } from "../../core/views.ts";
 import { density, linearScale, quantile } from "../layout.ts";
 import { tickFormatter } from "./chart.ts";
 import { activeGroup, hiddenTable, html, ROW, roving, rowHit, svg } from "./shared.ts";
-import { nameColumn, writeLabel } from "./label-fit.ts";
+import { edgeAnchor, edgeX, nameColumn, writeLabel } from "./label-fit.ts";
 
 const LANE: number = ROW.tall;
 const GRID = 89;
@@ -62,8 +62,10 @@ export const renderRidgeline: ViewRenderer<RidgelineView> = (ctx) => {
   for (const tick of x.ticks) {
     const tx = x(tick);
     chart.append(svg(doc, "line", { class: "fft-gridline", x1: tx, x2: tx, y1: 0, y2: plotBottom }));
-    const text = svg(doc, "text", { class: "fft-tick fft-tick-x", x: tx, y: plotBottom + 18, "text-anchor": "middle" });
-    text.textContent = tickText(tick);
+    const word = tickText(tick);
+    const anchor = edgeAnchor(tx, word, width);
+    const text = svg(doc, "text", { class: "fft-tick fft-tick-x", x: edgeX(tx, anchor, width), y: plotBottom + 18, "text-anchor": anchor });
+    text.textContent = word;
     chart.append(text);
   }
   const title = svg(doc, "text", { class: "fft-axis-title", x: width - margin.right, y: height - 3, "text-anchor": "end" });
@@ -83,9 +85,10 @@ export const renderRidgeline: ViewRenderer<RidgelineView> = (ctx) => {
     const ridge = svg(doc, "g", { class: "fft-ridge", style: `--fft-i: ${g}` });
     ridge.append(svg(doc, "path", { class: "fft-ridge-mask", d: area }));
     const wash = svg(doc, "path", { class: "fft-ridge-area", d: area });
-    wash.style.setProperty("fill", ctx.color(0));
+    const hue = ctx.colorOf?.(name) ?? ctx.color(0);
+    wash.style.setProperty("fill", hue);
     const stroke = svg(doc, "path", { class: "fft-ridge-line", d: line });
-    stroke.style.setProperty("stroke", ctx.color(0));
+    stroke.style.setProperty("stroke", hue);
     ridge.append(wash, stroke, svg(doc, "line", { class: "fft-baseline", x1: margin.left, x2: width - margin.right, y1: base, y2: base }));
     ridges.push(ridge);
     chart.append(ridge);
@@ -97,7 +100,7 @@ export const renderRidgeline: ViewRenderer<RidgelineView> = (ctx) => {
     const items: TooltipItem[] = [
       { label: "Median", value: ctx.format(quantile(list, 0.5), value) },
       { label: "Middle half", value: `${ctx.format(quantile(list, 0.25), value)} to ${ctx.format(quantile(list, 0.75), value)}` },
-      { label: "Count", value: String(list.length) },
+      { label: "Count", value: new Intl.NumberFormat(ctx.spec.locale).format(list.length) },
     ];
     summary.push([labels[g] ?? name, ...items.map((it) => it.value)]);
     const hit = svg(doc, "rect", { class: "fft-ridge-hit", x: 0, y: base - LANE, width, height: LANE });

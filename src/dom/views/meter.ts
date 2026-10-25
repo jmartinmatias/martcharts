@@ -46,6 +46,8 @@ export const renderMeter: ViewRenderer<MeterView> = (ctx) => {
     if (target !== null) track.setAttribute("aria-valuemax", String(target));
     track.setAttribute("aria-label", ratio === null ? name : `${name}: ${percentText} of target, ${stand.charAt(0).toLowerCase()}${stand.slice(1)}`);
     const fill = html(doc, "div", "fft-meter-fill");
+    const fixed = labelField ? ctx.colorOf?.(row[labelField]) : ctx.colorOf?.(valueField);
+    if (fixed) fill.style.background = fixed;
     fill.style.width = `${ratio === null ? 0 : Math.round(Math.min(1, Math.max(0, ratio)) * 1000) / 10}%`;
     track.append(fill);
     const foot = html(doc, "div", "fft-meter-foot");

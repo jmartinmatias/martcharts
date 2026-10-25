@@ -2,7 +2,7 @@ import { readNumber } from "../../core/formats.ts";
 import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { LikertView } from "../../core/views.ts";
-import { fieldList, hiddenTableOf, html, ROW, roving, rowHit, shareFormat, svg } from "./shared.ts";
+import { ROW, fieldList, hiddenTableOf, html, legendList, roving, rowHit, shareFormat, svg } from "./shared.ts";
 import type { ActiveGroup } from "./shared.ts";
 import { fitLabel, writeLabel } from "./label-fit.ts";
 
@@ -43,19 +43,10 @@ export const renderLikert: ViewRenderer<LikertView> = (ctx) => {
   const reach = Math.max(0.01, ...questions.flatMap((q) => [q.left, q.right]));
 
   const wrap = html(doc, "div", "fft-chart");
-  const legend = html(doc, "ul", "fft-legend");
-  responses.forEach((field, i) => {
-    const swatch = html(doc, "span", "fft-swatch");
-    swatch.dataset.shape = "rect";
-    swatch.style.background = colorOf(i);
-    swatch.style.opacity = String(strength(i));
-    swatch.setAttribute("aria-hidden", "true");
-    const item = html(doc, "li");
-    item.append(swatch, ctx.label(field));
-    legend.append(item);
-  });
-  // Inside a small-multiples panel the widget draws one shared legend.
-  if (!ctx.inFacet) wrap.append(legend);
+  // One key per answer, at the strength it is drawn with; inside a panel the widget draws one shared legend.
+  const legend = legendList(ctx, responses.map((field, i) => ({ label: ctx.label(field), color: colorOf(i) })));
+  legend?.querySelectorAll<HTMLElement>(".fft-swatch").forEach((swatch, i) => (swatch.style.opacity = String(strength(i))));
+  if (legend) wrap.append(legend);
 
   const width = Math.max(ctx.width, 233);
   const height = questions.length * LANE + 8;

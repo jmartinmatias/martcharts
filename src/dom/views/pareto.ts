@@ -19,6 +19,8 @@ const round2 = (n: number) => Math.round(n * 100) / 100;
 export const renderPareto: ViewRenderer<ParetoView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
   const { label, value, threshold = 0.8 } = ctx.view;
+  // The measure keeps its fixed color; a vital cause with its own fixed color keeps that.
+  const hue = ctx.colorOf?.(value) ?? ctx.colorOf?.(ctx.label(value)) ?? ctx.color(0);
   const items = ctx.rows
     .map((row) => ({ row, amount: readNumber(row[value]) ?? 0 }))
     .filter((it) => it.amount > 0)
@@ -36,7 +38,7 @@ export const renderPareto: ViewRenderer<ParetoView> = (ctx) => {
 
   const wrap = html(doc, "div", "fft-chart");
   const legend = legendList(ctx, [
-    { label: "Share", shape: "rect", color: ctx.color(0) },
+    { label: "Share", shape: "rect", color: hue },
     { label: "Running total", shape: "line", color: "var(--fft-text-secondary)" },
   ]);
   if (legend) wrap.append(legend);
@@ -84,7 +86,7 @@ export const renderPareto: ViewRenderer<ParetoView> = (ctx) => {
     const bar = svg(doc, "path", { class: "fft-bar fft-pareto-bar", d: barPath(rect, 4), "data-share": round2(it.share) });
     const isVital = rect.index < vital;
     if (isVital) bar.setAttribute("data-vital", "");
-    bar.style.setProperty("fill", isVital ? ctx.color(0) : DEEMPHASIS);
+    bar.style.setProperty("fill", isVital ? (ctx.colorOf?.(it.row[label]) ?? hue) : DEEMPHASIS);
     groups[rect.index]?.append(bar);
   }
   chart.append(...groups);
@@ -107,7 +109,7 @@ export const renderPareto: ViewRenderer<ParetoView> = (ctx) => {
     const it = shares[i];
     if (!it) return;
     const items: TooltipItem[] = [
-      { label: ctx.label(value), value: ctx.format(it.row[value], value), color: i < vital ? ctx.color(0) : DEEMPHASIS },
+      { label: ctx.label(value), value: ctx.format(it.row[value], value), color: i < vital ? (ctx.colorOf?.(it.row[label]) ?? hue) : DEEMPHASIS },
       { label: "Share", value: percent.format(it.share) },
       { label: "Running total", value: percent.format(it.cumulative) },
     ];

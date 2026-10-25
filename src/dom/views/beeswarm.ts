@@ -5,7 +5,7 @@ import type { BeeswarmView } from "../../core/views.ts";
 import { linearScale, swarm } from "../layout.ts";
 import { tickFormatter } from "./chart.ts";
 import { activeGroup, hiddenTableOf, html, roving, rowHit, svg } from "./shared.ts";
-import { nameColumn, writeLabel } from "./label-fit.ts";
+import { edgeAnchor, edgeX, nameColumn, writeLabel } from "./label-fit.ts";
 
 const RADIUS = 4;
 
@@ -59,8 +59,10 @@ export const renderBeeswarm: ViewRenderer<BeeswarmView> = (ctx) => {
   for (const tick of x.ticks) {
     const tx = x(tick);
     chart.append(svg(doc, "line", { class: "fft-gridline", x1: tx, x2: tx, y1: margin.top, y2: margin.top + plotHeight }));
-    const text = svg(doc, "text", { class: "fft-tick fft-tick-x", x: tx, y: margin.top + plotHeight + 18, "text-anchor": "middle" });
-    text.textContent = tickText(tick);
+    const word = tickText(tick);
+    const anchor = edgeAnchor(tx, word, width);
+    const text = svg(doc, "text", { class: "fft-tick fft-tick-x", x: edgeX(tx, anchor, width), y: margin.top + plotHeight + 18, "text-anchor": anchor });
+    text.textContent = word;
     chart.append(text);
   }
   chart.append(svg(doc, "line", { class: "fft-baseline", x1: margin.left, x2: margin.left + plotWidth, y1: margin.top + plotHeight, y2: margin.top + plotHeight }));
@@ -86,7 +88,7 @@ export const renderBeeswarm: ViewRenderer<BeeswarmView> = (ctx) => {
     const cx = x(point.amount);
     const cy = (rowTops[point.group] ?? 0) + (rowHeights[point.group] ?? 0) / 2 + (offsets.get(point.row) ?? 0);
     const dot = svg(doc, "circle", { class: "fft-bee", cx, cy, r: RADIUS, style: `--fft-i: ${i}` });
-    dot.style.setProperty("fill", ctx.color(0));
+    dot.style.setProperty("fill", (group ? ctx.colorOf?.(point.row[group]) : undefined) ?? ctx.color(0));
     marks.push(dot);
     dots.append(dot);
     const name = label ? ctx.format(point.row[label], label) : "";

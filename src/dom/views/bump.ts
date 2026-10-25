@@ -107,7 +107,7 @@ export const renderBump: ViewRenderer<BumpView> = (ctx) => {
     const last = track.at(-1);
     if (!first || !last) return;
     const on = picked.length === 0 || picked.includes(name);
-    const color = on ? ctx.color(s) : DEEMPHASIS;
+    const color = on ? (ctx.colorOf?.(name) ?? ctx.color(s)) : DEEMPHASIS;
     const shown = ctx.format(name, series);
     const cut = fitted.get(name) ?? shown;
     const group = svg(doc, "g", { class: "fft-bump", "data-series": name, style: `--fft-i: ${s}` });

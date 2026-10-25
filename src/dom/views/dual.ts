@@ -50,7 +50,7 @@ export const renderDual: ViewRenderer<DualView & { annotations?: Annotation[] }>
     const top = margin.top + CAPTION + p * (CAPTION + panelHeight + GAP);
     const bar = marks[p] === "bar";
     const scale: LinearScale = linearScale(present[p] ?? [], [top + panelHeight, top], { includeZero: bar, count: TICKS });
-    return { top, bottom: top + panelHeight, bar, scale, color: ctx.color(p), field: fields[p] as string, tickText: tickTexts[p]?.text ?? ((v: number) => String(v)) };
+    return { top, bottom: top + panelHeight, bar, scale, color: ctx.colorOf?.(fields[p]) ?? ctx.colorOf?.(ctx.label(fields[p] as string)) ?? ctx.color(p), field: fields[p] as string, tickText: tickTexts[p]?.text ?? ((v: number) => String(v)) };
   });
   // Bars sit in bands; with lines only, the points run edge to edge as a time series does.
   const anyBar = marks.includes("bar");

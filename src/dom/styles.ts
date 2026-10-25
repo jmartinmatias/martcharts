@@ -1476,6 +1476,7 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-lc-open { fill-opacity: 0.1; stroke-opacity: 0.55; stroke-width: 1; stroke-dasharray: 3 3; pointer-events: none; }
 .fft-lc-tick { stroke: var(--fft-text); stroke-width: 1.5; shape-rendering: crispEdges; pointer-events: none; }
 .fft-lc-status { fill: color-mix(in srgb, var(--fft-text) 7%, transparent); pointer-events: none; }
+.fft-lc-status-dot { fill: color-mix(in srgb, var(--fft-text) 34%, transparent); pointer-events: auto; }
 .fft-lc-status-text { fill: var(--fft-text-secondary); font-size: var(--fft-fs-xs); font-weight: 600; pointer-events: none; }
 .fft-lc-tick-label { font-size: var(--fft-fs-s); }
 .fft-lc-hit { fill: transparent; cursor: pointer; outline: none; }
@@ -1751,4 +1752,11 @@ ul.fft-map-legend { margin-top: 0; }
 .fft-ragtrend-table[data-narrow] .fft-rag-pill[data-compact] .fft-rag-word { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .fft-ragtrend-table[data-narrow] .fft-ragtrend-end { padding-left: 3px; }
 .fft-ragtrend .fft-rag-glyph { flex: none; max-width: none; }
+/* P4: grids of equal cells. A heatmap's columns are sized from the card in px; when the card is too narrow for a
+   tappable 21px cell the grid keeps that size and scrolls sideways. Row names stay on one line, cut with an ellipsis. */
+.fft-heat[data-scrolls] { overflow-x: auto; scrollbar-width: thin; }
+.fft-heat-row { display: block; align-self: center; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fft-heatmap .fft-cell { min-width: 0; overflow: hidden; }
+.fft-ws[data-scrolls] { overflow-x: auto; scrollbar-width: thin; }
+.fft-ws[data-scrolls] .fft-ws-grid { width: max-content; }
 `;

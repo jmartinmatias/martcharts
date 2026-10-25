@@ -37,6 +37,8 @@ export const renderFunnel: ViewRenderer<FunnelView> = (ctx) => {
     item.style.setProperty("--fft-i", String(i));
     const track = html(doc, "div", "fft-funnel-track");
     const bar = html(doc, "div", "fft-funnel-bar");
+    const fixed = ctx.colorOf?.(row[label]);
+    if (fixed) bar.style.background = fixed;
     bar.style.width = `${amount === null || amount <= 0 ? 0 : Math.round(Math.min(1, amount / base) * 1000) / 10}%`;
     track.append(bar);
     const numbers = html(doc, "span", "fft-funnel-nums");
