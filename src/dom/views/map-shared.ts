@@ -11,11 +11,12 @@ import { readNumber } from "../../core/formats.ts";
 import type { Row } from "../../core/types.ts";
 import type { ViewContext } from "../../core/view-context.ts";
 import { buildSkeleton } from "../states.ts";
-import { html, svg } from "./shared.ts";
+import { html, legendList, svg, textWidth } from "./shared.ts";
+import { WORDS } from "./words.ts";
 
 /** Air around the map inside its box. */
 export const MAP_PAD = 8;
-/** Rough width of one character of 11px label text. */
+/** Rough width of one character of 11px label text. Kept for callers outside the map views; the maps measure with `textWidth`. */
 export const CHAR = 6.2;
 
 /** Geometry fetched by address, once per page. A failed load is forgotten, so the next draw tries again. */
@@ -155,32 +156,25 @@ export function mapCanvas(doc: Document, width: number, height: number, label: s
 /** True when `text` fits inside a shape's box at 11px. */
 export function labelFits(shape: ProjectedShape, text: string): boolean {
   const [minX, minY, maxX, maxY] = shape.bounds;
-  return maxX - minX >= text.length * CHAR + 6 && maxY - minY >= 15;
+  return maxX - minX >= textWidth(text) + 6 && maxY - minY >= 15;
 }
 
 /** The words that key a group's color: the value as formatted, or "Other" for a blank. */
 export function groupName(value: unknown, format: (value: unknown) => string): string {
-  return value === null || value === undefined || value === "" ? "Other" : format(value);
+  return value === null || value === undefined || value === "" ? WORDS.other : format(value);
 }
 
-/** A legend of dots, one per group in its color. */
-export function dotLegend(doc: Document, entries: { name: string; color: string }[]): HTMLElement {
-  const list = html(doc, "ul", "fft-legend");
-  for (const entry of entries) {
-    const swatch = html(doc, "span", "fft-swatch");
-    swatch.dataset.shape = "dot";
-    swatch.style.background = entry.color;
-    swatch.setAttribute("aria-hidden", "true");
-    const item = html(doc, "li");
-    item.append(swatch, entry.name);
-    list.append(item);
-  }
-  return list;
+/**
+ * A legend of dots under the map, one per group in its color: the kit's legend, so it looks like every other key
+ * and steps aside inside a small-multiples panel (the widget then draws one for all). Undefined in a panel.
+ */
+export function dotLegend(ctx: ViewContext<{ type: string }>, entries: { name: string; color: string }[]): HTMLElement | undefined {
+  return legendList(ctx, entries.map((entry) => ({ label: entry.name, color: entry.color, shape: "dot" as const })), { place: "below" });
 }
 
 /** A note under the map for rows it could not place. */
 export function unplacedNote(doc: Document, count: number): HTMLElement | undefined {
-  return count ? html(doc, "p", "fft-map-note", `${count} row${count === 1 ? "" : "s"} could not be placed on the map.`) : undefined;
+  return count ? html(doc, "p", "fft-map-note", WORDS.notPlaced(count)) : undefined;
 }
 
 /** The point on a circle's edge toward another point, for leader lines. */

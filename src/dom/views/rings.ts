@@ -3,7 +3,8 @@ import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { RingsView } from "../../core/views.ts";
 import { arcPath } from "../layout.ts";
-import { buildTable, figureSize, html, ringThickness, selectable, svg } from "./shared.ts";
+import { figureSize, hiddenTableOf, html, ringThickness, selectable, shareFormat, svg } from "./shared.ts";
+import { categoryColor, WORDS } from "./words.ts";
 import { roving } from "./focus.ts";
 import { checkMark, standing } from "./target.ts";
 
@@ -34,7 +35,7 @@ export const renderRings: ViewRenderer<RingsView> = (ctx) => {
     if (amount === null || goal === null || goal <= 0) continue;
     goals.push({ row, amount, goal, ratio: Math.max(0, amount / goal) });
   }
-  const percent = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 0 });
+  const percent = shareFormat(ctx.spec.locale);
 
   const size = figureSize(ctx.width);
   const c = size / 2;
@@ -56,7 +57,7 @@ export const renderRings: ViewRenderer<RingsView> = (ctx) => {
   const legend = html(doc, "ul", "fft-rings-legend");
   goals.forEach((g, i) => {
     const r = c - thickness / 2 - i * (thickness + GAP);
-    const color = ctx.color(i);
+    const color = categoryColor(ctx, g.row[label], i);
     const group = svg(doc, "g", { class: "fft-ring", style: `--fft-i: ${i}; --fft-ring-color: ${color}` });
     group.append(svg(doc, "circle", { class: "fft-ring-track", cx: c, cy: c, r, "stroke-width": thickness }));
     const filled = Math.min(1, g.ratio);
@@ -72,7 +73,7 @@ export const renderRings: ViewRenderer<RingsView> = (ctx) => {
     const items: TooltipItem[] = [
       { label: ctx.label(value), value: ctx.format(g.row[value], value), color },
       { label: ctx.label(target), value: ctx.format(g.row[target], target) },
-      { label: "Of target", value: attainment },
+      { label: WORDS.ofTarget, value: attainment },
     ];
     const hit = svg(doc, "circle", { class: "fft-ring-hit", cx: c, cy: c, r, "stroke-width": thickness + GAP, tabindex: 0, role: "img" });
     hit.setAttribute("aria-label", `${name}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
@@ -102,14 +103,13 @@ export const renderRings: ViewRenderer<RingsView> = (ctx) => {
     if (met) item.dataset.met = "true";
     const percentEl = html(doc, "span", "fft-rings-percent", attainment);
     if (met) percentEl.prepend(checkMark(doc));
-    item.append(swatch, html(doc, "span", "fft-rings-name", name), percentEl, html(doc, "span", "fft-rings-value", `${ctx.format(g.row[value], value)} of ${ctx.format(g.row[target], target)}`));
+    item.append(swatch, html(doc, "span", "fft-rings-name", name), percentEl, html(doc, "span", "fft-rings-value", `${ctx.format(g.row[value], value)} ${WORDS.of} ${ctx.format(g.row[target], target)}`));
     if (stand) item.append(html(doc, "span", "fft-rings-gap", stand));
     legend.append(item);
   });
   figure.append(chart);
   roving(hits);
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, goals.map((g) => g.row), [label, value, target], false));
+  const hidden = hiddenTableOf(ctx, goals.map((g) => g.row), [label, value, target]);
   wrap.append(figure, legend, hidden);
   ctx.el.append(wrap);
 };

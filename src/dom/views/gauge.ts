@@ -4,7 +4,8 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { GaugeView } from "../../core/views.ts";
 import { countable } from "../count-up.ts";
 import { arcPath, niceTicks, polar } from "../layout.ts";
-import { buildTable, html, selectable, svg } from "./shared.ts";
+import { hiddenTableOf, html, roving, selectable, shareFormat, svg } from "./shared.ts";
+import { WORDS } from "./words.ts";
 import { checkMark, standing } from "./target.ts";
 
 const HALF = Math.PI / 2;
@@ -43,7 +44,7 @@ export const renderGauge: ViewRenderer<GaugeView> = (ctx) => {
   const track = arcPath(c, c, r, -HALF, HALF);
   chart.append(svg(doc, "path", { class: "fft-gauge-track", d: track, "stroke-width": thickness }));
   if (value !== null && ratio(value) > 0) {
-    chart.append(svg(doc, "path", { class: "fft-gauge-arc", d: arcPath(c, c, r, -HALF, angle(ratio(value))), "stroke-width": thickness, pathLength: 1, "data-ratio": round2(ratio(value)) }));
+    chart.append(svg(doc, "path", { class: "fft-gauge-arc", d: arcPath(c, c, r, -HALF, angle(ratio(value))), "stroke-width": thickness, pathLength: 1, "data-ratio": round2(ratio(value)), style: "--fft-i: 0" }));
   }
   if (goal !== null) {
     const inner = polar(c, c, r - thickness / 2 - 3, angle(ratio(goal)));
@@ -53,7 +54,7 @@ export const renderGauge: ViewRenderer<GaugeView> = (ctx) => {
     const at = polar(c, c, r - thickness / 2 - 13, angle(ratio(goal)));
     const side = ratio(goal) < 0.4 ? "start" : ratio(goal) > 0.6 ? "end" : "middle";
     const name = svg(doc, "text", { class: "fft-gauge-goal", x: at.x, y: at.y, "text-anchor": side, "dominant-baseline": "middle" });
-    name.textContent = `${target ? ctx.label(target) : "Target"} ${show(goal)}`;
+    name.textContent = `${target ? ctx.label(target) : WORDS.target} ${show(goal)}`;
     chart.append(name);
   }
   const number = svg(doc, "text", { class: "fft-gauge-value", x: c, y: c - 6, "text-anchor": "middle" });
@@ -73,7 +74,7 @@ export const renderGauge: ViewRenderer<GaugeView> = (ctx) => {
   const items: TooltipItem[] = [{ label: ctx.label(field), value: show(row[field]), color: ctx.color(0) }];
   if (target && goal !== null) {
     items.push({ label: ctx.label(target), value: hasFormat || ctx.spec.fields?.[target]?.format ? ctx.format(row[target], target) : show(goal) });
-    if (value !== null && goal !== 0) items.push({ label: "Of target", value: new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 0 }).format(value / goal) });
+    if (value !== null && goal !== 0) items.push({ label: WORDS.ofTarget, value: shareFormat(ctx.spec.locale).format(value / goal) });
   }
   const hit = svg(doc, "path", { class: "fft-gauge-hit", d: track, "stroke-width": thickness + 8, tabindex: 0, role: "img" });
   hit.setAttribute("aria-label", items.map((it) => `${it.label} ${it.value}`).join(", "));
@@ -84,6 +85,8 @@ export const renderGauge: ViewRenderer<GaugeView> = (ctx) => {
   hit.addEventListener("blur", () => ctx.tooltip.hide());
   selectable(hit, () => ctx.select(row));
   chart.append(hit);
+  // One stop, but on the same roving footing as every other view: arrow keys and Home and End land on it.
+  roving([hit]);
   wrap.append(chart);
   // Where the number stands against its goal, in target words, under the gauge.
   const { met, text: stand } = standing(ctx, value, goal, field);
@@ -96,9 +99,7 @@ export const renderGauge: ViewRenderer<GaugeView> = (ctx) => {
     wrap.append(line);
     hit.setAttribute("aria-label", `${hit.getAttribute("aria-label")}, ${stand.charAt(0).toLowerCase()}${stand.slice(1)}`);
   }
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, [row], [field, ...(target ? [target] : [])], false));
-  wrap.append(hidden);
+  wrap.append(hiddenTableOf(ctx, [row], [field, ...(target ? [target] : [])]));
   ctx.el.append(wrap);
   // The number counts up with the entrance, like the other headline numbers.
   countable(number as unknown as HTMLElement, value, show);

@@ -4,7 +4,8 @@ import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { ChordView } from "../../core/views.ts";
 import { polar, sectorPath } from "../layout.ts";
-import { buildTable, html, selectable, svg } from "./shared.ts";
+import { hiddenTableOf, html, selectable, shareFormat, svg } from "./shared.ts";
+import { categoryColor, emphasis, WORDS } from "./words.ts";
 import { roving } from "./focus.ts";
 
 const FULL = Math.PI * 2;
@@ -83,7 +84,7 @@ export const renderChord: ViewRenderer<ChordView> = (ctx) => {
 
   const hasFormat = ctx.spec.fields?.[value]?.format !== undefined;
   const amountText = (n: number) => (hasFormat ? ctx.format(n, value) : formatValue(n, { type: "number", compact: true }, ctx.spec.locale));
-  const share = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 0 });
+  const share = shareFormat(ctx.spec.locale);
   const width = Math.max(ctx.width, 233);
   const height = Math.min(Math.max(ctx.height, 233), 377, width);
   const cx = width / 2;
@@ -91,7 +92,9 @@ export const renderChord: ViewRenderer<ChordView> = (ctx) => {
   const outer = Math.min(cx, cy) - 34;
   const inner = outer - BAND;
   const r = inner - 2;
-  const colorOf = (g: string) => ctx.color(groups.indexOf(g));
+  // A group keeps its color wherever it appears; highlight keeps the named groups, and the ribbons they send, in color.
+  const lit = emphasis(ctx);
+  const colorOf = (g: string) => lit.paint(g, categoryColor(ctx, g, groups.indexOf(g)));
 
   const wrap = html(doc, "div", "fft-chart fft-chord");
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
@@ -109,7 +112,7 @@ export const renderChord: ViewRenderer<ChordView> = (ctx) => {
   };
   const hits: Element[] = [];
 
-  for (const f of flows) {
+  flows.forEach((f, i) => {
     const at = (a: number) => {
       const point = polar(cx, cy, r, a);
       return { x: Math.round(point.x * 100) / 100, y: Math.round(point.y * 100) / 100 };
@@ -118,14 +121,14 @@ export const renderChord: ViewRenderer<ChordView> = (ctx) => {
     const [a0, a1, b0, b1] = [p(f.from0), p(f.from1), p(f.to0), p(f.to1)];
     const big = (span: number) => (span > Math.PI ? 1 : 0);
     const d = `M${a0.x},${a0.y}A${r},${r} 0 ${big(f.from1 - f.from0)} 1 ${a1.x},${a1.y}Q${cx},${cy} ${b0.x},${b0.y}A${r},${r} 0 ${big(f.to1 - f.to0)} 1 ${b1.x},${b1.y}Q${cx},${cy} ${a0.x},${a0.y}Z`;
-    const flowName = `${names.get(f.from)} to ${names.get(f.to)}`;
-    const ribbon = svg(doc, "path", { class: "fft-chord-ribbon", d, "data-flow": flowName });
+    const flowName = `${names.get(f.from)} ${WORDS.to} ${names.get(f.to)}`;
+    const ribbon = svg(doc, "path", { class: "fft-chord-ribbon", d, "data-flow": flowName, style: `--fft-i: ${i}` });
     ribbon.style.fill = colorOf(f.from);
     chart.append(ribbon);
     ribbons.push(ribbon);
     const items: TooltipItem[] = [
       { label: ctx.label(value), value: amountText(f.value), color: colorOf(f.from) },
-      { label: "Share of all moves", value: share.format(f.value / moves) },
+      { label: WORDS.shareOfAll, value: share.format(f.value / moves) },
     ];
     const hit = svg(doc, "path", { class: "fft-chord-hit", d, "data-flow": flowName, tabindex: 0, role: "img" });
     hit.setAttribute("aria-label", `${flowName}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
@@ -140,12 +143,12 @@ export const renderChord: ViewRenderer<ChordView> = (ctx) => {
     const row = f.row;
     selectable(hit, () => ctx.select(row));
     hits.push(hit);
-  }
+  });
 
-  for (const g of groups) {
+  groups.forEach((g, gi) => {
     const arc = arcs.get(g) as { start: number; end: number };
     const name = names.get(g) ?? g;
-    const band = svg(doc, "path", { class: "fft-chord-arc", d: sectorPath(cx, cy, inner, outer, arc.start, arc.end), "data-group": g, "data-start": round3(arc.start), "data-end": round3(arc.end) });
+    const band = svg(doc, "path", { class: "fft-chord-arc", d: sectorPath(cx, cy, inner, outer, arc.start, arc.end), "data-group": g, "data-start": round3(arc.start), "data-end": round3(arc.end), style: `--fft-i: ${gi}` });
     band.style.fill = colorOf(g);
     chart.append(band);
     const mid = (arc.start + arc.end) / 2;
@@ -154,8 +157,8 @@ export const renderChord: ViewRenderer<ChordView> = (ctx) => {
     label.textContent = name;
     chart.append(label);
     const items: TooltipItem[] = [
-      { label: "Sends", value: amountText(sent(g)), color: colorOf(g) },
-      { label: "Receives", value: amountText(received(g)) },
+      { label: WORDS.sends, value: amountText(sent(g)), color: colorOf(g) },
+      { label: WORDS.receives, value: amountText(received(g)) },
     ];
     const hit = svg(doc, "path", { class: "fft-chord-arc-hit", d: sectorPath(cx, cy, inner - 3, outer + 5, arc.start, arc.end), "data-group": g, tabindex: 0, role: "img" });
     hit.setAttribute("aria-label", `${name}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
@@ -167,15 +170,16 @@ export const renderChord: ViewRenderer<ChordView> = (ctx) => {
     hit.addEventListener("focus", activate);
     hit.addEventListener("pointerleave", deactivate);
     hit.addEventListener("blur", deactivate);
+    // Picking a group picks the first row it sends (or receives), so a dashboard can filter on it.
+    const first = flows.find((f) => f.from === g) ?? flows.find((f) => f.to === g);
+    if (first) selectable(hit, () => ctx.select(first.row));
     hits.push(hit);
-  }
+  });
   const overlay = svg(doc, "g");
   overlay.append(...hits);
   chart.append(overlay);
   roving(hits);
   wrap.append(chart);
-  const hidden = html(doc, "div", "fft-sr-only");
-  hidden.append(buildTable(ctx, ctx.rows, [source, target, value], false));
-  wrap.append(hidden);
+  wrap.append(hiddenTableOf(ctx, ctx.rows, [source, target, value]));
   ctx.el.append(wrap);
 };

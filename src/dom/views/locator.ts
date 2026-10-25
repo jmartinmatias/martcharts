@@ -1,9 +1,10 @@
 import type { Position } from "../../core/geo.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { LocatorView } from "../../core/views.ts";
-import { buildTable, html, selectable, svg } from "./shared.ts";
+import { hiddenTableOf, html, selectable, svg, textWidth } from "./shared.ts";
+import { categoryColor, WORDS } from "./words.ts";
 import { roving } from "./focus.ts";
-import { CHAR, dotLegend, groupName, mapCanvas, mapFrame, placeRows, unplacedNote, withGeo } from "./map-shared.ts";
+import { dotLegend, groupName, mapCanvas, mapFrame, placeRows, unplacedNote, withGeo } from "./map-shared.ts";
 
 const MARKER = 5;
 const LINE = 13;
@@ -52,18 +53,24 @@ export const renderLocator: ViewRenderer<LocatorView> = (ctx) =>
     const key = ctx.view.key ?? "id";
     const frame = collection ? mapFrame(ctx, collection, key) : undefined;
     if (!frame) {
-      ctx.el.append(html(doc, "p", "fft-map-note", "No map geometry to draw."));
+      ctx.el.append(html(doc, "p", "fft-map-note", WORDS.noGeometry));
       return;
     }
     const { width, height, projection } = frame;
     const { placed, unplaced } = placeRows(ctx.rows, ctx.view, projection, (row) => ctx.format(row[label], label));
     const kinds: string[] = [];
+    const kindKeys: unknown[] = [];
     const kindOf = (row: Record<string, unknown>) => {
       if (!kind) return 0;
       const text = groupName(row[kind], (v) => ctx.format(v, kind));
-      if (!kinds.includes(text)) kinds.push(text);
+      if (!kinds.includes(text)) {
+        kinds.push(text);
+        kindKeys.push(row[kind]);
+      }
       return kinds.indexOf(text);
     };
+    // A kind keeps its color wherever it appears.
+    const kindColor = (i: number) => categoryColor(ctx, kind ? kindKeys[i] : undefined, i);
 
     const wrap = html(doc, "div", "fft-chart fft-map-wrap");
     const canvas = mapCanvas(doc, width, height, `Locator map of ${ctx.label(label)}`, collection, projection.shapes);
@@ -82,7 +89,7 @@ export const renderLocator: ViewRenderer<LocatorView> = (ctx) =>
     placed.forEach((p, i) => {
       const group = kindOf(p.row);
       const noteText = note ? ctx.format(p.row[note], note) : "";
-      const w = Math.max(p.name.length * CHAR, noteText.length * (CHAR - 0.6)) + 2;
+      const w = Math.max(textWidth(p.name, 11, 600), textWidth(noteText, 10)) + 2;
       const h = LINE + (noteText ? NOTE_LINE : 0);
       const spot = candidates([p.x, p.y], w, h).find((c) => inside(c.box) && !taken.some((t) => overlaps(t, c.box)));
       if (spot) {
@@ -99,11 +106,11 @@ export const renderLocator: ViewRenderer<LocatorView> = (ctx) =>
         labels.append(text);
       }
       const marker = svg(doc, "circle", { class: "fft-map-marker", cx: p.x, cy: p.y, r: MARKER, tabindex: 0, role: "img", style: `--fft-i: ${i}` });
-      marker.style.setProperty("fill", ctx.color(group));
+      marker.style.setProperty("fill", kindColor(group));
       const items: TooltipItem[] = [];
       if (noteText) items.push({ label: ctx.label(note as string), value: noteText });
-      if (kind) items.push({ label: ctx.label(kind), value: kinds[group] as string, color: ctx.color(group) });
-      if (p.shape && p.shape.name !== p.name) items.push({ label: "Region", value: p.shape.name });
+      if (kind) items.push({ label: ctx.label(kind), value: kinds[group] as string, color: kindColor(group) });
+      if (p.shape && p.shape.name !== p.name) items.push({ label: WORDS.region, value: p.shape.name });
       marker.setAttribute("aria-label", items.length ? `${p.name}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}` : p.name);
       const activate = () => {
         wrap.setAttribute("data-active", "");
@@ -123,12 +130,11 @@ export const renderLocator: ViewRenderer<LocatorView> = (ctx) =>
     roving(marks);
 
     wrap.append(canvas);
-    if (kind && kinds.length > 1) wrap.append(dotLegend(doc, kinds.map((text, i) => ({ name: text, color: ctx.color(i) }))));
+    const kindKey = kind && kinds.length > 1 ? dotLegend(ctx, kinds.map((text, i) => ({ name: text, color: kindColor(i) }))) : undefined;
+    if (kindKey) wrap.append(kindKey);
     const unplacedText = unplacedNote(doc, unplaced);
     if (unplacedText) wrap.append(unplacedText);
     const columns = [label, note ?? "", kind ?? "", ctx.view.id ?? ""].filter((c, i, all) => c && all.indexOf(c) === i);
-    const hidden = html(doc, "div", "fft-sr-only");
-    hidden.append(buildTable(ctx, ctx.rows, columns, false));
-    wrap.append(hidden);
+    wrap.append(hiddenTableOf(ctx, ctx.rows, columns));
     ctx.el.append(wrap);
   });
