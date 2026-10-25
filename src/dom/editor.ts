@@ -33,7 +33,7 @@ import { createWidget } from "./widget.ts";
 import type { Widget } from "./widget.ts";
 import { frameEmbed } from "./embed.ts";
 import { wordsFor, WORDS_EN } from "../core/words.ts";
-import { addChartToBoard, localBoardStore } from "./board-store.ts";
+import { addChartToBoard, liteBundleUrl, localBoardStore } from "./board-store.ts";
 import type { BoardStore, SavedBoard, SavedChart } from "./board-store.ts";
 
 /** A dataset offered on the first step: a name and either the text itself or an address to fetch. */
@@ -68,6 +68,8 @@ export interface EditorOptions {
   srcOf?(spec: WidgetSpec): string;
   /** The address of `embed.html`, for the iframe embed code (a frame that sizes itself). Default: `embed.html`. */
   embedHref?: string;
+  /** Where embed snippets load the drop-in bundle from. Default: the lite bundle next to this page, as an absolute address. */
+  bundleHref?: string;
   /** Keep the step and the spec in the page address, so a chart can be shared by link. Default true in a browser. */
   hash?: boolean;
   /** Toolbar actions on the published chart. Default csv, image, copy and explain. */
@@ -249,6 +251,21 @@ export function columnKind(rows: Row[], field: string): Kind {
   return "category";
 }
 
+/**
+ * Date formats for date columns that have none: "month" when every value is a month (2026-01), "day" when every value
+ * is a calendar day (2026-01-05). Columns with a format of their own, or mixed values, are left alone.
+ */
+export function inferDateFormats(rows: Row[], fields: WidgetSpec["fields"] = {}): NonNullable<WidgetSpec["fields"]> {
+  const out: NonNullable<WidgetSpec["fields"]> = {};
+  for (const field of fieldsOf(rows)) {
+    if (fields?.[field]?.format !== undefined || columnKind(rows, field) !== "date") continue;
+    const values = rows.map((row) => row[field]).filter((v): v is string => typeof v === "string" && v !== "");
+    const style = values.every((v) => /^\d{4}-\d{2}$/.test(v)) ? "month" : values.every((v) => /^\d{4}-\d{2}-\d{2}$/.test(v)) ? "day" : undefined;
+    if (style) out[field] = { ...(fields?.[field] ?? {}), format: { type: "date", style } };
+  }
+  return out;
+}
+
 /** Every field in the rows, in order of first appearance. */
 function fieldsOf(rows: Row[]): string[] {
   const seen = new Set<string>();
@@ -293,11 +310,11 @@ export function writeHash(step: Step, spec: WidgetSpec | undefined, session?: St
 }
 
 /** The three ways to put the chart on a page. */
-export function embedCodes(spec: WidgetSpec, src: string): { inline: string; src: string; js: string } {
+export function embedCodes(spec: WidgetSpec, src: string, bundle = "martcharts-lite.iife.js"): { inline: string; src: string; js: string } {
   const json = JSON.stringify(spec, null, 2);
   return {
-    inline: `<script src="martcharts.iife.js"></script>\n<fft-widget actions="csv image">\n  <script type="application/json">\n${json.replace(/<\/script/gi, "<\\/script")}\n  </script>\n</fft-widget>`,
-    src: `<script src="martcharts.iife.js"></script>\n<fft-widget src="${src}" actions="csv image"></fft-widget>`,
+    inline: `<script src="${bundle}"></script>\n<fft-widget actions="csv image">\n  <script type="application/json">\n${json.replace(/<\/script/gi, "<\\/script")}\n  </script>\n</fft-widget>`,
+    src: `<script src="${bundle}"></script>\n<fft-widget src="${src}" actions="csv image"></fft-widget>`,
     js: `import { createWidget } from "martcharts";\n\ncreateWidget(document.querySelector("#chart"), ${json});`,
   };
 }
@@ -419,12 +436,13 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
     return wrap;
   };
   /** A disclosure that remembers being open: the rarely needed controls, a click away. */
-  const disclosure = (key: string, label: string, className = "fft-ed-more"): HTMLDetailsElement => {
+  const disclosure = (key: string, label: string, className = "fft-ed-more", remember = true): HTMLDetailsElement => {
     const box = el("details", className);
     box.dataset.disclosure = key;
-    box.open = opened[key] === true;
+    // Authoring folds remember being open; Publish's folds (other embeds, the spec) start closed every time.
+    box.open = remember && opened[key] === true;
     box.append(el("summary", "fft-ed-more-title", label));
-    box.addEventListener("toggle", () => {
+    if (remember) box.addEventListener("toggle", () => {
       opened[key] = box.open;
       try {
         local?.setItem(OPEN_KEY, JSON.stringify(opened));
@@ -944,6 +962,10 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
       spec = { ...spec, view: pick?.view ?? suggestView("table", rows()) };
       if (!spec.id) spec = { ...spec, id: slugOf(data.name ?? "chart") };
     }
+    // Date columns read as dates on the axis: a month column (2026-01) as "Jan 2026", a day column as "Jan 5". Only where
+    // the author set no format of their own.
+    const dated = inferDateFormats(rows(), spec.fields);
+    if (Object.keys(dated).length) spec = { ...spec, fields: { ...(spec.fields ?? {}), ...dated } };
     if (repaint) sync({ paint: true });
     else {
       sync();
@@ -1856,7 +1878,8 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
     published = createWidget(big, spec, { actions: options.actions ?? ["csv", "image", "copy", "explain"] });
     const json = JSON.stringify(spec, null, 2);
     const src = options.srcOf?.(spec) ?? `widgets/${spec.id ?? "chart"}.json`;
-    const codes = embedCodes(spec, src);
+    // Absolute, so the snippet works pasted into any other site; the lite bundle, which is all a shown chart needs.
+    const codes = embedCodes(spec, src, liteBundleUrl(doc, options.bundleHref));
     const block = (title: string, text: string, download?: string) => {
       const section = el("section", "fft-ed-code");
       const head = el("div", "fft-ed-row");
@@ -1888,9 +1911,9 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
     // wait behind Other ways to embed; the spec behind its own fold.
     panel.append(el("h3", "fft-ed-subtitle", t("embed")));
     panel.append(block(wordsFor(options.locale ?? doc.documentElement.lang).dw2.embedFrame, frameEmbed("widget", spec, options.embedHref ?? "embed.html", spec.title ?? spec.id ?? cw.untitledChart)));
-    const others = disclosure("embeds", sw.otherEmbeds);
+    const others = disclosure("embeds", sw.otherEmbeds, "fft-ed-more", false);
     others.append(block(t("embedInline"), codes.inline), block(t("embedSrc"), codes.src), block(t("embedJs"), codes.js));
-    const specBox = disclosure("spec", sw.spec);
+    const specBox = disclosure("spec", sw.spec, "fft-ed-more", false);
     specBox.append(block(t("json"), json, `${spec.id ?? "chart"}.json`));
     panel.append(others, specBox);
 
@@ -1898,12 +1921,18 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
     // the name given. A dashboard save adds the chart as a card and links to the composer to lay it out.
     const saver = el("section", "fft-ed-addboard");
     saver.append(el("h3", "fft-ed-subtitle", sw.save));
+    // The title the chart is saved under: its own, or one proposed from its fields, ready to edit. A chart saved
+    // without one would be listed by its id ("monthly-revenue") in the composer and drawn untitled on a board.
+    const titled = el("input", "fft-ed-input fft-ed-save-title");
+    titled.type = "text";
+    titled.value = spec.title ?? proposedTitle();
+    titled.setAttribute("aria-label", sw.chartTitle);
     const CHARTS = "";
     const NEW = "\u0000new";
     const choose = el("select", "fft-ed-input");
     choose.setAttribute("aria-label", sw.saveTo);
     choose.append(new Option(options.save ? sw.hostCharts : sw.myCharts, CHARTS));
-    for (const board of boardsCache) choose.append(new Option(board.spec.title || board.id, board.id));
+    for (const board of boardsCache) choose.append(new Option(board.spec.title || cw.untitledBoard, board.id));
     choose.append(new Option(sw.newBoard, NEW));
     choose.value = CHARTS;
     const name = el("input", "fft-ed-input");
@@ -1919,10 +1948,16 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
     const result = el("p", "fft-ed-addboard-result");
     result.setAttribute("role", "status");
     saver.append(
+      field(sw.chartTitle, titled),
       field(sw.saveTo, choose),
       nameField,
       button(sw.save, async (b) => {
         try {
+          const title = titled.value.trim();
+          if (title && title !== spec.title) {
+            spec = { ...spec, title };
+            published?.update({ title });
+          }
           await saveChart();
           if (choose.value === CHARTS) {
             say(b, t("saved"));
@@ -1942,6 +1977,15 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
       result,
     );
     panel.append(saver);
+  }
+
+  /** A title proposed from the chart: its measures by its category ("Revenue and cost by month"). */
+  function proposedTitle(): string {
+    const view = (spec.view ?? {}) as Record<string, unknown>;
+    const names = (value: unknown) => (Array.isArray(value) ? value : value === undefined ? [] : [value]).filter((v): v is string => typeof v === "string");
+    const measures = [...names(view.y), ...names(view.value), ...names(view.size)].slice(0, 3).map((f) => labelOf(f));
+    const by = names(view.x)[0] ?? names(view.label)[0] ?? names(view.row)[0];
+    return sw.titleOf(measures, by ? labelOf(by) : undefined);
   }
 
   /** The chart kept: through the host's save when there is one, else in the store "My charts" reads. */
