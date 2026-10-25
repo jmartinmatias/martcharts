@@ -224,7 +224,7 @@ export const BASE_CSS = `
   border: 1px solid var(--fft-border);
   border-radius: var(--fft-radius);
   box-shadow: var(--fft-shadow);
-  font: 13px/21px system-ui, -apple-system, "Segoe UI", sans-serif;
+  font: 13px/21px -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 .fft-widget[data-theme="dark"] {${DARK}}
@@ -295,7 +295,7 @@ export const BASE_CSS = `
   position: fixed; left: 50%; bottom: calc(21px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 7;
   display: flex; align-items: center; gap: 5px; padding: 5px; border-radius: 34px;
   background: rgba(20, 20, 20, 0.72); color: #ffffff; -webkit-backdrop-filter: blur(13px); backdrop-filter: blur(13px);
-  font: 600 11px/21px system-ui, -apple-system, "Segoe UI", sans-serif; font-variant-numeric: tabular-nums;
+  font: 600 11px/21px -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif; font-variant-numeric: tabular-nums;
 }
 .fft-overlay-nav button { display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: inherit; cursor: pointer; }
 .fft-overlay-nav button:hover:not(:disabled), .fft-overlay-nav button:focus-visible { background: rgba(255, 255, 255, 0.16); outline: none; }
@@ -351,14 +351,14 @@ export const BASE_CSS = `
 .fft-widget-ref {
   /* Its 5px hit padding tucks into the card's own padding; a cardless look (no side padding) sets --fft-ref-inset to 0. */
   margin: 0 calc(-1 * var(--fft-ref-inset, 5px)) 0 auto; padding: 2px 5px; border: 0; border-radius: 5px; background: none;
-  font: 400 10px/13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: 0.08em;
+  font: 400 10px/13px ui-monospace, SFMono-Regular, ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace; letter-spacing: 0.08em;
   color: var(--fft-muted); cursor: copy; white-space: nowrap;
   transition: color 233ms var(--fft-ease), background-color 233ms var(--fft-ease);
 }
 .fft-widget-ref[hidden] { display: none; }
 .fft-widget-ref:hover, .fft-widget-ref:focus-visible { color: var(--fft-text-secondary); background: color-mix(in srgb, var(--fft-text) 6%, transparent); outline: none; }
 .fft-widget-ref:focus-visible { box-shadow: 0 0 0 2px var(--fft-accent); }
-.fft-widget-ref[data-done]::after { content: " copied"; letter-spacing: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+.fft-widget-ref[data-done]::after { content: " copied"; letter-spacing: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif; }
 .fft-widget-ref[data-failed] { color: var(--fft-negative); }
 .fft-headline { display: flex; flex-direction: column; gap: 2px; margin-top: -5px; }
 .fft-headline-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; }
@@ -396,7 +396,7 @@ export const BASE_CSS = `
 .fft-state-icon[data-icon="alert"] { color: var(--fft-warning); background: color-mix(in srgb, var(--fft-warning) 13%, transparent); }
 .fft-state-title { margin: 0; color: var(--fft-text); font-size: 13px; font-weight: 600; }
 .fft-state-hint { margin: 3px 0 0; color: var(--fft-text-secondary); font-size: 11px; }
-.fft-widget[data-state="error"] .fft-message ul { max-width: 610px; margin: 13px auto 0; padding: 8px 13px; border-radius: 8px; background: color-mix(in srgb, var(--fft-text) 4%, transparent); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.fft-widget[data-state="error"] .fft-message ul { max-width: 610px; margin: 13px auto 0; padding: 8px 13px; border-radius: 8px; background: color-mix(in srgb, var(--fft-text) 4%, transparent); font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace; }
 .fft-message li { overflow-wrap: anywhere; }
 .fft-sr-only {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
@@ -1003,7 +1003,7 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-dashboard {${LIGHT}
   --fft-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   display: flex; flex-direction: column; gap: 21px; color: var(--fft-text);
-  font: 13px/21px system-ui, -apple-system, "Segoe UI", sans-serif;
+  font: 13px/21px -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .fft-dashboard {${DARK}} }
 :root[data-theme="dark"] .fft-dashboard {${DARK}}
@@ -1113,7 +1113,7 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 /* Palette picker: carries its own tokens, so it can sit outside any widget. */
 .fft-picker {${LIGHT}
   display: flex; flex-direction: column; gap: 13px; color: var(--fft-text);
-  font: 13px/21px system-ui, -apple-system, "Segoe UI", sans-serif;
+  font: 13px/21px -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .fft-picker {${DARK}} }
 :root[data-theme="dark"] .fft-picker {${DARK}}
@@ -1134,12 +1134,12 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-picker-swatch input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
 .fft-picker-swatch input[type="color"]::-webkit-color-swatch { border: 0; border-radius: 5px; }
 .fft-picker-swatch input[type="color"]::-moz-color-swatch { border: 0; border-radius: 5px; }
-.fft-picker-hex { flex: 1; width: 0; min-width: 55px; border: 0; background: transparent; color: var(--fft-text); font: 11px/21px ui-monospace, SFMono-Regular, Menlo, monospace; }
+.fft-picker-hex { flex: 1; width: 0; min-width: 55px; border: 0; background: transparent; color: var(--fft-text); font: 11px/21px ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace; }
 .fft-picker-hex:focus { outline: none; }
 .fft-picker-hex[aria-invalid="true"] { color: var(--fft-negative); }
 .fft-picker-pipette, .fft-picker-remove {
   flex: none; display: inline-grid; place-items: center; width: 21px; height: 21px; padding: 0; border: 0; border-radius: 5px;
-  background: transparent; color: var(--fft-muted); font: 13px/1 system-ui, sans-serif; cursor: pointer;
+  background: transparent; color: var(--fft-muted); font: 13px/1 -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif; cursor: pointer;
 }
 .fft-picker-pipette:hover, .fft-picker-remove:hover:not(:disabled) { color: var(--fft-text); background: var(--fft-grid); }
 .fft-picker-remove:disabled { opacity: 0.38; cursor: default; }

@@ -1360,6 +1360,8 @@ const dual: ViewBlock = {
     y2: { type: "field", kind: "number", required: true, description: "Measure on the bottom panel, in its own unit." },
     marks: {
       type: "array",
+      values: ["bar", "line"],
+      itemLabels: ["Top panel", "Bottom panel"],
       default: ["bar", "line"],
       description: 'How each panel draws its measure, top then bottom: "bar" for amounts (from zero) or "line" for rates and levels. Example: ["bar", "line"].',
     },

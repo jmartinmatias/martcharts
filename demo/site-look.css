@@ -78,7 +78,7 @@ body { transition: background-color 610ms ease; }
     background: #161512;
   }
 }
-:root[data-look="paper"] body :is(h1, h2) { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif; letter-spacing: -0.01em; }
+:root[data-look="paper"] body :is(h1, h2) { font-family: ui-serif, "New York", "Iowan Old Style", "Palatino Linotype", Georgia, serif; letter-spacing: -0.01em; }
 :root[data-look="paper"] body .fft-dashboard-grid { gap: 34px 21px; }
 /* Sticky filter row backdrop: the page behind the dashboard, so cards scroll under it unseen. --page already
    follows light, dark and airy; glass gets a translucent tone of its gradient. The body prefix outranks the

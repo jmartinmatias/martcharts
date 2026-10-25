@@ -212,7 +212,7 @@ registerPreset({
   },
 });
 
-const SERIF = `"Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif`;
+const SERIF = `ui-serif, "New York", "Iowan Old Style", "Palatino Linotype", Georgia, serif`;
 
 registerPreset({
   name: "paper",

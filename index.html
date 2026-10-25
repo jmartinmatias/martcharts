@@ -42,7 +42,7 @@
         margin: 0;
         background: var(--page);
         color: var(--ink);
-        font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+        font: 15px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
         /* Clip, not hidden: no sideways page scroll, and sticky children still stick to the viewport. */
         overflow-x: clip;
       }
@@ -131,7 +131,7 @@
       textarea {
         width: 100%; min-height: 420px; resize: vertical; padding: 12px;
         border: 1px solid var(--line); border-radius: 10px; background: var(--field); color: var(--ink);
-        font: 12.5px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; tab-size: 2;
+        font: 12.5px/1.5 ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace; tab-size: 2;
       }
       .issues { margin: 0; padding: 0; list-style: none; font-size: 13px; color: var(--ink-2); }
       .issues li { padding: 2px 0; overflow-wrap: anywhere; }
@@ -139,7 +139,7 @@
       .issues li[data-level="warning"]::before { content: "Warning  "; font-weight: 600; color: #b87500; }
       .issues li[data-level="ok"]::before { content: "OK  "; font-weight: 600; color: #0ca30c; }
       #selection { margin-top: 12px; font-size: 13px; color: var(--ink-2); min-height: 1.5em; overflow-wrap: anywhere; }
-      code { font: 0.92em ui-monospace, SFMono-Regular, Menlo, monospace; }
+      code { font: 0.92em ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace; }
 
       /* Phones: everything in one column. Labels and their controls pair up in two-column grids so a
          label never strands at the end of a row. */

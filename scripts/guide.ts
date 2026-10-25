@@ -214,14 +214,14 @@ const page = `<!doctype html>
     @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --better: #4cc382; --same: #5aa2f0; --trade: #e0a040; --different: #a48dff; } }
     :root[data-theme="dark"] { --better: #4cc382; --same: #5aa2f0; --trade: #e0a040; --different: #a48dff; }
     * { box-sizing: border-box; }
-    body { font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; margin: 0 auto; max-width: 1200px; padding: 24px 16px 89px; background: Canvas; color: CanvasText; }
+    body { font: 15px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif; margin: 0 auto; max-width: 1200px; padding: 24px 16px 89px; background: Canvas; color: CanvasText; }
     h1 { font-size: 34px; letter-spacing: -.02em; margin: 13px 0 8px; line-height: 1.15; }
     .lede { max-width: 68ch; color: var(--muted); font-size: 17px; margin: 0 0 34px; }
     h2 { font-size: 21px; margin: 0; }
-    h2 code { font: 650 21px/1.3 ui-monospace, SFMono-Regular, monospace; }
+    h2 code { font: 650 21px/1.3 ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace; }
     h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 34px 0 8px; font-weight: 600; }
     a { color: inherit; }
-    code { font: 13px/1.4 ui-monospace, SFMono-Regular, monospace; }
+    code { font: 13px/1.4 ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace; }
     .muted { color: var(--muted); font-size: 13px; text-transform: none; letter-spacing: 0; font-weight: 400; }
     .scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     table { border-collapse: collapse; width: 100%; font-size: 14px; }
@@ -264,8 +264,8 @@ const page = `<!doctype html>
     .matrix table { width: auto; font-size: 11px; }
     .matrix th, .matrix td { padding: 0; border: 0; border-bottom: 1px solid var(--rule); text-align: center; }
     .matrix thead th { position: sticky; top: 0; background: Canvas; height: 96px; vertical-align: bottom; z-index: 1; }
-    .matrix thead th span { writing-mode: vertical-rl; transform: rotate(180deg); display: inline-block; padding: 5px 0; font: 11px ui-monospace, monospace; }
-    .matrix tbody th { position: sticky; left: 0; background: Canvas; text-align: right; padding: 0 8px; font: 11px ui-monospace, monospace; white-space: nowrap; }
+    .matrix thead th span { writing-mode: vertical-rl; transform: rotate(180deg); display: inline-block; padding: 5px 0; font: 11px ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace; }
+    .matrix tbody th { position: sticky; left: 0; background: Canvas; text-align: right; padding: 0 8px; font: 11px ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace; white-space: nowrap; }
     .matrix td { width: 22px; height: 22px; }
     .matrix td button { all: unset; display: block; width: 22px; height: 22px; line-height: 22px; cursor: pointer; font-size: 11px; }
     .matrix td button:hover, .matrix td button:focus-visible { background: var(--soft); outline: 1px solid currentColor; }

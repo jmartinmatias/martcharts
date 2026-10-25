@@ -30,7 +30,7 @@
         --page: #0d0d0d; --ink: #f0efec; --ink-2: #c3c2b7; --line: rgba(255, 255, 255, 0.1); --field: #1a1a19; --accent: #3987e5; --meter: rgba(255, 255, 255, 0.1);
       }
       * { box-sizing: border-box; }
-      body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; overflow-x: clip; }
+      body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif; overflow-x: clip; }
       main {
         max-width: 1200px; margin: 0 auto;
         padding: calc(34px + env(safe-area-inset-top, 0px)) calc(16px + env(safe-area-inset-right, 0px))
@@ -56,7 +56,7 @@
       .note > p { margin: 0; line-height: 1.6; }
       /* The sales question the pick answers: the part every version keeps. */
       .asks { padding-left: 13px; border-left: 2px solid var(--accent); }
-      .asks > p { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; font-size: 17px; line-height: 1.4; }
+      .asks > p { font-family: ui-serif, "New York", "Iowan Old Style", "Palatino Linotype", Georgia, serif; font-size: 17px; line-height: 1.4; }
       .scores { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px 21px; }
       .score-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-2); }
       .score-label strong { color: var(--ink); font-variant-numeric: tabular-nums; }

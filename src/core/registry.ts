@@ -26,8 +26,10 @@ export interface OptionSchema {
   required?: boolean;
   /** One sentence on what the option does. Shown in docs and to agents over MCP. */
   description: string;
-  /** Allowed values, for `enum` options. */
+  /** Allowed values, for `enum` options, or for each item of an `array` option whose items are words. */
   values?: readonly string[];
+  /** For an `array` option with `values`: what each position means, one label per item, so a form can offer a control per position. */
+  itemLabels?: readonly string[];
   /** Value used when the option is left out. Informational. */
   default?: unknown;
   /**

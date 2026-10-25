@@ -17,7 +17,7 @@
         --line: rgba(11, 11, 11, 0.1);
         --field: #fcfcfb;
         --accent: #2a78d6;
-        --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+        --serif: ui-serif, "New York", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
       }
       @media (prefers-color-scheme: dark) {
         :root:not([data-theme="light"]) {
@@ -40,7 +40,7 @@
         --accent: #3987e5;
       }
       * { box-sizing: border-box; }
-      body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; overflow-x: clip; }
+      body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif; overflow-x: clip; }
       main {
         max-width: 1200px; margin: 0 auto;
         padding: calc(32px + env(safe-area-inset-top, 0px)) calc(16px + env(safe-area-inset-right, 0px))

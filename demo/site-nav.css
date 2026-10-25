@@ -23,7 +23,7 @@
   border-bottom: 1px solid var(--line, color-mix(in srgb, CanvasText 12%, transparent));
   box-shadow: 0 0 0 100vmax var(--page, Canvas);
   clip-path: inset(0 -100vmax);
-  font: 13px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  font: 13px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 .site-nav::-webkit-scrollbar { display: none; }
 .site-nav a, .site-nav button {

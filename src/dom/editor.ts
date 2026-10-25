@@ -1385,6 +1385,25 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
       const current = value === true ? "true" : typeof value === "string" ? value : "false";
       return field(label, describe(segmented(label, values.map((v) => ({ value: v, label: words[v] ?? v })), current, (v) => commit({ view: { [name]: v === "false" ? null : v === "true" ? true : v } }))), option.description);
     }
+    // A list of words with a meaning per position (a dual's marks: top panel, bottom panel): one segmented control each.
+    if (option.type === "array" && option.values && option.itemLabels?.length) {
+      const fallback = Array.isArray(option.default) ? option.default.map(String) : [];
+      const current = Array.isArray(value) ? value.map(String) : fallback;
+      const group = el("div", "fft-ed-positions");
+      option.itemLabels.forEach((itemLabel, i) => {
+        const picked = current[i] ?? fallback[i] ?? option.values?.[0] ?? "";
+        const row = el("div", "fft-ed-position");
+        row.append(el("span", "fft-ed-position-label", itemLabel));
+        row.append(
+          segmented(`${label}: ${itemLabel}`, (option.values ?? []).map((v) => ({ value: v, label: v })), picked, (v) => {
+            const next = option.itemLabels!.map((_, k) => (k === i ? v : current[k] ?? fallback[k] ?? v));
+            commit({ view: { [name]: JSON.stringify(next) === JSON.stringify(fallback) ? null : next } });
+          }),
+        );
+        group.append(row);
+      });
+      return field(label, describe(group), option.description);
+    }
     // Lists and objects: a small JSON field, applied when it parses.
     const area = el("textarea", "fft-ed-json");
     area.rows = 2;
@@ -1658,7 +1677,7 @@ export function ensureEditorStyles(doc: Document): void {
 export const EDITOR_CSS = `
 .fft-editor {${LIGHT}
   --fft-ed-field: color-mix(in srgb, var(--fft-text) 3%, var(--fft-surface));
-  color: var(--fft-text); font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; container-type: inline-size;
+  color: var(--fft-text); font: 14px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif; container-type: inline-size;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .fft-editor {${DARK}} }
 :root[data-theme="dark"] .fft-editor {${DARK}}
@@ -1695,13 +1714,16 @@ export const EDITOR_CSS = `
 .fft-editor :is(button, select, input, textarea, a, [tabindex]):focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 2px; }
 .fft-ed-drop { position: relative; display: flex; flex-direction: column; gap: 8px; padding: 21px; border: 2px dashed var(--fft-border); border-radius: 13px; background: var(--fft-ed-field); transition: border-color 233ms ease, background-color 233ms ease; }
 .fft-ed-drop[data-over] { border-color: var(--fft-accent); background: color-mix(in srgb, var(--fft-accent) 8%, var(--fft-surface)); }
-.fft-ed-text { width: 100%; min-height: 144px; resize: vertical; font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--fft-text); background: var(--fft-surface); border: 1px solid var(--fft-border); border-radius: 8px; padding: 8px 13px; }
+.fft-ed-text { width: 100%; min-height: 144px; resize: vertical; font: 13px/1.5 ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace; color: var(--fft-text); background: var(--fft-surface); border: 1px solid var(--fft-border); border-radius: 8px; padding: 8px 13px; }
 .fft-ed-drop .fft-ed-button { align-self: flex-start; }
 .fft-ed-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .fft-ed-input, .fft-ed-select, .fft-ed-json { font: inherit; font-size: 14px; color: var(--fft-text); background: var(--fft-surface); border: 1px solid var(--fft-border); border-radius: 8px; padding: 6px 10px; min-height: 34px; min-width: 0; flex: 1 1 160px; }
 .fft-ed-select { flex: 0 1 auto; max-width: 100%; }
 .fft-ed-short { flex: 0 0 89px; width: 89px; }
-.fft-ed-json { width: 100%; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+.fft-ed-json { width: 100%; font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace; font-size: 12px; }
+.fft-editor .fft-ed-positions { display: flex; flex-direction: column; gap: 5px; }
+.fft-editor .fft-ed-position { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.fft-editor .fft-ed-position-label { font-size: 12px; color: var(--fft-text-secondary); min-width: 89px; }
 .fft-ed-json[aria-invalid="true"] { border-color: var(--fft-negative); }
 .fft-ed-field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
 .fft-ed-field-label { font-size: 12px; color: var(--fft-text-secondary); }
@@ -1726,7 +1748,7 @@ export const EDITOR_CSS = `
 .fft-ed-table .fft-num { text-align: right; }
 .fft-ed-col-name { display: block; font-size: 13px; }
 .fft-ed-kind { display: inline-flex; align-items: center; gap: 4px; margin-top: 2px; padding: 0 8px; border-radius: 13px; font-size: 11px; font-weight: 600; letter-spacing: 0.02em; line-height: 18px; color: var(--fft-text); background: color-mix(in srgb, var(--fft-text) 8%, transparent); }
-.fft-ed-kind::before { content: "A"; font-family: ui-monospace, Menlo, monospace; font-weight: 700; opacity: 0.8; }
+.fft-ed-kind::before { content: "A"; font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace; font-weight: 700; opacity: 0.8; }
 .fft-ed-kind[data-kind="number"] { background: color-mix(in srgb, var(--fft-positive) 16%, transparent); }
 .fft-ed-kind[data-kind="number"]::before { content: "#"; }
 .fft-ed-kind[data-kind="date"] { background: color-mix(in srgb, var(--fft-accent) 16%, transparent); }
@@ -1772,7 +1794,7 @@ export const EDITOR_CSS = `
 .fft-ed-published { margin-bottom: 13px; }
 .fft-ed-code { display: flex; flex-direction: column; gap: 5px; }
 .fft-ed-code .fft-ed-row { justify-content: space-between; }
-.fft-ed-pre { margin: 0; padding: 13px; max-height: 233px; overflow: auto; border: 1px solid var(--fft-border); border-radius: 8px; background: var(--fft-ed-field); font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre; }
+.fft-ed-pre { margin: 0; padding: 13px; max-height: 233px; overflow: auto; border: 1px solid var(--fft-border); border-radius: 8px; background: var(--fft-ed-field); font: 12px/1.5 ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace; white-space: pre; }
 .fft-editor .fft-legend li[role="button"] { cursor: pointer; }
 .fft-editor [data-annotation] { cursor: grab; }
 .fft-editor [data-annotation][data-dragging] { cursor: grabbing; opacity: 0.7; }
