@@ -53,7 +53,7 @@
   "view": {
     "type": "likert",
     "label": "question",
-    "responses": [
+    "value": [
       "strongly_disagree",
       "disagree",
       "neutral",

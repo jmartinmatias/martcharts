@@ -25,6 +25,6 @@
   "view": {
     "type": "dot",
     "label": "product",
-    "values": ["ease", "value", "support"]
+    "value": ["ease", "value", "support"]
   }
 }

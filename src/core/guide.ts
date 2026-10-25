@@ -11,6 +11,8 @@
  *
  * @module
  */
+import { normalizeView } from "./aliases.ts";
+import { canonicalSpec, canonicalView, readable, shownName } from "./canonical.ts";
 import { firstSentence } from "./catalog.ts";
 import { recommendCharts } from "./recommend.ts";
 import { blockTypes, getBlock } from "./registry.ts";
@@ -730,8 +732,11 @@ function inlineRows(spec: WidgetSpec): Row[] {
  * inline rows when left out): what each column holds, which option draws it,
  * and what does not fit.
  */
-export function dataContract(spec: WidgetSpec, rows: Row[] = inlineRows(spec)): DataContract {
+export function dataContract(written: WidgetSpec, rows: Row[] = inlineRows(written)): DataContract {
+  // The contract reads the view in the renderer's names and speaks in the canonical ones.
+  const spec = readable(written);
   const { view } = spec;
+  const shown = (option: string) => shownName(view.type, option);
   const block = getBlock("view", view.type);
   const guide = chartGuide(view.type);
   const kinds = columnKinds(rows);
@@ -741,10 +746,17 @@ export function dataContract(spec: WidgetSpec, rows: Row[] = inlineRows(spec)): 
     .map(([name, option]) => ({ option: name, holds: option.kind ?? "any", many: option.type === "fields", required: option.required === true, description: option.description }))
     .sort((a, b) => Number(b.required) - Number(a.required));
   const required = new Set(needs.filter((need) => need.required).map((need) => need.option));
+  // Shown under their canonical names, the older name noted once.
+  for (const need of needs) {
+    const name = shown(need.option);
+    if (name !== need.option) need.description = `${need.description} Also accepts \`${need.option}\`, the older name.`;
+    need.option = name;
+  }
   const describe = (option: string) => (option.startsWith("items.") ? `A tile's ${option.slice(6)}.` : (block.options[option]?.description ?? ""));
   const order = [...new Set([...drawn.map((d) => d.field), ...kinds.keys()])];
   const columns: ContractColumn[] = order.map((name) => {
-    const roles = drawn.filter((d) => d.field === name).map((d) => d.option);
+    const legacy = drawn.filter((d) => d.field === name).map((d) => d.option);
+    const roles = legacy.map(shown);
     const values = rows.map((row) => row[name]).filter((v) => v !== null && v !== undefined);
     const numbers = values.filter((v): v is number => typeof v === "number");
     return {
@@ -752,8 +764,8 @@ export function dataContract(spec: WidgetSpec, rows: Row[] = inlineRows(spec)): 
       ...(spec.fields?.[name]?.label ? { label: spec.fields[name].label } : {}),
       kind: kinds.get(name) ?? "missing",
       roles,
-      required: roles.some((role) => required.has(role)),
-      does: roles.length ? roles.map(describe).join(" ") : view.type === "table" ? "A column of the table." : "Not drawn; kept for tooltips, the table view and exports.",
+      required: legacy.some((role) => required.has(role)),
+      does: legacy.length ? legacy.map(describe).join(" ") : view.type === "table" ? "A column of the table." : "Not drawn; kept for tooltips, the table view and exports.",
       distinct: new Set(values.map((v) => JSON.stringify(v))).size,
       ...(numbers.length ? { min: Math.min(...numbers), max: Math.max(...numbers) } : {}),
       examples: [...new Set(values.map((v) => JSON.stringify(v)))].slice(0, 3).map((v) => JSON.parse(v)),
@@ -781,9 +793,10 @@ function fitWarnings(view: ViewSpec, rows: Row[], kinds: Map<string, Kind>): str
     if (!isField(option)) continue;
     for (const field of asList(view[name])) {
       const kind = kinds.get(field);
-      if (!kind) warnings.push(`${name} names "${field}", which is not in the data.`);
-      else if (option.kind === "number" && kind !== "number") warnings.push(`${name} needs numbers, but "${field}" holds ${kind === "date" ? "dates" : "text"}.`);
-      else if (option.kind === "date" && kind === "category") warnings.push(`${name} expects dates; "${field}" is text, so its rows are drawn in the order given.`);
+      const said = shownName(view.type, name);
+      if (!kind) warnings.push(`${said} names "${field}", which is not in the data.`);
+      else if (option.kind === "number" && kind !== "number") warnings.push(`${said} needs numbers, but "${field}" holds ${kind === "date" ? "dates" : "text"}.`);
+      else if (option.kind === "date" && kind === "category") warnings.push(`${said} expects dates; "${field}" is text, so its rows are drawn in the order given.`);
     }
   }
   if (!guide || !rows.length) return warnings;
@@ -959,13 +972,16 @@ const listWords = (purposes: Purpose[]) => {
  * current chart draws first, whether the data fits, and what the reader gains
  * and loses. `rows` are the spec's inline rows when left out.
  */
-export function switchChart(spec: WidgetSpec, to: string, rows: Row[] = inlineRows(spec)): ChartSwitch {
+export function switchChart(written: WidgetSpec, to: string, rows: Row[] = inlineRows(written)): ChartSwitch {
+  // Read in the renderer's names; the switched view is handed back in the canonical ones.
+  const spec = readable(written);
   const from = spec.view.type;
   const base: ChartSwitch = { from, to, fit: "no", gains: [], losses: [], assessment: "", caveats: [] };
   if (!blockTypes("view").includes(to)) return { ...base, assessment: `There is no chart "${to}".`, caveats: [`Known charts: ${blockTypes("view").join(", ")}.`] };
   const kinds = columnKinds(rows);
   const prefer = viewFields(spec.view).map((d) => d.field);
-  const view = suggestView(to, rows, prefer);
+  const view = normalizeView(suggestView(to, rows, prefer));
+  const optionName = (option: string) => shownName(to, option);
   carry(spec.view, view, kinds);
 
   // Not possible: a required option with no column of its kind, or two required options sharing one column.
@@ -975,13 +991,13 @@ export function switchChart(spec: WidgetSpec, to: string, rows: Row[] = inlineRo
   for (const [name, option] of Object.entries(options)) {
     if (!option.required || !isField(option)) continue;
     const fields = asList(view[name]);
-    if (!fields.length) problems.push(`needs a ${option.kind ?? ""} column for ${name}`.replace("  ", " "));
+    if (!fields.length) problems.push(`needs a ${option.kind ?? ""} column for ${optionName(name)}`.replace("  ", " "));
     for (const field of fields) {
       const kind = kinds.get(field);
-      if (option.kind === "number" && kind !== "number") problems.push(`needs a number column for ${name}, and there is none left`);
-      else if (option.kind === "date" && kind !== "date" && REAL_DATES.has(to)) problems.push(`needs a date column for ${name}`);
-      else if ((option.kind === "category" || option.kind === "date") && kind !== "category" && kind !== "date" && kind !== "boolean") problems.push(`needs a ${option.kind === "date" ? "date or category" : "category"} column for ${name}`);
-      else if (taken.has(field) && option.type === "field") problems.push(`needs a separate column for ${name} (it would reuse "${field}", already the ${taken.get(field)})`);
+      if (option.kind === "number" && kind !== "number") problems.push(`needs a number column for ${optionName(name)}, and there is none left`);
+      else if (option.kind === "date" && kind !== "date" && REAL_DATES.has(to)) problems.push(`needs a date column for ${optionName(name)}`);
+      else if ((option.kind === "category" || option.kind === "date") && kind !== "category" && kind !== "date" && kind !== "boolean") problems.push(`needs a ${option.kind === "date" ? "date or category" : "category"} column for ${optionName(name)}`);
+      else if (taken.has(field) && option.type === "field") problems.push(`needs a separate column for ${optionName(name)} (it would reuse "${field}", already the ${taken.get(field)})`);
       if (option.type === "field") taken.set(field, name);
     }
   }
@@ -1023,7 +1039,7 @@ export function switchChart(spec: WidgetSpec, to: string, rows: Row[] = inlineRo
     worse: lost.length ? `Gives up ${listWords(lost)}, and this data gives it nothing better to do.` : `Weaker for ${listWords(weaker)}, with nothing gained for this data.`,
   }[verdict];
   const note = NOTES[`${from}>${to}`];
-  return { ...base, fit: caveats.length ? "stretch" : "fits", verdict, view, gains, losses, assessment: note ? `${said} ${note}` : said, caveats };
+  return { ...base, fit: caveats.length ? "stretch" : "fits", verdict, view: canonicalView(view), gains, losses, assessment: note ? `${said} ${note}` : said, caveats };
 }
 
 const SUITED = new WeakMap<Row[], Set<string>>();
@@ -1148,7 +1164,7 @@ export function guideMarkdown(spec: WidgetSpec, rows: Row[] = inlineRows(spec), 
   if (contract.warnings.length) lines.push("**Watch out**:", "", ...contract.warnings.map((w) => `- ${w}`), "");
   lines.push(`## The data drawing it now${rows.length > maxRows ? ` (first ${maxRows} of ${rows.length} rows)` : ""}`, "", rowsToMarkdown(rows, [...used, ...columns.filter((c) => !used.includes(c))], maxRows), "");
   lines.push("As CSV:", "", "```csv", rowsToCsv(rows.slice(0, maxRows), columns), "```", "");
-  lines.push("## The spec", "", "Replace `data.rows` with your rows, keeping the column names the view names (or change the view's options to your names).", "", "```json", JSON.stringify({ ...spec, data: { type: "inline", rows: rows.slice(0, Math.min(maxRows, 3)) } }, null, 2), "```", "");
+  lines.push("## The spec", "", "Replace `data.rows` with your rows, keeping the column names the view names (or change the view's options to your names).", "", "```json", JSON.stringify({ ...canonicalSpec(spec), data: { type: "inline", rows: rows.slice(0, Math.min(maxRows, 3)) } }, null, 2), "```", "");
   const switches = switchOptions(spec, rows);
   const ok = switches.filter((s) => s.fit !== "no");
   lines.push("## The same data as another chart", "", "| Chart | Fit | Verdict | Assessment | View |", "| --- | --- | --- | --- | --- |");

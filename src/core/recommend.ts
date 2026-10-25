@@ -9,6 +9,7 @@
 import { guessBasemap } from "./geo.ts";
 import { isRagValue } from "./rag.ts";
 import type { Row, ViewSpec } from "./types.ts";
+import { canonicalView } from "./canonical.ts";
 
 /** One recommended chart. */
 export interface ChartPick {
@@ -589,7 +590,8 @@ export function recommendCharts(rows: Row[], options: { limit?: number } = {}): 
   const picks: ChartPick[] = [];
   for (const [type, rule] of Object.entries(RULES)) {
     const pick = rule(shape);
-    if (pick) picks.push({ type, ...pick });
+    // Every view the recommender writes speaks the canonical option names.
+    if (pick) picks.push({ type, ...pick, view: canonicalView(pick.view) });
   }
   return picks.sort((a, b) => b.score - a.score).slice(0, options.limit ?? 5);
 }

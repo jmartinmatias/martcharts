@@ -31,6 +31,6 @@
     "id": "country",
     "label": "office",
     "note": "people",
-    "kind": "role"
+    "color": "role"
   }
 }

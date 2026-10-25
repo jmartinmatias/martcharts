@@ -104,6 +104,6 @@ describe("strips view", () => {
     expect(explainChart(spec, big)).toContain("each small square is one provision");
     expect(explainChart(spec, big)).toContain("Here, CRR3 has the most provisions: 412, 85% of them mandatory; that is 1.0 per page.");
     expect(questionOf({ ...spec, title: "Provisions by regulation" }, big).text).toBe("How many provisions does each regulation have, and how many are mandatory?");
-    expect(recommendCharts(big)[0]?.view).toEqual({ type: "strips", label: "name", parts: ["mandatory", "recommended", "optional"], per: "pages" });
+    expect(recommendCharts(big)[0]?.view).toEqual({ type: "strips", label: "name", value: ["mandatory", "recommended", "optional"], per: "pages" });
   });
 });

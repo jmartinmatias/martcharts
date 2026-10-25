@@ -15,6 +15,7 @@ import type { Row, WidgetSpec } from "./types.ts";
 import { isYes, periodTime, timeOf } from "./views.ts";
 import { ragOf, ragRank, ragTrend, ragWord, worstOf } from "./rag.ts";
 import type { Rag } from "./rag.ts";
+import { readable } from "./canonical.ts";
 
 type View = Record<string, unknown> & { type: string };
 
@@ -27,7 +28,9 @@ const many = (value: unknown): string[] => (Array.isArray(value) ? value.filter(
  * Explains a widget's chart in plain words. Given the rows the chart draws, it adds one concrete example from them
  * ("Here, East is the tallest, with €2,000."). Unknown views get a short general guide.
  */
-export function explainChart(spec: WidgetSpec, rows: Row[] = []): string {
+export function explainChart(written: WidgetSpec, rows: Row[] = []): string {
+  // Canonical or older option names, the guide reads one set: the renderer's.
+  const spec = readable(written);
   const facet = (spec.facet as { field?: string } | undefined)?.field;
   // A dashed target line says what it is, so the chart reads against it.
   const goal = targetLine(spec);
