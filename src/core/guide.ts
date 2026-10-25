@@ -504,6 +504,34 @@ const GUIDES: ChartGuide[] = [
     bestFor: ["Where the offices, stores or sites are, by name", "A handful of named places for a report or a page header"],
     avoidFor: ["Amounts per place (use symbols)", "More than about 30 places, where names collide (use symbols or a table)"],
   },
+  {
+    type: "matrix",
+    purposes: { pattern: 3, compare: 2, lookup: 2 },
+    grain: "pair",
+    build: "One mark per row at its x column and y row: a circle sized by size, shaded by color (a number on the seven-step scale, a category by its color), or a square where mark is yes; pairs with no row stay empty.",
+    rows: { min: 4, max: 400 },
+    bestFor: ["Regulatory pressure per topic per quarter: how many new obligations, how hard they bite", "Who must comply with which rule: one square per yes", "Any two categories crossed, where a heatmap's shade alone says too little"],
+    avoidFor: ["One category only (use hbar or dot)", "Exact values to read off (use table with heat cells)", "More than about 24 columns or 30 rows"],
+  },
+  {
+    type: "strips",
+    purposes: { mix: 3, compare: 2, share: 1 },
+    grain: "category",
+    positive: true,
+    build: "One row per data row with one small square per unit, filled part by part in order (each part its color), the total and the first part's share written at the end; when totals run long, one square stands for a round number of units.",
+    rows: { min: 1, max: 20 },
+    bestFor: ["How many provisions each regulation has and how many are binding (mandatory, recommended, optional)", "Density: provisions per page, when per is set", "Counts people can see as things, not lengths"],
+    avoidFor: ["Amounts that are not counts, such as money (use hbar stacked)", "More than about 20 rows (use hbar stacked)", "Shares of one whole across items (use waffle or donut)"],
+  },
+  {
+    type: "lifecycle",
+    purposes: { schedule: 3, change: 2, lookup: 1 },
+    grain: "category",
+    build: "One row per data row on a shared date axis: from each stage's date to the next a segment in a deepening tint, a tick at every date, a faint run from the last known stage to the edge when the next date is missing, a today line, and a status pill at the end; impact sets the row's thickness.",
+    rows: { min: 1, max: 30 },
+    bestFor: ["Where each regulation stands: proposed, adopted, in force, applies", "What applies next, and how long since adoption", "Any multi-stage process with dates per stage: deals, hiring, product launches"],
+    avoidFor: ["One start and one end per row (use timeline)", "Stages with no dates (use funnel or table)", "More than about 30 rows (filter, or facet by group)"],
+  },
 ];
 
 const BY_TYPE = new Map(GUIDES.map((guide) => [guide.type, guide]));
@@ -787,6 +815,12 @@ const NOTES: Record<string, string> = {
   "dot>hbar": "Amounts read as lengths from zero, which is more familiar; small differences flatten out.",
   "dumbbell>dot": "Takes three or more measures per row; the before-to-after direction is no longer drawn.",
   "dot>dumbbell": "Draws the direction and size of each change; only for exactly two values per row.",
+  "heatmap>matrix": "Marks can carry two values at once (size and shade) or a yes/no square; a single value reads less precisely than a shaded cell.",
+  "matrix>heatmap": "One value per cell as a shade, with the number inside; size and yes/no marks are gone.",
+  "hbar>strips": "Counts become countable squares, colored by part; only for whole units (provisions, seats, people), not amounts.",
+  "strips>hbar": "Lengths compare more precisely across rows; the sense of countable units is lost.",
+  "timeline>lifecycle": "Shows every stage between start and end, each in its own tint, with a status and a thickness for impact; needs a date per stage.",
+  "lifecycle>timeline": "Simpler, one bar from start to end; the stages in between are gone.",
   "funnel>hbar": "Drops the step-to-step conversion rates; only better if the stages have no order.",
   "waterfall>bar": "Shows each amount on its own but no longer how they add up from start to end.",
   "heatmap>table": "Exact numbers instead of the pattern.",
@@ -944,6 +978,9 @@ const MEANING: Record<string, string> = {
   choropleth: "needs a column of country or state codes that sit on a basemap",
   symbols: "needs a column of country or state codes that sit on a basemap, or coordinates",
   locator: "needs named places with region codes on a basemap, or coordinates",
+  matrix: "needs one row per pair of two categories, such as topic and quarter",
+  strips: "needs whole counts per row, in one or more part columns",
+  lifecycle: "needs a date column per stage, in lifecycle order",
 };
 
 const FIT_ORDER: Record<Fit, number> = { fits: 0, stretch: 1, no: 2 };

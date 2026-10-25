@@ -12,6 +12,7 @@ import { featureId, featureName, normalizeId, resolveGeo } from "./geo.ts";
 import { binValues, sturges } from "./scale.ts";
 import { isPlural } from "./question.ts";
 import type { Row, WidgetSpec } from "./types.ts";
+import { isYes, timeOf } from "./views.ts";
 
 type View = Record<string, unknown> & { type: string };
 
@@ -1019,6 +1020,53 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const together = dirA !== 0 && dirB !== 0 ? (dirA === dirB ? ", both moving the same way" : ", moving in opposite directions") : "";
       return `Here, ${nameOf(top, spec)} went from ${text(a0, top)} ${when(a0, x)} to ${text(a1, top)} ${when(a1, x)}, and ${nameOf(bottom, spec)} from ${text(b0, bottom)} to ${text(b1, bottom)}${together}.`;
     }
+    case "matrix": {
+      const [x, y, size, color, mark] = [one(view.x), one(view.y), one(view.size), one(view.color), one(view.mark)];
+      if (!x || !y) return "";
+      const columns = new Set(rows.map((row) => text(row, x))).size;
+      if (mark) {
+        // Who is marked yes most often: a regulation that binds the most stakeholders.
+        const yes = new Map<string, number>();
+        for (const row of rows) if (isYes(row[mark])) yes.set(text(row, y), (yes.get(text(row, y)) ?? 0) + 1);
+        const [most, k] = [...yes.entries()].sort((a, b) => b[1] - a[1])[0] ?? [];
+        if (!most) return `Here, no cell is marked ${nameOf(mark, spec)}.`;
+        return `Here, ${most} is marked ${nameOf(mark, spec)} in ${k === columns ? `all ${columns}` : `${k} of ${columns}`} ${plural(nameOf(x, spec))}, the most of any ${nameOf(y, spec)}.`;
+      }
+      const measure = size ?? (color && rows.some((row) => value(row, color) !== null) ? color : undefined);
+      if (!measure) return `Here, ${rows.length} of ${columns * new Set(rows.map((row) => text(row, y))).size} cells are filled.`;
+      const row = top(measure);
+      if (!row) return "";
+      const shade = size && color && value(row, color) !== null ? `, shaded for ${text(row, color)} ${nameOf(color, spec)}` : "";
+      return `Here, the ${size ? "biggest mark" : "strongest shade"} is ${text(row, y)} in ${text(row, x)}, with ${text(row, measure)} ${nameOf(measure, spec)}${shade}.`;
+    }
+    case "strips": {
+      const [label, per] = [one(view.label), one(view.per)];
+      const parts = many(view.parts);
+      const first = parts[0];
+      if (!label || !first) return "";
+      const total = (row: Row) => parts.reduce((sum, field) => sum + Math.max(0, value(row, field) ?? 0), 0);
+      const row = rows.reduce<Row | undefined>((best, r) => (best && total(best) >= total(r) ? best : r), undefined);
+      if (!row || total(row) === 0) return "";
+      const unit = typeof view.unit === "string" && view.unit ? view.unit : "provision";
+      const share = parts.length > 1 ? `, ${percent(Math.max(0, value(row, first) ?? 0) / total(row))} of them ${nameOf(first, spec).toLowerCase()}` : "";
+      const dense = per && (value(row, per) ?? 0) > 0 ? `; that is ${(total(row) / (value(row, per) as number)).toFixed(1)} per ${nameOf(per, spec).toLowerCase().replace(/s$/, "")}` : "";
+      return `Here, ${text(row, label)} has the most ${plural(unit)}: ${total(row)}${share}${dense}.`;
+    }
+    case "lifecycle": {
+      const label = one(view.label);
+      const stages = many(view.stages);
+      const last = stages.at(-1);
+      if (!label || !last || stages.length < 2) return "";
+      const reached = rows.filter((row) => timeOf(row[last]) !== null);
+      const entity = nameOf(label, spec);
+      const count = reached.length === rows.length ? `all ${rows.length}` : `${reached.length} of ${rows.length}`;
+      // The latest move of all: the row whose most recent stage date is the newest.
+      const lastDate = (row: Row) => Math.max(...stages.map((field) => timeOf(row[field]) ?? -Infinity));
+      const mover = rows.reduce<Row | undefined>((best, r) => (best && lastDate(best) >= lastDate(r) ? best : r), undefined);
+      const stage = mover ? stages.filter((field) => timeOf(mover[field]) !== null).at(-1) : undefined;
+      const moved = mover && stage && Number.isFinite(lastDate(mover)) ? ` ${text(mover, label)} moved last, to ${nameOf(stage, spec).toLowerCase()} on ${text(mover, stage)}.` : "";
+      return `Here, ${count} ${plural(entity)} ${reached.length === 1 ? "has" : "have"} reached ${nameOf(last, spec).toLowerCase()}.${moved}`;
+    }
     default:
       return "";
   }
@@ -1239,6 +1287,33 @@ function guide(spec: WidgetSpec): string {
       return `Each circle sits on one ${noun(one(view.label) ?? one(view.id), "place")} on the map. The bigger the circle, the more ${name(one(view.size))}.${one(view.color) ? ` Each color is one ${name(one(view.color))}.` : ""}`;
     case "locator":
       return `Each marker is one ${noun(one(view.label), "place")}, with its name beside it, where it is on the map.${one(view.kind) ? ` Each color is one ${name(one(view.kind))}.` : ""}`;
+    case "matrix": {
+      const [size, color, mark] = [one(view.size), one(view.color), one(view.mark)];
+      const marks = [
+        size ? `The bigger the circle, the more ${name(size)}` : "",
+        color ? `${size ? "the stronger its shade" : "the stronger a mark's shade"}, the more ${name(color)} (or one color per kind)` : "",
+        mark ? `a square means yes for ${name(mark)}, a faint dot means no` : "",
+      ].filter(Boolean);
+      const reading = marks.length ? `${marks.join("; ")}.` : "";
+      return `Each row is one ${noun(one(view.y))} and each column one ${noun(one(view.x))}; a mark sits where the two meet. ${reading ? `${reading.charAt(0).toUpperCase()}${reading.slice(1)} ` : ""}An empty cell means there is nothing for that pair.`;
+    }
+    case "strips": {
+      const parts = many(view.parts);
+      const unit = typeof view.unit === "string" && view.unit ? view.unit : "provision";
+      const dense = one(view.per) ? `, then ${plural(unit)} per ${name(one(view.per)).replace(/s$/, "")}` : "";
+      const colors = parts.length > 1 ? `The colors say the kind, in order: ${both(parts.map((f) => name(f)))}; the figures at the end are the total, the ${name(parts[0])} share${dense}.` : `The figure at the end is the total${dense}.`;
+      return `Each row is one ${noun(one(view.label))}, and each small square is one ${unit}, so you can count them. ${colors} When a square stands for more than one, the note under the chart says how many.`;
+    }
+    case "lifecycle": {
+      const stages = many(view.stages);
+      const extras = [
+        view.today ? "the upright line is today" : "",
+        one(view.status) ? `the word at the end of a row is its ${name(one(view.status))}` : "",
+        one(view.impact) ? `a thicker row means a higher ${name(one(view.impact))}` : "",
+      ].filter(Boolean);
+      const tail = extras.length ? ` ${extras.join(", ").replace(/^./, (c) => c.toUpperCase())}.` : "";
+      return `Each row is one ${noun(one(view.label))}, read left to right in time. Each colored stretch is one stage, ${both(stages.map((f) => name(f)))} in turn, deeper as it goes; a tick marks where each began, and a faint stretch is a stage still running.${tail}`;
+    }
     case "list":
       // A field called name, title or label says nothing about what the lines are: they are entries.
       return `Each line is one ${/^(name|title|label)$/i.test(one(view.label) ?? "") ? "entry" : name(one(view.label))}${one(view.value) ? `, with its ${name(one(view.value))} on the right` : ""}.`;

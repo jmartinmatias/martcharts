@@ -344,6 +344,28 @@ export function questionOf(spec: WidgetSpec, rows: Row[] = []): Question {
       const plurals = plural(entity);
       return ask("detail", plurals ? `where are the ${plurals}?` : `where is each ${entity}?`);
     }
+    case "matrix": {
+      const [x, y, size, color, mark] = [one(view.x), one(view.y), one(view.size), one(view.color), one(view.mark)];
+      if (!x || !y) break;
+      if (mark) return ask("detail", `which ${plural(entityOf(x, spec)) ?? entityOf(x, spec)} does each ${entityOf(y, spec)} ${/comply|must|apply|require|bind/i.test(mark) ? "bind" : "mark"}?`);
+      const measure = size ?? color;
+      if (measure) return ask("compare", `where does ${name(measure)} concentrate, by ${name(y)} and ${name(x)}?`);
+      return ask("detail", `which ${name(y)} goes with which ${name(x)}?`);
+    }
+    case "strips": {
+      const label = one(view.label);
+      const parts = many(view.parts);
+      const unit = typeof view.unit === "string" && view.unit ? view.unit : "provision";
+      if (!label || !parts[0]) break;
+      const binding = parts.length > 1 ? `, and how many are ${name(parts[0])}` : "";
+      return ask("mix", `how many ${plural(unit) ?? unit} does each ${entityOf(label, spec)} have${binding}?`);
+    }
+    case "lifecycle": {
+      const label = one(view.label);
+      const stages = many(view.stages);
+      if (!label || stages.length < 2) break;
+      return ask("schedule", `where does each ${entityOf(label, spec)} stand, from ${name(stages[0] as string)} to ${name(stages.at(-1) as string)}?`);
+    }
     case "table": {
       const columns = many(view.columns).length ? many(view.columns) : Object.keys(rows[0] ?? {});
       const first = columns[0];

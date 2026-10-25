@@ -290,6 +290,25 @@
     {
       "widget": "customers-by-state",
       "span": 2
+    },
+    {
+      "section": "Regulatory landscape (views)",
+      "description": "Pressure per topic, who must comply, how binding each rule is, and where each stands"
+    },
+    {
+      "widget": "pressure-matrix",
+      "span": 2
+    },
+    {
+      "widget": "obligation-matrix"
+    },
+    {
+      "widget": "provision-strips",
+      "span": 2
+    },
+    {
+      "widget": "regulation-lifecycle",
+      "span": 3
     }
   ],
   "title": "Gallery",

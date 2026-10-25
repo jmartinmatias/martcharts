@@ -1,0 +1,83 @@
+{
+  "id": "obligation-matrix",
+  "title": "Who must comply",
+  "subtitle": "Regulations against the firms they bind",
+  "description": "A square wherever a kind of firm must comply with a regulation, a faint dot where it need not: the compliance footprint of each rule and of each kind of firm at a glance.",
+  "footer": "Fictional scope for illustration; not legal advice",
+  "source": {
+    "name": "Regulatory watch register"
+  },
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {"regulation":"DORA","stakeholder":"Banks","mustComply":true},
+      {"regulation":"DORA","stakeholder":"Insurers","mustComply":true},
+      {"regulation":"DORA","stakeholder":"Asset managers","mustComply":true},
+      {"regulation":"DORA","stakeholder":"Payment institutions","mustComply":true},
+      {"regulation":"DORA","stakeholder":"Crypto providers","mustComply":true},
+      {"regulation":"AMLR","stakeholder":"Banks","mustComply":true},
+      {"regulation":"AMLR","stakeholder":"Insurers","mustComply":true},
+      {"regulation":"AMLR","stakeholder":"Asset managers","mustComply":true},
+      {"regulation":"AMLR","stakeholder":"Payment institutions","mustComply":true},
+      {"regulation":"AMLR","stakeholder":"Crypto providers","mustComply":true},
+      {"regulation":"AI Act","stakeholder":"Banks","mustComply":true},
+      {"regulation":"AI Act","stakeholder":"Insurers","mustComply":true},
+      {"regulation":"AI Act","stakeholder":"Asset managers","mustComply":true},
+      {"regulation":"AI Act","stakeholder":"Payment institutions","mustComply":true},
+      {"regulation":"AI Act","stakeholder":"Crypto providers","mustComply":false},
+      {"regulation":"MiCA","stakeholder":"Banks","mustComply":true},
+      {"regulation":"MiCA","stakeholder":"Insurers","mustComply":false},
+      {"regulation":"MiCA","stakeholder":"Asset managers","mustComply":false},
+      {"regulation":"MiCA","stakeholder":"Payment institutions","mustComply":true},
+      {"regulation":"MiCA","stakeholder":"Crypto providers","mustComply":true},
+      {"regulation":"CSRD","stakeholder":"Banks","mustComply":true},
+      {"regulation":"CSRD","stakeholder":"Insurers","mustComply":true},
+      {"regulation":"CSRD","stakeholder":"Asset managers","mustComply":true},
+      {"regulation":"CSRD","stakeholder":"Payment institutions","mustComply":false},
+      {"regulation":"CSRD","stakeholder":"Crypto providers","mustComply":false},
+      {"regulation":"CRR3","stakeholder":"Banks","mustComply":true},
+      {"regulation":"CRR3","stakeholder":"Insurers","mustComply":false},
+      {"regulation":"CRR3","stakeholder":"Asset managers","mustComply":false},
+      {"regulation":"CRR3","stakeholder":"Payment institutions","mustComply":false},
+      {"regulation":"CRR3","stakeholder":"Crypto providers","mustComply":false},
+      {"regulation":"PSD3","stakeholder":"Banks","mustComply":true},
+      {"regulation":"PSD3","stakeholder":"Insurers","mustComply":false},
+      {"regulation":"PSD3","stakeholder":"Asset managers","mustComply":false},
+      {"regulation":"PSD3","stakeholder":"Payment institutions","mustComply":true},
+      {"regulation":"PSD3","stakeholder":"Crypto providers","mustComply":false},
+      {"regulation":"FiDA","stakeholder":"Banks","mustComply":true},
+      {"regulation":"FiDA","stakeholder":"Insurers","mustComply":true},
+      {"regulation":"FiDA","stakeholder":"Asset managers","mustComply":true},
+      {"regulation":"FiDA","stakeholder":"Payment institutions","mustComply":true},
+      {"regulation":"FiDA","stakeholder":"Crypto providers","mustComply":false},
+      {"regulation":"EMIR 3","stakeholder":"Banks","mustComply":true},
+      {"regulation":"EMIR 3","stakeholder":"Insurers","mustComply":true},
+      {"regulation":"EMIR 3","stakeholder":"Asset managers","mustComply":true},
+      {"regulation":"EMIR 3","stakeholder":"Payment institutions","mustComply":false},
+      {"regulation":"EMIR 3","stakeholder":"Crypto providers","mustComply":false},
+      {"regulation":"Instant Payments","stakeholder":"Banks","mustComply":true},
+      {"regulation":"Instant Payments","stakeholder":"Insurers","mustComply":false},
+      {"regulation":"Instant Payments","stakeholder":"Asset managers","mustComply":false},
+      {"regulation":"Instant Payments","stakeholder":"Payment institutions","mustComply":true},
+      {"regulation":"Instant Payments","stakeholder":"Crypto providers","mustComply":false}
+    ]
+  },
+  "fields": {
+    "regulation": {
+      "label": "Regulation"
+    },
+    "stakeholder": {
+      "label": "Must comply"
+    },
+    "mustComply": {
+      "label": "Must comply"
+    }
+  },
+  "view": {
+    "type": "matrix",
+    "x": "stakeholder",
+    "y": "regulation",
+    "mark": "mustComply"
+  }
+}
