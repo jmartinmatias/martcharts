@@ -112,7 +112,11 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   if (options.sticky) root.dataset.sticky = "";
   // The as-of line: when the data was last true. A {latest} token waits for the widgets' dates.
   const asOf = typeof spec.asOf === "string" && spec.asOf.trim() !== "" ? el("p", "fft-dashboard-asof") : undefined;
-  if (asOf) asOf.textContent = asOfText(spec.asOf as string, "");
+  // Dates in the as-of line read in the board's language, the same as its words ("As of", "Data to"): the widgets'
+  // locale, else the page's, never the browser's own (which wrote "Data to octobre 2026" on an English page).
+  const firstSpec = spec.widgets.map((cell) => cell.spec ?? (cell.widget ? options.widgets?.[cell.widget] : undefined)).find((s) => s?.locale);
+  const boardLocale = firstSpec?.locale ?? (target.ownerDocument.documentElement.lang || "en");
+  if (asOf) asOf.textContent = asOfText(spec.asOf as string, "", boardLocale);
   if (spec.title || spec.subtitle || asOf) {
     const header = el("header", "fft-dashboard-header");
     if (spec.title) header.append(el("h2", "fft-dashboard-title", spec.title));
@@ -499,7 +503,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     for (const [field, value] of Object.entries(chosenFilters())) parts.push(`${filterName(field)}: ${formatValue(value, undefined, undefined)}`);
     if (range) parts.push(`${range.label ?? "Period"}: ${period}`);
     if (cross) parts.push(`${fieldLabel(cross.field)}: ${formatValue(cross.value, undefined, undefined)}`);
-    const asOfLine = asOf ? asOfText(spec.asOf as string, range ? await latest() : "") : "";
+    const asOfLine = asOf ? asOfText(spec.asOf as string, range ? await latest() : "", boardLocale) : "";
     if (asOf) asOf.textContent = asOfLine;
     printState.textContent = [spec.title, parts.length ? parts.join(" · ") : "Everything, unfiltered", asOfLine].filter(Boolean).join(" · ");
     await markUnreached();
@@ -740,24 +744,24 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
 }
 
 /** A date written for people: "25 Oct 2026" for a day, "October 2026" for a month, the text unchanged otherwise. */
-function dateWords(text: string): string {
+function dateWords(text: string, locale?: string): string {
   const day = /^(\d{4})-(\d{2})-(\d{2})/.exec(text);
   const month = /^(\d{4})-(\d{2})$/.exec(text);
   const options: Intl.DateTimeFormatOptions = day ? { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" } : { month: "long", year: "numeric", timeZone: "UTC" };
   if (!day && !month) return text;
   const [, y, m, d] = (day ?? month) as RegExpExecArray;
-  return new Intl.DateTimeFormat(undefined, options).format(new Date(Date.UTC(Number(y), Number(m) - 1, Number(d ?? 1))));
+  return new Intl.DateTimeFormat(locale, options).format(new Date(Date.UTC(Number(y), Number(m) - 1, Number(d ?? 1))));
 }
 
 /**
  * The as-of line: "As of 25 Oct 2026" for a date, or the words given with {latest} filled by the latest date across
  * the widgets that have the range field. Empty while {latest} is not known yet.
  */
-export function asOfText(asOf: string, latest: string): string {
+export function asOfText(asOf: string, latest: string, locale?: string): string {
   const text = asOf.trim();
-  if (/^\d{4}-\d{2}(-\d{2})?$/.test(text)) return `As of ${dateWords(text)}`;
+  if (/^\d{4}-\d{2}(-\d{2})?$/.test(text)) return `As of ${dateWords(text, locale)}`;
   if (!text.includes("{latest}")) return text;
-  return latest ? text.split("{latest}").join(dateWords(latest)) : "";
+  return latest ? text.split("{latest}").join(dateWords(latest, locale)) : "";
 }
 
 /** The click filter's chip, the share tools, the "Not filtered by" note and the printed page; injected once per document. */

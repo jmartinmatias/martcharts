@@ -220,4 +220,9 @@ describe("Print and as-of", () => {
     await board.ready;
     await vi.waitFor(() => expect(target.querySelector(".fft-dashboard-asof")?.textContent).toBe(asOfText("Data to {latest}", "2026-10")));
   });
+  test("the as-of date reads in the board's language, never the browser's", async () => {
+    const { asOfText } = await import("./dashboard.ts");
+    expect(asOfText("Data to {latest}", "2026-10", "en-US")).toBe("Data to October 2026");
+    expect(asOfText("2026-10-25", "", "en-GB")).toBe("As of 25 Oct 2026");
+  });
 });
