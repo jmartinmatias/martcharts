@@ -4,6 +4,7 @@ import type { ViewRenderer } from "../../core/view-context.ts";
 import { highlights } from "./chart.ts";
 import type { FunnelView } from "../../core/views.ts";
 import { activeGroup, hiddenTableOf, html, roving, rowHit, shareFormat } from "./shared.ts";
+import { wordsFor } from "./words.ts";
 
 /**
  * Draws the `funnel` view: one centered bar per stage, as wide as its share
@@ -55,8 +56,8 @@ export const renderFunnel: ViewRenderer<FunnelView> = (ctx) => {
     const ofPrevious = amount !== null && previous ? pct.format(amount / previous) : "";
     const items = [
       { label: ctx.label(value), value: valueText },
-      ...(ofPrevious ? [{ label: "Of previous stage", value: ofPrevious }] : []),
-      { label: "Of first stage", value: ofFirst },
+      ...(ofPrevious ? [{ label: wordsFor(ctx).ofPreviousStage, value: ofPrevious }] : []),
+      { label: wordsFor(ctx).ofFirstStage, value: ofFirst },
     ];
     hits.push(rowHit(ctx, { node: item, row, name, items, anchor: bar, group }));
     funnel.append(item);

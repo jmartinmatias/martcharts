@@ -4,6 +4,7 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { HistoryView } from "../../core/views.ts";
 import { activeGroup, DAY, dayOf, hiddenTableOf, html, legendList, rowHit } from "./shared.ts";
 import { roving } from "./focus.ts";
+import { wordsFor } from "./words.ts";
 
 const DEFAULT_LIMIT = 30;
 
@@ -102,7 +103,7 @@ export const renderHistory: ViewRenderer<HistoryView> = (ctx) => {
     });
     if (list.length > limit) {
       // An ordinary list item: a list may only hold items, so the count of the rest is one too.
-      rail.append(html(doc, "li", "fft-history-more", `${list.length - limit} more`));
+      rail.append(html(doc, "li", "fft-history-more", wordsFor(ctx).nMore(list.length - limit)));
     }
     return rail;
   };

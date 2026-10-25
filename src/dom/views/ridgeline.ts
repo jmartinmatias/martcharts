@@ -6,6 +6,7 @@ import { tickFormatter } from "./chart.ts";
 import { activeGroup, hiddenTable, html, ROW, roving, rowHit, svg } from "./shared.ts";
 import { sharedRange } from "./facet-key.ts";
 import { edgeAnchor, edgeX, nameColumn, writeLabel } from "./label-fit.ts";
+import { wordsFor } from "./words.ts";
 
 const LANE: number = ROW.tall;
 const GRID = 89;
@@ -63,7 +64,7 @@ export const renderRidgeline: ViewRenderer<RidgelineView> = (ctx) => {
   const wrap = html(doc, "div", "fft-chart");
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Ridgeline of ${ctx.label(value)} by ${ctx.label(group)}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.ridgeline(ctx.label(value), ctx.label(group)));
   for (const tick of x.ticks) {
     const tx = x(tick);
     chart.append(svg(doc, "line", { class: "fft-gridline", x1: tx, x2: tx, y1: 0, y2: plotBottom }));
@@ -103,9 +104,9 @@ export const renderRidgeline: ViewRenderer<RidgelineView> = (ctx) => {
 
     const list = values.get(name) ?? [];
     const items: TooltipItem[] = [
-      { label: "Median", value: ctx.format(quantile(list, 0.5), value) },
-      { label: "Middle half", value: `${ctx.format(quantile(list, 0.25), value)} to ${ctx.format(quantile(list, 0.75), value)}` },
-      { label: "Count", value: new Intl.NumberFormat(ctx.spec.locale).format(list.length) },
+      { label: wordsFor(ctx).median, value: ctx.format(quantile(list, 0.5), value) },
+      { label: wordsFor(ctx).middleHalf, value: wordsFor(ctx).between(ctx.format(quantile(list, 0.25), value), ctx.format(quantile(list, 0.75), value)) },
+      { label: wordsFor(ctx).count, value: new Intl.NumberFormat(ctx.spec.locale).format(list.length) },
     ];
     summary.push([labels[g] ?? name, ...items.map((it) => it.value)]);
     const hit = svg(doc, "rect", { class: "fft-ridge-hit", x: 0, y: base - LANE, width, height: LANE });
@@ -116,7 +117,7 @@ export const renderRidgeline: ViewRenderer<RidgelineView> = (ctx) => {
   });
   chart.append(overlay);
   roving(hits);
-  wrap.append(chart, hiddenTable(doc, [ctx.label(group), "Median", "Middle half", "Count"], summary));
+  wrap.append(chart, hiddenTable(doc, [ctx.label(group), wordsFor(ctx).median, wordsFor(ctx).middleHalf, wordsFor(ctx).count], summary));
   ctx.el.append(wrap);
 };
 

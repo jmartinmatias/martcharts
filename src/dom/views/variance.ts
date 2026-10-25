@@ -5,6 +5,7 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { VarianceView } from "../../core/views.ts";
 import { activeGroup, endRoom, hiddenTableOf, html, ROW, roving, rowHit, svg } from "./shared.ts";
 import { nameColumn, writeLabel } from "./label-fit.ts";
+import { wordsFor } from "./words.ts";
 
 const LANE: number = ROW.roomy;
 const BAR = 21;
@@ -56,7 +57,7 @@ export const renderVariance: ViewRenderer<VarianceView> = (ctx) => {
   const wrap = html(doc, "div", "fft-chart");
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Variance of ${ctx.label(value)} against ${ctx.label(target)} by ${ctx.label(label)}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.variance(ctx.label(value), ctx.label(target), ctx.label(label)));
   const groups: SVGGElement[] = [];
   const hits: Element[] = [];
   const active = activeGroup(wrap, ctx.tooltip);
@@ -82,8 +83,8 @@ export const renderVariance: ViewRenderer<VarianceView> = (ctx) => {
     const tips: TooltipItem[] = [
       { label: ctx.label(value), value: ctx.format(it.row[value], value) },
       { label: ctx.label(target), value: ctx.format(it.row[target], target) },
-      { label: "Variance", value: it.signed },
-      ...(it.rel ? [{ label: `vs ${ctx.label(target).toLowerCase()}`, value: it.rel }] : []),
+      { label: wordsFor(ctx).variance, value: it.signed },
+      ...(it.rel ? [{ label: wordsFor(ctx).versus(ctx.label(target).toLowerCase()), value: it.rel }] : []),
     ];
     const hit = svg(doc, "rect", { class: "fft-var-hit", x: 0, y: top, width, height: LANE });
     const row: Row = it.row;

@@ -6,6 +6,7 @@ import { fitLabels, linearScale, quantile } from "../layout.ts";
 import { tickFormatter } from "./chart.ts";
 import { activeGroup, hiddenTableOf, html, ROW, roving, rowHit, svg, textWidth } from "./shared.ts";
 import { edgeAnchor, edgeX, nameColumn, writeLabel } from "./label-fit.ts";
+import { wordsFor } from "./words.ts";
 
 /** Row height and box height: Fibonacci steps. */
 const LANE: number = ROW.tall;
@@ -61,7 +62,7 @@ export const renderBoxplot: ViewRenderer<BoxplotView> = (ctx) => {
   const wrap = html(doc, "div", "fft-chart");
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Box plot of ${ctx.label(value)}${group ? ` by ${ctx.label(group)}` : ""}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.boxplot(ctx.label(value), group ? ctx.label(group) : undefined));
   for (const tick of x.ticks) chart.append(svg(doc, "line", { class: "fft-gridline", x1: x(tick), x2: x(tick), y1: 0, y2: plotBottom }));
   for (const i of fitLabels(x.ticks.map((tick) => ({ x: x(tick), width: textWidth(tickText(tick)) })))) {
     const tick = x.ticks[i] as number;
@@ -96,11 +97,11 @@ export const renderBoxplot: ViewRenderer<BoxplotView> = (ctx) => {
     for (const v of b.outliers) g.append(svg(doc, "circle", { class: "fft-box-outlier", cx: x(v), cy, r: 3.5 }));
 
     const items: TooltipItem[] = [
-      { label: "Median", value: show(b.median), color },
-      { label: "Middle half", value: `${show(b.q1)} to ${show(b.q3)}` },
-      { label: "Range", value: `${show(b.low)} to ${show(b.high)}` },
-      { label: "Values", value: new Intl.NumberFormat(ctx.spec.locale).format(b.values.length) },
-      ...(b.outliers.length ? [{ label: "Outliers", value: new Intl.NumberFormat(ctx.spec.locale).format(b.outliers.length) }] : []),
+      { label: wordsFor(ctx).median, value: show(b.median), color },
+      { label: wordsFor(ctx).middleHalf, value: wordsFor(ctx).between(show(b.q1), show(b.q3)) },
+      { label: wordsFor(ctx).range, value: wordsFor(ctx).between(show(b.low), show(b.high)) },
+      { label: wordsFor(ctx).values, value: new Intl.NumberFormat(ctx.spec.locale).format(b.values.length) },
+      ...(b.outliers.length ? [{ label: wordsFor(ctx).outliers, value: new Intl.NumberFormat(ctx.spec.locale).format(b.outliers.length) }] : []),
     ];
     const title = group ? ctx.format(b.name, group) : ctx.label(value);
     const hit = svg(doc, "rect", { class: "fft-box-hit", x: 0, y: i * LANE, width, height: LANE });

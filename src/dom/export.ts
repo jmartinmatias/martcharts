@@ -5,6 +5,7 @@
  * @module
  */
 import type { Row } from "../core/types.ts";
+import { WORDS_EN } from "../core/words.ts";
 
 /** Actions a host can offer on a widget. */
 export type WidgetAction = "csv" | "image" | "svg" | "copy" | "expand" | "explain" | "info";
@@ -196,12 +197,4 @@ export const ACTION_ICONS: Record<WidgetAction, string[]> = {
 };
 
 /** Accessible names for the action buttons. */
-export const ACTION_LABELS: Record<WidgetAction, string> = {
-  csv: "Download data as CSV",
-  image: "Download chart as image",
-  svg: "Download chart as SVG",
-  copy: "Copy data",
-  expand: "Expand",
-  explain: "How to read it",
-  info: "Details",
-};
+export const ACTION_LABELS: Record<WidgetAction, string> = WORDS_EN.widget.actions as Record<WidgetAction, string>;

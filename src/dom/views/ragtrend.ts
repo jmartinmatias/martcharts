@@ -8,7 +8,7 @@ import { roving } from "./focus.ts";
 import { ragColor, ragLegend, ragMark, ragPill, srText } from "./rag-shared.ts";
 import type { RagLook } from "./rag-shared.ts";
 import { html, selectable, textWidth } from "./shared.ts";
-import { WORDS } from "./words.ts";
+import { wordsFor } from "./words.ts";
 
 /** Writes a time back as a period in the same pattern as the data's own: 2026-Q1, 2026-03 or 2026-03-31. */
 function periodText(time: number, like: string): string {
@@ -38,8 +38,8 @@ interface Run {
 export const renderRagtrend: ViewRenderer<RagtrendView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
   const view = ctx.view;
-  const look: RagLook = { words: view.words, shapes: view.shapes };
-  const word = (status: Rag) => ragWord(status, look.words);
+  const look: RagLook = { words: view.words, shapes: view.shapes, locale: ctx.spec.locale };
+  const word = (status: Rag) => ragWord(status, look.words, look.locale);
   const { label, period, status: statusField, note } = view;
 
   // Periods in order: by time when they read as dates or quarters, else as first seen. Small multiples add the
@@ -117,7 +117,7 @@ export const renderRagtrend: ViewRenderer<RagtrendView> = (ctx) => {
     else th.append(srText(doc, text));
     headRow.append(th);
   });
-  const nowHead = html(doc, "th", "fft-ragtrend-now", WORDS.now);
+  const nowHead = html(doc, "th", "fft-ragtrend-now", wordsFor(ctx).now);
   nowHead.scope = "col";
   headRow.append(nowHead);
   head.append(headRow);
@@ -150,12 +150,12 @@ export const renderRagtrend: ViewRenderer<RagtrendView> = (ctx) => {
       if (row) td.append(ragMark(doc, status, look, glyph));
       if (changed) td.dataset.changed = ragTrend(before as Rag, status);
       const said = row
-        ? `${ctx.format(key, period)}: ${word(status)}${changed ? `, ${WORDS.was.toLowerCase()} ${word(before as Rag)}${why ? `. ${why}` : ""}` : ""}`
-        : `${ctx.format(key, period)}: ${WORDS.noReading.toLowerCase()}`;
+        ? `${ctx.format(key, period)}: ${word(status)}${changed ? `, ${wordsFor(ctx).was.toLowerCase()} ${word(before as Rag)}${why ? `. ${why}` : ""}` : ""}`
+        : `${ctx.format(key, period)}: ${wordsFor(ctx).noReading.toLowerCase()}`;
       td.append(srText(doc, said));
-      const items: TooltipItem[] = [{ label: WORDS.status, value: row ? word(status) : WORDS.noReading, color: ragColor(status) }];
-      if (changed) items.push({ label: WORDS.was, value: word(before as Rag), color: ragColor(before as Rag) });
-      if (why) items.push({ label: WORDS.why, value: why });
+      const items: TooltipItem[] = [{ label: wordsFor(ctx).status, value: row ? word(status) : wordsFor(ctx).noReading, color: ragColor(status) }];
+      if (changed) items.push({ label: wordsFor(ctx).was, value: word(before as Rag), color: ragColor(before as Rag) });
+      if (why) items.push({ label: wordsFor(ctx).why, value: why });
       const show = () => {
         table.setAttribute("data-active", "");
         for (const other of rowsOut) other.removeAttribute("data-active");

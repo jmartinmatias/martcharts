@@ -3,6 +3,7 @@ import type { ViewRenderer } from "../../core/view-context.ts";
 import type { MeterView } from "../../core/views.ts";
 import { activeGroup, hiddenTableOf, html, roving, rowHit, shareFormat } from "./shared.ts";
 import { checkMark, standing } from "./target.ts";
+import { wordsFor } from "./words.ts";
 
 /**
  * Draws the `meter` view: one meter per row, with a label, attainment as a
@@ -44,22 +45,22 @@ export const renderMeter: ViewRenderer<MeterView> = (ctx) => {
     track.setAttribute("aria-valuemin", "0");
     if (value !== null) track.setAttribute("aria-valuenow", String(value));
     if (target !== null) track.setAttribute("aria-valuemax", String(target));
-    track.setAttribute("aria-label", ratio === null ? name : `${name}: ${percentText} of target, ${stand.charAt(0).toLowerCase()}${stand.slice(1)}`);
+    track.setAttribute("aria-label", ratio === null ? name : `${name}: ${wordsFor(ctx).meterSaid(percentText, stand.charAt(0).toLowerCase() + stand.slice(1))}`);
     const fill = html(doc, "div", "fft-meter-fill");
     const fixed = labelField ? ctx.colorOf?.(row[labelField]) : ctx.colorOf?.(valueField);
     if (fixed) fill.style.background = fixed;
     fill.style.width = `${ratio === null ? 0 : Math.round(Math.min(1, Math.max(0, ratio)) * 1000) / 10}%`;
     track.append(fill);
     const foot = html(doc, "div", "fft-meter-foot");
-    foot.append(html(doc, "span", "fft-meter-value", `${ctx.format(row[valueField], valueField)} of ${ctx.format(row[targetField], targetField)}`));
+    foot.append(html(doc, "span", "fft-meter-value", wordsFor(ctx).outOf(ctx.format(row[valueField], valueField), ctx.format(row[targetField], targetField))));
     if (stand) foot.append(html(doc, "span", "fft-meter-gap", stand));
     meter.append(head, track, foot);
     // The tooltip says what the meter shows in figures: the value, the target, the attainment and what is left.
     const items = [
       { label: ctx.label(valueField), value: ctx.format(row[valueField], valueField) },
       { label: ctx.label(targetField), value: ctx.format(row[targetField], targetField) },
-      ...(percentText ? [{ label: "Of target", value: percentText }] : []),
-      ...(stand && !met ? [{ label: "Where it stands", value: stand }] : []),
+      ...(percentText ? [{ label: wordsFor(ctx).ofTarget, value: percentText }] : []),
+      ...(stand && !met ? [{ label: wordsFor(ctx).whereItStands, value: stand }] : []),
     ];
     hits.push(rowHit(ctx, { node: meter, row, name, items, anchor: track, group }));
     list.append(meter);

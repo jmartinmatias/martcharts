@@ -4,6 +4,7 @@ import type { Row } from "../../core/types.ts";
 import type { ViewRenderer } from "../../core/view-context.ts";
 import type { TableView } from "../../core/views.ts";
 import { allFields, buildTable, fieldList, html, isNumericColumn } from "./shared.ts";
+import { wordsFor } from "./words.ts";
 
 /**
  * Draws the `table` view: one row per data row, one column per field. Headers
@@ -44,13 +45,13 @@ export const renderTable: ViewRenderer<TableView> = (ctx) => {
   const tools = html(doc, "div", "fft-table-tools");
   const input = html(doc, "input", "fft-table-search");
   const found = html(doc, "span", "fft-table-count");
-  const empty = html(doc, "p", "fft-table-empty", "No rows match");
+  const empty = html(doc, "p", "fft-table-empty", wordsFor(ctx).table.noMatch);
   empty.hidden = true;
   if (ctx.view.search) {
     input.type = "search";
-    input.placeholder = "Search";
+    input.placeholder = wordsFor(ctx).table.search;
     input.autocomplete = "off";
-    input.setAttribute("aria-label", `Search ${ctx.spec.title ?? "the table"}`);
+    input.setAttribute("aria-label", wordsFor(ctx).table.searchIn(ctx.spec.title ?? wordsFor(ctx).table.theTable));
     found.setAttribute("aria-live", "polite");
     found.hidden = true;
     input.addEventListener("input", () => {
@@ -63,17 +64,17 @@ export const renderTable: ViewRenderer<TableView> = (ctx) => {
 
   // Pages: Previous, "1–10 of 56", Next; only while there is more than one page.
   const pager = html(doc, "nav", "fft-pager");
-  pager.setAttribute("aria-label", "Table pages");
+  pager.setAttribute("aria-label", wordsFor(ctx).table.pages);
   pager.hidden = true;
-  const previous = html(doc, "button", "fft-pager-button", "Previous");
-  const next = html(doc, "button", "fft-pager-button", "Next");
+  const previous = html(doc, "button", "fft-pager-button", wordsFor(ctx).table.previous);
+  const next = html(doc, "button", "fft-pager-button", wordsFor(ctx).table.next);
   const where = html(doc, "span", "fft-pager-where");
   where.setAttribute("aria-live", "polite");
   if (pageSize) {
     previous.type = "button";
     next.type = "button";
-    previous.setAttribute("aria-label", "Previous page");
-    next.setAttribute("aria-label", "Next page");
+    previous.setAttribute("aria-label", wordsFor(ctx).table.previousPage);
+    next.setAttribute("aria-label", wordsFor(ctx).table.nextPage);
     const turn = (step: number) => () => {
       page += step;
       draw();
@@ -119,7 +120,7 @@ export const renderTable: ViewRenderer<TableView> = (ctx) => {
 
     if (ctx.view.search) {
       const searching = query.trim() !== "";
-      found.textContent = `${count.format(rows.length)} of ${count.format(ctx.rows.length)} rows`;
+      found.textContent = wordsFor(ctx).table.rowsShown(count.format(rows.length), count.format(ctx.rows.length));
       found.hidden = !searching;
       empty.hidden = rows.length > 0;
       wrap.hidden = rows.length === 0;
@@ -128,7 +129,7 @@ export const renderTable: ViewRenderer<TableView> = (ctx) => {
       pager.hidden = pages <= 1;
       previous.disabled = page === 0;
       next.disabled = page >= pages - 1;
-      where.textContent = rows.length ? `${count.format(page * pageSize + 1)}–${count.format(Math.min(rows.length, (page + 1) * pageSize))} of ${count.format(rows.length)}` : "";
+      where.textContent = rows.length ? wordsFor(ctx).table.pageRange(count.format(page * pageSize + 1), count.format(Math.min(rows.length, (page + 1) * pageSize)), count.format(rows.length)) : "";
     }
     edge();
   };
@@ -142,7 +143,7 @@ export const renderTable: ViewRenderer<TableView> = (ctx) => {
       const summable = isNumericColumn(ctx.rows, field) && type !== "percent";
       const td = html(doc, "td", summable ? "fft-num" : undefined);
       if (summable) td.textContent = ctx.format(ctx.rows.reduce((sum, row) => sum + (readNumber(row[field]) ?? 0), 0), field);
-      else if (i === 0) td.textContent = "Total";
+      else if (i === 0) td.textContent = wordsFor(ctx).table.total;
       tr.append(td);
     });
     foot.append(tr);
@@ -157,7 +158,7 @@ export const renderTable: ViewRenderer<TableView> = (ctx) => {
     if (overflows && !sortable) {
       wrap.tabIndex = 0;
       wrap.setAttribute("role", "region");
-      wrap.setAttribute("aria-label", `${ctx.spec.title ?? "Table"}: scroll sideways for more columns`);
+      wrap.setAttribute("aria-label", wordsFor(ctx).table.scrollSideways(ctx.spec.title ?? wordsFor(ctx).table.tableWord));
     } else if (wrap.hasAttribute("role")) {
       wrap.removeAttribute("tabindex");
       wrap.removeAttribute("role");

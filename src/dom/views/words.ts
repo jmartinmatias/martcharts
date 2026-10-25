@@ -1,78 +1,23 @@
 /**
- * The words the radial, hierarchy and map views write themselves (tooltip rows, keys, notes), in one place to
- * translate, and the emphasis they share: `highlight` keeps the named categories in their color and greys the rest,
+ * The words every view writes itself (tooltip rows, keys, notes), from the one words module in the widget's language
+ * (see core/words.ts), and the emphasis the views share: `highlight` keeps the named categories in their color and greys the rest,
  * and a category keeps one color wherever it appears when the widget knows its colors (`ctx.colorOf`).
  *
  * @module
  */
 import type { ViewContext } from "../../core/view-context.ts";
+import { wordsFor as coreWordsFor, WORDS_EN } from "../../core/words.ts";
+import type { LocaleSource, Words } from "../../core/words.ts";
 import { DEEMPHASIS, highlights } from "./chart.ts";
 
-/** Every word these views write on their own. Keyed by meaning, so a translation replaces values only. */
-export const WORDS = {
-  share: "Share",
-  total: "Total",
-  noData: "No data",
-  majority: "Majority",
-  crossesMajority: "Crosses it",
-  crossesMajorityAria: "crosses the majority",
-  seats: "seats",
-  sends: "Sends",
-  receives: "Receives",
-  shareOfAll: "Share of all moves",
-  to: "to",
-  from: "From",
-  of: "of",
-  inside: "Inside",
-  ofParent: "Of",
-  ofTotal: "Of total",
-  ofTarget: "Of target",
-  target: "Target",
-  goal: "Goal",
-  toGo: "to go",
-  met: "Target met",
-  notPlaced: (count: number) => `${count} row${count === 1 ? "" : "s"} could not be placed on the map.`,
-  noGeometry: "No map geometry to draw.",
-  other: "Other",
-  region: "Region",
-  circleSize: (field: string, biggest: string) => `Circle size: ${field}. The biggest circle is ${biggest}.`,
-  majorityLabel: (seats: string) => `Majority ${seats}`,
-  scale: "Scale",
-  held: "Held",
-  notHeld: "Not held",
-  products: "Products",
-  unknown: "unknown",
-  flags: "Flags",
-  nextActions: "Next best actions",
-  // Maps against the previous period.
-  previous: "Previous",
-  change: "Change",
-  noChange: "No change",
-  changeScale: (field: string) => `Change in ${field}`,
-  // RAG scorecards and trends.
-  overall: "Overall",
-  now: "Now",
-  count: "Count",
-  status: "Status",
-  was: "Was",
-  why: "Why",
-  noReading: "No reading",
-  lastPeriod: "Last period",
-  better: "Better",
-  worse: "Worse",
-  /** What a cell says to screen readers when it moved: ", better than last period (At risk)". */
-  movedSince: (better: boolean, before: string) => `, ${better ? "better" : "worse"} than last period (${before})`,
-  noStatus: "no data",
-  /** The line under a scorecard showing only some statuses: "and 33 on track", or "and 4 at risk, 33 on track". */
-  andMore: (parts: string[]) => `and ${parts.join(", ")}`,
-  rowsByStatus: (count: number) => `${count} ${count === 1 ? "row" : "rows"} by overall status`,
-} as const;
+/** The English words: for helpers that have no view to ask, and as the fallback. */
+export const WORDS: Words = WORDS_EN;
 
-export type Words = typeof WORDS;
+export type { Words };
 
-/** The words a widget writes: the built-in set for now; a locale's own set can be returned here later. */
-export function wordsFor(_ctx: ViewContext<{ type: string }>): Words {
-  return WORDS;
+/** The words a view writes, in its widget's language: French for a "fr-…" locale, German for "de-…", English otherwise. */
+export function wordsFor(ctx: LocaleSource): Words {
+  return coreWordsFor(ctx);
 }
 
 /** What `highlight` asks of a view: whether a category stays in color, and the color it then wears. */

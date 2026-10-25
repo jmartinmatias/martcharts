@@ -3,6 +3,7 @@ import type { ViewRenderer } from "../../core/view-context.ts";
 import type { BulletView } from "../../core/views.ts";
 import { activeGroup, hiddenTableOf, html, roving, rowHit, shareFormat, svg } from "./shared.ts";
 import { checkMark, standing } from "./target.ts";
+import { wordsFor } from "./words.ts";
 
 const DEFAULT_RANGES = [0.6, 0.9, 1.2];
 const pct = (fraction: number) => `${Math.round(Math.max(0, Math.min(1, fraction)) * 10000) / 100}%`;
@@ -63,12 +64,12 @@ export const renderBullet: ViewRenderer<BulletView> = (ctx) => {
     const items = [
       { label: ctx.label(value), value: valueText },
       { label: ctx.label(target), value: ctx.format(row[target], target) },
-      ...(attainment ? [{ label: "Of target", value: attainment }] : []),
-      ...(stand && !met && actual !== null && goal !== null ? [{ label: "To go", value: ctx.format(goal - actual, value) }] : []),
+      ...(attainment ? [{ label: wordsFor(ctx).ofTarget, value: attainment }] : []),
+      ...(stand && !met && actual !== null && goal !== null ? [{ label: wordsFor(ctx).toGoTitle, value: ctx.format(goal - actual, value) }] : []),
     ];
     hits.push(rowHit(ctx, { node: item, row, name, items, anchor: chart, group: active }));
     // Read aloud: the figures, then where it stands in words ("€22K to go" is said by the standing, not twice).
-    const said = items.filter((it) => it.label !== "To go").map((it) => `${it.label} ${it.value}`);
+    const said = items.filter((it) => it.label !== wordsFor(ctx).toGoTitle).map((it) => `${it.label} ${it.value}`);
     item.setAttribute("aria-label", `${name}: ${[...said, ...(stand ? [`${stand.charAt(0).toLowerCase()}${stand.slice(1)}`] : [])].join(", ")}`);
     list.append(item);
   });

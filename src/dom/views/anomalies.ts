@@ -7,6 +7,7 @@ import { bandPath, evenLabels, linearScale, linePath, spread } from "../layout.t
 import type { LabelBox } from "../layout.ts";
 import { ROW, activeGroup, hiddenTableOf, html, legendList, roving, rowHit, svg, textWidth } from "./shared.ts";
 import { fitLabel, writeLabel } from "./label-fit.ts";
+import { wordsFor } from "./words.ts";
 
 const LANE: number = ROW.roomy;
 const GAP = 5;
@@ -77,7 +78,7 @@ export const renderAnomalies: ViewRenderer<AnomaliesView> = (ctx) => {
   const wrap = html(doc, "div", "fft-chart fft-anomalies");
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Anomaly tracker of ${lanes.length} ${lanes.length === 1 ? "metric" : "metrics"} by ${ctx.label(x)}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.anomalies(lanes.length, ctx.label(x)));
   const hits: Element[] = [];
   // Pointing at a flagged reading lights its lane and steps the others back.
   const active = activeGroup(wrap, ctx.tooltip);
@@ -117,11 +118,11 @@ export const renderAnomalies: ViewRenderer<AnomaliesView> = (ctx) => {
       const dateText = ctx.format(row[x], x);
       const items: TooltipItem[] = [{ label: ctx.label(value), value: ctx.format(row[value], value), color: "var(--fft-down)" }];
       if (expected && reading(row, expected) !== null) items.push({ label: ctx.label(expected), value: ctx.format(row[expected], expected) });
-      if (banded && reading(row, low) !== null && reading(row, high) !== null) items.push({ label: "Expected band", value: `${ctx.format(row[low as string], low)} to ${ctx.format(row[high as string], high)}` });
+      if (banded && reading(row, low) !== null && reading(row, high) !== null) items.push({ label: wordsFor(ctx).expectedBand, value: wordsFor(ctx).between(ctx.format(row[low as string], low), ctx.format(row[high as string], high)) });
       const lo = reading(row, low);
       const hi = reading(row, high);
-      const side = lo !== null && v < lo ? "Below the band" : hi !== null && v > hi ? "Above the band" : "Flagged";
-      items.push({ label: "Anomaly", value: side });
+      const side = lo !== null && v < lo ? wordsFor(ctx).belowBand : hi !== null && v > hi ? wordsFor(ctx).aboveBand : wordsFor(ctx).flagged;
+      items.push({ label: wordsFor(ctx).anomaly, value: side });
       const hit = svg(doc, "circle", { class: "fft-anom-hit", cx, cy, r: 11 });
       hits.push(rowHit(ctx, { node: hit, row, name: `${lane.text}, ${dateText}`, items, active: group, group: active }));
       group.append(hit);
@@ -162,9 +163,9 @@ export const renderAnomalies: ViewRenderer<AnomaliesView> = (ctx) => {
   // The key: what the band and the dots mean, in a few words.
   // The key, above the lanes like every row view's: the band, the line and the flag, each its own swatch class.
   const keys = [
-    ...(banded ? [{ label: "Expected band", color: "", shape: "rect" as const, cls: "fft-anom-key-band" }] : []),
+    ...(banded ? [{ label: wordsFor(ctx).expectedBand, color: "", shape: "rect" as const, cls: "fft-anom-key-band" }] : []),
     { label: ctx.label(value), color: ctx.color(0), shape: "line" as const, cls: "fft-anom-key-line" },
-    { label: "Anomaly", color: "", shape: "dot" as const, cls: "fft-anom-key-flag" },
+    { label: wordsFor(ctx).anomaly, color: "", shape: "dot" as const, cls: "fft-anom-key-flag" },
   ];
   const key = legendList(ctx, keys);
   if (key) {

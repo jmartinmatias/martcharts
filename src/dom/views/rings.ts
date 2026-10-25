@@ -4,7 +4,7 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { RingsView } from "../../core/views.ts";
 import { arcPath } from "../layout.ts";
 import { figureSize, hiddenTableOf, html, ringThickness, selectable, shareFormat, svg } from "./shared.ts";
-import { categoryColor, WORDS } from "./words.ts";
+import { categoryColor, wordsFor } from "./words.ts";
 import { roving } from "./focus.ts";
 import { checkMark, standing } from "./target.ts";
 
@@ -46,7 +46,7 @@ export const renderRings: ViewRenderer<RingsView> = (ctx) => {
   const figure = html(doc, "div", "fft-rings-figure");
   const chart = svg(doc, "svg", { width: size, height: size, viewBox: `0 0 ${size} ${size}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Progress rings of ${ctx.label(value)} against ${ctx.label(target)}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.rings(ctx.label(value), ctx.label(target)));
   const groups: SVGGElement[] = [];
   const hits: Element[] = [];
   const deactivate = () => {
@@ -73,7 +73,7 @@ export const renderRings: ViewRenderer<RingsView> = (ctx) => {
     const items: TooltipItem[] = [
       { label: ctx.label(value), value: ctx.format(g.row[value], value), color },
       { label: ctx.label(target), value: ctx.format(g.row[target], target) },
-      { label: WORDS.ofTarget, value: attainment },
+      { label: wordsFor(ctx).ofTarget, value: attainment },
     ];
     const hit = svg(doc, "circle", { class: "fft-ring-hit", cx: c, cy: c, r, "stroke-width": thickness + GAP, tabindex: 0, role: "img" });
     hit.setAttribute("aria-label", `${name}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
@@ -103,7 +103,7 @@ export const renderRings: ViewRenderer<RingsView> = (ctx) => {
     if (met) item.dataset.met = "true";
     const percentEl = html(doc, "span", "fft-rings-percent", attainment);
     if (met) percentEl.prepend(checkMark(doc));
-    item.append(swatch, html(doc, "span", "fft-rings-name", name), percentEl, html(doc, "span", "fft-rings-value", `${ctx.format(g.row[value], value)} ${WORDS.of} ${ctx.format(g.row[target], target)}`));
+    item.append(swatch, html(doc, "span", "fft-rings-name", name), percentEl, html(doc, "span", "fft-rings-value", `${ctx.format(g.row[value], value)} ${wordsFor(ctx).of} ${ctx.format(g.row[target], target)}`));
     if (stand) item.append(html(doc, "span", "fft-rings-gap", stand));
     legend.append(item);
   });

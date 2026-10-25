@@ -4,7 +4,7 @@ import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { IcicleView } from "../../core/views.ts";
 import { fieldList, hiddenTableOf, html, selectable, shareFormat, svg, textWidth } from "./shared.ts";
-import { categoryColor, emphasis, WORDS } from "./words.ts";
+import { categoryColor, emphasis, wordsFor } from "./words.ts";
 import { roving } from "./focus.ts";
 
 const GAP = 2;
@@ -51,7 +51,7 @@ export const renderIcicle: ViewRenderer<IcicleView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
   const levels = fieldList(ctx.view.levels).slice(0, 4);
   const { value } = ctx.view;
-  const root: Node = { name: WORDS.total, path: "", keys: [], depth: 0, value: 0, children: new Map(), row: {}, color: 0, start: 0, end: 1 };
+  const root: Node = { name: wordsFor(ctx).total, path: "", keys: [], depth: 0, value: 0, children: new Map(), row: {}, color: 0, start: 0, end: 1 };
   for (const row of ctx.rows) {
     const amount = readNumber(row[value]);
     if (amount === null || amount <= 0) continue;
@@ -119,7 +119,7 @@ export const renderIcicle: ViewRenderer<IcicleView> = (ctx) => {
   const wrap = html(doc, "div", "fft-chart fft-icicle");
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Icicle chart of ${ctx.label(value)} by ${levels.map((f) => ctx.label(f)).join(", then ")}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.icicle(ctx.label(value), levels.map((f) => ctx.label(f)).join(wordsFor(ctx).aria.then)));
 
   const cells = new Map<Node, { group: SVGGElement; rect: SVGRectElement }>();
   const hits: Element[] = [];
@@ -168,9 +168,9 @@ export const renderIcicle: ViewRenderer<IcicleView> = (ctx) => {
     cells.set(node, { group, rect });
 
     const items: TooltipItem[] = [{ label: ctx.label(value), value: amountText(node.value), ...(node.depth > 0 ? { color: familyColor(node) } : {}) }];
-    if (node.parent && node.parent.depth > 0) items.push({ label: `${WORDS.share} ${WORDS.of} ${node.parent.name}`, value: share.format(node.value / (node.parent.value || 1)) });
-    if (node.depth > 0) items.push({ label: `${WORDS.share} ${WORDS.of} ${WORDS.total.toLowerCase()}`, value: share.format(node.value / (root.value || 1)) });
-    const title = node.depth === 0 ? WORDS.total : node.path.split("/").join(" / ");
+    if (node.parent && node.parent.depth > 0) items.push({ label: `${wordsFor(ctx).share} ${wordsFor(ctx).of} ${node.parent.name}`, value: share.format(node.value / (node.parent.value || 1)) });
+    if (node.depth > 0) items.push({ label: `${wordsFor(ctx).share} ${wordsFor(ctx).of} ${wordsFor(ctx).total.toLowerCase()}`, value: share.format(node.value / (root.value || 1)) });
+    const title = node.depth === 0 ? wordsFor(ctx).total : node.path.split("/").join(" / ");
     const hit = svg(doc, "rect", { class: "fft-ice-hit", x, y, width: w, height: h, tabindex: 0, role: "img", "data-path": node.path, style: `--fft-i: ${i}` });
     hit.setAttribute("aria-label", `${title}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
     const activate = () => {

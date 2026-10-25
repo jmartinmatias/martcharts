@@ -7,6 +7,7 @@ import { dodge } from "../layout.ts";
 import { highlights } from "./chart.ts";
 import { activeGroup, hiddenTableOf, html, roving, rowHit, svg, textWidth } from "./shared.ts";
 import { fitLabel } from "./label-fit.ts";
+import { wordsFor } from "./words.ts";
 
 /** Closest two labels on one side may sit: one 11px line plus breathing room. */
 const LABEL_GAP = 14;
@@ -73,7 +74,7 @@ export const renderSlope: ViewRenderer<SlopeView> = (ctx) => {
   const wrap = html(doc, "div", "fft-chart");
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Slope chart of ${ctx.label(label)} from ${ctx.label(from)} to ${ctx.label(to)}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.slope(ctx.label(label), ctx.label(from), ctx.label(to)));
   for (const [x, field, anchor] of [
     [left, from, "end"],
     [right, to, "start"],
@@ -127,7 +128,7 @@ export const renderSlope: ViewRenderer<SlopeView> = (ctx) => {
     const tips: TooltipItem[] = [
       { label: ctx.label(from), value: it.fromText },
       { label: ctx.label(to), value: it.toText },
-      ...(it.a !== 0 ? [{ label: "Change", value: change.format((it.b - it.a) / Math.abs(it.a)) }] : []),
+      ...(it.a !== 0 ? [{ label: wordsFor(ctx).change, value: change.format((it.b - it.a) / Math.abs(it.a)) }] : []),
     ];
     const hit = svg(doc, "path", { class: "fft-slope-hit", d });
     const row: Row = it.row;

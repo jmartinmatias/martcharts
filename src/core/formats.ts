@@ -331,10 +331,10 @@ const ragFormat: FormatBlock = {
     words: { type: "object", description: 'Words per status, keyed R, A, G, N. Example: { "G": "Healthy", "A": "Watch", "R": "Escalate" }.' },
     shapes: { type: "object", description: "Shape per status, keyed R, A, G, N: circle, triangle, square, ring or diamond." },
   },
-  format: (value, options) => ragWord(ragOf(value), options.words),
-  element(value, options, _locale, doc) {
+  format: (value, options, locale) => ragWord(ragOf(value), options.words, locale),
+  element(value, options, locale, doc) {
     const status = ragOf(value);
-    const word = ragWord(status, options.words);
+    const word = ragWord(status, options.words, locale);
     const pill = doc.createElement("span");
     pill.className = "fft-rag-pill";
     pill.dataset.rag = status;

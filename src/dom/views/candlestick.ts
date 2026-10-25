@@ -7,6 +7,7 @@ import { bands, CHAR_WIDTH, fitLabels, linearScale, linePath } from "../layout.t
 import { tickFormatter } from "./chart.ts";
 import { hiddenTableOf, html, legendList, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
+import { wordsFor } from "./words.ts";
 
 /** Widest a candle body gets: a Fibonacci step, so candles stay thin marks. */
 const BODY = 13;
@@ -69,10 +70,10 @@ export const renderCandlestick: ViewRenderer<CandlestickView> = (ctx) => {
 
   const wrap = html(doc, "div", "fft-chart");
   const keys: [string, string, string][] = [
-    ["Up", "var(--fft-up)", "hollow"],
-    ["Down", "var(--fft-down)", "rect"],
+    [wordsFor(ctx).up, "var(--fft-up)", "hollow"],
+    [wordsFor(ctx).down, "var(--fft-down)", "rect"],
     // Named in the chart's own time step ("5-day average"), or as an average of the last points.
-    ...(means.length ? ([[`${average}-${timeStep(xField) ?? "point"} average`, "var(--fft-text-secondary)", "line"]] as [string, string, string][]) : []),
+    ...(means.length ? ([[wordsFor(ctx).movingAverage(average as number, timeStep(xField) ?? "point"), "var(--fft-text-secondary)", "line"]] as [string, string, string][]) : []),
   ];
   // Up is hollow and down filled, as on the candles, so direction reads without color (WCAG 1.4.1). The shared
   // legend has no hollow square, so that one swatch is restyled after; inside a panel there is no legend at all.
@@ -100,7 +101,7 @@ export const renderCandlestick: ViewRenderer<CandlestickView> = (ctx) => {
 
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Candlestick chart of ${ctx.label(close)} by ${ctx.label(xField)}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.candlestick(ctx.label(close), ctx.label(xField)));
   for (const tick of y.ticks) {
     const ty = y(tick);
     chart.append(svg(doc, "line", { class: "fft-gridline", x1: plot.x, x2: plot.x + plot.w, y1: ty, y2: ty }));
@@ -141,11 +142,11 @@ export const renderCandlestick: ViewRenderer<CandlestickView> = (ctx) => {
 
     // Candles are read by role, whatever the fields are called.
     const items: TooltipItem[] = [
-      { label: "Open", value: ctx.format(p.row[open], open) },
-      { label: "High", value: ctx.format(p.row[high], high) },
-      { label: "Low", value: ctx.format(p.row[low], low) },
-      { label: "Close", value: ctx.format(p.row[close], close), color: `var(--fft-${tone})` },
-      ...(p.o !== 0 ? [{ label: "Change", value: change.format((p.c - p.o) / Math.abs(p.o)) }] : []),
+      { label: wordsFor(ctx).open, value: ctx.format(p.row[open], open) },
+      { label: wordsFor(ctx).high, value: ctx.format(p.row[high], high) },
+      { label: wordsFor(ctx).low, value: ctx.format(p.row[low], low) },
+      { label: wordsFor(ctx).close, value: ctx.format(p.row[close], close), color: `var(--fft-${tone})` },
+      ...(p.o !== 0 ? [{ label: wordsFor(ctx).change, value: change.format((p.c - p.o) / Math.abs(p.o)) }] : []),
     ];
     const slot = slots[i] as { start: number; width: number };
     const hit = svg(doc, "rect", { class: "fft-candle-hit", x: slot.start, y: plot.y, width: slot.width, height: plot.h, tabindex: 0, role: "img" });
@@ -173,7 +174,7 @@ export const renderCandlestick: ViewRenderer<CandlestickView> = (ctx) => {
   chart.append(overlay);
   roving(hits);
   wrap.append(chart);
-  if (!periods.length) wrap.append(html(doc, "p", "fft-empty-note", "No period has all four prices: open, high, low and close."));
+  if (!periods.length) wrap.append(html(doc, "p", "fft-empty-note", wordsFor(ctx).noPricePeriod));
   wrap.append(hiddenTableOf(ctx, periods.map((p) => p.row), [xField, open, high, low, close]));
   ctx.el.append(wrap);
 };

@@ -5,7 +5,7 @@ import type { ViewRenderer } from "../../core/view-context.ts";
 import { choroplethChange } from "../../core/views.ts";
 import type { ChoroplethView } from "../../core/views.ts";
 import { hiddenTableOf, html, selectable, svg } from "./shared.ts";
-import { categoryColor, emphasis, WORDS } from "./words.ts";
+import { categoryColor, emphasis, wordsFor } from "./words.ts";
 import { roving } from "./focus.ts";
 import { dotLegend, groupName, labelFits, mapFrame, unplacedNote, withGeo } from "./map-shared.ts";
 
@@ -43,7 +43,7 @@ export const renderChoropleth: ViewRenderer<ChoroplethView> = (ctx) =>
     const value = category ? undefined : ctx.view.value;
     const key = ctx.view.key ?? "id";
     if (!collection) {
-      ctx.el.append(html(doc, "p", "fft-map-note", WORDS.noGeometry));
+      ctx.el.append(html(doc, "p", "fft-map-note", wordsFor(ctx).noGeometry));
       return;
     }
     const { width, height, projection } = mapFrame(ctx, collection, key);
@@ -72,7 +72,7 @@ export const renderChoropleth: ViewRenderer<ChoroplethView> = (ctx) =>
     const groups: string[] = [];
     const groupOf = (row: Row): number => {
       if (!category) return -1;
-      const name = groupName(row[category], (v) => ctx.format(v, category));
+      const name = groupName(row[category], (v) => ctx.format(v, category), wordsFor(ctx));
       if (!groups.includes(name)) {
         groups.push(name);
         groupKeys.push(row[category]);
@@ -88,7 +88,7 @@ export const renderChoropleth: ViewRenderer<ChoroplethView> = (ctx) =>
     const canvas = svg(doc, "svg", { class: "fft-map", width, height, viewBox: `0 0 ${width} ${height}` });
     if (collection.grid) canvas.classList.add("fft-map-grid");
     canvas.setAttribute("role", "group");
-    canvas.setAttribute("aria-label", `Map of ${ctx.label(field)} by ${ctx.label(id)}`);
+    canvas.setAttribute("aria-label", wordsFor(ctx).aria.choropleth(ctx.label(field), ctx.label(id)));
     const regions = svg(doc, "g", { class: "fft-map-regions" });
     const labels = svg(doc, "g", { class: "fft-map-labels" });
     labels.setAttribute("aria-hidden", "true");
@@ -128,8 +128,8 @@ export const renderChoropleth: ViewRenderer<ChoroplethView> = (ctx) =>
         // Against the previous period: the previous value and the change, in the tooltip and for screen readers.
         const versus = previous
           ? [
-              { label: WORDS.previous, value: ctx.format(row[previous], previous) || "–" },
-              { label: WORDS.change, value: delta === null ? "–" : delta === 0 ? WORDS.noChange : changeText(delta) },
+              { label: wordsFor(ctx).previous, value: ctx.format(row[previous], previous) || "–" },
+              { label: wordsFor(ctx).change, value: delta === null ? "–" : delta === 0 ? wordsFor(ctx).noChange : changeText(delta) },
             ]
           : [];
         region.setAttribute("aria-label", `${shape.name}: ${[text, ...versus.map((line) => `${line.label.toLowerCase()} ${line.value}`)].join(", ")}`);
@@ -179,7 +179,7 @@ export const renderChoropleth: ViewRenderer<ChoroplethView> = (ctx) =>
         swatch.style.background = divergingFill(swing);
         ramp.append(swatch);
       }
-      legend.setAttribute("aria-label", WORDS.changeScale(ctx.label(value as string)));
+      legend.setAttribute("aria-label", wordsFor(ctx).changeScale(ctx.label(value as string)));
       legend.append(html(doc, "span", "fft-map-legend-min", changeText(-reach)), ramp, html(doc, "span", "fft-map-legend-max", changeText(reach)));
     } else if (value && Number.isFinite(min) && Number.isFinite(max)) {
       // With no numbers at all (a filter left the map empty) there is no scale to show: only the "No data" key.
@@ -196,7 +196,7 @@ export const renderChoropleth: ViewRenderer<ChoroplethView> = (ctx) =>
       const none = html(doc, "span", "fft-map-legend-empty");
       const swatch = html(doc, "span", "fft-swatch fft-map-swatch-empty");
       swatch.setAttribute("aria-hidden", "true");
-      none.append(swatch, WORDS.noData);
+      none.append(swatch, wordsFor(ctx).noData);
       if (category) {
         const item = html(doc, "li");
         item.append(none);
@@ -207,7 +207,7 @@ export const renderChoropleth: ViewRenderer<ChoroplethView> = (ctx) =>
     const hidden = hiddenTableOf(ctx, ctx.rows, previous ? [id, field, previous] : [id, field]);
     // Inside a small-multiples panel a category key is drawn once for all panels; the scale stays, since each panel shades on it.
     wrap.append(canvas, ...(category && ctx.inFacet ? [] : [legend]));
-    const note = unplacedNote(doc, unplaced);
+    const note = unplacedNote(doc, unplaced, wordsFor(ctx));
     if (note) wrap.append(note);
     wrap.append(hidden);
     ctx.el.append(wrap);

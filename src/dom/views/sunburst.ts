@@ -6,7 +6,7 @@ import type { SunburstView } from "../../core/views.ts";
 import { countable } from "../count-up.ts";
 import { sectorPath } from "../layout.ts";
 import { fieldList, figureSize, hiddenTableOf, html, selectable, shareFormat, svg } from "./shared.ts";
-import { categoryColor, emphasis, WORDS } from "./words.ts";
+import { categoryColor, emphasis, wordsFor } from "./words.ts";
 import { roving } from "./focus.ts";
 
 const FULL = Math.PI * 2;
@@ -89,7 +89,7 @@ export const renderSunburst: ViewRenderer<SunburstView> = (ctx) => {
   figure.style.height = `${size}px`;
   const chart = svg(doc, "svg", { width: size, height: size, viewBox: `0 0 ${size} ${size}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Sunburst of ${ctx.label(value)} by ${levels.map((field) => ctx.label(field)).join(", then ")}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.sunburst(ctx.label(value), levels.map((field) => ctx.label(field)).join(wordsFor(ctx).aria.then)));
 
   const segments: SVGPathElement[] = [];
   const hits: Element[] = [];
@@ -110,8 +110,8 @@ export const renderSunburst: ViewRenderer<SunburstView> = (ctx) => {
       segments.push(seg);
       const items: TooltipItem[] = [
         { label: ctx.label(value), value: amountText(child.value), color: familyColor(child) },
-        { label: `${WORDS.share} ${WORDS.of} ${WORDS.total.toLowerCase()}`, value: share.format(child.value / root.value) },
-        ...(parent ? [{ label: `${WORDS.share} ${WORDS.of} ${parent.name}`, value: share.format(child.value / parent.value) }] : []),
+        { label: `${wordsFor(ctx).share} ${wordsFor(ctx).of} ${wordsFor(ctx).total.toLowerCase()}`, value: share.format(child.value / root.value) },
+        ...(parent ? [{ label: `${wordsFor(ctx).share} ${wordsFor(ctx).of} ${parent.name}`, value: share.format(child.value / parent.value) }] : []),
       ];
       const hit = svg(doc, "path", { class: "fft-sun-hit", d, "data-path": path, tabindex: 0, role: "img" });
       hit.setAttribute("aria-label", `${path}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);

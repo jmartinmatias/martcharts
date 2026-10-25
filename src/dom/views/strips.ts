@@ -6,6 +6,7 @@ import { allocate } from "../layout.ts";
 import { activeGroup, fieldList, hiddenTableOf, html, legendList, roving, rowHit, shareFormat, svg, textWidth } from "./shared.ts";
 import { nameColumn, writeLabel } from "./label-fit.ts";
 import { highlights } from "./chart.ts";
+import { wordsFor } from "./words.ts";
 
 /** One square: 8px of color and a 2px gap. */
 const SIDE = 8;
@@ -27,8 +28,8 @@ export const renderStrips: ViewRenderer<StripsView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
   const { label, per } = ctx.view;
   const parts = fieldList(ctx.view.parts);
-  const unit = typeof ctx.view.unit === "string" && ctx.view.unit.trim() ? ctx.view.unit.trim() : "provision";
-  const units = pluralUnit(unit);
+  const unit = typeof ctx.view.unit === "string" && ctx.view.unit.trim() ? ctx.view.unit.trim() : wordsFor(ctx).provision;
+  const units = wordsFor(ctx).unitPlural(unit, 2);
   const share = shareFormat(ctx.spec.locale);
   const density = new Intl.NumberFormat(ctx.spec.locale, { maximumFractionDigits: 1 });
   const perName = per ? ctx.label(per).toLowerCase().replace(/s$/, "") : "";
@@ -45,7 +46,7 @@ export const renderStrips: ViewRenderer<StripsView> = (ctx) => {
     const total = ctx.format(totals[i], first);
     const part = parts.length > 1 && (totals[i] ?? 0) > 0 ? share.format((counts[i]?.[0] ?? 0) / (totals[i] as number)) : "";
     const perValue = per ? readNumber(row[per]) : null;
-    const dense = per && perValue ? `${density.format((totals[i] ?? 0) / perValue)} per ${perName}` : "";
+    const dense = per && perValue ? wordsFor(ctx).perUnit(density.format((totals[i] ?? 0) / perValue), perName) : "";
     return { total, part, dense };
   });
   // The end column holds the total, the share and the density side by side: room for the longest of the three together.
@@ -97,15 +98,15 @@ export const renderStrips: ViewRenderer<StripsView> = (ctx) => {
     item.append(nameNode, strip, end);
 
     const items: TooltipItem[] = parts.map((field, p) => ({ label: ctx.label(field), value: ctx.format(row[field], field), color: partColor(p) }));
-    if (parts.length > 1) items.push({ label: "Total", value: text.total });
-    if (text.part) items.push({ label: `${ctx.label(first)} share`, value: text.part });
-    if (text.dense) items.push({ label: "Density", value: text.dense });
+    if (parts.length > 1) items.push({ label: wordsFor(ctx).total, value: text.total });
+    if (text.part) items.push({ label: wordsFor(ctx).partShare(ctx.label(first)), value: text.part });
+    if (text.dense) items.push({ label: wordsFor(ctx).density, value: text.dense });
     rows.push(rowHit(ctx, { node: item, row, name: names[i] ?? "", items, anchor: strip, group: active }));
     list.append(item);
   });
   roving(rows);
   wrap.append(list);
-  const note = html(doc, "p", "fft-strips-note", perSquare === 1 ? `One square is one ${unit}.` : `One square is ${ctx.format(perSquare, first)} ${units}; strips are rounded to the nearest square.`);
+  const note = html(doc, "p", "fft-strips-note", perSquare === 1 ? wordsFor(ctx).oneSquare(unit) : wordsFor(ctx).squaresOf(ctx.format(perSquare, first), units));
   wrap.append(note);
   wrap.append(hiddenTableOf(ctx, ctx.rows as Row[], [label, ...parts, ...(per ? [per] : [])]));
   ctx.el.append(wrap);

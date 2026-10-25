@@ -7,6 +7,7 @@ import { highlights, tickFormatter } from "./chart.ts";
 import { hiddenTableOf, html, selectable, svg } from "./shared.ts";
 import { edgeAnchor, edgeX } from "./label-fit.ts";
 import { roving } from "./focus.ts";
+import { wordsFor } from "./words.ts";
 
 /**
  * Draws the `waterfall` view: totals stand on zero, every other step floats
@@ -58,7 +59,7 @@ export const renderWaterfall: ViewRenderer<WaterfallView & { highlight?: string 
   const wrap = html(doc, "div", "fft-chart");
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Waterfall chart of ${ctx.label(value)} by ${ctx.label(label)}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.waterfall(ctx.label(value), ctx.label(label)));
 
   for (const tick of y.ticks) {
     const ty = y(tick);
@@ -104,10 +105,10 @@ export const renderWaterfall: ViewRenderer<WaterfallView & { highlight?: string 
 
     const items: TooltipItem[] =
       step.kind === "total"
-        ? [{ label: "Total", value: ctx.format(step.end, value) }]
+        ? [{ label: wordsFor(ctx).total, value: ctx.format(step.end, value) }]
         : [
-            { label: "Change", value: signed(change) },
-            { label: "Running total", value: ctx.format(step.end, value) },
+            { label: wordsFor(ctx).change, value: signed(change) },
+            { label: wordsFor(ctx).runningTotal, value: ctx.format(step.end, value) },
           ];
     const hit = svg(doc, "rect", { class: "fft-hit", x: slot.start, y: plot.y, width: slot.width, height: plot.h, tabindex: 0, role: "img" });
     hit.setAttribute("aria-label", `${names[i]}: ${items.map((item) => `${item.label} ${item.value}`).join(", ")}`);

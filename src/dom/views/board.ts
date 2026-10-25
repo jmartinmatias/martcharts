@@ -5,9 +5,9 @@ import { BOARD_LIMIT } from "../../core/views.ts";
 import type { BoardView } from "../../core/views.ts";
 import { activeGroup, hiddenTableOf, html, legendList, rowHit } from "./shared.ts";
 import { roving } from "./focus.ts";
+import { wordsFor } from "./words.ts";
 
 /** The column items land in when their stage is not among the stages listed. */
-const OTHER = "Other";
 
 /**
  * Draws the `board` view: one column per stage, headed by the stage's name and
@@ -29,8 +29,8 @@ export const renderBoard: ViewRenderer<BoardView> = (ctx) => {
   for (const name of listed ?? []) columns.set(name, []);
   for (const row of ctx.rows) {
     const raw = row[stage];
-    const name = raw === null || raw === undefined || raw === "" ? OTHER : ctx.format(raw, stage);
-    const key = listed && !listed.includes(name) ? OTHER : name;
+    const name = raw === null || raw === undefined || raw === "" ? wordsFor(ctx).other : ctx.format(raw, stage);
+    const key = listed && !listed.includes(name) ? wordsFor(ctx).other : name;
     if (!columns.has(key)) columns.set(key, []);
     columns.get(key)!.push(row);
   }
@@ -54,7 +54,7 @@ export const renderBoard: ViewRenderer<BoardView> = (ctx) => {
   const scroller = html(doc, "div", "fft-board-scroll");
   const boardEl = html(doc, "div", "fft-board");
   boardEl.setAttribute("role", "group");
-  boardEl.setAttribute("aria-label", `Board of ${ctx.label(label)} by ${ctx.label(stage)}`);
+  boardEl.setAttribute("aria-label", wordsFor(ctx).aria.board(ctx.label(label), ctx.label(stage)));
   boardEl.style.setProperty("--fft-columns", String(columns.size));
   const cards: Element[] = [];
   const count = new Intl.NumberFormat(ctx.spec.locale);
@@ -100,14 +100,14 @@ export const renderBoard: ViewRenderer<BoardView> = (ctx) => {
     });
     column.append(list);
     if (rows.length > limit) {
-      const more = html(doc, "button", "fft-board-more", `+ ${count.format(rows.length - limit)} more`);
+      const more = html(doc, "button", "fft-board-more", wordsFor(ctx).moreItems(count.format(rows.length - limit)));
       more.type = "button";
       more.setAttribute("aria-expanded", "false");
       more.addEventListener("click", () => {
         const open = more.getAttribute("aria-expanded") === "true";
         for (const card of [...list.children].slice(limit) as HTMLElement[]) card.hidden = open;
         more.setAttribute("aria-expanded", String(!open));
-        more.textContent = open ? `+ ${count.format(rows.length - limit)} more` : "Show fewer";
+        more.textContent = open ? wordsFor(ctx).moreItems(count.format(rows.length - limit)) : wordsFor(ctx).showFewer;
       });
       column.append(more);
     }

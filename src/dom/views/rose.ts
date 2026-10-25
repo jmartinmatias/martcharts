@@ -4,7 +4,7 @@ import type { RoseView } from "../../core/views.ts";
 import { niceTicks, polar, sectorPath } from "../layout.ts";
 import { tickFormatter } from "./chart.ts";
 import { fieldList, hiddenTableOf, html, legendList, selectable, svg, textWidth } from "./shared.ts";
-import { categoryColor, WORDS } from "./words.ts";
+import { categoryColor, wordsFor } from "./words.ts";
 import { roving } from "./focus.ts";
 
 const FULL = Math.PI * 2;
@@ -49,7 +49,7 @@ export const renderRose: ViewRenderer<RoseView> = (ctx) => {
   if (key) wrap.append(key);
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Rose chart of ${series.map((f) => ctx.label(f)).join(", ")} by ${ctx.label(label)}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.rose(series.map((f) => ctx.label(f)).join(", "), ctx.label(label)));
 
   for (const tick of ticks) chart.append(svg(doc, "circle", { class: "fft-rose-ring", cx, cy, r: round2(reach(tick)) }));
 
@@ -122,7 +122,7 @@ export const renderRose: ViewRenderer<RoseView> = (ctx) => {
   rows.forEach((row, i) => {
     const name = names[i] ?? "";
     const items: TooltipItem[] = series.map((field, s) => ({ label: ctx.label(field), value: ctx.format(row[field], field), color: seriesColor(s) }));
-    if (series.length > 1) items.push({ label: WORDS.total, value: ctx.format(totals[i] ?? 0, series[0]) });
+    if (series.length > 1) items.push({ label: wordsFor(ctx).total, value: ctx.format(totals[i] ?? 0, series[0]) });
     const hit = svg(doc, "path", { class: "fft-rose-hit", d: sectorPath(cx, cy, 0.01, radius + 8, i * step, (i + 1) * step), tabindex: 0, role: "img" });
     hit.setAttribute("aria-label", `${name}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
     const activate = () => {

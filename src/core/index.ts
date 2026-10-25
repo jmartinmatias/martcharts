@@ -33,6 +33,8 @@ export type { KpiRag, RagboardView, RagtrendView } from "./views.ts";
 export { periodTime } from "./views.ts";
 export { applyRag, isRagValue, ragCounts, ragFromValue, ragOf, ragRank, ragScore, ragShape, ragShapePath, ragStepProblems, ragTrend, ragWord, RAG_ORDER, RAG_SHAPES, RAG_WORDS, worstOf } from "./rag.ts";
 export type { Rag, RagRule, RagShape, RagStep, RagThresholds, RagTrend } from "./rag.ts";
+export { langOf, wordsFor, WORDS_EN } from "./words.ts";
+export type { Lang, LocaleSource, Words } from "./words.ts";
 export { ragGlyph } from "./formats.ts";
 export { basemap, basemapNames, basemapTiles, describeBasemaps, featureId, featureName, geoAspect, geoProblem, guessBasemap, isGeoCollection, isGeoUrl, normalizeId, project, resolveGeo, SEQUENTIAL_STEPS, sequentialStep } from "./geo.ts";
 export type { GeoCollection, GeoFeature, GeoGeometry, Position, ProjectedShape, Projection } from "./geo.ts";

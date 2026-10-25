@@ -14,14 +14,16 @@
  * @module
  */
 
+import { wordsFor, WORDS_EN } from "./words.ts";
+
 /** A RAG status: Red, Amber, Green, or N for no data. */
 export type Rag = "R" | "A" | "G" | "N";
 
 /** Every status, worst first: the order boards sort and count in. */
 export const RAG_ORDER: readonly Rag[] = ["R", "A", "G", "N"];
 
-/** What each status says in words, so it reads without its color. */
-export const RAG_WORDS: Readonly<Record<Rag, string>> = { G: "On track", A: "At risk", R: "Off track", N: "No data" };
+/** What each status says in words, so it reads without its color: the English set (see `ragWord` for a locale's own). */
+export const RAG_WORDS: Readonly<Record<Rag, string>> = WORDS_EN.rag;
 
 /** The shapes a status can take. A filled circle, a triangle and a square tell G, A and R apart without color. */
 export type RagShape = "circle" | "triangle" | "square" | "ring" | "diamond";
@@ -48,6 +50,16 @@ const ALIASES: Record<string, Rag> = {
   grey: "N",
   gray: "N",
   "no data": "N",
+  // The French and German status words read back too.
+  conforme: "G",
+  "à surveiller": "A",
+  "a surveiller": "A",
+  "hors trajectoire": "R",
+  "aucune donnée": "N",
+  "im plan": "G",
+  "gefährdet": "A",
+  "nicht im plan": "R",
+  "keine daten": "N",
   none: "N",
   "n/a": "N",
   na: "N",
@@ -134,9 +146,9 @@ export function ragRank(status: Rag): number {
 }
 
 /** A status's words, from a spec's own `words` (keyed R, A, G, N) or the defaults. */
-export function ragWord(status: Rag, words?: unknown): string {
+export function ragWord(status: Rag, words?: unknown, locale?: string): string {
   const own = words && typeof words === "object" ? (words as Record<string, unknown>)[status] : undefined;
-  return typeof own === "string" && own ? own : RAG_WORDS[status];
+  return typeof own === "string" && own ? own : wordsFor(locale).rag[status];
 }
 
 /** A status's shape, from a spec's own `shapes` (keyed R, A, G, N) or the defaults. */

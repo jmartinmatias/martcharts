@@ -9,6 +9,7 @@ import { drawVerticalReferences } from "./reference.ts";
 import { hiddenTable, html, selectable, shareFormat, svg } from "./shared.ts";
 import { edgeAnchor, edgeX } from "./label-fit.ts";
 import { roving } from "./focus.ts";
+import { wordsFor } from "./words.ts";
 
 /**
  * Draws the `histogram` view: the value's range cut into bins on round edges,
@@ -22,7 +23,7 @@ import { roving } from "./focus.ts";
  */
 export const renderHistogram: ViewRenderer<HistogramView & { reference?: unknown }> = (ctx) => {
   const doc = ctx.el.ownerDocument;
-  const { value, median = true, countLabel = "Count" } = ctx.view;
+  const { value, median = true, countLabel = wordsFor(ctx).count } = ctx.view;
   // The measure keeps its fixed color when the widget names one.
   const hue = ctx.colorOf?.(value) ?? ctx.colorOf?.(ctx.label(value)) ?? ctx.color(0);
   const values = ctx.rows.map((row) => readNumber(row[value])).filter((n): n is number => n !== null);
@@ -51,7 +52,7 @@ export const renderHistogram: ViewRenderer<HistogramView & { reference?: unknown
   const wrap = html(doc, "div", "fft-chart");
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Histogram of ${ctx.label(value)}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.histogram(ctx.label(value)));
   for (const tick of y.ticks.filter(Number.isInteger)) {
     const ty = y(tick);
     chart.append(svg(doc, "line", { class: tick === 0 ? "fft-baseline" : "fft-gridline", x1: plot.x, x2: plot.x + plot.w, y1: ty, y2: ty }));
@@ -95,10 +96,10 @@ export const renderHistogram: ViewRenderer<HistogramView & { reference?: unknown
       bar.style.setProperty("fill", hue);
       group.append(bar);
     }
-    const range = `${edgeText(bin.start)} to ${edgeText(bin.end)}`;
+    const range = wordsFor(ctx).between(edgeText(bin.start), edgeText(bin.end));
     const items: TooltipItem[] = [
       { label: countLabel, value: new Intl.NumberFormat(ctx.spec.locale).format(bin.count), color: hue },
-      { label: "Share", value: share.format(values.length ? bin.count / values.length : 0) },
+      { label: wordsFor(ctx).share, value: share.format(values.length ? bin.count / values.length : 0) },
     ];
     const hit = svg(doc, "rect", { class: "fft-hist-hit", x: x0, y: plot.y, width: x1 - x0, height: plot.h, tabindex: 0, role: "img" });
     hit.setAttribute("aria-label", `${range}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
@@ -131,7 +132,7 @@ export const renderHistogram: ViewRenderer<HistogramView & { reference?: unknown
     chart.append(svg(doc, "line", { class: "fft-ref", x1: mx, x2: mx, y1: plot.y - 5, y2: base }));
     const onLeft = mx > plot.x + plot.w / 2;
     const label = svg(doc, "text", { class: "fft-ref-label", x: onLeft ? mx - 5 : mx + 5, y: plot.y - 8, "text-anchor": onLeft ? "end" : "start" });
-    label.textContent = `Median ${ctx.format(middle, value)}`;
+    label.textContent = wordsFor(ctx).medianOf(ctx.format(middle, value));
     chart.append(label);
   }
   drawVerticalReferences(doc, references, xs, plot, (v) => ctx.format(v, value), refsBelow, refsAbove);
@@ -139,8 +140,8 @@ export const renderHistogram: ViewRenderer<HistogramView & { reference?: unknown
 
   roving(hits);
   wrap.append(chart);
-  if (!values.length) wrap.append(html(doc, "p", "fft-empty-note", `No row has a number in ${ctx.label(value)}.`));
+  if (!values.length) wrap.append(html(doc, "p", "fft-empty-note", wordsFor(ctx).noRowNumber(ctx.label(value))));
   // The bins as a table for assistive technology.
-  wrap.append(hiddenTable(doc, [ctx.label(value), countLabel], bins.map((bin) => [`${edgeText(bin.start)} to ${edgeText(bin.end)}`, String(bin.count)])));
+  wrap.append(hiddenTable(doc, [ctx.label(value), countLabel], bins.map((bin) => [wordsFor(ctx).between(edgeText(bin.start), edgeText(bin.end)), String(bin.count)])));
   ctx.el.append(wrap);
 };

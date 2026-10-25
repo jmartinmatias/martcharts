@@ -7,6 +7,7 @@ import { linearScale } from "../layout.ts";
 import { highlights, tickFormatter } from "./chart.ts";
 import { activeGroup, hiddenTableOf, html, legendList, roving, rowHeight, rowHit, svg } from "./shared.ts";
 import { edgeAnchor, edgeX, nameColumn, writeLabel } from "./label-fit.ts";
+import { wordsFor } from "./words.ts";
 
 /** Field names that read as a moment in time (q3_2025, h1, last, before): such a pair is a before and an after. */
 const PERIOD = /(19|20)\d\d|\b[qh][1-4]\b|before|after|previous|prior|last|current|start|end/i;
@@ -66,8 +67,8 @@ export const renderDumbbell: ViewRenderer<DumbbellView> = (ctx) => {
   key("fft-db-key-from", "dot", ctx.label(from), fromColor);
   if (arrow && periods) {
     // Arrows between two periods are keyed by what they say: rose or fell, each only when it happened.
-    if (directions.includes("up")) key("fft-db-key-up", "line", "Rose");
-    if (directions.includes("down")) key("fft-db-key-down", "line", "Fell");
+    if (directions.includes("up")) key("fft-db-key-up", "line", wordsFor(ctx).rose);
+    if (directions.includes("down")) key("fft-db-key-down", "line", wordsFor(ctx).fell);
   } else key("fft-db-key-to", arrow ? "line" : "dot", ctx.label(to), toColor);
   // The shared legend, above the chart; keys without a color of their own take it from their class.
   const legend = legendList(ctx, entries);
@@ -79,7 +80,7 @@ export const renderDumbbell: ViewRenderer<DumbbellView> = (ctx) => {
 
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `${arrow ? "Arrow plot" : "Dumbbell chart"} of ${ctx.label(from)} and ${ctx.label(to)} by ${ctx.label(label)}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.dumbbell(arrow, ctx.label(from), ctx.label(to), ctx.label(label)));
   const plotBottom = margin.top + rows.length * LANE;
   for (const tick of x.ticks) {
     const tx = x(tick);
@@ -146,7 +147,7 @@ export const renderDumbbell: ViewRenderer<DumbbellView> = (ctx) => {
     const items: TooltipItem[] = [
       { label: ctx.label(from), value: ctx.format(row[from], from), ...(fromColor ? { color: fromColor } : {}) },
       { label: ctx.label(to), value: ctx.format(row[to], to), ...(arrow && periods ? {} : { color: toColor }) },
-      ...(periods ? (a !== 0 ? [{ label: "Change", value: change.format((b - a) / Math.abs(a)) }] : []) : [{ label: "Gap", value: ctx.format(Math.abs(a - b), to) }]),
+      ...(periods ? (a !== 0 ? [{ label: wordsFor(ctx).change, value: change.format((b - a) / Math.abs(a)) }] : []) : [{ label: wordsFor(ctx).gap, value: ctx.format(Math.abs(a - b), to) }]),
     ];
     const hit = svg(doc, "rect", { class: "fft-db-hit", x: 0, y: cy - LANE / 2, width, height: LANE });
     const said = arrow && periods && direction !== "flat" ? `, ${direction === "up" ? "rose" : "fell"}` : "";

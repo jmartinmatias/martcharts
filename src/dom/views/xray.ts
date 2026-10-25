@@ -4,7 +4,7 @@ import type { ViewRenderer } from "../../core/view-context.ts";
 import type { XrayView } from "../../core/views.ts";
 import { sparkline } from "./kpi.ts";
 import { fieldList, hiddenTableOf, html, shareFormat, svg } from "./shared.ts";
-import { WORDS } from "./words.ts";
+import { wordsFor } from "./words.ts";
 
 /** Values that read as "held": true, 1, "true", "yes", "y". */
 const held = (value: unknown): boolean => value === true || value === 1 || /^(true|yes|y|held|holds)$/i.test(String(value ?? ""));
@@ -53,9 +53,9 @@ export const renderXray: ViewRenderer<XrayView> = (ctx) => {
     const count = holdings.filter((field) => held(row[field])).length;
     const section = html(doc, "div", "fft-xray-section");
     const title = html(doc, "div", "fft-xray-title");
-    title.append(html(doc, "span", undefined, WORDS.products), html(doc, "span", "fft-xray-title-count", `${count} ${WORDS.of} ${holdings.length}`));
+    title.append(html(doc, "span", undefined, wordsFor(ctx).products), html(doc, "span", "fft-xray-title-count", `${count} ${wordsFor(ctx).of} ${holdings.length}`));
     const strip = html(doc, "ul", "fft-xray-holdings");
-    strip.setAttribute("aria-label", `${WORDS.products}: ${count} ${WORDS.of} ${holdings.length} ${WORDS.held.toLowerCase()}`);
+    strip.setAttribute("aria-label", `${wordsFor(ctx).products}: ${count} ${wordsFor(ctx).of} ${holdings.length} ${wordsFor(ctx).held.toLowerCase()}`);
     for (const field of holdings) {
       const has = held(row[field]);
       const pill = html(doc, "li", "fft-xray-pill", ctx.label(field));
@@ -63,7 +63,7 @@ export const renderXray: ViewRenderer<XrayView> = (ctx) => {
         pill.dataset.held = "";
         pill.style.setProperty("--fft-xray-color", ctx.color(0));
       }
-      pill.setAttribute("aria-label", `${ctx.label(field)}: ${(has ? WORDS.held : WORDS.notHeld).toLowerCase()}`);
+      pill.setAttribute("aria-label", `${ctx.label(field)}: ${(has ? wordsFor(ctx).held : wordsFor(ctx).notHeld).toLowerCase()}`);
       strip.append(pill);
     }
     section.append(title, strip);
@@ -82,7 +82,7 @@ export const renderXray: ViewRenderer<XrayView> = (ctx) => {
     track.setAttribute("aria-valuemin", "0");
     track.setAttribute("aria-valuemax", "1");
     if (ratio !== null) track.setAttribute("aria-valuenow", String(ratio));
-    track.setAttribute("aria-label", `${ctx.label(wallet)}: ${ratio === null ? WORDS.unknown : percent.format(ratio)}`);
+    track.setAttribute("aria-label", `${ctx.label(wallet)}: ${ratio === null ? wordsFor(ctx).unknown : percent.format(ratio)}`);
     const fill = html(doc, "div", "fft-xray-fill");
     fill.style.width = `${ratio === null ? 0 : Math.round(ratio * 1000) / 10}%`;
     fill.style.background = ctx.color(0);
@@ -112,7 +112,7 @@ export const renderXray: ViewRenderer<XrayView> = (ctx) => {
     const list = listOf(row[flags]);
     if (list.length) {
       const strip = html(doc, "ul", "fft-xray-flags");
-      strip.setAttribute("aria-label", WORDS.flags);
+      strip.setAttribute("aria-label", wordsFor(ctx).flags);
       for (const text of list) {
         const pill = html(doc, "li", "fft-badge fft-xray-flag");
         pill.dataset.tone = "warning";
@@ -129,7 +129,7 @@ export const renderXray: ViewRenderer<XrayView> = (ctx) => {
     const list = listOf(row[actions]);
     if (list.length) {
       const section = html(doc, "div", "fft-xray-section");
-      section.append(html(doc, "div", "fft-xray-title", WORDS.nextActions));
+      section.append(html(doc, "div", "fft-xray-title", wordsFor(ctx).nextActions));
       const steps = html(doc, "ol", "fft-xray-actions");
       for (const text of list) {
         const item = html(doc, "li", "fft-xray-action");

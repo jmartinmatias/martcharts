@@ -4,7 +4,7 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { TreemapView } from "../../core/views.ts";
 import { squarify } from "../layout.ts";
 import { evenFormat, hiddenTableOf, html, legendList, selectable, shareFormat, svg, textWidth } from "./shared.ts";
-import { categoryColor, emphasis, WORDS } from "./words.ts";
+import { categoryColor, emphasis, wordsFor } from "./words.ts";
 import { roving } from "./focus.ts";
 
 /**
@@ -44,7 +44,7 @@ export const renderTreemap: ViewRenderer<TreemapView> = (ctx) => {
   const height = ctx.height;
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Treemap of ${ctx.label(value)} by ${ctx.label(label)}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.treemap(ctx.label(value), ctx.label(label)));
   const tiles = squarify(kept.map((k) => k.amount), 0, 0, width, height);
 
   const marks = svg(doc, "g");
@@ -86,7 +86,7 @@ export const renderTreemap: ViewRenderer<TreemapView> = (ctx) => {
 
     const items: TooltipItem[] = [
       { label: ctx.label(value), value: amountText },
-      { label: WORDS.share, value: share.format(k.amount / total) },
+      { label: wordsFor(ctx).share, value: share.format(k.amount / total) },
     ];
     if (group) items.push({ label: ctx.label(group), value: ctx.format(k.row[group], group), color: groupColor(k.group) });
     const hit = svg(doc, "rect", { class: "fft-tile-hit", ...box, tabindex: 0, role: "img" });

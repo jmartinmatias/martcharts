@@ -4,6 +4,7 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { MarimekkoView } from "../../core/views.ts";
 import { hiddenTableOf, html, legendList, selectable, shareFormat, svg, textWidth } from "./shared.ts";
 import { roving } from "./focus.ts";
+import { wordsFor } from "./words.ts";
 
 const GAP = 2;
 
@@ -57,7 +58,7 @@ export const renderMarimekko: ViewRenderer<MarimekkoView> = (ctx) => {
   const usableW = width - GAP * Math.max(0, columns.length - 1);
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Marimekko chart of ${ctx.label(value)} by ${ctx.label(x)} and ${ctx.label(series)}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.marimekko(ctx.label(value), ctx.label(x), ctx.label(series)));
 
   const groups: SVGGElement[] = [];
   const hits: Element[] = [];
@@ -102,8 +103,8 @@ export const renderMarimekko: ViewRenderer<MarimekkoView> = (ctx) => {
       const title = `${column.text}, ${shown}`;
       const items: TooltipItem[] = [
         { label: ctx.label(value), value: ctx.format(cell.row[value], value), color: colorOf(s) },
-        { label: `Share of ${column.text}`, value: share },
-        { label: "Share of total", value: percent.format(cell.amount / grand) },
+        { label: wordsFor(ctx).shareOf(column.text), value: share },
+        { label: wordsFor(ctx).shareOfTotal, value: percent.format(cell.amount / grand) },
       ];
       const hit = svg(doc, "rect", { class: "fft-mekko-hit", ...box, tabindex: 0, role: "img" });
       hit.setAttribute("aria-label", `${title}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
@@ -140,7 +141,7 @@ export const renderMarimekko: ViewRenderer<MarimekkoView> = (ctx) => {
   });
   roving(hits);
   wrap.append(chart);
-  if (!columns.length) wrap.append(html(doc, "p", "fft-empty-note", `No ${ctx.label(x).toLowerCase()} has a positive ${ctx.label(value).toLowerCase()}.`));
+  if (!columns.length) wrap.append(html(doc, "p", "fft-empty-note", wordsFor(ctx).nonePositive(ctx.label(x).toLowerCase(), ctx.label(value).toLowerCase())));
   wrap.append(hiddenTableOf(ctx, ctx.rows, [x, series, value]));
   ctx.el.append(wrap);
 };

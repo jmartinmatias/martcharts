@@ -6,6 +6,7 @@ import { fitLabels } from "../layout.ts";
 import { DEEMPHASIS, highlights } from "./chart.ts";
 import { activeGroup, hiddenTableOf, html, ROW, roving, rowHit, svg, textWidth } from "./shared.ts";
 import { fitLabel } from "./label-fit.ts";
+import { wordsFor } from "./words.ts";
 
 /** Height of one rank row: a Fibonacci step, enough for a label and a ringed dot. */
 const LANE: number = ROW.roomy;
@@ -79,7 +80,7 @@ export const renderBump: ViewRenderer<BumpView> = (ctx) => {
   const wrap = html(doc, "div", "fft-chart");
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Bump chart of ${ctx.label(series)} rank by ${ctx.label(value)} over ${ctx.label(x)}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.bump(ctx.label(series), ctx.label(value), ctx.label(x)));
   periods.forEach((_, p) => chart.append(svg(doc, "line", { class: "fft-gridline", x1: px(p), x2: px(p), y1: margin.top, y2: height - margin.bottom })));
   // Period labels where they fit, always including the last.
   for (const p of fitLabels(periods.map((period, i) => ({ x: px(i), width: textWidth(period.text) })), { keepLast: true })) {

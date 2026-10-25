@@ -4,7 +4,7 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { SankeyView } from "../../core/views.ts";
 import { layoutSankey } from "../layout.ts";
 import { evenFormat, hiddenTableOf, html, selectable, shareFormat, svg } from "./shared.ts";
-import { categoryColor, emphasis, WORDS } from "./words.ts";
+import { categoryColor, emphasis, wordsFor } from "./words.ts";
 import { roving } from "./focus.ts";
 
 const NODE_WIDTH = 13;
@@ -52,7 +52,7 @@ export const renderSankey: ViewRenderer<SankeyView> = (ctx) => {
   const wrap = html(doc, "div", "fft-chart");
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Sankey diagram of ${ctx.label(value)} from ${ctx.label(source)} to ${ctx.label(target)}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.sankey(ctx.label(value), ctx.label(source), ctx.label(target)));
   const ribbons = svg(doc, "g");
   const overlay = svg(doc, "g");
   const marks: SVGPathElement[] = [];
@@ -74,11 +74,11 @@ export const renderSankey: ViewRenderer<SankeyView> = (ctx) => {
     ribbons.append(ribbon);
     const items: TooltipItem[] = [
       { label: ctx.label(value), value: ctx.format(flow.row[value], value) },
-      { label: `${WORDS.ofParent} ${link.source}`, value: share.format(link.value / (outTotal(link.source) || 1)) },
+      { label: `${wordsFor(ctx).ofParent} ${link.source}`, value: share.format(link.value / (outTotal(link.source) || 1)) },
     ];
     const hit = svg(doc, "path", { class: "fft-ribbon-hit", d, tabindex: 0, role: "img" });
     hit.dataset.flow = name;
-    hit.setAttribute("aria-label", `${link.source} ${WORDS.to} ${link.target}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
+    hit.setAttribute("aria-label", `${link.source} ${wordsFor(ctx).to} ${link.target}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
     const activate = () => {
       wrap.setAttribute("data-active", "");
       for (const m of marks) m.removeAttribute("data-active");

@@ -7,6 +7,7 @@ import type { LabelBox, LinearScale } from "../layout.ts";
 import { drawNotes, pinNotes, tickFormatter } from "./chart.ts";
 import { categoryLabel, hiddenTableOf, html, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
+import { wordsFor } from "./words.ts";
 
 /** Room above each panel for its caption (the measure's name), and the air between the two panels. */
 const CAPTION = 18;
@@ -59,7 +60,7 @@ export const renderDual: ViewRenderer<DualView & { annotations?: Annotation[] }>
   const wrap = html(doc, "div", "fft-chart fft-dual");
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Two panels of ${ctx.label(view.y)} and ${ctx.label(view.y2)} by ${ctx.label(view.x)}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.dual(ctx.label(view.y), ctx.label(view.y2), ctx.label(view.x)));
 
   const markGroups = slots.map((_, i) => svg(doc, "g", { class: "fft-marks", "data-index": i, style: `--fft-i: ${i}` }));
   const crosshair = svg(doc, "line", { class: "fft-crosshair", y1: panels[0]?.top ?? 0, y2: panels[1]?.bottom ?? 0, x1: 0, x2: 0, hidden: "" });
@@ -146,7 +147,7 @@ export const renderDual: ViewRenderer<DualView & { annotations?: Annotation[] }>
   slots.forEach((slot, i) => {
     const row = rows[i] ?? {};
     const items: TooltipItem[] = panels.map((panel) => ({ label: ctx.label(panel.field), value: ctx.format(row[panel.field], panel.field), color: panel.color }));
-    for (const pin of pinned) if (pin.i === i) items.push({ label: "Note", value: pin.text });
+    for (const pin of pinned) if (pin.i === i) items.push({ label: wordsFor(ctx).note, value: pin.text });
     const title = xLabels[i] ?? "";
     const hit = svg(doc, "rect", { class: "fft-hit", x: slot.start, y: panels[0]?.top ?? 0, width: slot.width, height: (panels[1]?.bottom ?? 0) - (panels[0]?.top ?? 0), tabindex: 0, role: "img" });
     hit.setAttribute("aria-label", `${title}: ${items.map((item) => `${item.label} ${item.value || "no value"}`).join(", ")}`);

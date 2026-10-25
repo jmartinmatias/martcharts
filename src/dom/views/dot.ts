@@ -5,6 +5,7 @@ import { linearScale } from "../layout.ts";
 import { DEEMPHASIS, highlights, tickFormatter } from "./chart.ts";
 import { activeGroup, endRoom, fieldList, hiddenTableOf, html, legendList, roving, rowHeight, rowHit, svg } from "./shared.ts";
 import { nameColumn, writeLabel } from "./label-fit.ts";
+import { wordsFor } from "./words.ts";
 
 /** Dot radius: one measure gets a slightly bigger dot, several stay small so they can sit close. */
 const RADIUS = { one: 6, many: 5 };
@@ -52,7 +53,7 @@ export const renderDot: ViewRenderer<DotView> = (ctx) => {
 
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
-  chart.setAttribute("aria-label", `Dot plot of ${measures.map((field) => ctx.label(field)).join(", ")} by ${ctx.label(label)}`);
+  chart.setAttribute("aria-label", wordsFor(ctx).aria.dot(measures.map((field) => ctx.label(field)).join(", "), ctx.label(label)));
   for (const tick of x.ticks) {
     const tx = x(tick);
     chart.append(svg(doc, "line", { class: "fft-gridline", x1: tx, x2: tx, y1: margin.top, y2: plotBottom }));
