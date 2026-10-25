@@ -1,0 +1,137 @@
+{
+  "id": "regulatory-landscape",
+  "title": "Regulatory landscape",
+  "subtitle": "Activity, impact and lifecycle of the rules that bind financial firms, as of October 2026 (fictional data)",
+  "description": "What is coming, where it binds, how heavy it is and who must comply: the regulatory watch on one page.",
+  "columns": 4,
+  "range": {
+    "field": "month"
+  },
+  "filters": [
+    {
+      "field": "topic",
+      "label": "Topic"
+    },
+    {
+      "field": "jurisdiction",
+      "label": "Jurisdiction"
+    }
+  ],
+  "widgets": [
+    {
+      "section": "Headline numbers",
+      "description": "The landscape at a glance"
+    },
+    {
+      "widget": "reg-in-force-kpi"
+    },
+    {
+      "widget": "reg-applying-soon-kpi"
+    },
+    {
+      "widget": "reg-consultations-kpi"
+    },
+    {
+      "widget": "reg-pressure-kpi"
+    },
+    {
+      "section": "Geography",
+      "description": "Where the rules bind, and where national law lags"
+    },
+    {
+      "widget": "reg-rules-by-country",
+      "span": 2
+    },
+    {
+      "widget": "reg-transposition-map"
+    },
+    {
+      "widget": "reg-days-late-map"
+    },
+    {
+      "section": "Volume per topic",
+      "description": "How much each topic carries"
+    },
+    {
+      "widget": "reg-topic-status",
+      "span": 2
+    },
+    {
+      "widget": "reg-provisions-treemap",
+      "span": 2
+    },
+    {
+      "section": "Pressure",
+      "description": "Where and when the obligations land"
+    },
+    {
+      "widget": "reg-pressure-matrix",
+      "span": 2
+    },
+    {
+      "widget": "reg-obligations-dual",
+      "span": 2
+    },
+    {
+      "section": "Trend",
+      "description": "How the pressure built, and how the topics traded places"
+    },
+    {
+      "widget": "reg-pressure-trend",
+      "span": 2
+    },
+    {
+      "widget": "reg-topic-bump",
+      "span": 2
+    },
+    {
+      "widget": "reg-topic-horizon",
+      "span": 4
+    },
+    {
+      "section": "Status and lifecycle",
+      "description": "Where each rule stands on its way to applying"
+    },
+    {
+      "widget": "reg-status-board",
+      "span": 4
+    },
+    {
+      "widget": "reg-lifecycle",
+      "span": 3
+    },
+    {
+      "widget": "reg-stage-funnel"
+    },
+    {
+      "section": "Impact and stakeholders",
+      "description": "What matters most, and to whom"
+    },
+    {
+      "widget": "reg-impact-scatter",
+      "span": 2
+    },
+    {
+      "widget": "reg-stakeholder-matrix"
+    },
+    {
+      "widget": "reg-stakeholder-sankey"
+    },
+    {
+      "section": "Density",
+      "description": "How heavy each rule is, page by page"
+    },
+    {
+      "widget": "reg-density-strips",
+      "span": 2
+    },
+    {
+      "widget": "reg-mandatory-dot",
+      "span": 2
+    },
+    {
+      "widget": "reg-density-table",
+      "span": 4
+    }
+  ]
+}

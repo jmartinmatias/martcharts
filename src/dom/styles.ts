@@ -1559,4 +1559,38 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-anom-key-band { background: color-mix(in srgb, var(--fft-muted) 22%, transparent); }
 .fft-anom-key-flag { background: var(--fft-down); }
 .fft-widget[data-animate] .fft-anom-lane { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 34ms); }
+/* Scatter quadrants and always-on names: two hairlines, four faint words in the corners, names clear of the dots. */
+.fft-quadrant-line { stroke: var(--fft-axis); stroke-width: 1; stroke-dasharray: 2 3; pointer-events: none; }
+.fft-quadrant-label { fill: var(--fft-muted); font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; pointer-events: none; }
+.fft-point-label { fill: var(--fft-text-secondary); font-size: 11px; pointer-events: none; paint-order: stroke; stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 3; stroke-linejoin: round; }
+.fft-chart[data-active] .fft-point-label { fill: var(--fft-muted); }
+
+/* Categorical choropleth: regions in series colors, labels in the text color over a halo. */
+.fft-map-region-label-group { fill: var(--fft-text); paint-order: stroke; stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 2.5; stroke-linejoin: round; }
+ul.fft-map-legend { margin-top: 0; }
+
+/* Board: one column per stage, quiet cards, a folded tail per column, the right edge fading while more columns wait. */
+.fft-board-wrap { display: flex; flex-direction: column; gap: 8px; }
+.fft-board-scroll { overflow-x: auto; max-width: 100%; padding-bottom: 2px; scrollbar-width: thin; }
+.fft-board-scroll[data-more] { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 34px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 34px), transparent); }
+.fft-board { display: grid; grid-template-columns: repeat(var(--fft-columns, 3), minmax(144px, 1fr)); gap: 13px; align-items: start; min-width: calc(var(--fft-columns, 3) * 144px + (var(--fft-columns, 3) - 1) * 13px); }
+.fft-board-column { min-width: 0; }
+.fft-board-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin: 0 0 8px; padding: 0 2px 5px; border-bottom: 1px solid var(--fft-grid); font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fft-text-secondary); }
+.fft-board-stage { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fft-board-count { font-variant-numeric: tabular-nums; color: var(--fft-muted); font-weight: 500; }
+.fft-board-cards { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 5px; }
+.fft-board-card { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 8px; background: color-mix(in srgb, var(--fft-muted) 9%, var(--fft-surface)); box-shadow: inset 0 0 0 1px var(--fft-grid); font-size: 12px; line-height: 15px; cursor: pointer; outline: none; transition: opacity 377ms var(--fft-ease), box-shadow 233ms var(--fft-ease); }
+.fft-board-card[hidden] { display: none; }
+.fft-board-card:hover, .fft-board-card[data-active] { box-shadow: inset 0 0 0 1px var(--fft-axis); }
+.fft-board-card:focus-visible { box-shadow: 0 0 0 2px var(--fft-ring, var(--fft-surface)), 0 0 0 3px var(--fft-accent); }
+.fft-board[data-active] .fft-board-card:not([data-active]) { opacity: 0.55; }
+.fft-board-title { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.fft-board-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; box-shadow: 0 0 0 1px var(--fft-ring, var(--fft-surface)); }
+.fft-board-name { flex: 1; min-width: 0; font-weight: 600; color: var(--fft-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fft-board-value { flex: none; font-variant-numeric: tabular-nums; color: var(--fft-text-secondary); }
+.fft-board-detail { color: var(--fft-muted); font-size: 11px; line-height: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fft-board-more { margin: 5px 0 0; padding: 3px 2px; border: 0; background: none; color: var(--fft-text-secondary); font: inherit; font-size: 11px; line-height: 13px; cursor: pointer; border-radius: 5px; min-height: 24px; }
+.fft-board-more:hover { color: var(--fft-text); }
+.fft-board-more:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 2px; }
+.fft-widget[data-animate] .fft-board-card { animation: fft-fade 377ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 13ms); }
 `;

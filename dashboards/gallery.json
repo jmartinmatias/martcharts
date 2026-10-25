@@ -350,6 +350,14 @@
     {
       "widget": "metric-anomalies",
       "span": 2
+    },
+    {
+      "section": "Lifecycle",
+      "description": "Where everything stands, stage by stage"
+    },
+    {
+      "widget": "deal-board",
+      "span": 3
     }
   ],
   "title": "Gallery",

@@ -26,6 +26,8 @@ const FLAG = /^(flag|flagged|anomaly|anomalous|alert|outlier)$/i;
 const DAY = /^\d{4}-\d{2}-\d{2}/;
 const TARGET = /^(target|plan|planned|budget|goal|quota|forecast)$|(^|[_\s-])(target|plan|budget|goal|quota)$/i;
 const SOURCE = /^(source|from|origin)$/i;
+/** Fields that hold where something stands in a lifecycle. */
+const STAGE = /^(stage|status|state|phase|step|lifecycle)$|(^|[_\s-])(stage|status|state|phase)$/i;
 const DESTINATION = /^(target|to|destination)$/i;
 
 interface Shape {
@@ -475,6 +477,15 @@ const RULES: Record<string, Rule> = {
       view: { type: "anomalies", x, metric, value, ...(expected ? { expected } : {}), ...(low && high ? { low, high } : {}), ...(flag ? { flag } : {}) },
       why: `Each ${metric} as a lane over ${x}, its expected band behind it and the anomalies flagged.`,
     };
+  },
+  // A column named for a stage or status with 3 to 8 values, and a name per row: a board shows where everything stands.
+  board: (shape) => {
+    const stage = shape.categories.find((field) => STAGE.test(field) && shape.distinct(field) >= 3 && shape.distinct(field) <= 8);
+    const label = shape.categories.find((field) => field !== stage && shape.distinct(field) === shape.rows.length);
+    if (!stage || !label || shape.rows.length < 4 || shape.rows.length > 120) return undefined;
+    const group = shape.categories.find((field) => field !== stage && field !== label && shape.distinct(field) >= 2 && shape.distinct(field) <= 8);
+    const value = shape.numbers.find((field) => !TARGET.test(field));
+    return { score: 76, view: { type: "board", label, stage, ...(group ? { group } : {}), ...(value ? { value } : {}) }, why: `Every ${label} on a board, one column per ${stage}.` };
   },
 };
 

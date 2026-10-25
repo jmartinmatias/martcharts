@@ -1,0 +1,167 @@
+{
+  "id": "deal-board",
+  "title": "Deal board",
+  "subtitle": "Open and closed deals this quarter, by stage",
+  "description": "Every deal on a board by stage, the dot colored by region and the amount on each card, so the shape of the quarter reads at a glance.",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {
+        "deal": "Nordic Bank core upgrade",
+        "stage": "Negotiation",
+        "region": "North",
+        "amount": 240000,
+        "owner": "A. Berg"
+      },
+      {
+        "deal": "Harbor Insurance claims",
+        "stage": "Proposal",
+        "region": "North",
+        "amount": 96000,
+        "owner": "A. Berg"
+      },
+      {
+        "deal": "Meridian Payments API",
+        "stage": "Qualified",
+        "region": "South",
+        "amount": 58000,
+        "owner": "L. Costa"
+      },
+      {
+        "deal": "Atlas Asset reporting",
+        "stage": "Won",
+        "region": "South",
+        "amount": 132000,
+        "owner": "L. Costa"
+      },
+      {
+        "deal": "Riviera Retail loyalty",
+        "stage": "Lost",
+        "region": "South",
+        "amount": 44000,
+        "owner": "L. Costa"
+      },
+      {
+        "deal": "Eastline Logistics tracking",
+        "stage": "Negotiation",
+        "region": "East",
+        "amount": 175000,
+        "owner": "M. Novak"
+      },
+      {
+        "deal": "Danube Energy billing",
+        "stage": "Proposal",
+        "region": "East",
+        "amount": 88000,
+        "owner": "M. Novak"
+      },
+      {
+        "deal": "Baltic Telecom analytics",
+        "stage": "Qualified",
+        "region": "East",
+        "amount": 67000,
+        "owner": "M. Novak"
+      },
+      {
+        "deal": "Westport Clinics scheduling",
+        "stage": "Won",
+        "region": "West",
+        "amount": 112000,
+        "owner": "J. Reyes"
+      },
+      {
+        "deal": "Pacific Foods forecasting",
+        "stage": "Proposal",
+        "region": "West",
+        "amount": 71000,
+        "owner": "J. Reyes"
+      },
+      {
+        "deal": "Summit Hotels CRM",
+        "stage": "Qualified",
+        "region": "West",
+        "amount": 39000,
+        "owner": "J. Reyes"
+      },
+      {
+        "deal": "Crescent Media ads",
+        "stage": "Lost",
+        "region": "West",
+        "amount": 52000,
+        "owner": "J. Reyes"
+      },
+      {
+        "deal": "Central Rail timetable",
+        "stage": "Negotiation",
+        "region": "Central",
+        "amount": 203000,
+        "owner": "P. Weber"
+      },
+      {
+        "deal": "Alpine Motors warranty",
+        "stage": "Won",
+        "region": "Central",
+        "amount": 148000,
+        "owner": "P. Weber"
+      },
+      {
+        "deal": "Lakeside Schools portal",
+        "stage": "Qualified",
+        "region": "Central",
+        "amount": 27000,
+        "owner": "P. Weber"
+      },
+      {
+        "deal": "Forum Legal e-discovery",
+        "stage": "Proposal",
+        "region": "Central",
+        "amount": 64000,
+        "owner": "P. Weber"
+      }
+    ]
+  },
+  "fields": {
+    "deal": {
+      "label": "Deal"
+    },
+    "stage": {
+      "label": "Stage"
+    },
+    "region": {
+      "label": "Region"
+    },
+    "amount": {
+      "label": "Amount",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "owner": {
+      "label": "Owner"
+    }
+  },
+  "view": {
+    "type": "board",
+    "label": "deal",
+    "stage": "stage",
+    "stages": [
+      "Qualified",
+      "Proposal",
+      "Negotiation",
+      "Won",
+      "Lost"
+    ],
+    "group": "region",
+    "value": "amount",
+    "detail": "owner",
+    "limit": 4
+  },
+  "footer": "Source: CRM",
+  "source": {
+    "name": "Regulatory watch (fictional)"
+  },
+  "byline": "Compliance office"
+}

@@ -1,0 +1,32 @@
+{
+  "id": "reg-stakeholder-sankey",
+  "title": "Who must comply, by topic",
+  "subtitle": "Flows from each topic to the stakeholder types its rules bind",
+  "description": "How the body of rules lands on each kind of firm: the thicker the band, the more rules of that topic bind that type.",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/regulatory-stakeholders.json"
+  },
+  "fields": {
+    "topic": {
+      "label": "Topic"
+    },
+    "stakeholder": {
+      "label": "Stakeholder type"
+    },
+    "regulations": {
+      "label": "Regulations"
+    }
+  },
+  "view": {
+    "type": "sankey",
+    "source": "topic",
+    "target": "stakeholder",
+    "value": "regulations"
+  },
+  "source": {
+    "name": "Regulatory watch (fictional)"
+  },
+  "byline": "Compliance office"
+}

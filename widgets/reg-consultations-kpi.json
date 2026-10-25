@@ -1,0 +1,41 @@
+{
+  "id": "reg-consultations-kpi",
+  "title": "Open consultations",
+  "subtitle": "{last:month}, with the trend since {first:month}",
+  "description": "Consultations open at the end of the month, against the month before.",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/regulatory-pressure.json"
+  },
+  "transform": [
+    {
+      "type": "filter",
+      "field": "forecast",
+      "op": "==",
+      "value": false
+    }
+  ],
+  "fields": {
+    "month": {
+      "label": "Month",
+      "format": {
+        "type": "date",
+        "style": "month"
+      }
+    },
+    "consultationsOpen": {
+      "label": "Open consultations"
+    }
+  },
+  "view": {
+    "type": "kpi",
+    "value": "consultationsOpen",
+    "series": true,
+    "x": "month"
+  },
+  "source": {
+    "name": "Regulatory watch (fictional)"
+  },
+  "byline": "Compliance office"
+}

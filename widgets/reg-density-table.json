@@ -1,0 +1,92 @@
+{
+  "id": "reg-density-table",
+  "title": "Density by rule",
+  "subtitle": "Provisions, the share that is binding, provisions per page, impact and reach",
+  "description": "Every tracked regulation with its density figures, searchable, ten to a page.",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/regulations.json"
+  },
+  "transform": [
+    {
+      "type": "calc",
+      "as": "mandatoryShare",
+      "op": "divide",
+      "left": "mandatory",
+      "right": "provisions"
+    },
+    {
+      "type": "calc",
+      "as": "perPage",
+      "op": "divide",
+      "left": "provisions",
+      "right": "pages"
+    },
+    {
+      "type": "sort",
+      "field": "provisions",
+      "order": "desc"
+    }
+  ],
+  "fields": {
+    "name": {
+      "label": "Regulation"
+    },
+    "topic": {
+      "label": "Topic"
+    },
+    "impact": {
+      "label": "Impact (1 to 5)"
+    },
+    "mustComply": {
+      "label": "Stakeholder types bound"
+    },
+    "provisions": {
+      "label": "Provisions",
+      "format": {
+        "type": "heat",
+        "min": 0,
+        "max": 420
+      }
+    },
+    "mandatoryShare": {
+      "label": "Binding share",
+      "format": {
+        "type": "bar",
+        "format": {
+          "type": "percent",
+          "decimals": 0
+        }
+      }
+    },
+    "perPage": {
+      "label": "Provisions per page",
+      "format": {
+        "type": "heat",
+        "min": 0.4,
+        "max": 1.8,
+        "decimals": 2
+      }
+    }
+  },
+  "view": {
+    "type": "table",
+    "columns": [
+      "name",
+      "topic",
+      "provisions",
+      "mandatoryShare",
+      "perPage",
+      "impact",
+      "mustComply"
+    ],
+    "search": true,
+    "pageSize": 10,
+    "stickyFirst": true
+  },
+  "source": {
+    "name": "Regulatory watch (fictional)"
+  },
+  "byline": "Compliance office"
+}

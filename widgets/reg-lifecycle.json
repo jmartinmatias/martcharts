@@ -1,0 +1,66 @@
+{
+  "id": "reg-lifecycle",
+  "title": "Lifecycle of the biggest rules",
+  "subtitle": "The twelve highest-impact regulations, proposal to application, with today",
+  "description": "Each rule's path from proposal to application against today's line: what is already live, what is still to come.",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/regulations.json"
+  },
+  "transform": [
+    {
+      "type": "sort",
+      "field": "impact",
+      "order": "desc"
+    },
+    {
+      "type": "limit",
+      "count": 12
+    }
+  ],
+  "fields": {
+    "name": {
+      "label": "Regulation"
+    },
+    "topic": {
+      "label": "Topic"
+    },
+    "status": {
+      "label": "Status"
+    },
+    "impact": {
+      "label": "Impact (1 to 5)"
+    },
+    "proposed": {
+      "label": "Proposed"
+    },
+    "adopted": {
+      "label": "Adopted"
+    },
+    "inForce": {
+      "label": "In force"
+    },
+    "applies": {
+      "label": "Applies"
+    }
+  },
+  "view": {
+    "type": "lifecycle",
+    "label": "name",
+    "stages": [
+      "proposed",
+      "adopted",
+      "inForce",
+      "applies"
+    ],
+    "group": "topic",
+    "today": "2026-10-25",
+    "status": "status",
+    "impact": "impact"
+  },
+  "source": {
+    "name": "Regulatory watch (fictional)"
+  },
+  "byline": "Compliance office"
+}

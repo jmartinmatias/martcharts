@@ -1,0 +1,58 @@
+{
+  "id": "reg-status-board",
+  "title": "Where each rule stands",
+  "subtitle": "One column per status; the number is impact, 1 to 5",
+  "description": "Every tracked regulation on a board by status, the dot colored by topic, the highest-impact rules first.",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/regulations.json"
+  },
+  "transform": [
+    {
+      "type": "sort",
+      "field": "impact",
+      "order": "desc"
+    }
+  ],
+  "fields": {
+    "name": {
+      "label": "Regulation"
+    },
+    "status": {
+      "label": "Status"
+    },
+    "topic": {
+      "label": "Topic"
+    },
+    "impact": {
+      "label": "Impact (1 to 5)"
+    },
+    "issuer": {
+      "label": "Issuer"
+    }
+  },
+  "view": {
+    "type": "board",
+    "label": "name",
+    "stage": "status",
+    "stages": [
+      "Proposal",
+      "Consultation",
+      "Adopted",
+      "Published",
+      "In force",
+      "Applies",
+      "Under review",
+      "Repealed"
+    ],
+    "group": "topic",
+    "value": "impact",
+    "detail": "issuer",
+    "limit": 6
+  },
+  "source": {
+    "name": "Regulatory watch (fictional)"
+  },
+  "byline": "Compliance office"
+}

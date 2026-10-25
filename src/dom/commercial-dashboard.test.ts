@@ -36,9 +36,9 @@ describe("the commercial cockpit", () => {
     expect(sections).toEqual(["Headline numbers", "Products", "Coverage", "Sales and billing", "Campaigns", "Adoption", "Portfolio", "Whitespace and cross-sell", "Where clients are", "Clients", "Anomalies"]);
   });
 
-  test("the specs whose views land on a sibling branch (whitespace, x-ray, history) parse", () => {
-    const pending = ids.filter((id) => !drawable(id));
-    for (const id of pending) expect(["whitespace", "xray", "history"]).toContain(widgets[id]?.view.type);
+  test("every widget it names has a registered view, whitespace, x-ray and history included", () => {
+    expect(ids.filter((id) => !drawable(id))).toEqual([]);
+    for (const type of ["whitespace", "xray", "history", "anomalies"]) expect(ids.some((id) => widgets[id]?.view.type === type)).toBe(true);
   });
 
   test(

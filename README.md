@@ -165,13 +165,14 @@ Start from what you want the reader to see. Every view takes plain rows; `sugges
 | What makes up a change | `waterfall` (a bridge from one total to the next), `variance` (actual against plan, good or bad) |
 | Where the bulk is | `pareto` (the vital few behind 80%) |
 | How values spread | `histogram`, `boxplot` (quartiles and outliers), `beeswarm` (every point), `ridgeline` (shapes side by side); the `bin` transform turns any field into bands for a table or bar |
-| How two measures relate | `scatter` (add `"size"` for a bubble chart: a third measure as area) |
+| How two measures relate | `scatter` (add `"size"` for a bubble chart: a third measure as area; `"quadrants": { "x", "y", "labels" }` cuts it into a priority grid such as Monitor, Act now, Prepare, Watch; `"labels": true` names the standouts on the chart) |
 | Profiles across several attributes | `radar` (up to 3 profiles on one shared scale) |
 | Flows between stages | `sankey` (branching), `funnel` (one path), `chord` (exchange within one set, such as moves between plans) |
 | Survey answers | `likert` |
 | Plans and dates | `timeline` (with milestones, progress and a today line) |
 | Where things are | `choropleth` (regions shaded by a value), `symbols` (circles sized by a value, on their regions or at coordinates), `locator` (named markers). Two built-in tile-grid basemaps, `europe` and `us-states`, keyed by country or state code, or your own GeoJSON by object or address |
 | Which measures stepped out of line | `anomalies` (one thin lane per metric, its expected band behind the line, anomalies as alert dots, the lanes with the most first); on a `scatter`, `"cluster"` draws a soft hull round each cluster's dots |
+| Where everything stands in a lifecycle | `board` (one column per stage or status, each item a card with its group dot and value: regulations by status, deals by stage) |
 | Records to read | `table` (with `spark` and `badge` cells), `list` |
 | Regulatory pressure, or who must comply | `matrix` (one mark per topic and quarter, sized by new obligations and shaded by impact; or a square per stakeholder that must comply with each rule) |
 | Provisions and how binding they are | `strips` (one square per provision, colored mandatory, recommended, optional, with the mandatory share and the density per page at the end) |
@@ -208,6 +209,10 @@ Widgets are stored as `widgets/<id>.json`, the same files the demo page reads. A
 - [docs/accessibility.md](docs/accessibility.md): conformance with EN 301 549 (the European Accessibility Act) and WCAG 2.1 AA, criterion by criterion, and how to test it.
 - [docs/taller.md](docs/taller.md): the Taller, elBulli's creative method abstracted and applied to sales: seven sales moves that make new, balanced versions of any widget, each with the sales question it answers.
 - [docs/editor.md](docs/editor.md): the editor, a chart from a table in four steps, and how to embed it with `createEditor`.
+
+## A regulatory landscape on one page
+
+`dashboards/regulatory-landscape.json` (a dashboard in the demo's switcher) shows what the library does with a regulatory watch: headline numbers (rules in force, applying within a year, open consultations, a pressure index with its trend), where the rules bind (`choropleth` of rules in scope per country, a categorical `choropleth` of transposition status, `symbols` of days late), volume per topic (stacked `hbar` by status, a `treemap` of provisions), pressure (`dual` of new obligations against the index, an annotated `line` with a forecast fan, `bump` of topic ranks, `horizon` of events per topic), status and lifecycle (`board` by status grouped by topic, a `funnel` of counts per stage), impact and stakeholders (`scatter` of pressure against impact sized by who must comply, with quadrants, a `sankey` from topic to stakeholder type) and density (a heat `table` of provisions, mandatory share and provisions per page). The data in `public/data/regulatory-*.json` is fictional.
 
 ## Make a chart without writing JSON: the editor
 

@@ -1,0 +1,50 @@
+{
+  "id": "reg-topic-status",
+  "title": "Rules per topic, by status",
+  "subtitle": "Every tracked regulation, stacked by where it stands",
+  "description": "How many rules each topic carries, and how many of them are still on the way against already applying.",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/regulations.json"
+  },
+  "transform": [
+    {
+      "type": "pivot",
+      "row": "topic",
+      "column": "status",
+      "value": "id",
+      "op": "count",
+      "fill": 0
+    },
+    {
+      "type": "sort",
+      "field": "topic",
+      "order": "asc"
+    }
+  ],
+  "fields": {
+    "topic": {
+      "label": "Topic"
+    }
+  },
+  "view": {
+    "type": "hbar",
+    "label": "topic",
+    "value": [
+      "Proposal",
+      "Consultation",
+      "Adopted",
+      "Published",
+      "In force",
+      "Applies",
+      "Under review",
+      "Repealed"
+    ],
+    "stacked": true
+  },
+  "source": {
+    "name": "Regulatory watch (fictional)"
+  },
+  "byline": "Compliance office"
+}

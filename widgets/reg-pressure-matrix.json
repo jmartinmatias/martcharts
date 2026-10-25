@@ -1,0 +1,40 @@
+{
+  "id": "reg-pressure-matrix",
+  "title": "Pressure by topic and quarter",
+  "subtitle": "Circle area is the obligations landing; color is their average impact",
+  "description": "Where and when the obligations land: each circle is one topic in one quarter, sized by obligations and colored by impact.",
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/regulatory-activity.json"
+  },
+  "fields": {
+    "quarter": {
+      "label": "Quarter"
+    },
+    "topic": {
+      "label": "Topic"
+    },
+    "obligations": {
+      "label": "Obligations"
+    },
+    "impact": {
+      "label": "Average impact",
+      "format": {
+        "type": "number",
+        "decimals": 1
+      }
+    }
+  },
+  "view": {
+    "type": "matrix",
+    "x": "quarter",
+    "y": "topic",
+    "size": "obligations",
+    "color": "impact"
+  },
+  "source": {
+    "name": "Regulatory watch (fictional)"
+  },
+  "byline": "Compliance office"
+}

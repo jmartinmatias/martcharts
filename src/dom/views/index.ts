@@ -57,6 +57,7 @@ import { renderLocator } from "./locator.ts";
 import { renderWhitespace } from "./whitespace.ts";
 import { renderXray } from "./xray.ts";
 import { renderHistory } from "./history.ts";
+import { renderBoard } from "./board.ts";
 
 setRenderer("table", renderTable);
 setRenderer("list", renderList);
@@ -112,6 +113,7 @@ setRenderer("whitespace", renderWhitespace);
 setRenderer("xray", renderXray);
 setRenderer("history", renderHistory);
 setRenderer("anomalies", renderAnomalies);
+setRenderer("board", renderBoard);
 
 export { renderKpis } from "./kpis.ts";
 export { renderRidgeline } from "./ridgeline.ts";
@@ -126,3 +128,4 @@ export { renderMatrix } from "./matrix.ts";
 export { renderStrips } from "./strips.ts";
 export { renderLifecycle } from "./lifecycle.ts";
 export { renderAnomalies } from "./anomalies.ts";
+export { renderBoard } from "./board.ts";

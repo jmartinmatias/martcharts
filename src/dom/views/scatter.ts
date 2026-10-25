@@ -45,8 +45,11 @@ export const renderScatter: ViewRenderer<ScatterView> = (ctx) => {
   }
 
   const references = resolveReferences(ctx.view, ctx.rows);
-  const yValues = [...points.map((p) => p.y), ...referenceValues(references)];
-  const xTicks = linearScale(points.map((p) => p.x), [0, 1], { includeZero: false }).ticks;
+  // Quadrants: the two splits stretch each axis so both lines are always in view.
+  const quadrants = ctx.view.quadrants && typeof ctx.view.quadrants.x === "number" && typeof ctx.view.quadrants.y === "number" ? ctx.view.quadrants : undefined;
+  const yValues = [...points.map((p) => p.y), ...referenceValues(references), ...(quadrants ? [quadrants.y] : [])];
+  const xValues = [...points.map((p) => p.x), ...(quadrants ? [quadrants.x] : [])];
+  const xTicks = linearScale(xValues, [0, 1], { includeZero: false }).ticks;
   const yTicks = linearScale(yValues, [1, 0], { includeZero: false }).ticks;
   const xText = tickFormatter(ctx, xField, xTicks);
   const yText = tickFormatter(ctx, yField, yTicks);
@@ -55,7 +58,13 @@ export const renderScatter: ViewRenderer<ScatterView> = (ctx) => {
   const width = Math.max(ctx.width, left + 89);
   const height = ctx.height;
   const plot = { x: margin.left, y: margin.top, w: width - margin.left - margin.right, h: height - margin.top - margin.bottom };
-  const xs = linearScale(points.map((p) => p.x), [plot.x, plot.x + plot.w], { includeZero: false });
+  const xs = linearScale(xValues, [plot.x, plot.x + plot.w], { includeZero: false });
+  /** Which quadrant a point falls in, top-left first then clockwise, as the labels are given. */
+  const quadrantOf = (px: number, py: number): number => (quadrants ? (py >= quadrants.y ? (px < quadrants.x ? 0 : 1) : px >= quadrants.x ? 2 : 3) : -1);
+  const quadrantName = (px: number, py: number): string => {
+    const i = quadrantOf(px, py);
+    return i < 0 ? "" : quadrants?.labels?.[i] ?? ["Top left", "Top right", "Bottom right", "Bottom left"][i]!;
+  };
   const ys = linearScale(yValues, [plot.y + plot.h, plot.y], { includeZero: false });
 
   const wrap = html(doc, "div", "fft-chart");
@@ -104,6 +113,28 @@ export const renderScatter: ViewRenderer<ScatterView> = (ctx) => {
   const dotBoxes = points.map((p) => ({ x: xs(p.x) - p.r, y: ys(p.y) - p.r, width: p.r * 2, height: p.r * 2 }));
   drawReferences(doc, references, ys, plot, yText, refsBelow, refsAbove, { boxes: dotBoxes });
   chart.append(refsBelow);
+  if (quadrants) {
+    // Two hairlines split the plot; a faint word sits in each corner, clear of the axes.
+    const splits = svg(doc, "g", { class: "fft-quadrants" });
+    splits.setAttribute("aria-hidden", "true");
+    const [qx, qy] = [xs(quadrants.x), ys(quadrants.y)];
+    splits.append(svg(doc, "line", { class: "fft-quadrant-line", x1: qx, x2: qx, y1: plot.y, y2: plot.y + plot.h }));
+    splits.append(svg(doc, "line", { class: "fft-quadrant-line", x1: plot.x, x2: plot.x + plot.w, y1: qy, y2: qy }));
+    const corners: [number, number, string][] = [
+      [plot.x + 6, plot.y + 13, "start"],
+      [plot.x + plot.w - 6, plot.y + 13, "end"],
+      [plot.x + plot.w - 6, plot.y + plot.h - 6, "end"],
+      [plot.x + 6, plot.y + plot.h - 6, "start"],
+    ];
+    (quadrants.labels ?? []).forEach((word, i) => {
+      const corner = corners[i];
+      if (!corner || !word) return;
+      const text = svg(doc, "text", { class: "fft-quadrant-label", x: corner[0], y: corner[1], "text-anchor": corner[2] });
+      text.textContent = word;
+      splits.append(text);
+    });
+    chart.append(splits);
+  }
 
   // Clusters: a soft hull round each one's dots, in the cluster's color (its own, or a quiet grey when the dots are colored by series), its name at the middle.
   if (cluster) {
@@ -152,6 +183,7 @@ export const renderScatter: ViewRenderer<ScatterView> = (ctx) => {
     if (size) items.push({ label: ctx.label(size), value: ctx.format(point.row[size], size) });
     if (series) items.push({ label: ctx.label(series), value: ctx.format(point.row[series], series), color: ctx.color(point.group) });
     if (cluster) items.push({ label: ctx.label(cluster), value: ctx.format(point.row[cluster], cluster), ...(series ? {} : { color: ctx.color(point.group) }) });
+    if (quadrants) items.push({ label: "Quadrant", value: quadrantName(point.x, point.y) });
     const hit = svg(doc, "circle", { class: "fft-point-hit", cx, cy, r: Math.max(13, point.r + 3), tabindex: 0, role: "img" });
     hit.setAttribute("aria-label", `${name ? `${name}: ` : ""}${items.map((item) => `${item.label} ${item.value}`).join(", ")}`);
     const activate = () => {
@@ -167,13 +199,45 @@ export const renderScatter: ViewRenderer<ScatterView> = (ctx) => {
     selectable(hit, () => ctx.select(point.row));
     overlay.append(hit);
   });
-  chart.append(dots, refsAbove, overlay);
+  chart.append(dots, refsAbove);
+  if (label && ctx.view.labels) {
+    // Always-on names beside the dots, biggest dots first, each skipped when it would land on an earlier name or a dot.
+    const names = svg(doc, "g", { class: "fft-point-labels" });
+    names.setAttribute("aria-hidden", "true");
+    const taken: { x: number; y: number; width: number; height: number }[] = points.map((p) => ({ x: xs(p.x) - p.r, y: ys(p.y) - p.r, width: p.r * 2, height: p.r * 2 }));
+    const clash = (a: { x: number; y: number; width: number; height: number }) => taken.some((b) => a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y);
+    for (const point of points) {
+      const text = ctx.format(point.row[label], label);
+      if (!text) continue;
+      const width = text.length * CHAR_WIDTH;
+      const [cx, cy] = [xs(point.x), ys(point.y)];
+      // Right of the dot first, then left, then above, then below: the first spot that is free and inside the plot.
+      // A dot on the plot's top edge may lend its name a few pixels of the top margin.
+      const spots: [number, number, string][] = [
+        [cx + point.r + 4, cy + 4, "start"],
+        [cx - point.r - 4, cy + 4, "end"],
+        [cx, cy - point.r - 4, "middle"],
+        [cx, cy + point.r + 13, "middle"],
+      ];
+      for (const [x, y, anchor] of spots) {
+        const box = { x: anchor === "start" ? x : anchor === "end" ? x - width : x - width / 2, y: y - 11, width, height: 13 };
+        if (box.x < plot.x || box.x + box.width > plot.x + plot.w || box.y < plot.y - 8 || box.y + box.height > plot.y + plot.h || clash(box)) continue;
+        const node = svg(doc, "text", { class: "fft-point-label", x, y, "text-anchor": anchor });
+        node.textContent = text;
+        names.append(node);
+        taken.push(box);
+        break;
+      }
+    }
+    chart.append(names);
+  }
+  chart.append(overlay);
   roving([...overlay.children]);
   wrap.append(chart);
 
   const hidden = html(doc, "div", "fft-sr-only");
   const columns = [label, xField, yField, size, series, cluster].filter((f): f is string => Boolean(f));
-  hidden.append(buildTable(ctx, points.map((p) => p.row), columns, false));
+  hidden.append(buildTable(ctx, quadrants ? points.map((p) => ({ ...p.row, Quadrant: quadrantName(p.x, p.y) })) : points.map((p) => p.row), quadrants ? [...columns, "Quadrant"] : columns, false));
   wrap.append(hidden);
   ctx.el.append(wrap);
 };
