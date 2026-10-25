@@ -20,6 +20,7 @@ export default defineConfig({
         editor: fileURLToPath(new URL("./editor.html", import.meta.url)),
         commercial: fileURLToPath(new URL("./commercial.html", import.meta.url)),
         health: fileURLToPath(new URL("./health.html", import.meta.url)),
+        regulatory: fileURLToPath(new URL("./regulatory.html", import.meta.url)),
       },
     },
   },

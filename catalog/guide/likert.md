@@ -28,18 +28,18 @@ Survey answers as diverging stacked bars: one bar per question, its responses in
 | Option | Holds | Required | What it does |
 | --- | --- | --- | --- |
 | `label` | category | yes | Field with each question. |
-| `responses` | number (one or more) | yes | Count fields for the responses, in order from the negative pole to the positive, for example ["strongly_disagree", "disagree", "neutral", "agree", "strongly_agree"]. An odd count puts the middle one at the center. |
+| `value` | number (one or more) | yes | Count fields for the responses, in order from the negative pole to the positive, for example ["strongly_disagree", "disagree", "neutral", "agree", "strongly_agree"]. An odd count puts the middle one at the center. Also accepts `responses`, the older name. |
 
 ## This example's columns (6 columns, 5 rows)
 
 | Column | Holds | Drawn as | Values |
 | --- | --- | --- | --- |
 | `question` | category | `label` | 5 different, e.g. "I understand our strategy", "My manager supports my growth", "I have the tools to do my job" |
-| `strongly_disagree` | number | `responses` | 8 to 38 |
-| `disagree` | number | `responses` | 20 to 70 |
-| `neutral` | number | `responses` | 40 to 60 |
-| `agree` | number | `responses` | 58 to 110 |
-| `strongly_agree` | number | `responses` | 18 to 68 |
+| `strongly_disagree` | number | `value` | 8 to 38 |
+| `disagree` | number | `value` | 20 to 70 |
+| `neutral` | number | `value` | 40 to 60 |
+| `agree` | number | `value` | 58 to 110 |
+| `strongly_agree` | number | `value` | 18 to 68 |
 
 ## The data drawing it now
 
@@ -106,7 +106,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "view": {
     "type": "likert",
     "label": "question",
-    "responses": [
+    "value": [
       "strongly_disagree",
       "disagree",
       "neutral",
@@ -122,11 +122,13 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
 | Chart | Fit | Verdict | Assessment | View |
 | --- | --- | --- | --- | --- |
 | `bar` | fits | different | Answers a different question: better for ranking, top to bottom and trend over time, but gives up survey and rating answers. | `{"type":"bar","x":"question","y":["strongly_disagree","disagree"]}` |
-| `hbar` | fits | different | Answers a different question: better for ranking, top to bottom and comparing amounts across categories, but gives up survey and rating answers. | `{"type":"hbar","label":"question","value":"strongly_disagree"}` |
+| `hbar` | fits | different | Answers a different question: better for ranking, top to bottom and comparing amounts across categories, but gives up survey and rating answers. | `{"type":"hbar","label":"question","value":["strongly_disagree","disagree"]}` |
 | `list` | fits | different | Answers a different question: better for exact values and lookup and ranking, top to bottom, but gives up survey and rating answers. | `{"type":"list","label":"question"}` |
 | `donut` | fits | different | Answers a different question: better for share of one whole, but gives up survey and rating answers. | `{"type":"donut","label":"question","value":"strongly_disagree"}` |
+| `pie` | fits | different | Answers a different question: better for share of one whole, but gives up survey and rating answers. | `{"type":"pie","label":"question","value":"strongly_disagree"}` |
 | `radar` | fits | different | Answers a different question: better for profiles across several attributes, but gives up survey and rating answers. | `{"type":"radar","label":"question","y":["strongly_disagree","disagree"]}` |
 | `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up survey and rating answers. | `{"type":"table"}` |
+| `dot` | fits | worse | Gives up survey and rating answers, and this data gives it nothing better to do. | `{"type":"dot","label":"question","value":["strongly_disagree","disagree"]}` |
 | `icicle` | fits | worse | Gives up survey and rating answers, and this data gives it nothing better to do. | `{"type":"icicle","levels":"question","value":"strongly_disagree"}` |
 | `kpi` | fits | worse | Gives up survey and rating answers, and this data gives it nothing better to do. | `{"type":"kpi","value":"strongly_disagree"}` |
 | `kpis` | fits | worse | Gives up survey and rating answers, and this data gives it nothing better to do. | `{"type":"kpis","items":[{"value":"strongly_disagree"},{"value":"disagree"},{"value":"neutral"}]}` |
@@ -145,4 +147,4 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
 | `ridgeline` | stretch: 5 rows: this chart says little with fewer than 20. | worse | Gives up survey and rating answers, and this data gives it nothing better to do. | `{"type":"ridgeline","value":"strongly_disagree","group":"question"}` |
 | `scatter` | stretch: 5 rows: this chart says little with fewer than 6. | worse | Gives up survey and rating answers, and this data gives it nothing better to do. | `{"type":"scatter","x":"strongly_disagree","y":"disagree","label":"question"}` |
 
-Not possible with this data: `bullet` (It needs a target, plan or budget column.); `bump` (needs a separate column for series (it would reuse "question", already the x)); `calendar` (needs a date column for date); `candlestick` (It needs open, high, low and close prices per period.); `chord` (needs a separate column for target (it would reuse "question", already the source)); `dumbbell` (It needs the same measure at two points in time, in two columns.); `funnel` (It needs ordered stages that narrow, such as visits to sign-ups to sales.); `heatmap` (needs a separate column for y (it would reuse "question", already the x)); `marimekko` (needs a separate column for series (it would reuse "question", already the x)); `meter` (It needs a target, plan or budget column.); `rings` (It needs a target, plan or budget column.); `sankey` (needs a separate column for target (it would reuse "question", already the source)); `slope` (It needs the same measure at two points in time, in two columns.); `timeline` (needs a date column for start); `variance` (It needs a target, plan or budget column.); `waterfall` (It needs changes that add up from one total to another.).
+Not possible with this data: `anomalies` (needs a separate column for metric (it would reuse "question", already the x)); `board` (needs a separate column for stage (it would reuse "question", already the label)); `bullet` (It needs a target, plan or budget column.); `bump` (needs a separate column for series (it would reuse "question", already the x)); `calendar` (needs a date column for date); `candlestick` (It needs open, high, low and close prices per period.); `chord` (needs a separate column for target (it would reuse "question", already the source)); `choropleth` (needs a column of country or state codes that sit on a basemap); `dual` (It needs two measures over the same periods, in two columns.); `dumbbell` (It needs the same measure at two points in time, in two columns.); `funnel` (It needs ordered stages that narrow, such as visits to sign-ups to sales.); `heatmap` (needs a separate column for y (it would reuse "question", already the x)); `history` (needs a separate column for title (it would reuse "question", already the date)); `lifecycle` (view: stages needs at least two date fields in order, such as ["proposed", "adopted"].); `locator` (needs named places with region codes on a basemap, or coordinates); `marimekko` (needs a separate column for series (it would reuse "question", already the x)); `matrix` (needs a separate column for y (it would reuse "question", already the x)); `meter` (It needs a target, plan or budget column.); `pyramid` (It needs two counts per ordered band, such as women and men per age group.); `ragboard` (It needs status columns holding R, A, G (or red, amber, green), one row per client or deal; the rag transform makes them from numbers.); `ragtrend` (needs a separate column for period (it would reuse "question", already the label)); `rings` (It needs a target, plan or budget column.); `sankey` (needs a separate column for target (it would reuse "question", already the source)); `slope` (It needs the same measure at two points in time, in two columns.); `strips` (It needs whole counts per row, in one or more part columns.); `symbols` (needs a column of country or state codes that sit on a basemap, or coordinates); `timeline` (needs a date column for start); `variance` (It needs a target, plan or budget column.); `waterfall` (It needs changes that add up from one total to another.); `whitespace` (needs a separate column for column (it would reuse "question", already the row)); `xray` (It needs one row: one client with its facts, holdings and share of wallet.).

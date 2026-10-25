@@ -78,6 +78,6 @@
     "type": "matrix",
     "x": "stakeholder",
     "y": "regulation",
-    "mark": "mustComply"
+    "flag": "mustComply"
   }
 }

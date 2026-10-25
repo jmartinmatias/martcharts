@@ -10,25 +10,25 @@ In code: `dataContract(spec, rows)`, `switchChart(spec, to, rows)`, `switchOptio
 
 | Job | Best | Good |
 | --- | --- | --- |
-| Comparing amounts across categories | [`bar`](#bar), [`hbar`](#hbar) | [`boxplot`](#boxplot), [`bullet`](#bullet), [`dumbbell`](#dumbbell), [`horizon`](#horizon), [`likert`](#likert), [`line`](#line), [`marimekko`](#marimekko), [`radar`](#radar), [`ridgeline`](#ridgeline), [`variance`](#variance) |
-| Ranking, top to bottom | [`bump`](#bump), [`hbar`](#hbar), [`pareto`](#pareto) | [`bar`](#bar), [`list`](#list), [`slope`](#slope) |
-| Trend over time | [`area`](#area), [`candlestick`](#candlestick), [`horizon`](#horizon), [`line`](#line) | [`bar`](#bar), [`bump`](#bump), [`calendar`](#calendar) |
-| Share of one whole | [`donut`](#donut), [`treemap`](#treemap), [`waffle`](#waffle) | [`icicle`](#icicle), [`likert`](#likert), [`marimekko`](#marimekko), [`pareto`](#pareto), [`sunburst`](#sunburst) |
-| How each group or period splits | [`marimekko`](#marimekko) | [`area`](#area), [`bar`](#bar) |
-| How values spread | [`beeswarm`](#beeswarm), [`boxplot`](#boxplot), [`histogram`](#histogram), [`ridgeline`](#ridgeline) |  |
-| How two measures relate | [`scatter`](#scatter) |  |
+| Comparing amounts across categories | [`bar`](#bar), [`hbar`](#hbar), [`dot`](#dot), [`choropleth`](#choropleth), [`symbols`](#symbols) | [`boxplot`](#boxplot), [`bullet`](#bullet), [`dumbbell`](#dumbbell), [`horizon`](#horizon), [`likert`](#likert), [`line`](#line), [`marimekko`](#marimekko), [`radar`](#radar), [`ridgeline`](#ridgeline), [`variance`](#variance), [`pyramid`](#pyramid), [`matrix`](#matrix), [`strips`](#strips) |
+| Ranking, top to bottom | [`bump`](#bump), [`hbar`](#hbar), [`pareto`](#pareto) | [`bar`](#bar), [`list`](#list), [`slope`](#slope), [`dot`](#dot) |
+| Trend over time | [`area`](#area), [`candlestick`](#candlestick), [`horizon`](#horizon), [`line`](#line), [`dual`](#dual) | [`bar`](#bar), [`bump`](#bump), [`calendar`](#calendar), [`anomalies`](#anomalies), [`ragtrend`](#ragtrend) |
+| Share of one whole | [`donut`](#donut), [`pie`](#pie), [`treemap`](#treemap), [`waffle`](#waffle) | [`icicle`](#icicle), [`likert`](#likert), [`marimekko`](#marimekko), [`pareto`](#pareto), [`sunburst`](#sunburst) |
+| How each group or period splits | [`marimekko`](#marimekko), [`strips`](#strips), [`whitespace`](#whitespace) | [`area`](#area), [`bar`](#bar) |
+| How values spread | [`beeswarm`](#beeswarm), [`boxplot`](#boxplot), [`histogram`](#histogram), [`ridgeline`](#ridgeline), [`pyramid`](#pyramid) |  |
+| How two measures relate | [`scatter`](#scatter) | [`dual`](#dual) |
 | Flows between stages or groups | [`chord`](#chord), [`sankey`](#sankey) |  |
-| Conversion through ordered steps | [`funnel`](#funnel) |  |
+| Conversion through ordered steps | [`funnel`](#funnel) | [`board`](#board) |
 | Nested breakdowns | [`icicle`](#icicle), [`sunburst`](#sunburst) | [`treemap`](#treemap) |
-| Actual against target or plan | [`bullet`](#bullet), [`gauge`](#gauge), [`meter`](#meter), [`rings`](#rings), [`variance`](#variance) | [`line`](#line) |
-| Change between two points | [`dumbbell`](#dumbbell), [`slope`](#slope) | [`waterfall`](#waterfall) |
+| Actual against target or plan | [`bullet`](#bullet), [`gauge`](#gauge), [`meter`](#meter), [`rings`](#rings), [`variance`](#variance), [`ragboard`](#ragboard) | [`line`](#line) |
+| Change between two points | [`dumbbell`](#dumbbell), [`slope`](#slope), [`ragtrend`](#ragtrend) | [`waterfall`](#waterfall), [`lifecycle`](#lifecycle) |
 | What drives or moves a total | [`pareto`](#pareto), [`waterfall`](#waterfall) | [`variance`](#variance) |
-| Patterns across two dimensions or a cycle | [`calendar`](#calendar), [`heatmap`](#heatmap), [`rose`](#rose) |  |
+| Patterns across two dimensions or a cycle | [`calendar`](#calendar), [`heatmap`](#heatmap), [`rose`](#rose), [`matrix`](#matrix), [`anomalies`](#anomalies) | [`choropleth`](#choropleth), [`symbols`](#symbols) |
 | Profiles across several attributes | [`radar`](#radar) |  |
 | Survey and rating answers | [`likert`](#likert) |  |
-| Schedules and plans | [`timeline`](#timeline) |  |
-| A headline number | [`gauge`](#gauge), [`kpi`](#kpi), [`kpis`](#kpis) | [`rings`](#rings) |
-| Exact values and lookup | [`list`](#list), [`table`](#table) |  |
+| Schedules and plans | [`timeline`](#timeline), [`lifecycle`](#lifecycle), [`history`](#history) |  |
+| A headline number | [`gauge`](#gauge), [`kpi`](#kpi), [`kpis`](#kpis), [`xray`](#xray) | [`rings`](#rings) |
+| Exact values and lookup | [`list`](#list), [`table`](#table), [`locator`](#locator), [`board`](#board) | [`matrix`](#matrix), [`whitespace`](#whitespace), [`xray`](#xray), [`history`](#history), [`ragboard`](#ragboard) |
 
 ## How switches are judged
 
@@ -36,6 +36,44 @@ Each switch redraws the example's data as another chart, filling the new chart's
 
 - **Fit**: `fits`; `stretch` (it draws, but something is off, such as too many rows or text where dates are expected); or `no` (a column it needs is missing, or the data does not mean what the chart's marks mean, such as open, high, low and close for a candlestick).
 - **Verdict**, on the current chart's main job: `better` keeps it and adds another; `same` keeps it; `trade-off` gains a job but does the main one less clearly; `different` answers another question; `worse` loses ground with nothing gained. A gain only counts when the data suits the new chart.
+
+## anomalies
+
+An anomaly tracker: one thin lane per metric over time, the band it was expected to stay in as a faint fill, the expected value as a hairline, the actual as a line, and every day it stepped outside the band as a flagged dot.
+
+**Jobs**: patterns across two dimensions or a cycle (best), trend over time (good), exact values and lookup (possible).
+
+**Best for**: Watching a dozen daily measures at once and seeing which stepped out of line: net new money, fees, trades, complaints; Operations and risk monitoring, where the exceptions matter more than the levels.
+
+**Least useful for**: Comparing the levels of the measures with each other (each lane has its own scale; use line); One measure only (use line with a band).
+
+**One row is**: One row per combination of two categories, such as month and product. **Built**: One lane per metric over the shared time axis, each on its own scale: the expected band as a faint fill, the expected value as a hairline, the actual as a line, flagged readings as alert dots; lanes sorted by how many were flagged.
+
+**Needs**: `x` (date), `metric` (category), `value` (number). Example: 144 rows of `date`, `metric`, `value`, `expected`, `low`, `high`, `flag`. [Full entry with the data](../catalog/guide/anomalies.md).
+
+| Switch to | Fit | Verdict | Assessment |
+| --- | --- | --- | --- |
+| `boxplot` | fits | different | Answers a different question: better for how values spread and comparing amounts across categories, but gives up patterns across two dimensions or a cycle. |
+| `icicle` | fits | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up patterns across two dimensions or a cycle. |
+| `ridgeline` | fits | different | Answers a different question: better for how values spread and comparing amounts across categories, but gives up patterns across two dimensions or a cycle. |
+| `beeswarm` | fits | different | Answers a different question: better for how values spread, but gives up patterns across two dimensions or a cycle. |
+| `bump` | fits | different | Answers a different question: better for ranking, top to bottom, but gives up patterns across two dimensions or a cycle. |
+| `histogram` | fits | different | Answers a different question: better for how values spread, but gives up patterns across two dimensions or a cycle. |
+| `kpi` | fits | different | Answers a different question: better for a headline number, but gives up patterns across two dimensions or a cycle. |
+| `scatter` | fits | different | Answers a different question: better for how two measures relate, but gives up patterns across two dimensions or a cycle. |
+| `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up patterns across two dimensions or a cycle. |
+| `calendar` | stretch | same | Keeps the job (patterns across two dimensions or a cycle) with a different look. *"date" repeats (24 different values in 144 rows), but this chart wants one row per period: sum the rows first with an aggregate step.* |
+| `heatmap` | stretch | same | Keeps the job (patterns across two dimensions or a cycle) with a different look. *Some metric and flag pairs repeat: sum them first.* |
+| `rose` | stretch | same | Keeps the job (patterns across two dimensions or a cycle) with a different look. *"metric" repeats (6 different values in 144 rows), but this chart wants one row per category: sum the rows first with an aggregate step. 144 rows: this chart crowds past about 36.* |
+| `area` | stretch | different | Answers a different question: better for how each group or period splits and trend over time, but gives up patterns across two dimensions or a cycle. *"date" repeats (24 different values in 144 rows), but this chart wants one row per period: sum the rows first with an aggregate step.* |
+| `bar` | stretch | different | Answers a different question: better for comparing amounts across categories and ranking, top to bottom, but gives up patterns across two dimensions or a cycle. *"metric" repeats (6 different values in 144 rows), but this chart wants one row per category: sum the rows first with an aggregate step. 144 rows: this chart crowds past about 16.* |
+| `hbar` | stretch | different | Answers a different question: better for comparing amounts across categories and ranking, top to bottom, but gives up patterns across two dimensions or a cycle. *"metric" repeats (6 different values in 144 rows), but this chart wants one row per category: sum the rows first with an aggregate step. 144 rows: this chart crowds past about 30.* |
+| `horizon` | stretch | different | Answers a different question: better for comparing amounts across categories and trend over time, but gives up patterns across two dimensions or a cycle. Packs more series into less height and shows the level of each; the expected band and the flags are gone. *"date" repeats (24 different values in 144 rows), but this chart wants one row per period: sum the rows first with an aggregate step.* |
+| `line` | stretch | different | Answers a different question: better for comparing amounts across categories and actual against target or plan, but gives up patterns across two dimensions or a cycle. One shared scale, so levels compare across measures; with more than three measures the lines tangle and the flags are lost. *"date" repeats (24 different values in 144 rows), but this chart wants one row per period: sum the rows first with an aggregate step.* |
+| `list` | stretch | different | Answers a different question: better for ranking, top to bottom and exact values and lookup, but gives up patterns across two dimensions or a cycle. *"metric" repeats (6 different values in 144 rows), but this chart wants one row per category: sum the rows first with an aggregate step. 144 rows: this chart crowds past about 20.* |
+| `marimekko` | stretch | different | Answers a different question: better for how each group or period splits and comparing amounts across categories, but gives up patterns across two dimensions or a cycle. *Some metric and flag pairs repeat: sum them first. 144 rows: this chart crowds past about 60.* |
+| `sunburst` | stretch | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up patterns across two dimensions or a cycle. *144 rows: this chart crowds past about 120.* |
+| `sankey` | stretch | different | Answers a different question: better for flows between stages or groups, but gives up patterns across two dimensions or a cycle. *144 rows: this chart crowds past about 80.* |
 
 ## area
 
@@ -55,6 +93,7 @@ A line with a soft filled area down to zero, for a trend where the amount itself
 | --- | --- | --- | --- |
 | `line` | fits | better | Better for actual against target or plan and comparing amounts across categories, and still good for trend over time. Cleaner with several series and when the trend matters more than the amount. |
 | `horizon` | fits | same | Keeps the job (trend over time) with a different look. |
+| `anomalies` | fits | trade-off | Better for patterns across two dimensions or a cycle; weaker for trend over time. |
 | `beeswarm` | fits | different | Answers a different question: better for how values spread, but gives up trend over time. |
 | `kpi` | fits | different | Answers a different question: better for a headline number, but gives up trend over time. |
 | `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up trend over time. |
@@ -79,9 +118,11 @@ Vertical bars comparing amounts across categories.
 | Switch to | Fit | Verdict | Assessment |
 | --- | --- | --- | --- |
 | `hbar` | fits | better | Better for ranking, top to bottom, and still good for comparing amounts across categories. Same comparison, but labels get a full line and the order reads as a ranking; the better default on phones and with long names. |
+| `dot` | fits | same | Keeps the job (comparing amounts across categories) with a different look. |
 | `radar` | fits | trade-off | Better for profiles across several attributes; weaker for comparing amounts across categories. |
 | `donut` | fits | different | Answers a different question: better for share of one whole, but gives up comparing amounts across categories. |
 | `list` | fits | different | Answers a different question: better for exact values and lookup, but gives up comparing amounts across categories. |
+| `pie` | fits | different | Answers a different question: better for share of one whole, but gives up comparing amounts across categories. |
 | `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up comparing amounts across categories. |
 
 ## beeswarm
@@ -104,6 +145,7 @@ A distribution: one dot per row along a value axis, nudged apart so none overlap
 | `histogram` | fits | same | Keeps the job (how values spread) with a different look. Scales to thousands of rows; individual points are gone. |
 | `ridgeline` | fits | same | Keeps the job (how values spread) with a different look. |
 | `icicle` | fits | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up how values spread. |
+| `matrix` | fits | different | Answers a different question: better for patterns across two dimensions or a cycle and comparing amounts across categories, but gives up how values spread. |
 | `sunburst` | fits | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up how values spread. |
 | `heatmap` | fits | different | Answers a different question: better for patterns across two dimensions or a cycle, but gives up how values spread. |
 | `sankey` | fits | different | Answers a different question: better for flows between stages or groups, but gives up how values spread. |
@@ -112,6 +154,34 @@ A distribution: one dot per row along a value axis, nudged apart so none overlap
 | `list` | stretch | different | Answers a different question: better for ranking, top to bottom and exact values and lookup, but gives up how values spread. *"region" repeats (3 different values in 24 rows), but this chart wants one row per category: sum the rows first with an aggregate step. 24 rows: this chart crowds past about 20.* |
 | `pareto` | stretch | different | Answers a different question: better for ranking, top to bottom and what drives or moves a total, but gives up how values spread. *"region" repeats (3 different values in 24 rows), but this chart wants one row per category: sum the rows first with an aggregate step.* |
 | `treemap` | stretch | different | Answers a different question: better for share of one whole and nested breakdowns, but gives up how values spread. *"region" repeats (3 different values in 24 rows), but this chart wants one row per category: sum the rows first with an aggregate step.* |
+
+## board
+
+A status board: one column per stage with its count in the header, and the items in it as quiet cards, so where everything stands reads at a glance.
+
+**Jobs**: exact values and lookup (best), conversion through ordered steps (good), comparing amounts across categories (possible), schedules and plans (possible).
+
+**Best for**: Where everything stands in a lifecycle: regulations by status, deals by stage, tickets by state; Seeing at once which stage is crowded and what is in it, by name.
+
+**Least useful for**: Amounts per stage alone (use funnel or bar); Hundreds of items (filter first, or count them into a funnel); Stages with no natural order.
+
+**One row is**: One row per category, each named once. **Built**: One column per stage (in the order of stages, or of first appearance) headed by its count, and one card per row in its stage's column, with a group dot, a value and a detail line when those fields are given.
+
+**Needs**: `label` (category), `stage` (category). Example: 16 rows of `deal`, `stage`, `region`, `amount`, `owner`. [Full entry with the data](../catalog/guide/board.md).
+
+| Switch to | Fit | Verdict | Assessment |
+| --- | --- | --- | --- |
+| `list` | fits | better | Better for ranking, top to bottom, and still good for exact values and lookup. |
+| `table` | fits | same | Keeps the job (exact values and lookup) with a different look. Every field in columns, sortable and searchable; where things stand no longer reads at a glance. |
+| `matrix` | fits | trade-off | Better for patterns across two dimensions or a cycle and comparing amounts across categories; weaker for exact values and lookup. |
+| `hbar` | fits | different | Answers a different question: better for ranking, top to bottom and comparing amounts across categories, but gives up exact values and lookup. |
+| `icicle` | fits | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up exact values and lookup. |
+| `pareto` | fits | different | Answers a different question: better for ranking, top to bottom and what drives or moves a total, but gives up exact values and lookup. |
+| `sunburst` | fits | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up exact values and lookup. |
+| `treemap` | fits | different | Answers a different question: better for share of one whole and nested breakdowns, but gives up exact values and lookup. |
+| `beeswarm` | fits | different | Answers a different question: better for how values spread, but gives up exact values and lookup. |
+| `heatmap` | fits | different | Answers a different question: better for patterns across two dimensions or a cycle, but gives up exact values and lookup. |
+| `sankey` | fits | different | Answers a different question: better for flows between stages or groups, but gives up exact values and lookup. |
 
 ## boxplot
 
@@ -133,6 +203,7 @@ A box plot per group on one shared axis: a box over the middle half of the value
 | `histogram` | fits | same | Keeps the job (how values spread) with a different look. |
 | `ridgeline` | fits | same | Keeps the job (how values spread) with a different look. Shows the full shape per group, such as two peaks, that a box hides. |
 | `icicle` | fits | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up how values spread. |
+| `matrix` | fits | different | Answers a different question: better for patterns across two dimensions or a cycle and exact values and lookup, but gives up how values spread. |
 | `sunburst` | fits | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up how values spread. |
 | `heatmap` | fits | different | Answers a different question: better for patterns across two dimensions or a cycle, but gives up how values spread. |
 | `sankey` | fits | different | Answers a different question: better for flows between stages or groups, but gives up how values spread. |
@@ -164,6 +235,7 @@ Actual against target, one compact row per item: a value bar and a target tick o
 | `hbar` | fits | different | Answers a different question: better for ranking, top to bottom and comparing amounts across categories, but gives up actual against target or plan. |
 | `list` | fits | different | Answers a different question: better for exact values and lookup and ranking, top to bottom, but gives up actual against target or plan. |
 | `donut` | fits | different | Answers a different question: better for share of one whole, but gives up actual against target or plan. |
+| `pie` | fits | different | Answers a different question: better for share of one whole, but gives up actual against target or plan. |
 | `radar` | fits | different | Answers a different question: better for profiles across several attributes, but gives up actual against target or plan. |
 | `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up actual against target or plan. |
 | `rings` | stretch | better | Better for a headline number, and still good for actual against target or plan. *5 rows: this chart crowds past about 4.* |
@@ -270,12 +342,40 @@ Flows between groups around a circle: each group an arc as long as everything it
 | `sankey` | fits | same | Keeps the job (flows between stages or groups) with a different look. Reads as a left-to-right path; better when flows run one way through stages. |
 | `icicle` | fits | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up flows between stages or groups. |
 | `marimekko` | fits | different | Answers a different question: better for how each group or period splits and comparing amounts across categories, but gives up flows between stages or groups. |
+| `matrix` | fits | different | Answers a different question: better for patterns across two dimensions or a cycle and comparing amounts across categories, but gives up flows between stages or groups. |
 | `sunburst` | fits | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up flows between stages or groups. |
 | `heatmap` | fits | different | Answers a different question: better for patterns across two dimensions or a cycle, but gives up flows between stages or groups. |
 | `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up flows between stages or groups. |
 | `bar` | stretch | different | Answers a different question: better for comparing amounts across categories and ranking, top to bottom, but gives up flows between stages or groups. *"from" repeats (4 different values in 8 rows), but this chart wants one row per category: sum the rows first with an aggregate step.* |
 | `hbar` | stretch | different | Answers a different question: better for comparing amounts across categories and ranking, top to bottom, but gives up flows between stages or groups. *"from" repeats (4 different values in 8 rows), but this chart wants one row per category: sum the rows first with an aggregate step.* |
 | `list` | stretch | different | Answers a different question: better for exact values and lookup and ranking, top to bottom, but gives up flows between stages or groups. *"from" repeats (4 different values in 8 rows), but this chart wants one row per category: sum the rows first with an aggregate step.* |
+
+## choropleth
+
+A map with each region shaded by its value, from the weakest tint to the strongest, with a scale under it: revenue by country, share by state.
+
+**Jobs**: comparing amounts across categories (best), patterns across two dimensions or a cycle (good), exact values and lookup (possible).
+
+**Best for**: An amount or a rate by country or state: revenue by country, share by state; Seeing where something is high or low across a territory.
+
+**Least useful for**: Exact comparisons between regions (use hbar); Totals that follow area or population, which big regions exaggerate (use a rate, or symbols); Rows that are not regions.
+
+**One row is**: One row per category, each named once. **Built**: One region per row, matched by its code to the basemap (a built-in tile grid or your GeoJSON), shaded on a seven-step scale from the lowest value to the highest; regions with no row stay grey.
+
+**Needs**: `id` (category). Example: 24 rows of `country`, `revenue`. [Full entry with the data](../catalog/guide/choropleth.md).
+
+| Switch to | Fit | Verdict | Assessment |
+| --- | --- | --- | --- |
+| `hbar` | fits | better | Better for ranking, top to bottom, and still good for comparing amounts across categories. |
+| `dot` | fits | same | Keeps the job (comparing amounts across categories) with a different look. |
+| `symbols` | fits | same | Keeps the job (comparing amounts across categories) with a different look. |
+| `pareto` | fits | different | Answers a different question: better for ranking, top to bottom and what drives or moves a total, but gives up comparing amounts across categories. |
+| `treemap` | fits | different | Answers a different question: better for share of one whole and nested breakdowns, but gives up comparing amounts across categories. |
+| `beeswarm` | fits | different | Answers a different question: better for how values spread, but gives up comparing amounts across categories. |
+| `histogram` | fits | different | Answers a different question: better for how values spread, but gives up comparing amounts across categories. |
+| `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up comparing amounts across categories. |
+| `bar` | stretch | same | Keeps the job (comparing amounts across categories) with a different look. *24 rows: this chart crowds past about 16.* |
+| `list` | stretch | different | Answers a different question: better for ranking, top to bottom and exact values and lookup, but gives up comparing amounts across categories. *24 rows: this chart crowds past about 20.* |
 
 ## donut
 
@@ -293,6 +393,7 @@ Part-to-whole at a glance: a ring of up to 6 slices with the total in the middle
 
 | Switch to | Fit | Verdict | Assessment |
 | --- | --- | --- | --- |
+| `pie` | fits | same | Keeps the job (share of one whole) with a different look. Fills the middle and writes each share on its slice; the total moves out of the picture. |
 | `waffle` | fits | same | Keeps the job (share of one whole) with a different look. Shares read as countable squares, so 37% looks like 37 of 100; better for a general audience. |
 | `bar` | fits | different | Answers a different question: better for comparing amounts across categories and ranking, top to bottom, but gives up share of one whole. |
 | `hbar` | fits | different | Answers a different question: better for ranking, top to bottom and comparing amounts across categories, but gives up share of one whole. Easier to compare close shares and to rank them; the sense of one whole is weaker. |
@@ -301,9 +402,59 @@ Part-to-whole at a glance: a ring of up to 6 slices with the total in the middle
 | `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up share of one whole. |
 | `treemap` | stretch | same | Keeps the job (share of one whole) with a different look. Scales to many more parts; with two or three parts a donut is simpler. *3 rows: this chart says little with fewer than 4.* |
 
+## dot
+
+A dot plot: one row per item and one dot per measure on one shared axis, with a hairline across each row.
+
+**Jobs**: comparing amounts across categories (best), ranking, top to bottom (good), exact values and lookup (possible), change between two points (possible).
+
+**Best for**: Two to five measures of one kind per item: ease, value and support scores by product; Rankings where the differences matter more than the amounts: prices, rates, scores; Many rows with far less ink than bars.
+
+**Least useful for**: Amounts where the length from zero matters (use hbar); Measures on different scales (use table or radar); Exactly a before and an after (use dumbbell).
+
+**One row is**: One row per category, each named once. **Built**: One row per data row with a hairline across and one dot per values field at its value on one shared axis; one field writes its value beside the dot, several take series colors.
+
+**Needs**: `label` (category), `value` (number, one or more). Example: 6 rows of `product`, `ease`, `value`, `support`. [Full entry with the data](../catalog/guide/dot.md).
+
+| Switch to | Fit | Verdict | Assessment |
+| --- | --- | --- | --- |
+| `bar` | fits | better | Better for trend over time and how each group or period splits, and still good for comparing amounts across categories. |
+| `hbar` | fits | better | Better for ranking, top to bottom, and still good for comparing amounts across categories. Amounts read as lengths from zero, which is more familiar; small differences flatten out. |
+| `radar` | fits | trade-off | Better for profiles across several attributes; weaker for comparing amounts across categories. |
+| `donut` | fits | different | Answers a different question: better for share of one whole, but gives up comparing amounts across categories. |
+| `list` | fits | different | Answers a different question: better for exact values and lookup, but gives up comparing amounts across categories. |
+| `pie` | fits | different | Answers a different question: better for share of one whole, but gives up comparing amounts across categories. |
+| `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up comparing amounts across categories. |
+
+## dual
+
+Two measures with different units, such as revenue and churn, one above the other on two panels that share one time axis, each on its own scale.
+
+**Jobs**: trend over time (best), how two measures relate (good), comparing amounts across categories (possible).
+
+**Best for**: Two measures in different units over the same periods: revenue and churn, visits and conversion rate; Showing whether two shapes move together without a misleading second axis.
+
+**Least useful for**: Two series in the same unit (use line, one axis); More than two measures (use horizon or small multiples); Categories with no order (use bar).
+
+**One row is**: One row per point in time, in order. **Built**: Two panels one above the other sharing the x axis: y on the top panel and y2 on the bottom, each on its own scale, drawn as bars (from zero) or lines.
+
+**Needs**: `x` (date), `y` (number), `y2` (number). Example: 12 rows of `month`, `revenue`, `churn`, `cost`, `newCustomers`, `target`. [Full entry with the data](../catalog/guide/dual.md).
+
+| Switch to | Fit | Verdict | Assessment |
+| --- | --- | --- | --- |
+| `line` | fits | better | Better for actual against target or plan and comparing amounts across categories, and still good for trend over time. One panel and one axis; honest only when both series share a unit and a scale. |
+| `area` | fits | better | Better for how each group or period splits, and still good for trend over time. |
+| `horizon` | fits | better | Better for comparing amounts across categories, and still good for trend over time. |
+| `bar` | fits | trade-off | Better for comparing amounts across categories and ranking, top to bottom; weaker for trend over time. Keeps one measure as bars and drops the other. |
+| `hbar` | fits | different | Answers a different question: better for ranking, top to bottom and comparing amounts across categories, but gives up trend over time. |
+| `list` | fits | different | Answers a different question: better for exact values and lookup and ranking, top to bottom, but gives up trend over time. |
+| `kpi` | fits | different | Answers a different question: better for a headline number, but gives up trend over time. |
+| `scatter` | fits | different | Answers a different question: better for how two measures relate, but gives up trend over time. |
+| `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up trend over time. |
+
 ## dumbbell
 
-Before and after per item on one shared axis: a muted dot for before, an accent dot for after, joined by a line.
+Before and after per item on one shared axis: a muted dot for before, an accent dot for after, joined by a line (a range plot).
 
 **Jobs**: change between two points (best), comparing amounts across categories (good), ranking, top to bottom (possible).
 
@@ -319,9 +470,11 @@ Before and after per item on one shared axis: a muted dot for before, an accent 
 | --- | --- | --- | --- |
 | `slope` | fits | better | Better for ranking, top to bottom, and still good for change between two points. Shows who swapped places more clearly; the gaps are harder to read past about ten items. |
 | `bar` | fits | different | Answers a different question: better for trend over time and how each group or period splits, but gives up change between two points. |
+| `dot` | fits | different | Answers a different question: better for comparing amounts across categories and ranking, top to bottom, but gives up change between two points. Takes three or more measures per row; the before-to-after direction is no longer drawn. |
 | `hbar` | fits | different | Answers a different question: better for ranking, top to bottom and comparing amounts across categories, but gives up change between two points. |
 | `list` | fits | different | Answers a different question: better for exact values and lookup and ranking, top to bottom, but gives up change between two points. |
 | `donut` | fits | different | Answers a different question: better for share of one whole, but gives up change between two points. |
+| `pie` | fits | different | Answers a different question: better for share of one whole, but gives up change between two points. |
 | `radar` | fits | different | Answers a different question: better for profiles across several attributes, but gives up change between two points. |
 | `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up change between two points. |
 
@@ -346,6 +499,7 @@ Stages in order as centered bars narrowing from the first, with the conversion r
 | `list` | fits | different | Answers a different question: better for exact values and lookup and ranking, top to bottom, but gives up conversion through ordered steps. |
 | `pareto` | fits | different | Answers a different question: better for ranking, top to bottom and what drives or moves a total, but gives up conversion through ordered steps. |
 | `donut` | fits | different | Answers a different question: better for share of one whole, but gives up conversion through ordered steps. |
+| `pie` | fits | different | Answers a different question: better for share of one whole, but gives up conversion through ordered steps. |
 | `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up conversion through ordered steps. |
 
 ## gauge
@@ -372,13 +526,13 @@ Horizontal bars for rankings and long labels: label on the left, bar, value at t
 
 **Jobs**: ranking, top to bottom (best), comparing amounts across categories (best), exact values and lookup (possible), actual against target or plan (possible).
 
-**Best for**: Rankings with long names: top features, top customers, causes; Up to about 30 categories, readable on a phone.
+**Best for**: Rankings with long names: top features, top customers, causes; Up to about 30 categories, readable on a phone; Two or three measures per row, side by side, stacked, or split into columns when their units differ.
 
 **Least useful for**: Time order (use bar or line); Share of one whole (use donut or waffle).
 
-**One row is**: One row per category, each named once. **Built**: One horizontal bar per row, label on the left and value at the end, sorted as given or by value.
+**One row is**: One row per category, each named once. **Built**: One horizontal bar per row, label on the left and value at the end, sorted as given or by value. Several value fields draw one thin bar each per row, stacked into one bar with stacked (percent for shares), or in one column per field with split.
 
-**Needs**: `label` (category), `value` (number). Example: 10 rows of `feature`, `share`. [Full entry with the data](../catalog/guide/hbar.md).
+**Needs**: `label` (category), `value` (number, one or more). Example: 10 rows of `feature`, `share`. [Full entry with the data](../catalog/guide/hbar.md).
 
 | Switch to | Fit | Verdict | Assessment |
 | --- | --- | --- | --- |
@@ -404,6 +558,7 @@ A grid of cells shaded on one blue scale from light (low) to dark (high), for pa
 
 | Switch to | Fit | Verdict | Assessment |
 | --- | --- | --- | --- |
+| `matrix` | fits | better | Better for exact values and lookup and comparing amounts across categories, and still good for patterns across two dimensions or a cycle. Marks can carry two values at once (size and shade) or a yes/no square; a single value reads less precisely than a shaded cell. |
 | `boxplot` | fits | different | Answers a different question: better for how values spread and comparing amounts across categories, but gives up patterns across two dimensions or a cycle. |
 | `icicle` | fits | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up patterns across two dimensions or a cycle. |
 | `marimekko` | fits | different | Answers a different question: better for how each group or period splits and share of one whole, but gives up patterns across two dimensions or a cycle. |
@@ -441,6 +596,7 @@ A distribution as touching bars: the value's range is cut into bins on round edg
 | `ridgeline` | fits | same | Keeps the job (how values spread) with a different look. |
 | `hbar` | fits | different | Answers a different question: better for comparing amounts across categories and ranking, top to bottom, but gives up how values spread. |
 | `icicle` | fits | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up how values spread. |
+| `matrix` | fits | different | Answers a different question: better for patterns across two dimensions or a cycle and comparing amounts across categories, but gives up how values spread. |
 | `pareto` | fits | different | Answers a different question: better for ranking, top to bottom and what drives or moves a total, but gives up how values spread. |
 | `sunburst` | fits | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up how values spread. |
 | `treemap` | fits | different | Answers a different question: better for share of one whole and nested breakdowns, but gives up how values spread. |
@@ -448,6 +604,25 @@ A distribution as touching bars: the value's range is cut into bins on round edg
 | `sankey` | fits | different | Answers a different question: better for flows between stages or groups, but gives up how values spread. |
 | `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up how values spread. |
 | `list` | stretch | different | Answers a different question: better for exact values and lookup and ranking, top to bottom, but gives up how values spread. *24 rows: this chart crowds past about 20.* |
+
+## history
+
+A client's story as a vertical timeline: one event per row with its date, title, an optional second line and an amount, newest first, a dot per event colored by kind with a key, and the month written wherever it changes.
+
+**Jobs**: schedules and plans (best), exact values and lookup (good), trend over time (possible).
+
+**Best for**: A client's story: meetings, calls, trades, campaigns and complaints in one scroll; What happened before a churn, a complaint or a big trade; Several clients' recent activity side by side.
+
+**Least useful for**: Amounts over time, where the shape matters (use line); Tasks with a start and an end (use timeline); Counting events per period (use bar or calendar).
+
+**One row is**: One row per thing measured (a deal, a ticket, a response); the chart counts or spreads them. **Built**: One event per row sorted by date, newest first, each a dot colored by kind on a vertical rail with its date, title, note and amount; the month is written where it changes, and a group field makes one rail per value.
+
+**Needs**: `date` (date), `title` (category). Example: 15 rows of `date`, `title`, `kind`, `note`, `amount`. [Full entry with the data](../catalog/guide/history.md).
+
+| Switch to | Fit | Verdict | Assessment |
+| --- | --- | --- | --- |
+| `list` | fits | different | Answers a different question: better for ranking, top to bottom and exact values and lookup, but gives up schedules and plans. |
+| `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up schedules and plans. Sortable and searchable; the sense of a story in time is weaker. |
 
 ## horizon
 
@@ -521,6 +696,7 @@ One headline number with its change against a comparison.
 | --- | --- | --- | --- |
 | `kpis` | fits | same | Keeps the job (a headline number) with a different look. |
 | `area` | fits | different | Answers a different question: better for trend over time and how each group or period splits, but gives up a headline number. |
+| `dual` | fits | different | Answers a different question: better for trend over time and how two measures relate, but gives up a headline number. |
 | `horizon` | fits | different | Answers a different question: better for comparing amounts across categories and trend over time, but gives up a headline number. |
 | `line` | fits | different | Answers a different question: better for comparing amounts across categories and trend over time, but gives up a headline number. |
 | `list` | fits | different | Answers a different question: better for exact values and lookup and ranking, top to bottom, but gives up a headline number. |
@@ -546,12 +722,51 @@ A row of stat tiles in one widget, each with a label, value and change: the calm
 | --- | --- | --- | --- |
 | `kpi` | fits | same | Keeps the job (a headline number) with a different look. |
 | `area` | fits | different | Answers a different question: better for trend over time and how each group or period splits, but gives up a headline number. |
+| `dual` | fits | different | Answers a different question: better for trend over time and how two measures relate, but gives up a headline number. |
 | `horizon` | fits | different | Answers a different question: better for comparing amounts across categories and trend over time, but gives up a headline number. |
 | `line` | fits | different | Answers a different question: better for comparing amounts across categories and trend over time, but gives up a headline number. |
 | `list` | fits | different | Answers a different question: better for exact values and lookup and ranking, top to bottom, but gives up a headline number. |
 | `scatter` | fits | different | Answers a different question: better for how two measures relate, but gives up a headline number. |
 | `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up a headline number. |
 | `gauge` | stretch | same | Keeps the job (a headline number) with a different look. *A gauge shows one value; it draws the first of these 12 rows.* |
+
+## lifecycle
+
+Stage swimlanes: one row per item on a shared date axis, each stage drawn from its date to the next in a deepening tint of one hue, a tick at every stage date, and the last reached stage running on faintly while its next date is unknown.
+
+**Jobs**: schedules and plans (best), change between two points (good), exact values and lookup (possible).
+
+**Best for**: Where each regulation stands: proposed, adopted, in force, applies; What applies next, and how long since adoption; Any multi-stage process with dates per stage: deals, hiring, product launches.
+
+**Least useful for**: One start and one end per row (use timeline); Stages with no dates (use funnel or table); More than about 30 rows (filter, or facet by group).
+
+**One row is**: One row per category, each named once. **Built**: One row per data row on a shared date axis: from each stage's date to the next a segment in a deepening tint, a tick at every date, a faint run from the last known stage to the edge when the next date is missing, a today line, and a status pill at the end; impact sets the row's thickness.
+
+**Needs**: `label` (category), `stages` (date, one or more). Example: 12 rows of `name`, `proposed`, `adopted`, `inForce`, `applies`, `topic`, `status`, `impact`, `id`, `fullName`, `jurisdiction`, `issuer`, `pressure`, `provisions`, `mandatory`, `recommended`, `optional`, `pages`, `mustComply`. [Full entry with the data](../catalog/guide/lifecycle.md).
+
+| Switch to | Fit | Verdict | Assessment |
+| --- | --- | --- | --- |
+| `history` | fits | better | Better for exact values and lookup, and still good for schedules and plans. |
+| `timeline` | fits | same | Keeps the job (schedules and plans) with a different look. Simpler, one bar from start to end; the stages in between are gone. |
+| `bar` | fits | different | Answers a different question: better for comparing amounts across categories and ranking, top to bottom, but gives up schedules and plans. |
+| `board` | fits | different | Answers a different question: better for conversion through ordered steps and exact values and lookup, but gives up schedules and plans. |
+| `bump` | fits | different | Answers a different question: better for ranking, top to bottom and trend over time, but gives up schedules and plans. |
+| `hbar` | fits | different | Answers a different question: better for comparing amounts across categories and ranking, top to bottom, but gives up schedules and plans. |
+| `icicle` | fits | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up schedules and plans. |
+| `list` | fits | different | Answers a different question: better for ranking, top to bottom and exact values and lookup, but gives up schedules and plans. |
+| `matrix` | fits | different | Answers a different question: better for patterns across two dimensions or a cycle and comparing amounts across categories, but gives up schedules and plans. |
+| `strips` | fits | different | Answers a different question: better for how each group or period splits and comparing amounts across categories, but gives up schedules and plans. |
+| `sunburst` | fits | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up schedules and plans. |
+| `treemap` | fits | different | Answers a different question: better for share of one whole and nested breakdowns, but gives up schedules and plans. |
+| `heatmap` | fits | different | Answers a different question: better for patterns across two dimensions or a cycle, but gives up schedules and plans. |
+| `kpi` | fits | different | Answers a different question: better for a headline number, but gives up schedules and plans. |
+| `sankey` | fits | different | Answers a different question: better for flows between stages or groups, but gives up schedules and plans. |
+| `scatter` | fits | different | Answers a different question: better for how two measures relate, but gives up schedules and plans. |
+| `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up schedules and plans. |
+| `area` | stretch | different | Answers a different question: better for trend over time and how each group or period splits, but gives up schedules and plans. *"proposed" repeats (9 different values in 12 rows), but this chart wants one row per period: sum the rows first with an aggregate step.* |
+| `dual` | stretch | different | Answers a different question: better for trend over time and how two measures relate, but gives up schedules and plans. *"proposed" repeats (9 different values in 12 rows), but this chart wants one row per period: sum the rows first with an aggregate step.* |
+| `horizon` | stretch | different | Answers a different question: better for trend over time and comparing amounts across categories, but gives up schedules and plans. *"proposed" repeats (9 different values in 12 rows), but this chart wants one row per period: sum the rows first with an aggregate step.* |
+| `line` | stretch | different | Answers a different question: better for trend over time and comparing amounts across categories, but gives up schedules and plans. *"proposed" repeats (9 different values in 12 rows), but this chart wants one row per period: sum the rows first with an aggregate step.* |
 
 ## likert
 
@@ -565,7 +780,7 @@ Survey answers as diverging stacked bars: one bar per question, its responses in
 
 **One row is**: One row per category, each named once. **Built**: One bar per row (a question); its response fields, in order from one pole to the other, stack centered on the neutral middle.
 
-**Needs**: `label` (category), `responses` (number, one or more). Example: 5 rows of `question`, `strongly_disagree`, `disagree`, `neutral`, `agree`, `strongly_agree`. [Full entry with the data](../catalog/guide/likert.md).
+**Needs**: `label` (category), `value` (number, one or more). Example: 5 rows of `question`, `strongly_disagree`, `disagree`, `neutral`, `agree`, `strongly_agree`. [Full entry with the data](../catalog/guide/likert.md).
 
 | Switch to | Fit | Verdict | Assessment |
 | --- | --- | --- | --- |
@@ -573,6 +788,7 @@ Survey answers as diverging stacked bars: one bar per question, its responses in
 | `hbar` | fits | different | Answers a different question: better for ranking, top to bottom and comparing amounts across categories, but gives up survey and rating answers. |
 | `list` | fits | different | Answers a different question: better for exact values and lookup and ranking, top to bottom, but gives up survey and rating answers. |
 | `donut` | fits | different | Answers a different question: better for share of one whole, but gives up survey and rating answers. |
+| `pie` | fits | different | Answers a different question: better for share of one whole, but gives up survey and rating answers. |
 | `radar` | fits | different | Answers a different question: better for profiles across several attributes, but gives up survey and rating answers. |
 | `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up survey and rating answers. |
 
@@ -593,6 +809,7 @@ Lines showing change over an ordered axis, usually time.
 | Switch to | Fit | Verdict | Assessment |
 | --- | --- | --- | --- |
 | `area` | fits | better | Better for how each group or period splits, and still good for trend over time. The fill stresses the amount, which suits volumes like cash or traffic; with crossing series, the fills hide each other. |
+| `dual` | fits | better | Better for how two measures relate, and still good for trend over time. Right when the two series have different units: each gets its own panel and scale, and no false crossings. |
 | `horizon` | fits | same | Keeps the job (trend over time) with a different look. Fits many more series in the same height; readers need a moment to learn the color bands. |
 | `bar` | fits | trade-off | Better for ranking, top to bottom and how each group or period splits; weaker for trend over time. Better when each period's total matters on its own (monthly sales); worse for seeing the trend. |
 | `hbar` | fits | different | Answers a different question: better for ranking, top to bottom and comparing amounts across categories, but gives up trend over time. |
@@ -618,6 +835,7 @@ A stacked list: one line per row with a label, optional detail underneath, and a
 | Switch to | Fit | Verdict | Assessment |
 | --- | --- | --- | --- |
 | `table` | fits | same | Keeps the job (exact values and lookup) with a different look. |
+| `matrix` | fits | trade-off | Better for patterns across two dimensions or a cycle and comparing amounts across categories; weaker for exact values and lookup. |
 | `bar` | fits | different | Answers a different question: better for comparing amounts across categories and trend over time, but gives up exact values and lookup. |
 | `hbar` | fits | different | Answers a different question: better for comparing amounts across categories and ranking, top to bottom, but gives up exact values and lookup. |
 | `icicle` | fits | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up exact values and lookup. |
@@ -625,8 +843,28 @@ A stacked list: one line per row with a label, optional detail underneath, and a
 | `pareto` | fits | different | Answers a different question: better for what drives or moves a total and share of one whole, but gives up exact values and lookup. |
 | `sunburst` | fits | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up exact values and lookup. |
 | `donut` | fits | different | Answers a different question: better for share of one whole, but gives up exact values and lookup. |
+| `pie` | fits | different | Answers a different question: better for share of one whole, but gives up exact values and lookup. |
 | `sankey` | fits | different | Answers a different question: better for flows between stages or groups, but gives up exact values and lookup. |
 | `heatmap` | stretch | different | Answers a different question: better for patterns across two dimensions or a cycle, but gives up exact values and lookup. *5 rows: this chart says little with fewer than 6.* |
+
+## locator
+
+A small, clean map that says where things are: a marker and an always-on name for each place, such as offices, stores or sites, with a second line of detail if there is one.
+
+**Jobs**: exact values and lookup (best).
+
+**Best for**: Where the offices, stores or sites are, by name; A handful of named places for a report or a page header.
+
+**Least useful for**: Amounts per place (use symbols); More than about 30 places, where names collide (use symbols or a table).
+
+**One row is**: One row per category, each named once. **Built**: One marker per row on its region (by code) or at its coordinates, its name written beside it; a kind field colors the markers with a key.
+
+**Needs**: `label` (category). Example: 9 rows of `country`, `office`, `people`, `role`. [Full entry with the data](../catalog/guide/locator.md).
+
+| Switch to | Fit | Verdict | Assessment |
+| --- | --- | --- | --- |
+| `list` | fits | better | Better for ranking, top to bottom, and still good for exact values and lookup. |
+| `table` | fits | same | Keeps the job (exact values and lookup) with a different look. |
 
 ## marimekko
 
@@ -644,6 +882,7 @@ A mosaic: one column per category, as wide as its total, split into segments by 
 
 | Switch to | Fit | Verdict | Assessment |
 | --- | --- | --- | --- |
+| `matrix` | fits | different | Answers a different question: better for patterns across two dimensions or a cycle and exact values and lookup, but gives up how each group or period splits. |
 | `beeswarm` | fits | different | Answers a different question: better for how values spread, but gives up how each group or period splits. |
 | `heatmap` | fits | different | Answers a different question: better for patterns across two dimensions or a cycle, but gives up how each group or period splits. |
 | `icicle` | fits | different | Answers a different question: better for nested breakdowns, but gives up how each group or period splits. |
@@ -654,6 +893,25 @@ A mosaic: one column per category, as wide as its total, split into segments by 
 | `hbar` | stretch | different | Answers a different question: better for ranking, top to bottom and comparing amounts across categories, but gives up how each group or period splits. *"region" repeats (5 different values in 15 rows), but this chart wants one row per category: sum the rows first with an aggregate step.* |
 | `list` | stretch | different | Answers a different question: better for exact values and lookup and ranking, top to bottom, but gives up how each group or period splits. *"region" repeats (5 different values in 15 rows), but this chart wants one row per category: sum the rows first with an aggregate step.* |
 | `pareto` | stretch | different | Answers a different question: better for ranking, top to bottom and what drives or moves a total, but gives up how each group or period splits. *"region" repeats (5 different values in 15 rows), but this chart wants one row per category: sum the rows first with an aggregate step.* |
+
+## matrix
+
+A mark matrix (a punchcard): one mark per pair of x and y, sized by a value, shaded by another, or a square where a flag is yes.
+
+**Jobs**: patterns across two dimensions or a cycle (best), comparing amounts across categories (good), exact values and lookup (good).
+
+**Best for**: Regulatory pressure per topic per quarter: how many new obligations, how hard they bite; Who must comply with which rule: one square per yes; Any two categories crossed, where a heatmap's shade alone says too little.
+
+**Least useful for**: One category only (use hbar or dot); Exact values to read off (use table with heat cells); More than about 24 columns or 30 rows.
+
+**One row is**: One row per combination of two categories, such as month and product. **Built**: One mark per row at its x column and y row: a circle sized by size, shaded by color (a number on the seven-step scale, a category by its color), or a square where mark is yes; pairs with no row stay empty.
+
+**Needs**: `x` (category), `y` (category). Example: 50 rows of `stakeholder`, `regulation`, `mustComply`. [Full entry with the data](../catalog/guide/matrix.md).
+
+| Switch to | Fit | Verdict | Assessment |
+| --- | --- | --- | --- |
+| `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up patterns across two dimensions or a cycle. |
+| `list` | stretch | different | Answers a different question: better for ranking, top to bottom and exact values and lookup, but gives up patterns across two dimensions or a cycle. *"stakeholder" repeats (5 different values in 50 rows), but this chart wants one row per category: sum the rows first with an aggregate step. 50 rows: this chart crowds past about 20.* |
 
 ## meter
 
@@ -678,6 +936,7 @@ Progress against a target, one meter per row: attainment as a percentage, a bar 
 | `list` | fits | different | Answers a different question: better for exact values and lookup and ranking, top to bottom, but gives up actual against target or plan. |
 | `radar` | fits | different | Answers a different question: better for profiles across several attributes and comparing amounts across categories, but gives up actual against target or plan. |
 | `donut` | fits | different | Answers a different question: better for share of one whole, but gives up actual against target or plan. |
+| `pie` | fits | different | Answers a different question: better for share of one whole, but gives up actual against target or plan. |
 | `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up actual against target or plan. |
 | `rings` | stretch | better | Better for a headline number, and still good for actual against target or plan. More playful and compact for up to four goals; harder to compare sizes. *5 rows: this chart crowds past about 4.* |
 | `gauge` | stretch | same | Keeps the job (actual against target or plan) with a different look. *A gauge shows one value; it draws the first of these 5 rows.* |
@@ -705,6 +964,62 @@ The 80/20 view: categories sorted largest first as bars of their share of the to
 | `list` | fits | different | Answers a different question: better for exact values and lookup, but gives up what drives or moves a total. |
 | `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up ranking, top to bottom and what drives or moves a total. |
 
+## pie
+
+Part-to-whole as a full disc: up to 6 slices from twelve o'clock clockwise, each wide in proportion to its share, with the shares written on the slices and a legend of values.
+
+**Jobs**: share of one whole (best), comparing amounts across categories (possible).
+
+**Best for**: Share of one whole with two to five parts, where the shares themselves are the point: votes, market share; Small multiples of one split per group (facet), the same part in the same color everywhere.
+
+**Least useful for**: More than six parts or close values (use hbar); When the total matters too (use donut); Change over time (use area).
+
+**One row is**: One row per category, each named once. **Built**: One wedge per row from twelve o'clock clockwise, its angle its share of the sum of value, the share written on it.
+
+**Needs**: `label` (category), `value` (number). Example: 4 rows of `segment`, `revenue`. [Full entry with the data](../catalog/guide/pie.md).
+
+| Switch to | Fit | Verdict | Assessment |
+| --- | --- | --- | --- |
+| `donut` | fits | same | Keeps the job (share of one whole) with a different look. Puts the total in the middle; the slices read the same. |
+| `treemap` | fits | same | Keeps the job (share of one whole) with a different look. |
+| `waffle` | fits | same | Keeps the job (share of one whole) with a different look. |
+| `bar` | fits | different | Answers a different question: better for comparing amounts across categories and ranking, top to bottom, but gives up share of one whole. |
+| `hbar` | fits | different | Answers a different question: better for ranking, top to bottom and comparing amounts across categories, but gives up share of one whole. Easier to compare close shares and to rank them; the sense of one whole is weaker. |
+| `list` | fits | different | Answers a different question: better for exact values and lookup and ranking, top to bottom, but gives up share of one whole. |
+| `funnel` | fits | different | Answers a different question: better for conversion through ordered steps, but gives up share of one whole. |
+| `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up share of one whole. |
+
+## pyramid
+
+A population pyramid: one row per band (an age group, a tenure band), with two counts as bars growing out from a center axis on one shared scale, the left count leftward and the right count rightward.
+
+**Jobs**: how values spread (best), comparing amounts across categories (good), how each group or period splits (possible).
+
+**Best for**: Two groups across ordered bands: women and men by age group, new and returning customers by tenure; Seeing where two groups differ, from the shape alone.
+
+**Least useful for**: More than two groups (use hbar with several values); Bands with no natural order (use hbar); Measures in different units.
+
+**One row is**: One row per category, each named once. **Built**: One row per band in the order given; the left field's count grows leftward from a center axis and the right field's rightward, both on one shared scale.
+
+**Needs**: `label` (category), `left` (number), `right` (number). Example: 9 rows of `age`, `women`, `men`. [Full entry with the data](../catalog/guide/pyramid.md).
+
+| Switch to | Fit | Verdict | Assessment |
+| --- | --- | --- | --- |
+| `bar` | fits | different | Answers a different question: better for ranking, top to bottom and trend over time, but gives up how values spread. |
+| `dot` | fits | different | Answers a different question: better for ranking, top to bottom and comparing amounts across categories, but gives up how values spread. |
+| `hbar` | fits | different | Answers a different question: better for ranking, top to bottom and comparing amounts across categories, but gives up how values spread. Lays the two measures side by side in each row, which compares exact lengths better; the shape of the whole is gone. |
+| `list` | fits | different | Answers a different question: better for exact values and lookup and ranking, top to bottom, but gives up how values spread. |
+| `slope` | fits | different | Answers a different question: better for change between two points and ranking, top to bottom, but gives up how values spread. |
+| `treemap` | fits | different | Answers a different question: better for share of one whole and nested breakdowns, but gives up how values spread. |
+| `dumbbell` | fits | different | Answers a different question: better for change between two points, but gives up how values spread. |
+| `radar` | fits | different | Answers a different question: better for profiles across several attributes, but gives up how values spread. |
+| `scatter` | fits | different | Answers a different question: better for how two measures relate, but gives up how values spread. |
+| `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up how values spread. |
+| `beeswarm` | stretch | same | Keeps the job (how values spread) with a different look. *9 rows: this chart says little with fewer than 10.* |
+| `boxplot` | stretch | same | Keeps the job (how values spread) with a different look. *9 rows: this chart says little with fewer than 15.* |
+| `histogram` | stretch | same | Keeps the job (how values spread) with a different look. *9 rows: this chart says little with fewer than 20.* |
+| `ridgeline` | stretch | same | Keeps the job (how values spread) with a different look. *9 rows: this chart says little with fewer than 20.* |
+
 ## radar
 
 Profiles across several attributes: one spoke per row, rings for one shared scale from zero, and a soft shape per series.
@@ -722,12 +1037,52 @@ Profiles across several attributes: one spoke per row, rings for one shared scal
 | Switch to | Fit | Verdict | Assessment |
 | --- | --- | --- | --- |
 | `bar` | fits | different | Answers a different question: better for ranking, top to bottom and trend over time, but gives up profiles across several attributes. |
+| `dot` | fits | different | Answers a different question: better for ranking, top to bottom and comparing amounts across categories, but gives up profiles across several attributes. |
 | `hbar` | fits | different | Answers a different question: better for ranking, top to bottom and comparing amounts across categories, but gives up profiles across several attributes. |
 | `list` | fits | different | Answers a different question: better for exact values and lookup and ranking, top to bottom, but gives up profiles across several attributes. |
 | `slope` | fits | different | Answers a different question: better for change between two points and ranking, top to bottom, but gives up profiles across several attributes. |
 | `donut` | fits | different | Answers a different question: better for share of one whole, but gives up profiles across several attributes. |
 | `dumbbell` | fits | different | Answers a different question: better for change between two points, but gives up profiles across several attributes. |
+| `pie` | fits | different | Answers a different question: better for share of one whole, but gives up profiles across several attributes. |
 | `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up profiles across several attributes. |
+
+## ragboard
+
+A RAG scorecard: one row per entity (a client, a relationship manager, a deal) and one Red, Amber or Green cell per dimension, worst first, with an overall column holding each row's worst status.
+
+**Jobs**: actual against target or plan (best), exact values and lookup (good), comparing amounts across categories (possible).
+
+**Best for**: A RAG scorecard: client health, coverage, pipeline and relationship status per client or per relationship manager; Which accounts need action first, and on what; Status reviews where each cell is a judgment, not an amount.
+
+**Least useful for**: Amounts and trends (use table with heat cells, or line); One status over many periods (use ragtrend); More than about 40 rows (filter to the ones that need attention).
+
+**One row is**: One row per category, each named once. **Built**: One row per data row and one cell per dimension holding its status (R, A, G or N) as a shape, an Overall column with the worst of them first, rows sorted worst first, a strip that counts the statuses above and a count per column below; a previous field per dimension adds a better or worse arrow.
+
+**Needs**: `label` (category), `dimensions` (category, one or more). Example: 10 rows of `client`, `success`, `growth`, `coverage`, `relationship`, `owner`, `segment`, `successLast`, `growthLast`, `coverageLast`, `relationshipLast`. [Full entry with the data](../catalog/guide/ragboard.md).
+
+| Switch to | Fit | Verdict | Assessment |
+| --- | --- | --- | --- |
+| `list` | fits | different | Answers a different question: better for ranking, top to bottom and exact values and lookup, but gives up actual against target or plan. |
+| `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up actual against target or plan. Every status as words in a sortable, searchable table; the worst-first scan and the counts are gone. |
+
+## ragtrend
+
+RAG status over time: one row per entity and one small mark per period, shaped and colored by its status (a filled circle On track, a triangle At risk, a square Off track).
+
+**Jobs**: change between two points (best), trend over time (good), actual against target or plan (possible).
+
+**Best for**: How each client's or deal's status moved, review by review; Spotting who slipped recently, and reading why; Monthly or quarterly RAG reporting with a history.
+
+**Least useful for**: Several dimensions at one moment (use ragboard); Numbers rather than statuses (use line or horizon); More than about 24 periods (roll them up).
+
+**One row is**: One row per combination of two categories, such as month and product. **Built**: One row per entity and one cell per period with its status as a shape, a tick where the status changed, the note of why in the tooltip, and the current status as a pill at the end; rows worst-current first.
+
+**Needs**: `label` (category), `period` (date), `status` (category). Example: 42 rows of `client`, `month`, `status`, `why`. [Full entry with the data](../catalog/guide/ragtrend.md).
+
+| Switch to | Fit | Verdict | Assessment |
+| --- | --- | --- | --- |
+| `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up change between two points. |
+| `list` | stretch | different | Answers a different question: better for exact values and lookup and ranking, top to bottom, but gives up change between two points. *"client" repeats (7 different values in 42 rows), but this chart wants one row per category: sum the rows first with an aggregate step. 42 rows: this chart crowds past about 20.* |
 
 ## ridgeline
 
@@ -749,6 +1104,7 @@ One smooth distribution curve per group on a shared axis, overlapping like a mou
 | `boxplot` | fits | same | Keeps the job (how values spread) with a different look. |
 | `histogram` | fits | same | Keeps the job (how values spread) with a different look. |
 | `icicle` | fits | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up how values spread. |
+| `matrix` | fits | different | Answers a different question: better for patterns across two dimensions or a cycle and exact values and lookup, but gives up how values spread. |
 | `sunburst` | fits | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up how values spread. |
 | `heatmap` | fits | different | Answers a different question: better for patterns across two dimensions or a cycle, but gives up how values spread. |
 | `sankey` | fits | different | Answers a different question: better for flows between stages or groups, but gives up how values spread. |
@@ -781,6 +1137,7 @@ Concentric progress rings, one per row from the outside in, each filled to its s
 | `hbar` | fits | different | Answers a different question: better for ranking, top to bottom and comparing amounts across categories, but gives up actual against target or plan. |
 | `list` | fits | different | Answers a different question: better for exact values and lookup and ranking, top to bottom, but gives up actual against target or plan. |
 | `donut` | fits | different | Answers a different question: better for share of one whole, but gives up actual against target or plan. |
+| `pie` | fits | different | Answers a different question: better for share of one whole, but gives up actual against target or plan. |
 | `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up actual against target or plan. |
 | `gauge` | stretch | same | Keeps the job (actual against target or plan) with a different look. *A gauge shows one value; it draws the first of these 3 rows.* |
 
@@ -800,6 +1157,7 @@ A polar area chart (a Nightingale rose) for a cycle that wraps round, such as ho
 
 | Switch to | Fit | Verdict | Assessment |
 | --- | --- | --- | --- |
+| `dot` | fits | different | Answers a different question: better for comparing amounts across categories and ranking, top to bottom, but gives up patterns across two dimensions or a cycle. |
 | `hbar` | fits | different | Answers a different question: better for ranking, top to bottom and comparing amounts across categories, but gives up patterns across two dimensions or a cycle. |
 | `treemap` | fits | different | Answers a different question: better for share of one whole and nested breakdowns, but gives up patterns across two dimensions or a cycle. |
 | `beeswarm` | fits | different | Answers a different question: better for how values spread, but gives up patterns across two dimensions or a cycle. |
@@ -826,6 +1184,7 @@ Flows between stages as ribbons as thick as their volume, for example traffic so
 | --- | --- | --- | --- |
 | `icicle` | fits | different | Answers a different question: better for share of one whole and nested breakdowns, but gives up flows between stages or groups. |
 | `marimekko` | fits | different | Answers a different question: better for how each group or period splits and comparing amounts across categories, but gives up flows between stages or groups. |
+| `matrix` | fits | different | Answers a different question: better for patterns across two dimensions or a cycle and comparing amounts across categories, but gives up flows between stages or groups. |
 | `sunburst` | fits | different | Answers a different question: better for share of one whole and nested breakdowns, but gives up flows between stages or groups. |
 | `heatmap` | fits | different | Answers a different question: better for patterns across two dimensions or a cycle, but gives up flows between stages or groups. |
 | `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up flows between stages or groups. |
@@ -879,8 +1238,39 @@ Each item's move between two points in time, as a line from a left column to a r
 | `hbar` | fits | different | Answers a different question: better for comparing amounts across categories and ranking, top to bottom, but gives up change between two points. |
 | `radar` | fits | different | Answers a different question: better for profiles across several attributes and comparing amounts across categories, but gives up change between two points. |
 | `donut` | fits | different | Answers a different question: better for share of one whole, but gives up change between two points. |
+| `dot` | fits | different | Answers a different question: better for comparing amounts across categories, but gives up change between two points. |
 | `list` | fits | different | Answers a different question: better for exact values and lookup, but gives up change between two points. |
+| `pie` | fits | different | Answers a different question: better for share of one whole, but gives up change between two points. |
 | `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up change between two points. |
+
+## strips
+
+Unit strips: one row per item with a strip of small squares, one per unit, colored part by part in order (mandatory, recommended, optional), the total and the first part's share at the end.
+
+**Jobs**: how each group or period splits (best), comparing amounts across categories (good), share of one whole (possible).
+
+**Best for**: How many provisions each regulation has and how many are binding (mandatory, recommended, optional); Density: provisions per page, when per is set; Counts people can see as things, not lengths.
+
+**Least useful for**: Amounts that are not counts, such as money (use hbar stacked); More than about 20 rows (use hbar stacked); Shares of one whole across items (use waffle or donut).
+
+**One row is**: One row per category, each named once. **Built**: One row per data row with one small square per unit, filled part by part in order (each part its color), the total and the first part's share written at the end; when totals run long, one square stands for a round number of units.
+
+**Needs**: `label` (category), `value` (number, one or more). Example: 12 rows of `name`, `mandatory`, `recommended`, `optional`, `pages`, `topic`, `provisions`. [Full entry with the data](../catalog/guide/strips.md).
+
+| Switch to | Fit | Verdict | Assessment |
+| --- | --- | --- | --- |
+| `marimekko` | fits | same | Keeps the job (how each group or period splits) with a different look. |
+| `bar` | fits | trade-off | Better for ranking, top to bottom and trend over time; weaker for how each group or period splits. |
+| `hbar` | fits | different | Answers a different question: better for ranking, top to bottom and comparing amounts across categories, but gives up how each group or period splits. Lengths compare more precisely across rows; the sense of countable units is lost. |
+| `icicle` | fits | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up how each group or period splits. |
+| `list` | fits | different | Answers a different question: better for exact values and lookup and ranking, top to bottom, but gives up how each group or period splits. |
+| `matrix` | fits | different | Answers a different question: better for patterns across two dimensions or a cycle and exact values and lookup, but gives up how each group or period splits. |
+| `sunburst` | fits | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up how each group or period splits. |
+| `treemap` | fits | different | Answers a different question: better for share of one whole and nested breakdowns, but gives up how each group or period splits. |
+| `heatmap` | fits | different | Answers a different question: better for patterns across two dimensions or a cycle, but gives up how each group or period splits. |
+| `sankey` | fits | different | Answers a different question: better for flows between stages or groups, but gives up how each group or period splits. |
+| `scatter` | fits | different | Answers a different question: better for how two measures relate, but gives up how each group or period splits. |
+| `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up how each group or period splits. |
 
 ## sunburst
 
@@ -900,6 +1290,7 @@ A hierarchy as rings: the inner ring splits the total by the first level, each o
 | --- | --- | --- | --- |
 | `icicle` | fits | same | Keeps the job (nested breakdowns) with a different look. Easier to read long names and compare sizes; less of a picture of the whole. |
 | `marimekko` | fits | different | Answers a different question: better for how each group or period splits and comparing amounts across categories, but gives up nested breakdowns. |
+| `matrix` | fits | different | Answers a different question: better for patterns across two dimensions or a cycle and comparing amounts across categories, but gives up nested breakdowns. |
 | `beeswarm` | fits | different | Answers a different question: better for how values spread, but gives up nested breakdowns. |
 | `heatmap` | fits | different | Answers a different question: better for patterns across two dimensions or a cycle, but gives up nested breakdowns. |
 | `sankey` | fits | different | Answers a different question: better for flows between stages or groups, but gives up nested breakdowns. |
@@ -908,6 +1299,39 @@ A hierarchy as rings: the inner ring splits the total by the first level, each o
 | `hbar` | stretch | different | Answers a different question: better for comparing amounts across categories and ranking, top to bottom, but gives up nested breakdowns. *"product" repeats (3 different values in 15 rows), but this chart wants one row per category: sum the rows first with an aggregate step.* |
 | `list` | stretch | different | Answers a different question: better for exact values and lookup and ranking, top to bottom, but gives up nested breakdowns. *"product" repeats (3 different values in 15 rows), but this chart wants one row per category: sum the rows first with an aggregate step.* |
 | `pareto` | stretch | different | Answers a different question: better for ranking, top to bottom and what drives or moves a total, but gives up nested breakdowns. *"product" repeats (3 different values in 15 rows), but this chart wants one row per category: sum the rows first with an aggregate step.* |
+
+## symbols
+
+A map with a circle on each place, its area true to a value: customers by state, volume by port.
+
+**Jobs**: comparing amounts across categories (best), patterns across two dimensions or a cycle (good).
+
+**Best for**: Counts and totals by place where the size itself matters: customers by state, volume by port; Several kinds of place on one map, told apart by color.
+
+**Least useful for**: Rates and shares (use choropleth); Hundreds of overlapping places (sum them by region first).
+
+**One row is**: One row per category, each named once. **Built**: One circle per row on its region (by code) or at its coordinates, its area true to the size field; a color field groups the circles with a key.
+
+**Needs**: `size` (number). Example: 24 rows of `state`, `customers`, `region`. [Full entry with the data](../catalog/guide/symbols.md).
+
+| Switch to | Fit | Verdict | Assessment |
+| --- | --- | --- | --- |
+| `hbar` | fits | better | Better for ranking, top to bottom, and still good for comparing amounts across categories. |
+| `choropleth` | fits | same | Keeps the job (comparing amounts across categories) with a different look. |
+| `dot` | fits | same | Keeps the job (comparing amounts across categories) with a different look. |
+| `matrix` | fits | trade-off | Better for exact values and lookup and patterns across two dimensions or a cycle; weaker for comparing amounts across categories. |
+| `boxplot` | fits | trade-off | Better for how values spread; weaker for comparing amounts across categories. |
+| `icicle` | fits | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up comparing amounts across categories. |
+| `pareto` | fits | different | Answers a different question: better for ranking, top to bottom and what drives or moves a total, but gives up comparing amounts across categories. |
+| `sunburst` | fits | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up comparing amounts across categories. |
+| `treemap` | fits | different | Answers a different question: better for share of one whole and nested breakdowns, but gives up comparing amounts across categories. |
+| `beeswarm` | fits | different | Answers a different question: better for how values spread, but gives up comparing amounts across categories. |
+| `heatmap` | fits | different | Answers a different question: better for patterns across two dimensions or a cycle, but gives up comparing amounts across categories. |
+| `histogram` | fits | different | Answers a different question: better for how values spread, but gives up comparing amounts across categories. |
+| `sankey` | fits | different | Answers a different question: better for flows between stages or groups, but gives up comparing amounts across categories. |
+| `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up comparing amounts across categories. |
+| `bar` | stretch | same | Keeps the job (comparing amounts across categories) with a different look. *24 rows: this chart crowds past about 16.* |
+| `list` | stretch | different | Answers a different question: better for exact values and lookup and ranking, top to bottom, but gives up comparing amounts across categories. *24 rows: this chart crowds past about 20.* |
 
 ## table
 
@@ -925,7 +1349,9 @@ Rows and columns.
 
 | Switch to | Fit | Verdict | Assessment |
 | --- | --- | --- | --- |
+| `board` | fits | better | Better for conversion through ordered steps, and still good for exact values and lookup. |
 | `list` | fits | better | Better for ranking, top to bottom, and still good for exact values and lookup. |
+| `matrix` | fits | trade-off | Better for patterns across two dimensions or a cycle and comparing amounts across categories; weaker for exact values and lookup. |
 | `bar` | fits | different | Answers a different question: better for comparing amounts across categories and ranking, top to bottom, but gives up exact values and lookup. |
 | `hbar` | fits | different | Answers a different question: better for ranking, top to bottom and comparing amounts across categories, but gives up exact values and lookup. |
 | `icicle` | fits | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up exact values and lookup. |
@@ -934,6 +1360,7 @@ Rows and columns.
 | `sunburst` | fits | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up exact values and lookup. |
 | `donut` | fits | different | Answers a different question: better for share of one whole, but gives up exact values and lookup. |
 | `funnel` | fits | different | Answers a different question: better for conversion through ordered steps, but gives up exact values and lookup. |
+| `pie` | fits | different | Answers a different question: better for share of one whole, but gives up exact values and lookup. |
 | `sankey` | fits | different | Answers a different question: better for flows between stages or groups, but gives up exact values and lookup. |
 | `heatmap` | stretch | different | Answers a different question: better for patterns across two dimensions or a cycle, but gives up exact values and lookup. *5 rows: this chart says little with fewer than 6.* |
 
@@ -953,14 +1380,18 @@ A Gantt-style timeline: one row per task with a bar from its start to its end da
 
 | Switch to | Fit | Verdict | Assessment |
 | --- | --- | --- | --- |
+| `history` | fits | better | Better for exact values and lookup, and still good for schedules and plans. Reads as a story, newest first, with notes and amounts; durations are lost. |
+| `lifecycle` | fits | better | Better for change between two points, and still good for schedules and plans. Shows every stage between start and end, each in its own tint, with a status and a thickness for impact; needs a date per stage. |
 | `area` | fits | different | Answers a different question: better for trend over time and how each group or period splits, but gives up schedules and plans. |
 | `bar` | fits | different | Answers a different question: better for comparing amounts across categories and ranking, top to bottom, but gives up schedules and plans. |
+| `board` | fits | different | Answers a different question: better for exact values and lookup and conversion through ordered steps, but gives up schedules and plans. |
 | `bump` | fits | different | Answers a different question: better for ranking, top to bottom and trend over time, but gives up schedules and plans. |
 | `hbar` | fits | different | Answers a different question: better for comparing amounts across categories and ranking, top to bottom, but gives up schedules and plans. |
 | `icicle` | fits | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up schedules and plans. |
 | `line` | fits | different | Answers a different question: better for trend over time and comparing amounts across categories, but gives up schedules and plans. |
 | `list` | fits | different | Answers a different question: better for exact values and lookup and ranking, top to bottom, but gives up schedules and plans. |
 | `marimekko` | fits | different | Answers a different question: better for how each group or period splits and comparing amounts across categories, but gives up schedules and plans. |
+| `matrix` | fits | different | Answers a different question: better for patterns across two dimensions or a cycle and comparing amounts across categories, but gives up schedules and plans. |
 | `sunburst` | fits | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up schedules and plans. |
 | `treemap` | fits | different | Answers a different question: better for share of one whole and nested breakdowns, but gives up schedules and plans. |
 | `funnel` | fits | different | Answers a different question: better for conversion through ordered steps, but gives up schedules and plans. |
@@ -991,10 +1422,12 @@ Part-to-whole for many categories: tiles sized by value, kept close to square.
 | `bar` | fits | different | Answers a different question: better for comparing amounts across categories and ranking, top to bottom, but gives up share of one whole. |
 | `hbar` | fits | different | Answers a different question: better for ranking, top to bottom and comparing amounts across categories, but gives up share of one whole. Easier to compare and rank, at the cost of the part-to-whole picture. |
 | `list` | fits | different | Answers a different question: better for exact values and lookup and ranking, top to bottom, but gives up share of one whole. |
+| `matrix` | fits | different | Answers a different question: better for patterns across two dimensions or a cycle and exact values and lookup, but gives up share of one whole. |
 | `heatmap` | fits | different | Answers a different question: better for patterns across two dimensions or a cycle, but gives up share of one whole. |
 | `sankey` | fits | different | Answers a different question: better for flows between stages or groups, but gives up share of one whole. |
 | `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up share of one whole. |
 | `donut` | stretch | same | Keeps the job (share of one whole) with a different look. *8 rows: this chart crowds past about 6.* |
+| `pie` | stretch | same | Keeps the job (share of one whole) with a different look. *8 rows: this chart crowds past about 6.* |
 | `waffle` | stretch | same | Keeps the job (share of one whole) with a different look. *8 rows: this chart crowds past about 5.* |
 
 ## variance
@@ -1019,6 +1452,7 @@ Variance against plan, as in financial reporting: per row a bar from a zero line
 | `hbar` | fits | different | Answers a different question: better for ranking, top to bottom and comparing amounts across categories, but gives up actual against target or plan. |
 | `list` | fits | different | Answers a different question: better for exact values and lookup and ranking, top to bottom, but gives up actual against target or plan. |
 | `donut` | fits | different | Answers a different question: better for share of one whole, but gives up actual against target or plan. |
+| `pie` | fits | different | Answers a different question: better for share of one whole, but gives up actual against target or plan. |
 | `radar` | fits | different | Answers a different question: better for profiles across several attributes, but gives up actual against target or plan. |
 | `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up actual against target or plan. |
 | `gauge` | stretch | same | Keeps the job (actual against target or plan) with a different look. *A gauge shows one value; it draws the first of these 6 rows.* |
@@ -1040,6 +1474,7 @@ Part to whole as a 10 by 10 grid where each square is one percent, filled catego
 | Switch to | Fit | Verdict | Assessment |
 | --- | --- | --- | --- |
 | `donut` | fits | same | Keeps the job (share of one whole) with a different look. Adds the total in the middle; the shares are harder to count. |
+| `pie` | fits | same | Keeps the job (share of one whole) with a different look. |
 | `treemap` | fits | same | Keeps the job (share of one whole) with a different look. |
 | `bar` | fits | different | Answers a different question: better for comparing amounts across categories and ranking, top to bottom, but gives up share of one whole. |
 | `hbar` | fits | different | Answers a different question: better for comparing amounts across categories and ranking, top to bottom, but gives up share of one whole. |
@@ -1068,3 +1503,64 @@ A bridge: how a total moves to another through increases and decreases, each flo
 | `list` | fits | different | Answers a different question: better for exact values and lookup and ranking, top to bottom, but gives up what drives or moves a total. |
 | `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up what drives or moves a total. |
 | `pareto` | stretch | same | Keeps the job (what drives or moves a total) with a different look. *"amount" has negative values, which this chart cannot draw as areas.* |
+
+## whitespace
+
+The cross-sell map (whitespace analysis): one cell per client and product, filled where the client holds the product, outlined where it is an opportunity (tinted by how likely), blank where the client is not eligible.
+
+**Jobs**: how each group or period splits (best), exact values and lookup (good), comparing amounts across categories (possible).
+
+**Best for**: Cross-sell and upsell: which clients could take which products, and where to start; Product penetration across a book, with the money still on the table; A relationship manager's weekly whitespace review.
+
+**Least useful for**: Amounts without a held, open or not eligible state (use heatmap); More than about 16 products or 30 clients at once (filter or group first); One client alone (use xray).
+
+**One row is**: One row per combination of two categories, such as month and product. **Built**: One cell per row and column pair, read from its state: a filled square where held, an outlined square tinted by score where open, a faint dot where not eligible; each row ends with its penetration and the potential still open, each column with how many hold it and how many could; rows sort by potential.
+
+**Needs**: `row` (category), `column` (category), `state` (category). Example: 48 rows of `client`, `product`, `state`, `propensity`, `value`. [Full entry with the data](../catalog/guide/whitespace.md).
+
+| Switch to | Fit | Verdict | Assessment |
+| --- | --- | --- | --- |
+| `marimekko` | fits | same | Keeps the job (how each group or period splits) with a different look. |
+| `boxplot` | fits | different | Answers a different question: better for how values spread and comparing amounts across categories, but gives up how each group or period splits. |
+| `icicle` | fits | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up how each group or period splits. |
+| `matrix` | fits | different | Answers a different question: better for patterns across two dimensions or a cycle and comparing amounts across categories, but gives up how each group or period splits. |
+| `ridgeline` | fits | different | Answers a different question: better for how values spread and comparing amounts across categories, but gives up how each group or period splits. |
+| `sunburst` | fits | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up how each group or period splits. |
+| `beeswarm` | fits | different | Answers a different question: better for how values spread, but gives up how each group or period splits. |
+| `heatmap` | fits | different | Answers a different question: better for patterns across two dimensions or a cycle, but gives up how each group or period splits. Shades every cell by one number, which suits amounts; the held, open and not eligible states are lost. |
+| `histogram` | fits | different | Answers a different question: better for how values spread, but gives up how each group or period splits. |
+| `sankey` | fits | different | Answers a different question: better for flows between stages or groups, but gives up how each group or period splits. |
+| `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up how each group or period splits. Exact values per pair and sorting by any column; the map's shape, where the open cells cluster, is gone. |
+| `bar` | stretch | trade-off | Better for comparing amounts across categories and ranking, top to bottom; weaker for how each group or period splits. *"client" repeats (6 different values in 48 rows), but this chart wants one row per category: sum the rows first with an aggregate step. 48 rows: this chart crowds past about 16.* |
+| `hbar` | stretch | different | Answers a different question: better for ranking, top to bottom and comparing amounts across categories, but gives up how each group or period splits. *"client" repeats (6 different values in 48 rows), but this chart wants one row per category: sum the rows first with an aggregate step. 48 rows: this chart crowds past about 30.* |
+| `list` | stretch | different | Answers a different question: better for ranking, top to bottom and exact values and lookup, but gives up how each group or period splits. *"client" repeats (6 different values in 48 rows), but this chart wants one row per category: sum the rows first with an aggregate step. 48 rows: this chart crowds past about 20.* |
+
+## xray
+
+A client x-ray: one client on one card, from its first row.
+
+**Jobs**: a headline number (best), exact values and lookup (good), profiles across several attributes (possible).
+
+**Best for**: One client on one card: a pre-meeting brief, a client page, a relationship manager's cockpit; Seeing holdings, share of wallet, trend and next steps at one glance.
+
+**Least useful for**: Several clients (use whitespace or table); One number alone (use kpi); A history of events (use history).
+
+**One row is**: One value; with more rows, the last one is the headline and the rest draw its trend. **Built**: The first row's name and detail line, up to six facts as labelled figures, true/false product fields as pills (held in color), a share-of-wallet meter, a list of numbers as a small trend, and lists of flags and next best actions.
+
+**Needs**: `label` (category). Example: 1 rows of `name`, `segment`, `aum`, `revenue`, `products`, `sinceYear`, `custody`, `advisory`, `discretionary`, `lending`, `fx`, `structured`, `insurance`, `pension`, `shareOfWallet`, `revenueByMonth`, `flags`, `actions`. [Full entry with the data](../catalog/guide/xray.md).
+
+| Switch to | Fit | Verdict | Assessment |
+| --- | --- | --- | --- |
+| `gauge` | fits | same | Keeps the job (a headline number) with a different look. |
+| `kpi` | fits | same | Keeps the job (a headline number) with a different look. |
+| `kpis` | fits | same | Keeps the job (a headline number) with a different look. A row of numbers with their changes; the holdings, flags and next steps are gone. |
+| `list` | fits | different | Answers a different question: better for ranking, top to bottom and exact values and lookup, but gives up a headline number. |
+| `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up a headline number. |
+| `bar` | stretch | different | Answers a different question: better for comparing amounts across categories and ranking, top to bottom, but gives up a headline number. *1 row: this chart says little with fewer than 2.* |
+| `hbar` | stretch | different | Answers a different question: better for comparing amounts across categories and ranking, top to bottom, but gives up a headline number. *1 row: this chart says little with fewer than 2.* |
+| `icicle` | stretch | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up a headline number. *1 row: this chart says little with fewer than 4.* |
+| `marimekko` | stretch | different | Answers a different question: better for how each group or period splits and comparing amounts across categories, but gives up a headline number. *1 row: this chart says little with fewer than 4.* |
+| `sunburst` | stretch | different | Answers a different question: better for nested breakdowns and share of one whole, but gives up a headline number. *1 row: this chart says little with fewer than 4.* |
+| `donut` | stretch | different | Answers a different question: better for share of one whole, but gives up a headline number. *1 row: this chart says little with fewer than 2.* |
+| `pie` | stretch | different | Answers a different question: better for share of one whole, but gives up a headline number. *1 row: this chart says little with fewer than 2.* |
+| `sankey` | stretch | different | Answers a different question: better for flows between stages or groups, but gives up a headline number. *1 row: this chart says little with fewer than 2.* |

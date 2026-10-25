@@ -12,8 +12,8 @@ import "./views/index.ts";
 /** The regulatory landscape dashboard and every widget it names, as the demo loads them. */
 const board = JSON.parse(readFileSync("dashboards/regulatory-landscape.json", "utf8")) as DashboardSpec;
 const widgets: Record<string, WidgetSpec> = {};
-for (const file of readdirSync("widgets").filter((name) => name.endsWith(".json"))) {
-  const spec = JSON.parse(readFileSync(`widgets/${file}`, "utf8")) as WidgetSpec;
+for (const file of readdirSync("widgets/regulatory").filter((name) => name.endsWith(".json"))) {
+  const spec = JSON.parse(readFileSync(`widgets/regulatory/${file}`, "utf8")) as WidgetSpec;
   if (spec.id) widgets[spec.id] = spec;
 }
 

@@ -54,7 +54,7 @@
     "x": "growth",
     "y": "margin",
     "size": "revenue",
-    "series": "segment",
+    "color": "segment",
     "label": "account"
   }
 }

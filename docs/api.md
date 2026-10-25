@@ -302,12 +302,74 @@ Which chart for these rows? Reads the data's shape (how many rows; which fields 
 
 ### `explainChart(spec, rows?) => string`
 
-A plain reading guide for any of the 40 views, in the chart's own field names, simple enough for a ten-year-old: what each mark is, what bigger, longer, stronger or further right means, and what the options add (series colors, stacks, a forecast fan, bubble sizes, small multiples). Given the rows the chart draws, it ends with one concrete example: `"Each bar is one region. The taller the bar, the more revenue. Here, East is the tallest, with €2,000."` Color scales are described as stronger or weaker, never darker, since a scale flips on a dark card. Marks are read by side, shape and fill, never by a named color. Charts with a target read against it: a dashed target line is named and the bars are counted against it ("3 of 8 teams are above the 1 hour target"), bars under a target line say how often they beat it, a line says whether its latest actual ended past the target, and a variance counts who is over budget before naming the furthest. The `explain` action, the dashboard's `setGuides`, the Taller's cards and the MCP tool `fft_get_widget_data` (as `howToRead`) all use it.
+A plain reading guide for any of the <!-- views -->57<!-- /views --> views, in the chart's own field names, simple enough for a ten-year-old: what each mark is, what bigger, longer, stronger or further right means, and what the options add (series colors, stacks, a forecast fan, bubble sizes, small multiples). Given the rows the chart draws, it ends with one concrete example: `"Each bar is one region. The taller the bar, the more revenue. Here, East is the tallest, with €2,000."` Color scales are described as stronger or weaker, never darker, since a scale flips on a dark card. Marks are read by side, shape and fill, never by a named color. Charts with a target read against it: a dashed target line is named and the bars are counted against it ("3 of 8 teams are above the 1 hour target"), bars under a target line say how often they beat it, a line says whether its latest actual ended past the target, and a variance counts who is over budget before naming the furthest. The `explain` action, the dashboard's `setGuides`, the Taller's cards and the MCP tool `fft_get_widget_data` (as `howToRead`) all use it.
 
 
 ### `questionOf(spec, rows?) => { kind, text }`
 
 The sales question a chart answers, in one plain sentence built from its own field names: `"Which region has the most revenue?"`, `"Is revenue on target, month by month?"`, `"How did each region change from Q3 2025 to Q3 2026?"`. `kind` names the type of question (rank, target, trend, forecast, mix, compare, change, spread, relation, flow, rhythm, profile, number, detail, opinion, schedule). The rows, when given, name a table's columns when the spec does not list them. The Taller uses it so every new version says which question it answers; the MCP tool `fft_create_variants` returns it for the original too.
+### Canonical option names: `canonicalName`, `normalizeView`, `canonicalSpec`, `readable`, `alsoAccepts`
+
+One idea goes by one option name on every view:
+- `value` is the measure or measures (also on `dot`, `strips` and `likert`).
+- `color` is color by category (`scatter`, `locator`).
+- `flag` is a yes/no field (`matrix`).
+- A choropleth's `labels` takes `"codes"` or `"none"`.
+
+The older spellings still work. Validation warns once per spec, naming the new name.
+
+- `canonicalName(view, option)` gives the name to show.
+- `alsoAccepts(view, option)` gives the older spellings.
+- `normalizeView(view)` maps a view onto the names its renderer reads.
+- `readable(spec)` does the same for a whole spec.
+- `canonicalSpec(spec)` and `canonicalView(view)` go the other way, writing canonical names.
+
+`OPTION_ALIASES` lists every rename.
+
+### RAG statuses: `ragOf`, `ragFromValue`, `worstOf` and the `rag` transform and format
+
+Statuses are `"R"`, `"A"`, `"G"` and `"N"` (no data).
+- `ragOf(value)` reads letters, words (`red`, `amber`, `green`, `grey`) and the status words in any case.
+- `ragFromValue(value, { green, amber, goodWhen })` applies thresholds: on track from `green`, at risk from `amber`, mirrored when lower is better.
+- `worstOf(statuses)` gives the worst status, ignoring missing data.
+- `ragTrend(previous, current)` says whether a status improved, got worse or held.
+
+Each status is drawn as a shape and a word, never color alone: a circle for On track, a triangle for At risk, a square for Off track, a hollow circle for No data. `RAG_WORDS` and `RAG_SHAPES` hold the defaults, and every RAG view and format takes `words` and `shapes` overrides.
+
+The `rag` transform turns numbers into status columns:
+
+```json
+{ "type": "rag", "rules": [{ "field": "nps", "green": 40, "amber": 20 }], "overall": "status" }
+```
+
+The `rag` cell format draws the pill. `"rag": { "green", "amber", "goodWhen" }` on `kpi` and `kpis` adds a pill beside the number.
+
+### Maps: `basemapNames`, `resolveGeo`, `project`
+
+`basemapNames()` lists the built-in tile grids, `europe` and `us-states`. `guessBasemap(values)` picks one from a column of codes. `resolveGeo(geo)` and `project(collection, width, height)` are the geometry the map views use, with no DOM, so they run in Node too.
+
+### Full-card export: `cardToSvg`, `cardToPng`
+
+`cardToSvg(card, background)` returns the whole card as SVG markup: title, subtitle, headline, the chart, HTML legends, footer and credit line. `cardToPng(card, background, scale)` resolves to a PNG blob. The `image` and `svg` actions use them.
+
+### The drawing kit for custom views
+
+Custom views that use the kit size, space and behave like the built-in ones.
+
+**Measures and layout** (from `martcharts`):
+- `textWidth(text, size?, weight?)` measures text width, tuned for San Francisco.
+- `labelColumn(names, width)` sizes a label column.
+- `endRoom(texts)` reserves room for value labels at bar ends.
+- `ROW`, `rowHeight(count)`, `GAP` and `DIM` are the spacing scale and the hover dim.
+
+**Behaviour:**
+- `legendList(ctx, entries)` builds a legend. It returns nothing inside small multiples.
+- `rowHit(ctx, …)` and `activeGroup(wrap)` provide the hover, focus, tooltip and select dance.
+- `hiddenTableOf(ctx, rows, columns)` builds the table screen readers read.
+- `shareFormat(locale)` formats shares.
+
+The style tokens `--fft-dim`, `--fft-radius-s`, `-m`, `-l` and `--fft-fs-xs` to `-xl` keep custom CSS on the same scale.
+
 ### `runPipeline(spec, ctx?) => Promise<Row[]>`
 
 Loads the rows and applies the transforms. `ctx.fetch` replaces the global `fetch`; `ctx.signal` cancels. Throws with a readable message when the source is unknown, loading fails, or the source returns something other than a list of objects. `applyTransforms(rows, steps)` runs only the transform half.

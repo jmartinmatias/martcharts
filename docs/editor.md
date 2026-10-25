@@ -26,7 +26,21 @@ Three tabs, like Datawrapper's.
 
 **Refine** is a form generated from the chosen view's option schema, so a view registered later gets its controls for free: a field option is a select of the columns of the right kind, a list of fields is a row of checkbox chips, a boolean a switch, an enum a segmented control, a number an input, and anything else a small JSON field applied when it parses. Under it: **Highlight** (chips of the categories; clicking a mark on the chart toggles the same thing), **Small multiples by** (a panel per value of a category with twelve values or fewer), and the style: the look (default, glass, airy, paper), the theme, the colors (the palette picker, with its colorblind checks) and the height. Clicking a legend entry on the chart drops that series; add it back with its chip.
 
-**Annotate** holds the words around the chart: title, description, notes, source name and address, byline, the headline number and what it compares with, reference lines (value and label) and, on views that take them, text annotations: each at a category, optionally at a height, with its text. Drag a note on the chart to move it (it snaps to the nearest category), or step it with the arrows.
+The form shows options by their canonical names: `value` on a dot plot rather than `values`, `color` on a scatter rather than `series`. A spec written either way opens with its fields filled, and an edit writes the canonical name.
+
+Some options get their own controls:
+
+- **Lists of fields** whose order matters (a lifecycle's stages, a hierarchy's levels, a scorecard's dimensions, series) list the picked fields in order. Drag one onto another to reorder them, or use the arrow buttons.
+- **Map geometry** is a select of the built-in basemaps, or a GeoJSON address.
+- **today** is a switch, with a date for a line somewhere else.
+- **A choropleth's labels** are Codes or None.
+- **Quadrants** take where the plot splits on x and on y, and a word for each corner.
+- **RAG thresholds on a KPI** take on track from, at risk from, and which way is good.
+- **A scorecard** has a select per dimension for its last-period column, and an overall column: the worst of the columns, none, or a stored roll-up.
+
+**Statuses (red, amber, green)** adds rag transform rules. Each rule takes a measure, on track from, at risk from, and which way is good. A new rule starts from the data's thirds. With two or more rules, you can name an overall column. **Fixed colors** gives each category of the chart a color that holds on every chart naming it.
+
+**Annotate** holds the words around the chart: title, description, notes, source name and address, byline, the headline number and what it compares with, reference lines (value and label) and, on views that take them, text annotations: each at a category, optionally at a height, with its text. Drag a note on the chart to move it (it snaps to the nearest category), or step it with the arrows. The **tooltip** is a template filled from the mark's row: type `{field}`, or click a field to insert it.
 
 ## 4. Publish & embed
 

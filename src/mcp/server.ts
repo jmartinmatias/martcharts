@@ -28,6 +28,7 @@ import { describeChart, describeCharts, needsText } from "../core/catalog.ts";
 import { chartGuide, dataContract, guideMarkdown, switchChart, switchOptions } from "../core/guide.ts";
 import type { ChartEntry } from "../core/catalog.ts";
 import { recommendCharts } from "../core/recommend.ts";
+import { canonicalName } from "../core/aliases.ts";
 import { blockTypes, describeBlocks } from "../core/registry.ts";
 import { questionOf } from "../core/question.ts";
 import { AUDIENCES, createVariants, MOVES } from "../core/taller.ts";
@@ -155,6 +156,7 @@ const VIEW_GUIDE = [
   "Where everything stands in a lifecycle: board (one column per stage or status, each item a card with its group and value; regulations by status, deals by stage).",
   "RAG reporting (Red, Amber, Green): ragboard (a scorecard, one row per client or relationship manager and one status cell per dimension, worst first, with better or worse arrows), ragtrend (each entity's status period by period, with why it moved). The rag transform turns numbers into statuses against thresholds, the rag format draws a status pill in tables, and kpi or kpis tiles take rag thresholds for a pill beside the number.",
   "Records to read: table (with spark and badge cells), list.",
+  'Option names are the same across views: value for the measure or measures (dot, strips and likert too), color for color by category (scatter, locator), flag for a yes/no field (matrix). Older spellings (values, parts, responses, series, kind, mark) still work and raise one warning saying the new name.',
   "Regulation and compliance: matrix (one mark per x and y pair, sized, shaded or a square per yes: pressure per topic per quarter, who must comply), strips (one square per provision, colored mandatory to optional, with a density per page), lifecycle (each rule's stages from proposal to application on one date axis, a today line and a status pill).",
   "Clients and cross-sell: whitespace (the cross-sell map: one cell per client and product, held, open or not eligible, with the potential per row), xray (one client on one card: facts, holdings, share of wallet, trend, flags, next best actions), history (a client's events as a vertical timeline, newest first).",
 ];
@@ -168,7 +170,10 @@ function blocksMarkdown(kinds: BlockKind[]): string {
       lines.push("", `- **${block.type}**: ${block.description}`);
       for (const [name, option] of Object.entries(block.options)) {
         const kindText = option.type === "enum" ? `one of ${option.values?.join(", ")}` : option.kind ? `${option.kind} ${option.type}` : option.type;
-        lines.push(`  - \`${name}\` (${kindText}${option.required ? ", required" : ""}): ${option.description}`);
+        // Views list each option by its canonical name, with the older spelling that still works.
+        const shown = kind === "view" ? canonicalName(block.type, name) : name;
+        const older = shown !== name ? ` Also accepts \`${name}\`, the older name.` : "";
+        lines.push(`  - \`${shown}\` (${kindText}${option.required ? ", required" : ""}): ${option.description}${older}`);
       }
     }
   }
@@ -623,7 +628,10 @@ To make a widget from it: replace the starter's data with yours (keeping the fie
       if (chart.question) lines.push(`**Answers, for example**: ${chart.question}`, "");
       if (chart.needs.length) {
         lines.push("## Row fields", "", "| Option | Holds | Required | What it is |", "| --- | --- | --- | --- |");
-        for (const need of chart.needs) lines.push(`| \`${need.option}\` | ${need.holds}${need.many ? " (one or more)" : ""} | ${need.required ? "yes" : ""} | ${cell(need.description)} |`);
+        for (const need of chart.needs) {
+          const older = need.alsoAccepts?.length ? ` Also accepts ${need.alsoAccepts.map((name) => `\`${name}\``).join(", ")}, the older name.` : "";
+          lines.push(`| \`${need.option}\` | ${need.holds}${need.many ? " (one or more)" : ""} | ${need.required ? "yes" : ""} | ${cell(need.description)}${older} |`);
+        }
         lines.push("");
       }
       if (chart.settings.length) lines.push(`**Settings**: ${chart.settings.map((name) => `\`${name}\``).join(", ")} (fft_list_blocks kind "view" has their types and defaults).`, "");
