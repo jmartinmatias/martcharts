@@ -599,19 +599,28 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
   function paintCredit() {
     credit.replaceChildren();
     const source = current.source;
+    const byline = typeof current.byline === "string" && current.byline ? fillTemplate(current.byline, rows, current.fields, current.locale) : "";
+    // The source and the byline each in their own span: a dashboard that says the source once under the board hides
+    // a card's matching source (and the dot after it) without touching the text a copy or an export reads.
     if (source && typeof source.name === "string" && source.name) {
-      credit.append(W().widget.source);
+      const said = make("span", "fft-credit-source");
+      said.append(W().widget.source);
       if (source.url) {
         const link = make("a", "fft-credit-link");
         link.href = source.url;
         link.target = "_blank";
         link.rel = "noopener noreferrer";
         link.textContent = source.name;
-        credit.append(link);
-      } else credit.append(source.name);
+        said.append(link);
+      } else said.append(source.name);
+      if (byline) said.append(" ·");
+      credit.append(said);
     }
-    const byline = typeof current.byline === "string" && current.byline ? fillTemplate(current.byline, rows, current.fields, current.locale) : "";
-    if (byline) credit.append(credit.childNodes.length ? ` ·${W().widget.chartBy(byline)}` : W().widget.chartBy(byline).trimStart());
+    if (byline) {
+      const by = make("span", "fft-credit-byline");
+      by.textContent = credit.childNodes.length ? W().widget.chartBy(byline) : W().widget.chartBy(byline).trimStart();
+      credit.append(by);
+    }
     credit.hidden = credit.childNodes.length === 0;
     credit.style.visibility = !loaded && current.byline && hasTemplate(current.byline) ? "hidden" : "";
   }

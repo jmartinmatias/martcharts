@@ -38,6 +38,22 @@ export function figure(doc: Document, className: string, value: unknown, show: (
   return number;
 }
 
+/**
+ * A zero that did not move from zero says nothing worth a hero figure: a quiet dash, read aloud as the zero it is
+ * ("0", "€0"). Used when a tile's value and its comparison are both zero.
+ */
+export function quietZero(doc: Document, className: string, said: string): HTMLElement {
+  const node = html(doc, "div", className, NO_VALUE);
+  node.dataset.zero = "";
+  node.setAttribute("aria-label", said);
+  return node;
+}
+
+/** A change that rounds to 0.0% is no change worth a line: the delta is left out. */
+export function noChange(change: number): boolean {
+  return Math.abs(change) < 0.0005;
+}
+
 /** The color a field's trend takes: the spec's fixed color for the field or its label, when `colors` names one. */
 export function trendColor(ctx: ViewContext<{ type: string }>, field: string, label?: string): string | undefined {
   return ctx.colorOf?.(label ?? ctx.label(field)) ?? ctx.colorOf?.(field);
@@ -73,13 +89,15 @@ export const renderKpi: ViewRenderer<KpiView> = (ctx) => {
     tile.append(glyph);
     box.append(tile);
   }
-  box.append(html(doc, "div", "fft-kpi-label", label ?? ctx.label(field)), figure(doc, "fft-kpi-value", value, show, wordsFor(ctx)));
-
   const now = readNumber(value);
+  const before = compare ? readNumber(row[compare]) : previous ? readNumber(previous[field]) : null;
+  // Zero now and zero before: a quiet dash, not a hero zero.
+  const quiet = now === 0 && before === 0;
+  box.append(html(doc, "div", "fft-kpi-label", label ?? ctx.label(field)), quiet ? quietZero(doc, "fft-kpi-value", show(value)) : figure(doc, "fft-kpi-value", value, show, wordsFor(ctx)));
+
   // With RAG thresholds, a pill says where the number stands: its shape and its words, never color alone.
   if (ctx.view.rag && now !== null) box.append(ragPill(doc, ragFromValue(now, ctx.view.rag), { locale: ctx.spec.locale }, "fft-kpi-rag"));
-  const before = compare ? readNumber(row[compare]) : previous ? readNumber(previous[field]) : null;
-  if (now !== null && before !== null && before !== 0) {
+  if (now !== null && before !== null && before !== 0 && !noChange((now - before) / Math.abs(before))) {
     const fallbackLabel = compare
       ? wordsFor(ctx).versus(ctx.label(compare))
       : x && previous
