@@ -1,0 +1,31 @@
+{
+  "id": "cc-rm-capacity",
+  "title": "Clients per relationship manager",
+  "subtitle": "Against each book's capacity",
+  "description": "How full each relationship manager's book is.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/rm-coverage.json"
+  },
+  "fields": {
+    "rm": {
+      "label": "Relationship manager"
+    },
+    "clients": {
+      "label": "Clients"
+    },
+    "capacity": {
+      "label": "Capacity"
+    }
+  },
+  "view": {
+    "type": "bullet",
+    "label": "rm",
+    "value": "clients",
+    "target": "capacity"
+  }
+}

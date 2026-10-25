@@ -3,7 +3,7 @@ import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { ScatterView } from "../../core/views.ts";
 import { referenceValues, resolveReferences } from "../../core/reference.ts";
-import { linearScale } from "../layout.ts";
+import { hullPath, linearScale } from "../layout.ts";
 import { drawReferences } from "./reference.ts";
 import { tickFormatter } from "./chart.ts";
 import { buildTable, html, selectable, svg } from "./shared.ts";
@@ -21,16 +21,21 @@ const MAX_BUBBLE = 21;
  */
 export const renderScatter: ViewRenderer<ScatterView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
-  const { x: xField, y: yField, series, label, size } = ctx.view;
-  const points: { row: Row; x: number; y: number; group: number; r: number }[] = [];
+  const { x: xField, y: yField, series, label, size, cluster } = ctx.view;
+  // Dots take the series' color, or, without a series, their cluster's: the hulls and the dots then say the same thing.
+  const colorField = series ?? cluster;
+  const points: { row: Row; x: number; y: number; group: number; cluster: number; r: number }[] = [];
   const groups: string[] = [];
+  const clusters: string[] = [];
   for (const row of ctx.rows) {
     const x = readNumber(row[xField]);
     const y = readNumber(row[yField]);
     if (x === null || y === null) continue;
-    const name = series ? String(row[series]) : "";
+    const name = colorField ? String(row[colorField]) : "";
     if (!groups.includes(name)) groups.push(name);
-    points.push({ row, x, y, group: groups.indexOf(name), r: 5 });
+    const member = cluster ? String(row[cluster]) : "";
+    if (!clusters.includes(member)) clusters.push(member);
+    points.push({ row, x, y, group: groups.indexOf(name), cluster: clusters.indexOf(member), r: 5 });
   }
   // Bubbles: area follows the size field (radius by square root), up to 21px; the biggest draw first so small ones stay on top.
   if (size) {
@@ -54,16 +59,16 @@ export const renderScatter: ViewRenderer<ScatterView> = (ctx) => {
   const ys = linearScale(yValues, [plot.y + plot.h, plot.y], { includeZero: false });
 
   const wrap = html(doc, "div", "fft-chart");
-  if ((series && groups.length > 1) || size) {
+  if ((colorField && groups.length > 1) || size) {
     const legend = html(doc, "ul", "fft-legend");
-    if (series && groups.length > 1) {
+    if (colorField && groups.length > 1) {
       groups.forEach((group, i) => {
         const swatch = html(doc, "span", "fft-swatch");
         swatch.dataset.shape = "dot";
         swatch.style.background = ctx.color(i);
         swatch.setAttribute("aria-hidden", "true");
         const item = html(doc, "li");
-        item.append(swatch, ctx.format(group, series));
+        item.append(swatch, ctx.format(group, colorField));
         legend.append(item);
       });
     }
@@ -100,6 +105,28 @@ export const renderScatter: ViewRenderer<ScatterView> = (ctx) => {
   drawReferences(doc, references, ys, plot, yText, refsBelow, refsAbove, { boxes: dotBoxes });
   chart.append(refsBelow);
 
+  // Clusters: a soft hull round each one's dots, in the cluster's color (its own, or a quiet grey when the dots are colored by series), its name at the middle.
+  if (cluster) {
+    const hulls = svg(doc, "g", { class: "fft-cluster-hulls" });
+    clusters.forEach((name, c) => {
+      const members = points.filter((p) => p.cluster === c);
+      if (!members.length) return;
+      const placed = members.map((p) => ({ x: xs(p.x), y: ys(p.y) }));
+      const pad = Math.max(13, ...members.map((p) => p.r + 8));
+      const color = series ? "var(--fft-text-secondary)" : ctx.color(c);
+      const hull = svg(doc, "path", { class: "fft-cluster-hull", d: hullPath(placed, pad), "data-cluster": name });
+      hull.style.setProperty("fill", color);
+      hull.style.setProperty("stroke", color);
+      const cx = placed.reduce((sum, p) => sum + p.x, 0) / placed.length;
+      const cy = placed.reduce((sum, p) => sum + p.y, 0) / placed.length;
+      const text = svg(doc, "text", { class: "fft-cluster-label", x: Math.round(cx * 100) / 100, y: Math.round(cy * 100) / 100, "text-anchor": "middle", "dominant-baseline": "middle" });
+      text.textContent = ctx.format(name, cluster);
+      text.style.setProperty("fill", color);
+      hulls.append(hull, text);
+    });
+    chart.append(hulls);
+  }
+
   const dots = svg(doc, "g");
   const overlay = svg(doc, "g");
   const marks: SVGCircleElement[] = [];
@@ -117,13 +144,14 @@ export const renderScatter: ViewRenderer<ScatterView> = (ctx) => {
     marks.push(dot);
     dots.append(dot);
 
-    const name = label ? ctx.format(point.row[label], label) : series ? ctx.format(point.row[series], series) : "";
+    const name = label ? ctx.format(point.row[label], label) : colorField ? ctx.format(point.row[colorField], colorField) : "";
     const items: TooltipItem[] = [
       { label: ctx.label(xField), value: ctx.format(point.row[xField], xField) },
       { label: ctx.label(yField), value: ctx.format(point.row[yField], yField) },
     ];
     if (size) items.push({ label: ctx.label(size), value: ctx.format(point.row[size], size) });
     if (series) items.push({ label: ctx.label(series), value: ctx.format(point.row[series], series), color: ctx.color(point.group) });
+    if (cluster) items.push({ label: ctx.label(cluster), value: ctx.format(point.row[cluster], cluster), ...(series ? {} : { color: ctx.color(point.group) }) });
     const hit = svg(doc, "circle", { class: "fft-point-hit", cx, cy, r: Math.max(13, point.r + 3), tabindex: 0, role: "img" });
     hit.setAttribute("aria-label", `${name ? `${name}: ` : ""}${items.map((item) => `${item.label} ${item.value}`).join(", ")}`);
     const activate = () => {
@@ -144,7 +172,7 @@ export const renderScatter: ViewRenderer<ScatterView> = (ctx) => {
   wrap.append(chart);
 
   const hidden = html(doc, "div", "fft-sr-only");
-  const columns = [label, xField, yField, size, series].filter((f): f is string => Boolean(f));
+  const columns = [label, xField, yField, size, series, cluster].filter((f): f is string => Boolean(f));
   hidden.append(buildTable(ctx, points.map((p) => p.row), columns, false));
   wrap.append(hidden);
   ctx.el.append(wrap);

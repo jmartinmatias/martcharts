@@ -1,0 +1,31 @@
+{
+  "id": "cc-cross-sell-paths",
+  "title": "From what clients hold to what they could buy",
+  "subtitle": "Clients by product held and open opportunity",
+  "description": "Which held products lead to which opportunities.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/cross-sell-paths.json"
+  },
+  "fields": {
+    "from": {
+      "label": "Holds"
+    },
+    "to": {
+      "label": "Could buy"
+    },
+    "clients": {
+      "label": "Clients"
+    }
+  },
+  "view": {
+    "type": "sankey",
+    "source": "from",
+    "target": "to",
+    "value": "clients"
+  }
+}

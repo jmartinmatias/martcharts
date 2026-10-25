@@ -1,0 +1,43 @@
+{
+  "id": "cc-revenue-pareto",
+  "title": "Revenue by client",
+  "subtitle": "The top 20 clients and their running share",
+  "description": "Clients by revenue, with the running share of the total.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/clients.json"
+  },
+  "transform": [
+    {
+      "type": "sort",
+      "field": "revenue",
+      "order": "desc"
+    },
+    {
+      "type": "limit",
+      "count": 20
+    }
+  ],
+  "fields": {
+    "name": {
+      "label": "Client"
+    },
+    "revenue": {
+      "label": "Revenue",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
+  },
+  "view": {
+    "type": "pareto",
+    "label": "name",
+    "value": "revenue"
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "id": "cc-client-list",
+  "title": "Every client",
+  "subtitle": "Search, sort and page through the book",
+  "description": "The client book with assets, revenue, propensity and share of wallet.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/clients.json"
+  },
+  "transform": [
+    {
+      "type": "sort",
+      "field": "aum",
+      "order": "desc"
+    }
+  ],
+  "fields": {
+    "name": {
+      "label": "Client"
+    },
+    "segment": {
+      "label": "Segment"
+    },
+    "rm": {
+      "label": "Relationship manager"
+    },
+    "country": {
+      "label": "Country"
+    },
+    "aum": {
+      "label": "AuM",
+      "format": {
+        "type": "bar",
+        "format": {
+          "type": "currency",
+          "currency": "EUR",
+          "compact": true
+        }
+      }
+    },
+    "revenue": {
+      "label": "Revenue",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "propensity": {
+      "label": "Propensity",
+      "format": {
+        "type": "heat"
+      }
+    },
+    "shareOfWallet": {
+      "label": "Share of wallet",
+      "format": {
+        "type": "percent"
+      }
+    },
+    "cluster": {
+      "label": "Cluster",
+      "format": {
+        "type": "badge"
+      }
+    }
+  },
+  "view": {
+    "type": "table",
+    "columns": [
+      "name",
+      "segment",
+      "rm",
+      "country",
+      "aum",
+      "revenue",
+      "propensity",
+      "shareOfWallet",
+      "cluster"
+    ],
+    "search": true,
+    "pageSize": 10,
+    "stickyFirst": true
+  }
+}

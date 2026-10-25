@@ -1,0 +1,9 @@
+[
+  {"assetClass":"Equities","current":0.44,"target":0.4,"min":0.3,"max":0.5},
+  {"assetClass":"Fixed income","current":0.27,"target":0.32,"min":0.25,"max":0.4},
+  {"assetClass":"Cash","current":0.09,"target":0.05,"min":0.02,"max":0.1},
+  {"assetClass":"Alternatives","current":0.07,"target":0.08,"min":0.05,"max":0.12},
+  {"assetClass":"Real estate","current":0.06,"target":0.07,"min":0.03,"max":0.1},
+  {"assetClass":"Private markets","current":0.04,"target":0.06,"min":0,"max":0.08},
+  {"assetClass":"Commodities","current":0.03,"target":0.02,"min":0,"max":0.05}
+]

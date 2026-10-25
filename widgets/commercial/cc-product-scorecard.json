@@ -1,0 +1,47 @@
+{
+  "id": "cc-product-scorecard",
+  "title": "Product penetration and margin",
+  "subtitle": "Share of clients holding each product, and its margin",
+  "description": "Penetration and margin per product side by side, each on its own scale.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/products.json"
+  },
+  "transform": [
+    {
+      "type": "sort",
+      "field": "penetration",
+      "order": "desc"
+    }
+  ],
+  "fields": {
+    "product": {
+      "label": "Product"
+    },
+    "penetration": {
+      "label": "Penetration",
+      "format": {
+        "type": "percent"
+      }
+    },
+    "margin": {
+      "label": "Margin",
+      "format": {
+        "type": "percent"
+      }
+    }
+  },
+  "view": {
+    "type": "hbar",
+    "label": "product",
+    "value": [
+      "penetration",
+      "margin"
+    ],
+    "split": true
+  }
+}

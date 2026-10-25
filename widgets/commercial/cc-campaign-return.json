@@ -1,0 +1,45 @@
+{
+  "id": "cc-campaign-return",
+  "title": "Revenue per euro spent",
+  "subtitle": "By campaign",
+  "description": "Each campaign's revenue divided by its cost.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/campaigns.json"
+  },
+  "transform": [
+    {
+      "type": "calc",
+      "as": "return",
+      "op": "divide",
+      "left": "revenue",
+      "right": "cost"
+    },
+    {
+      "type": "sort",
+      "field": "return",
+      "order": "desc"
+    }
+  ],
+  "fields": {
+    "campaign": {
+      "label": "Campaign"
+    },
+    "return": {
+      "label": "Revenue per euro",
+      "format": {
+        "type": "number",
+        "decimals": 1
+      }
+    }
+  },
+  "view": {
+    "type": "hbar",
+    "label": "campaign",
+    "value": "return"
+  }
+}

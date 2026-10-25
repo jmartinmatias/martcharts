@@ -1,0 +1,45 @@
+{
+  "id": "cc-client-story",
+  "title": "Aldana Holdings, the story so far",
+  "subtitle": "Meetings, trades, campaigns and reviews, newest first",
+  "description": "The client's history as a timeline of events.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/client-history.json"
+  },
+  "transform": [
+    {
+      "type": "filter",
+      "field": "client",
+      "value": "Aldana Holdings"
+    }
+  ],
+  "fields": {
+    "date": {
+      "label": "Date",
+      "format": {
+        "type": "date"
+      }
+    },
+    "amount": {
+      "label": "Amount",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
+  },
+  "view": {
+    "type": "history",
+    "date": "date",
+    "title": "title",
+    "kind": "kind",
+    "note": "note",
+    "amount": "amount"
+  }
+}

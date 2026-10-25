@@ -1,0 +1,65 @@
+{
+  "id": "cc-whitespace",
+  "title": "The cross-sell map",
+  "subtitle": "Twelve clients by product: held, open, or not eligible",
+  "description": "Every client against every product: what they hold, where an opportunity is open and how likely it is.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/holdings.json"
+  },
+  "transform": [
+    {
+      "type": "filter",
+      "field": "client",
+      "op": "in",
+      "value": [
+        "Aldana Holdings",
+        "Beaumont Family Office",
+        "Castellane Capital",
+        "Dufresne & Fils",
+        "Ekholm Foundation",
+        "Ferraro Industries",
+        "Gauthier Trust",
+        "Hallberg Partners",
+        "Isler Immobilien",
+        "Jansen Logistics",
+        "Kessler Pension Fund",
+        "Lindqvist Estate"
+      ]
+    }
+  ],
+  "fields": {
+    "client": {
+      "label": "Client"
+    },
+    "product": {
+      "label": "Product"
+    },
+    "state": {
+      "label": "State"
+    },
+    "propensity": {
+      "label": "Propensity"
+    },
+    "potential": {
+      "label": "Potential",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
+  },
+  "view": {
+    "type": "whitespace",
+    "row": "client",
+    "column": "product",
+    "state": "state",
+    "score": "propensity",
+    "value": "potential"
+  }
+}

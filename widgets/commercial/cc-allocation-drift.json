@@ -1,0 +1,38 @@
+{
+  "id": "cc-allocation-drift",
+  "title": "Allocation against the model",
+  "subtitle": "Current weight and model target by asset class",
+  "description": "Where the house portfolio drifted from its model, and which way to rebalance.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/portfolio-allocation.json"
+  },
+  "fields": {
+    "assetClass": {
+      "label": "Asset class"
+    },
+    "current": {
+      "label": "Current",
+      "format": {
+        "type": "percent"
+      }
+    },
+    "target": {
+      "label": "Target",
+      "format": {
+        "type": "percent"
+      }
+    }
+  },
+  "view": {
+    "type": "dumbbell",
+    "label": "assetClass",
+    "from": "current",
+    "to": "target",
+    "mark": "arrow"
+  }
+}

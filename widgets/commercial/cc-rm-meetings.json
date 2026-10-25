@@ -1,0 +1,40 @@
+{
+  "id": "cc-rm-meetings",
+  "title": "Client meetings this year",
+  "subtitle": "Held so far against the yearly target",
+  "description": "Meetings held per relationship manager against the target.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/rm-coverage.json"
+  },
+  "transform": [
+    {
+      "type": "sort",
+      "field": "meetingsYtd",
+      "order": "desc"
+    }
+  ],
+  "fields": {
+    "rm": {
+      "label": "Relationship manager"
+    },
+    "meetingsYtd": {
+      "label": "Meetings held"
+    },
+    "target": {
+      "label": "Target"
+    }
+  },
+  "view": {
+    "type": "hbar",
+    "label": "rm",
+    "value": [
+      "meetingsYtd",
+      "target"
+    ]
+  }
+}

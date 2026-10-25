@@ -1,0 +1,45 @@
+{
+  "id": "cc-penetration-gap",
+  "title": "Penetration against target",
+  "subtitle": "Where each product stands and where it should be by year end",
+  "description": "Each product's penetration today and its year-end target; the arrow points the way it has to move.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/products.json"
+  },
+  "transform": [
+    {
+      "type": "sort",
+      "field": "penetration",
+      "order": "desc"
+    }
+  ],
+  "fields": {
+    "product": {
+      "label": "Product"
+    },
+    "penetration": {
+      "label": "Today",
+      "format": {
+        "type": "percent"
+      }
+    },
+    "penetrationTarget": {
+      "label": "Target",
+      "format": {
+        "type": "percent"
+      }
+    }
+  },
+  "view": {
+    "type": "dumbbell",
+    "label": "product",
+    "from": "penetration",
+    "to": "penetrationTarget",
+    "mark": "arrow"
+  }
+}

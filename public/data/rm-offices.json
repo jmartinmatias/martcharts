@@ -1,0 +1,7 @@
+[
+  {"office":"Paris","country":"FR","kind":"Branch","note":"9 clients"},
+  {"office":"Milan","country":"IT","kind":"Branch","note":"10 clients"},
+  {"office":"Zurich","country":"CH","kind":"Branch","note":"10 clients"},
+  {"office":"Luxembourg","country":"LU","kind":"Head office","note":"21 clients"},
+  {"office":"Madrid","country":"ES","kind":"Branch","note":"10 clients"}
+]

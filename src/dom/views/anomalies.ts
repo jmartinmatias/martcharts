@@ -1,0 +1,195 @@
+import { readNumber } from "../../core/formats.ts";
+import type { Row } from "../../core/types.ts";
+import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
+import { isForecast } from "../../core/views.ts";
+import type { AnomaliesView } from "../../core/views.ts";
+import { bandPath, evenLabels, linearScale, linePath, spread } from "../layout.ts";
+import type { LabelBox } from "../layout.ts";
+import { buildTable, html, selectable, svg } from "./shared.ts";
+import { roving } from "./focus.ts";
+
+const CHAR_WIDTH = 6;
+const ROW = 34;
+const GAP = 5;
+const AXIS = 26;
+/** Air inside a lane above and below its band, so the line never touches the lane's edge. */
+const INSET = 4;
+
+interface Lane {
+  name: string;
+  text: string;
+  rows: (Row | undefined)[];
+  flagged: number;
+  latest: Row | undefined;
+}
+
+/**
+ * Draws the `anomalies` view: one thin lane per metric, the lanes with the
+ * most anomalies first. Each lane shows the expected band as a faint fill,
+ * the expected value as a hairline, the actual as a line, and every flagged
+ * reading as a filled dot in the alert color with a halo. The lane ends with
+ * the metric's name, its latest value and a count ("3 anomalies", or "none"
+ * quietly). The flagged readings are the keyboard stops, each with a tooltip
+ * of value, expected, band and whether it was flagged.
+ */
+export const renderAnomalies: ViewRenderer<AnomaliesView> = (ctx) => {
+  const doc = ctx.el.ownerDocument;
+  const { x, metric, value, expected, low, high, flag } = ctx.view;
+  const banded = Boolean(low && high);
+  const flaggedRow = (row: Row): boolean => {
+    if (flag) return isForecast(row[flag]);
+    if (!banded) return false;
+    const [v, lo, hi] = [readNumber(row[value]), readNumber(row[low as string]), readNumber(row[high as string])];
+    return v !== null && lo !== null && hi !== null && (v < lo || v > hi);
+  };
+  // Periods in order, and one lane per metric, the lanes sorted by how many readings were flagged.
+  const dates = [...new Set(ctx.rows.map((row) => String(row[x])))].sort();
+  const dateIndex = new Map(dates.map((d, i) => [d, i]));
+  const byMetric = new Map<string, Lane>();
+  for (const row of ctx.rows) {
+    const name = String(row[metric]);
+    let lane = byMetric.get(name);
+    if (!lane) {
+      lane = { name, text: ctx.format(row[metric], metric), rows: Array.from({ length: dates.length }, () => undefined), flagged: 0, latest: undefined };
+      byMetric.set(name, lane);
+    }
+    const i = dateIndex.get(String(row[x])) ?? -1;
+    if (i >= 0) lane.rows[i] = row;
+    if (flaggedRow(row)) lane.flagged++;
+  }
+  const lanes = [...byMetric.values()].sort((a, b) => b.flagged - a.flagged);
+  for (const lane of lanes) lane.latest = [...lane.rows].reverse().find((row) => row && readNumber(row[value]) !== null);
+
+  // The right column: the longest name or "latest · n anomalies", within two fifths of the card.
+  const countText = (n: number) => (n === 0 ? "none" : n === 1 ? "1 anomaly" : `${n} anomalies`);
+  const latestText = (lane: Lane) => (lane.latest ? ctx.format(lane.latest[value], value) : "");
+  const widest = Math.max(...lanes.map((lane) => Math.max(lane.text.length, latestText(lane).length + countText(lane.flagged).length + 3)));
+  const side = Math.min(Math.max(89, widest * CHAR_WIDTH + 21), Math.floor(ctx.width * 0.4));
+  const width = Math.max(ctx.width, side + 144);
+  const plot = { x: 0, w: width - side - 13 };
+  const lanesHeight = lanes.length * ROW + Math.max(0, lanes.length - 1) * GAP;
+  const height = lanesHeight + AXIS;
+  const slots = spread(dates.length, plot.x, plot.w);
+  const at = (i: number) => slots[i]?.center ?? 0;
+
+  const wrap = html(doc, "div", "fft-chart fft-anomalies");
+  const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
+  chart.setAttribute("role", "group");
+  chart.setAttribute("aria-label", `Anomaly tracker of ${lanes.length} ${lanes.length === 1 ? "metric" : "metrics"} by ${ctx.label(x)}`);
+  const hits: SVGElement[] = [];
+  const flaggedRows: Row[] = [];
+
+  lanes.forEach((lane, l) => {
+    const top = l * (ROW + GAP);
+    const bottom = top + ROW;
+    const group = svg(doc, "g", { class: "fft-anom-lane", "data-metric": lane.name, style: `--fft-i: ${l}` });
+    group.append(svg(doc, "rect", { class: "fft-anom-track", x: plot.x, y: top, width: plot.w, height: ROW, rx: 3 }));
+    const reading = (row: Row | undefined, field: string | undefined) => (row && field ? readNumber(row[field]) : null);
+    const covered = lane.rows.flatMap((row) => [reading(row, value), reading(row, expected), reading(row, low), reading(row, high)]).filter((v): v is number => v !== null);
+    // Each lane on its own scale, fitted to its readings: the shape matters here, not the amounts.
+    const y = linearScale(covered, [bottom - INSET, top + INSET], { includeZero: false, nice: false });
+    if (banded) {
+      const upper = lane.rows.flatMap((row, i) => (reading(row, high) !== null && reading(row, low) !== null ? [{ x: at(i), y: y(reading(row, high) as number) }] : []));
+      const lower = lane.rows.flatMap((row, i) => (reading(row, high) !== null && reading(row, low) !== null ? [{ x: at(i), y: y(reading(row, low) as number) }] : []));
+      if (upper.length) group.append(svg(doc, "path", { class: "fft-anom-band", d: bandPath(upper, lower) }));
+    }
+    if (expected) {
+      const points = lane.rows.map((row, i) => (reading(row, expected) !== null ? { x: at(i), y: y(reading(row, expected) as number) } : null));
+      group.append(svg(doc, "path", { class: "fft-anom-expected", d: linePath(points) }));
+    }
+    const line = svg(doc, "path", { class: "fft-anom-line", d: linePath(lane.rows.map((row, i) => (reading(row, value) !== null ? { x: at(i), y: y(reading(row, value) as number) } : null))) });
+    line.style.setProperty("stroke", ctx.color(0));
+    group.append(line);
+
+    // Flagged readings: a halo and a filled dot in the alert color, each a keyboard stop with the reading's story.
+    lane.rows.forEach((row, i) => {
+      if (!row || !flaggedRow(row)) return;
+      const v = reading(row, value);
+      if (v === null) return;
+      flaggedRows.push(row);
+      const cx = at(i);
+      const cy = y(v);
+      group.append(svg(doc, "circle", { class: "fft-anom-halo", cx, cy, r: 7 }), svg(doc, "circle", { class: "fft-anom-flag", cx, cy, r: 3.5 }));
+      const dateText = ctx.format(row[x], x);
+      const items: TooltipItem[] = [{ label: ctx.label(value), value: ctx.format(row[value], value), color: "var(--fft-down)" }];
+      if (expected && reading(row, expected) !== null) items.push({ label: ctx.label(expected), value: ctx.format(row[expected], expected) });
+      if (banded && reading(row, low) !== null && reading(row, high) !== null) items.push({ label: "Expected band", value: `${ctx.format(row[low as string], low)} to ${ctx.format(row[high as string], high)}` });
+      const lo = reading(row, low);
+      const hi = reading(row, high);
+      const side = lo !== null && v < lo ? "Below the band" : hi !== null && v > hi ? "Above the band" : "Flagged";
+      items.push({ label: "Anomaly", value: side });
+      const hit = svg(doc, "circle", { class: "fft-anom-hit", cx, cy, r: 11, tabindex: 0, role: "img" });
+      hit.setAttribute("aria-label", `${lane.text}, ${dateText}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
+      const show = () => {
+        wrap.setAttribute("data-active", "");
+        ctx.tooltip.show(hit, `${lane.text}, ${dateText}`, items);
+      };
+      const hide = () => {
+        wrap.removeAttribute("data-active");
+        ctx.tooltip.hide();
+      };
+      hit.addEventListener("pointerenter", show);
+      hit.addEventListener("focus", show);
+      hit.addEventListener("pointerleave", hide);
+      hit.addEventListener("blur", hide);
+      selectable(hit, () => ctx.select(row));
+      hits.push(hit);
+      group.append(hit);
+    });
+
+    // The lane's words: its name, then its latest value and how many readings were flagged.
+    const textX = plot.x + plot.w + 13;
+    const name = svg(doc, "text", { class: "fft-anom-name", x: textX, y: top + 13 });
+    name.textContent = lane.text;
+    const latest = svg(doc, "text", { class: "fft-anom-latest", x: textX, y: top + 27 });
+    latest.textContent = latestText(lane);
+    const pillX = textX + latestText(lane).length * CHAR_WIDTH + (latestText(lane) ? 8 : 0);
+    const words = countText(lane.flagged);
+    const pill = svg(doc, "g", { class: "fft-anom-count", "data-none": lane.flagged === 0 ? "true" : "false" });
+    const pillWidth = words.length * 5.5 + 10;
+    pill.append(svg(doc, "rect", { x: pillX, y: top + 18, width: Math.round(pillWidth), height: 13, rx: 6.5 }));
+    const pillText = svg(doc, "text", { x: pillX + pillWidth / 2, y: top + 24.5, "text-anchor": "middle", "dominant-baseline": "middle" });
+    pillText.textContent = words;
+    pill.append(pillText);
+    group.append(name, latest, pill);
+    chart.append(group);
+  });
+
+  // Period labels under the lanes, thinned to an even rhythm, the first and last always named.
+  const xLabels = dates.map((d) => ctx.format(lanes[0]?.rows[dateIndex.get(d) ?? -1]?.[x] ?? d, x));
+  const anchorOf = (i: number) => (dates.length < 2 ? "middle" : i === 0 ? "start" : i === dates.length - 1 ? "end" : "middle");
+  const widestLabel = Math.max(...xLabels.map((text) => text.length)) * CHAR_WIDTH + 8;
+  const box = (i: number): LabelBox => ({ x: at(i), width: (xLabels[i] ?? "").length * CHAR_WIDTH, anchor: anchorOf(i) });
+  for (const i of evenLabels(dates.length, Math.ceil((dates.length * widestLabel) / Math.max(1, plot.w)), box)) {
+    const text = svg(doc, "text", { class: "fft-tick fft-tick-x", x: at(i), y: lanesHeight + 18, "text-anchor": anchorOf(i) });
+    text.textContent = xLabels[i] ?? "";
+    chart.append(text);
+  }
+  roving(hits);
+  wrap.append(chart);
+
+  // The key: what the band and the dots mean, in a few words.
+  const key = html(doc, "ul", "fft-legend fft-anom-key");
+  const keyItem = (className: string, label: string) => {
+    const swatch = html(doc, "span", `fft-swatch ${className}`);
+    swatch.setAttribute("aria-hidden", "true");
+    const item = html(doc, "li");
+    item.append(swatch, label);
+    return item;
+  };
+  if (banded) key.append(keyItem("fft-anom-key-band", "Expected band"));
+  const valueKey = keyItem("fft-anom-key-line", ctx.label(value));
+  (valueKey.firstChild as HTMLElement).style.background = ctx.color(0);
+  (valueKey.firstChild as HTMLElement).dataset.shape = "line";
+  key.append(valueKey);
+  const flagKey = keyItem("fft-anom-key-flag", "Anomaly");
+  (flagKey.firstChild as HTMLElement).dataset.shape = "dot";
+  key.append(flagKey);
+  wrap.prepend(key);
+
+  const hidden = html(doc, "div", "fft-sr-only");
+  const columns = [x, metric, value, expected, low, high].filter((f): f is string => Boolean(f));
+  hidden.append(buildTable(ctx, flaggedRows.length ? flaggedRows : ctx.rows, columns, false));
+  wrap.append(hidden);
+  ctx.el.append(wrap);
+};

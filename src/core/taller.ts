@@ -807,7 +807,7 @@ const BY_CATEGORY = new Set(["donut", "pie", "waffle", "treemap", "sunburst", "i
 const FAMILY: Record<string, string> = {
   bar: "rank", hbar: "rank", list: "rank", pareto: "rank", bullet: "target", variance: "target",
   line: "time", area: "time", kpi: "number", kpis: "number", calendar: "time", horizon: "time", bump: "time",
-  donut: "whole", pie: "whole", waffle: "whole", treemap: "whole", sunburst: "hierarchy", icicle: "hierarchy", marimekko: "whole",
+  donut: "whole", pie: "whole", anomalies: "time", waffle: "whole", treemap: "whole", sunburst: "hierarchy", icicle: "hierarchy", marimekko: "whole",
   histogram: "spread", beeswarm: "spread", boxplot: "spread", ridgeline: "spread",
   scatter: "relation", dumbbell: "relation", slope: "relation", radar: "profile", rose: "cycle",
   table: "table", heatmap: "table", sankey: "flow", funnel: "flow", chord: "flow", waterfall: "change", dot: "rank", pyramid: "spread", dual: "time",
@@ -917,6 +917,7 @@ export function qualitiesOf(spec: WidgetSpec, rows: Row[], source?: WidgetSpec):
     choropleth: [0.3, 0.35, 0.15, 0.45, 0.35], symbols: [0.3, 0.4, 0.15, 0.4, 0.35], locator: [0.2, 0.3, 0.1, 0.3, 0.2], pie: [0.3, 0.1, 0.05, 0.4, 0.2],
     matrix: [0.25, 0.35, 0.2, 0.55, 0.4], strips: [0.3, 0.4, 0.3, 0.45, 0.35], lifecycle: [0.25, 0.3, 0.25, 0.45, 0.4],
     whitespace: [0.3, 0.35, 0.3, 0.55, 0.5], xray: [0.5, 0.25, 0.2, 0.45, 0.4], history: [0.2, 0.25, 0.3, 0.5, 0.35],
+    anomalies: [0.35, 0.4, 0.45, 0.4, 0.5],
   };
   const [emphasis, surprise, honesty, detail, insight] = base[type] ?? [0.25, 0.2, 0.1, 0.3, 0.3];
   const t: Qualities = { emphasis, surprise, honesty, detail, insight };

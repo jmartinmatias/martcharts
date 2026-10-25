@@ -171,6 +171,7 @@ Start from what you want the reader to see. Every view takes plain rows; `sugges
 | Survey answers | `likert` |
 | Plans and dates | `timeline` (with milestones, progress and a today line) |
 | Where things are | `choropleth` (regions shaded by a value), `symbols` (circles sized by a value, on their regions or at coordinates), `locator` (named markers). Two built-in tile-grid basemaps, `europe` and `us-states`, keyed by country or state code, or your own GeoJSON by object or address |
+| Which measures stepped out of line | `anomalies` (one thin lane per metric, its expected band behind the line, anomalies as alert dots, the lanes with the most first); on a `scatter`, `"cluster"` draws a soft hull round each cluster's dots |
 | Records to read | `table` (with `spark` and `badge` cells), `list` |
 | Regulatory pressure, or who must comply | `matrix` (one mark per topic and quarter, sized by new obligations and shaded by impact; or a square per stakeholder that must comply with each rule) |
 | Provisions and how binding they are | `strips` (one square per provision, colored mandatory, recommended, optional, with the mandatory share and the density per page at the end) |

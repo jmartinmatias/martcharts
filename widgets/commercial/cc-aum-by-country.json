@@ -1,0 +1,46 @@
+{
+  "id": "cc-aum-by-country",
+  "title": "Where the assets are",
+  "subtitle": "Assets under management by country",
+  "description": "Client assets summed by country, shaded on a map of Europe.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/clients.json"
+  },
+  "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": "country",
+      "measures": [
+        {
+          "op": "sum",
+          "field": "aum",
+          "as": "aum"
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "country": {
+      "label": "Country"
+    },
+    "aum": {
+      "label": "AuM",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
+  },
+  "view": {
+    "type": "choropleth",
+    "geo": "europe",
+    "id": "country",
+    "value": "aum"
+  }
+}

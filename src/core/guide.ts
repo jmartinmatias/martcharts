@@ -569,6 +569,15 @@ const GUIDES: ChartGuide[] = [
     bestFor: ["A client's story: meetings, calls, trades, campaigns and complaints in one scroll", "What happened before a churn, a complaint or a big trade", "Several clients' recent activity side by side"],
     avoidFor: ["Amounts over time, where the shape matters (use line)", "Tasks with a start and an end (use timeline)", "Counting events per period (use bar or calendar)"],
   },
+  {
+    type: "anomalies",
+    purposes: { pattern: 3, trend: 2, lookup: 1 },
+    grain: "pair",
+    build: "One lane per metric over the shared time axis, each on its own scale: the expected band as a faint fill, the expected value as a hairline, the actual as a line, flagged readings as alert dots; lanes sorted by how many were flagged.",
+    rows: { min: 14, max: 3000 },
+    bestFor: ["Watching a dozen daily measures at once and seeing which stepped out of line: net new money, fees, trades, complaints", "Operations and risk monitoring, where the exceptions matter more than the levels"],
+    avoidFor: ["Comparing the levels of the measures with each other (each lane has its own scale; use line)", "One measure only (use line with a band)"],
+  },
 ];
 
 const BY_TYPE = new Map(GUIDES.map((guide) => [guide.type, guide]));
@@ -870,6 +879,9 @@ const NOTES: Record<string, string> = {
   "history>table": "Sortable and searchable; the sense of a story in time is weaker.",
   "xray>kpis": "A row of numbers with their changes; the holdings, flags and next steps are gone.",
   "kpis>xray": "Puts one client's numbers, holdings, wallet and next steps on one card; only for one row.",
+  "horizon>anomalies": "Shows the expected band and flags the days a measure stepped out of it, worst measures first; the folded color bands are gone.",
+  "anomalies>horizon": "Packs more series into less height and shows the level of each; the expected band and the flags are gone.",
+  "anomalies>line": "One shared scale, so levels compare across measures; with more than three measures the lines tangle and the flags are lost.",
   "funnel>hbar": "Drops the step-to-step conversion rates; only better if the stages have no order.",
   "waterfall>bar": "Shows each amount on its own but no longer how they add up from start to end.",
   "heatmap>table": "Exact numbers instead of the pattern.",
@@ -1033,6 +1045,7 @@ const MEANING: Record<string, string> = {
   whitespace: "needs one row per client and product with a state: held, an opportunity, or not eligible",
   xray: "needs one row: one client with its facts, holdings and share of wallet",
   history: "needs dated events with a short title each",
+  anomalies: "needs readings over time per metric, with a yes/no flag or a low and high band",
 };
 
 const FIT_ORDER: Record<Fit, number> = { fits: 0, stretch: 1, no: 2 };

@@ -1,0 +1,63 @@
+{
+  "id": "cc-anomaly-tracker",
+  "title": "Anomalies, measure by measure",
+  "subtitle": "Daily readings against their expected band, July to October",
+  "description": "Six commercial measures watched every day: the band each was expected to stay in, and the days it stepped out.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/metrics-daily.json"
+  },
+  "fields": {
+    "date": {
+      "label": "Date",
+      "format": {
+        "type": "date"
+      }
+    },
+    "metric": {
+      "label": "Measure"
+    },
+    "value": {
+      "label": "Reading",
+      "format": {
+        "type": "number",
+        "compact": true
+      }
+    },
+    "expected": {
+      "label": "Expected",
+      "format": {
+        "type": "number",
+        "compact": true
+      }
+    },
+    "low": {
+      "label": "Low",
+      "format": {
+        "type": "number",
+        "compact": true
+      }
+    },
+    "high": {
+      "label": "High",
+      "format": {
+        "type": "number",
+        "compact": true
+      }
+    }
+  },
+  "view": {
+    "type": "anomalies",
+    "x": "date",
+    "metric": "metric",
+    "value": "value",
+    "expected": "expected",
+    "low": "low",
+    "high": "high",
+    "flag": "flag"
+  }
+}

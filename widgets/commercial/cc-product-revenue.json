@@ -1,0 +1,32 @@
+{
+  "id": "cc-product-revenue",
+  "title": "Revenue by product",
+  "subtitle": "2026 year to date",
+  "description": "Each product's revenue as a tile: the bigger the tile, the more it brings.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/products.json"
+  },
+  "fields": {
+    "product": {
+      "label": "Product"
+    },
+    "revenue": {
+      "label": "Revenue",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
+  },
+  "view": {
+    "type": "treemap",
+    "label": "product",
+    "value": "revenue"
+  }
+}

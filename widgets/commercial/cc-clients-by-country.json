@@ -1,0 +1,40 @@
+{
+  "id": "cc-clients-by-country",
+  "title": "Where clients are",
+  "subtitle": "Clients by country, sized by count",
+  "description": "How many clients each country has, as circles on the map.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/clients.json"
+  },
+  "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": "country",
+      "measures": [
+        {
+          "op": "count",
+          "as": "clients"
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "country": {
+      "label": "Country"
+    },
+    "clients": {
+      "label": "Clients"
+    }
+  },
+  "view": {
+    "type": "symbols",
+    "geo": "europe",
+    "id": "country",
+    "size": "clients"
+  }
+}

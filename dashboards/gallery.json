@@ -338,6 +338,18 @@
     {
       "widget": "client-history",
       "span": 3
+    },
+    {
+      "section": "Clusters and anomalies",
+      "description": "Where clients gather, and which measures stepped out of line"
+    },
+    {
+      "widget": "risk-clusters",
+      "span": 2
+    },
+    {
+      "widget": "metric-anomalies",
+      "span": 2
     }
   ],
   "title": "Gallery",

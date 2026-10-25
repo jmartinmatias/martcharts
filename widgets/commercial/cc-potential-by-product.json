@@ -1,0 +1,55 @@
+{
+  "id": "cc-potential-by-product",
+  "title": "Who could buy what",
+  "subtitle": "Cross-sell potential by product, from open opportunities",
+  "description": "The estimated yearly revenue of every open opportunity, summed by product.",
+  "locale": "en-US",
+  "source": {
+    "name": "Commercial data mart (fictional)"
+  },
+  "data": {
+    "type": "url",
+    "url": "/data/holdings.json"
+  },
+  "transform": [
+    {
+      "type": "filter",
+      "field": "state",
+      "value": "Opportunity"
+    },
+    {
+      "type": "aggregate",
+      "groupBy": "product",
+      "measures": [
+        {
+          "op": "sum",
+          "field": "potential",
+          "as": "potential"
+        }
+      ]
+    },
+    {
+      "type": "sort",
+      "field": "potential",
+      "order": "desc"
+    }
+  ],
+  "fields": {
+    "product": {
+      "label": "Product"
+    },
+    "potential": {
+      "label": "Potential",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
+  },
+  "view": {
+    "type": "hbar",
+    "label": "product",
+    "value": "potential"
+  }
+}

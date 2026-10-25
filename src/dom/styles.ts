@@ -1535,4 +1535,28 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
   .fft-xray-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .fft-history-note { margin-left: 0; }
 }
+/* Clusters on a scatter: soft hulls, quiet enough that the dots stay in front. */
+.fft-cluster-hull { fill-opacity: 0.08; stroke-opacity: 0.35; stroke-width: 1; pointer-events: none; }
+.fft-cluster-label { font-size: 11px; font-weight: 600; letter-spacing: 0.02em; pointer-events: none; paint-order: stroke; stroke: var(--fft-surface); stroke-width: 3px; stroke-linejoin: round; opacity: 0.85; }
+.fft-widget[data-animate] .fft-cluster-hull { animation: fft-fade 610ms var(--fft-ease) both; }
+
+/* Anomaly tracker: thin lanes, the band faint, the expected a hairline, anomalies in the alert color with a halo. */
+.fft-anom-track { fill: color-mix(in srgb, var(--fft-text) 3%, transparent); }
+.fft-anom-band { fill: color-mix(in srgb, var(--fft-muted) 22%, transparent); stroke: none; }
+.fft-anom-expected { fill: none; stroke: var(--fft-axis); stroke-width: 1; stroke-dasharray: 2 3; }
+.fft-anom-line { fill: none; stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
+.fft-anom-halo { fill: color-mix(in srgb, var(--fft-down) 22%, transparent); pointer-events: none; }
+.fft-anom-flag { fill: var(--fft-down); stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 1.5; pointer-events: none; }
+.fft-anom-hit { fill: transparent; cursor: pointer; outline: none; }
+.fft-anom-hit:hover, .fft-anom-hit:focus-visible { fill: color-mix(in srgb, var(--fft-down) 14%, transparent); stroke: var(--fft-down); stroke-width: 1.5; }
+.fft-anom-name { fill: var(--fft-text); font-size: 12px; font-weight: 600; }
+.fft-anom-latest { fill: var(--fft-text-secondary); font-size: 11px; font-variant-numeric: tabular-nums; }
+.fft-anom-count rect { fill: color-mix(in srgb, var(--fft-down) 14%, transparent); }
+.fft-anom-count text { fill: var(--fft-down); font-size: 10px; font-weight: 600; }
+.fft-anom-count[data-none="true"] rect { fill: transparent; }
+.fft-anom-count[data-none="true"] text { fill: var(--fft-muted); font-weight: 400; }
+.fft-anomalies[data-active] .fft-anom-flag { opacity: 0.55; }
+.fft-anom-key-band { background: color-mix(in srgb, var(--fft-muted) 22%, transparent); }
+.fft-anom-key-flag { background: var(--fft-down); }
+.fft-widget[data-animate] .fft-anom-lane { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 34ms); }
 `;
