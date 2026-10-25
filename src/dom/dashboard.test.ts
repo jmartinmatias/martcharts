@@ -349,11 +349,12 @@ describe("section filter", () => {
 
   // Changed for the one-line filter row: the period and filters sit together in one container (a sheet on a phone,
   // behind its Filters toggle), the sections follow, and Share closes the row.
-  test("the section filter comes after the period and filter controls, and Share closes the row", async () => {
+  test("the bar holds the period and filter controls with Share closing it; the section filter takes the line under it", async () => {
     const board = createDashboard(target, { ...spec, filters: [{ field: "region" }], range: { field: "month" } }, { widgets });
     await board.ready;
     const row = target.querySelector(".fft-filters") as HTMLElement;
-    expect([...row.children].map((el) => el.className)).toEqual(["fft-filters-toggle", "fft-filter-controls", "fft-board-nav", "fft-board-tools"]);
+    expect([...row.children].map((el) => el.className)).toEqual(["fft-filters-bar", "fft-board-nav fft-board-sections"]);
+    expect([...(row.querySelector(".fft-filters-bar") as HTMLElement).children].map((el) => el.className)).toEqual(["fft-filters-toggle", "fft-filter-controls", "fft-board-tools"]);
     expect([...(row.querySelector(".fft-filter-controls") as HTMLElement).children].map((el) => el.className)).toEqual(["fft-range", "fft-filter", "fft-sheet-done"]);
   });
 

@@ -147,6 +147,36 @@ describe("a page that says the title itself", () => {
     expect(target.querySelector(".fft-dashboard-header")).toBeNull();
     expect(target.querySelector(".fft-filters .fft-dashboard-asof")?.textContent).toBe("As of Oct 25, 2026");
   });
+
+  test("asOfInto puts the as-of line beside the page's own title, out of the filter row, and takes it back on destroy", async () => {
+    const beside = document.createElement("div");
+    document.body.append(beside);
+    const board = createDashboard(target, { title: "Sales", asOf: "2026-10-25", filters: [{ field: "region" }], widgets: [{ widget: "by-region" }] }, { widgets, header: false, asOfInto: beside });
+    await board.ready;
+    expect([beside.querySelector(".fft-dashboard-asof")?.textContent, target.querySelector(".fft-filters .fft-dashboard-asof")]).toEqual(["As of Oct 25, 2026", null]);
+    board.destroy();
+    expect(beside.childElementCount).toBe(0);
+    beside.remove();
+  });
+});
+
+describe("the filter area reads in two lines", () => {
+  test("the bar holds the controls, a click filter and Share at its end; the sections take a line of their own under it", async () => {
+    const board = createDashboard(
+      target,
+      { title: "Sales", filters: [{ field: "region" }], widgets: [{ section: "One" }, { widget: "by-region" }, { section: "Two" }, { widget: "monthly" }] },
+      { widgets, header: false },
+    );
+    await board.ready;
+    const row = target.querySelector(".fft-filters") as HTMLElement;
+    const lines = [...row.children].map((node) => node.className);
+    expect(lines).toEqual(["fft-filters-bar", "fft-board-nav fft-board-sections"]);
+    const bar = row.querySelector(".fft-filters-bar") as HTMLElement;
+    expect([bar.querySelector(".fft-filter-controls") !== null, bar.lastElementChild?.className]).toEqual([true, "fft-board-tools"]);
+    await board.setCrossFilter("region", "North");
+    expect(target.querySelector(".fft-crossfilter")?.parentElement).toBe(bar);
+    expect(target.querySelector(".fft-crossfilter")?.nextElementSibling?.className).toBe("fft-board-tools");
+  });
 });
 
 describe("the filter row", () => {

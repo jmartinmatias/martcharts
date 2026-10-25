@@ -6,6 +6,10 @@
 import { createWidget, explainChart, fork, questionOf } from "../src/index.ts";
 import type { WidgetSpec } from "../src/index.ts";
 import { withLook } from "./look.ts";
+import { PLACES } from "./routes.ts";
+
+// Lab charts carry the Lab's refs, apart from the same charts elsewhere on the site.
+document.body.dataset.fftPlace = PLACES.lab;
 
 /** One picked variation, in plain words only. */
 interface Selection {
@@ -85,6 +89,7 @@ function render(selections: Selection[], made?: { variants?: number; charts?: nu
     const title = el("h2", undefined, pick.title);
     title.id = `pick-${i}`;
     const slot = el("div", "slot");
+    slot.dataset.fftRefKey = `selection-${i + 1}`;
     chart.append(number, title, slot);
     const widget = createWidget(slot, withLook(pick.spec, fork), { actions: ["info", "expand"] });
 
@@ -108,6 +113,7 @@ function render(selections: Selection[], made?: { variants?: number; charts?: nu
       const block = el("div", "original note");
       block.append(el("h3", undefined, `The original: ${original.title ?? pick.source}`));
       const small = el("div", "slot");
+      small.dataset.fftRefKey = `selection-${i + 1}-original`;
       block.append(small);
       createWidget(small, { ...original, style: { ...original.style, height: 144, density: "compact" } });
       notes.append(block);

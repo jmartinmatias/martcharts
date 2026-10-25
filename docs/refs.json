@@ -1,0 +1,2056 @@
+[
+  {
+    "ref": "W-JRNT",
+    "title": "At a glance",
+    "key": "q3-at-a-glance",
+    "place": "",
+    "where": "Dashboards › Sales › Headline numbers",
+    "url": "dashboards.html?board=sales#W-JRNT",
+    "board": "sales",
+    "section": "Headline numbers"
+  },
+  {
+    "ref": "W-FZ5V",
+    "title": "Revenue and cost",
+    "key": "monthly-revenue",
+    "place": "",
+    "where": "Dashboards › Sales › Revenue and profit",
+    "url": "dashboards.html?board=sales#W-FZ5V",
+    "board": "sales",
+    "section": "Revenue and profit"
+  },
+  {
+    "ref": "W-4SWT",
+    "title": "Where revenue comes from",
+    "key": "revenue-sources",
+    "place": "",
+    "where": "Dashboards › Sales › Revenue and profit",
+    "url": "dashboards.html?board=sales#W-4SWT",
+    "board": "sales",
+    "section": "Revenue and profit"
+  },
+  {
+    "ref": "W-SCRB",
+    "title": "Revenue against target",
+    "key": "revenue-vs-target",
+    "place": "",
+    "where": "Dashboards › Sales › Revenue and profit",
+    "url": "dashboards.html?board=sales#W-SCRB",
+    "board": "sales",
+    "section": "Revenue and profit"
+  },
+  {
+    "ref": "W-YC9A",
+    "title": "Target attainment",
+    "key": "region-targets",
+    "place": "",
+    "where": "Dashboards › Sales › Revenue and profit",
+    "url": "dashboards.html?board=sales#W-YC9A",
+    "board": "sales",
+    "section": "Revenue and profit"
+  },
+  {
+    "ref": "W-KPPT",
+    "title": "Revenue bridge",
+    "key": "revenue-bridge",
+    "place": "",
+    "where": "Dashboards › Sales › Revenue and profit",
+    "url": "dashboards.html?board=sales#W-KPPT",
+    "board": "sales",
+    "section": "Revenue and profit"
+  },
+  {
+    "ref": "W-1D53",
+    "title": "Operating costs against budget",
+    "key": "opex-variance",
+    "place": "",
+    "where": "Dashboards › Sales › Revenue and profit",
+    "url": "dashboards.html?board=sales#W-1D53",
+    "board": "sales",
+    "section": "Revenue and profit"
+  },
+  {
+    "ref": "W-0CBC",
+    "title": "Q3 scorecard",
+    "key": "kpi-scorecard",
+    "place": "",
+    "where": "Dashboards › Sales › Revenue and profit",
+    "url": "dashboards.html?board=sales#W-0CBC",
+    "board": "sales",
+    "section": "Revenue and profit"
+  },
+  {
+    "ref": "W-8M9T",
+    "title": "Cash on hand",
+    "key": "cash-forecast",
+    "place": "",
+    "where": "Dashboards › Sales › Revenue and profit",
+    "url": "dashboards.html?board=sales#W-8M9T",
+    "board": "sales",
+    "section": "Revenue and profit"
+  },
+  {
+    "ref": "W-KPHV",
+    "title": "Revenue forecast",
+    "key": "revenue-forecast",
+    "place": "",
+    "where": "Dashboards › Sales › Revenue and profit",
+    "url": "dashboards.html?board=sales#W-KPHV",
+    "board": "sales",
+    "section": "Revenue and profit"
+  },
+  {
+    "ref": "W-YXA1",
+    "title": "Revenue by region",
+    "key": "revenue-by-region",
+    "place": "",
+    "where": "Dashboards › Sales › Regions and products",
+    "url": "dashboards.html?board=sales#W-YXA1",
+    "board": "sales",
+    "section": "Regions and products"
+  },
+  {
+    "ref": "W-02JQ",
+    "title": "Market size and mix",
+    "key": "region-product-mix",
+    "place": "",
+    "where": "Dashboards › Sales › Regions and products",
+    "url": "dashboards.html?board=sales#W-02JQ",
+    "board": "sales",
+    "section": "Regions and products"
+  },
+  {
+    "ref": "W-RXGS",
+    "title": "Region scorecard",
+    "key": "region-scorecard",
+    "place": "",
+    "where": "Dashboards › Sales › Regions and products",
+    "url": "dashboards.html?board=sales#W-RXGS",
+    "board": "sales",
+    "section": "Regions and products"
+  },
+  {
+    "ref": "W-Z4QE",
+    "title": "Q3 targets",
+    "key": "product-targets",
+    "place": "",
+    "where": "Dashboards › Sales › Regions and products",
+    "url": "dashboards.html?board=sales#W-Z4QE",
+    "board": "sales",
+    "section": "Regions and products"
+  },
+  {
+    "ref": "W-FD2T",
+    "title": "Q3 revenue, year on year",
+    "key": "region-yoy",
+    "place": "",
+    "where": "Dashboards › Sales › Regions and products",
+    "url": "dashboards.html?board=sales#W-FD2T",
+    "board": "sales",
+    "section": "Regions and products"
+  },
+  {
+    "ref": "W-3118",
+    "title": "Win rate, year on year",
+    "key": "win-rate-arrows",
+    "place": "",
+    "where": "Dashboards › Sales › Regions and products",
+    "url": "dashboards.html?board=sales#W-3118",
+    "board": "sales",
+    "section": "Regions and products"
+  },
+  {
+    "ref": "W-WVSH",
+    "title": "Regional trends",
+    "key": "region-trends",
+    "place": "",
+    "where": "Dashboards › Sales › Regions and products",
+    "url": "dashboards.html?board=sales#W-WVSH",
+    "board": "sales",
+    "section": "Regions and products"
+  },
+  {
+    "ref": "W-7ZKZ",
+    "title": "Product ranking",
+    "key": "product-ranking",
+    "place": "",
+    "where": "Dashboards › Sales › Regions and products",
+    "url": "dashboards.html?board=sales#W-7ZKZ",
+    "board": "sales",
+    "section": "Regions and products"
+  },
+  {
+    "ref": "W-DD1Y",
+    "title": "Daily revenue against plan",
+    "key": "region-plan-horizon",
+    "place": "",
+    "where": "Dashboards › Sales › Regions and products",
+    "url": "dashboards.html?board=sales#W-DD1Y",
+    "board": "sales",
+    "section": "Regions and products"
+  },
+  {
+    "ref": "W-JXK7",
+    "title": "Revenue by customer",
+    "key": "customer-treemap",
+    "place": "",
+    "where": "Dashboards › Sales › Customers and pipeline",
+    "url": "dashboards.html?board=sales#W-JXK7",
+    "board": "sales",
+    "section": "Customers and pipeline"
+  },
+  {
+    "ref": "W-4SNV",
+    "title": "Leads and wins by channel",
+    "key": "leads-wins-by-channel",
+    "place": "",
+    "where": "Dashboards › Sales › Customers and pipeline",
+    "url": "dashboards.html?board=sales#W-4SNV",
+    "board": "sales",
+    "section": "Customers and pipeline"
+  },
+  {
+    "ref": "W-SH2W",
+    "title": "Account portfolio",
+    "key": "account-portfolio",
+    "place": "",
+    "where": "Dashboards › Sales › Customers and pipeline",
+    "url": "dashboards.html?board=sales#W-SH2W",
+    "board": "sales",
+    "section": "Customers and pipeline"
+  },
+  {
+    "ref": "W-GRA6",
+    "title": "Lead pipeline",
+    "key": "lead-pipeline",
+    "place": "",
+    "where": "Dashboards › Sales › Customers and pipeline",
+    "url": "dashboards.html?board=sales#W-GRA6",
+    "board": "sales",
+    "section": "Customers and pipeline"
+  },
+  {
+    "ref": "W-GF8V",
+    "title": "Open deals",
+    "key": "deal-pipeline",
+    "place": "",
+    "where": "Dashboards › Sales › Customers and pipeline",
+    "url": "dashboards.html?board=sales#W-GF8V",
+    "board": "sales",
+    "section": "Customers and pipeline"
+  },
+  {
+    "ref": "W-M70E",
+    "title": "Deal size and speed",
+    "key": "deal-scatter",
+    "place": "",
+    "where": "Dashboards › Sales › Customers and pipeline",
+    "url": "dashboards.html?board=sales#W-M70E",
+    "board": "sales",
+    "section": "Customers and pipeline"
+  },
+  {
+    "ref": "W-8BND",
+    "title": "Signup funnel",
+    "key": "signup-funnel",
+    "place": "",
+    "where": "Dashboards › Sales › Customers and pipeline",
+    "url": "dashboards.html?board=sales#W-8BND",
+    "board": "sales",
+    "section": "Customers and pipeline"
+  },
+  {
+    "ref": "W-93BC",
+    "title": "Visits by channel",
+    "key": "traffic-stream",
+    "place": "",
+    "where": "Dashboards › Sales › Customers and pipeline",
+    "url": "dashboards.html?board=sales#W-93BC",
+    "board": "sales",
+    "section": "Customers and pipeline"
+  },
+  {
+    "ref": "W-6XYP",
+    "title": "Visits by hour",
+    "key": "visits-by-hour",
+    "place": "",
+    "where": "Dashboards › Sales › Customers and pipeline",
+    "url": "dashboards.html?board=sales#W-6XYP",
+    "board": "sales",
+    "section": "Customers and pipeline"
+  },
+  {
+    "ref": "W-RDG5",
+    "title": "Where visitors go",
+    "key": "traffic-sankey",
+    "place": "",
+    "where": "Dashboards › Sales › Customers and pipeline",
+    "url": "dashboards.html?board=sales#W-RDG5",
+    "board": "sales",
+    "section": "Customers and pipeline"
+  },
+  {
+    "ref": "W-X3F7",
+    "title": "Plan changes",
+    "key": "plan-moves",
+    "place": "",
+    "where": "Dashboards › Sales › Customers and pipeline",
+    "url": "dashboards.html?board=sales#W-X3F7",
+    "board": "sales",
+    "section": "Customers and pipeline"
+  },
+  {
+    "ref": "W-RX6Q",
+    "title": "Customer directory",
+    "key": "directory-customers",
+    "place": "",
+    "where": "Dashboards › Sales › Customers and pipeline",
+    "url": "dashboards.html?board=sales#W-RX6Q",
+    "board": "sales",
+    "section": "Customers and pipeline"
+  },
+  {
+    "ref": "W-JJZ5",
+    "title": "How we compare",
+    "key": "product-compare",
+    "place": "",
+    "where": "Dashboards › Sales › Customers and pipeline",
+    "url": "dashboards.html?board=sales#W-JJZ5",
+    "board": "sales",
+    "section": "Customers and pipeline"
+  },
+  {
+    "ref": "W-GE38",
+    "title": "Daily orders",
+    "key": "order-calendar",
+    "place": "",
+    "where": "Dashboards › Sales › Operations and sentiment",
+    "url": "dashboards.html?board=sales#W-GE38",
+    "board": "sales",
+    "section": "Operations and sentiment"
+  },
+  {
+    "ref": "W-GKF3",
+    "title": "What drives support tickets",
+    "key": "ticket-causes",
+    "place": "",
+    "where": "Dashboards › Sales › Operations and sentiment",
+    "url": "dashboards.html?board=sales#W-GKF3",
+    "board": "sales",
+    "section": "Operations and sentiment"
+  },
+  {
+    "ref": "W-4EZT",
+    "title": "Support tickets",
+    "key": "ticket-heatmap",
+    "place": "",
+    "where": "Dashboards › Sales › Operations and sentiment",
+    "url": "dashboards.html?board=sales#W-4EZT",
+    "board": "sales",
+    "section": "Operations and sentiment"
+  },
+  {
+    "ref": "W-YEG6",
+    "title": "Q4 launch plan",
+    "key": "launch-plan",
+    "place": "",
+    "where": "Dashboards › Sales › Operations and sentiment",
+    "url": "dashboards.html?board=sales#W-YEG6",
+    "board": "sales",
+    "section": "Operations and sentiment"
+  },
+  {
+    "ref": "W-JS9M",
+    "title": "Employee pulse survey",
+    "key": "employee-survey",
+    "place": "",
+    "where": "Dashboards › Sales › Operations and sentiment",
+    "url": "dashboards.html?board=sales#W-JS9M",
+    "board": "sales",
+    "section": "Operations and sentiment"
+  },
+  {
+    "ref": "W-EB9T",
+    "title": "Net promoter score",
+    "key": "nps-gauge",
+    "place": "",
+    "where": "Dashboards › Sales › Operations and sentiment",
+    "url": "dashboards.html?board=sales#W-EB9T",
+    "board": "sales",
+    "section": "Operations and sentiment"
+  },
+  {
+    "ref": "W-M466",
+    "title": "First response time by team",
+    "key": "response-time-by-team",
+    "place": "",
+    "where": "Dashboards › Sales › Operations and sentiment",
+    "url": "dashboards.html?board=sales#W-M466",
+    "board": "sales",
+    "section": "Operations and sentiment"
+  },
+  {
+    "ref": "W-MV8N",
+    "title": "Feature adoption",
+    "key": "feature-adoption",
+    "place": "",
+    "where": "Dashboards › Sales › Operations and sentiment",
+    "url": "dashboards.html?board=sales#W-MV8N",
+    "board": "sales",
+    "section": "Operations and sentiment"
+  },
+  {
+    "ref": "W-EXZB",
+    "title": "Workforce by age and gender",
+    "key": "workforce-pyramid",
+    "place": "",
+    "where": "Dashboards › Sales › Operations and sentiment",
+    "url": "dashboards.html?board=sales#W-EXZB",
+    "board": "sales",
+    "section": "Operations and sentiment"
+  },
+  {
+    "ref": "W-VBB9",
+    "title": "Customer ratings by product",
+    "key": "product-ratings",
+    "place": "",
+    "where": "Dashboards › Sales › Operations and sentiment",
+    "url": "dashboards.html?board=sales#W-VBB9",
+    "board": "sales",
+    "section": "Operations and sentiment"
+  },
+  {
+    "ref": "W-YR9W",
+    "title": "The book at a glance",
+    "key": "cc-headline-kpis",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Headline numbers",
+    "url": "dashboards.html?board=commercial#W-YR9W",
+    "board": "commercial",
+    "section": "Headline numbers"
+  },
+  {
+    "ref": "W-EETR",
+    "title": "Anomalies, measure by measure",
+    "key": "cc-anomaly-tracker",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Needs attention",
+    "url": "dashboards.html?board=commercial#W-EETR",
+    "board": "commercial",
+    "section": "Needs attention"
+  },
+  {
+    "ref": "W-54X7",
+    "title": "Complaints, day by day",
+    "key": "cc-complaints-calendar",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Needs attention",
+    "url": "dashboards.html?board=commercial#W-54X7",
+    "board": "commercial",
+    "section": "Needs attention"
+  },
+  {
+    "ref": "W-4DR7",
+    "title": "Revenue by product",
+    "key": "cc-product-revenue",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Where the money is",
+    "url": "dashboards.html?board=commercial#W-4DR7",
+    "board": "commercial",
+    "section": "Where the money is"
+  },
+  {
+    "ref": "W-8K4P",
+    "title": "From last year's revenue to this year's",
+    "key": "cc-revenue-bridge",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Where the money is",
+    "url": "dashboards.html?board=commercial#W-8K4P",
+    "board": "commercial",
+    "section": "Where the money is"
+  },
+  {
+    "ref": "W-T1CR",
+    "title": "Revenue by client",
+    "key": "cc-revenue-pareto",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Where the money is",
+    "url": "dashboards.html?board=commercial#W-T1CR",
+    "board": "commercial",
+    "section": "Where the money is"
+  },
+  {
+    "ref": "W-X6SA",
+    "title": "Fees against target",
+    "key": "cc-fees-variance",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Where the money is",
+    "url": "dashboards.html?board=commercial#W-X6SA",
+    "board": "commercial",
+    "section": "Where the money is"
+  },
+  {
+    "ref": "W-YDJW",
+    "title": "Pipeline against target, by banker",
+    "key": "cc-pipeline-target",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Sales pipeline",
+    "url": "dashboards.html?board=commercial#W-YDJW",
+    "board": "commercial",
+    "section": "Sales pipeline"
+  },
+  {
+    "ref": "W-S5SM",
+    "title": "Win rate, by banker",
+    "key": "cc-win-rate",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Sales pipeline",
+    "url": "dashboards.html?board=commercial#W-S5SM",
+    "board": "commercial",
+    "section": "Sales pipeline"
+  },
+  {
+    "ref": "W-5E88",
+    "title": "Net new money against target, by banker",
+    "key": "cc-new-money-target",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Sales pipeline",
+    "url": "dashboards.html?board=commercial#W-5E88",
+    "board": "commercial",
+    "section": "Sales pipeline"
+  },
+  {
+    "ref": "W-FV5Z",
+    "title": "From qualified to won",
+    "key": "cc-deal-funnel",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Sales pipeline",
+    "url": "dashboards.html?board=commercial#W-FV5Z",
+    "board": "commercial",
+    "section": "Sales pipeline"
+  },
+  {
+    "ref": "W-313J",
+    "title": "The cross-sell map",
+    "key": "cc-whitespace",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Who could buy what",
+    "url": "dashboards.html?board=commercial#W-313J",
+    "board": "commercial",
+    "section": "Who could buy what"
+  },
+  {
+    "ref": "W-6QWW",
+    "title": "Penetration against target",
+    "key": "cc-penetration-gap",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Who could buy what",
+    "url": "dashboards.html?board=commercial#W-6QWW",
+    "board": "commercial",
+    "section": "Who could buy what"
+  },
+  {
+    "ref": "W-MP1P",
+    "title": "From products held to opportunities",
+    "key": "cc-cross-sell-paths",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Who could buy what",
+    "url": "dashboards.html?board=commercial#W-MP1P",
+    "board": "commercial",
+    "section": "Who could buy what"
+  },
+  {
+    "ref": "W-52S3",
+    "title": "Who to call this week",
+    "key": "cc-call-list",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Who acts",
+    "url": "dashboards.html?board=commercial#W-52S3",
+    "board": "commercial",
+    "section": "Who acts"
+  },
+  {
+    "ref": "W-RR73",
+    "title": "Client x-ray: Aldana Holdings",
+    "key": "cc-client-xray",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Who acts",
+    "url": "dashboards.html?board=commercial#W-RR73",
+    "board": "commercial",
+    "section": "Who acts"
+  },
+  {
+    "ref": "W-9TWK",
+    "title": "Aldana Holdings, the story so far",
+    "key": "cc-client-story",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Who acts",
+    "url": "dashboards.html?board=commercial#W-9TWK",
+    "board": "commercial",
+    "section": "Who acts"
+  },
+  {
+    "ref": "W-TGB3",
+    "title": "Clients per relationship manager",
+    "key": "cc-rm-capacity",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Coverage",
+    "url": "dashboards.html?board=commercial#W-TGB3",
+    "board": "commercial",
+    "section": "Coverage"
+  },
+  {
+    "ref": "W-0VYK",
+    "title": "Client meetings this year",
+    "key": "cc-rm-meetings",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Coverage",
+    "url": "dashboards.html?board=commercial#W-0VYK",
+    "board": "commercial",
+    "section": "Coverage"
+  },
+  {
+    "ref": "W-RVX1",
+    "title": "Books by relationship manager",
+    "key": "cc-rm-books",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Coverage",
+    "url": "dashboards.html?board=commercial#W-RVX1",
+    "board": "commercial",
+    "section": "Coverage"
+  },
+  {
+    "ref": "W-AWA5",
+    "title": "Risk, return and clusters",
+    "key": "cc-risk-return",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Portfolio",
+    "url": "dashboards.html?board=commercial#W-AWA5",
+    "board": "commercial",
+    "section": "Portfolio"
+  },
+  {
+    "ref": "W-TXNN",
+    "title": "Allocation against the model",
+    "key": "cc-allocation-drift",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Portfolio",
+    "url": "dashboards.html?board=commercial#W-TXNN",
+    "board": "commercial",
+    "section": "Portfolio"
+  },
+  {
+    "ref": "W-17FN",
+    "title": "Allocation within its bands",
+    "key": "cc-allocation-bands",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Portfolio",
+    "url": "dashboards.html?board=commercial#W-17FN",
+    "board": "commercial",
+    "section": "Portfolio"
+  },
+  {
+    "ref": "W-GCPB",
+    "title": "Where the assets are",
+    "key": "cc-aum-by-country",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Where clients are",
+    "url": "dashboards.html?board=commercial#W-GCPB",
+    "board": "commercial",
+    "section": "Where clients are"
+  },
+  {
+    "ref": "W-ZN70",
+    "title": "Where clients are",
+    "key": "cc-clients-by-country",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Where clients are",
+    "url": "dashboards.html?board=commercial#W-ZN70",
+    "board": "commercial",
+    "section": "Where clients are"
+  },
+  {
+    "ref": "W-8MHX",
+    "title": "Campaigns this year",
+    "key": "cc-campaign-plan",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Campaigns",
+    "url": "dashboards.html?board=commercial#W-8MHX",
+    "board": "commercial",
+    "section": "Campaigns"
+  },
+  {
+    "ref": "W-Z09M",
+    "title": "Campaigns, step by step",
+    "key": "cc-campaign-funnel",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Campaigns",
+    "url": "dashboards.html?board=commercial#W-Z09M",
+    "board": "commercial",
+    "section": "Campaigns"
+  },
+  {
+    "ref": "W-DHZD",
+    "title": "Revenue per euro spent",
+    "key": "cc-campaign-return",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Campaigns",
+    "url": "dashboards.html?board=commercial#W-DHZD",
+    "board": "commercial",
+    "section": "Campaigns"
+  },
+  {
+    "ref": "W-HRQ5",
+    "title": "Digital adoption by cohort",
+    "key": "cc-adoption-cohorts",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Adoption",
+    "url": "dashboards.html?board=commercial#W-HRQ5",
+    "board": "commercial",
+    "section": "Adoption"
+  },
+  {
+    "ref": "W-N8Z5",
+    "title": "Adoption curves",
+    "key": "cc-adoption-curves",
+    "place": "",
+    "where": "Dashboards › Commercial cockpit › Adoption",
+    "url": "dashboards.html?board=commercial#W-N8Z5",
+    "board": "commercial",
+    "section": "Adoption"
+  },
+  {
+    "ref": "W-5EPW",
+    "title": "Clients on track",
+    "key": "health-on-track",
+    "place": "",
+    "where": "Dashboards › Client health › Overview",
+    "url": "dashboards.html?board=health#W-5EPW",
+    "board": "health",
+    "section": "Overview"
+  },
+  {
+    "ref": "W-PBJB",
+    "title": "Where the book stands",
+    "key": "health-status-by-segment",
+    "place": "",
+    "where": "Dashboards › Client health › Overview",
+    "url": "dashboards.html?board=health#W-PBJB",
+    "board": "health",
+    "section": "Overview"
+  },
+  {
+    "ref": "W-2W1H",
+    "title": "Client success, measure by measure",
+    "key": "health-client-success-board",
+    "place": "",
+    "where": "Dashboards › Client health › Client success",
+    "url": "dashboards.html?board=health#W-2W1H",
+    "board": "health",
+    "section": "Client success"
+  },
+  {
+    "ref": "W-KTS0",
+    "title": "How clients are served",
+    "key": "health-client-success-by-segment",
+    "place": "",
+    "where": "Dashboards › Client health › Client success",
+    "url": "dashboards.html?board=health#W-KTS0",
+    "board": "health",
+    "section": "Client success"
+  },
+  {
+    "ref": "W-9ET9",
+    "title": "Client sentiment by banker",
+    "key": "health-client-success-key",
+    "place": "",
+    "where": "Dashboards › Client health › Client success",
+    "url": "dashboards.html?board=health#W-9ET9",
+    "board": "health",
+    "section": "Client success"
+  },
+  {
+    "ref": "W-0JQS",
+    "title": "Business development, measure by measure",
+    "key": "health-biz-dev-board",
+    "place": "",
+    "where": "Dashboards › Client health › Business development",
+    "url": "dashboards.html?board=health#W-0JQS",
+    "board": "health",
+    "section": "Business development"
+  },
+  {
+    "ref": "W-1231",
+    "title": "Where growth is on plan",
+    "key": "health-biz-dev-by-segment",
+    "place": "",
+    "where": "Dashboards › Client health › Business development",
+    "url": "dashboards.html?board=health#W-1231",
+    "board": "health",
+    "section": "Business development"
+  },
+  {
+    "ref": "W-Z564",
+    "title": "Pipeline cover by banker",
+    "key": "health-biz-dev-key",
+    "place": "",
+    "where": "Dashboards › Client health › Business development",
+    "url": "dashboards.html?board=health#W-Z564",
+    "board": "health",
+    "section": "Business development"
+  },
+  {
+    "ref": "W-SYA5",
+    "title": "Coverage, measure by measure",
+    "key": "health-coverage-board",
+    "place": "",
+    "where": "Dashboards › Client health › Coverage",
+    "url": "dashboards.html?board=health#W-SYA5",
+    "board": "health",
+    "section": "Coverage"
+  },
+  {
+    "ref": "W-J5FN",
+    "title": "Where coverage is slipping",
+    "key": "health-coverage-by-segment",
+    "place": "",
+    "where": "Dashboards › Client health › Coverage",
+    "url": "dashboards.html?board=health#W-J5FN",
+    "board": "health",
+    "section": "Coverage"
+  },
+  {
+    "ref": "W-TWAM",
+    "title": "Days since the last meeting, by banker",
+    "key": "health-coverage-key",
+    "place": "",
+    "where": "Dashboards › Client health › Coverage",
+    "url": "dashboards.html?board=health#W-TWAM",
+    "board": "health",
+    "section": "Coverage"
+  },
+  {
+    "ref": "W-H05X",
+    "title": "Relationship health, measure by measure",
+    "key": "health-relationship-board",
+    "place": "",
+    "where": "Dashboards › Client health › Relationship",
+    "url": "dashboards.html?board=health#W-H05X",
+    "board": "health",
+    "section": "Relationship"
+  },
+  {
+    "ref": "W-AJD8",
+    "title": "Which relationships are at risk",
+    "key": "health-relationship-by-segment",
+    "place": "",
+    "where": "Dashboards › Client health › Relationship",
+    "url": "dashboards.html?board=health#W-AJD8",
+    "board": "health",
+    "section": "Relationship"
+  },
+  {
+    "ref": "W-286W",
+    "title": "Attrition risk by banker",
+    "key": "health-relationship-key",
+    "place": "",
+    "where": "Dashboards › Client health › Relationship",
+    "url": "dashboards.html?board=health#W-286W",
+    "board": "health",
+    "section": "Relationship"
+  },
+  {
+    "ref": "W-1C25",
+    "title": "Every client, quarter by quarter",
+    "key": "health-trend",
+    "place": "",
+    "where": "Dashboards › Client health › Movement and actions",
+    "url": "dashboards.html?board=health#W-1C25",
+    "board": "health",
+    "section": "Movement and actions"
+  },
+  {
+    "ref": "W-DHZ0",
+    "title": "Who owns the next step",
+    "key": "health-actions",
+    "place": "",
+    "where": "Dashboards › Client health › Movement and actions",
+    "url": "dashboards.html?board=health#W-DHZ0",
+    "board": "health",
+    "section": "Movement and actions"
+  },
+  {
+    "ref": "W-TM52",
+    "title": "Where the reds sit",
+    "key": "health-reds",
+    "place": "",
+    "where": "Dashboards › Client health › Movement and actions",
+    "url": "dashboards.html?board=health#W-TM52",
+    "board": "health",
+    "section": "Movement and actions"
+  },
+  {
+    "ref": "W-JRKN",
+    "title": "Every client, on all four perspectives",
+    "key": "health-clients",
+    "place": "",
+    "where": "Dashboards › Client health › Every client",
+    "url": "dashboards.html?board=health#W-JRKN",
+    "board": "health",
+    "section": "Every client"
+  },
+  {
+    "ref": "W-PVBD",
+    "title": "How each status is set",
+    "key": "health-thresholds",
+    "place": "",
+    "where": "Dashboards › Client health › Rules",
+    "url": "dashboards.html?board=health#W-PVBD",
+    "board": "health",
+    "section": "Rules"
+  },
+  {
+    "ref": "W-DJ04",
+    "title": "How statuses roll up",
+    "key": "health-rollups",
+    "place": "",
+    "where": "Dashboards › Client health › Rules",
+    "url": "dashboards.html?board=health#W-DJ04",
+    "board": "health",
+    "section": "Rules"
+  },
+  {
+    "ref": "W-PPNT",
+    "title": "Rules in force",
+    "key": "reg-in-force-kpi",
+    "place": "",
+    "where": "Dashboards › Regulatory landscape › Headline numbers",
+    "url": "dashboards.html?board=regulatory#W-PPNT",
+    "board": "regulatory",
+    "section": "Headline numbers"
+  },
+  {
+    "ref": "W-Q0KH",
+    "title": "Applying within a year",
+    "key": "reg-applying-soon-kpi",
+    "place": "",
+    "where": "Dashboards › Regulatory landscape › Headline numbers",
+    "url": "dashboards.html?board=regulatory#W-Q0KH",
+    "board": "regulatory",
+    "section": "Headline numbers"
+  },
+  {
+    "ref": "W-DBA7",
+    "title": "Open consultations",
+    "key": "reg-consultations-kpi",
+    "place": "",
+    "where": "Dashboards › Regulatory landscape › Headline numbers",
+    "url": "dashboards.html?board=regulatory#W-DBA7",
+    "board": "regulatory",
+    "section": "Headline numbers"
+  },
+  {
+    "ref": "W-X7TG",
+    "title": "Due in the next 90 days",
+    "key": "reg-next-90",
+    "place": "",
+    "where": "Dashboards › Regulatory landscape › What applies next",
+    "url": "dashboards.html?board=regulatory#W-X7TG",
+    "board": "regulatory",
+    "section": "What applies next"
+  },
+  {
+    "ref": "W-40YP",
+    "title": "Lifecycle of the biggest rules",
+    "key": "reg-lifecycle",
+    "place": "",
+    "where": "Dashboards › Regulatory landscape › What applies next",
+    "url": "dashboards.html?board=regulatory#W-40YP",
+    "board": "regulatory",
+    "section": "What applies next"
+  },
+  {
+    "ref": "W-77TY",
+    "title": "Pressure by topic and quarter",
+    "key": "reg-pressure-matrix",
+    "place": "",
+    "where": "Dashboards › Regulatory landscape › Pressure",
+    "url": "dashboards.html?board=regulatory#W-77TY",
+    "board": "regulatory",
+    "section": "Pressure"
+  },
+  {
+    "ref": "W-JJTB",
+    "title": "New obligations and the pressure index",
+    "key": "reg-obligations-dual",
+    "place": "",
+    "where": "Dashboards › Regulatory landscape › Pressure",
+    "url": "dashboards.html?board=regulatory#W-JJTB",
+    "board": "regulatory",
+    "section": "Pressure"
+  },
+  {
+    "ref": "W-HBE1",
+    "title": "Pressure against impact",
+    "key": "reg-impact-scatter",
+    "place": "",
+    "where": "Dashboards › Regulatory landscape › Impact",
+    "url": "dashboards.html?board=regulatory#W-HBE1",
+    "board": "regulatory",
+    "section": "Impact"
+  },
+  {
+    "ref": "W-JNZS",
+    "title": "Who must comply",
+    "key": "reg-stakeholder-matrix",
+    "place": "",
+    "where": "Dashboards › Regulatory landscape › Impact",
+    "url": "dashboards.html?board=regulatory#W-JNZS",
+    "board": "regulatory",
+    "section": "Impact"
+  },
+  {
+    "ref": "W-48AB",
+    "title": "Rules in scope per country",
+    "key": "reg-rules-by-country",
+    "place": "",
+    "where": "Dashboards › Regulatory landscape › Where the rules bind",
+    "url": "dashboards.html?board=regulatory#W-48AB",
+    "board": "regulatory",
+    "section": "Where the rules bind"
+  },
+  {
+    "ref": "W-0JY9",
+    "title": "Rules per topic, by status",
+    "key": "reg-topic-status",
+    "place": "",
+    "where": "Dashboards › Regulatory landscape › Volume and density",
+    "url": "dashboards.html?board=regulatory#W-0JY9",
+    "board": "regulatory",
+    "section": "Volume and density"
+  },
+  {
+    "ref": "W-CJDH",
+    "title": "Provision density",
+    "key": "reg-density-strips",
+    "place": "",
+    "where": "Dashboards › Regulatory landscape › Volume and density",
+    "url": "dashboards.html?board=regulatory#W-CJDH",
+    "board": "regulatory",
+    "section": "Volume and density"
+  },
+  {
+    "ref": "W-HNA9",
+    "title": "Density by rule",
+    "key": "reg-density-table",
+    "place": "",
+    "where": "Dashboards › Regulatory landscape › Volume and density",
+    "url": "dashboards.html?board=regulatory#W-HNA9",
+    "board": "regulatory",
+    "section": "Volume and density"
+  },
+  {
+    "ref": "W-6MK2",
+    "title": "AMLD6 transposition",
+    "key": "reg-transposition-map",
+    "place": "",
+    "where": "Dashboards › Regulatory landscape › National transposition",
+    "url": "dashboards.html?board=regulatory#W-6MK2",
+    "board": "regulatory",
+    "section": "National transposition"
+  },
+  {
+    "ref": "W-XBRD",
+    "title": "Transposition delays",
+    "key": "reg-days-late-map",
+    "place": "",
+    "where": "Dashboards › Regulatory landscape › National transposition",
+    "url": "dashboards.html?board=regulatory#W-XBRD",
+    "board": "regulatory",
+    "section": "National transposition"
+  },
+  {
+    "ref": "W-NR17",
+    "title": "Anomalies, measure by measure",
+    "key": "metric-anomalies",
+    "place": "catalog",
+    "where": "Catalog › anomalies",
+    "url": "catalog/index.html#anomalies"
+  },
+  {
+    "ref": "W-4YR8",
+    "title": "Cash on hand",
+    "key": "cash-forecast",
+    "place": "catalog",
+    "where": "Catalog › area",
+    "url": "catalog/index.html#area"
+  },
+  {
+    "ref": "W-Y606",
+    "title": "Product share",
+    "key": "product-share",
+    "place": "catalog",
+    "where": "Catalog › bar",
+    "url": "catalog/index.html#bar"
+  },
+  {
+    "ref": "W-E3T0",
+    "title": "Deal sizes by region",
+    "key": "deal-swarm",
+    "place": "catalog",
+    "where": "Catalog › beeswarm",
+    "url": "catalog/index.html#beeswarm"
+  },
+  {
+    "ref": "W-AYAK",
+    "title": "Deal board",
+    "key": "deal-board",
+    "place": "catalog",
+    "where": "Catalog › board",
+    "url": "catalog/index.html#board"
+  },
+  {
+    "ref": "W-8DSX",
+    "title": "Deal size spread",
+    "key": "deal-boxplot",
+    "place": "catalog",
+    "where": "Catalog › boxplot",
+    "url": "catalog/index.html#boxplot"
+  },
+  {
+    "ref": "W-M9C7",
+    "title": "Q3 scorecard",
+    "key": "kpi-scorecard",
+    "place": "catalog",
+    "where": "Catalog › bullet",
+    "url": "catalog/index.html#bullet"
+  },
+  {
+    "ref": "W-V47V",
+    "title": "Product ranking",
+    "key": "product-ranking",
+    "place": "catalog",
+    "where": "Catalog › bump",
+    "url": "catalog/index.html#bump"
+  },
+  {
+    "ref": "W-W376",
+    "title": "Daily orders",
+    "key": "order-calendar",
+    "place": "catalog",
+    "where": "Catalog › calendar",
+    "url": "catalog/index.html#calendar"
+  },
+  {
+    "ref": "W-M6C7",
+    "title": "Share price",
+    "key": "share-price",
+    "place": "catalog",
+    "where": "Catalog › candlestick",
+    "url": "catalog/index.html#candlestick"
+  },
+  {
+    "ref": "W-H3T4",
+    "title": "Plan changes",
+    "key": "plan-moves",
+    "place": "catalog",
+    "where": "Catalog › chord",
+    "url": "catalog/index.html#chord"
+  },
+  {
+    "ref": "W-MXM9",
+    "title": "Revenue by country",
+    "key": "revenue-by-country",
+    "place": "catalog",
+    "where": "Catalog › choropleth",
+    "url": "catalog/index.html#choropleth"
+  },
+  {
+    "ref": "W-ZHRD",
+    "title": "Revenue by segment",
+    "key": "revenue-by-segment",
+    "place": "catalog",
+    "where": "Catalog › donut",
+    "url": "catalog/index.html#donut"
+  },
+  {
+    "ref": "W-F9NG",
+    "title": "Customer ratings by product",
+    "key": "product-ratings",
+    "place": "catalog",
+    "where": "Catalog › dot",
+    "url": "catalog/index.html#dot"
+  },
+  {
+    "ref": "W-8KZG",
+    "title": "Revenue and churn",
+    "key": "revenue-and-churn",
+    "place": "catalog",
+    "where": "Catalog › dual",
+    "url": "catalog/index.html#dual"
+  },
+  {
+    "ref": "W-BSVY",
+    "title": "Q3 revenue, year on year",
+    "key": "region-yoy",
+    "place": "catalog",
+    "where": "Catalog › dumbbell",
+    "url": "catalog/index.html#dumbbell"
+  },
+  {
+    "ref": "W-C181",
+    "title": "Signup funnel",
+    "key": "signup-funnel",
+    "place": "catalog",
+    "where": "Catalog › funnel",
+    "url": "catalog/index.html#funnel"
+  },
+  {
+    "ref": "W-JTF3",
+    "title": "Net promoter score",
+    "key": "nps-gauge",
+    "place": "catalog",
+    "where": "Catalog › gauge",
+    "url": "catalog/index.html#gauge"
+  },
+  {
+    "ref": "W-8S6N",
+    "title": "Feature adoption",
+    "key": "feature-adoption",
+    "place": "catalog",
+    "where": "Catalog › hbar",
+    "url": "catalog/index.html#hbar"
+  },
+  {
+    "ref": "W-RAN4",
+    "title": "Support tickets",
+    "key": "ticket-heatmap",
+    "place": "catalog",
+    "where": "Catalog › heatmap",
+    "url": "catalog/index.html#heatmap"
+  },
+  {
+    "ref": "W-0ZKZ",
+    "title": "Deal sizes",
+    "key": "deal-histogram",
+    "place": "catalog",
+    "where": "Catalog › histogram",
+    "url": "catalog/index.html#histogram"
+  },
+  {
+    "ref": "W-ZHB8",
+    "title": "Aldana Holdings, the story so far",
+    "key": "client-history",
+    "place": "catalog",
+    "where": "Catalog › history",
+    "url": "catalog/index.html#history"
+  },
+  {
+    "ref": "W-97B7",
+    "title": "Daily revenue against plan",
+    "key": "region-plan-horizon",
+    "place": "catalog",
+    "where": "Catalog › horizon",
+    "url": "catalog/index.html#horizon"
+  },
+  {
+    "ref": "W-92QD",
+    "title": "Revenue by region, product and plan",
+    "key": "revenue-icicle",
+    "place": "catalog",
+    "where": "Catalog › icicle",
+    "url": "catalog/index.html#icicle"
+  },
+  {
+    "ref": "W-2ZFX",
+    "title": "Customer churn",
+    "key": "churn-kpi",
+    "place": "catalog",
+    "where": "Catalog › kpi",
+    "url": "catalog/index.html#kpi"
+  },
+  {
+    "ref": "W-EK7M",
+    "title": "At a glance",
+    "key": "q3-at-a-glance",
+    "place": "catalog",
+    "where": "Catalog › kpis",
+    "url": "catalog/index.html#kpis"
+  },
+  {
+    "ref": "W-M7F9",
+    "title": "Where each regulation stands",
+    "key": "regulation-lifecycle",
+    "place": "catalog",
+    "where": "Catalog › lifecycle",
+    "url": "catalog/index.html#lifecycle"
+  },
+  {
+    "ref": "W-PV3Y",
+    "title": "Employee pulse survey",
+    "key": "employee-survey",
+    "place": "catalog",
+    "where": "Catalog › likert",
+    "url": "catalog/index.html#likert"
+  },
+  {
+    "ref": "W-3Y6E",
+    "title": "Revenue and cost",
+    "key": "monthly-revenue",
+    "place": "catalog",
+    "where": "Catalog › line",
+    "url": "catalog/index.html#line"
+  },
+  {
+    "ref": "W-GT8X",
+    "title": "Top customers",
+    "key": "top-customers",
+    "place": "catalog",
+    "where": "Catalog › list",
+    "url": "catalog/index.html#list"
+  },
+  {
+    "ref": "W-TPTM",
+    "title": "Our offices",
+    "key": "offices",
+    "place": "catalog",
+    "where": "Catalog › locator",
+    "url": "catalog/index.html#locator"
+  },
+  {
+    "ref": "W-4V4H",
+    "title": "Market size and mix",
+    "key": "region-product-mix",
+    "place": "catalog",
+    "where": "Catalog › marimekko",
+    "url": "catalog/index.html#marimekko"
+  },
+  {
+    "ref": "W-148Y",
+    "title": "Who must comply",
+    "key": "obligation-matrix",
+    "place": "catalog",
+    "where": "Catalog › matrix",
+    "url": "catalog/index.html#matrix"
+  },
+  {
+    "ref": "W-24VZ",
+    "title": "Target attainment",
+    "key": "region-targets",
+    "place": "catalog",
+    "where": "Catalog › meter",
+    "url": "catalog/index.html#meter"
+  },
+  {
+    "ref": "W-4P5X",
+    "title": "What drives support tickets",
+    "key": "ticket-causes",
+    "place": "catalog",
+    "where": "Catalog › pareto",
+    "url": "catalog/index.html#pareto"
+  },
+  {
+    "ref": "W-WVY7",
+    "title": "Where Q3 revenue came from",
+    "key": "revenue-pie",
+    "place": "catalog",
+    "where": "Catalog › pie",
+    "url": "catalog/index.html#pie"
+  },
+  {
+    "ref": "W-2GHT",
+    "title": "Workforce by age and gender",
+    "key": "workforce-pyramid",
+    "place": "catalog",
+    "where": "Catalog › pyramid",
+    "url": "catalog/index.html#pyramid"
+  },
+  {
+    "ref": "W-P82F",
+    "title": "How we compare",
+    "key": "product-compare",
+    "place": "catalog",
+    "where": "Catalog › radar",
+    "url": "catalog/index.html#radar"
+  },
+  {
+    "ref": "W-8JNN",
+    "title": "Client RAG scorecard",
+    "key": "rag-scorecard",
+    "place": "catalog",
+    "where": "Catalog › ragboard",
+    "url": "catalog/index.html#ragboard"
+  },
+  {
+    "ref": "W-8MVW",
+    "title": "Client status, month by month",
+    "key": "rag-status-trend",
+    "place": "catalog",
+    "where": "Catalog › ragtrend",
+    "url": "catalog/index.html#ragtrend"
+  },
+  {
+    "ref": "W-KCQG",
+    "title": "How deal sizes spread",
+    "key": "deal-ridgeline",
+    "place": "catalog",
+    "where": "Catalog › ridgeline",
+    "url": "catalog/index.html#ridgeline"
+  },
+  {
+    "ref": "W-VN8V",
+    "title": "Q3 targets",
+    "key": "product-targets",
+    "place": "catalog",
+    "where": "Catalog › rings",
+    "url": "catalog/index.html#rings"
+  },
+  {
+    "ref": "W-J466",
+    "title": "Visits by hour",
+    "key": "visits-by-hour",
+    "place": "catalog",
+    "where": "Catalog › rose",
+    "url": "catalog/index.html#rose"
+  },
+  {
+    "ref": "W-MRFT",
+    "title": "Where visitors go",
+    "key": "traffic-sankey",
+    "place": "catalog",
+    "where": "Catalog › sankey",
+    "url": "catalog/index.html#sankey"
+  },
+  {
+    "ref": "W-NPJM",
+    "title": "Account portfolio",
+    "key": "account-portfolio",
+    "place": "catalog",
+    "where": "Catalog › scatter",
+    "url": "catalog/index.html#scatter"
+  },
+  {
+    "ref": "W-FQ5V",
+    "title": "Win rate by region",
+    "key": "region-win-rate",
+    "place": "catalog",
+    "where": "Catalog › slope",
+    "url": "catalog/index.html#slope"
+  },
+  {
+    "ref": "W-0FEE",
+    "title": "How binding each regulation is",
+    "key": "provision-strips",
+    "place": "catalog",
+    "where": "Catalog › strips",
+    "url": "catalog/index.html#strips"
+  },
+  {
+    "ref": "W-600T",
+    "title": "Revenue by product, then region",
+    "key": "product-region-sunburst",
+    "place": "catalog",
+    "where": "Catalog › sunburst",
+    "url": "catalog/index.html#sunburst"
+  },
+  {
+    "ref": "W-C7GD",
+    "title": "Customers by state",
+    "key": "customers-by-state",
+    "place": "catalog",
+    "where": "Catalog › symbols",
+    "url": "catalog/index.html#symbols"
+  },
+  {
+    "ref": "W-MJ8K",
+    "title": "Open deals",
+    "key": "deal-pipeline",
+    "place": "catalog",
+    "where": "Catalog › table",
+    "url": "catalog/index.html#table"
+  },
+  {
+    "ref": "W-J8P9",
+    "title": "Q4 launch plan",
+    "key": "launch-plan",
+    "place": "catalog",
+    "where": "Catalog › timeline",
+    "url": "catalog/index.html#timeline"
+  },
+  {
+    "ref": "W-YH25",
+    "title": "Revenue by customer",
+    "key": "customer-treemap",
+    "place": "catalog",
+    "where": "Catalog › treemap",
+    "url": "catalog/index.html#treemap"
+  },
+  {
+    "ref": "W-5JR6",
+    "title": "Operating costs against budget",
+    "key": "opex-variance",
+    "place": "catalog",
+    "where": "Catalog › variance",
+    "url": "catalog/index.html#variance"
+  },
+  {
+    "ref": "W-83VE",
+    "title": "Where revenue comes from",
+    "key": "revenue-sources",
+    "place": "catalog",
+    "where": "Catalog › waffle",
+    "url": "catalog/index.html#waffle"
+  },
+  {
+    "ref": "W-FT6S",
+    "title": "Revenue bridge",
+    "key": "revenue-bridge",
+    "place": "catalog",
+    "where": "Catalog › waterfall",
+    "url": "catalog/index.html#waterfall"
+  },
+  {
+    "ref": "W-WPBK",
+    "title": "Where to sell next",
+    "key": "cross-sell-whitespace",
+    "place": "catalog",
+    "where": "Catalog › whitespace",
+    "url": "catalog/index.html#whitespace"
+  },
+  {
+    "ref": "W-9S74",
+    "title": "Client x-ray",
+    "key": "client-xray",
+    "place": "catalog",
+    "where": "Catalog › xray",
+    "url": "catalog/index.html#xray"
+  },
+  {
+    "ref": "W-00JQ",
+    "title": "Anomalies, measure by measure",
+    "key": "metric-anomalies",
+    "place": "guide",
+    "where": "Catalog › Data guide › anomalies",
+    "url": "catalog/guide.html#c-anomalies"
+  },
+  {
+    "ref": "W-V0CX",
+    "title": "Cash on hand",
+    "key": "cash-forecast",
+    "place": "guide",
+    "where": "Catalog › Data guide › area",
+    "url": "catalog/guide.html#c-area"
+  },
+  {
+    "ref": "W-5YCR",
+    "title": "Product share",
+    "key": "product-share",
+    "place": "guide",
+    "where": "Catalog › Data guide › bar",
+    "url": "catalog/guide.html#c-bar"
+  },
+  {
+    "ref": "W-V2DY",
+    "title": "Deal sizes by region",
+    "key": "deal-swarm",
+    "place": "guide",
+    "where": "Catalog › Data guide › beeswarm",
+    "url": "catalog/guide.html#c-beeswarm"
+  },
+  {
+    "ref": "W-QH6N",
+    "title": "Deal board",
+    "key": "deal-board",
+    "place": "guide",
+    "where": "Catalog › Data guide › board",
+    "url": "catalog/guide.html#c-board"
+  },
+  {
+    "ref": "W-HZZS",
+    "title": "Deal size spread",
+    "key": "deal-boxplot",
+    "place": "guide",
+    "where": "Catalog › Data guide › boxplot",
+    "url": "catalog/guide.html#c-boxplot"
+  },
+  {
+    "ref": "W-BWB7",
+    "title": "Q3 scorecard",
+    "key": "kpi-scorecard",
+    "place": "guide",
+    "where": "Catalog › Data guide › bullet",
+    "url": "catalog/guide.html#c-bullet"
+  },
+  {
+    "ref": "W-G85J",
+    "title": "Product ranking",
+    "key": "product-ranking",
+    "place": "guide",
+    "where": "Catalog › Data guide › bump",
+    "url": "catalog/guide.html#c-bump"
+  },
+  {
+    "ref": "W-NBB7",
+    "title": "Daily orders",
+    "key": "order-calendar",
+    "place": "guide",
+    "where": "Catalog › Data guide › calendar",
+    "url": "catalog/guide.html#c-calendar"
+  },
+  {
+    "ref": "W-BPKW",
+    "title": "Share price",
+    "key": "share-price",
+    "place": "guide",
+    "where": "Catalog › Data guide › candlestick",
+    "url": "catalog/guide.html#c-candlestick"
+  },
+  {
+    "ref": "W-M5Y2",
+    "title": "Plan changes",
+    "key": "plan-moves",
+    "place": "guide",
+    "where": "Catalog › Data guide › chord",
+    "url": "catalog/guide.html#c-chord"
+  },
+  {
+    "ref": "W-1KQC",
+    "title": "Revenue by country",
+    "key": "revenue-by-country",
+    "place": "guide",
+    "where": "Catalog › Data guide › choropleth",
+    "url": "catalog/guide.html#c-choropleth"
+  },
+  {
+    "ref": "W-PN3M",
+    "title": "Revenue by segment",
+    "key": "revenue-by-segment",
+    "place": "guide",
+    "where": "Catalog › Data guide › donut",
+    "url": "catalog/guide.html#c-donut"
+  },
+  {
+    "ref": "W-MVTW",
+    "title": "Customer ratings by product",
+    "key": "product-ratings",
+    "place": "guide",
+    "where": "Catalog › Data guide › dot",
+    "url": "catalog/guide.html#c-dot"
+  },
+  {
+    "ref": "W-73M2",
+    "title": "Revenue and churn",
+    "key": "revenue-and-churn",
+    "place": "guide",
+    "where": "Catalog › Data guide › dual",
+    "url": "catalog/guide.html#c-dual"
+  },
+  {
+    "ref": "W-ENF0",
+    "title": "Q3 revenue, year on year",
+    "key": "region-yoy",
+    "place": "guide",
+    "where": "Catalog › Data guide › dumbbell",
+    "url": "catalog/guide.html#c-dumbbell"
+  },
+  {
+    "ref": "W-3YK8",
+    "title": "Signup funnel",
+    "key": "signup-funnel",
+    "place": "guide",
+    "where": "Catalog › Data guide › funnel",
+    "url": "catalog/guide.html#c-funnel"
+  },
+  {
+    "ref": "W-XSHE",
+    "title": "Net promoter score",
+    "key": "nps-gauge",
+    "place": "guide",
+    "where": "Catalog › Data guide › gauge",
+    "url": "catalog/guide.html#c-gauge"
+  },
+  {
+    "ref": "W-NQDZ",
+    "title": "Feature adoption",
+    "key": "feature-adoption",
+    "place": "guide",
+    "where": "Catalog › Data guide › hbar",
+    "url": "catalog/guide.html#c-hbar"
+  },
+  {
+    "ref": "W-NSJQ",
+    "title": "Support tickets",
+    "key": "ticket-heatmap",
+    "place": "guide",
+    "where": "Catalog › Data guide › heatmap",
+    "url": "catalog/guide.html#c-heatmap"
+  },
+  {
+    "ref": "W-DGY8",
+    "title": "Deal sizes",
+    "key": "deal-histogram",
+    "place": "guide",
+    "where": "Catalog › Data guide › histogram",
+    "url": "catalog/guide.html#c-histogram"
+  },
+  {
+    "ref": "W-6MND",
+    "title": "Aldana Holdings, the story so far",
+    "key": "client-history",
+    "place": "guide",
+    "where": "Catalog › Data guide › history",
+    "url": "catalog/guide.html#c-history"
+  },
+  {
+    "ref": "W-6QD4",
+    "title": "Daily revenue against plan",
+    "key": "region-plan-horizon",
+    "place": "guide",
+    "where": "Catalog › Data guide › horizon",
+    "url": "catalog/guide.html#c-horizon"
+  },
+  {
+    "ref": "W-CYJ2",
+    "title": "Revenue by region, product and plan",
+    "key": "revenue-icicle",
+    "place": "guide",
+    "where": "Catalog › Data guide › icicle",
+    "url": "catalog/guide.html#c-icicle"
+  },
+  {
+    "ref": "W-DG7P",
+    "title": "Customer churn",
+    "key": "churn-kpi",
+    "place": "guide",
+    "where": "Catalog › Data guide › kpi",
+    "url": "catalog/guide.html#c-kpi"
+  },
+  {
+    "ref": "W-V1RQ",
+    "title": "At a glance",
+    "key": "q3-at-a-glance",
+    "place": "guide",
+    "where": "Catalog › Data guide › kpis",
+    "url": "catalog/guide.html#c-kpis"
+  },
+  {
+    "ref": "W-9176",
+    "title": "Where each regulation stands",
+    "key": "regulation-lifecycle",
+    "place": "guide",
+    "where": "Catalog › Data guide › lifecycle",
+    "url": "catalog/guide.html#c-lifecycle"
+  },
+  {
+    "ref": "W-NXVY",
+    "title": "Employee pulse survey",
+    "key": "employee-survey",
+    "place": "guide",
+    "where": "Catalog › Data guide › likert",
+    "url": "catalog/guide.html#c-likert"
+  },
+  {
+    "ref": "W-RYX8",
+    "title": "Revenue and cost",
+    "key": "monthly-revenue",
+    "place": "guide",
+    "where": "Catalog › Data guide › line",
+    "url": "catalog/guide.html#c-line"
+  },
+  {
+    "ref": "W-B8RH",
+    "title": "Top customers",
+    "key": "top-customers",
+    "place": "guide",
+    "where": "Catalog › Data guide › list",
+    "url": "catalog/guide.html#c-list"
+  },
+  {
+    "ref": "W-HF3V",
+    "title": "Our offices",
+    "key": "offices",
+    "place": "guide",
+    "where": "Catalog › Data guide › locator",
+    "url": "catalog/guide.html#c-locator"
+  },
+  {
+    "ref": "W-118J",
+    "title": "Market size and mix",
+    "key": "region-product-mix",
+    "place": "guide",
+    "where": "Catalog › Data guide › marimekko",
+    "url": "catalog/guide.html#c-marimekko"
+  },
+  {
+    "ref": "W-JVH1",
+    "title": "Who must comply",
+    "key": "obligation-matrix",
+    "place": "guide",
+    "where": "Catalog › Data guide › matrix",
+    "url": "catalog/guide.html#c-matrix"
+  },
+  {
+    "ref": "W-ZMAJ",
+    "title": "Target attainment",
+    "key": "region-targets",
+    "place": "guide",
+    "where": "Catalog › Data guide › meter",
+    "url": "catalog/guide.html#c-meter"
+  },
+  {
+    "ref": "W-KJFX",
+    "title": "What drives support tickets",
+    "key": "ticket-causes",
+    "place": "guide",
+    "where": "Catalog › Data guide › pareto",
+    "url": "catalog/guide.html#c-pareto"
+  },
+  {
+    "ref": "W-VKRB",
+    "title": "Where Q3 revenue came from",
+    "key": "revenue-pie",
+    "place": "guide",
+    "where": "Catalog › Data guide › pie",
+    "url": "catalog/guide.html#c-pie"
+  },
+  {
+    "ref": "W-DMZK",
+    "title": "Workforce by age and gender",
+    "key": "workforce-pyramid",
+    "place": "guide",
+    "where": "Catalog › Data guide › pyramid",
+    "url": "catalog/guide.html#c-pyramid"
+  },
+  {
+    "ref": "W-5AZR",
+    "title": "How we compare",
+    "key": "product-compare",
+    "place": "guide",
+    "where": "Catalog › Data guide › radar",
+    "url": "catalog/guide.html#c-radar"
+  },
+  {
+    "ref": "W-K3YN",
+    "title": "Client RAG scorecard",
+    "key": "rag-scorecard",
+    "place": "guide",
+    "where": "Catalog › Data guide › ragboard",
+    "url": "catalog/guide.html#c-ragboard"
+  },
+  {
+    "ref": "W-5KQB",
+    "title": "Client status, month by month",
+    "key": "rag-status-trend",
+    "place": "guide",
+    "where": "Catalog › Data guide › ragtrend",
+    "url": "catalog/guide.html#c-ragtrend"
+  },
+  {
+    "ref": "W-P97Z",
+    "title": "How deal sizes spread",
+    "key": "deal-ridgeline",
+    "place": "guide",
+    "where": "Catalog › Data guide › ridgeline",
+    "url": "catalog/guide.html#c-ridgeline"
+  },
+  {
+    "ref": "W-MSZY",
+    "title": "Q3 targets",
+    "key": "product-targets",
+    "place": "guide",
+    "where": "Catalog › Data guide › rings",
+    "url": "catalog/guide.html#c-rings"
+  },
+  {
+    "ref": "W-7Q55",
+    "title": "Visits by hour",
+    "key": "visits-by-hour",
+    "place": "guide",
+    "where": "Catalog › Data guide › rose",
+    "url": "catalog/guide.html#c-rose"
+  },
+  {
+    "ref": "W-XTVW",
+    "title": "Where visitors go",
+    "key": "traffic-sankey",
+    "place": "guide",
+    "where": "Catalog › Data guide › sankey",
+    "url": "catalog/guide.html#c-sankey"
+  },
+  {
+    "ref": "W-E2EJ",
+    "title": "Account portfolio",
+    "key": "account-portfolio",
+    "place": "guide",
+    "where": "Catalog › Data guide › scatter",
+    "url": "catalog/guide.html#c-scatter"
+  },
+  {
+    "ref": "W-RDYH",
+    "title": "Win rate by region",
+    "key": "region-win-rate",
+    "place": "guide",
+    "where": "Catalog › Data guide › slope",
+    "url": "catalog/guide.html#c-slope"
+  },
+  {
+    "ref": "W-1C63",
+    "title": "How binding each regulation is",
+    "key": "provision-strips",
+    "place": "guide",
+    "where": "Catalog › Data guide › strips",
+    "url": "catalog/guide.html#c-strips"
+  },
+  {
+    "ref": "W-N57Y",
+    "title": "Revenue by product, then region",
+    "key": "product-region-sunburst",
+    "place": "guide",
+    "where": "Catalog › Data guide › sunburst",
+    "url": "catalog/guide.html#c-sunburst"
+  },
+  {
+    "ref": "W-1FQ6",
+    "title": "Customers by state",
+    "key": "customers-by-state",
+    "place": "guide",
+    "where": "Catalog › Data guide › symbols",
+    "url": "catalog/guide.html#c-symbols"
+  },
+  {
+    "ref": "W-Q0RE",
+    "title": "Open deals",
+    "key": "deal-pipeline",
+    "place": "guide",
+    "where": "Catalog › Data guide › table",
+    "url": "catalog/guide.html#c-table"
+  },
+  {
+    "ref": "W-9Q5K",
+    "title": "Q4 launch plan",
+    "key": "launch-plan",
+    "place": "guide",
+    "where": "Catalog › Data guide › timeline",
+    "url": "catalog/guide.html#c-timeline"
+  },
+  {
+    "ref": "W-VPQ9",
+    "title": "Revenue by customer",
+    "key": "customer-treemap",
+    "place": "guide",
+    "where": "Catalog › Data guide › treemap",
+    "url": "catalog/guide.html#c-treemap"
+  },
+  {
+    "ref": "W-PQDS",
+    "title": "Operating costs against budget",
+    "key": "opex-variance",
+    "place": "guide",
+    "where": "Catalog › Data guide › variance",
+    "url": "catalog/guide.html#c-variance"
+  },
+  {
+    "ref": "W-BJ30",
+    "title": "Where revenue comes from",
+    "key": "revenue-sources",
+    "place": "guide",
+    "where": "Catalog › Data guide › waffle",
+    "url": "catalog/guide.html#c-waffle"
+  },
+  {
+    "ref": "W-E711",
+    "title": "Revenue bridge",
+    "key": "revenue-bridge",
+    "place": "guide",
+    "where": "Catalog › Data guide › waterfall",
+    "url": "catalog/guide.html#c-waterfall"
+  },
+  {
+    "ref": "W-BXVA",
+    "title": "Where to sell next",
+    "key": "cross-sell-whitespace",
+    "place": "guide",
+    "where": "Catalog › Data guide › whitespace",
+    "url": "catalog/guide.html#c-whitespace"
+  },
+  {
+    "ref": "W-EPAE",
+    "title": "Client x-ray",
+    "key": "client-xray",
+    "place": "guide",
+    "where": "Catalog › Data guide › xray",
+    "url": "catalog/guide.html#c-xray"
+  },
+  {
+    "ref": "W-140Y",
+    "title": "Revenue and cost",
+    "key": "monthly-revenue",
+    "place": "home",
+    "where": "Home",
+    "url": "index.html"
+  },
+  {
+    "ref": "W-A1GJ",
+    "title": "Revenue by country",
+    "key": "revenue-by-country",
+    "place": "home",
+    "where": "Home",
+    "url": "index.html"
+  },
+  {
+    "ref": "W-HK31",
+    "title": "Revenue by segment",
+    "key": "revenue-by-segment",
+    "place": "home",
+    "where": "Home",
+    "url": "index.html"
+  },
+  {
+    "ref": "W-YTWD",
+    "title": "Signups by channel",
+    "key": "inline",
+    "place": "embed",
+    "where": "Embed › The spec inside the tag",
+    "url": "examples/drop-in.html#W-YTWD"
+  },
+  {
+    "ref": "W-9CYX",
+    "title": "Revenue by region",
+    "key": "file",
+    "place": "embed",
+    "where": "Embed › A spec file",
+    "url": "examples/drop-in.html#W-9CYX"
+  },
+  {
+    "ref": "W-H4J7",
+    "title": "Tickets this week",
+    "key": "csv",
+    "place": "embed",
+    "where": "Embed › A CSV file",
+    "url": "examples/drop-in.html#W-H4J7"
+  },
+  {
+    "ref": "W-ZRXF",
+    "title": "Just a data file",
+    "key": "data",
+    "place": "embed",
+    "where": "Embed › Just a data file",
+    "url": "examples/drop-in.html#W-ZRXF"
+  },
+  {
+    "ref": "W-W685",
+    "title": "From JavaScript",
+    "key": "js",
+    "place": "embed",
+    "where": "Embed › From JavaScript",
+    "url": "examples/drop-in.html#W-W685"
+  },
+  {
+    "ref": "W-PGY4",
+    "title": "Revenue",
+    "key": "revenue-kpi",
+    "place": "frame",
+    "where": "Embed › In an iframe, on any site (in its frame)",
+    "url": "examples/drop-in.html#ex-frame"
+  }
+]

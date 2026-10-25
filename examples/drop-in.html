@@ -31,7 +31,7 @@
     .snippet button:focus-visible { outline: 2px solid Highlight; outline-offset: 2px; }
   </style>
 </head>
-<body>
+<body data-fft-place="embed">
   <div class="site-bar">
     <nav class="site-nav" aria-label="Pages">
       <a href="../index.html" title="What martcharts is, and where to start">Home</a>
@@ -63,7 +63,7 @@
   </section>
 
   <div class="examples">
-    <section class="example" aria-labelledby="ex-inline">
+    <section class="example" aria-labelledby="ex-inline" data-fft-ref-key="inline">
       <h2 id="ex-inline">The spec inside the tag</h2>
       <p>Data, fields and the chart in one block of JSON.</p>
       <template>
@@ -86,7 +86,7 @@
       </template>
     </section>
 
-    <section class="example" aria-labelledby="ex-file">
+    <section class="example" aria-labelledby="ex-file" data-fft-ref-key="file">
       <h2 id="ex-file">A spec file</h2>
       <p>Any widget saved as JSON, from the editor or the catalog.</p>
       <template>
@@ -94,7 +94,7 @@
       </template>
     </section>
 
-    <section class="example" aria-labelledby="ex-csv">
+    <section class="example" aria-labelledby="ex-csv" data-fft-ref-key="csv">
       <h2 id="ex-csv">A CSV file</h2>
       <p>As exported from a spreadsheet: the first row names the fields.</p>
       <template>
@@ -110,7 +110,7 @@
       </template>
     </section>
 
-    <section class="example" aria-labelledby="ex-data">
+    <section class="example" aria-labelledby="ex-data" data-fft-ref-key="data">
       <h2 id="ex-data">Just a data file</h2>
       <p>No spec at all: the chart is picked from the data's shape.</p>
       <template>
@@ -118,7 +118,7 @@
       </template>
     </section>
 
-    <section class="example" aria-labelledby="ex-js" data-example="live">
+    <section class="example" aria-labelledby="ex-js" data-fft-ref-key="js" data-example="live">
       <h2 id="ex-js">From JavaScript</h2>
       <p>Set the spec from code; here the data is a function that runs in the page.</p>
       <template>
@@ -126,7 +126,7 @@
       </template>
     </section>
 
-    <section class="example" aria-labelledby="ex-frame">
+    <section class="example" aria-labelledby="ex-frame" data-fft-ref-key="frame">
       <h2 id="ex-frame">In an iframe, on any site</h2>
       <p>For sites that cannot load scripts: the frame sizes itself to the chart.</p>
       <template>

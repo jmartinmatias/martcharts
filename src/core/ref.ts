@@ -25,3 +25,19 @@ export function widgetRef(id: string): string {
   }
   return `W-${code}`;
 }
+
+/**
+ * Where a chart sits decides its ref as much as what it is: the same widget on the catalog, on Home and on a board is
+ * three charts to talk about, so it carries three refs. A page names its place (`data-fft-place="catalog"`) and each
+ * chart its key there (its id, else its title); the ref is the hash of both. With no place, the ref is the widget's
+ * own, `widgetRef(id)`: the dashboards, where the stored widgets live, keep those, and the MCP server reads them.
+ */
+export function placedRef(place: string | undefined, key: string | undefined): string {
+  if (!key) return "";
+  return place ? widgetRef(`${place}#${key}`) : widgetRef(key);
+}
+
+/** A chart's key in its place: its id, else its title, else its chart type. */
+export function refKey(spec: { id?: string; title?: string; view?: { type?: string } }): string | undefined {
+  return spec.id || spec.title || spec.view?.type || undefined;
+}

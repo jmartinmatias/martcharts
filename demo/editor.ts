@@ -10,6 +10,7 @@
  */
 import { createEditor, runPipeline } from "../src/index.ts";
 import type { WidgetSpec } from "../src/index.ts";
+import { PLACES } from "./routes.ts";
 
 /** One self-contained spec per view, written by `npm run catalog`. */
 const catalog = import.meta.glob<WidgetSpec>("../catalog/*.json", { eager: true, import: "default" });
@@ -25,6 +26,7 @@ const widgetById = (id: string) => Object.values(stored).find((spec) => spec.id 
 const $ = <T extends HTMLElement>(selector: string) => document.querySelector(selector) as T;
 
 // ---- The editor ----
+document.body.dataset.fftPlace = PLACES.editor;
 const editor = createEditor($("#editor"), {
   examples,
   samples: [
