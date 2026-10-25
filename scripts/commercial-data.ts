@@ -84,6 +84,14 @@ const NAMES = [
   "Eriksen Capital", "Fischer Family Office", "Goossens Trust", "Henriques Logistics",
 ];
 
+/** Where each cluster sits on risk (1 to 7) and return this year: careful core, growth that takes risk, at-risk losers, dormant cash. */
+const CENTRES: Record<string, { risk: number; ret: number }> = {
+  Core: { risk: 3.5, ret: 0.045 },
+  Growth: { risk: 5.6, ret: 0.1 },
+  "At risk": { risk: 4.6, ret: -0.035 },
+  Dormant: { risk: 1.6, ret: 0.008 },
+};
+
 interface Client {
   id: string;
   name: string;
@@ -153,8 +161,9 @@ for (const [segment, shape] of Object.entries(SEGMENTS)) {
       cluster,
       lastContact: daysAgo(contactDays),
       anomaly: random() < 0.13,
-      riskScore: Math.max(1, Math.min(7, Math.round(between(1, 7) + (segment === "Institutional" ? -1 : 0)))),
-      returnYtd: round(between(-0.06, 0.14) + (cluster === "At risk" ? -0.03 : 0), 3),
+      // Each cluster sits around its own risk and return, as segments found by analysis do, so their areas separate.
+      riskScore: Math.max(1, Math.min(7, Math.round(CENTRES[cluster].risk + between(-1.2, 1.2) + (segment === "Institutional" ? -0.5 : 0)))),
+      returnYtd: round(CENTRES[cluster].ret + between(-0.025, 0.025), 3),
       ...flags,
     });
     n++;
