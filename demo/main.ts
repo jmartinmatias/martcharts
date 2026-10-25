@@ -3,7 +3,9 @@
  * for editing specs live. Edits to widgets/*.json (by hand or through the MCP
  * server) reload here automatically.
  */
-import { baseWidget, createDashboard, createPalettePicker, createWidget, describeBlocks, describePresets, fork, getPalette, resolvePalette, suggestView, validateSpec } from "../src/index.ts";
+import { baseWidget, createDashboard, createWidget, describeBlocks, fork, suggestView, validateSpec } from "../src/index.ts";
+import { createPalettePicker, getPalette, resolvePalette } from "../src/color.ts";
+import { describePresets } from "../src/core/index.ts";
 import type { DashboardSpec, Issue, Row, SelectDetail, ViewSpec, WidgetSpec } from "../src/index.ts";
 import { look, setLook } from "./look.ts";
 

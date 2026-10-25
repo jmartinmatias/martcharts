@@ -286,6 +286,8 @@ A view of `type` with every required field option filled from the rows. Each fie
 
 ### The chart guide: `dataContract`, `switchChart`, `switchOptions`, `guideMarkdown`
 
+From `martcharts/core`.
+
 Work on any spec and rows (the spec's inline rows when `rows` is left out). Full output for the catalog is in [chart-guide.md](chart-guide.md) and [catalog/guide.html](../catalog/guide.html).
 
 | Function | Returns |
@@ -345,6 +347,8 @@ The `rag` transform turns numbers into status columns:
 The `rag` cell format draws the pill. `"rag": { "green", "amber", "goodWhen" }` on `kpi` and `kpis` adds a pill beside the number.
 
 ### Maps: `basemapNames`, `resolveGeo`, `project`
+
+From `martcharts/geo`.
 
 `basemapNames()` lists the built-in tile grids, `europe` and `us-states`. `guessBasemap(values)` picks one from a column of codes. `resolveGeo(geo)` and `project(collection, width, height)` are the geometry the map views use, with no DOM, so they run in Node too.
 
@@ -515,14 +519,14 @@ registerPreset({
 
 Register your own with `registerPalette({ name, label, description, colors, darkColors? })`.
 
-`checkPalette(colors, { mode, surface? })` measures whether colors in that order can be told apart: colorblind separation of neighbours (OKLab distance under simulated red-green colorblindness; 8 or more passes, 6 to 8 asks for labels), separation for everyone else (15 or more), the lightness band for the background, colorfulness, and 3:1 contrast. The color helpers behind it are exported too: `parseHex`, `toHex`, `contrast`, `luminance`, `oklab`, `oklch`, `deltaE`.
+`checkPalette(colors, { mode, surface? })` measures whether colors in that order can be told apart: colorblind separation of neighbours (OKLab distance under simulated red-green colorblindness; 8 or more passes, 6 to 8 asks for labels), separation for everyone else (15 or more), the lightness band for the background, colorfulness, and 3:1 contrast. It and the color helpers behind it come from `martcharts/color`: `parseHex`, `toHex`, `contrast`, `luminance`, `oklab`, `oklch`, `deltaE`.
 
 #### The palette picker
 
 `createPalettePicker(target, options)` draws a professional color chooser: library chips, one editable swatch per color (color field and hex), an eyedropper per swatch that picks a color from anywhere on screen (in browsers with the EyeDropper API, such as Chrome and Edge), add and remove, and the live `checkPalette` readout.
 
 ```ts
-import { createPalettePicker } from "martcharts";
+import { createPalettePicker } from "martcharts/color";
 
 createPalettePicker(document.querySelector("#colors")!, {
   value: "apple",
@@ -599,7 +603,8 @@ A renderer gets a `ViewContext` and draws into `ctx.el`. It may return a cleanup
 | `select(row)` | Fires `fft-select` with the row. |
 
 ```ts
-import { registerView, html } from "martcharts";
+import { registerView } from "martcharts";
+import { html } from "martcharts/kit";
 
 registerView({
   type: "progress",
@@ -623,7 +628,7 @@ registerView({
 
 To let the MCP server validate specs that use a custom view, register the same descriptor in Node without `render`. `setRenderer(type, render)` attaches drawing code to a view registered elsewhere.
 
-Chart helpers for custom charts are exported too: `niceTicks`, `linearScale`, `bands`, `layoutBars`, `barPath`, `linePath`, plus `html`, `svg`, `selectable` and `buildTable`.
+Chart helpers for custom charts come from `martcharts/kit`: `niceTicks`, `linearScale`, `bands`, `layoutBars`, `barPath`, `linePath`, plus `html`, `svg`, `selectable`, `buildTable` and every built-in renderer.
 
 ### Introspection
 
@@ -631,12 +636,19 @@ Chart helpers for custom charts are exported too: `niceTicks`, `linearScale`, `b
 
 ## Entry points
 
+Each name has one home. The front door holds what most pages need; the rest is one import path away.
+
 | Import | Contents | Runs in |
 | --- | --- | --- |
-| `martcharts` | Everything, with the built-in renderers attached. | Browser |
-| `martcharts/core` | Specs, fork, registry, pipeline, formats, validation. | Browser, Node, workers |
+| `martcharts` | The front door, with the built-in renderers attached: `createWidget`, `createDashboard`, `createEditor`, `createComposer`, `defineWidgetElement`; `fork`, `baseWidget`, `validateSpec`, `hasErrors`, `validateDashboard`, `runPipeline`, `formatValue`, `widgetRef`; `explainChart`, `questionOf`, `recommendCharts`, `suggestView`, `describeBlocks`, `wordsFor`, `langOf`, `WORDS_EN`; every `register*` function; the RAG helpers (`applyRag`, `ragOf`, `ragFromValue`, `ragWord`, `ragCounts`, `worstOf`, `RAG_ORDER`); `auditWallet`, `strategyMarkdown`, `strategyText`; `cardToSvg`, `cardToPng`, `download`; the embed helpers (`mountEmbed`, `frameEmbed`, `listenForEmbedHeights`, `postHeights`, `dashboardEmbed`, `embedCodes`); and every spec type. | Browser |
+| `martcharts/core` | The whole engine with no DOM: the above that needs no page, plus the registry, the option aliases, colour and highlight rules, templates, headlines, reference lines, presets, the chart guide and data contract (`chartGuide`, `dataContract`, `switchChart`, `describeChart`). | Browser, Node, workers |
+| `martcharts/kit` | The drawing kit: every built-in renderer (`renderBar` and the rest), layout and geometry (`niceTicks`, `linearScale`, `bands`, `layoutBars`, `squarify`, `layoutSankey` and more), `html`, `svg`, `buildTable`, `selectable`, styles (`BASE_CSS`, `applyStyle`), and the editor and composer plumbing (`readHash`, `rowsFromTable`, `boardFromHash`, `localBoardStore`). | Browser |
+| `martcharts/color` | Colour science (`oklab`, `oklch`, `contrast`, `deltaE`, `checkPalette`), the named palettes (`getPalette`, `resolvePalette`, `describePalettes`) and `createPalettePicker`. | Browser, Node (all but the picker) |
+| `martcharts/geo` | Basemaps, projection and features: `basemapNames`, `resolveGeo`, `project`, `guessBasemap`. | Browser, Node, workers |
+| `martcharts/taller` | `createVariants`, `rankVariants`, `explainVariant` and the Taller's moves, audiences and qualities. | Browser, Node, workers |
 | `martcharts/mcp` | `createFftServer`, plus the store from `src/mcp/store.ts`. | Node |
-| `martcharts/standalone` | Built bundle (`dist/martcharts.js`, from `npm run build:lib`): everything in `martcharts`, compiled, with `<fft-widget>` registered. `dist/martcharts.iife.js` is the same as a classic script (`window.MartCharts`). Types in `dist/types`, with `HTMLElementTagNameMap["fft-widget"]`. | Browser, no bundler; imports safely in Node |
+| `martcharts/standalone` | Built bundle (`dist/martcharts.js`, from `npm run build:lib`): everything above but the MCP server, compiled, with `<fft-widget>` registered. `dist/martcharts.iife.js` is the same as a classic script, and `window.MartCharts` carries the whole API, so drop-in pages reach any name without choosing a path. Types in `dist/types`, with `HTMLElementTagNameMap["fft-widget"]`. | Browser, no bundler; imports safely in Node |
+| `martcharts/lite` | The display-only bundle (`dist/martcharts-lite.js`): widgets, dashboards, embeds and export, no editor. | Browser, no bundler |
 
 ## Colour: which rule wins
 

@@ -3,7 +3,9 @@
  * The "Extending" examples from docs/api.md, run as written, so the docs cannot drift from the code.
  */
 import { describe, expect, test } from "vitest";
-import { createPalettePicker, createWidget, formatValue, html, registerFormat, registerPreset, registerSource, registerTransform, registerView, runPipeline } from "./index.ts";
+import { createPalettePicker } from "./color.ts";
+import { createWidget, formatValue, registerFormat, registerPreset, registerSource, registerTransform, registerView, runPipeline } from "./index.ts";
+import { html } from "./kit.ts";
 
 describe("docs/api.md extending examples", () => {
   test("csv source", async () => {
