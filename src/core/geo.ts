@@ -409,3 +409,29 @@ export function sequentialStep(value: number, min: number, max: number): number 
   const t = (value - min) / (max - min);
   return Math.min(SEQUENTIAL_STEPS, Math.max(1, Math.floor(t * SEQUENTIAL_STEPS) + 1));
 }
+
+/**
+ * A country's name in the reader's language, from its ISO code: Allemagne or Deutschland for DE on a French or German
+ * card. Only for maps whose regions are countries (the europe grid, or GeoJSON keyed by ISO codes): on the us-states
+ * grid CA is California, not Canada. English, an unknown code or a runtime without region names keeps the name given.
+ */
+export function countryName(code: unknown, given: string, locale?: string): string {
+  const lang = (locale ?? "en").slice(0, 2).toLowerCase();
+  const id = normalizeId(code);
+  // Only the languages the rest of the card speaks (French, German): a Spanish page reads English, country names too.
+  if ((lang !== "fr" && lang !== "de") || !/^[A-Z]{2}$/.test(id)) return given;
+  try {
+    const name = new Intl.DisplayNames([locale as string], { type: "region" }).of(id);
+    return name && name !== id ? name : given;
+  } catch {
+    return given;
+  }
+}
+
+/** True when a map's regions are countries named by ISO codes: the europe grid, or a GeoJSON keyed by two-letter codes. */
+export function isCountryMap(geo: unknown): boolean {
+  if (geo === "europe") return true;
+  if (typeof geo === "string") return false;
+  const collection = resolveGeo(geo);
+  return Boolean(collection && collection.features.length && collection.features.every((f) => /^[A-Z]{2}$/.test(normalizeId(featureId(f)))));
+}

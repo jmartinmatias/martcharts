@@ -15,7 +15,7 @@
  */
 import { fieldLabel, formatValue, humanize, timeStep } from "./display.ts";
 import { readNumber } from "./formats.ts";
-import { featureId, featureName, normalizeId, resolveGeo } from "./geo.ts";
+import { countryName, featureId, featureName, isCountryMap, normalizeId, resolveGeo } from "./geo.ts";
 import type { Rag } from "./rag.ts";
 import { ragOf, ragRank, ragTrend, ragWord, worstOf } from "./rag.ts";
 import type { Row, WidgetSpec } from "./types.ts";
@@ -864,12 +864,13 @@ function medianOf(values: number[]): number {
 }
 
 /** A region's name on the map's geometry when it is at hand (France for FR), else the code as written. */
-function regionName(view: View, code: unknown): string {
+function regionName(view: View, code: unknown, locale?: string): string {
   const collection = resolveGeo(view.geo);
   const key = typeof view.key === "string" ? view.key : "id";
   const wanted = normalizeId(code);
   const feature = collection?.features.find((f) => normalizeId(featureId(f, key)) === wanted);
-  return feature ? featureName(feature, key) : String(code ?? "");
+  const given = feature ? featureName(feature, key) : String(code ?? "");
+  return isCountryMap(view.geo) ? countryName(code, given, locale) : given;
 }
 
 /** The standout in the rows, for the view at hand. */
@@ -1138,12 +1139,12 @@ function factOf(c: Ctx): Fact {
       const [id, field] = [one(view.id), one(view.value)];
       if (!id || !field) return { k: "none" };
       const [hi, lo] = [top(field), bottom(field)];
-      return hi && lo && hi !== lo ? { k: "range", top: regionName(view, hi[id]), topV: text(hi, field), bottom: regionName(view, lo[id]), bottomV: text(lo, field) } : { k: "none" };
+      return hi && lo && hi !== lo ? { k: "range", top: regionName(view, hi[id], c.spec.locale), topV: text(hi, field), bottom: regionName(view, lo[id], c.spec.locale), bottomV: text(lo, field) } : { k: "none" };
     }
     case "symbols": {
       const [id, label, field] = [one(view.id), one(view.label), one(view.size)];
       const row = top(field);
-      return row && field ? { k: "top", who: label ? text(row, label) : regionName(view, id ? row[id] : ""), value: text(row, field) } : { k: "none" };
+      return row && field ? { k: "top", who: label ? text(row, label) : regionName(view, id ? row[id] : "", c.spec.locale), value: text(row, field) } : { k: "none" };
     }
     case "locator":
       return { k: "none" };
@@ -1244,7 +1245,9 @@ function factOf(c: Ctx): Fact {
       const overallOf = (row: Row): Rag => (typeof view.overall === "string" && view.overall ? ragOf(row[view.overall]) : worstOf(dims.map((f) => ragOf(row[f]))));
       const red = rows.filter((row) => overallOf(row) === "R").length;
       const amber = rows.filter((row) => overallOf(row) === "A").length;
-      const worst = [...rows].sort((a, b) => ragRank(overallOf(a)) - ragRank(overallOf(b)))[0];
+      // The same client the English names: the most reds across the dimensions, then the most ambers.
+      const count = (row: Row, status: Rag) => dims.filter((f) => ragOf(row[f]) === status).length;
+      const worst = [...rows].sort((a, b) => count(b, "R") - count(a, "R") || count(b, "A") - count(a, "A") || ragRank(overallOf(a)) - ragRank(overallOf(b)))[0];
       return { k: "ragboard", red, amber, of: rows.length, ...(worst && overallOf(worst) === "R" ? { worst: text(worst, label) } : {}) };
     }
     case "ragtrend": {

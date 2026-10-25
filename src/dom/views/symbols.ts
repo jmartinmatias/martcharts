@@ -4,7 +4,7 @@ import type { SymbolsView } from "../../core/views.ts";
 import { evenFormat, hiddenTableOf, html, selectable, svg, textWidth } from "./shared.ts";
 import { categoryColor, emphasis, wordsFor } from "./words.ts";
 import { roving } from "./focus.ts";
-import { dotLegend, groupName, mapCanvas, mapFrame, placeRows, unplacedNote, withGeo } from "./map-shared.ts";
+import { dotLegend, groupName, mapCanvas, mapFrame, placeRows, unplacedNote, withGeo, regionLabel } from "./map-shared.ts";
 
 /** Radius of the biggest circle: a Fibonacci step, smaller on a narrow card. */
 const MAX_RADIUS = 34;
@@ -77,7 +77,7 @@ export const renderSymbols: ViewRenderer<SymbolsView> = (ctx) =>
       const title = p.name || p.shape?.name || "";
       const items: TooltipItem[] = [{ label: ctx.label(size), value: amountText(p.amount), color: paint }];
       if (color) items.push({ label: ctx.label(color), value: groups[group] as string });
-      if (p.shape && p.name && p.name !== p.shape.name) items.push({ label: wordsFor(ctx).region, value: p.shape.name });
+      if (p.shape && p.name && p.name !== regionLabel(ctx, p.shape)) items.push({ label: wordsFor(ctx).region, value: regionLabel(ctx, p.shape) });
       circle.setAttribute("aria-label", `${title}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
       const activate = () => {
         wrap.setAttribute("data-active", "");

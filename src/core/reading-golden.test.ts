@@ -113,11 +113,11 @@ const GOLDEN: Record<string, { fr: [string, string]; de: [string, string] }> = {
   ragboard: {
     fr: [
       "Qui est hors trajectoire ou à surveiller, sur quels critères, et par où commencer ?",
-      "Une ligne par client, une colonne par critère : client success, business development, coverage et relationship. Un cercle signifie conforme, un triangle à surveiller, un carré hors trajectoire ; les lignes les plus critiques viennent en premier. La colonne Global, en tête, donne le statut le plus défavorable de chaque ligne. Une flèche signale une amélioration ou une dégradation par rapport à la période précédente. Ici, 4 sur 10 sont hors trajectoire et 4 autres à surveiller ; Aldana Holdings est le plus critique.",
+      "Une ligne par client, une colonne par critère : client success, business development, coverage et relationship. Un cercle signifie conforme, un triangle à surveiller, un carré hors trajectoire ; les lignes les plus critiques viennent en premier. La colonne Global, en tête, donne le statut le plus défavorable de chaque ligne. Une flèche signale une amélioration ou une dégradation par rapport à la période précédente. Ici, 4 sur 10 sont hors trajectoire et 4 autres à surveiller ; Dr. M. Keller est le plus critique.",
     ],
     de: [
       "Wer ist „Nicht im Plan“ oder „Gefährdet“, bei welchen Kriterien, und wo zuerst handeln?",
-      "Eine Zeile je Client, eine Spalte je Kriterium: Client success, Business development, Coverage und Relationship. Ein Kreis bedeutet „Im Plan“, ein Dreieck „Gefährdet“, ein Quadrat „Nicht im Plan“; die kritischsten Zeilen stehen oben. Die Spalte Gesamt vorne zeigt den schlechtesten Status jeder Zeile. Ein Pfeil zeigt eine Verbesserung oder Verschlechterung gegenüber der Vorperiode. Hier sind 4 von 10 „Nicht im Plan“ und weitere 4 „Gefährdet“; Aldana Holdings steht am schlechtesten.",
+      "Eine Zeile je Client, eine Spalte je Kriterium: Client success, Business development, Coverage und Relationship. Ein Kreis bedeutet „Im Plan“, ein Dreieck „Gefährdet“, ein Quadrat „Nicht im Plan“; die kritischsten Zeilen stehen oben. Die Spalte Gesamt vorne zeigt den schlechtesten Status jeder Zeile. Ein Pfeil zeigt eine Verbesserung oder Verschlechterung gegenüber der Vorperiode. Hier sind 4 von 10 „Nicht im Plan“ und weitere 4 „Gefährdet“; Dr. M. Keller steht am schlechtesten.",
     ],
   },
   lifecycle: {
@@ -143,11 +143,11 @@ const GOLDEN: Record<string, { fr: [string, string]; de: [string, string] }> = {
   choropleth: {
     fr: [
       "Comment se compare revenue, par country ?",
-      "Une région de la carte par country. Plus sa teinte est intense, plus la valeur de revenue est élevée ; une région estompée n'a pas de données. Ici, Germany a la valeur la plus élevée, avec 4,1 M €, et Slovenia la plus faible, avec 80 k €.",
+      "Une région de la carte par country. Plus sa teinte est intense, plus la valeur de revenue est élevée ; une région estompée n'a pas de données. Ici, Allemagne a la valeur la plus élevée, avec 4,1 M €, et Slovénie la plus faible, avec 80 k €.",
     ],
     de: [
       "Wie unterscheidet sich Revenue je Country?",
-      "Eine Region der Karte je Country. Je kräftiger der Farbton, desto höher der Wert für Revenue; eine blasse Region hat keine Daten. Hier hat Germany den höchsten Wert, mit 4,1 Mio. €, und Slovenia den niedrigsten, mit 80.000 €.",
+      "Eine Region der Karte je Country. Je kräftiger der Farbton, desto höher der Wert für Revenue; eine blasse Region hat keine Daten. Hier hat Deutschland den höchsten Wert, mit 4,1 Mio. €, und Slowenien den niedrigsten, mit 80.000 €.",
     ],
   },
 };
@@ -167,5 +167,14 @@ describe("French and German, read in full", () => {
     expect(read("hbar", "fr-LU").explain).toMatch(/^Une ligne par feature\./);
     expect(read("hbar", "de-CH").explain).toMatch(/^Eine Zeile je Feature\./);
     expect(read("hbar", "es-ES").explain).toMatch(/^Each row is one feature\./);
+  });
+  test("every language names the same client as the worst on a scorecard", async () => {
+    const { readFileSync } = await import("node:fs");
+    const spec = JSON.parse(readFileSync("catalog/ragboard.json", "utf8"));
+    const rows = spec.data.rows;
+    const en = explainChart({ ...spec, locale: "en-US" }, rows);
+    const named = /Here, .*?; (.+?) is off track/.exec(en)?.[1];
+    expect(named).toBeTruthy();
+    for (const locale of ["fr-FR", "de-DE"]) expect(explainChart({ ...spec, locale }, rows)).toContain(named as string);
   });
 });

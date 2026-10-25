@@ -161,3 +161,18 @@ test("English stays the default: no locale, or one not spoken here, writes Engli
     target.remove();
   }
 });
+
+test("a country map names its countries in the card's language, and a US-state map keeps its own names", async () => {
+  const { countryName, isCountryMap } = await import("../core/geo.ts");
+  expect([countryName("DE", "Germany", "fr-FR"), countryName("DE", "Germany", "de-DE"), countryName("DE", "Germany", "en-US")]).toEqual(["Allemagne", "Deutschland", "Germany"]);
+  expect([isCountryMap("europe"), isCountryMap("us-states")]).toEqual([true, false]);
+  const { readFileSync } = await import("node:fs");
+  const spec = JSON.parse(readFileSync("catalog/choropleth.json", "utf8"));
+  const el = document.createElement("div");
+  document.body.append(el);
+  await createWidget(el, { ...spec, locale: "fr-FR" }).ready;
+  const labels = [...el.querySelectorAll(".fft-map-region[aria-label]")].map((r) => r.getAttribute("aria-label") ?? "");
+  expect(labels.some((l) => l.startsWith("Allemagne"))).toBe(true);
+  expect(labels.some((l) => l.startsWith("Germany"))).toBe(false);
+  el.remove();
+});

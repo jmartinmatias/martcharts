@@ -4,7 +4,7 @@ import type { LocatorView } from "../../core/views.ts";
 import { hiddenTableOf, html, selectable, svg, textWidth } from "./shared.ts";
 import { categoryColor, wordsFor } from "./words.ts";
 import { roving } from "./focus.ts";
-import { dotLegend, groupName, mapCanvas, mapFrame, placeRows, unplacedNote, withGeo } from "./map-shared.ts";
+import { dotLegend, groupName, mapCanvas, mapFrame, placeRows, unplacedNote, withGeo, regionLabel } from "./map-shared.ts";
 
 const MARKER = 5;
 const LINE = 13;
@@ -110,7 +110,7 @@ export const renderLocator: ViewRenderer<LocatorView> = (ctx) =>
       const items: TooltipItem[] = [];
       if (noteText) items.push({ label: ctx.label(note as string), value: noteText });
       if (kind) items.push({ label: ctx.label(kind), value: kinds[group] as string, color: kindColor(group) });
-      if (p.shape && p.shape.name !== p.name) items.push({ label: wordsFor(ctx).region, value: p.shape.name });
+      if (p.shape && regionLabel(ctx, p.shape) !== p.name) items.push({ label: wordsFor(ctx).region, value: regionLabel(ctx, p.shape) });
       marker.setAttribute("aria-label", items.length ? `${p.name}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}` : p.name);
       const activate = () => {
         wrap.setAttribute("data-active", "");

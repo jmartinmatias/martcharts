@@ -7,7 +7,7 @@ import type { ChoroplethView } from "../../core/views.ts";
 import { hiddenTableOf, html, selectable, svg } from "./shared.ts";
 import { categoryColor, emphasis, wordsFor } from "./words.ts";
 import { roving } from "./focus.ts";
-import { dotLegend, groupName, labelFits, mapFrame, unplacedNote, withGeo } from "./map-shared.ts";
+import { dotLegend, groupName, labelFits, mapFrame, unplacedNote, withGeo, regionLabel } from "./map-shared.ts";
 
 /** Steps of the diverging scale either side of no change: three shades of fall, three of rise. */
 const DIVERGING = 3;
@@ -132,12 +132,12 @@ export const renderChoropleth: ViewRenderer<ChoroplethView> = (ctx) =>
               { label: wordsFor(ctx).change, value: delta === null ? "–" : delta === 0 ? wordsFor(ctx).noChange : changeText(delta) },
             ]
           : [];
-        region.setAttribute("aria-label", `${shape.name}: ${[text, ...versus.map((line) => `${line.label.toLowerCase()} ${line.value}`)].join(", ")}`);
+        region.setAttribute("aria-label", `${regionLabel(ctx, shape)}: ${[text, ...versus.map((line) => `${line.label.toLowerCase()} ${line.value}`)].join(", ")}`);
         const activate = () => {
           wrap.setAttribute("data-active", "");
           for (const other of marks) other.removeAttribute("data-active");
           region.setAttribute("data-active", "");
-          ctx.tooltip.show(region, shape.name, [{ label: ctx.label(field), value: text, ...(category ? { color: groupColor(group) } : {}) }, ...versus]);
+          ctx.tooltip.show(region, regionLabel(ctx, shape), [{ label: ctx.label(field), value: text, ...(category ? { color: groupColor(group) } : {}) }, ...versus]);
         };
         region.addEventListener("pointerenter", activate);
         region.addEventListener("focus", activate);

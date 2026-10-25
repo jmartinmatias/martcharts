@@ -5,7 +5,7 @@
  *
  * @module
  */
-import { featureId, geoAspect, isGeoCollection, isGeoUrl, normalizeId, project, resolveGeo } from "../../core/geo.ts";
+import { countryName, featureId, geoAspect, isCountryMap, isGeoCollection, isGeoUrl, normalizeId, project, resolveGeo } from "../../core/geo.ts";
 import type { GeoCollection, Position, ProjectedShape, Projection } from "../../core/geo.ts";
 import { readNumber } from "../../core/formats.ts";
 import type { Row } from "../../core/types.ts";
@@ -186,3 +186,8 @@ export function toward(from: Position, to: Position, distance: number): Position
 }
 
 export { featureId };
+
+/** A region's name as the reader says it: the country's own name in the card's language on a country map (Allemagne for DE). */
+export function regionLabel(ctx: ViewContext<{ type: string }>, shape: { id: string; name: string }): string {
+  return isCountryMap((ctx.view as { geo?: unknown }).geo) ? countryName(shape.id, shape.name, ctx.spec.locale) : shape.name;
+}
