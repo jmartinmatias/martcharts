@@ -1,8 +1,11 @@
 /**
- * The drop-in build: everything in `martcharts`, with `<fft-widget>` already registered.
+ * The drop-in build: the whole API in one file, with `<fft-widget>` already registered.
  *
- * Built to `dist/martcharts.js` (ES module) and `dist/martcharts.iife.js` (classic script,
- * exposed as `window.MartCharts`) by `npm run build:lib`. Neither needs a bundler or Node:
+ * Built to `dist/martcharts.js` (ES module) and `dist/martcharts.iife.js` (classic script, exposed as
+ * `window.MartCharts`) by `npm run build:lib`. Neither needs a bundler or Node. Unlike the package's front door,
+ * `martcharts`, which holds the few names most pages need, this build carries everything: the front door and
+ * `martcharts/core`, `martcharts/kit`, `martcharts/color`, `martcharts/geo` and `martcharts/taller`, so a page with
+ * one script tag reaches any of it as `MartCharts.<name>`.
  *
  * ```html
  * <script src="martcharts.iife.js"></script>
@@ -15,7 +18,12 @@ import { defineWidgetElement } from "./dom/element.ts";
 import type { FftWidgetElement } from "./dom/element.ts";
 import { listenForEmbedHeights } from "./dom/embed.ts";
 
+export * from "./core/index.ts";
 export * from "./index.ts";
+export * from "./kit.ts";
+export * from "./color.ts";
+export * from "./geo.ts";
+export * from "./taller.ts";
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -23,7 +31,7 @@ declare global {
   }
   interface Window {
     /** The classic-script build (`martcharts.iife.js`) puts the whole API here. */
-    MartCharts?: typeof import("./index.ts");
+    MartCharts?: typeof import("./standalone.ts");
   }
 }
 

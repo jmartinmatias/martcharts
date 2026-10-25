@@ -75,7 +75,8 @@ Every version:
 ## API
 
 ```ts
-import { createVariants, questionOf, rankVariants, runPipeline } from "martcharts";
+import { questionOf, runPipeline } from "martcharts";
+import { createVariants, rankVariants } from "martcharts/taller";
 
 const rows = await runPipeline(spec);
 questionOf(spec, rows).text; // "Which region has the most revenue?"

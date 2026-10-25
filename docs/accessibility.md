@@ -66,7 +66,7 @@ FFT widgets are built to meet the European Accessibility Act. The Act applies th
 - **Hover emphasis.** While one mark is pointed at, the others step back to a lower opacity, so their contrast drops for that moment. This is emphasis the user asks for and it ends when the pointer moves on. The tooltip and data table carry every value.
 - **Truncated labels.** Very long category names in horizontal bars are cut with an ellipsis to keep rows aligned. The full name is in the row's accessible name and tooltip.
 - **Library palettes.** Acclaimed palettes such as Tableau 10 or Observable 10 keep their published colors, and some of those colors are under 3:1 on a white card. The palette picker shows each palette's contrast check. When it warns, keep direct labels or the table visible, or pick a palette that passes. The default palette passes in both themes.
-- **Custom styling.** Colors set through `style.palette`, `style.tokens` or a custom preset are not checked automatically at runtime. Run `checkPalette` from `martcharts` (or the `fft_check_palette` MCP tool) on them.
+- **Custom styling.** Colors set through `style.palette`, `style.tokens` or a custom preset are not checked automatically at runtime. Run `checkPalette` from `martcharts/color` (or the `fft_check_palette` MCP tool) on them.
 
 ## How to test
 

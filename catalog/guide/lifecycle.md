@@ -105,7 +105,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Where each regulation stands",
   "subtitle": "From proposal to application, by topic",
   "description": "Every regulation in the compliance book as a lane on one date axis: proposed, adopted, in force and applies, each stage in a deeper tint, the stage still running drawn faintly, today marked, the current status at the end and thicker lanes for higher impact.",
-  "footer": "Fictional dates; not legal advice",
+  "note": "Fictional dates; not legal advice",
   "source": {
     "name": "Regulatory watch register"
   },

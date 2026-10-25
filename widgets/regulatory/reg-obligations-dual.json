@@ -60,7 +60,7 @@
     "x": "month",
     "y": "newObligations",
     "y2": "pressureIndex",
-    "marks": [
+    "panels": [
       "bar",
       "line"
     ]

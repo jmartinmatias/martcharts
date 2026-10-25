@@ -12,8 +12,8 @@
  *
  * @module
  */
-import { canonicalName } from "../core/aliases.ts";
-import { canonicalSpec, canonicalView } from "../core/canonical.ts";
+import { canonicalName, normalizeView } from "../core/aliases.ts";
+import { alsoAccepts, canonicalSpec, canonicalView } from "../core/canonical.ts";
 import { formatValue, humanize } from "../core/display.ts";
 import { basemapNames } from "../core/geo.ts";
 import { fork } from "../core/fork.ts";
@@ -137,7 +137,7 @@ const DATE_STYLES = ["short", "medium", "long", "day", "month", "year"];
 /** View options the Refine form leaves to other places: highlight has its own picker, references and annotations live under Annotate. */
 const ELSEWHERE = new Set(["highlight", "reference", "annotations"]);
 /** The options most people reach for, in order: at most three show beside the data fields, the rest under More options. */
-const COMMON_TOGGLES = ["stacked", "sort", "limit", "labels", "showLabels", "endLabels", "arc", "only"];
+const COMMON_TOGGLES = ["stacked", "sort", "limit", "labels", "labelPlace", "peaks", "codes", "endLabels", "arc", "only"];
 
 /** A cell of text as a value: numbers become numbers (grouped ones too), blanks null, the rest stays text. */
 function typedCell(text: string): unknown {
@@ -525,13 +525,13 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
   const labelOf = (f: string) => spec.fields?.[f]?.label ?? humanize(f);
   const viewOptions = () => getBlock("view", spec.view.type).options;
   const categoryField = (): string | undefined => {
-    const view = spec.view;
+    const view = normalizeView(spec.view);
     for (const [name, option] of Object.entries(viewOptions())) {
-      const value = view[canonicalName(view.type, name)] ?? view[name];
+      const value = view[name];
       if (option.type === "field" && option.kind === "category" && typeof value === "string") return value;
     }
     for (const [name, option] of Object.entries(viewOptions())) {
-      const value = view[canonicalName(view.type, name)] ?? view[name];
+      const value = view[name];
       if (option.type === "field" && typeof value === "string" && option.kind !== "number") return value;
     }
     return undefined;
@@ -539,16 +539,16 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
   /** The spec with any key readable: the words around a chart (source, byline) may be newer than the typed spec. */
   const loose = (): Record<string, unknown> => spec as unknown as Record<string, unknown>;
   const seriesOption = (): string | undefined => Object.entries(viewOptions()).find(([, option]) => option.type === "fields")?.[0];
-  // Options by their canonical names: the schema keeps the names renderers read (a dot's `values`), the form shows and
-  // writes the canonical one (`value`), and a spec in either spelling opens with its fields filled.
+  // Options by their canonical names, as the schema has them (a dot's `value`): a spec written with an older spelling
+  // (`values`) opens with its fields filled, and an edit writes the canonical name and drops the older one.
   /** An option's canonical name on the current view. */
   const keyOf = (name: string) => canonicalName(spec.view.type, name);
   /** An option's value, whichever spelling the spec used. */
-  const readOpt = (name: string): unknown => spec.view[keyOf(name)] ?? spec.view[name];
+  const readOpt = (name: string): unknown => normalizeView(spec.view)[keyOf(name)];
   /** A view patch that writes an option under its canonical name and drops the older spelling. */
   const putOpt = (name: string, value: unknown): Record<string, unknown> => {
     const key = keyOf(name);
-    return key === name ? { [name]: value } : { [key]: value, [name]: null };
+    return { [key]: value, ...Object.fromEntries(alsoAccepts(spec.view.type, key).map((older) => [older, null])) };
   };
 
   // ---- History and commits ----
@@ -1215,7 +1215,7 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
     }
     const slot = el("div", "fft-ed-thumb-slot");
     thumb.append(slot);
-    const { title: _t, subtitle: _s, footer: _f, headline: _h, ...rest } = example;
+    const { title: _t, subtitle: _s, note: _n, footer: _f, headline: _h, ...rest } = example;
     const thumbWidget = createWidget(slot, { ...rest, style: { ...rest.style, height: 144 } });
     cleanups.push(() => thumbWidget.destroy());
   }
@@ -1506,11 +1506,6 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
       });
       return field(t("todayLine"), describe(group(sw, date)), option.description);
     }
-    // Labels as a word: a choropleth writes its codes, or nothing.
-    if (name === "labels" && type === "choropleth") {
-      const current = value === false || value === "none" ? "none" : "codes";
-      return field(label, describe(segmented(label, ["codes", "none"].map((v) => ({ value: v, label: t("labelModes")[v] ?? v })), current, (v) => commit({ view: put(v === "codes" ? null : v) }))), option.description);
-    }
     // Quadrants: where the plot splits, and a word in each corner.
     if (name === "quadrants") {
       const q = (value && typeof value === "object" ? value : {}) as { x?: number; y?: number; labels?: string[] };
@@ -1704,16 +1699,18 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
     const more = disclosure("annotate", sw.moreOptions);
     const form = el("div", "fft-ed-form");
     more.append(form);
-    const textField = (label: string, key: "title" | "subtitle" | "footer" | "byline", into: HTMLElement = form) => {
+    const textField = (label: string, key: "title" | "subtitle" | "note" | "byline", into: HTMLElement = form) => {
       const input = el("input", "fft-ed-input");
       input.type = "text";
-      input.value = typeof loose()[key] === "string" ? String(loose()[key]) : "";
-      input.addEventListener("change", () => commit({ [key]: input.value || null }));
+      // A spec written with "footer", the older name for the note, opens with it filled; an edit writes "note".
+      const written = loose()[key] ?? (key === "note" ? loose().footer : undefined);
+      input.value = typeof written === "string" ? written : "";
+      input.addEventListener("change", () => commit({ [key]: input.value || null, ...(key === "note" ? { footer: null } : {}) }));
       into.append(field(label, input));
     };
     textField(t("title"), "title", main);
     textField(t("subtitle"), "subtitle", main);
-    textField(t("footer"), "footer", main);
+    textField(t("footer"), "note", main);
     // The tooltip: a template filled from the mark's row, with the fields a click away.
     {
       const area = el("textarea", "fft-ed-json fft-ed-tooltip");

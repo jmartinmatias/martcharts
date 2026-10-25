@@ -22,11 +22,11 @@ import type { Row } from "./types.ts";
 /** The word for the folded row when `other` is true. */
 export const OTHER_LABEL = "Other";
 
-/** Where each category view keeps the name of a row and the number it is ranked by (renderer names, after aliases). */
+/** Where each category view keeps the name of a row and the number it is ranked by (canonical names, after aliases). */
 export const SHAPE_FIELDS: Readonly<Record<string, { label: string; value: string }>> = {
   bar: { label: "x", value: "y" },
   hbar: { label: "label", value: "value" },
-  dot: { label: "label", value: "values" },
+  dot: { label: "label", value: "value" },
   dumbbell: { label: "label", value: "to" },
   slope: { label: "label", value: "to" },
   donut: { label: "label", value: "value" },
@@ -37,7 +37,7 @@ export const SHAPE_FIELDS: Readonly<Record<string, { label: string; value: strin
   bullet: { label: "label", value: "value" },
   meter: { label: "label", value: "value" },
   rings: { label: "label", value: "value" },
-  strips: { label: "label", value: "parts" },
+  strips: { label: "label", value: "value" },
   list: { label: "label", value: "value" },
 };
 

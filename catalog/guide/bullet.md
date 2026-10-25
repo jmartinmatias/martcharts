@@ -72,7 +72,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Q3 scorecard",
   "subtitle": "Actual against target, with poor, fair and good bands",
   "description": "Each headline KPI against its quarterly target.",
-  "footer": "Bands end at 60%, 90% and 120% of target",
+  "note": "Bands end at 60%, 90% and 120% of target",
   "source": {
     "name": "Finance ledger"
   },

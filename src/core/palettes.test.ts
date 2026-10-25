@@ -103,7 +103,8 @@ describe("color meaning in sales", () => {
     const offenders: string[] = [];
     for (const name of readdirSync("widgets").filter((n) => n.endsWith(".json"))) {
       const spec = JSON.parse(readFileSync(join("widgets", name), "utf8")) as WidgetSpec;
-      const field = typeof spec.view?.series === "string" ? spec.view.series : undefined;
+      const grouped = spec.view?.series ?? spec.view?.color;
+      const field = typeof grouped === "string" ? grouped : undefined;
       if (!field) continue;
       const rows = await runPipeline(spec, { fetch });
       const order = [...new Set(rows.map((row) => String(row[field])))];

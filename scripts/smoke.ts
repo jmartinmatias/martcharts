@@ -45,18 +45,25 @@ for (const { id } of (boards.structuredContent as { dashboards: { id: string }[]
   console.error(`ok  dashboard ${id}`);
 }
 
-const charts = await client.callTool({ name: "fft_list_charts", arguments: { response_format: "json" } });
+const charts = await client.callTool({ name: "fft_describe_chart", arguments: { response_format: "json" } });
 assert.ok(!charts.isError, `chart list failed: ${text(charts)}`);
 const entries = (charts.structuredContent as { charts: { type: string; has_starter: boolean }[] }).charts;
 const missingStarters = entries.filter((c) => !c.has_starter).map((c) => c.type);
 assert.deepEqual(missingStarters, [], "every chart should have a starter in catalog/ (npm run catalog)");
 for (const { type } of entries) {
-  const chart = await client.callTool({ name: "fft_get_chart", arguments: { type, response_format: "json" } });
+  const chart = await client.callTool({ name: "fft_describe_chart", arguments: { type, response_format: "json" } });
   const starter = (chart.structuredContent as { starter: unknown }).starter;
   const check = await client.callTool({ name: "fft_validate_spec", arguments: { spec: starter } });
   assert.ok(!chart.isError && !check.isError, `chart ${type}: ${text(chart)} ${text(check)}`);
 }
 console.error(`ok  catalog: ${entries.length} charts, each with a starter that validates`);
+
+const sample = { type: "csv", text: "month,revenue\n2026-01,100\n2026-02,120\n2026-03,90" };
+const picks = await client.callTool({ name: "fft_suggest_charts", arguments: { data: sample, response_format: "json" } });
+assert.ok(!picks.isError && (picks.structuredContent as { picks: unknown[] }).picks.length > 0, `suggest failed: ${text(picks)}`);
+const older = await client.callTool({ name: "fft_recommend_charts", arguments: { data: sample, response_format: "json" } });
+assert.deepEqual(older.structuredContent, picks.structuredContent, "the older name fft_recommend_charts should answer as fft_suggest_charts");
+console.error("ok  suggest charts, and its older name");
 
 const firstId = widgets[0]?.id ?? "";
 const versions = await client.callTool({ name: "fft_create_variants", arguments: { id: firstId, count: 3 } });

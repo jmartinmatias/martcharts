@@ -14,7 +14,7 @@ The README keeps to one line per feature. This page has the rest: what each bloc
 | Combo | `"lines": "target"` on a bar chart draws lines over the bars on the same axis (never a second one); under a target line, bars that fall short are drawn outlined and keyed Below target; `"compare": "lastYear"` stands a wider, quieter column behind each bar |
 | Two units | `dual`: two measures in different units (revenue and churn) on two panels sharing one time axis, each on its own scale, as bars or lines. The honest form of a dual-axis chart: no second axis, so no false crossings |
 | Notes | `"annotations": [{ "x": "2026-03", "text": "Price rise" }]` on bar, line and area pins short notes to points, each a few words beside a dot with a thin leader; on a narrow card they become numbered markers with the texts listed under the chart |
-| Line marks | `"points": true` draws a symbol at every reading; `"labels": "peaks"` names the highest and lowest point; `"scale": "log"` draws the value axis by powers of ten, for growth that multiplies |
+| Line marks | `"points": true` draws a symbol at every reading; `"peaks": true` names the highest and lowest point; `"scale": "log"` draws the value axis by powers of ten, for growth that multiplies |
 | Part-to-whole | `"stacked": true` or `"percent"` on bar and hbar charts; `donut` for up to 6 slices |
 | Reference marks | `"reference": [{ "value": 1200000, "label": "Target" }]` draws target lines and bands on bar, line, area and scatter charts |
 | Sort and top N | `sort`, `order`, `limit` and `other` on category views keep the top N and fold the rest into one "Other" row, so the parts still add up |
@@ -96,3 +96,35 @@ In the editor's Publish step, **Add to dashboard** saves the chart and puts it o
 Charts follow fixed rules: a validated, colorblind-checked 8-color palette with its own dark-mode set, bars at most 21px wide with rounded data ends, 2px lines, hairline gridlines, a legend only when there are two or more series, a tooltip on hover and keyboard focus, and a hidden data table for screen readers.
 
 The spacing follows Fibonacci steps of 2, 3, 5, 8, 13, 21 and 34 px, type sits at 11, 13, 21 and 34 px, motion at 377, 610 and 987 ms, and proportions are golden (charts are φ times wider than tall, bar groups fill 0.618 of their slot). A one-word `style.preset` switches the whole look.
+
+## Upgrading
+
+Each option now has one name and each name one meaning. Older specs keep working: every older spelling still draws
+the same chart, and `validateSpec` warns once per spelling, naming the new one. The editor, the chart guide and the MCP
+tools read either spelling and write the new one.
+
+| View | Older name | Now |
+| --- | --- | --- |
+| dot | `values` | `value` |
+| strips | `parts` | `value` |
+| likert | `responses` | `value` |
+| scatter | `series` | `color` |
+| locator | `kind` | `color` |
+| matrix | `mark` | `flag` |
+| dual | `marks` | `panels` |
+| pie | `labels` | `labelPlace` |
+| line | `labels: "peaks"` | `peaks: true` |
+| choropleth | `labels` (`true`, `false`, `"codes"`, `"none"`) | `codes: true` or `false` |
+| any spec | `footer` | `note` |
+
+After the renames, `labels` means only names written beside scatter dots (true or false), and `mark` only how bars,
+hbars and dumbbells draw each item. `target` keeps its two senses: a goal on a bullet, a destination on a sankey.
+
+The package's front door, `martcharts`, now holds the names most pages need. The drawing kit moved to
+`martcharts/kit`, colour science and palettes to `martcharts/color`, maps to `martcharts/geo`, and the Taller to
+`martcharts/taller`; `martcharts/core` keeps the DOM-free engine. The drop-in bundles and `window.MartCharts` still
+carry every name. The full list is under [Entry points](api.md#entry-points).
+
+Over MCP, five chart tools became two: `fft_describe_chart` (was `fft_list_charts`, `fft_get_chart` and
+`fft_chart_guide`) and `fft_suggest_charts` (was `fft_recommend_charts` and `fft_switch_chart`). The older names
+still work for one release; see [mcp.md](mcp.md#older-tool-names).

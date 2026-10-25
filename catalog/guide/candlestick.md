@@ -124,7 +124,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Share price",
   "subtitle": "Last 30 trading days, with a 5-day average",
   "description": "Daily open, high, low and close, up days in blue and down days in red, with the 5-day moving average of the close.",
-  "footer": "Closing at {last:close}",
+  "note": "Closing at {last:close}",
   "source": {
     "name": "Market data"
   },

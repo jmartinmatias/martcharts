@@ -31,7 +31,7 @@
     "x": "month",
     "y": "revenue",
     "points": true,
-    "labels": "peaks",
+    "peaks": true,
     "annotations": [
       { "x": "2026-01", "text": "January dip after the holidays" },
       { "x": "2026-05", "text": "Two large renewals slipped to June" },

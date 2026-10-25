@@ -532,7 +532,7 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       return `Here, ${lead}${mover ? `, and ${mover}` : ""}.`;
     }
     case "likert": {
-      const [label, answers] = [one(view.label), many(view.responses)];
+      const [label, answers] = [one(view.label), many(view.value)];
       if (!label || answers.length < 2) return "";
       // The agreeing side is everything after the middle answer.
       const agreeing = answers.slice(Math.ceil(answers.length / 2));
@@ -586,7 +586,7 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       return `Here, the biggest circle is ${place}, with ${text(big, amount)}, ${percent((value(big, amount) as number) / total)} of all ${sized.length} places.`;
     }
     case "locator": {
-      const kind = one(view.kind);
+      const kind = one(view.color);
       const places = rows.length;
       if (!kind) return `Here, ${places} place${places === 1 ? " is" : "s are"} marked.`;
       const counts = new Map<string, number>();
@@ -1116,7 +1116,7 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
     case "dot": {
       // One measure: who is furthest right. Several: which row is highest on the first measure, and whose dots sit furthest apart.
       const label = one(view.label);
-      const measures = many(view.values);
+      const measures = many(view.value);
       const first = measures[0];
       const row = first ? top(first) : undefined;
       if (!label || !first || !row) return "";
@@ -1143,7 +1143,7 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       return `Here, ${nameOf(top, spec)} went from ${text(a0, top)} ${when(a0, x)} to ${text(a1, top)} ${when(a1, x)}, and ${nameOf(bottom, spec)} from ${text(b0, bottom)} to ${text(b1, bottom)}${together}.`;
     }
     case "matrix": {
-      const [x, y, size, color, mark] = [one(view.x), one(view.y), one(view.size), one(view.color), one(view.mark)];
+      const [x, y, size, color, mark] = [one(view.x), one(view.y), one(view.size), one(view.color), one(view.flag)];
       if (!x || !y) return "";
       const columns = new Set(rows.map((row) => text(row, x))).size;
       if (mark) {
@@ -1169,7 +1169,7 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
     }
     case "strips": {
       const [label, per] = [one(view.label), one(view.per)];
-      const parts = many(view.parts);
+      const parts = many(view.value);
       const first = parts[0];
       if (!label || !first) return "";
       const total = (row: Row) => parts.reduce((sum, field) => sum + Math.max(0, value(row, field) ?? 0), 0);
@@ -1350,7 +1350,7 @@ function guide(spec: WidgetSpec): string {
   // Notes pinned to the chart, symbols on the lines, named peaks and a log axis each add a sentence to the reading.
   const noted = Array.isArray(view.annotations) && view.annotations.length ? ` The short notes with a small dot point out ${view.annotations.length === 1 ? "a moment worth knowing" : "moments worth knowing"}.` : "";
   const dotted = view.points === true ? " Each dot on a line is one reading." : "";
-  const peaks = view.labels === "peaks" ? ` The two dots with numbers beside them are the highest and the lowest ${name(series[0])}.` : "";
+  const peaks = view.peaks === true ? ` The two dots with numbers beside them are the highest and the lowest ${name(series[0])}.` : "";
   const logged = view.scale === "log" ? " The axis grows by tens, not by equal steps, so steady growth looks like a straight line." : "";
 
   switch (view.type) {
@@ -1503,7 +1503,7 @@ function guide(spec: WidgetSpec): string {
     case "icicle":
       return `The first column is the total. Each column to the right splits the boxes into smaller parts: the taller the box, the more ${name(one(view.value))}.`;
     case "dot": {
-      const measures = many(view.values);
+      const measures = many(view.value);
       if (measures.length > 1) return `Each row is one ${noun(one(view.label))}, with one dot for each of ${both(measures.map((f) => name(f)))}. The further right a dot, the higher that value; dots far apart mean a big difference between them.`;
       return `Each row is one ${noun(one(view.label))}. The further right the dot, the more ${name(measures[0])}.`;
     }
@@ -1519,7 +1519,7 @@ function guide(spec: WidgetSpec): string {
     case "locator":
       return `Each marker is one ${noun(one(view.label), "place")}, with its name beside it, where it is on the map.`;
     case "matrix": {
-      const [size, color, mark] = [one(view.size), one(view.color), one(view.mark)];
+      const [size, color, mark] = [one(view.size), one(view.color), one(view.flag)];
       const marks = [
         size ? `The bigger the circle, the more ${name(size)}` : "",
         color ? `${size ? "the stronger its shade" : "the stronger a mark's shade"}, the more ${name(color)} (or one color per kind)` : "",
@@ -1531,7 +1531,7 @@ function guide(spec: WidgetSpec): string {
       return `Each row is one ${axis(one(view.y))} and each column one ${axis(one(view.x))}${reading ? `: ${reading}` : "."}`;
     }
     case "strips": {
-      const parts = many(view.parts);
+      const parts = many(view.value);
       const unit = typeof view.unit === "string" && view.unit ? view.unit : "provision";
       const dense = one(view.per) ? `, then ${plural(unit)} per ${name(one(view.per)).replace(/s$/, "")}` : "";
       const kinds = parts.length > 1 ? `, in order of kind: ${both(parts.map((f) => name(f)))}` : "";

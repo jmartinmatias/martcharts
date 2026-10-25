@@ -12,7 +12,7 @@
         "title": "Revenue by region",
         "subtitle": "Q3 2026, all products",
         "description": "Revenue and cost per sales region, largest first, with the leading region highlighted.",
-        "footer": "Source: /data/sales.json",
+        "note": "Source: /data/sales.json",
         "locale": "en-US",
         "data": {
           "type": "url",
@@ -80,7 +80,7 @@
         "title": "Plan changes",
         "subtitle": "Q3 2026, customers moving between plans",
         "description": "Every upgrade and downgrade between plans this quarter. Starter to Growth is the biggest move; downgrades are the thin ribbons running back.",
-        "footer": "Source: billing, {sum:customers} moves",
+        "note": "Source: billing, {sum:customers} moves",
         "locale": "en-US",
         "data": {
           "type": "inline",
@@ -163,7 +163,7 @@
         "title": "Daily orders",
         "subtitle": "{first:day} to {last:day}",
         "description": "Orders per day, to spot weekly rhythm, quiet weekends and growth.",
-        "footer": "Source: /data/daily-orders.json",
+        "note": "Source: /data/daily-orders.json",
         "locale": "en-US",
         "data": {
           "type": "url",
@@ -202,7 +202,7 @@
         "title": "How we compare",
         "subtitle": "Customer ratings out of 10, against the market average",
         "description": "Average customer rating per attribute for our product and for the market. We lead on reliability and ease of use and trail only on price.",
-        "footer": "Source: customer survey and analyst panel",
+        "note": "Source: customer survey and analyst panel",
         "locale": "en-US",
         "data": {
           "type": "inline",
@@ -277,7 +277,7 @@
         "title": "Target attainment",
         "subtitle": "Q3 2026 revenue against target",
         "description": "How close each region is to its quarterly revenue target.",
-        "footer": "Source: /data/sales.json",
+        "note": "Source: /data/sales.json",
         "locale": "en-US",
         "data": {
           "type": "url",
@@ -343,7 +343,7 @@
         "title": "Revenue against target",
         "subtitle": "{first:month} to {last:month}",
         "description": "Monthly revenue as bars with the monthly target as a line, on one axis.",
-        "footer": "Source: /data/monthly.json",
+        "note": "Source: /data/monthly.json",
         "locale": "en-US",
         "data": {
           "type": "url",
@@ -397,7 +397,7 @@
         "title": "Account portfolio",
         "subtitle": "Growth against margin, sized by revenue",
         "description": "Each account placed by its revenue growth and gross margin, the bubble sized by its revenue and colored by segment. Top right is where to invest; the big Enterprise accounts grow slowly but earn well.",
-        "footer": "Source: finance ledger, {count} accounts",
+        "note": "Source: finance ledger, {count} accounts",
         "locale": "en-US",
         "data": {
           "type": "inline",
@@ -536,7 +536,7 @@
         "title": "Visits by channel",
         "subtitle": "Weekly site visits, {first:week} to {last:week}",
         "description": "How the traffic mix flows week by week. Social peaks the week of Jul 13 at four times its usual level, paid traffic grows fivefold from late July, referrals double from May to July, and email pulses every other week with the newsletter.",
-        "footer": "Source: web analytics",
+        "note": "Source: web analytics",
         "locale": "en-US",
         "data": {
           "type": "inline",
@@ -850,7 +850,7 @@
         "title": "Revenue by product, then region",
         "subtitle": "Q3 2026: inner ring by product, outer ring by region",
         "description": "Q3 revenue split first by product, then each product by region. Platform leads; East is the largest region for Platform and Analytics, Central for Services.",
-        "footer": "Source: finance ledger",
+        "note": "Source: finance ledger",
         "locale": "en-US",
         "data": {
           "type": "inline",
@@ -970,7 +970,7 @@
         "title": "Support tickets",
         "subtitle": "By weekday and time of day",
         "description": "When customers open support tickets, to plan staffing.",
-        "footer": "Source: helpdesk, last 4 weeks",
+        "note": "Source: helpdesk, last 4 weeks",
         "locale": "en-US",
         "data": {
           "type": "inline",

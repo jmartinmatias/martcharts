@@ -501,7 +501,7 @@ A box plot per group on one shared axis: a box over the middle half of the value
   "title": "Deal size spread",
   "subtitle": "Middle half, median and outliers, by region",
   "description": "Each region's deal values as a box plot. East's middle half sits well above the others; South has one far outlier and North a milder one.",
-  "footer": "{count} deals",
+  "note": "{count} deals",
   "source": {
     "name": "CRM"
   },
@@ -564,7 +564,7 @@ Actual against target, one compact row per item: a value bar and a target tick o
   "title": "Q3 scorecard",
   "subtitle": "Actual against target, with poor, fair and good bands",
   "description": "Each headline KPI against its quarterly target.",
-  "footer": "Bands end at 60%, 90% and 120% of target",
+  "note": "Bands end at 60%, 90% and 120% of target",
   "source": {
     "name": "Finance ledger"
   },
@@ -770,7 +770,7 @@ Prices per period as candles: a thin wick from low to high around a body from op
   "title": "Share price",
   "subtitle": "Last 30 trading days, with a 5-day average",
   "description": "Daily open, high, low and close, up days in blue and down days in red, with the 5-day moving average of the close.",
-  "footer": "Closing at {last:close}",
+  "note": "Closing at {last:close}",
   "source": {
     "name": "Market data"
   },
@@ -862,7 +862,7 @@ Flows between groups around a circle: each group an arc as long as everything it
   "title": "Plan changes",
   "subtitle": "Q3 2026, customers moving between tiers",
   "description": "Every upgrade and downgrade between plans this quarter. Starter to Growth is the biggest move; downgrades are the thin ribbons running back.",
-  "footer": "{sum:customers} moves",
+  "note": "{sum:customers} moves",
   "source": {
     "name": "Billing"
   },
@@ -908,7 +908,7 @@ A map with each region shaded by its value, from the weakest tint to the stronge
 | `category` | category |  | Field that colors each region by its category instead, one series color per value with a key: a transposition status, a supervisor, a regime. Up to 8 categories stay distinct. |
 | `previous` | number |  | Field with the same measure in the previous period, such as last year's revenue. Each region's tooltip then gives the change, and show "change" shades by it. |
 
-**Settings**: `geo`, `key`, `labels`, `min`, `max`, `show`, `change`, `highlight`. All options with defaults are in [blocks.md](blocks.md#choropleth).
+**Settings**: `geo`, `key`, `codes`, `min`, `max`, `show`, `change`, `highlight`. All options with defaults are in [blocks.md](blocks.md#choropleth).
 
 **Answers**: Which countries have the most revenue, on the map?
 
@@ -1039,7 +1039,7 @@ A dot plot: one row per item and one dot per measure on one shared axis, with a 
   "title": "Customer ratings by product",
   "subtitle": "Ease of use, value for money and support, scored 1 to 10, Q3 2026",
   "description": "A dot plot: each product's three ratings on one scale, so a product's spread and the ranking on any rating read at once. Enterprise leads on support but trails on value; Lite is the mirror image.",
-  "footer": "2,140 answers",
+  "note": "2,140 answers",
   "source": {
     "name": "Quarterly customer survey"
   },
@@ -1105,7 +1105,7 @@ Two measures with different units, such as revenue and churn, one above the othe
 | `y` | number | yes | Measure on the top panel. |
 | `y2` | number | yes | Measure on the bottom panel, in its own unit. |
 
-**Settings**: `marks`, `curve`, `annotations`. All options with defaults are in [blocks.md](blocks.md#dual).
+**Settings**: `panels`, `curve`, `annotations`. All options with defaults are in [blocks.md](blocks.md#dual).
 
 **Answers**: Do revenue and churn move together, month by month?
 
@@ -1163,7 +1163,7 @@ Two measures with different units, such as revenue and churn, one above the othe
     "x": "month",
     "y": "revenue",
     "y2": "churn",
-    "marks": [
+    "panels": [
       "bar",
       "line"
     ]
@@ -1316,7 +1316,7 @@ One headline number on a half-circle scale: an arc filled from min to the value,
   "title": "Net promoter score",
   "subtitle": "September 2026 survey, against a goal of 50",
   "description": "Share of promoters minus share of detractors, on its full -100 to 100 scale, with the goal marked.",
-  "footer": "1,240 responses",
+  "note": "1,240 responses",
   "source": {
     "name": "Customer survey"
   },
@@ -1431,7 +1431,7 @@ A grid of cells shaded on one blue scale from light (low) to dark (high), for pa
   "title": "Support tickets",
   "subtitle": "By weekday and time of day",
   "description": "When customers open support tickets, to plan staffing.",
-  "footer": "Last 4 weeks",
+  "note": "Last 4 weeks",
   "source": {
     "name": "Helpdesk"
   },
@@ -1975,7 +1975,7 @@ Stage swimlanes: one row per item on a shared date axis, each stage drawn from i
   "title": "Where each regulation stands",
   "subtitle": "From proposal to application, by topic",
   "description": "Every regulation in the compliance book as a lane on one date axis: proposed, adopted, in force and applies, each stage in a deeper tint, the stage still running drawn faintly, today marked, the current status at the end and thicker lanes for higher impact.",
-  "footer": "Fictional dates; not legal advice",
+  "note": "Fictional dates; not legal advice",
   "source": {
     "name": "Regulatory watch register"
   },
@@ -2057,7 +2057,7 @@ Survey answers as diverging stacked bars: one bar per question, its responses in
   "title": "Employee pulse survey",
   "subtitle": "Q3 2026, share disagreeing and agreeing",
   "description": "Answers to five statements, centered on neutral. Strategy and recommendation score well; workload is the one most people disagree with.",
-  "footer": "240 responses",
+  "note": "240 responses",
   "source": {
     "name": "HR pulse survey"
   },
@@ -2098,7 +2098,7 @@ Lines showing change over an ordered axis, usually time. Several y fields draw s
 | `y` | number (one or more) | yes | Field or fields for line values. Each field is one series. |
 | `forecast` | category |  | Field that is true on forecast rows. From the last actual on, lines draw dashed in a softly shaded zone labelled Forecast, and the tooltip marks those rows. |
 
-**Settings**: `highlight`, `endLabels`, `reference`, `band`, `curve`, `points`, `labels`, `scale`, `annotations`. All options with defaults are in [blocks.md](blocks.md#line).
+**Settings**: `highlight`, `endLabels`, `reference`, `band`, `curve`, `points`, `peaks`, `scale`, `annotations`. All options with defaults are in [blocks.md](blocks.md#line).
 
 **Answers**: Is revenue on track to hit target?
 
@@ -2266,7 +2266,7 @@ A small, clean map that says where things are: a marker and an always-on name fo
   "title": "Our offices",
   "subtitle": "Nine sites across Europe",
   "description": "Where the company's offices are, each named on a tile grid of Europe with its headcount under it, colored by what the site does.",
-  "footer": "October 2026",
+  "note": "October 2026",
   "source": {
     "name": "Facilities register"
   },
@@ -2383,7 +2383,7 @@ A mark matrix (a punchcard): one mark per pair of x and y, sized by a value, sha
 | `y` | category | yes | Field for the rows: topics, regulations, teams. |
 | `size` | number |  | Field that sizes each circle, by area, against the largest value. |
 | `color` | category |  | Field that shades each mark: a number takes the seven-step scale from lowest to highest (with a scale under the grid), a category takes one color per value (with a key). |
-| `flag` | category |  | A yes/no field (true, 1, "yes", "x"): a filled square where it is yes, a faint dot where it is no. For who must comply. Also accepts `mark`, the older name. |
+| `flag` | category |  | A yes/no field (true, 1, "yes", "x"): a filled square where it is yes, an empty cell where it is no. For who must comply. Also accepts `mark`, the older name. |
 | `label` | category |  | Field (text or a number) written inside marks big enough to hold it; always in the tooltip. |
 
 **Settings**: `highlight`. All options with defaults are in [blocks.md](blocks.md#matrix).
@@ -2400,7 +2400,7 @@ A mark matrix (a punchcard): one mark per pair of x and y, sized by a value, sha
   "title": "Who must comply",
   "subtitle": "Regulations against the firms they bind",
   "description": "A square wherever a kind of firm must comply with a regulation, a faint dot where it need not: the compliance footprint of each rule and of each kind of firm at a glance.",
-  "footer": "Fictional scope; not legal advice",
+  "note": "Fictional scope; not legal advice",
   "source": {
     "name": "Regulatory watch register"
   },
@@ -2526,7 +2526,7 @@ The 80/20 view: categories sorted largest first as bars of their share of the to
   "title": "What drives support tickets",
   "subtitle": "Q3 2026, by cause, with the running total",
   "description": "Tickets by cause, largest first. Four causes make up over 80% of the volume: fix those first.",
-  "footer": "{sum:tickets} tickets",
+  "note": "{sum:tickets} tickets",
   "source": {
     "name": "Helpdesk"
   },
@@ -2569,7 +2569,7 @@ Part-to-whole as a full disc: up to 6 slices from twelve o'clock clockwise, each
 | `label` | category | yes | Field naming each slice. |
 | `value` | number | yes | Field with each slice's amount. Zero, negative and missing values are left out. |
 
-**Settings**: `labels`, `highlight`, `sort`, `order`, `limit`, `other`. All options with defaults are in [blocks.md](blocks.md#pie).
+**Settings**: `labelPlace`, `highlight`, `sort`, `order`, `limit`, `other`. All options with defaults are in [blocks.md](blocks.md#pie).
 
 **Answers**: What share of revenue comes from each segment?
 
@@ -3048,7 +3048,7 @@ A polar area chart (a Nightingale rose) for a cycle that wraps round, such as ho
   "title": "Visits by hour",
   "subtitle": "Daily average, September 2026",
   "description": "The day has two shapes. Desktop builds through the working morning to an 11:00 peak and fades by 17:00; mobile spikes on the 08:00 commute and owns the evening, peaking at 21:00. Each wedge's area is its visits.",
-  "footer": "Local time",
+  "note": "Local time",
   "source": {
     "name": "Web analytics"
   },
@@ -3165,7 +3165,7 @@ One dot per row placed by two numbers, to show how they relate. An optional grou
 | `size` | number |  | Field sizing each dot by area, making a bubble chart: four times the value, twice the radius. Bigger bubbles are drawn first. |
 | `color` | category |  | Field that groups the dots by color. Up to 3 groups stay distinct. Also accepts `series`, the older name. |
 | `label` | category |  | Field naming each dot in its tooltip. |
-| `cluster` | category |  | Field naming each dot's cluster, such as a segment found by analysis. A soft, rounded hull gathers each cluster's dots and carries its name at the middle, so the areas read as regions of the plot; the dots take the cluster's color unless series is set. Up to 6 clusters. |
+| `cluster` | category |  | Field naming each dot's cluster, such as a segment found by analysis. A soft, rounded hull gathers each cluster's dots and carries its name at the middle, so the areas read as regions of the plot; the dots take the cluster's color unless color is set. Up to 6 clusters. |
 
 **Settings**: `reference`, `labels`, `quadrants`, `highlight`, `annotations`. All options with defaults are in [blocks.md](blocks.md#scatter).
 
@@ -3181,7 +3181,7 @@ One dot per row placed by two numbers, to show how they relate. An optional grou
   "title": "Account portfolio",
   "subtitle": "Growth against margin, year to date",
   "description": "Each account placed by its revenue growth and gross margin, the bubble sized by its revenue and colored by segment. Top right is where to invest; the big Enterprise accounts grow slowly but earn well.",
-  "footer": "{count} accounts",
+  "note": "{count} accounts",
   "source": {
     "name": "Finance ledger"
   },
@@ -3326,7 +3326,7 @@ Unit strips: one row per item with a strip of small squares, one per unit, color
   "title": "How binding each regulation is",
   "subtitle": "Provisions by kind, and provisions per page",
   "description": "One square per provision, colored mandatory, recommended or optional, so the size of each rulebook and the share that binds can be counted; the density per page says how dense the text is.",
-  "footer": "Fictional counts",
+  "note": "Fictional counts",
   "source": {
     "name": "Regulatory watch register"
   },
@@ -3470,7 +3470,7 @@ A map with a circle on each place, its area true to a value: customers by state,
   "title": "Customers by state",
   "subtitle": "Active accounts, September 2026",
   "description": "Active customer accounts per US state as circles on a tile grid, sized by count and colored by sales region, so the coasts' weight and the thin middle show at once.",
-  "footer": "Accounts with an active subscription",
+  "note": "Accounts with an active subscription",
   "source": {
     "name": "CRM"
   },
@@ -3920,7 +3920,7 @@ The cross-sell map (whitespace analysis): one cell per client and product, fille
   "title": "Where to sell next",
   "subtitle": "Products held and open by client, Nordics book",
   "description": "The cross-sell map: one cell per client and product. Filled where held, outlined where open (stronger tint, higher propensity), a dot where the client is not eligible. Rows sort with the most potential first.",
-  "footer": "Potential is the estimated annual revenue of each open product",
+  "note": "Potential is the estimated annual revenue of each open product",
   "source": {
     "name": "CRM and billing (fictional)"
   },

@@ -4,7 +4,8 @@
  * (between <!-- views --> and <!-- /views --> markers). Run with: npm run docs
  */
 import { readFile, writeFile } from "node:fs/promises";
-import { canonicalName, checkPalette, describeBlocks, describePalettes, describePresets, FACET_OPTIONS, HEADLINE_OPTIONS } from "../src/core/index.ts";
+import { canonicalName, describeBlocks, describePresets, FACET_OPTIONS, HEADLINE_OPTIONS } from "../src/core/index.ts";
+import { checkPalette, describePalettes } from "../src/color.ts";
 import { alsoAccepts } from "../src/core/canonical.ts";
 import type { BlockKind, OptionSchema } from "../src/core/index.ts";
 

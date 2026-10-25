@@ -72,7 +72,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Employee pulse survey",
   "subtitle": "Q3 2026, share disagreeing and agreeing",
   "description": "Answers to five statements, centered on neutral. Strategy and recommendation score well; workload is the one most people disagree with.",
-  "footer": "240 responses",
+  "note": "240 responses",
   "source": {
     "name": "HR pulse survey"
   },

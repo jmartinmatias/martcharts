@@ -19,13 +19,13 @@ const MAX_CELL = 55;
  * Draws the `matrix` view: a grid with the y values down and the x values
  * across, and one mark where a row sits at their crossing. The mark is a circle
  * sized by `size` (area true to value), shaded by `color` (the seven-step scale
- * for a number, one color per kind for a category), or a square where `mark`
- * says yes and a faint dot where it says no. A pair with no row is an empty cell.
+ * for a number, one color per kind for a category), or a square where `flag`
+ * says yes; a "no", like a pair with no row, is an empty cell.
  * Column headers wrap onto short lines, or lean when even that will not fit.
  */
 export const renderMatrix: ViewRenderer<MatrixView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
-  const { x, y, size, color, mark, label } = ctx.view;
+  const { x, y, size, color, flag: mark, label } = ctx.view;
   const columns: string[] = [];
   const lines: string[] = [];
   const cells = new Map<string, Row>();

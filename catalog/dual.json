@@ -53,7 +53,7 @@
     "x": "month",
     "y": "revenue",
     "y2": "churn",
-    "marks": [
+    "panels": [
       "bar",
       "line"
     ]

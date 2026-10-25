@@ -45,16 +45,16 @@ export function validateSpec(spec: unknown, rows?: Row[]): Issue[] {
 
   if (spec.fields !== undefined) issues.push(...checkFields(spec.fields));
 
-  // Views are checked as their renderers read them: canonical option names (value, color, flag) move onto the
-  // renderer's own, and a problem is reported under the name the spec used.
+  // Views are checked in canonical names (an older spelling such as dot "values" moves onto "value"), and a problem is
+  // reported under the name the spec used.
   const view = isPlainObject(spec.view) && typeof spec.view.type === "string" ? (normalizeView(spec.view as { type: string }) as Record<string, unknown>) : spec.view;
   if (spec.view === undefined) issues.push(error("view", 'Every widget needs a view, for example { "type": "table" }.'));
   else {
     const use = isPlainObject(spec.view) ? aliasUse(spec.view) : { canonical: [], deprecated: [] };
-    const written = new Map(use.canonical.map(([canonical, legacy]) => [`view.${legacy}`, `view.${canonical}`]));
+    const written = new Map(use.deprecated.map(([legacy, canonical]) => [`view.${canonical}`, `view.${legacy}`]));
     issues.push(...checkBlock("view", view, "view").map((issue) => (written.has(issue.path) ? { ...issue, path: written.get(issue.path) as string } : issue)));
     for (const [legacy, canonical] of use.deprecated) {
-      issues.push({ level: "warning", path: `view.${legacy}`, message: `"${legacy}" is now called "${canonical}", the name every view uses for it. "${legacy}" still works.` });
+      issues.push({ level: "warning", path: `view.${legacy}`, message: `"${legacy}" is now called "${canonical}". "${legacy}" still works.` });
     }
   }
 
@@ -81,6 +81,11 @@ export function validateSpec(spec: unknown, rows?: Row[]): Issue[] {
 
   if (spec.source !== undefined) issues.push(...checkSource(spec.source));
   if (spec.byline !== undefined && typeof spec.byline !== "string") issues.push(error("byline", 'Must be text naming who made the chart, for example "Marta".'));
+  for (const key of ["note", "footer"] as const) {
+    if (spec[key] !== undefined && typeof spec[key] !== "string") issues.push(error(key, "Must be text: a short note on the data."));
+  }
+  // The small print is a note, a source and a byline; "footer" was the older name for the note.
+  if (spec.footer !== undefined) issues.push({ level: "warning", path: "footer", message: '"footer" is now called "note". "footer" still works.' });
 
   if (spec.colors !== undefined) issues.push(...checkColors(spec.colors));
   if (spec.tooltip !== undefined) issues.push(...checkTooltip(spec.tooltip));
@@ -309,6 +314,7 @@ function checkTemplates(spec: Record<string, unknown>, rows: Row[]): Issue[] {
   const texts: [string, unknown][] = [
     ["title", spec.title],
     ["subtitle", spec.subtitle],
+    ["note", spec.note],
     ["footer", spec.footer],
     ["byline", spec.byline],
     ["headline.caption", isPlainObject(spec.headline) ? spec.headline.caption : undefined],

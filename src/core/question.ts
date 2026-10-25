@@ -209,7 +209,7 @@ function questionEn(written: WidgetSpec, rows: Row[]): Question {
     }
     case "dot": {
       const label = one(view.label);
-      const measures = many(view.values);
+      const measures = many(view.value);
       if (!label || !measures.length) break;
       const entity = entityOf(label, spec);
       if (measures.length > 1) return ask("compare", `how do ${list(measures.map(name))} compare for each ${entity}?`);
@@ -381,7 +381,7 @@ function questionEn(written: WidgetSpec, rows: Row[]): Question {
       return ask("detail", plurals ? `where are the ${plurals}?` : `where is each ${entity}?`);
     }
     case "matrix": {
-      const [x, y, size, color, mark] = [one(view.x), one(view.y), one(view.size), one(view.color), one(view.mark)];
+      const [x, y, size, color, mark] = [one(view.x), one(view.y), one(view.size), one(view.color), one(view.flag)];
       if (!x || !y) break;
       if (mark) {
         const [cols, each] = [entityOf(x, spec, [y, mark]), entityOf(y, spec, [x, mark])];
@@ -395,7 +395,7 @@ function questionEn(written: WidgetSpec, rows: Row[]): Question {
     }
     case "strips": {
       const label = one(view.label);
-      const parts = many(view.parts);
+      const parts = many(view.value);
       const unit = typeof view.unit === "string" && view.unit ? view.unit : "provision";
       if (!label || !parts[0]) break;
       const binding = parts.length > 1 ? `, and how many are ${name(parts[0])}` : "";

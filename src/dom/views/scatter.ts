@@ -42,7 +42,7 @@ interface ScatterExtras {
  */
 export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) => {
   const doc = ctx.el.ownerDocument;
-  const { x: xField, y: yField, series, label, size, cluster } = ctx.view;
+  const { x: xField, y: yField, color: series, label, size, cluster } = ctx.view;
   // Dots take the series' color, or, without a series, their cluster's: the hulls and the dots then say the same thing.
   const colorField = series ?? cluster;
   const points: { row: Row; x: number; y: number; group: number; cluster: number; r: number }[] = [];

@@ -1,6 +1,6 @@
 /**
- * Emits type declarations for the drop-in bundle into dist/types, with relative
- * imports ending in .js so they resolve under every moduleResolution setting.
+ * Emits type declarations for the drop-in bundles and the entry points (martcharts, /kit, /color, /geo, /taller)
+ * into dist/types, with relative imports ending in .js so they resolve under every moduleResolution setting.
  * Part of: npm run build:lib
  */
 import { execFileSync } from "node:child_process";

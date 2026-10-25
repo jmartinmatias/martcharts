@@ -81,7 +81,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Our offices",
   "subtitle": "Nine sites across Europe",
   "description": "Where the company's offices are, each named on a tile grid of Europe with its headcount under it, colored by what the site does.",
-  "footer": "October 2026",
+  "note": "October 2026",
   "source": {
     "name": "Facilities register"
   },

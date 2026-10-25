@@ -163,7 +163,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Where to sell next",
   "subtitle": "Products held and open by client, Nordics book",
   "description": "The cross-sell map: one cell per client and product. Filled where held, outlined where open (stronger tint, higher propensity), a dot where the client is not eligible. Rows sort with the most potential first.",
-  "footer": "Potential is the estimated annual revenue of each open product",
+  "note": "Potential is the estimated annual revenue of each open product",
   "source": {
     "name": "CRM and billing (fictional)"
   },

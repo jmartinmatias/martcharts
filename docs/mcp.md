@@ -75,23 +75,34 @@ All tools validate input; bad input comes back as a tool error that says how to 
 | `fft_create_dashboard` | no | Creates a dashboard (grid of widget cells, spans, filter row). Refuses invalid specs and unknown widget ids. |
 | `fft_update_dashboard` | no (overwrites) | `changes` (merge patch) or `replace`. Same checks as create. |
 | `fft_delete_dashboard` | no (destructive) | Removes the dashboard; its widgets stay. |
-| `fft_list_charts` | yes | The chart catalog: every view with what it is, the question its example answers, the row fields it needs (and what each holds), and whether a starter spec exists. Start here to pick a chart. |
-| `fft_get_chart` | yes | One view in full: every row field, its settings, how to read it, and a self-contained starter spec (inline rows, trimmed to fit) to adapt and save with `fft_create_widget`. Starters come from `catalog/` (`npm run catalog`). |
-| `fft_chart_guide` | yes | One chart's guide for a person or another model: the jobs it does best and worst, what one row stands for, how rows become marks, the table it needs (each column, its kind, the option that draws it), the data drawing it now as a table and CSV, its spec, and every other chart the same data makes with fit, verdict and assessment. Pass a `type` for the catalog example or your own `spec`. `max_rows` caps the data tables. |
-| `fft_switch_chart` | yes | A spec's data as another chart: with `to`, the filled view, `fit` (fits, stretch, no), `verdict` (better, same, trade-off, different, worse), `gains`, `losses` and the assessment; without `to`, every other chart ranked, those that fit and help first (`include_impossible` adds the rest, with why). |
-| `fft_recommend_charts` | yes | Ranks the chart types that suit some data, best first: pass a source block (`inline` rows, `csv` text or file, `url`) and optional `transform` steps. Each pick has a score, why it fits, and a complete spec ready for `fft_create_widget`. |
+| `fft_describe_chart` | yes | What a chart is and what it needs, at three depths. With no `type`: the chart catalog, every view with what it is, the question its example answers, the row fields it needs and whether a starter spec exists; start here to pick a chart. With a `type`: that view in full, every row field, its settings, how to read it, and a self-contained starter spec (inline rows, trimmed to fit) to adapt and save with `fft_create_widget`; starters come from `catalog/` (`npm run catalog`). With a `type` and `guide: true`, or your own `spec`: the chart's guide for a person or another model, the jobs it does best and worst, what one row stands for, how rows become marks, the table it needs, the data drawing it as a table and CSV, and every other chart the same data makes with fit, verdict and assessment; `max_rows` caps the data tables. |
+| `fft_suggest_charts` | yes | Which chart. With `data` (a source block: `inline` rows, `csv` text or file, `url`) and optional `transform` steps: the chart types that suit it, best first, each with a score, why it fits, and a complete spec ready for `fft_create_widget`. With a `spec`: its data as another chart; with `to`, the filled view, `fit` (fits, stretch, no), `verdict` (better, same, trade-off, different, worse), `gains`, `losses` and the assessment; without `to`, every other chart ranked, those that fit and help first (`include_impossible` adds the rest, with why). |
 | `fft_list_blocks` | yes | Every data source, transform, format and view with its options. Filter with `kind`. |
 | `fft_check_palette` | yes | Checks a palette (a library name or hex colors) for colorblind separation, neighbour separation, lightness, colorfulness and contrast, on a light or dark background. |
 | `fft_validate_spec` | yes | Checks a draft spec without saving. With `check_data` (default true) also loads the data and warns about missing fields. |
 | `fft_create_variants` | yes | The Taller: seeded new versions of a widget, each made by a sales move (`moves`: decompose, reframe, distill, contrast, reveal, combine, reform), optionally for an `audience` (rep, manager, leadership), with the sales question it answers, a plain title, how to read it, five quality scores and its novelty and meaning. Also returns the original's question. Nothing is saved; keep one with `fft_create_widget`. See [taller.md](taller.md). |
 
-A server linked to one widget offers `fft_get_widget`, `fft_get_widget_data`, `fft_update_widget`, `fft_create_variants`, `fft_list_charts`, `fft_get_chart`, `fft_chart_guide`, `fft_switch_chart`, `fft_recommend_charts`, `fft_list_blocks`, `fft_check_palette` and `fft_validate_spec`, without `id` arguments. `fft_list_blocks` and `fft://blocks` also list the style presets and the palette library.
+A server linked to one widget offers `fft_get_widget`, `fft_get_widget_data`, `fft_update_widget`, `fft_create_variants`, `fft_describe_chart`, `fft_suggest_charts`, `fft_list_blocks`, `fft_check_palette` and `fft_validate_spec`, without `id` arguments. `fft_list_blocks` and `fft://blocks` also list the style presets and the palette library.
 
 Merge patch rules for `changes` and forks: objects merge key by key, lists replace, `null` removes a key.
 
 Create and update return `{ created | updated, spec, warnings }`. Warnings come from loading the data, for example a view field the rows do not have, or the data failing to load.
 
 Responses stay under 25,000 characters by returning fewer rows; `next_offset` then points at the first row left out.
+
+### Older tool names
+
+Five chart tools became two. The older names still work for one release, with their old arguments and the same
+answers, and their descriptions name the tool to use instead. Pass `olderToolNames: false` to `createFftServer` to
+leave them out.
+
+| Older name | Now |
+| --- | --- |
+| `fft_list_charts` | `fft_describe_chart` with no type |
+| `fft_get_chart` | `fft_describe_chart` with a `type` |
+| `fft_chart_guide` | `fft_describe_chart` with `guide: true` or a `spec` |
+| `fft_recommend_charts` | `fft_suggest_charts` with `data` |
+| `fft_switch_chart` | `fft_suggest_charts` with a `spec` |
 
 ### Examples
 

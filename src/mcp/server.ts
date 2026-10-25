@@ -28,7 +28,7 @@ import { describeChart, describeCharts, needsText } from "../core/catalog.ts";
 import { chartGuide, dataContract, guideMarkdown, switchChart, switchOptions } from "../core/guide.ts";
 import type { ChartEntry } from "../core/catalog.ts";
 import { recommendCharts } from "../core/recommend.ts";
-import { canonicalName } from "../core/aliases.ts";
+import { alsoAccepts } from "../core/canonical.ts";
 import { blockTypes, describeBlocks } from "../core/registry.ts";
 import { questionOf } from "../core/question.ts";
 import { AUDIENCES, createVariants, MOVES } from "../core/taller.ts";
@@ -51,6 +51,11 @@ export interface FftServerOptions {
   dashboards?: WidgetStore;
   /** The chart catalog: one self-contained starter spec per view, stored by view type (`catalog/` from `npm run catalog`). Without it, the chart tools describe views but hand out no starter spec. */
   catalog?: WidgetStore;
+  /**
+   * Also offer the older tool names for one release: fft_list_charts, fft_get_chart and fft_chart_guide (now
+   * fft_describe_chart), fft_recommend_charts and fft_switch_chart (now fft_suggest_charts). Default true.
+   */
+  olderToolNames?: boolean;
 }
 
 /** Tool responses stay under this many characters by returning fewer rows. */
@@ -156,7 +161,7 @@ const VIEW_GUIDE = [
   "Where everything stands in a lifecycle: board (one column per stage or status, each item a card with its group and value; regulations by status, deals by stage).",
   "RAG reporting (Red, Amber, Green): ragboard (a scorecard, one row per client or relationship manager and one status cell per dimension, worst first, with better or worse arrows), ragtrend (each entity's status period by period, with why it moved). The rag transform turns numbers into statuses against thresholds, the rag format draws a status pill in tables, and kpi or kpis tiles take rag thresholds for a pill beside the number.",
   "Records to read: table (with spark and badge cells), list.",
-  'Option names are the same across views: value for the measure or measures (dot, strips and likert too), color for color by category (scatter, locator), flag for a yes/no field (matrix). Older spellings (values, parts, responses, series, kind, mark) still work and raise one warning saying the new name.',
+  'Option names are the same across views: value for the measure or measures (dot, strips and likert too), color for color by category (scatter, locator), flag for a yes/no field (matrix), panels for what each dual panel draws, labelPlace for where pie labels sit, peaks (true or false) for labels on a line\'s highs and lows, codes (true or false) for a choropleth\'s region codes; labels is only the true/false names beside scatter dots, and mark only how bars, hbars and dumbbells draw. A spec\'s small print is note, source and byline. Older spellings (values, parts, responses, series, kind, mark, marks, labels, footer) still work and raise one warning saying the new name.',
   "Regulation and compliance: matrix (one mark per x and y pair, sized, shaded or a square per yes: pressure per topic per quarter, who must comply), strips (one square per provision, colored mandatory to optional, with a density per page), lifecycle (each rule's stages from proposal to application on one date axis, a today line and a status pill).",
   "Clients and cross-sell: whitespace (the cross-sell map: one cell per client and product, held, open or not eligible, with the potential per row), xray (one client on one card: facts, holdings, share of wallet, trend, flags, next best actions), history (a client's events as a vertical timeline, newest first).",
 ];
@@ -171,9 +176,9 @@ function blocksMarkdown(kinds: BlockKind[]): string {
       for (const [name, option] of Object.entries(block.options)) {
         const kindText = option.type === "enum" ? `one of ${option.values?.join(", ")}` : option.kind ? `${option.kind} ${option.type}` : option.type;
         // Views list each option by its canonical name, with the older spelling that still works.
-        const shown = kind === "view" ? canonicalName(block.type, name) : name;
-        const older = shown !== name ? ` Also accepts \`${name}\`, the older name.` : "";
-        lines.push(`  - \`${shown}\` (${kindText}${option.required ? ", required" : ""}): ${option.description}${older}`);
+        const olderNames = kind === "view" ? alsoAccepts(block.type, name) : [];
+        const older = olderNames.length ? ` Also accepts ${olderNames.map((o) => `\`${o}\``).join(", ")}, the older name.` : "";
+        lines.push(`  - \`${name}\` (${kindText}${option.required ? ", required" : ""}): ${option.description}${older}`);
       }
     }
   }
@@ -573,110 +578,6 @@ Use it before writing or changing a spec, to pick block types and their option n
     return options.catalog.get(type);
   };
 
-  server.registerTool(
-    "fft_list_charts",
-    {
-      title: "List charts",
-      description: `List every chart type (view) with what it is, the question it typically answers, and the row fields it needs.
-
-Use it to pick the right chart for a question or a dataset, then call fft_get_chart for its full entry and a starter spec.`,
-      inputSchema: z.strictObject({ response_format: ResponseFormat }),
-      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
-    },
-    async ({ response_format }) => {
-      const charts: (ChartEntry & { has_starter: boolean })[] = [];
-      for (const chart of describeCharts()) {
-        const spec = await starter(chart.type);
-        charts.push({ ...(spec ? describeChart(chart.type, spec) : chart), has_starter: spec !== undefined });
-      }
-      if (response_format === "json") return asJson({ total: charts.length, charts: charts.map(({ description: _d, howToRead: _h, ...rest }) => rest) });
-      const lines = [`# Charts (${charts.length})`, "", "| Type | What it is | Answers, for example | Needs |", "| --- | --- | --- | --- |"];
-      for (const chart of charts) lines.push(`| \`${chart.type}\` | ${cell(chart.summary)} | ${cell(chart.question ?? "")} | ${cell(needsText(chart))} |`);
-      lines.push("", "Call fft_get_chart with a type for its fields, settings and a starter spec.");
-      return asMarkdown(lines.join("\n"));
-    },
-  );
-
-  server.registerTool(
-    "fft_get_chart",
-    {
-      title: "Get chart",
-      description: `One chart type in full: what it is, every row field it reads (and what each holds), its settings, how to read it, and a self-contained starter spec with inline rows.
-
-To make a widget from it: replace the starter's data with yours (keeping the field names the view options point at, or changing those options), check it with fft_validate_spec, and save it with fft_create_widget. fft_list_blocks has every setting's type and default.`,
-      inputSchema: z.strictObject({
-        type: z.string().describe('A view type, such as "bar" or "sankey". fft_list_charts lists them.'),
-        response_format: ResponseFormat,
-      }),
-      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
-    },
-    async ({ type, response_format }) => {
-      if (!blockTypes("view").includes(type)) {
-        return { ...asMarkdown(`No chart type "${type}". Known types: ${blockTypes("view").join(", ")}.`), isError: true };
-      }
-      const spec = await starter(type);
-      const chart = describeChart(type, spec);
-      // A starter too long for one response keeps its first rows; the shape is what matters.
-      const rows = spec?.data.type === "inline" ? (spec.data.rows as Row[]) : [];
-      const trimmed = (count: number) => (spec ? { ...spec, data: { type: "inline", rows: rows.slice(0, count) } } : undefined);
-      let kept = rows.length;
-      while (kept > 1 && JSON.stringify(trimmed(kept), null, 2).length > CHARACTER_LIMIT - 4_000) kept = Math.ceil(kept / 2);
-      const starterSpec = trimmed(kept);
-      const note = spec && kept < rows.length ? `The starter shows ${kept} of its ${rows.length} rows.` : undefined;
-      if (response_format === "json") return asJson({ ...chart, starter: starterSpec ?? null, ...(note ? { note } : {}) });
-      const lines = [`# \`${type}\``, "", chart.description, ""];
-      if (chart.question) lines.push(`**Answers, for example**: ${chart.question}`, "");
-      if (chart.needs.length) {
-        lines.push("## Row fields", "", "| Option | Holds | Required | What it is |", "| --- | --- | --- | --- |");
-        for (const need of chart.needs) {
-          const older = need.alsoAccepts?.length ? ` Also accepts ${need.alsoAccepts.map((name) => `\`${name}\``).join(", ")}, the older name.` : "";
-          lines.push(`| \`${need.option}\` | ${need.holds}${need.many ? " (one or more)" : ""} | ${need.required ? "yes" : ""} | ${cell(need.description)}${older} |`);
-        }
-        lines.push("");
-      }
-      if (chart.settings.length) lines.push(`**Settings**: ${chart.settings.map((name) => `\`${name}\``).join(", ")} (fft_list_blocks kind "view" has their types and defaults).`, "");
-      if (chart.howToRead) lines.push("## How to read it", "", chart.howToRead, "");
-      if (starterSpec) lines.push("## Starter spec", "", ...(note ? [note, ""] : []), "```json", JSON.stringify(starterSpec, null, 2), "```");
-      else lines.push("No starter spec in this server's catalog; fft_list_blocks and fft_validate_spec are enough to write one.");
-      return asMarkdown(lines.join("\n"));
-    },
-  );
-
-  server.registerTool(
-    "fft_recommend_charts",
-    {
-      title: "Recommend charts",
-      description: `Rank the chart types that suit some data, best first. Each pick has a score (0 to 100), why it fits, and a complete spec (your data plus a filled view) ready for fft_create_widget.
-
-Pass the data as a source block: { "type": "inline", "rows": [...] }, { "type": "csv", "text": "region,revenue\\nNorth,120" }, or { "type": "url" | "csv", "url": "..." }. Optional transform steps reshape it first, as in a spec.`,
-      inputSchema: z.strictObject({
-        data: JsonObject.describe('A data source block, for example { "type": "csv", "url": "/exports/sales.csv" }. fft_list_blocks kind "source" lists the types.'),
-        transform: z.array(JsonObject).optional().describe("Transform steps applied before choosing, as in a spec."),
-        limit: z.number().int().min(1).max(20).default(5).describe("How many picks to return."),
-        response_format: ResponseFormat,
-      }),
-      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
-    },
-    async ({ data, transform, limit, response_format }, ctx) => {
-      const base = { data, ...(transform ? { transform } : {}) } as unknown as WidgetSpec;
-      const issues = validateSpec({ ...base, view: { type: "table" } }).filter((issue) => issue.level === "error");
-      if (issues.length) return { ...asMarkdown(problems("The data block has problems:", issues)), isError: true };
-      let rows: Row[];
-      try {
-        rows = await runPipeline(base, loadContext(ctx.mcpReq.signal));
-      } catch (caught) {
-        return { ...asMarkdown(`Could not load the data: ${(caught as Error).message}`), isError: true };
-      }
-      const picks = recommendCharts(rows, { limit }).map((pick) => ({ ...pick, spec: { ...base, view: pick.view } }));
-      if (response_format === "json") return asJson({ rows: rows.length, picks });
-      if (!picks.length) return asMarkdown("The data has no rows, so there is nothing to chart.");
-      const lines = [`# Charts for ${rows.length} rows`, ""];
-      for (const [i, pick] of picks.entries()) lines.push(`${i + 1}. **\`${pick.type}\`** (${pick.score}): ${pick.why}`, `   View: \`${JSON.stringify(pick.view)}\``);
-      lines.push("", "Save one with fft_create_widget, passing the data block and that view as the spec. fft_get_chart has each type's settings.");
-      return asMarkdown(lines.join("\n"));
-    },
-  );
-
   /** A spec's rows: loaded through its pipeline, or an error result. */
   const rowsFor = async (spec: WidgetSpec, signal?: AbortSignal): Promise<Row[] | { error: string }> => {
     try {
@@ -685,64 +586,193 @@ Pass the data as a source block: { "type": "inline", "rows": [...] }, { "type": 
       return { error: `Could not load the data: ${(caught as Error).message}` };
     }
   };
+  type Format = "markdown" | "json";
+  const failed = (text: string) => ({ ...asMarkdown(text), isError: true });
+  const unknownType = (type: string) => failed(`No chart type "${type}". Known types: ${blockTypes("view").join(", ")}.`);
+  const specErrors = (draft: WidgetSpec) => {
+    const issues = validateSpec(draft);
+    return hasErrors(issues) ? failed(`The spec has errors: ${issues.filter((i) => i.level === "error").map((i) => `${i.path}: ${i.message}`).join("; ")}`) : undefined;
+  };
+
+  // ---- Describe: every chart, one chart, or one chart's guide for some data ----
+
+  async function listCharts(response_format: Format) {
+    const charts: (ChartEntry & { has_starter: boolean })[] = [];
+    for (const chart of describeCharts()) {
+      const spec = await starter(chart.type);
+      charts.push({ ...(spec ? describeChart(chart.type, spec) : chart), has_starter: spec !== undefined });
+    }
+    if (response_format === "json") return asJson({ total: charts.length, charts: charts.map(({ description: _d, howToRead: _h, ...rest }) => rest) });
+    const lines = [`# Charts (${charts.length})`, "", "| Type | What it is | Answers, for example | Needs |", "| --- | --- | --- | --- |"];
+    for (const chart of charts) lines.push(`| \`${chart.type}\` | ${cell(chart.summary)} | ${cell(chart.question ?? "")} | ${cell(needsText(chart))} |`);
+    lines.push("", "Call fft_describe_chart with a type for its fields, settings and a starter spec.");
+    return asMarkdown(lines.join("\n"));
+  }
+
+  async function oneChart(type: string, response_format: Format) {
+    if (!blockTypes("view").includes(type)) return unknownType(type);
+    const spec = await starter(type);
+    const chart = describeChart(type, spec);
+    // A starter too long for one response keeps its first rows; the shape is what matters.
+    const rows = spec?.data.type === "inline" ? (spec.data.rows as Row[]) : [];
+    const trimmed = (count: number) => (spec ? { ...spec, data: { type: "inline", rows: rows.slice(0, count) } } : undefined);
+    let kept = rows.length;
+    while (kept > 1 && JSON.stringify(trimmed(kept), null, 2).length > CHARACTER_LIMIT - 4_000) kept = Math.ceil(kept / 2);
+    const starterSpec = trimmed(kept);
+    const note = spec && kept < rows.length ? `The starter shows ${kept} of its ${rows.length} rows.` : undefined;
+    if (response_format === "json") return asJson({ ...chart, starter: starterSpec ?? null, ...(note ? { note } : {}) });
+    const lines = [`# \`${type}\``, "", chart.description, ""];
+    if (chart.question) lines.push(`**Answers, for example**: ${chart.question}`, "");
+    if (chart.needs.length) {
+      lines.push("## Row fields", "", "| Option | Holds | Required | What it is |", "| --- | --- | --- | --- |");
+      for (const need of chart.needs) lines.push(`| \`${need.option}\` | ${need.holds}${need.many ? " (one or more)" : ""} | ${need.required ? "yes" : ""} | ${cell(need.description)} |`);
+      lines.push("");
+    }
+    if (chart.settings.length) lines.push(`**Settings**: ${chart.settings.map((name) => `\`${name}\``).join(", ")} (fft_list_blocks kind "view" has their types and defaults).`, "");
+    if (chart.howToRead) lines.push("## How to read it", "", chart.howToRead, "");
+    if (starterSpec) lines.push("## Starter spec", "", ...(note ? [note, ""] : []), "```json", JSON.stringify(starterSpec, null, 2), "```");
+    else lines.push("No starter spec in this server's catalog; fft_list_blocks and fft_validate_spec are enough to write one.");
+    lines.push("", "For the jobs it does, the table it needs and the charts the same data makes, call fft_describe_chart again with guide true.");
+    return asMarkdown(lines.join("\n"));
+  }
+
+  async function guideFor(args: { type?: string; spec?: Record<string, unknown>; max_rows: number; response_format: Format }, signal?: AbortSignal) {
+    const { type, spec, max_rows, response_format } = args;
+    const draft = (spec as unknown as WidgetSpec | undefined) ?? (type ? await starter(type) : undefined);
+    if (!draft) return type && !blockTypes("view").includes(type) ? unknownType(type) : failed("Pass a type with a catalog example, or a spec.");
+    const invalid = specErrors(draft);
+    if (invalid) return invalid;
+    const rows = await rowsFor(draft, signal);
+    if (!Array.isArray(rows)) return failed(rows.error);
+    if (response_format === "json") {
+      return asJson({ type: draft.view.type, guide: chartGuide(draft.view.type) ?? null, contract: dataContract(draft, rows), rows: rows.slice(0, max_rows), total_rows: rows.length, switches: switchOptions(draft, rows) as unknown as Record<string, unknown>[] });
+    }
+    let kept = Math.min(max_rows, rows.length);
+    let text = guideMarkdown(draft, rows, { maxRows: kept });
+    while (text.length > CHARACTER_LIMIT && kept > 3) text = guideMarkdown(draft, rows, { maxRows: (kept = Math.ceil(kept / 2)) });
+    return asMarkdown(text);
+  }
+
+  // ---- Suggest: the charts for some data, or another chart for a spec ----
+
+  async function recommendFor(args: { data: Record<string, unknown>; transform?: Record<string, unknown>[]; limit: number; response_format: Format }, signal?: AbortSignal) {
+    const { data, transform, limit, response_format } = args;
+    const base = { data, ...(transform ? { transform } : {}) } as unknown as WidgetSpec;
+    const issues = validateSpec({ ...base, view: { type: "table" } }).filter((issue) => issue.level === "error");
+    if (issues.length) return failed(problems("The data block has problems:", issues));
+    let rows: Row[];
+    try {
+      rows = await runPipeline(base, loadContext(signal));
+    } catch (caught) {
+      return failed(`Could not load the data: ${(caught as Error).message}`);
+    }
+    const picks = recommendCharts(rows, { limit }).map((pick) => ({ ...pick, spec: { ...base, view: pick.view } }));
+    if (response_format === "json") return asJson({ rows: rows.length, picks });
+    if (!picks.length) return asMarkdown("The data has no rows, so there is nothing to chart.");
+    const lines = [`# Charts for ${rows.length} rows`, ""];
+    for (const [i, pick] of picks.entries()) lines.push(`${i + 1}. **\`${pick.type}\`** (${pick.score}): ${pick.why}`, `   View: \`${JSON.stringify(pick.view)}\``);
+    lines.push("", "Save one with fft_create_widget, passing the data block and that view as the spec. fft_describe_chart has each type's settings.");
+    return asMarkdown(lines.join("\n"));
+  }
+
+  async function switchFor(args: { spec: Record<string, unknown>; to?: string; include_impossible: boolean }, signal?: AbortSignal) {
+    const draft = args.spec as unknown as WidgetSpec;
+    const invalid = specErrors(draft);
+    if (invalid) return invalid;
+    const rows = await rowsFor(draft, signal);
+    if (!Array.isArray(rows)) return failed(rows.error);
+    if (args.to) return asJson(switchChart(draft, args.to, rows) as unknown as Record<string, unknown>);
+    const all = switchOptions(draft, rows);
+    return asJson({ from: draft.view.type, switches: (args.include_impossible ? all : all.filter((s) => s.fit !== "no")) as unknown as Record<string, unknown>[] });
+  }
+
+  const TypeSchema = z.string().describe('A view type, such as "bar" or "sankey". Leave out type and spec to list every chart.');
+  const SpecSchema = JsonObject.describe("Your own spec; its data is loaded.");
+  const MaxRows = z.number().int().min(1).max(500).default(40).describe("Rows of data to include in a guide's tables.");
+  const readOnly = (openWorldHint: boolean) => ({ readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint });
 
   server.registerTool(
-    "fft_chart_guide",
+    "fft_describe_chart",
     {
-      title: "Chart guide",
-      description: `One chart's guide for a person or another model: the jobs it does best and worst, what one row stands for, how the rows become marks, the table it needs (every column, its kind and the option that draws it), the data drawing it now as a table and CSV, its spec, and every other chart the same data makes, each with fit (fits, stretch, no), a verdict (better, same, trade-off, different, worse) and an assessment.
+      title: "Describe charts",
+      description: `What a chart is and what it needs, at three depths:
 
-Pass a type for the catalog's example, or your own spec to get the same guide for your data.`,
+- No type and no spec: every chart type, with what it is, the question it typically answers, and the row fields it needs. Use it to pick a chart.
+- A type: that chart in full: every row field it reads, its settings, how to read it, and a self-contained starter spec with inline rows. To make a widget from it, replace the starter's data with yours, check it with fft_validate_spec, and save it with fft_create_widget.
+- A type with guide true, or your own spec: the chart's guide: the jobs it does best and worst, what one row stands for, how rows become marks, the table it needs, the data drawing it as a table and CSV, and every other chart the same data makes, each with fit (fits, stretch, no), a verdict (better, same, trade-off, different, worse) and an assessment.`,
       inputSchema: z.strictObject({
-        type: z.string().optional().describe('A view type, such as "bar". Uses the catalog example.'),
-        spec: JsonObject.optional().describe("Your own spec instead of a type; its data is loaded."),
-        max_rows: z.number().int().min(1).max(500).default(40).describe("Rows of data to include in the tables."),
+        type: TypeSchema.optional(),
+        spec: SpecSchema.optional(),
+        guide: z.boolean().default(false).describe("With a type: the chart's guide for its catalog example instead of its entry. Implied by spec."),
+        max_rows: MaxRows,
         response_format: ResponseFormat,
       }),
-      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+      annotations: readOnly(true),
     },
-    async ({ type, spec, max_rows, response_format }, ctx) => {
-      const draft = (spec as unknown as WidgetSpec | undefined) ?? (type ? await starter(type) : undefined);
-      if (!draft) return { ...asMarkdown(type && !blockTypes("view").includes(type) ? `No chart type "${type}". Known types: ${blockTypes("view").join(", ")}.` : "Pass a type with a catalog example, or a spec."), isError: true };
-      const issues = validateSpec(draft);
-      if (hasErrors(issues)) return { ...asMarkdown(`The spec has errors: ${issues.filter((i) => i.level === "error").map((i) => `${i.path}: ${i.message}`).join("; ")}`), isError: true };
-      const rows = await rowsFor(draft, ctx.mcpReq.signal);
-      if (!Array.isArray(rows)) return { ...asMarkdown(rows.error), isError: true };
-      if (response_format === "json") {
-        return asJson({ type: draft.view.type, guide: chartGuide(draft.view.type) ?? null, contract: dataContract(draft, rows), rows: rows.slice(0, max_rows), total_rows: rows.length, switches: switchOptions(draft, rows) as unknown as Record<string, unknown>[] });
-      }
-      let kept = Math.min(max_rows, rows.length);
-      let text = guideMarkdown(draft, rows, { maxRows: kept });
-      while (text.length > CHARACTER_LIMIT && kept > 3) text = guideMarkdown(draft, rows, { maxRows: (kept = Math.ceil(kept / 2)) });
-      return asMarkdown(text);
+    async ({ type, spec, guide, max_rows, response_format }, ctx) => {
+      if (spec || (type && guide)) return guideFor({ type, spec, max_rows, response_format }, ctx.mcpReq.signal);
+      return type ? oneChart(type, response_format) : listCharts(response_format);
     },
   );
 
   server.registerTool(
-    "fft_switch_chart",
+    "fft_suggest_charts",
     {
-      title: "Switch chart",
-      description: `Draw a spec's data as another chart. With to, returns that chart's view (filled from the columns the current chart draws), whether the data fits, the verdict and the assessment: better for what, at what cost. Without to, ranks every other chart, those that fit and help first.
+      title: "Suggest charts",
+      description: `Which chart, for data or for a chart you have.
 
-To use a switch: replace the spec's view with the returned view, then fft_update_widget or fft_create_widget.`,
+- With data: rank the chart types that suit it, best first. Each pick has a score (0 to 100), why it fits, and a complete spec (your data plus a filled view) ready for fft_create_widget. Pass the data as a source block: { "type": "inline", "rows": [...] }, { "type": "csv", "text": "region,revenue\\nNorth,120" }, or { "type": "url" | "csv", "url": "..." }. Optional transform steps reshape it first, as in a spec.
+- With spec: draw its data as another chart. With to, returns that chart's view (filled from the columns the current chart draws), whether the data fits, the verdict and the assessment: better for what, at what cost. Without to, ranks every other chart, those that fit and help first. To use a switch, replace the spec's view with the returned view, then fft_update_widget or fft_create_widget.`,
       inputSchema: z.strictObject({
-        spec: JsonObject.describe("The spec to switch; its data is loaded."),
-        to: z.string().optional().describe('The chart to switch to, such as "hbar". Left out: every chart.'),
-        include_impossible: z.boolean().default(false).describe("Also list charts this data cannot make, with why."),
+        data: JsonObject.optional().describe('A data source block, for example { "type": "csv", "url": "/exports/sales.csv" }. fft_list_blocks kind "source" lists the types.'),
+        transform: z.array(JsonObject).optional().describe("With data: transform steps applied before choosing, as in a spec."),
+        spec: JsonObject.optional().describe("A spec to redraw as another chart, instead of data; its data is loaded."),
+        to: z.string().optional().describe('With spec: the chart to switch to, such as "hbar". Left out: every chart.'),
+        limit: z.number().int().min(1).max(20).default(5).describe("With data: how many picks to return."),
+        include_impossible: z.boolean().default(false).describe("With spec: also list charts this data cannot make, with why."),
+        response_format: ResponseFormat,
       }),
-      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+      annotations: readOnly(true),
     },
-    async ({ spec, to, include_impossible }, ctx) => {
-      const draft = spec as unknown as WidgetSpec;
-      const issues = validateSpec(draft);
-      if (hasErrors(issues)) return { ...asMarkdown(`The spec has errors: ${issues.filter((i) => i.level === "error").map((i) => `${i.path}: ${i.message}`).join("; ")}`), isError: true };
-      const rows = await rowsFor(draft, ctx.mcpReq.signal);
-      if (!Array.isArray(rows)) return { ...asMarkdown(rows.error), isError: true };
-      if (to) return asJson(switchChart(draft, to, rows) as unknown as Record<string, unknown>);
-      const all = switchOptions(draft, rows);
-      return asJson({ from: draft.view.type, switches: (include_impossible ? all : all.filter((s) => s.fit !== "no")) as unknown as Record<string, unknown>[] });
+    async ({ data, transform, spec, to, limit, include_impossible, response_format }, ctx) => {
+      if (spec && data) return failed("Pass data (rows to chart) or spec (a chart to redraw), not both.");
+      if (spec) return switchFor({ spec, to, include_impossible }, ctx.mcpReq.signal);
+      if (data) return recommendFor({ data, transform, limit, response_format }, ctx.mcpReq.signal);
+      return failed("Pass data (rows to chart) or spec (a chart to redraw).");
     },
   );
+
+  // The older names, kept for one release: each takes its old arguments and answers as before.
+  if (options.olderToolNames !== false) {
+    const older = (now: string, title: string) => ({ title: `${title} (older name)`, description: `The older name for ${now}, kept for one release. Use ${now}.` });
+    server.registerTool("fft_list_charts", { ...older("fft_describe_chart with no type", "List charts"), inputSchema: z.strictObject({ response_format: ResponseFormat }), annotations: readOnly(false) }, async ({ response_format }) =>
+      listCharts(response_format),
+    );
+    server.registerTool(
+      "fft_get_chart",
+      { ...older("fft_describe_chart with a type", "Get chart"), inputSchema: z.strictObject({ type: z.string().describe('A view type, such as "bar".'), response_format: ResponseFormat }), annotations: readOnly(false) },
+      async ({ type, response_format }) => oneChart(type, response_format),
+    );
+    server.registerTool(
+      "fft_chart_guide",
+      { ...older("fft_describe_chart with guide true or a spec", "Chart guide"), inputSchema: z.strictObject({ type: z.string().optional(), spec: SpecSchema.optional(), max_rows: MaxRows, response_format: ResponseFormat }), annotations: readOnly(true) },
+      async (args, ctx) => guideFor(args, ctx.mcpReq.signal),
+    );
+    server.registerTool(
+      "fft_recommend_charts",
+      {
+        ...older("fft_suggest_charts with data", "Recommend charts"),
+        inputSchema: z.strictObject({ data: JsonObject, transform: z.array(JsonObject).optional(), limit: z.number().int().min(1).max(20).default(5), response_format: ResponseFormat }),
+        annotations: readOnly(true),
+      },
+      async (args, ctx) => recommendFor(args, ctx.mcpReq.signal),
+    );
+    server.registerTool(
+      "fft_switch_chart",
+      { ...older("fft_suggest_charts with a spec", "Switch chart"), inputSchema: z.strictObject({ spec: JsonObject, to: z.string().optional(), include_impossible: z.boolean().default(false) }), annotations: readOnly(true) },
+      async (args, ctx) => switchFor(args, ctx.mcpReq.signal),
+    );
+  }
 
   server.registerTool(
     "fft_check_palette",

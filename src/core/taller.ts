@@ -898,7 +898,7 @@ export function huePalette(kind: "warm" | "cool", size: number, seed = 1): strin
 function colorsNeeded(view: ViewSpec, d: DataProfile): number {
   const y = view.y;
   if (BY_CATEGORY.has(String(view.type))) {
-    const field = Array.isArray(view.levels) ? String(view.levels[0]) : String(view.label ?? view.series ?? view.x ?? "");
+    const field = Array.isArray(view.levels) ? String(view.levels[0]) : String(view.label ?? view.series ?? view.color ?? view.x ?? "");
     return d.distinct[field] ?? 1;
   }
   return Array.isArray(y) ? y.length : 1;
@@ -1154,8 +1154,8 @@ export function createVariants(written: WidgetSpec, rows: Row[], options: Taller
     if (look !== "default") style.preset = look;
     if (feel === "sharp" && random() < 0.5) style.density = "compact";
 
-    const { id: _id, facet: _facet, headline: _headline, style: _style, subtitle, footer, description, ...rest } = spec;
-    const words = { subtitle: formless(subtitle), footer: formless(footer), description: formless(description, true) };
+    const { id: _id, facet: _facet, headline: _headline, style: _style, subtitle, note, footer, description, ...rest } = spec;
+    const words = { subtitle: formless(subtitle), note: formless(note ?? footer), description: formless(description, true) };
     const variant: WidgetSpec = {
       ...rest,
       ...Object.fromEntries(Object.entries(words).filter(([, text]) => text)),

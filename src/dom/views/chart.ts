@@ -581,7 +581,7 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
       chart.append(text);
     });
     // Peaks: the first line's highest and lowest readings, each with a dot and its value, the high above and the low below.
-    if (kind === "line" && (view as LineView).labels === "peaks") {
+    if (kind === "line" && (view as LineView).peaks === true) {
       const first = values[0] ?? [];
       const known = first.map((v, i) => (v === null ? null : i)).filter((i): i is number => i !== null);
       if (known.length > 1) {

@@ -169,4 +169,4 @@ Widgets follow the page's light or dark scheme (`style.theme`: `"auto"`, `"light
 
 ## Agents
 
-Point an MCP client at `node src/mcp/main.ts` ([mcp.md](mcp.md)). `fft_list_charts` and `fft_get_chart` give an agent the same catalog as this page, with starter specs it can adapt, check with `fft_validate_spec`, and save with `fft_create_widget`. Saved widgets are JSON files any of the recipes above can load with `src`.
+Point an MCP client at `node src/mcp/main.ts` ([mcp.md](mcp.md)). `fft_describe_chart` gives an agent the same catalog as this page, with starter specs it can adapt, check with `fft_validate_spec`, and save with `fft_create_widget`. Saved widgets are JSON files any of the recipes above can load with `src`.

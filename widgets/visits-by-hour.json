@@ -3,7 +3,7 @@
   "title": "Visits by hour",
   "subtitle": "Daily average, September 2026",
   "description": "The day has two shapes. Desktop builds through the working morning to an 11:00 peak and fades by 17:00; mobile spikes on the 08:00 commute and owns the evening, peaking at 21:00. Each wedge's area is its visits.",
-  "footer": "Local time",
+  "note": "Local time",
   "source": {"name": "Web analytics"},
   "locale": "en-US",
   "data": {

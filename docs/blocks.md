@@ -403,7 +403,7 @@ A map with each region shaded by its value, from the weakest tint to the stronge
 | `value` | field name (number) |  |  | Field that shades each region on the sequential scale. Rows with no number stay grey. Give value or category, not both. |
 | `category` | field name (category) |  |  | Field that colors each region by its category instead, one series color per value with a key: a transposition status, a supervisor, a regime. Up to 8 categories stay distinct. |
 | `key` | string |  | `"id"` | The feature property that holds each region's id in your own GeoJSON (feature.id is read too). Built-in basemaps use their codes. |
-| `labels` | boolean |  | `true` | Write each region's code inside it, where it fits. Also takes the words other views use: "codes" (the same as true) or "none". |
+| `codes` | boolean |  | `true` | Write each region's code inside it, where it fits. Also accepts `labels`, the older name. |
 | `min` | number |  |  | Value of the weakest tint. Defaults to the lowest value. |
 | `max` | number |  |  | Value of the strongest tint. Defaults to the highest value. |
 | `previous` | field name (number) |  |  | Field with the same measure in the previous period, such as last year's revenue. Each region's tooltip then gives the change, and show "change" shades by it. |
@@ -452,7 +452,7 @@ Two measures with different units, such as revenue and churn, one above the othe
 | `x` | field name (date) | yes |  | Field for the shared axis, usually a date or period. |
 | `y` | field name (number) | yes |  | Measure on the top panel. |
 | `y2` | field name (number) | yes |  | Measure on the bottom panel, in its own unit. |
-| `marks` | array |  | `["bar","line"]` | How each panel draws its measure, top then bottom: "bar" for amounts (from zero) or "line" for rates and levels. Example: ["bar", "line"]. |
+| `panels` | array |  | `["bar","line"]` | How each panel draws its measure, top then bottom: "bar" for amounts (from zero) or "line" for rates and levels. Example: ["bar", "line"]. Also accepts `marks`, the older name. |
 | `curve` | `linear`, `smooth`, `step` |  | `"linear"` | "smooth" curves through every point without ever swinging past one (a monotone curve), for a soft, calm trend; "step" holds each value until halfway to the next, for amounts that change in jumps such as prices or headcount. Stacked and stream areas keep their own shapes. |
 | `annotations` | array |  |  | Short notes pinned to points of the chart, each { "x": <category or period>, "y"?: <value>, "text": "…" }. Without y the note sits on the value there. Each note is a few words beside a small dot, with a thin leader to it; on a narrow card the notes become numbered markers with the texts listed under the chart. Example: [{ "x": "2026-03", "text": "Price rise" }]. |
 
@@ -638,7 +638,7 @@ Lines showing change over an ordered axis, usually time. Several y fields draw s
 | `band` | any |  |  | A shaded range behind the first line, for a forecast fan or any low to high spread: { "low": "p10", "high": "p90", "label": "80% range" }. Give the last actual row low and high equal to its value, so the fan opens from it. The ends are labelled and the tooltip gives the range. |
 | `curve` | `linear`, `smooth`, `step` |  | `"linear"` | "smooth" curves through every point without ever swinging past one (a monotone curve), for a soft, calm trend; "step" holds each value until halfway to the next, for amounts that change in jumps such as prices or headcount. Stacked and stream areas keep their own shapes. |
 | `points` | boolean |  | `false` | A small symbol at every data point, in the line's color, so each reading is a mark of its own. Left out where points would sit closer than 8px. |
-| `labels` | `none`, `peaks` |  | `"none"` | "peaks" marks the first series' highest and lowest points with a dot and writes their values beside them, clear of the end label. |
+| `peaks` | boolean |  | `false` | Marks the first series' highest and lowest points with a dot and writes their values beside them, clear of the end label. Also accepts `labels`, the older name. |
 | `scale` | `linear`, `log` |  | `"linear"` | "log" draws the value axis logarithmically, ticks at powers of ten (with 2 and 5 steps when it spans little), so steady growth reads as a straight line and small and large series share one chart. Positive values only: others are left out. |
 | `annotations` | array |  |  | Short notes pinned to points of the chart, each { "x": <category or period>, "y"?: <value>, "text": "…" }. Without y the note sits on the value there. Each note is a few words beside a small dot, with a thin leader to it; on a narrow card the notes become numbered markers with the texts listed under the chart. Example: [{ "x": "2026-03", "text": "Price rise" }]. |
 
@@ -691,7 +691,7 @@ A mark matrix (a punchcard): one mark per pair of x and y, sized by a value, sha
 | `y` | field name (category) | yes |  | Field for the rows: topics, regulations, teams. |
 | `size` | field name (number) |  |  | Field that sizes each circle, by area, against the largest value. |
 | `color` | field name (category) |  |  | Field that shades each mark: a number takes the seven-step scale from lowest to highest (with a scale under the grid), a category takes one color per value (with a key). |
-| `flag` | field name (category) |  |  | A yes/no field (true, 1, "yes", "x"): a filled square where it is yes, a faint dot where it is no. For who must comply. Also accepts `mark`, the older name. |
+| `flag` | field name (category) |  |  | A yes/no field (true, 1, "yes", "x"): a filled square where it is yes, an empty cell where it is no. For who must comply. Also accepts `mark`, the older name. |
 | `label` | field name (category) |  |  | Field (text or a number) written inside marks big enough to hold it; always in the tooltip. |
 | `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |
 
@@ -728,7 +728,7 @@ Part-to-whole as a full disc: up to 6 slices from twelve o'clock clockwise, each
 | --- | --- | --- | --- | --- |
 | `label` | field name (category) | yes |  | Field naming each slice. |
 | `value` | field name (number) | yes |  | Field with each slice's amount. Zero, negative and missing values are left out. |
-| `labels` | `inside`, `outside`, `legend` |  | `"inside"` | "inside" writes each share on its slice (thin slices skip theirs) with a legend of names and values; "outside" writes names and shares beside the disc on short leader lines, with no legend; "legend" leaves the disc bare. |
+| `labelPlace` | `inside`, `outside`, `legend` |  | `"inside"` | "inside" writes each share on its slice (thin slices skip theirs) with a legend of names and values; "outside" writes names and shares beside the disc on short leader lines, with no legend; "legend" leaves the disc bare. Also accepts `labels`, the older name. |
 | `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |
 | `sort` | `value`, `label`, `none` |  | `"none"` | Orders the rows before drawing: "value" ranks them by their number (largest first), "label" by name (A to Z), "none" keeps the data's order. Stacked bars and strips rank by their total. |
 | `order` | `desc`, `asc` |  |  | Turns the sort around: "asc" puts the smallest first, "desc" names Z to A. Defaults to largest first for value, A to Z for label. |
@@ -844,7 +844,7 @@ One dot per row placed by two numbers, to show how they relate. An optional grou
 | `color` | field name (category) |  |  | Field that groups the dots by color. Up to 3 groups stay distinct. Also accepts `series`, the older name. |
 | `label` | field name (category) |  |  | Field naming each dot in its tooltip. |
 | `reference` | array |  |  | Target lines and bands across the value axis. Each item is { value, label }, { field, agg, label } (agg: last, first, sum, avg, min, max; default avg), or { from, to, label } for a band. Example: [{ "value": 1200000, "label": "Target" }]. |
-| `cluster` | field name (category) |  |  | Field naming each dot's cluster, such as a segment found by analysis. A soft, rounded hull gathers each cluster's dots and carries its name at the middle, so the areas read as regions of the plot; the dots take the cluster's color unless series is set. Up to 6 clusters. |
+| `cluster` | field name (category) |  |  | Field naming each dot's cluster, such as a segment found by analysis. A soft, rounded hull gathers each cluster's dots and carries its name at the middle, so the areas read as regions of the plot; the dots take the cluster's color unless color is set. Up to 6 clusters. |
 | `labels` | boolean |  | `false` | Write each dot's label beside it, skipping names that would land on another, so the standouts are named on the chart itself. |
 | `quadrants` | object |  |  | Splits the plot into four at a value of x and of y, with a faint word in each corner: { "x": 50, "y": 3, "labels": ["Monitor", "Act now", "Prepare", "Watch"] } (top-left first, then clockwise). For priority grids such as pressure against impact. |
 | `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |

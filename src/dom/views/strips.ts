@@ -47,7 +47,7 @@ export const pluralUnit = (unit: string) => (/[^aeiou]y$/.test(unit) ? `${unit.s
 export const renderStrips: ViewRenderer<StripsView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
   const { label, per } = ctx.view;
-  const parts = fieldList(ctx.view.parts);
+  const parts = fieldList(ctx.view.value);
   const unit = typeof ctx.view.unit === "string" && ctx.view.unit.trim() ? ctx.view.unit.trim() : wordsFor(ctx).provision;
   const units = wordsFor(ctx).unitPlural(unit, 2);
   const share = shareFormat(ctx.spec.locale);

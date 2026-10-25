@@ -3,8 +3,10 @@
  * widget in widgets/), say who reads it, choose sales moves, steer color and marks, and make live versions, each
  * with the sales question it answers, its move, five qualities and balance note.
  */
-import { AUDIENCES, balanceOf, createVariants, createWidget, explainChart, fillsOf, fork, MOVES, plainTags, PRINCIPLES, qualitiesOf, QUALITIES, questionOf, runPipeline } from "../src/index.ts";
-import type { Audience, Move, Qualities, Row, Variant, Widget, WidgetAction, WidgetSpec } from "../src/index.ts";
+import { createWidget, explainChart, fork, questionOf, runPipeline } from "../src/index.ts";
+import type { Row, Widget, WidgetAction, WidgetSpec } from "../src/index.ts";
+import { AUDIENCES, balanceOf, createVariants, fillsOf, MOVES, plainTags, PRINCIPLES, qualitiesOf, QUALITIES } from "../src/taller.ts";
+import type { Audience, Move, Qualities, Variant } from "../src/taller.ts";
 import { withLook } from "./look.ts";
 
 const stored = import.meta.glob<WidgetSpec>("../widgets/*.json", { eager: true, import: "default" });

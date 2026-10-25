@@ -1,5 +1,5 @@
 {
-  // Type declarations for the drop-in bundle (npm run build:lib): dist/types/standalone.d.ts and what it imports.
+  // Type declarations for the drop-in bundles and every entry point (npm run build:lib): dist/types/standalone.d.ts, lite.d.ts, index.d.ts, kit.d.ts, color.d.ts, geo.d.ts, taller.d.ts and what they import.
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "noEmit": false,
@@ -10,6 +10,6 @@
     "outDir": "dist/types",
     "rootDir": "src"
   },
-  "include": ["src/standalone.ts", "src/lite.ts"],
+  "include": ["src/standalone.ts", "src/lite.ts", "src/index.ts", "src/kit.ts", "src/color.ts", "src/geo.ts", "src/taller.ts"],
   "exclude": ["src/**/*.test.ts"]
 }

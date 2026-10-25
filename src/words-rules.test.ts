@@ -42,8 +42,8 @@ describe("card text", () => {
 
   test.each(WIDGETS)("%s: one source, said once, with no file path", (_file, spec) => {
     expect(typeof spec.source?.name).toBe("string");
-    expect(spec.footer ?? "").not.toMatch(/^\s*Source:/);
-    const said = [spec.title, spec.subtitle, spec.description, spec.footer, spec.byline, spec.source?.name].filter(Boolean).join(" ");
+    expect(spec.note ?? spec.footer ?? "").not.toMatch(/^\s*Source:/);
+    const said = [spec.title, spec.subtitle, spec.description, spec.note ?? spec.footer, spec.byline, spec.source?.name].filter(Boolean).join(" ");
     expect(said).not.toMatch(/\/data\/|\.json\b|\.csv\b/);
     expect((said.match(/fictional|for illustration/gi) ?? []).length).toBeLessThanOrEqual(1);
   });

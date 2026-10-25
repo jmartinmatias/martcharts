@@ -29,14 +29,14 @@ function wedgePath(cx: number, cy: number, r: number, start: number, end: number
  * Draws the `pie` view: a full disc of up to 6 slices from twelve o'clock
  * clockwise, hairline gaps between them, and, by default, each share written
  * on its slice (thin slices skip theirs) with a legend of names, values and
- * shares. `labels: "outside"` names the slices beside the disc on short leader
+ * shares. `labelPlace: "outside"` names the slices beside the disc on short leader
  * lines instead, and `"legend"` leaves the disc bare. Sizes are Fibonacci steps,
  * as the donut's are, and the same category keeps its color across small multiples.
  */
 export const renderPie: ViewRenderer<PieView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
   const { label, value } = ctx.view;
-  const labels = ctx.view.labels ?? "inside";
+  const labels = ctx.view.labelPlace ?? "inside";
   const slices = slicesOf(ctx.rows, value);
   const total = slices.reduce((sum, slice) => sum + slice.amount, 0);
   const share = shareFormat(ctx.spec.locale);

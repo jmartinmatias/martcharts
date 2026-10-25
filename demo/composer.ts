@@ -3,7 +3,8 @@
  * beside the charts saved in this browser (from the editor's "Add to dashboard"). Opened with `#view=1`, the page
  * shows the composed dashboard alone, as a page to share.
  */
-import { boardFromHash, createComposer, createDashboard } from "../src/index.ts";
+import { createComposer, createDashboard } from "../src/index.ts";
+import { boardFromHash } from "../src/kit.ts";
 import type { WidgetSpec } from "../src/index.ts";
 
 const stored = import.meta.glob<WidgetSpec>("../widgets/*.json", { eager: true, import: "default" });

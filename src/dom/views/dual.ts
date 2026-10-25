@@ -29,7 +29,7 @@ export const renderDual: ViewRenderer<DualView & { annotations?: Annotation[] }>
   const doc = ctx.el.ownerDocument;
   const { rows, view } = ctx;
   const fields = [view.y, view.y2] as const;
-  const marks: [DualMark, DualMark] = Array.isArray(view.marks) && view.marks.length === 2 ? view.marks : ["bar", "line"];
+  const marks: [DualMark, DualMark] = Array.isArray(view.panels) && view.panels.length === 2 ? view.panels : ["bar", "line"];
   const curve = view.curve ?? "linear";
   const values = fields.map((field) => rows.map((row) => readNumber(row[field])));
   const xLabels = rows.map((row) => ctx.format(row[view.x], view.x));

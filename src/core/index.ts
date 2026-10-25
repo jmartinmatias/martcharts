@@ -1,6 +1,10 @@
 /**
- * The widget core: specs, forking, the block registry, the data pipeline,
- * formatting and validation. No DOM, so it runs in browsers, Node and workers.
+ * `martcharts/core`: the widget engine with no DOM, so it runs in browsers, Node and workers. Specs, forking, the
+ * block registry, the data pipeline, formatting, validation, the option aliases, colour rules, RAG, the reading
+ * guide, the question, the chart guide and the recommender.
+ *
+ * Colour science and palettes are in `martcharts/color`, maps in `martcharts/geo`, and the Taller in
+ * `martcharts/taller`; the front door, `martcharts`, holds the few names most pages need.
  *
  * @module
  */
@@ -44,8 +48,6 @@ export type { XrayAudit, XrayAuditSource } from "./views.ts";
 export { langOf, wordsFor, WORDS_EN } from "./words.ts";
 export type { Lang, LocaleSource, Words } from "./words.ts";
 export { ragGlyph } from "./formats.ts";
-export { basemap, basemapNames, basemapTiles, describeBasemaps, featureId, featureName, geoAspect, geoProblem, guessBasemap, isGeoCollection, isGeoUrl, normalizeId, project, resolveGeo, SEQUENTIAL_STEPS, sequentialStep } from "./geo.ts";
-export type { GeoCollection, GeoFeature, GeoGeometry, Position, ProjectedShape, Projection } from "./geo.ts";
 export type { AreaView, BarView, BeeswarmView, BulletView, CalendarView, DotView, DumbbellView, SankeyView, DonutView, PieView, AnomaliesView, FunnelView, TreemapView, HbarView, HeatmapView, KpiView, LineView, ListView, MeterView, ScatterView, SlopeView, BumpView, MarimekkoView, HistogramView, RingsView, TimelineView, WaffleView, VarianceView, GaugeView, ParetoView, BoxplotView, LikertView, CandlestickView, SunburstView, ChordView, RadarView, TableView, WaterfallView } from "./views.ts";
 export type { Override } from "./fork.ts";
 
@@ -57,10 +59,8 @@ export { checkReference, REFERENCE_OPTION, referenceValues, resolveReferences } 
 export type { ReferenceMark, ResolvedReference } from "./reference.ts";
 export type { HeadlineAgg, HeadlineSpec } from "./headline.ts";
 export { describePresets, getPreset, presetNames, registerPreset } from "./presets.ts";
-export { describePalettes, getPalette, paletteNames, registerPalette, resolvePalette } from "./palettes.ts";
+export { registerPalette } from "./palettes.ts";
 export type { NamedPalette } from "./palettes.ts";
-export { checkPalette, contrast, deltaE, luminance, oklab, oklch, parseHex, toHex } from "./color.ts";
-export type { Deficiency, PaletteCheck, PaletteReport, Rgb } from "./color.ts";
 export type { StylePreset } from "./presets.ts";
 export { fork } from "./fork.ts";
 export { binValues, niceTicks, sturges } from "./scale.ts";
@@ -68,9 +68,6 @@ export type { Bin } from "./scale.ts";
 export { suggestView } from "./suggest.ts";
 export { recommendCharts } from "./recommend.ts";
 export type { ChartPick } from "./recommend.ts";
-export { AUDIENCES, balanceOf, createVariants, fillsOf, huePalette, meaningOf, MOVES, noveltyOf, plainTags, PRINCIPLES, profileData, qualitiesOf, QUALITIES, rankVariants } from "./taller.ts";
-export { explainVariant } from "./taller-explain.ts";
-export type { Audience, Balance, ColorEmphasis, DataProfile, Lineage, Look, Marks, Move, Principle, Qualities, Quality, TallerOptions, Variant } from "./taller.ts";
 export { questionOf } from "./question.ts";
 export { readingLanguages, registerReadingLanguages } from "./reading.ts";
 export type { ReadingLanguages } from "./reading.ts";
@@ -83,6 +80,8 @@ export { fieldLabel, formatNode, formatValue, humanize } from "./display.ts";
 export { FACET_OPTIONS, hasErrors, validateSpec } from "./validate.ts";
 export { aliasesOf, aliasUse, canonicalName, normalizeView, OPTION_ALIASES } from "./aliases.ts";
 export type { AliasUse, OptionAlias } from "./aliases.ts";
+export { alsoAccepts, canonicalSpec, canonicalView, readable, shownName } from "./canonical.ts";
+export { WIDGET_REF, widgetRef } from "./ref.ts";
 export { ICON_NAMES, ICONS } from "./icons.ts";
 export {
   blockTypes,

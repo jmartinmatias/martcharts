@@ -125,8 +125,8 @@ describe("dot view (a dot plot)", () => {
 
   test("validation wants a label and values, and warns past six measures or thirty rows", () => {
     const base = { data: { type: "inline", rows: ratings } } as unknown as WidgetSpec;
-    expect(validateSpec({ ...base, view: { type: "dot", label: "product" } }).some((issue) => issue.level === "error" && issue.path === "view.values")).toBe(true);
-    const crowded = { ...base, view: { type: "dot", label: "product", values: ["a", "b", "c", "d", "e", "f", "g"] } };
+    expect(validateSpec({ ...base, view: { type: "dot", label: "product" } }).some((issue) => issue.level === "error" && issue.path === "view.value")).toBe(true);
+    const crowded = { ...base, view: { type: "dot", label: "product", value: ["a", "b", "c", "d", "e", "f", "g"] } };
     expect(validateSpec(crowded, ratings).map((issue) => issue.message).join(" ")).toMatch(/7 dots per row/);
   });
 

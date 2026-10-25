@@ -1,11 +1,20 @@
 /**
- * One name per concept. Across views the same idea used to go by several option names: the measure was `value`,
- * `values`, `parts` or `responses`; color by category was `color`, `series` or `kind`. A spec may now use the
- * canonical name everywhere, and the older name still works.
+ * One name per concept, one concept per name. The registry, the renderers, the reading layers and every stored spec
+ * speak the canonical names; the older spellings below are the only place the old names live, and they still work.
  *
- * Normalizing goes one way, toward the names each renderer reads, so no renderer changes:
- * `normalizeView({ type: "dot", label: "p", value: ["a", "b"] })` gives `{ type: "dot", label: "p", values: ["a", "b"] }`.
+ * Normalizing goes one way, toward the canonical names everything reads:
+ * `normalizeView({ type: "dot", label: "p", values: ["a", "b"] })` gives `{ type: "dot", label: "p", value: ["a", "b"] }`.
  * Validation reads the spec as written, so it can say once, per spec, that an older name is now called something else.
+ *
+ * What the names mean, everywhere they appear:
+ * - `value`: the measure, one field or a list (dot, strips and likert used `values`, `parts` and `responses`).
+ * - `color`: the field that colors by category (scatter used `series`, the locator `kind`).
+ * - `flag`: a yes/no field (the matrix used `mark`).
+ * - `mark`: how each item is drawn, one style for all of them: bar or lollipop on bar and hbar, range or arrow on dumbbell.
+ * - `panels`: what each panel of a dual chart draws (it was `marks`, which read like `mark`).
+ * - `labels`: names written beside the marks, true or false (scatter). Pie, line and choropleth used `labels` for three
+ *   other things, now each its own name: pie `labelPlace` (inside, outside, legend), line `peaks` (true marks the
+ *   highest and lowest point) and choropleth `codes` (true writes each region's code).
  *
  * The one name kept on purpose in two senses is `target`: a goal on bullet, meter, variance and the KPI views, and
  * the destination of a flow on sankey and chord. Both are long published, both read naturally where they appear,
@@ -17,34 +26,39 @@
 /** One renamed option on one view. */
 export interface OptionAlias {
   view: string;
-  /** The name to write from now on. */
+  /** The name to write, and the one everything reads. */
   canonical: string;
-  /** The name the renderer reads, and the older spelling that still works. */
+  /** The older spelling, which still works and earns one "now called" warning per spec. */
   legacy: string;
-  /** Turns a canonical value into what the renderer reads, when the two differ in kind (choropleth labels). */
+  /** Turns a value written under the older name into the canonical one, when the two differ in kind. */
+  toCanonical?(value: unknown): unknown;
+  /** Turns a canonical value back into the older form, for hosts that still read the older name. */
   toLegacy?(value: unknown): unknown;
-  /** True when the legacy spelling earns a "now called" warning. Values only renamed, never retired, stay quiet. */
-  deprecated: boolean;
 }
 
-/** Every renamed option. Canonical names follow the concept table in docs/blocks.md. */
+/** Every renamed option. The concept table above, and in docs/blocks.md, says why each name. */
 export const OPTION_ALIASES: readonly OptionAlias[] = [
-  // The measure or measures per row is `value`, one field or a list, on every view.
-  { view: "dot", canonical: "value", legacy: "values", deprecated: true },
-  { view: "strips", canonical: "value", legacy: "parts", deprecated: true },
-  { view: "likert", canonical: "value", legacy: "responses", deprecated: true },
-  // Color by category is `color`.
-  { view: "scatter", canonical: "color", legacy: "series", deprecated: true },
-  { view: "locator", canonical: "color", legacy: "kind", deprecated: true },
-  // A yes/no field is `flag`; `mark` stays the drawing style (bar, hbar, dumbbell).
-  { view: "matrix", canonical: "flag", legacy: "mark", deprecated: true },
-  // Labels take a word everywhere, "none" to turn them off: choropleth's true and false become "codes" and "none".
+  { view: "dot", canonical: "value", legacy: "values" },
+  { view: "strips", canonical: "value", legacy: "parts" },
+  { view: "likert", canonical: "value", legacy: "responses" },
+  { view: "scatter", canonical: "color", legacy: "series" },
+  { view: "locator", canonical: "color", legacy: "kind" },
+  { view: "matrix", canonical: "flag", legacy: "mark" },
+  { view: "dual", canonical: "panels", legacy: "marks" },
+  { view: "pie", canonical: "labelPlace", legacy: "labels" },
+  {
+    view: "line",
+    canonical: "peaks",
+    legacy: "labels",
+    toCanonical: (value) => value === "peaks" || value === true,
+    toLegacy: (value) => (value === true ? "peaks" : "none"),
+  },
   {
     view: "choropleth",
-    canonical: "labels",
+    canonical: "codes",
     legacy: "labels",
-    deprecated: false,
-    toLegacy: (value) => (value === "none" ? false : value === "codes" ? true : value),
+    toCanonical: (value) => !(value === false || value === "none"),
+    toLegacy: (value) => value !== false,
   },
 ];
 
@@ -53,11 +67,11 @@ export function aliasesOf(view: string): OptionAlias[] {
   return OPTION_ALIASES.filter((alias) => alias.view === view);
 }
 
-/** A view as written: the canonical names it used, and the deprecated ones. */
+/** A view as written: the canonical names it used, and the older ones. */
 export interface AliasUse {
-  /** Canonical names written in place of the renderer's, as `[canonical, legacy]`. */
+  /** Canonical names written, as `[canonical, legacy]`. */
   canonical: [string, string][];
-  /** Deprecated legacy names written, as `[legacy, canonical]`. */
+  /** Older names written, as `[legacy, canonical]`. */
   deprecated: [string, string][];
 }
 
@@ -66,21 +80,16 @@ export function aliasUse(view: Record<string, unknown>): AliasUse {
   const use: AliasUse = { canonical: [], deprecated: [] };
   if (typeof view.type !== "string") return use;
   for (const alias of aliasesOf(view.type)) {
-    if (alias.canonical === alias.legacy) {
-      // Same name, a new kind of value: a boolean on choropleth labels is the older form.
-      if (typeof view[alias.canonical] === "boolean" && alias.deprecated) use.deprecated.push([alias.legacy, alias.canonical]);
-      continue;
-    }
     if (view[alias.canonical] !== undefined) use.canonical.push([alias.canonical, alias.legacy]);
-    else if (view[alias.legacy] !== undefined && alias.deprecated) use.deprecated.push([alias.legacy, alias.canonical]);
+    else if (view[alias.legacy] !== undefined) use.deprecated.push([alias.legacy, alias.canonical]);
   }
   return use;
 }
 
 /**
- * The view as its renderer reads it: canonical names moved onto the renderer's names, values converted where the
- * kinds differ. A legacy name already present wins over a canonical one, so nothing written is lost. Returns the
- * same object when nothing changes. Never touches other keys.
+ * The view in canonical names, as the registry, the renderers and the reading layers read it: each older name moved
+ * onto its canonical one, its value converted where the kinds differ. A canonical name already present wins, so
+ * nothing written is lost. Returns the same object when nothing changes. Never touches other keys.
  */
 export function normalizeView<V extends { type: string }>(view: V): V {
   if (!view || typeof view !== "object" || typeof view.type !== "string") return view;
@@ -89,18 +98,11 @@ export function normalizeView<V extends { type: string }>(view: V): V {
   let out: Record<string, unknown> | undefined;
   const source = view as unknown as Record<string, unknown>;
   for (const alias of aliases) {
-    const value = source[alias.canonical];
+    const value = source[alias.legacy];
     if (value === undefined) continue;
-    const converted = alias.toLegacy ? alias.toLegacy(value) : value;
-    if (alias.canonical === alias.legacy) {
-      if (converted === value) continue;
-      out ??= { ...source };
-      out[alias.legacy] = converted;
-      continue;
-    }
     out ??= { ...source };
-    if (out[alias.legacy] === undefined) out[alias.legacy] = converted;
-    delete out[alias.canonical];
+    if (out[alias.canonical] === undefined) out[alias.canonical] = alias.toCanonical ? alias.toCanonical(value) : value;
+    delete out[alias.legacy];
   }
   return (out ?? view) as unknown as V;
 }
