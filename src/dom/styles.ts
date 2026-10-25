@@ -1742,4 +1742,13 @@ ul.fft-map-legend { margin-top: 0; }
 /* Highlight on lifecycle and matrix: the rows not named step back to grey. */
 .fft-lc-lane[data-muted] :is(.fft-lc-label, .fft-lc-status-text) { fill: var(--fft-muted); }
 .fft-mx-row[data-muted] { fill: var(--fft-muted); }
+/* ragtrend: every period cell the same size, from the card, never from its content. */
+.fft-ragtrend-table { table-layout: fixed; width: auto; }
+.fft-ragtrend-cell { width: var(--fft-rt-cell, 26px); min-width: 0; height: 26px; }
+.fft-ragtrend-period { position: relative; overflow: visible; height: 21px; padding: 0 !important; }
+.fft-ragtrend-period-text { position: absolute; left: 0; bottom: 5px; white-space: nowrap; }
+.fft-ragtrend-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fft-ragtrend-table[data-narrow] .fft-rag-pill[data-compact] .fft-rag-word { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.fft-ragtrend-table[data-narrow] .fft-ragtrend-end { padding-left: 3px; }
+.fft-ragtrend .fft-rag-glyph { flex: none; max-width: none; }
 `;

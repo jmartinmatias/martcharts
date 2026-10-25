@@ -7,7 +7,7 @@ import type { RagtrendView } from "../../core/views.ts";
 import { roving } from "./focus.ts";
 import { ragColor, ragLegend, ragMark, ragPill, srText } from "./rag-shared.ts";
 import type { RagLook } from "./rag-shared.ts";
-import { html, selectable } from "./shared.ts";
+import { html, selectable, textWidth } from "./shared.ts";
 
 /** Writes a time back as a period in the same pattern as the data's own: 2026-Q1, 2026-03 or 2026-03-31. */
 function periodText(time: number, like: string): string {
@@ -74,23 +74,45 @@ export const renderRagtrend: ViewRenderer<RagtrendView> = (ctx) => {
   for (const run of ordered) for (const key of keys) seen.add(statusOf(run, key));
   if (!ctx.inFacet) wrap.append(ragLegend(doc, seen, look));
 
+  // Every period cell is the same size, worked out from the card, never from its content: the name column takes what
+  // the longest name needs (up to a third of the card), the Now column what its pill needs (a shape alone on a narrow
+  // card), and the periods share the rest equally. Below a tappable 21px the table keeps that size and scrolls sideways.
+  const SPACING = 3;
+  const narrow = ctx.width < 480;
+  const longestName = Math.max(0, ...ordered.map((run) => textWidth(run.name, 11, 500)));
+  const nameW = Math.round(Math.min(Math.max(72, longestName + 13), ctx.width * (narrow ? 0.3 : 0.34)));
+  const nowW = narrow ? 30 : Math.round(Math.max(...[...seen, "N" as Rag].map((s) => textWidth(word(s), 11, 600))) + 34);
+  const free = ctx.width - nameW - nowW - SPACING * (keys.length + 3);
+  const cell = Math.max(21, Math.min(44, Math.floor(free / Math.max(1, keys.length))));
+  const glyph = cell < 26 ? 10 : 12;
+
   const scroller = html(doc, "div", "fft-rag-scroll");
   const table = html(doc, "table", "fft-ragtrend-table");
   table.style.setProperty("--fft-rag-periods", String(keys.length));
+  table.style.setProperty("--fft-rt-cell", `${cell}px`);
+  table.style.width = `${nameW + nowW + cell * keys.length + SPACING * (keys.length + 3)}px`;
+  if (narrow) table.dataset.narrow = "";
+  const cols = html(doc, "colgroup");
+  for (const width of [nameW, ...keys.map(() => cell), nowW]) {
+    const col = html(doc, "col");
+    col.style.width = `${width}px`;
+    cols.append(col);
+  }
+  table.append(cols);
   const head = html(doc, "thead");
   const headRow = html(doc, "tr");
   const corner = html(doc, "th", "fft-rag-corner", ctx.label(label));
   corner.scope = "col";
   headRow.append(corner);
   // Period headings: every one is there for screen readers; on screen, every nth, so the words never collide.
-  const room = Math.max(1, Math.floor((ctx.width * 0.6) / Math.max(1, keys.length)));
-  const longest = Math.max(...keys.map((key) => ctx.format(key, period).length)) * 6;
-  const every = Math.max(1, Math.ceil(longest / room));
+  const longest = Math.max(...keys.map((key) => textWidth(ctx.format(key, period), 10))) + 6;
+  const every = Math.max(1, Math.ceil(longest / (cell + SPACING)));
   keys.forEach((key, k) => {
     const th = html(doc, "th", "fft-ragtrend-period");
     th.scope = "col";
     const text = ctx.format(key, period);
-    if (k % every === 0) th.textContent = text;
+    // A heading may run across the next columns, but never widens its own: it sits in a span that does not take part in sizing.
+    if (k % every === 0) th.append(html(doc, "span", "fft-ragtrend-period-text", text));
     else th.append(srText(doc, text));
     headRow.append(th);
   });
@@ -111,8 +133,10 @@ export const renderRagtrend: ViewRenderer<RagtrendView> = (ctx) => {
   ordered.forEach((run, i) => {
     const tr = html(doc, "tr", "fft-ragtrend-row");
     tr.style.setProperty("--fft-i", String(i));
-    const name = html(doc, "th", "fft-rag-name", run.name);
+    // One line per name, so every row, and every cell in it, is the same height; the whole name stays in the title.
+    const name = html(doc, "th", "fft-rag-name fft-ragtrend-name", run.name);
     name.scope = "row";
+    name.title = run.name;
     tr.append(name);
     let before: Rag | undefined;
     keys.forEach((key) => {
@@ -122,7 +146,7 @@ export const renderRagtrend: ViewRenderer<RagtrendView> = (ctx) => {
       td.dataset.rag = status;
       const changed = before !== undefined && row !== undefined && ragTrend(before, status) !== "same";
       const why = changed && note && row ? ctx.format(row[note], note) : "";
-      if (row) td.append(ragMark(doc, status, look, 12));
+      if (row) td.append(ragMark(doc, status, look, glyph));
       if (changed) td.dataset.changed = ragTrend(before as Rag, status);
       const said = row ? `${ctx.format(key, period)}: ${word(status)}${changed ? `, was ${word(before as Rag)}${why ? `. ${why}` : ""}` : ""}` : `${ctx.format(key, period)}: no reading`;
       td.append(srText(doc, said));
@@ -145,7 +169,13 @@ export const renderRagtrend: ViewRenderer<RagtrendView> = (ctx) => {
       if (row && status !== "N") before = status;
     });
     const now = html(doc, "td", "fft-ragtrend-end");
-    now.append(ragPill(doc, run.current, look));
+    // On a narrow card the current status is its shape alone, its words kept for screen readers and the title.
+    const pill = ragPill(doc, run.current, look);
+    if (narrow) {
+      pill.dataset.compact = "";
+      pill.title = word(run.current);
+    }
+    now.append(pill);
     tr.append(now);
     rowsOut.push(tr);
     body.append(tr);
