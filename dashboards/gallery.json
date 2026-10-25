@@ -307,7 +307,7 @@
     },
     {
       "section": "Regulatory landscape (views)",
-      "description": "Pressure per topic, who must comply, how binding each rule is, and where each stands"
+      "description": "Pressure, who must comply, how binding each rule is, where each stands"
     },
     {
       "widget": "pressure-matrix",

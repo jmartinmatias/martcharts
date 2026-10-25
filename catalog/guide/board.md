@@ -97,7 +97,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
 {
   "id": "deal-board",
   "title": "Deal board",
-  "subtitle": "Open and closed deals this quarter, by stage",
+  "subtitle": "Open and closed this quarter, by stage",
   "description": "Every deal on a board by stage, the dot colored by region and the amount on each card, so the shape of the quarter reads at a glance.",
   "locale": "en-US",
   "data": {
@@ -164,11 +164,9 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "detail": "owner",
     "limit": 4
   },
-  "footer": "Source: CRM",
   "source": {
-    "name": "Regulatory watch (fictional)"
-  },
-  "byline": "Compliance office"
+    "name": "CRM"
+  }
 }
 ```
 

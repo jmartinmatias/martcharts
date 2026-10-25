@@ -1,8 +1,8 @@
 {
   "id": "reg-in-force-kpi",
   "title": "Rules in force",
-  "subtitle": "Status in force or applying today; the funnel below also counts rules that reached a stage and are now under review or repealed",
-  "description": "How many of the tracked regulations are already in force or applying.",
+  "subtitle": "Status today: in effect or applying",
+  "description": "How many of the tracked regulations are already in force or applying. The funnel also counts rules that reached a stage and are now under review or repealed, so it can be higher.",
   "locale": "en-US",
   "data": {
     "type": "url",

@@ -1,7 +1,7 @@
 {
   "id": "cc-aum-by-country",
   "title": "Where the assets are",
-  "subtitle": "Assets under management by country",
+  "subtitle": "AuM by country, 2026 year to date",
   "description": "Client assets summed by country, shaded on a map of Europe.",
   "locale": "en-US",
   "source": {

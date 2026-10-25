@@ -88,7 +88,8 @@ describe("election donut (arc half)", () => {
   test("the guide reads the half ring left to right and names the halfway mark", () => {
     const full: WidgetSpec = { locale: "en-US", data: { type: "inline", rows: seats }, view: spec.view };
     expect(explainChart(full, seats)).toBe(
-      "The half ring is the whole, read from left to right. Each slice is one party: the wider the slice, the more seats. The small line at the top is the halfway mark: whoever reaches it from the left has a majority. Here, Civic Union is the biggest slice, with 31% of the whole, not enough for a majority of 301 on its own.",
+      // The whole and the slices now share one sentence, so the halfway mark still fits.
+      "The half ring is the whole, read from left to right: each slice is one party, and the wider the slice, the more seats. The small line at the top marks a majority. Here, Civic Union is the biggest slice, with 31% of the whole, not enough for a majority of 301 on its own.",
     );
   });
 });

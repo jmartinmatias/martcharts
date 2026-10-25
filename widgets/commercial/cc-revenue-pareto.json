@@ -1,7 +1,7 @@
 {
   "id": "cc-revenue-pareto",
   "title": "Revenue by client",
-  "subtitle": "The top 20 clients and their running share",
+  "subtitle": "The top 20 and their running share",
   "description": "Clients by revenue, with the running share of the total.",
   "locale": "en-US",
   "source": {

@@ -1,7 +1,7 @@
 {
   "id": "reg-rules-by-country",
   "title": "Rules in scope per country",
-  "subtitle": "Tracked rules that bind firms in each country: EU rules plus national ones",
+  "subtitle": "Tracked EU and national texts binding firms there",
   "description": "How many tracked rules bind firms in each country: the EU body of rules everywhere in the Union, fewer in the EEA, and national regimes in the United Kingdom and Switzerland.",
   "locale": "en-US",
   "data": {

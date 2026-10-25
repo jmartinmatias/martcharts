@@ -87,12 +87,22 @@ console.error("Wrote docs/blocks.md");
 
 // The view count, wherever the hand-written docs give it: the number between the markers follows the registry.
 const VIEW_COUNT = describeBlocks("view").length;
-for (const file of ["../README.md", "../docs/api.md", "../docs/accessibility.md"]) {
+// The page count follows the site's own navigation: one entry per page in the row at the top of every page.
+const PAGE_COUNT = sitePageCount(await readFile(new URL("../index.html", import.meta.url), "utf8"));
+for (const file of ["../README.md", "../docs/api.md", "../docs/accessibility.md", "../docs/features.md"]) {
   const url = new URL(file, import.meta.url);
   const text = await readFile(url, "utf8");
-  const next = text.replace(/<!-- views -->\d+<!-- \/views -->/g, `<!-- views -->${VIEW_COUNT}<!-- /views -->`);
+  const next = text
+    .replace(/<!-- views -->\d+<!-- \/views -->/g, `<!-- views -->${VIEW_COUNT}<!-- /views -->`)
+    .replace(/<!-- pages -->\d+<!-- \/pages -->/g, `<!-- pages -->${PAGE_COUNT}<!-- /pages -->`);
   if (next !== text) {
     await writeFile(url, next);
-    console.error(`Set the view count in ${file.slice(3)} to ${VIEW_COUNT}`);
+    console.error(`Set the view and page counts in ${file.slice(3)} to ${VIEW_COUNT} and ${PAGE_COUNT}`);
   }
+}
+
+/** How many pages the site has: the links and buttons in the navigation row of the gallery page. */
+function sitePageCount(html: string): number {
+  const nav = /<nav class="site-nav"[^>]*>([\s\S]*?)<\/nav>/.exec(html)?.[1] ?? "";
+  return (nav.match(/<(a|button)\b/g) ?? []).length;
 }

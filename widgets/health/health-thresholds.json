@@ -5,7 +5,7 @@
     "name": "Client health model (fictional)"
   },
   "title": "How each status is set",
-  "subtitle": "Green from, amber from, and why, for every measure",
+  "subtitle": "Each measure's two thresholds and the reason for them",
   "description": "The rules behind every status on this page: where green ends, where amber ends, which way is good, and the reason.",
   "data": {
     "type": "url",

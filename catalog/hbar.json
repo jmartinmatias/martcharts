@@ -1,9 +1,11 @@
 {
   "id": "feature-adoption",
   "title": "Feature adoption",
-  "subtitle": "Share of active accounts using each feature, September 2026",
+  "subtitle": "Share of active accounts using each one, September 2026",
   "description": "Which features active accounts actually use. Dashboards lead at 91%; Forecasting, SSO and the audit log reach fewer than two in five accounts.",
-  "footer": "Source: product analytics",
+  "source": {
+    "name": "Product analytics"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

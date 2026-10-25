@@ -5,7 +5,7 @@
     "name": "Client health model (fictional)"
   },
   "title": "How clients are served",
-  "subtitle": "Client success status by segment, clients",
+  "subtitle": "Success status by segment",
   "description": "How many clients in each segment are green, amber or red on client success.",
   "data": {
     "type": "url",

@@ -80,7 +80,9 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Workforce by age and gender",
   "subtitle": "Headcount at the end of September 2026",
   "description": "The shape of the company: women outnumber men under 35, men outnumber women from 40 up, and the 30 to 34 band is the widest on both sides.",
-  "footer": "Source: HR system",
+  "source": {
+    "name": "HR system"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

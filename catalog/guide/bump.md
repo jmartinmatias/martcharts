@@ -132,7 +132,9 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Product ranking",
   "subtitle": "By monthly revenue, {first:month} to {last:month}",
   "description": "Where each product ranks by revenue every month. Analytics overtook Platform in June, and Integrations climbed from fourth to second.",
-  "footer": "Source: finance ledger",
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

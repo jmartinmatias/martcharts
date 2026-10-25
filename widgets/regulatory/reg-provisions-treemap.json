@@ -1,7 +1,7 @@
 {
   "id": "reg-provisions-treemap",
   "title": "Provisions by regulation",
-  "subtitle": "Tile area is the number of provisions, colored by where the rule comes from",
+  "subtitle": "Grouped by where each rule comes from",
   "description": "Which rules carry the most provisions, and how the EU body compares with national regimes.",
   "locale": "en-US",
   "data": {

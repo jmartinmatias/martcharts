@@ -68,7 +68,8 @@ describe("versions keep the target", () => {
     expect(kept.every((v) => v.lineage.question === "target")).toBe(true);
     for (const v of kept) {
       expect(explainChart(v.spec, teams)).toContain("Here, 5 of 8 teams meet the 1 hour target, and 3 miss it: Technical, Data and SMB.");
-      expect(explainChart(v.spec, teams)).toContain("Lower is better here");
+      // One sentence now names the line and how to read it.
+      expect(explainChart(v.spec, teams)).toContain("lower is better here");
       // The version's own short guide names the line, never calls it an average.
       expect([v.explain.includes("The dashed line is the 1 hour target"), v.explain.includes("average")]).toEqual([true, false]);
     }
@@ -104,7 +105,7 @@ describe("versions keep the target", () => {
     const lollipops = across(bars, teams).filter((v) => v.spec.view?.mark === "lollipop" && v.spec.view?.type === "bar");
     expect(lollipops.length).toBeGreaterThan(0);
     expect(lollipops.every((v) => targeted(v) && v.spec.view?.goodWhen === "down" && v.question === "Which teams meet the 1 hour target?")).toBe(true);
-    expect(explainChart(lollipops[0]?.spec as WidgetSpec, teams)).toContain("a dot under the line meets it, and a hollow dot went over.");
+    expect(explainChart(lollipops[0]?.spec as WidgetSpec, teams)).toContain("a dot under it meets it, and a hollow dot went over.");
   });
 
   test("a variance of costs against their budget keeps lower is better, so under budget reads as good news", () => {

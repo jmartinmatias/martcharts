@@ -211,7 +211,9 @@ describe("words for the hbar family", () => {
 
   test("grouped, stacked and split bars each explain themselves and ask their own question", () => {
     const grouped = spec({ type: "hbar", label: "channel", value: ["leads", "won"] }, channels);
-    expect(explainChart(grouped, channels)).toContain("Each row is one channel, with one bar each for leads and won. The longer the bar, the more; the key above says which color is which.");
+    expect(explainChart(grouped, channels)).toContain("Each row is one channel, with one bar each for leads and won: the longer the bar, the more.");
+    // The key is on the chart: the guide no longer points at it.
+    expect(explainChart(grouped, channels)).not.toMatch(/the key/);
     expect(explainChart(grouped, channels)).toContain("Here, Paid search leads on every measure, with 400 leads and 100 won.");
     expect(questionOf(grouped).text).toBe("How do leads and won compare for each channel?");
     const stacked = spec({ type: "hbar", label: "channel", value: ["leads", "won"], stacked: true }, channels);

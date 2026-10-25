@@ -1,9 +1,10 @@
 {
   "id": "plan-moves",
   "title": "Plan changes",
-  "subtitle": "Q3 2026, customers moving between plans",
+  "subtitle": "Q3 2026, customers moving between tiers",
   "description": "Every upgrade and downgrade between plans this quarter. Starter to Growth is the biggest move; downgrades are the thin ribbons running back.",
-  "footer": "Source: billing, {sum:customers} moves",
+  "footer": "{sum:customers} moves",
+  "source": {"name": "Billing"},
   "locale": "en-US",
   "data": {
     "type": "inline",

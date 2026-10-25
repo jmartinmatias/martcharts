@@ -166,7 +166,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Who must comply",
   "subtitle": "Regulations against the firms they bind",
   "description": "A square wherever a kind of firm must comply with a regulation, a faint dot where it need not: the compliance footprint of each rule and of each kind of firm at a glance.",
-  "footer": "Fictional scope for illustration; not legal advice",
+  "footer": "Fictional scope; not legal advice",
   "source": {
     "name": "Regulatory watch register"
   },

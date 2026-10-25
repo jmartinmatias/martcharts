@@ -3,7 +3,7 @@
   "title": "New customers",
   "subtitle": "{last:month}",
   "description": "Customers won each month, with the 12-month trend.",
-  "footer": "Source: CRM",
+  "source": {"name": "CRM"},
   "locale": "en-US",
   "data": {
     "type": "url",

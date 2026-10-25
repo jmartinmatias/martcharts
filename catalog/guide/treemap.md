@@ -77,9 +77,11 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
 {
   "id": "customer-treemap",
   "title": "Revenue by customer",
-  "subtitle": "Year to date, colored by segment",
+  "subtitle": "Year to date, by segment",
   "description": "Every customer's share of revenue, grouped by segment.",
-  "footer": "Source: /data/customers.json",
+  "source": {
+    "name": "CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

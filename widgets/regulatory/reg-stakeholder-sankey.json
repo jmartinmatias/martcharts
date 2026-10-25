@@ -1,7 +1,7 @@
 {
   "id": "reg-stakeholder-sankey",
   "title": "Who must comply, by topic",
-  "subtitle": "Flows from each topic to the stakeholder types its rules bind",
+  "subtitle": "Stakeholder types each area binds",
   "description": "How the body of rules lands on each kind of firm: the thicker the band, the more rules of that topic bind that type.",
   "locale": "en-US",
   "data": {

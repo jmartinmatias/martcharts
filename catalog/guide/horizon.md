@@ -248,7 +248,9 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Daily revenue against plan",
   "subtitle": "By region, {first:day} to {last:day}",
   "description": "Each region's daily revenue against plan, blue above and red below. East beats plan every day, by about €6K a day in July and €16K by September. South falls behind in mid-August, worst on Aug 15 at €14.6K under. West misses every weekend, Central turns positive with September's campaign, and Online swings both ways.",
-  "footer": "Source: finance ledger and daily plan",
+  "source": {
+    "name": "Finance ledger and daily plan"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

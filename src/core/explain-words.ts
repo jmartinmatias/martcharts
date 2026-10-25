@@ -364,7 +364,7 @@ function guideFr(c: Ctx): string {
       const label = noun(one(view.label));
       if (fields.length > 1 && view.split) return `Une ligne par ${label}, avec une colonne de barres pour chacun de ${list(fields.map((f) => name(f)))}. Plus la barre est longue, plus la valeur est élevée. ${view.shared ? "Toutes les colonnes partagent la même échelle : les barres se comparent aussi d'une colonne à l'autre." : "Chaque colonne a sa propre échelle : comparez les barres au sein d'une colonne, pas d'une colonne à l'autre."}`;
       if (fields.length > 1 && view.stacked) return `Une ligne par ${label}, dont la barre est découpée en parts colorées pour ${list(fields.map((f) => name(f)))}. ${parts(view.stacked === "percent")}`;
-      if (fields.length > 1) return `Une ligne par ${label}, avec une barre pour chacun de ${list(fields.map((f) => name(f)))}. Plus la barre est longue, plus la valeur est élevée ; la légende indique quelle couleur correspond à quoi.`;
+      if (fields.length > 1) return `Une ligne par ${label}, avec une barre pour chacun de ${list(fields.map((f) => name(f)))}. Plus la barre est longue, plus la valeur est élevée.`;
       return view.mark === "lollipop" ? `Une ligne par ${label}. Plus le point est à droite, ${valueOf(fields[0])}.` : `Une ligne par ${label}. Plus la barre est longue, ${valueOf(fields[0])}.`;
     }
     case "pyramid":
@@ -406,7 +406,7 @@ function guideFr(c: Ctx): string {
     case "heatmap":
       return `Une case par combinaison ${de(name(one(view.x)))} et ${de(name(one(view.y)))}. Plus la couleur est intense, ${valueOf(one(view.value))}.`;
     case "calendar":
-      return `Une case par jour, les semaines en colonnes. Plus la couleur est intense, ${valueOf(one(view.value))} ; la légende sous le graphique donne l'échelle.`;
+      return `Une case par jour, les semaines en colonnes. Plus la couleur est intense, ${valueOf(one(view.value))}.`;
     case "scatter": {
       const sized = one(view.size) ? ` Plus le point est gros, ${valueOf(one(view.size))}.` : "";
       const hulls = one(view.cluster) ? ` Chaque zone ombrée rassemble un groupe ${de(name(one(view.cluster)))}, nommé en son centre : les points proches vont ensemble.` : "";
@@ -487,7 +487,7 @@ function guideFr(c: Ctx): string {
       return `Une ligne par ${noun(one(view.label))}. Plus le point est à droite, ${valueOf(measures[0])}.`;
     }
     case "choropleth":
-      if (one(view.category)) return `Une région de la carte par ${noun(one(view.id), "region")}, colorée selon ${name(one(view.category))} ; la légende indique quelle couleur correspond à quoi, et une région estompée n'a pas de données.`;
+      if (one(view.category)) return `Une région de la carte par ${noun(one(view.id), "region")}, colorée selon ${name(one(view.category))} ; une région estompée n'a pas de données.`;
       return `Une région de la carte par ${noun(one(view.id), "region")}. Plus sa teinte est intense, ${valueOf(one(view.value))} ; une région estompée n'a pas de données.`;
     case "board": {
       const grouped = one(view.group) ? ` Le point sur une carte indique ${name(one(view.group))}, comme le précise la légende.` : "";
@@ -519,16 +519,15 @@ function guideFr(c: Ctx): string {
       const stages = many(view.stages);
       const extras = [
         view.today ? "le trait vertical marque aujourd'hui" : "",
-        one(view.status) ? `le mot en fin de ligne est ${name(one(view.status))}` : "",
         one(view.impact) ? `une ligne plus épaisse signale une valeur ${de(name(one(view.impact)))} plus élevée` : "",
       ].filter(Boolean);
       const tail = extras.length ? ` ${extras.join(", ").replace(/^./, (ch) => ch.toUpperCase())}.` : "";
-      return `Une ligne par ${noun(one(view.label))}, à lire de gauche à droite dans le temps. Chaque segment coloré est une étape, ${list(stages.map((f) => name(f)))} dans l'ordre, de plus en plus intense ; un trait marque le début de chacune, et un segment pâle est une étape en cours.${tail}`;
+      return `Une ligne par ${noun(one(view.label))}, de gauche à droite dans le temps ; chaque segment est une étape, ${list(stages.map((f) => name(f)))} dans l'ordre, et un segment pâle est en cours.${tail}`;
     }
     case "whitespace":
       return `Une ligne par ${noun(one(view.row), "client")} et une colonne par ${noun(one(view.column), "product")}. Un carré plein signifie que le produit est déjà détenu, un carré détouré qu'il pourrait l'être (plus la teinte est intense, plus c'est probable), et un petit point qu'il n'est pas pertinent. La fin de chaque ligne compte ce qui est détenu et ce qui reste à gagner.`;
     case "xray":
-      return `Cette fiche porte sur un seul ${noun(one(view.label), "client")}, de haut en bas : les chiffres clés${many(view.holdings).length ? ", les produits en couleur sont ceux détenus" : ""}${one(view.wallet) ? `, la barre indique ${name(one(view.wallet))}` : ""}${one(view.trend) ? ", la petite courbe montre la tendance récente" : ""}${one(view.flags) ? ", les pastilles signalent les points de vigilance" : ""}${one(view.actions) ? ", et la liste donne les prochaines actions" : ""}.`;
+      return `Cette fiche porte sur un seul ${noun(one(view.label), "client")} : les chiffres clés${many(view.holdings).length ? ", les produits détenus" : ""}${one(view.wallet) ? `, ${name(one(view.wallet))}` : ""}${one(view.trend) ? ", la tendance récente" : ""}${one(view.flags) ? ", les points de vigilance" : ""}${one(view.actions) ? " et les prochaines actions" : ""}.`;
     case "history":
       return `Un point par événement, ${view.order === "asc" ? "du plus ancien au plus récent" : "le plus récent en haut"}, avec sa date et ce qui s'est passé${one(view.amount) ? ` et, à droite, ${name(one(view.amount))}` : ""}.${one(view.kind) ? ` Chaque couleur et chaque lettre correspondent à une valeur ${de(name(one(view.kind)))}.` : ""}`;
     case "anomalies":
@@ -595,7 +594,7 @@ function guideDe(c: Ctx): string {
       const label = noun(one(view.label));
       if (fields.length > 1 && view.split) return `Eine Zeile je ${label}, mit einer Balkenspalte für ${list(fields.map((f) => name(f)))}. Je länger der Balken, desto höher der Wert. ${view.shared ? "Alle Spalten teilen eine Skala, die Balken lassen sich also auch spaltenübergreifend vergleichen." : "Jede Spalte hat ihre eigene Skala: Vergleichen Sie Balken innerhalb einer Spalte, nicht über Spalten hinweg."}`;
       if (fields.length > 1 && view.stacked) return `Eine Zeile je ${label}, deren Balken in farbige Teile für ${list(fields.map((f) => name(f)))} aufgeteilt ist. ${parts(view.stacked === "percent")}`;
-      if (fields.length > 1) return `Eine Zeile je ${label}, mit einem Balken für ${list(fields.map((f) => name(f)))}. Je länger der Balken, desto höher der Wert; die Legende zeigt, welche Farbe was bedeutet.`;
+      if (fields.length > 1) return `Eine Zeile je ${label}, mit einem Balken für ${list(fields.map((f) => name(f)))}. Je länger der Balken, desto höher der Wert.`;
       return view.mark === "lollipop" ? `Eine Zeile je ${label}. Je weiter rechts der Punkt, ${valueOf(fields[0])}.` : `Eine Zeile je ${label}. Je länger der Balken, ${valueOf(fields[0])}.`;
     }
     case "pyramid":
@@ -637,7 +636,7 @@ function guideDe(c: Ctx): string {
     case "heatmap":
       return `Ein Feld je Kombination aus ${name(one(view.x))} und ${name(one(view.y))}. Je kräftiger die Farbe, ${valueOf(one(view.value))}.`;
     case "calendar":
-      return `Ein Feld je Tag, die Wochen als Spalten. Je kräftiger die Farbe, ${valueOf(one(view.value))}; die Legende darunter zeigt die Skala.`;
+      return `Ein Feld je Tag, die Wochen als Spalten. Je kräftiger die Farbe, ${valueOf(one(view.value))}.`;
     case "scatter": {
       const sized = one(view.size) ? ` Je größer der Punkt, ${valueOf(one(view.size))}.` : "";
       const hulls = one(view.cluster) ? ` Jede schattierte Fläche fasst eine Gruppe nach ${name(one(view.cluster))} zusammen, in ihrer Mitte benannt: Nahe Punkte gehören zusammen.` : "";
@@ -718,7 +717,7 @@ function guideDe(c: Ctx): string {
       return `Eine Zeile je ${noun(one(view.label))}. Je weiter rechts der Punkt, ${valueOf(measures[0])}.`;
     }
     case "choropleth":
-      if (one(view.category)) return `Eine Region der Karte je ${noun(one(view.id), "region")}, eingefärbt nach ${name(one(view.category))}; die Legende zeigt, welche Farbe was bedeutet, und eine blasse Region hat keine Daten.`;
+      if (one(view.category)) return `Eine Region der Karte je ${noun(one(view.id), "region")}, eingefärbt nach ${name(one(view.category))}; eine blasse Region hat keine Daten.`;
       return `Eine Region der Karte je ${noun(one(view.id), "region")}. Je kräftiger der Farbton, ${valueOf(one(view.value))}; eine blasse Region hat keine Daten.`;
     case "board": {
       const grouped = one(view.group) ? ` Der Punkt auf einer Karte zeigt ${name(one(view.group))}, wie die Legende erklärt.` : "";
@@ -750,16 +749,15 @@ function guideDe(c: Ctx): string {
       const stages = many(view.stages);
       const extras = [
         view.today ? "die senkrechte Linie ist heute" : "",
-        one(view.status) ? `das Wort am Zeilenende ist ${name(one(view.status))}` : "",
         one(view.impact) ? `eine dickere Zeile bedeutet einen höheren Wert für ${name(one(view.impact))}` : "",
       ].filter(Boolean);
       const tail = extras.length ? ` ${extras.join(", ").replace(/^./, (ch) => ch.toUpperCase())}.` : "";
-      return `Eine Zeile je ${noun(one(view.label))}, von links nach rechts in der Zeit gelesen. Jeder farbige Abschnitt ist eine Phase, der Reihe nach ${list(stages.map((f) => name(f)))}, zunehmend kräftiger; ein Strich markiert den Beginn jeder Phase, ein blasser Abschnitt eine laufende Phase.${tail}`;
+      return `Eine Zeile je ${noun(one(view.label))}, von links nach rechts in der Zeit; jeder Abschnitt ist eine Phase, der Reihe nach ${list(stages.map((f) => name(f)))}, ein blasser läuft noch.${tail}`;
     }
     case "whitespace":
       return `Eine Zeile je ${noun(one(view.row), "client")} und eine Spalte je ${noun(one(view.column), "product")}. Ein volles Quadrat heißt, das Produkt ist schon vorhanden, ein umrandetes, es wäre möglich (je kräftiger die Tönung, desto wahrscheinlicher), ein kleiner Punkt, es passt nicht. Das Zeilenende zählt Vorhandenes und noch zu Gewinnendes.`;
     case "xray":
-      return `Diese Karte bündelt alles zu einem Eintrag (${noun(one(view.label), "client")}), von oben nach unten: die Kennzahlen${many(view.holdings).length ? ", die farbigen Produkte sind die gehaltenen" : ""}${one(view.wallet) ? `, der Balken zeigt ${name(one(view.wallet))}` : ""}${one(view.trend) ? ", die kleine Linie den jüngsten Trend" : ""}${one(view.flags) ? ", die Etiketten Punkte zur Beobachtung" : ""}${one(view.actions) ? ", und die Liste die nächsten Schritte" : ""}.`;
+      return `Diese Karte bündelt einen Eintrag (${noun(one(view.label), "client")}): die Kennzahlen${many(view.holdings).length ? ", die gehaltenen Produkte" : ""}${one(view.wallet) ? `, ${name(one(view.wallet))}` : ""}${one(view.trend) ? ", den jüngsten Trend" : ""}${one(view.flags) ? ", Punkte zur Beobachtung" : ""}${one(view.actions) ? " und die nächsten Schritte" : ""}.`;
     case "history":
       return `Ein Punkt je Ereignis, ${view.order === "asc" ? "das älteste zuerst" : "das neueste oben"}, mit Datum und Geschehen${one(view.amount) ? ` und rechts ${name(one(view.amount))}` : ""}.${one(view.kind) ? ` Jede Farbe und jeder Buchstabe steht für einen Wert von ${name(one(view.kind))}.` : ""}`;
     case "anomalies":
@@ -1345,7 +1343,7 @@ function renderFr(c: Ctx, f: Fact): string {
     case "dual":
       return `Ici, ${f.a} passe de ${f.aFrom} à ${f.aTo} et ${f.b} de ${f.bFrom} à ${f.bTo}${f.together === undefined ? "" : f.together ? ", dans le même sens" : ", en sens inverse"}.`;
     case "lifecycle":
-      return `Ici, ${f.n} sur ${f.of} ${n1(f.n, "a", "ont")} atteint l'étape ${f.stage}.${f.mover ? ` ${f.mover} a avancé en dernier, à l'étape ${f.moverStage} le ${f.moverDay}.` : ""}`;
+      return `Ici, ${f.n} sur ${f.of} ${n1(f.n, "a", "ont")} atteint l'étape ${f.stage}${f.mover ? ` ; ${f.mover} a avancé en dernier, à l'étape ${f.moverStage} le ${f.moverDay}` : ""}.`;
     case "whitespace":
       return `Ici, ${f.held} ${n1(f.held, "case est détenue", "cases sont détenues")} et ${f.open} ${n1(f.open, "ouverte", "ouvertes")}${f.best ? ` ; ${f.best} a le plus à gagner, ${f.bestV}` : ""}.`;
     case "ragboard":
@@ -1435,7 +1433,7 @@ function renderDe(c: Ctx, f: Fact): string {
     case "dual":
       return `Hier geht ${f.a} von ${f.aFrom} auf ${f.aTo} und ${f.b} von ${f.bFrom} auf ${f.bTo}${f.together === undefined ? "" : f.together ? ", in dieselbe Richtung" : ", in entgegengesetzte Richtungen"}.`;
     case "lifecycle":
-      return `Hier ${n1(f.n, "hat", "haben")} ${f.n} von ${f.of} die Phase ${f.stage} erreicht.${f.mover ? ` Zuletzt ist ${f.mover} vorangekommen, in die Phase ${f.moverStage} am ${f.moverDay}.` : ""}`;
+      return `Hier ${n1(f.n, "hat", "haben")} ${f.n} von ${f.of} die Phase ${f.stage} erreicht${f.mover ? `; zuletzt ist ${f.mover} vorangekommen, in die Phase ${f.moverStage} am ${f.moverDay}` : ""}.`;
     case "whitespace":
       return `Hier ${n1(f.held, "ist 1 Feld", `sind ${f.held} Felder`)} vorhanden und ${f.open} offen${f.best ? `; ${f.best} hat am meisten zu gewinnen, ${f.bestV}` : ""}.`;
     case "ragboard":

@@ -16,6 +16,7 @@ import { isYes, periodTime, timeOf } from "./views.ts";
 import { ragOf, ragRank, ragTrend, ragWord, worstOf } from "./rag.ts";
 import type { Rag } from "./rag.ts";
 import { readable } from "./canonical.ts";
+import { concise } from "./concise.ts";
 import { cardNoun, distinctLabel, entityNoun, explainIn } from "./explain-words.ts";
 import { langOf } from "./words.ts";
 
@@ -35,16 +36,18 @@ export function explainChart(written: WidgetSpec, rows: Row[] = []): string {
   const spec = readable(written);
   // French and German are built in their own words, from the same facts (explain-words.ts).
   const lang = langOf(spec.locale);
-  if (lang !== "en") return explainIn(lang, spec, rows);
+  // Every language is cut to three sentences and sixty words, and never teaches the legend (concise.ts).
+  if (lang !== "en") return concise(explainIn(lang, spec, rows));
   const facet = (spec.facet as { field?: string } | undefined)?.field;
   // A dashed target line says what it is, so the chart reads against it.
   const goal = targetLine(spec);
-  const lined = `${goal ? `${guide(spec)} The dashed line is the ${goal.name}.${missKey(spec)}` : guide(spec)}${highlighted(spec)}`;
+  // The target line and what it means for the marks are one sentence, so the reading stays within three.
+  const lined = `${goal ? `${guide(spec)} The dashed line is the ${goal.name}${missKey(spec)}.` : guide(spec)}${highlighted(spec)}`;
   // Small multiples: one chart per value, so an example across all rows would mix the panels up.
   const faceted = facet ? `${lined} There is one small chart for each ${nameOf(facet, spec)}, all on the same scale.` : lined;
   const general = `${faceted}${ragNote(spec)}`;
   const example = rows.length ? (facet ? facetExample(spec, rows, facet) : exampleOf(spec, rows)) : "";
-  return example ? `${general} ${example}` : general;
+  return concise(example ? `${general} ${example}` : general);
 }
 
 /**
@@ -117,7 +120,7 @@ function missKey(spec: WidgetSpec): string {
   const view = (spec.view ?? { type: "table" }) as View;
   if (view.type !== "bar" || many(view.y).length !== 1 || one(view.lines)) return "";
   const [mark, missed] = view.mark === "lollipop" ? ["dot", "a hollow dot"] : ["bar", "an outlined bar"];
-  return view.goodWhen === "down" ? ` Lower is better here: a ${mark} under the line meets it, and ${missed} went over.` : ` A ${mark} that reaches the line meets it, and ${missed} fell short.`;
+  return view.goodWhen === "down" ? `, and lower is better here: a ${mark} under it meets it, and ${missed} went over` : `: a ${mark} that reaches it meets it, and ${missed} fell short`;
 }
 
 /** Field names that read as one measure at two times: q3_2025 and q3_2026, before and after. */
@@ -786,7 +789,7 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       if (width(widest.values) - width(narrowest.values) <= 1e-9) return lead;
       const half = `its middle half runs from ${show(quartile(widest.values, 0.25))} to ${show(quartile(widest.values, 0.75))}`;
       // One group leading both reads as one sentence, not its name twice.
-      return widest === best ? `${lead.slice(0, -1)}, and varies the most: ${half}.` : `${lead} ${text(widest.row, group)} varies the most: ${half}.`;
+      return widest === best ? `${lead.slice(0, -1)}, and varies the most: ${half}.` : `${lead.slice(0, -1)}; ${text(widest.row, group)} varies the most: ${half}.`;
     }
     case "variance": {
       const [label, amount, target] = [one(view.label), one(view.value), one(view.target)];
@@ -1187,8 +1190,8 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const stage = mover ? stages.filter((field) => timeOf(mover[field]) !== null).at(-1) : undefined;
       // A bare ISO day reads as a calendar date (Jul 10, 2027), unless the field has its own format.
       const on = (row: Row, field: string) => (spec.fields?.[field]?.format !== undefined ? text(row, field) : formatValue(row[field], { type: "date" }, spec.locale));
-      const moved = mover && stage && Number.isFinite(lastDate(mover)) ? ` ${text(mover, label)} moved last, to ${nameOf(stage, spec).toLowerCase()} on ${on(mover, stage)}.` : "";
-      return `Here, ${count} ${plural(entity)} ${reached.length === 1 ? "has" : "have"} reached ${nameOf(last, spec).toLowerCase()}.${moved}`;
+      const moved = mover && stage && Number.isFinite(lastDate(mover)) ? `; ${text(mover, label)} moved last, to ${nameOf(stage, spec).toLowerCase()} on ${on(mover, stage)}` : "";
+      return `Here, ${count} ${plural(entity)} ${reached.length === 1 ? "has" : "have"} reached ${nameOf(last, spec).toLowerCase()}${moved}.`;
     }
     case "whitespace": {
       // The map's point: how many open cells there are, and which client has the most to win.
@@ -1336,8 +1339,9 @@ function guide(spec: WidgetSpec): string {
     return unit ? `${unit} by ${unit}` : field && !/^(time|timestamp|period|when)$/i.test(field) ? `along ${name(field)}` : "over time";
   };
   const series = many(view.y);
-  const colors = series.length > 1 ? ` Each color is one line: ${either(series.map((f) => name(f)))}.` : "";
-  const forecast = view.forecast ? " The dashed part is a forecast, a careful guess about what comes next; the shaded area shows how sure it is: the wider, the less sure." : "";
+  // The legend already names the lines, so the guide never says which colour is which.
+  const colors = "";
+  const forecast = view.forecast ? " The dashed part is a forecast, and the shaded band shows how sure it is: wider is less sure." : "";
   // Notes pinned to the chart, symbols on the lines, named peaks and a log axis each add a sentence to the reading.
   const noted = Array.isArray(view.annotations) && view.annotations.length ? ` The short notes with a small dot point out ${view.annotations.length === 1 ? "a moment worth knowing" : "moments worth knowing"}.` : "";
   const dotted = view.points === true ? " Each dot on a line is one reading." : "";
@@ -1360,7 +1364,7 @@ function guide(spec: WidgetSpec): string {
       const line = !goal
         ? ""
         : down
-          ? ` The line is the ${name(goal)}. Lower is better here: a ${mark} under the line stayed within the ${name(goal)}${outlined}.`
+          ? ` The line is the ${name(goal)}, and lower is better here: a ${mark} under it stayed within the ${name(goal)}${outlined}.`
           : ` The line is the ${name(goal)}: a ${mark} that reaches past it beat the ${name(goal)}${outlined}.`;
       return `Each ${mark} is one ${name(one(view.x))}. ${more}, the more ${name(series[0])}.${line}${compared}${noted}`;
     }
@@ -1368,7 +1372,7 @@ function guide(spec: WidgetSpec): string {
       const parts = many(view.value);
       if (parts.length > 1 && view.split) return `Each row is one ${noun(one(view.label))}, with one column of bars for each of ${both(parts.map((f) => name(f)))}. The longer the bar, the more. ${view.shared ? "Every column shares one scale, so bars compare across columns too." : "Each column has its own scale, so compare bars up and down a column, not across."}`;
       if (parts.length > 1 && view.stacked) return `Each row is one ${noun(one(view.label))}: its bar is split into colored parts for ${both(parts.map((f) => name(f)))}. ${view.stacked === "percent" ? "Every bar adds up to 100%, so compare the sizes of the parts." : "The parts add up to the total, so the whole bar is the total."}`;
-      if (parts.length > 1) return `Each row is one ${noun(one(view.label))}, with one bar each for ${both(parts.map((f) => name(f)))}. The longer the bar, the more; the key above says which color is which.`;
+      if (parts.length > 1) return `Each row is one ${noun(one(view.label))}, with one bar each for ${both(parts.map((f) => name(f)))}. The longer the bar, the more.`;
       return view.mark === "lollipop"
         ? `Each row is one ${noun(one(view.label))}. The further right the dot, the more ${name(one(view.value))}.`
         : `Each row is one ${noun(one(view.label))}. The longer the bar, the more ${name(one(view.value))}.`;
@@ -1380,7 +1384,7 @@ function guide(spec: WidgetSpec): string {
     case "area":
       if (view.stacked === "stream") return `Each colored band is one of ${either(series.map((f) => name(f)))}. The thicker a band at a moment, the more it had then; the whole stream's height is the total.${noted}`;
       if (view.stacked) return `Colored layers stack on top of each other, ${over(one(view.x))}; the top edge is the total and each layer's thickness is its part.${noted}`;
-      return `The filled shape shows how ${name(series[0])} changes ${over(one(view.x))}: higher means more.${colors}${forecast}${noted}`;
+      return `The shape shows ${name(series[0])} ${over(one(view.x))}: higher means more.${colors}${forecast}${noted}`;
     case "dual":
       return `Two small charts share the same ${name(one(view.x), "time")} line: ${name(one(view.y))} on top and ${name(one(view.y2))} below, each with its own scale, so look at the shapes, not at whether they cross. Higher means more on both.`;
     case "kpi": {
@@ -1393,7 +1397,7 @@ function guide(spec: WidgetSpec): string {
       const targeted = (Array.isArray(view.items) ? view.items : []) as { target?: unknown; goodWhen?: unknown }[];
       const sides = new Set(targeted.filter((item) => typeof item.target === "string").map((item) => item.goodWhen === "down"));
       const line = !sides.size ? "" : sides.size > 1 ? "reached its target, or stayed under it where lower is better" : sides.has(true) ? "stayed under its target" : "reached its target";
-      return `Each tile is one key number, with a small arrow that says whether it went up or down since last time.${line ? ` A line under a tile says whether it ${line}.` : ""}`;
+      return `Each tile is one key number; its arrow says whether it went up or down since last time${line ? `, and a line under it whether it ${line}` : ""}.`;
     }
     case "meter":
       return `Each bar fills up toward its target. A full bar means the goal for ${name(one(view.value))} is reached; the percentage says how close it is.`;
@@ -1401,8 +1405,8 @@ function guide(spec: WidgetSpec): string {
       return "The solid bar is the real number and the thin line is the goal. The shaded bands behind show poor, fair and good.";
     case "donut": {
       if (view.arc !== "half") return `The ring is the whole. Each slice is one ${noun(one(view.label))}: the bigger the slice, the bigger its share of ${name(one(view.value))}.`;
-      const line = view.majority ? " The small line at the top is the halfway mark: whoever reaches it from the left has a majority." : "";
-      return `The half ring is the whole, read from left to right. Each slice is one ${noun(one(view.label))}: the wider the slice, the more ${name(one(view.value))}.${line}`;
+      const line = view.majority ? " The small line at the top marks a majority." : "";
+      return `The half ring is the whole, read from left to right: each slice is one ${noun(one(view.label))}, and the wider the slice, the more ${name(one(view.value))}.${line}`;
     }
     case "pie":
       return `The circle is the whole. Each slice is one ${noun(one(view.label))}: the wider the slice, the bigger its share of ${name(one(view.value))}.`;
@@ -1416,16 +1420,16 @@ function guide(spec: WidgetSpec): string {
       // Color scales flip on a dark card (more is brighter there), so the guide speaks of strength, never of darkness.
       return `Each square is one ${name(one(view.x))} and ${name(one(view.y))} together. The stronger the color, the more ${name(one(view.value))}.`;
     case "calendar":
-      return `Each square is one day, with weeks as columns. The stronger the color, the more ${name(one(view.value))}; the key under the chart shows the scale.`;
+      return `Each square is one day, with weeks as columns. The stronger the color, the more ${name(one(view.value))}.`;
     case "scatter": {
-      const sized = one(view.size) ? ` Bigger dots mean more ${name(one(view.size))}.` : "";
+      const sized = one(view.size) ? `, and bigger means more ${name(one(view.size))}` : "";
       const hulls = one(view.cluster) ? ` Each soft shaded area gathers one ${name(one(view.cluster))}, named at its middle: dots that sit together belong together.` : "";
       const q = view.quadrants as { labels?: string[] } | undefined;
       const corners = q?.labels?.filter(Boolean) ?? [];
       // Names on the chart join the corners' sentence, so a fully dressed scatter still reads in four sentences.
       const named = view.labels ? (q ? ", and the standouts carry their names" : " The standouts carry their names on the chart.") : "";
       const split = q ? ` The dashed lines cut the chart into four corners${corners.length ? `, named ${both(corners)}` : ""}: which corner a dot sits in says what to do about it${named}.` : named;
-      return `Each dot is one ${noun(one(view.label))}. Further right means more ${name(one(view.x))}; higher means more ${name(one(view.y))}.${sized}${hulls}${split}`;
+      return `Each dot is one ${noun(one(view.label))}: further right means more ${name(one(view.x))}, higher means more ${name(one(view.y))}${sized}.${hulls}${split}`;
     }
     case "beeswarm":
       return `Each dot is one ${name(one(view.label), "row")}, placed by its ${name(one(view.value))}. Dots pile up where many values are close together.`;
@@ -1458,7 +1462,7 @@ function guide(spec: WidgetSpec): string {
       return "There are 100 squares, so each colored square is one percent of the whole.";
     case "variance":
       // Read by side and the written gap, never by color: presets recolor good and bad.
-      return `Each bar shows how far one ${name(one(view.label))} is from its ${name(one(view.target), "plan")}: to the right when above it, to the left when below, with the gap written beside it. ${view.goodWhen === "down" ? "Below" : "Above"} the ${name(one(view.target), "plan")} is better. The longer the bar, the bigger the gap.`;
+      return `Each bar shows how far one ${name(one(view.label))} is from its ${name(one(view.target), "plan")}: right when above, left when below, the longer the further. ${view.goodWhen === "down" ? "Below" : "Above"} the ${name(one(view.target), "plan")} is better.`;
     case "gauge":
       return "The needle points to the number on a scale from low to high. The small mark on the arc is the goal.";
     case "pareto":
@@ -1472,7 +1476,7 @@ function guide(spec: WidgetSpec): string {
       const x = one(view.x);
       const step = (x && timeStep(x)) ?? "period";
       const average = typeof view.average === "number" && view.average > 1 ? ` The line is the average of the last ${view.average} closing prices.` : "";
-      return `Each candle is one ${step}. The thick box goes from the opening price to the closing price and the thin line from the lowest to the highest. Hollow candles went up, filled candles went down.${average}`;
+      return `Each candle is one ${step}: the box runs from the opening to the closing price and the thin line from the lowest to the highest; hollow went up, filled went down.${average}`;
     }
     case "sunburst":
       return "The inner ring shows the biggest groups. Each ring further out splits them into smaller parts; a wider slice means more.";
@@ -1481,15 +1485,15 @@ function guide(spec: WidgetSpec): string {
     case "radar":
       return `Each spoke is one ${name(one(view.label))}. The further a point sits from the center, the higher the score; a bigger shape is better overall.`;
     case "rose":
-      return `Each slice is one ${name(one(view.label))}, going round like a clock. The bigger a slice's area, the more ${series.length > 1 ? `in that ${name(one(view.label))}` : name(series[0])}.${series.length > 1 ? ` The colors are ${both(series.map((f) => name(f)))}, stacked from the center out.` : ""}`;
+      return `Each slice is one ${name(one(view.label))}, going round like a clock. The bigger a slice's area, the more ${series.length > 1 ? `in that ${name(one(view.label))}, the parts stacked from the center out` : name(series[0])}.`;
     case "horizon":
     {
       // A named baseline ("plan") reads in its own words.
       const named = typeof view.baselineLabel === "string" ? view.baselineLabel.trim() : "";
       const rows = `Each row is one of ${series.length > 1 && series.length <= 8 ? either(series.map((f) => name(f))) : "the series"}, ${over(one(view.x))}.`;
       return named
-        ? `${rows} Values above ${named} rise from the bottom of the row, and values below it hang from its top; the stronger the shade, the further from ${named}.`
-        : `${rows} Values above the baseline rise from the bottom of the row, and values below hang from its top; the stronger the shade, the further away it is.`;
+        ? `${rows} Above ${named} rises from the bottom and below it hangs from the top; the stronger the shade, the further from ${named}.`
+        : `${rows} Above the baseline rises from the bottom and below it hangs from the top; the stronger the shade, the further away.`;
     }
     case "icicle":
       return `The first column is the total. Each column to the right splits the boxes into smaller parts: the taller the box, the more ${name(one(view.value))}.`;
@@ -1499,66 +1503,66 @@ function guide(spec: WidgetSpec): string {
       return `Each row is one ${noun(one(view.label))}. The further right the dot, the more ${name(measures[0])}.`;
     }
     case "choropleth":
-      if (one(view.category)) return `Each region on the map is one ${noun(one(view.id), "region")}, colored by its ${name(one(view.category))}; the key says which color is which, and a faded region has no data.`;
+      if (one(view.category)) return `Each region on the map is one ${noun(one(view.id), "region")}, colored by its ${name(one(view.category))}; a faded region has no data.`;
       return `Each region on the map is one ${noun(one(view.id), "region")}. The stronger its shade, the more ${name(one(view.value))}; a faded region has no data.`;
     case "board": {
-      const grouped = one(view.group) ? ` The dot on a card tells its ${name(one(view.group))}, as the key says.` : "";
-      const valued = one(view.value) ? ` The number on a card is its ${name(one(view.value))}.` : "";
-      return `Each column is one ${name(one(view.stage), "stage")}, with how many ${plural(noun(one(view.label)))} are in it; each card is one ${noun(one(view.label))}. Read left to right to see how far things have come.${grouped}${valued}`;
+      const valued = one(view.value) ? `, with its ${name(one(view.value))}` : "";
+      return `Each column is one ${name(one(view.stage), "stage")}, read left to right; each card is one ${noun(one(view.label))}${valued}.`;
     }
     case "symbols":
-      return `Each circle sits on one ${noun(one(view.label) ?? one(view.id), "place")} on the map. The bigger the circle, the more ${name(one(view.size))}.${one(view.color) ? ` Each color is one ${name(one(view.color))}.` : ""}`;
+      return `Each circle sits on one ${noun(one(view.label) ?? one(view.id), "place")} on the map. The bigger the circle, the more ${name(one(view.size))}.`;
     case "locator":
-      return `Each marker is one ${noun(one(view.label), "place")}, with its name beside it, where it is on the map.${one(view.kind) ? ` Each color is one ${name(one(view.kind))}.` : ""}`;
+      return `Each marker is one ${noun(one(view.label), "place")}, with its name beside it, where it is on the map.`;
     case "matrix": {
       const [size, color, mark] = [one(view.size), one(view.color), one(view.mark)];
       const marks = [
         size ? `The bigger the circle, the more ${name(size)}` : "",
         color ? `${size ? "the stronger its shade" : "the stronger a mark's shade"}, the more ${name(color)} (or one color per kind)` : "",
-        mark ? `a square means yes for ${name(mark)}, a faint dot means no` : "",
+        mark ? `a square means yes for ${name(mark)}` : "",
       ].filter(Boolean);
       const reading = marks.length ? `${marks.join("; ")}.` : "";
       // A label two fields share ("Must comply" on the stakeholder and on the flag) names neither: the field's own name does.
       const axis = (field: string | undefined) => (field ? (distinctLabel(field, spec, [one(view.x), one(view.y), size, color, mark]) ?? noun(field)) : noun(field));
-      return `Each row is one ${axis(one(view.y))} and each column one ${axis(one(view.x))}; a mark sits where the two meet. ${reading ? `${reading.charAt(0).toUpperCase()}${reading.slice(1)} ` : ""}An empty cell means there is nothing for that pair.`;
+      return `Each row is one ${axis(one(view.y))} and each column one ${axis(one(view.x))}${reading ? `: ${reading}` : "."}`;
     }
     case "strips": {
       const parts = many(view.parts);
       const unit = typeof view.unit === "string" && view.unit ? view.unit : "provision";
       const dense = one(view.per) ? `, then ${plural(unit)} per ${name(one(view.per)).replace(/s$/, "")}` : "";
-      const colors = parts.length > 1 ? `The colors say the kind, in order: ${both(parts.map((f) => name(f)))}; the figures at the end are the total, the ${name(parts[0])} share${dense}.` : `The figure at the end is the total${dense}.`;
-      return `Each row is one ${noun(one(view.label))}, and each small square is one ${unit}, so you can count them. ${colors} When a square stands for more than one, the note under the chart says how many.`;
+      const kinds = parts.length > 1 ? `, in order of kind: ${both(parts.map((f) => name(f)))}` : "";
+      const end = parts.length > 1 ? `The figures at the end are the total, the ${name(parts[0])} share${dense}.` : `The figure at the end is the total${dense}.`;
+      return `Each row is one ${noun(one(view.label))} and each square one ${unit}${kinds}. ${end}`;
     }
     case "lifecycle": {
       const stages = many(view.stages);
       const extras = [
         view.today ? "the upright line is today" : "",
-        one(view.status) ? `the word at the end of a row is its ${name(one(view.status))}` : "",
-        one(view.impact) ? `a thicker row means a higher ${name(one(view.impact))}` : "",
+        one(view.impact) ? `a thicker row means more ${name(one(view.impact))}` : "",
       ].filter(Boolean);
-      const tail = extras.length ? ` ${extras.join(", ").replace(/^./, (c) => c.toUpperCase())}.` : "";
-      return `Each row is one ${noun(one(view.label))}, read left to right in time. Each colored stretch is one stage, ${both(stages.map((f) => name(f)))} in turn, deeper as it goes; a tick marks where each began, and a faint stretch is a stage still running.${tail}`;
+      const tail = extras.length ? ` ${extras.join("; ").replace(/^./, (c) => c.toUpperCase())}.` : "";
+      return `Each row is one ${noun(one(view.label))}, read left to right in time; each stretch is one stage, ${both(stages.map((f) => name(f)))} in turn, and a faint one is still running.${tail}`;
     }
     case "whitespace":
-      return `Each row is one ${noun(one(view.row), "client")} and each column one ${noun(one(view.column), "product")}. A filled square means they already have it, an outlined square means they could (the stronger its tint, the more likely), and a small dot means it is not for them. The end of each row counts what they hold and what is still to win.`;
+      return `Each row is one ${noun(one(view.row), "client")} and each column one ${noun(one(view.column), "product")}: filled means they have it, outlined means they could (the stronger, the likelier), a dot means not for them. Each row ends with what they hold and what is left to win.`;
     case "xray":
-      return `This card is one ${noun(one(view.label), "client")}, top to bottom: the key numbers${many(view.holdings).length ? ", the products in color are the ones they hold" : ""}${one(view.wallet) ? `, the bar is how much of their ${name(one(view.wallet))} is with us` : ""}${one(view.trend) ? ", the small line is the recent trend" : ""}${one(view.flags) ? ", the pills are things to watch" : ""}${one(view.actions) ? ", and the list is what to do next" : ""}.`;
+      return `This card is one ${noun(one(view.label), "client")}: the key numbers${many(view.holdings).length ? ", the products they hold" : ""}${one(view.wallet) ? `, their ${name(one(view.wallet))} with us` : ""}${one(view.trend) ? ", the recent trend" : ""}${one(view.flags) ? ", what to watch" : ""}${one(view.actions) ? " and what to do next" : ""}.`;
     case "history":
       // Whose story it is comes from the group, else the card's own words ("A client's events"), never the event field's label.
-      return `Each dot is one event for the ${one(view.group) ? noun(one(view.group), "client") : cardNoun(spec, "client")}, ${view.order === "asc" ? "oldest first" : "newest at the top"}, with its date and what happened${one(view.amount) ? ` and, on the right, the ${name(one(view.amount))}` : ""}.${one(view.kind) ? ` Each color and letter is one ${name(one(view.kind))}.` : ""}`;
+      return `Each dot is one event for the ${one(view.group) ? noun(one(view.group), "client") : cardNoun(spec, "client")}, ${view.order === "asc" ? "oldest first" : "newest at the top"}, with its date and what happened${one(view.amount) ? ` and, on the right, the ${name(one(view.amount))}` : ""}.`;
     case "anomalies":
-      return `Each thin lane is one ${noun(one(view.metric), "measure")}, ${over(one(view.x))}. The line is what happened${one(view.low) && one(view.high) ? "; the faint band is where it was expected to stay" : ""}${one(view.expected) ? ", with a thin line for the expected value" : ""}. A filled dot marks an anomaly, a reading that stepped out of line. The lanes with the most anomalies come first, and each ends with its latest value and its count.`;
+      return `Each lane is one ${noun(one(view.metric), "measure")}, ${over(one(view.x))}: the line is what happened${one(view.low) && one(view.high) ? " and the faint band where it was expected to stay" : ""}. A filled dot is an anomaly, a reading that stepped out of line.`;
     case "ragboard": {
       const words = (s: Rag) => ragWord(s, view.words).toLowerCase();
       // Four sentences at most: what a row and a column are, the shapes, the Overall column, the arrows.
-      const changes = view.previous && typeof view.previous === "object" ? " An arrow means better or worse than last period." : "";
-      const first = view.overall === false ? "" : " Overall, first, is each row's worst status.";
-      return `Each row is one ${noun(one(view.label), "client")}, each column one of ${both(many(view.dimensions).map((f) => name(f)))}. A circle is ${words("G")}, a triangle ${words("A")}, a square ${words("R")}; the worst rows come first.${first}${changes}`;
+      const arrows = view.previous && typeof view.previous === "object";
+      const overall = view.overall === false ? "" : "Overall is the worst of them";
+      const tail = [overall, arrows ? "an arrow marks a change since last period" : ""].filter(Boolean).join("; ");
+      return `Each row is one ${noun(one(view.label), "client")}, each column one measure: a circle is ${words("G")}, a triangle ${words("A")}, a square ${words("R")}.${tail ? ` ${tail.charAt(0).toUpperCase()}${tail.slice(1)}.` : ""}`;
     }
     case "ragtrend": {
       const words = (s: Rag) => ragWord(s, view.words).toLowerCase();
-      const why = one(view.note) ? ", and pointing at it says why" : "";
-      return `Each row is one ${noun(one(view.label), "client")}, read left to right ${over(one(view.period))}. A filled circle is ${words("G")}, a triangle ${words("A")} and a square ${words("R")}; a thin upright line marks where the status changed${why}. The pill at the end is where it stands now, and the rows in the worst state come first.`;
+      const why = one(view.note) ? "; point at it to see why" : "";
+      return `Each row is one ${noun(one(view.label), "client")}, ${over(one(view.period))}: a circle is ${words("G")}, a triangle ${words("A")}, a square ${words("R")}. A thin upright line marks a change${why}.`;
     }
     case "list":
       // A field called name, title or label says nothing about what the lines are: they are entries.
@@ -1572,13 +1576,14 @@ function guide(spec: WidgetSpec): string {
         const format = spec.fields?.[c]?.format;
         return (typeof format === "object" ? (format as { type?: string }).type : format) === "heat";
       });
-      const search = view.search ? " Type in the search box to keep only the rows that match." : "";
-      const pages = typeof view.pageSize === "number" && view.pageSize >= 1 ? ` ${view.pageSize} rows show at a time; Next and Previous turn the pages.` : "";
-      const sort = view.sortable === false ? "" : " Click a column heading to sort by it.";
-      // Four sentences at most: with every extra on, the shade joins the first sentence instead of standing alone.
-      const crowded = shaded && sort && search && pages;
-      const opening = crowded ? `${shape.slice(0, -1)}, and the stronger the shade, the bigger the number.` : `${shape}${shaded ? " The stronger the shade, the bigger the number." : ""}`;
-      return `${opening}${sort}${search}${pages}`;
+      // The controls share one sentence, so a table with every extra on still reads in three.
+      const controls = [
+        view.sortable === false ? "" : "click a column heading to sort by it",
+        view.search ? "type in the search box to keep only the rows that match" : "",
+        typeof view.pageSize === "number" && view.pageSize >= 1 ? `${view.pageSize} rows show at a time, and Next and Previous turn the pages` : "",
+      ].filter(Boolean);
+      const tail = controls.length ? ` ${controls.join("; ").replace(/^./, (c) => c.toUpperCase())}.` : "";
+      return `${shape}${shaded ? " The stronger the shade, the bigger the number." : ""}${tail}`;
     }
     default:
       return "Each mark stands for one value. Bigger, longer or stronger marks mean more.";

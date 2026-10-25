@@ -1,7 +1,7 @@
 {
   "id": "cc-clients-by-country",
   "title": "Where clients are",
-  "subtitle": "Clients by country, sized by count",
+  "subtitle": "By country, active book",
   "description": "How many clients each country has, as circles on the map.",
   "locale": "en-US",
   "source": {

@@ -89,7 +89,9 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Customer churn",
   "subtitle": "{last:month}",
   "description": "Share of customers lost each month. Lower is better.",
-  "footer": "Source: CRM",
+  "source": {
+    "name": "CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

@@ -149,7 +149,6 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Client status, month by month",
   "subtitle": "Overall RAG at each monthly review, May to October 2026",
   "description": "Each key client's overall Red, Amber or Green status at every monthly review, with a note on why it moved, so the review starts with who slipped and why.",
-  "footer": "Fictional clients for illustration",
   "source": {
     "name": "Client review (fictional)"
   },

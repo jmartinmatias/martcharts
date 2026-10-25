@@ -1,7 +1,7 @@
 {
   "id": "cc-cross-sell-paths",
-  "title": "From what clients hold to what they could buy",
-  "subtitle": "Clients by product held and open opportunity",
+  "title": "From products held to opportunities",
+  "subtitle": "Client count, by what they hold and what is open",
   "description": "Which held products lead to which opportunities.",
   "locale": "en-US",
   "source": {

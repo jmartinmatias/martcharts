@@ -1,7 +1,7 @@
 {
   "id": "cc-new-money-target",
   "title": "Net new money against target, by banker",
-  "subtitle": "2026 year to date, over or under each banker's plan",
+  "subtitle": "2026 year to date, over or under each plan",
   "description": "Net new money each relationship manager brought in this year, against the plan.",
   "locale": "en-US",
   "source": {

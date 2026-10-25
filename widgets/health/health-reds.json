@@ -5,7 +5,7 @@
     "name": "Client health model (fictional)"
   },
   "title": "Where the reds sit",
-  "subtitle": "Red clients by banker and perspective",
+  "subtitle": "Off track clients, by banker and perspective",
   "description": "How many of each banker's clients are red on each perspective: the strongest cells are where to step in.",
   "data": {
     "type": "url",

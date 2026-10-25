@@ -20,8 +20,9 @@ const horizon = (extra: Record<string, unknown> = {}): WidgetSpec => ({
 
 describe("a horizon against a named baseline", () => {
   test("the guide reads in its words: above plan, below it, and how far", () => {
+    // Shorter wording, same three readings: above plan, below it and how far.
     expect(explainChart(horizon({ baselineLabel: "plan" }), rows)).toBe(
-      "Each row is one of A or B, day by day. Values above plan rise from the bottom of the row, and values below it hang from its top; the stronger the shade, the further from plan. Here, A was above plan on all 4 days, the most, and the furthest below was B on Jul 1, 30 under.",
+      "Each row is one of A or B, day by day. Above plan rises from the bottom and below it hangs from the top; the stronger the shade, the further from plan. Here, A was above plan on all 4 days, the most, and the furthest below was B on Jul 1, 30 under.",
     );
   });
 

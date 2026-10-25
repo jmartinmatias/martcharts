@@ -127,7 +127,8 @@ describe("tools", () => {
     const json = await call("fft_get_widget_data", { id: "sales-by-region", response_format: "json" });
     const howToRead = String(json.data?.howToRead);
     const markdown = await call("fft_get_widget_data", { id: "sales-by-region" });
-    expect([howToRead.startsWith("Each bar is one region."), howToRead.includes("Here, East is the tallest"), markdown.text.includes(`How to read it: ${howToRead}`)]).toEqual([true, true, true]);
+    // The scale now joins the mark sentence.
+    expect([howToRead.startsWith("Each bar is one region:"), howToRead.includes("Here, East is the tallest"), markdown.text.includes(`How to read it: ${howToRead}`)]).toEqual([true, true, true]);
   });
 
   test("fft_get_widget_data names the sales question the chart answers, before how to read it", async () => {

@@ -1,7 +1,7 @@
 {
   "id": "cc-pipeline-close",
   "title": "When the open deals should close",
-  "subtitle": "Open pipeline by expected close month, weighted by stage",
+  "subtitle": "Weighted pipeline by expected month",
   "description": "The open deals' weighted value by the month each is expected to close.",
   "locale": "en-US",
   "source": {

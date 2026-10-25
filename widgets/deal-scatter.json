@@ -1,9 +1,10 @@
 {
   "id": "deal-scatter",
   "title": "Deal size and speed",
-  "subtitle": "Deal value against days to close, by stage",
+  "subtitle": "Value against days to close, by stage",
   "description": "Whether bigger deals take longer to close, and where lost deals sit.",
-  "footer": "Source: CRM, last two quarters",
+  "footer": "Last two quarters",
+  "source": {"name": "CRM"},
   "locale": "en-US",
   "data": {
     "type": "inline",

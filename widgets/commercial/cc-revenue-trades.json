@@ -1,8 +1,8 @@
 {
   "id": "cc-revenue-trades",
   "title": "Revenue and trades",
-  "subtitle": "{first:month} to {last:month}: twelve months, so it runs longer than the year-to-date revenue above, each on its own scale",
-  "description": "Monthly revenue and the number of trades behind it.",
+  "subtitle": "{first:month} to {last:month}, twelve months",
+  "description": "Monthly revenue and the number of trades behind it. Twelve months, so it runs longer than the year-to-date revenue; each measure has its own scale. Twelve months, so it runs longer than the year-to-date revenue; each measure has its own scale.",
   "locale": "en-US",
   "source": {
     "name": "Commercial data mart (fictional)"

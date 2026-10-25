@@ -1,9 +1,9 @@
 {
   "id": "region-revenue-mix",
   "title": "Revenue mix by region",
-  "subtitle": "Share of Q3 2026 revenue by product line",
+  "subtitle": "Q3 2026 share, by product line",
   "description": "What each region sells: Core is more than half of revenue everywhere except West, where Enterprise is the biggest line.",
-  "footer": "Source: finance ledger",
+  "source": {"name": "Finance ledger"},
   "locale": "en-US",
   "data": {
     "type": "inline",

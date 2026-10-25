@@ -71,7 +71,9 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Q3 revenue, year on year",
   "subtitle": "2025 against 2026, by region",
   "description": "Each region's Q3 revenue last year against this year.",
-  "footer": "Source: finance ledger",
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

@@ -92,7 +92,6 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Client RAG scorecard",
   "subtitle": "October review against September, worst first",
   "description": "Every key client's Red, Amber or Green status from four perspectives: client success, business development, coverage and the relationship itself, with the worst of the four as Overall and arrows where a status moved since September.",
-  "footer": "Fictional clients for illustration",
   "source": {
     "name": "Client review (fictional)"
   },

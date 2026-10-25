@@ -86,7 +86,9 @@ describe("choropleth by category", () => {
     const spec: WidgetSpec = { data: { type: "inline", rows: transposition }, view };
     expect(questionOf(spec, transposition).text).toBe("Which status is each country, on the map?");
     const guide = explainChart(spec, transposition);
-    expect(guide).toMatch(/colored by its status; the key says which color is which/);
+    // The key is on the map: the guide no longer points at it.
+    expect(guide).toMatch(/colored by its status; a faded region has no data/);
+    expect(guide).not.toMatch(/the key/);
     expect(guide).toMatch(/Here, 2 of 4 countries are Transposed, and 1 In progress\./);
   });
 });

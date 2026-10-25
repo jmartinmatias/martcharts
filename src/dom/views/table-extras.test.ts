@@ -143,6 +143,7 @@ describe("table layout options", () => {
   test("the reading guide mentions the search box and the pages when they are there", () => {
     const guide = (view: Record<string, unknown>) => explainChart({ data: { type: "inline", rows: customers }, view: { type: "table", ...view } }, customers);
     expect(guide({})).not.toMatch(/search|pages/);
-    expect(guide({ search: true, pageSize: 8 })).toContain("Type in the search box to keep only the rows that match. 8 rows show at a time; Next and Previous turn the pages.");
+    expect(guide({ search: true, pageSize: 8 })).toContain("Click a column heading to sort by it; type in the search box to keep only the rows that match; 8 rows show at a time, and Next and Previous turn the pages.");
+    // The controls now share one sentence, so a table with every extra on still reads in three.
   });
 });

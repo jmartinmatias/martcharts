@@ -3,7 +3,7 @@
   "title": "How we compare",
   "subtitle": "Customer ratings out of 10, against the market average",
   "description": "Average customer rating per attribute for our product and for the market. We lead on reliability and ease of use and trail only on price.",
-  "footer": "Source: customer survey and analyst panel",
+  "source": {"name": "Customer survey and analyst panel"},
   "locale": "en-US",
   "data": {
     "type": "inline",

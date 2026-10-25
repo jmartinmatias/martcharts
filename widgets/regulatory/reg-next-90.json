@@ -1,7 +1,7 @@
 {
   "id": "reg-next-90",
-  "title": "What must be ready in the next 90 days",
-  "subtitle": "Every milestone due by 2027-01-23, soonest first, with the team that owns it and how ready it is",
+  "title": "Due in the next 90 days",
+  "subtitle": "Every milestone, soonest first, with its owner and readiness",
   "description": "The compliance officer's list: each deadline in the next ninety days, its rule, the owning team, and whether the work is done, in progress or not started.",
   "locale": "en-US",
   "data": {

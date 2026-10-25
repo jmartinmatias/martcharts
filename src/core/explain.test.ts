@@ -11,13 +11,16 @@ const spec = (view: Record<string, unknown>, fields: WidgetSpec["fields"] = {}):
 describe("explainChart", () => {
   test("says what each mark is and what bigger means, with the chart's own field names", () => {
     const text = explainChart(spec({ type: "bar", x: "region", y: "revenue" }, { revenue: { label: "Revenue" } }));
-    expect(text).toBe("Each bar is one region. The taller the bar, the more revenue.");
+    // Reworded: a guide keeps at most three sentences and sixty words, joins the scale to the mark and never teaches the legend.
+    expect(text).toBe("Each bar is one region: the taller the bar, the more revenue.");
   });
 
   test("adds what the options change: colors per series, a dashed forecast, bubble sizes", () => {
-    expect(explainChart(spec({ type: "line", x: "month", y: ["revenue", "cost"] }))).toContain("Each color is one line: revenue or cost.");
+    // The key names the series already: the guide no longer teaches the colors.
+    expect(explainChart(spec({ type: "line", x: "month", y: ["revenue", "cost"] }))).not.toContain("Each color is one line");
     expect(explainChart(spec({ type: "line", x: "month", y: "revenue", forecast: "f", band: { low: "lo", high: "hi" } }))).toContain("The dashed part is a forecast");
-    expect(explainChart(spec({ type: "scatter", x: "growth", y: "margin", size: "revenue", label: "account" }))).toContain("Bigger dots mean more revenue.");
+    // Size now shares the sentence that says what a dot is.
+    expect(explainChart(spec({ type: "scatter", x: "growth", y: "margin", size: "revenue", label: "account" }))).toContain("and bigger means more revenue.");
   });
 
   test("every built-in view has its own explanation, not a generic one", () => {
@@ -43,7 +46,8 @@ describe("explainChart", () => {
       { region: "South", revenue: 900 },
     ];
     const money = { revenue: { label: "Revenue", format: { type: "currency", currency: "EUR", decimals: 0 } } } as WidgetSpec["fields"];
-    expect(explainChart({ ...spec({ type: "bar", x: "region", y: "revenue" }, money), locale: "en-US" }, sales)).toBe("Each bar is one region. The taller the bar, the more revenue. Here, East is the tallest, with €2,000.");
+    // The scale now joins the mark sentence.
+    expect(explainChart({ ...spec({ type: "bar", x: "region", y: "revenue" }, money), locale: "en-US" }, sales)).toBe("Each bar is one region: the taller the bar, the more revenue. Here, East is the tallest, with €2,000.");
     expect(explainChart({ ...spec({ type: "hbar", label: "region", value: "revenue" }, money), locale: "en-US" }, sales)).toContain("Here, East is the longest, with €2,000.");
     const months = [{ month: "2026-07", v: 10 }, { month: "2026-08", v: 14 }, { month: "2026-09", v: 21 }];
     const dated = { month: { format: { type: "date", style: "month" } } } as WidgetSpec["fields"];
@@ -77,7 +81,8 @@ describe("explainChart", () => {
     expect(at({ type: "marimekko", x: "from", series: "to", value: "n" }, [], { from: { label: "Plan they left" }, to: { label: "Plan they joined" } })).toBe(
       "Each column is one plan they left: the wider the column, the bigger its total, and its colored parts show how it splits by plan they joined.",
     );
-    expect(at({ type: "histogram", value: "orders" }, [])).toBe("Each bar is one range of orders. The taller the bar, the more often a value in that range happened; the dashed line is the middle value.");
+    // The scale now joins the mark sentence.
+    expect(at({ type: "histogram", value: "orders" }, [])).toBe("Each bar is one range of orders: the taller the bar, the more often a value in that range happened; the dashed line is the middle value.");
     expect(at({ type: "variance", label: "region", value: "revenue", target: "target" }, [])).toContain("how far one region is from its target");
     expect(at({ type: "bump", x: "month", series: "region", value: "v" }, [{ month: "1", region: "A", v: 3 }, { month: "1", region: "B", v: 2 }, { month: "2", region: "A", v: 1 }, { month: "2", region: "B", v: 4 }])).toBe(
       "Each line is one region's rank, month by month. Higher on the chart means a better rank; lines crossing mean places swapped. Here, B moved up the most, from 2nd to 1st.",
@@ -94,9 +99,11 @@ describe("explainChart", () => {
     expect(at({ type: "bar", x: "team", y: "m", reference }, minutes)).toContain("Here, 3 of 5 teams meet the 1 hour target, and 2 miss it: Partners and Billing.");
     // The guide says which side meets the line and how a miss looks, as the chart draws it.
     expect(at({ type: "bar", x: "team", y: "m", mark: "lollipop", goodWhen: "down", reference }, minutes)).toContain(
-      "The dashed line is the 1 hour target. Lower is better here: a dot under the line meets it, and a hollow dot went over.",
+      // One sentence now names the target and how to read it.
+      "The dashed line is the 1 hour target, and lower is better here: a dot under it meets it, and a hollow dot went over.",
     );
-    expect(at({ type: "bar", x: "team", y: "m", reference: [{ value: 100, label: "Target" }] }, minutes)).toContain("The dashed line is the target. A bar that reaches the line meets it, and an outlined bar fell short.");
+    // One sentence now names the target and how to read it.
+    expect(at({ type: "bar", x: "team", y: "m", reference: [{ value: 100, label: "Target" }] }, minutes)).toContain("The dashed line is the target: a bar that reaches it meets it, and an outlined bar fell short.");
     expect(at({ type: "bar", x: "team", y: "m", goodWhen: "down", reference: [{ value: 100, label: "Target" }] }, minutes)).toContain("Here, all 5 teams meet the target.");
     expect(at({ type: "bar", x: "team", y: "m", reference: [{ value: 100, label: "Target" }] }, minutes)).toContain("Here, none of the 5 teams meets the target yet.");
   });
@@ -149,9 +156,11 @@ describe("explainChart", () => {
   test("candles are read by their shape, never by color alone, in the chart's own time step, with the average line explained", () => {
     const guide = (view: Record<string, unknown>) => explainChart({ data: { type: "inline", rows: [] }, view: { type: "candlestick", open: "o", high: "h", low: "l", close: "c", ...view } });
     expect(guide({ x: "day", average: 5 })).toBe(
-      "Each candle is one day. The thick box goes from the opening price to the closing price and the thin line from the lowest to the highest. Hollow candles went up, filled candles went down. The line is the average of the last 5 closing prices.",
+      // Shape, fill and the average line all stay, in two sentences.
+      "Each candle is one day: the box runs from the opening to the closing price and the thin line from the lowest to the highest; hollow went up, filled went down. The line is the average of the last 5 closing prices.",
     );
-    expect(guide({ x: "week" })).toBe("Each candle is one week. The thick box goes from the opening price to the closing price and the thin line from the lowest to the highest. Hollow candles went up, filled candles went down.");
+    // Shape and fill now share the sentence that says what a candle is.
+    expect(guide({ x: "week" })).toBe("Each candle is one week: the box runs from the opening to the closing price and the thin line from the lowest to the highest; hollow went up, filled went down.");
     expect(guide({ x: "week" })).not.toMatch(/blue|red/i);
     const weeks = [{ week: "1", o: 10, h: 12, l: 9, c: 11 }, { week: "2", o: 11, h: 11, l: 9, c: 10 }];
     expect(explainChart({ data: { type: "inline", rows: [] }, view: { type: "candlestick", x: "week", open: "o", high: "h", low: "l", close: "c" } }, weeks)).toContain("Here, 1 of 2 weeks went up.");
@@ -193,7 +202,8 @@ describe("explainChart", () => {
       at({ type: "made-up-view" }),
     ];
     expect(texts.filter((t) => /\bdark(er|est)\b/i.test(t))).toEqual([]);
-    expect(texts[0]).toContain("The stronger the color, the more orders; the key under the chart shows the scale. Here, the top day is Sep 15, 2026, with 225.");
+    // The key is on the chart: the guide no longer points at it.
+    expect(texts[0]).toContain("the stronger the color, the more orders. Here, the top day is Sep 15, 2026, with 225.");
   });
 
   test("bars with a target line say what the line is and how many periods beat it", () => {
@@ -203,8 +213,9 @@ describe("explainChart", () => {
       { month: "Aug", revenue: 8, target: 9 },
       { month: "Sep", revenue: 12, target: 11 },
     ];
+    // The scale now joins the mark sentence.
     expect(explainChart({ ...spec(view), locale: "en-US" }, rows)).toBe(
-      "Each bar is one month. The taller the bar, the more revenue. The line is the target: a bar that reaches past it beat the target, and an outlined bar fell short. Here, revenue beat the target in 2 of 3 months.",
+      "Each bar is one month: the taller the bar, the more revenue. The line is the target: a bar that reaches past it beat the target, and an outlined bar fell short. Here, revenue beat the target in 2 of 3 months.",
     );
   });
 
@@ -216,7 +227,8 @@ describe("explainChart", () => {
       { team: "Onboarding", minutes: 50 },
     ];
     const lollipops = explainChart({ ...spec({ type: "bar", x: "team", y: "minutes", mark: "lollipop", goodWhen: "down", reference: [{ value: 60, label: "1 hour target" }] }), locale: "en-US" }, teams);
-    expect(lollipops).toContain("The dashed line is the 1 hour target.");
+    // The target sentence now carries how to read it, so it no longer ends at its name.
+    expect(lollipops).toContain("The dashed line is the 1 hour target, and lower is better here");
     expect(lollipops).toContain("Here, 2 of 4 teams meet the 1 hour target, and 2 miss it: Technical and Sales.");
     const months = [
       { month: "Oct", revenue: 820, cost: 600 },
@@ -244,7 +256,8 @@ describe("explainChart", () => {
   test("a row of tiles says what a tile's target line means, only when a tile has one", () => {
     const tiles = (items: Record<string, unknown>[]) => explainChart({ ...spec({ type: "kpis", items }), locale: "en-US" });
     expect(tiles([{ value: "revenue", target: "target" }, { value: "profit" }])).toBe(
-      "Each tile is one key number, with a small arrow that says whether it went up or down since last time. A line under a tile says whether it reached its target.",
+      // Arrow and target line now share one sentence.
+      "Each tile is one key number; its arrow says whether it went up or down since last time, and a line under it whether it reached its target.",
     );
     expect(tiles([{ value: "revenue" }])).not.toContain("target");
   });
@@ -355,8 +368,9 @@ describe("explainChart", () => {
     const heat = { type: "heat" };
     const view = { type: "table", columns: ["region", "2026-04", "2026-05", "2026-06"] };
     const fields = { region: { label: "Region" }, "2026-04": { format: heat }, "2026-05": { format: heat }, "2026-06": { format: heat } };
+    // The scale now joins the mark sentence.
     expect(explainChart({ ...spec(view, fields), locale: "en-US" })).toBe(
-      "Each row is one region and each column one month. The stronger the shade, the bigger the number. Click a column heading to sort by it.",
+      "Each row is one region and each column one month: the stronger the shade, the bigger the number. Click a column heading to sort by it.",
     );
   });
 
@@ -392,10 +406,11 @@ describe("explainChart", () => {
       ...[100, 108, 110, 112, 120].map((v) => ({ region: "East", value: v })),
     ];
     expect(explainChart({ ...spec({ type: "boxplot", value: "value", group: "region" }), locale: "en-US" }, rows)).toContain(
-      "Here, East has the highest middle value, 110. North varies the most: its middle half runs from 50 to 70.",
+      // The two findings now share one sentence, so both fit in three.
+      "Here, East has the highest middle value, 110; North varies the most: its middle half runs from 50 to 70.",
     );
     expect(explainChart({ ...spec({ type: "ridgeline", value: "value", group: "region" }), locale: "en-US" }, rows)).toContain(
-      "Here, East sits furthest right, with a middle value of 110. North varies the most: its middle half runs from 50 to 70.",
+      "Here, East sits furthest right, with a middle value of 110; North varies the most: its middle half runs from 50 to 70.",
     );
     const both = [...[10, 11, 12].map((v) => ({ region: "North", value: v })), ...[60, 100, 140].map((v) => ({ region: "East", value: v }))];
     expect(explainChart({ ...spec({ type: "boxplot", value: "value", group: "region" }), locale: "en-US" }, both)).toContain(
@@ -518,12 +533,14 @@ describe("explainChart", () => {
   test("no guide names a hue or a dark shade: presets recolor and dark themes flip, so marks are read by side, shape and fill", () => {
     const guide = (view: Record<string, unknown>) => explainChart({ ...spec(view), locale: "en-US" });
     expect(guide({ type: "variance", label: "department", value: "actual", target: "budget", goodWhen: "down" })).toBe(
-      "Each bar shows how far one department is from its budget: to the right when above it, to the left when below, with the gap written beside it. Below the budget is better. The longer the bar, the bigger the gap.",
+      // Side, length and which side is better, in two sentences.
+      "Each bar shows how far one department is from its budget: right when above, left when below, the longer the further. Below the budget is better.",
     );
     expect(guide({ type: "variance", label: "region", value: "revenue", target: "target" })).toContain(" Above the target is better.");
     expect(guide({ type: "bullet", label: "kpi", value: "actual", target: "target" })).toBe("The solid bar is the real number and the thin line is the goal. The shaded bands behind show poor, fair and good.");
     expect(guide({ type: "horizon", x: "day", y: ["a", "b"] })).toBe(
-      "Each row is one of A or B, day by day. Values above the baseline rise from the bottom of the row, and values below hang from its top; the stronger the shade, the further away it is.",
+      // Shorter wording, same three readings: above, below and how far.
+      "Each row is one of A or B, day by day. Above the baseline rises from the bottom and below it hangs from the top; the stronger the shade, the further away.",
     );
     const views = ["variance", "bullet", "horizon", "candlestick", "heatmap", "calendar", "waterfall", "kpi", "bar", "line"];
     const all = views.map((type) => guide({ type, x: "day", y: ["a", "b"], label: "l", value: "v", target: "t", open: "o", high: "h", low: "l", close: "c" }));
@@ -532,7 +549,8 @@ describe("explainChart", () => {
 
   test("proofread: entries not names, small multiples, changes between periods, sorting only when on", () => {
     const at = (view: Record<string, unknown>, rows: Record<string, unknown>[] = [], extra: Partial<WidgetSpec> = {}) => explainChart({ ...spec(view), locale: "en-US", ...extra }, rows);
-    expect(at({ type: "treemap", label: "name", value: "revenue" })).toContain("Each box is one entry.");
+    // The scale now joins the mark sentence.
+    expect(at({ type: "treemap", label: "name", value: "revenue" })).toContain("Each box is one entry:");
     const panels = at({ type: "area", x: "month", y: "revenue" }, [{ region: "North", month: "Jan", revenue: 1 }, { region: "West", month: "Feb", revenue: 9 }], { facet: { field: "region" } });
     expect(panels).toContain("There is one small chart for each region, all on the same scale.");
     expect(panels).not.toContain("Here,");

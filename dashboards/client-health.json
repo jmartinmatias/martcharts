@@ -1,7 +1,7 @@
 {
   "id": "client-health",
   "title": "Client health",
-  "subtitle": "Red, amber and green from four perspectives: client success, business development, coverage and the relationship",
+  "subtitle": "Every client on four perspectives, what changed, and who acts",
   "description": "Every client's health as a story: the overview, then each perspective in turn (client success, business development, coverage and the relationship), the movement since last quarter, the actions and who owns them, every client on all four perspectives, and the thresholds behind every status.",
   "asOf": "2026-10-25",
   "columns": 3,

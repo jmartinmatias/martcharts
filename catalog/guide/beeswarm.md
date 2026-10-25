@@ -107,9 +107,11 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
 {
   "id": "deal-swarm",
   "title": "Deal sizes by region",
-  "subtitle": "Every deal closed this half, one dot each",
+  "subtitle": "Every one closed this half",
   "description": "The spread of deal values per region, including outliers an average would hide.",
-  "footer": "Source: CRM",
+  "source": {
+    "name": "CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

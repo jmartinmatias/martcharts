@@ -1,7 +1,7 @@
 {
   "id": "cc-pipeline-target",
   "title": "Pipeline against target, by banker",
-  "subtitle": "Open deals weighted by stage (20% qualified, 45% proposal, 70% negotiation), against each banker's target",
+  "subtitle": "Open deals weighted by stage: 20% qualified, 45% proposal, 70% negotiation",
   "description": "Each relationship manager's open pipeline, weighted by how far each deal has got, against the pipeline the plan needs.",
   "locale": "en-US",
   "source": {

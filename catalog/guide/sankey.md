@@ -85,7 +85,9 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "title": "Where visitors go",
   "subtitle": "September 2026, source to page to outcome",
   "description": "How visits from each source flow through the site to signup or leaving.",
-  "footer": "Source: web analytics",
+  "source": {
+    "name": "Web analytics"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",

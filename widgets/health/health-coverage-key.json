@@ -5,7 +5,7 @@
     "name": "Client health model (fictional)"
   },
   "title": "Days since the last meeting, by banker",
-  "subtitle": "Average days since each client was last met: green up to 45, amber up to 90",
+  "subtitle": "Average across each book",
   "description": "The key coverage measure, averaged over each banker's clients, against the thresholds that set its status.",
   "data": {
     "type": "url",

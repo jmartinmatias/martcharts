@@ -1,7 +1,7 @@
 {
   "id": "reg-stage-funnel",
   "title": "From proposal to application",
-  "subtitle": "How many of the 40 tracked rules have reached each stage by 25 October 2026, whatever their status today",
+  "subtitle": "Stage reached by 25 October 2026, whatever the status now",
   "description": "The lifecycle as a funnel: every rule was proposed; fewer are adopted, in force, and applying today.",
   "locale": "en-US",
   "data": {

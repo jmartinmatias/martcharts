@@ -5,7 +5,7 @@
     "name": "Client health model (fictional)"
   },
   "title": "Pipeline cover by banker",
-  "subtitle": "Average open pipeline against target: green from 3×, amber from 1.5×",
+  "subtitle": "Average open deals against target",
   "description": "The key business development measure, averaged over each banker's clients, against the thresholds that set its status.",
   "data": {
     "type": "url",

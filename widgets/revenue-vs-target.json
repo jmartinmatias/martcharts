@@ -3,7 +3,7 @@
   "title": "Revenue against target",
   "subtitle": "{first:month} to {last:month}",
   "description": "Monthly revenue as bars with the monthly target as a line, on one axis.",
-  "footer": "Source: /data/monthly.json",
+  "source": {"name": "Finance ledger"},
   "locale": "en-US",
   "data": {
     "type": "url",
