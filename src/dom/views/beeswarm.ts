@@ -4,10 +4,9 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { BeeswarmView } from "../../core/views.ts";
 import { linearScale, swarm } from "../layout.ts";
 import { tickFormatter } from "./chart.ts";
-import { buildTable, html, selectable, svg } from "./shared.ts";
+import { buildTable, CHAR_WIDTH, html, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
 
-const CHAR_WIDTH = 6;
 const RADIUS = 4;
 
 /**
@@ -28,14 +27,16 @@ export const renderBeeswarm: ViewRenderer<BeeswarmView> = (ctx) => {
     points.push({ row, amount, group: groups.indexOf(name) });
   }
 
-  const ticks = linearScale(points.map((p) => p.amount), [0, 1], { includeZero: false }).ticks;
+  // Small multiples pass a shared extent, so every panel draws on the same scale.
+  const domain = [...points.map((p) => p.amount), ...(ctx.extent ?? [])];
+  const ticks = linearScale(domain, [0, 1], { includeZero: false }).ticks;
   const tickText = tickFormatter(ctx, value, ticks);
   const groupLabels = groups.map((name) => (group ? ctx.format(name, group) : ""));
   const left = group ? Math.max(34, Math.max(...groupLabels.map((g) => g.length)) * CHAR_WIDTH + 13) : 13;
   const margin = { top: 8, right: 13, bottom: 39, left };
   const width = Math.max(ctx.width, left + 144);
   const plotWidth = width - margin.left - margin.right;
-  const x = linearScale(points.map((p) => p.amount), [margin.left, margin.left + plotWidth], { includeZero: false });
+  const x = linearScale(domain, [margin.left, margin.left + plotWidth], { includeZero: false });
 
   // Offsets per group first, so each row can be as tall as its swarm needs.
   const offsets = new Map<Row, number>();

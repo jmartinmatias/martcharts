@@ -4,11 +4,9 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import { isYes } from "../../core/views.ts";
 import type { MatrixView } from "../../core/views.ts";
 import { quantize, wrapLabels } from "../layout.ts";
-import { hiddenTable, html, selectable, svg } from "./shared.ts";
+import { CHAR_WIDTH, hiddenTable, html, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
 
-/** Rough width of one character of 11px text, for sizing margins without measuring. */
-const CHAR_WIDTH = 6;
 /** Steps in the sequential scale, shared with heat cells and the choropleth. */
 const STEPS = 7;
 const MIN_CELL = 21;
@@ -48,6 +46,8 @@ export const renderMatrix: ViewRenderer<MatrixView> = (ctx) => {
   const numericColor = Boolean(color) && colorValues.some((v) => v !== null) && ctx.rows.every((row) => row[color as string] == null || row[color as string] === "" || readNumber(row[color as string]) !== null);
   const kinds: string[] = [];
   if (color && !numericColor) for (const row of ctx.rows) if (!kinds.includes(String(row[color]))) kinds.push(String(row[color]));
+  // A category keeps one color wherever it appears when the spec fixes colors per category.
+  const kindColor = (k: number) => ctx.colorOf?.(kinds[k]) ?? ctx.color(k);
   const present = colorValues.filter((v): v is number => v !== null);
   const [cmin, cmax] = [Math.min(...present), Math.max(...present)];
   const sizes = size ? ctx.rows.map((row) => readNumber(row[size])) : [];
@@ -121,7 +121,7 @@ export const renderMatrix: ViewRenderer<MatrixView> = (ctx) => {
       }
     }
     const kind = color && !numericColor ? kinds.indexOf(String(row[color])) : 0;
-    node.style.setProperty("fill", ctx.color(Math.max(0, kind)));
+    node.style.setProperty("fill", kindColor(Math.max(0, kind)));
   };
   lines.forEach((line, r) => {
     columns.forEach((column, c) => {
@@ -129,7 +129,7 @@ export const renderMatrix: ViewRenderer<MatrixView> = (ctx) => {
       const y0 = top + r * cell;
       const cx = x0 + cell / 2;
       const cy = y0 + cell / 2;
-      chart.append(svg(doc, "rect", { class: "fft-mx-cell", x: x0 + 1, y: y0 + 1, width: cell - 2, height: cell - 2, rx: 3 }));
+      chart.append(svg(doc, "rect", { class: "fft-mx-cell", x: x0 + 1, y: y0 + 1, width: cell - 2, height: cell - 2, rx: 2 }));
       const row = cells.get(JSON.stringify([line, column]));
       if (!row) return;
       const items: TooltipItem[] = [];
@@ -227,7 +227,7 @@ export const renderMatrix: ViewRenderer<MatrixView> = (ctx) => {
     legend.append(html(doc, "span", undefined, ctx.format(cmin, color)), ramp, html(doc, "span", undefined, `${ctx.format(cmax, color)} ${ctx.label(color).toLowerCase()}`));
     keys.append(legend);
   }
-  if (kinds.length || mark) {
+  if ((kinds.length || mark) && !ctx.inFacet) {
     const legend = html(doc, "ul", "fft-legend");
     if (mark) {
       const swatch = html(doc, "span", "fft-swatch");
@@ -241,7 +241,7 @@ export const renderMatrix: ViewRenderer<MatrixView> = (ctx) => {
       const swatch = html(doc, "span", "fft-swatch");
       swatch.dataset.shape = mark ? "rect" : "dot";
       swatch.setAttribute("aria-hidden", "true");
-      swatch.style.background = ctx.color(i);
+      swatch.style.background = kindColor(i);
       const item = html(doc, "li");
       item.append(swatch, color ? sample(kind, color) : kind);
       legend.append(item);

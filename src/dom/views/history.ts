@@ -2,7 +2,7 @@ import { readNumber } from "../../core/formats.ts";
 import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { HistoryView } from "../../core/views.ts";
-import { buildTable, DAY, dayOf, html, selectable } from "./shared.ts";
+import { buildTable, DAY, dayOf, html, legendList, selectable } from "./shared.ts";
 import { roving } from "./focus.ts";
 
 const DEFAULT_LIMIT = 30;
@@ -45,25 +45,18 @@ export const renderHistory: ViewRenderer<HistoryView> = (ctx) => {
   const kinds: string[] = [];
   if (kind) for (const event of events) if (!kinds.includes(String(event.row[kind]))) kinds.push(String(event.row[kind]));
   const kindText = (value: string) => ctx.format(value, kind);
-  const colorOf = (event: Event) => (kind ? ctx.color(kinds.indexOf(String(event.row[kind]))) : ctx.color(0));
+  // A kind keeps one color wherever it appears when the spec fixes colors per category.
+  const kindColor = (k: number) => ctx.colorOf?.(kinds[k]) ?? ctx.color(k);
+  const colorOf = (event: Event) => (kind ? kindColor(kinds.indexOf(String(event.row[kind]))) : ctx.color(0));
 
   const groups: string[] = [];
   // Groups keep the order the data gives them (first appearance), whatever the events' order inside each.
   if (group) for (const row of ctx.rows) if (!groups.includes(String(row[group]))) groups.push(String(row[group]));
 
   const wrap = html(doc, "div", "fft-history-wrap");
-  if (kind && kinds.length > 1 && !ctx.inFacet) {
-    const legend = html(doc, "ul", "fft-legend");
-    kinds.forEach((value, i) => {
-      const swatch = html(doc, "span", "fft-swatch");
-      swatch.dataset.shape = "dot";
-      swatch.style.background = ctx.color(i);
-      swatch.setAttribute("aria-hidden", "true");
-      const item = html(doc, "li");
-      item.append(swatch, kindText(value));
-      legend.append(item);
-    });
-    wrap.append(legend);
+  const key = kind ? legendList(ctx, kinds.map((value, i) => ({ label: kindText(value), color: kindColor(i), shape: "dot" as const })), { min: 2 }) : undefined;
+  if (key) {
+    wrap.append(key);
   }
 
   const stops: HTMLElement[] = [];

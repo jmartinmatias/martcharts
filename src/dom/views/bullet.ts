@@ -1,8 +1,7 @@
 import { readNumber } from "../../core/formats.ts";
 import type { ViewRenderer } from "../../core/view-context.ts";
 import type { BulletView } from "../../core/views.ts";
-import { html, selectable, svg } from "./shared.ts";
-import { roving } from "./focus.ts";
+import { hiddenTableOf, html, roving, selectable, shareFormat, svg } from "./shared.ts";
 import { checkMark, standing } from "./target.ts";
 
 const DEFAULT_RANGES = [0.6, 0.9, 1.2];
@@ -18,7 +17,7 @@ export const renderBullet: ViewRenderer<BulletView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
   const { label, value, target } = ctx.view;
   const ranges = Array.isArray(ctx.view.ranges) && ctx.view.ranges.length === 3 ? ctx.view.ranges : DEFAULT_RANGES;
-  const share = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 0 });
+  const share = shareFormat(ctx.spec.locale);
   const list = html(doc, "div", "fft-bullets");
   list.setAttribute("role", "list");
   ctx.rows.forEach((row, i) => {
@@ -70,5 +69,5 @@ export const renderBullet: ViewRenderer<BulletView> = (ctx) => {
     list.append(item);
   });
   roving([...list.children]);
-  ctx.el.append(list);
+  ctx.el.append(list, hiddenTableOf(ctx, ctx.rows, [label, value, target]));
 };

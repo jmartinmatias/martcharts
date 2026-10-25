@@ -3,13 +3,12 @@ import { readNumber } from "../../core/formats.ts";
 import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { VarianceView } from "../../core/views.ts";
-import { buildTable, html, selectable, svg } from "./shared.ts";
+import { buildTable, CHAR_WIDTH, html, ROW, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
 
-const CHAR_WIDTH = 6;
-const ROW = 34;
+const LANE: number = ROW.roomy;
 const BAR = 21;
-const RADIUS = 4;
+const RADIUS = 2;
 
 /** A horizontal bar from `from` to `to`, rounded only at its data end (`to`). */
 function varianceBar(from: number, to: number, y: number): string {
@@ -45,7 +44,7 @@ export const renderVariance: ViewRenderer<VarianceView> = (ctx) => {
   const labelRoom = Math.max(...items.map((it) => text(it).length)) * CHAR_WIDTH + 8;
   const left = Math.max(55, Math.max(...items.map((it) => it.name.length)) * CHAR_WIDTH + 21);
   const width = Math.max(ctx.width, left + 144);
-  const height = items.length * ROW + 8;
+  const height = items.length * LANE + 8;
   // Room for a value label beyond each end that has bars.
   const plotLeft = left + (low < 0 ? labelRoom : 0);
   const plotRight = width - 13 - (high > 0 ? labelRoom : 0);
@@ -64,8 +63,8 @@ export const renderVariance: ViewRenderer<VarianceView> = (ctx) => {
     ctx.tooltip.hide();
   };
   items.forEach((it, i) => {
-    const top = 4 + i * ROW;
-    const cy = top + ROW / 2;
+    const top = 4 + i * LANE;
+    const cy = top + LANE / 2;
     const tone = it.delta === 0 ? "even" : (it.delta > 0) === (goodWhen === "up") ? "good" : "bad";
     const g = svg(doc, "g", { class: "fft-var", "data-tone": tone, style: `--fft-i: ${i}` });
     const name = svg(doc, "text", { class: "fft-var-label", x: left - 21, y: cy, "text-anchor": "end", "dominant-baseline": "middle" });
@@ -88,7 +87,7 @@ export const renderVariance: ViewRenderer<VarianceView> = (ctx) => {
       { label: "Variance", value: it.signed },
       ...(it.rel ? [{ label: `vs ${ctx.label(target).toLowerCase()}`, value: it.rel }] : []),
     ];
-    const hit = svg(doc, "rect", { class: "fft-var-hit", x: 0, y: top, width, height: ROW, tabindex: 0, role: "img" });
+    const hit = svg(doc, "rect", { class: "fft-var-hit", x: 0, y: top, width, height: LANE, tabindex: 0, role: "img" });
     hit.setAttribute("aria-label", `${it.name}: ${tips.map((tip) => `${tip.label} ${tip.value}`).join(", ")}`);
     const activate = () => {
       wrap.setAttribute("data-active", "");

@@ -4,11 +4,10 @@ import type { HorizonView } from "../../core/views.ts";
 import { areaPath, evenLabels, spread } from "../layout.ts";
 import type { LabelBox } from "../layout.ts";
 import { tickFormatter } from "./chart.ts";
-import { buildTable, fieldList, html, selectable, svg } from "./shared.ts";
+import { buildTable, CHAR_WIDTH, fieldList, html, ROW, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
 
-const CHAR_WIDTH = 6;
-const ROW = 34;
+const LANE: number = ROW.roomy;
 const GAP = 2;
 const AXIS = 26;
 /** Multiples a band's step rounds up to, within each power of ten: steps such as 30 or 250, never an odd 37. */
@@ -52,7 +51,7 @@ export const renderHorizon: ViewRenderer<HorizonView> = (ctx) => {
   const left = Math.max(...names.map((name) => name.length)) * CHAR_WIDTH + 13;
   const width = Math.max(ctx.width, left + 144);
   const plot = { x: left, w: width - left - 13 };
-  const rowsHeight = series.length * ROW + Math.max(0, series.length - 1) * GAP;
+  const rowsHeight = series.length * LANE + Math.max(0, series.length - 1) * GAP;
   const height = rowsHeight + AXIS;
   const slots = spread(rows.length, plot.x, plot.w);
 
@@ -80,10 +79,10 @@ export const renderHorizon: ViewRenderer<HorizonView> = (ctx) => {
   chart.setAttribute("aria-label", `Horizon chart of ${names.join(", ")} by ${ctx.label(x)}`);
 
   series.forEach((field, s) => {
-    const top = s * (ROW + GAP);
-    const bottom = top + ROW;
+    const top = s * (LANE + GAP);
+    const bottom = top + LANE;
     const group = svg(doc, "g", { class: "fft-horizon-row", "data-series": field, style: `--fft-i: ${s}` });
-    group.append(svg(doc, "rect", { class: "fft-horizon-track", x: plot.x, y: top, width: plot.w, height: ROW, rx: 3 }));
+    group.append(svg(doc, "rect", { class: "fft-horizon-track", x: plot.x, y: top, width: plot.w, height: LANE, rx: 2 }));
     // Distances from the baseline, with a point added wherever the series crosses it.
     const points: { x: number; d: number }[] = [];
     rows.forEach((_, i) => {
@@ -105,7 +104,7 @@ export const renderHorizon: ViewRenderer<HorizonView> = (ctx) => {
         // Only the stretches where this band holds something, each closed at the zero points either side. Above the
         // baseline rises from the row's foot and below hangs from its top, so the side reads without color (WCAG 1.4.1).
         const edge = sign === "up" ? bottom : top;
-        const reach = sign === "up" ? -ROW : ROW;
+        const reach = sign === "up" ? -LANE : LANE;
         const shape = points.map((p, i) =>
           (portion[i] ?? 0) > 0 || (portion[i - 1] ?? 0) > 0 || (portion[i + 1] ?? 0) > 0 ? { x: p.x, y: edge + ((portion[i] ?? 0) / step) * reach } : null,
         );
@@ -114,7 +113,7 @@ export const renderHorizon: ViewRenderer<HorizonView> = (ctx) => {
         group.append(band);
       }
     }
-    const label = svg(doc, "text", { class: "fft-horizon-label", x: plot.x - 8, y: top + ROW / 2, "text-anchor": "end", "dominant-baseline": "middle" });
+    const label = svg(doc, "text", { class: "fft-horizon-label", x: plot.x - 8, y: top + LANE / 2, "text-anchor": "end", "dominant-baseline": "middle" });
     label.textContent = names[s] ?? field;
     group.append(label);
     chart.append(group);

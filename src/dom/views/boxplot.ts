@@ -4,12 +4,11 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { BoxplotView } from "../../core/views.ts";
 import { fitLabels, linearScale, quantile } from "../layout.ts";
 import { tickFormatter } from "./chart.ts";
-import { buildTable, html, selectable, svg } from "./shared.ts";
+import { buildTable, CHAR_WIDTH, html, ROW, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
 
-const CHAR_WIDTH = 6;
 /** Row height and box height: Fibonacci steps. */
-const ROW = 55;
+const LANE: number = ROW.tall;
 const BOX = 21;
 const CAP = 8;
 
@@ -46,12 +45,14 @@ export const renderBoxplot: ViewRenderer<BoxplotView> = (ctx) => {
   });
 
   const all = boxes.flatMap((b) => b.values);
+  // Small multiples pass a shared extent, so every panel draws on the same scale.
+  all.push(...(ctx.extent ?? []));
   const ticks = linearScale(all, [0, 1], { includeZero: false }).ticks;
   const tickText = tickFormatter(ctx, value, ticks);
   const left = group ? Math.max(34, Math.max(...names.map((n) => ctx.format(n, group).length)) * CHAR_WIDTH + 21) : 13;
   const width = Math.max(ctx.width, left + 144);
-  const height = boxes.length * ROW + 26;
-  const plotBottom = boxes.length * ROW;
+  const height = boxes.length * LANE + 26;
+  const plotBottom = boxes.length * LANE;
   const x = linearScale(all, [left, width - 13], { includeZero: false });
   const show = (v: number) => ctx.format(v, value);
 
@@ -76,7 +77,7 @@ export const renderBoxplot: ViewRenderer<BoxplotView> = (ctx) => {
   };
   const color = ctx.color(0);
   boxes.forEach((b, i) => {
-    const cy = i * ROW + ROW / 2;
+    const cy = i * LANE + LANE / 2;
     const g = svg(doc, "g", { class: "fft-box", style: `--fft-i: ${i}; --fft-box-color: ${color}` });
     if (group) {
       const label = svg(doc, "text", { class: "fft-box-label", x: left - 21, y: cy, "text-anchor": "end", "dominant-baseline": "middle" });
@@ -101,7 +102,7 @@ export const renderBoxplot: ViewRenderer<BoxplotView> = (ctx) => {
       ...(b.outliers.length ? [{ label: "Outliers", value: String(b.outliers.length) }] : []),
     ];
     const title = group ? ctx.format(b.name, group) : ctx.label(value);
-    const hit = svg(doc, "rect", { class: "fft-box-hit", x: 0, y: i * ROW, width, height: ROW, tabindex: 0, role: "img" });
+    const hit = svg(doc, "rect", { class: "fft-box-hit", x: 0, y: i * LANE, width, height: LANE, tabindex: 0, role: "img" });
     hit.setAttribute("aria-label", `${title}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
     const activate = () => {
       wrap.setAttribute("data-active", "");

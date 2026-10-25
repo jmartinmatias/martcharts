@@ -1,13 +1,12 @@
 import { readNumber } from "../../core/formats.ts";
+import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { PyramidView } from "../../core/views.ts";
 import { linearScale } from "../layout.ts";
-import { tickFormatter } from "./chart.ts";
-import { buildTable, html, selectable, svg } from "./shared.ts";
+import { highlights, tickFormatter } from "./chart.ts";
+import { buildTable, CHAR_WIDTH, html, rowHeight, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
 
-/** Rough width of one character of 11px text, for reserving room without measuring. */
-const CHAR_WIDTH = 6;
 /** The gap between the two halves and their labels. */
 const GUTTER = 8;
 
@@ -36,7 +35,7 @@ export const renderPyramid: ViewRenderer<PyramidView> = (ctx) => {
   const rightText = rows.map((row) => ctx.format(row[right], right));
   const longest = (texts: string[]) => Math.max(0, ...texts.map((text) => text.length)) * CHAR_WIDTH;
   // Dense pyramids (many age bands) take thinner rows, so twenty bands still fit a card.
-  const ROW = rows.length > 16 ? 18 : rows.length > 10 ? 21 : 26;
+  const LANE = rowHeight(rows.length, "regular");
   const center = Math.max(34, longest(names) + GUTTER * 2);
   // Room for the value at a bar's end: the longest written here, or the largest the shared scale allows, so panels of
   // small multiples keep the same pixels per unit.
@@ -44,7 +43,7 @@ export const renderPyramid: ViewRenderer<PyramidView> = (ctx) => {
   const margin = { top: 21, bottom: 26, left: longest([...leftText, ctx.format(top, left)]) + GUTTER + 5, right: longest([...rightText, ctx.format(top, right)]) + GUTTER + 5 };
   const width = Math.max(ctx.width, margin.left + margin.right + center + 144);
   const half = (width - margin.left - margin.right - center) / 2;
-  const height = margin.top + rows.length * ROW + margin.bottom;
+  const height = margin.top + rows.length * LANE + margin.bottom;
   const mid = margin.left + half + center / 2;
   const leftEdge = mid - center / 2;
   const rightEdge = mid + center / 2;
@@ -72,7 +71,7 @@ export const renderPyramid: ViewRenderer<PyramidView> = (ctx) => {
   }
 
   const plotTop = margin.top;
-  const plotBottom = margin.top + rows.length * ROW;
+  const plotBottom = margin.top + rows.length * LANE;
   // Gridlines mirror either side of the center, labelled under the plot; the center axis is the baseline.
   for (const tick of ticks) {
     for (const [x, anchor] of [
@@ -93,12 +92,16 @@ export const renderPyramid: ViewRenderer<PyramidView> = (ctx) => {
     for (const hit of hits) hit.parentElement?.removeAttribute("data-active");
     ctx.tooltip.hide();
   };
+  // highlight keeps the named rows in color and steps the rest back to grey, as on hbar and dot.
+  const picked = highlights((ctx.view as { highlight?: unknown }).highlight);
+  const muted = (row: Row) => picked.length > 0 && !picked.includes(String(row[label]));
   rows.forEach((row, i) => {
-    const top = plotTop + i * ROW;
+    const top = plotTop + i * LANE;
     const barTop = top + 1;
-    const barHeight = ROW - 2 * (barTop - top);
-    const cy = top + ROW / 2;
+    const barHeight = LANE - 2 * (barTop - top);
+    const cy = top + LANE / 2;
     const group = svg(doc, "g", { class: "fft-pyr-row", style: `--fft-i: ${i}` });
+    if (muted(row)) group.dataset.muted = "";
     const name = svg(doc, "text", { class: "fft-pyr-label", x: mid, y: cy, "text-anchor": "middle", "dominant-baseline": "middle" });
     name.textContent = names[i] ?? "";
     group.append(name);
@@ -120,7 +123,7 @@ export const renderPyramid: ViewRenderer<PyramidView> = (ctx) => {
       { label: ctx.label(right), value: rightText[i] ?? "", color: rightColor },
       { label: "Total", value: ctx.format(total, right) },
     ];
-    const hit = svg(doc, "rect", { class: "fft-pyr-hit", x: 0, y: top, width, height: ROW, tabindex: 0, role: "img" });
+    const hit = svg(doc, "rect", { class: "fft-pyr-hit", x: 0, y: top, width, height: LANE, tabindex: 0, role: "img" });
     hit.setAttribute("aria-label", `${names[i] ?? ""}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}`);
     const show = () => {
       wrap.setAttribute("data-active", "");

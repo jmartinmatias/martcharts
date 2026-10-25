@@ -3,13 +3,9 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { DotView } from "../../core/views.ts";
 import { linearScale } from "../layout.ts";
 import { DEEMPHASIS, highlights, tickFormatter } from "./chart.ts";
-import { buildTable, fieldList, html, selectable, svg } from "./shared.ts";
+import { buildTable, CHAR_WIDTH, fieldList, html, legendList, rowHeight, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
 
-/** Rough width of one character of 11px text, for margins without measuring. */
-const CHAR_WIDTH = 6;
-/** Height of one row: room for a 44px-wide hit area in the other direction, and a comfortable rhythm. */
-const ROW = 34;
 /** Dot radius: one measure gets a slightly bigger dot, several stay small so they can sit close. */
 const RADIUS = { one: 6, many: 5 };
 /** The widest a name column may grow, as a share of the card, before names are cut with an ellipsis. */
@@ -33,6 +29,8 @@ export const renderDot: ViewRenderer<DotView> = (ctx) => {
   const measures = fieldList(ctx.view.values);
   const picked = highlights(ctx.view.highlight);
   const rows = ctx.rows;
+  // Rows tighten as the list grows: roomy up to 8, regular to 16, compact past that (the shared row scale).
+  const LANE = rowHeight(rows.length);
   const values = rows.map((row) => measures.map((field) => readNumber(row[field])));
   const present = values.flat().filter((n): n is number => n !== null);
   if (ctx.extent) present.push(...ctx.extent);
@@ -48,26 +46,15 @@ export const renderDot: ViewRenderer<DotView> = (ctx) => {
   const valueRoom = single ? Math.max(0, ...valueTexts.map((t) => (t[0] ?? "").length)) * CHAR_WIDTH + radius + 13 : radius + 8;
   const margin = { top: 5, right: Math.max(13, valueRoom), bottom: 26, left };
   const width = Math.max(ctx.width, left + margin.right + 89);
-  const plotBottom = margin.top + rows.length * ROW;
+  const plotBottom = margin.top + rows.length * LANE;
   const height = plotBottom + margin.bottom;
   const x = linearScale(present, [margin.left, width - margin.right], { includeZero: false });
   const tickText = tickFormatter(ctx, measures[0], x.ticks);
   const colorOf = (i: number, m: number) => (picked.length === 0 || picked.includes(String(rows[i]?.[label])) ? ctx.color(m) : DEEMPHASIS);
 
   const wrap = html(doc, "div", "fft-chart fft-dots");
-  if (!single && !ctx.inFacet) {
-    const legend = html(doc, "ul", "fft-legend");
-    measures.forEach((field, m) => {
-      const swatch = html(doc, "span", "fft-swatch");
-      swatch.dataset.shape = "dot";
-      swatch.style.background = ctx.color(m);
-      swatch.setAttribute("aria-hidden", "true");
-      const item = html(doc, "li");
-      item.append(swatch, ctx.label(field));
-      legend.append(item);
-    });
-    wrap.append(legend);
-  }
+  const key = single ? undefined : legendList(ctx, measures.map((field, m) => ({ label: ctx.label(field), color: ctx.color(m), shape: "dot" as const })));
+  if (key) wrap.append(key);
 
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
@@ -87,7 +74,7 @@ export const renderDot: ViewRenderer<DotView> = (ctx) => {
     ctx.tooltip.hide();
   };
   rows.forEach((row, i) => {
-    const cy = margin.top + i * ROW + ROW / 2;
+    const cy = margin.top + i * LANE + LANE / 2;
     const name = names[i] ?? "";
     const group = svg(doc, "g", { class: "fft-dot-row", style: `--fft-i: ${i}` });
     const text = svg(doc, "text", { class: "fft-dot-label", x: margin.left - 13, y: cy, "text-anchor": "end", "dominant-baseline": "middle" });
@@ -114,7 +101,7 @@ export const renderDot: ViewRenderer<DotView> = (ctx) => {
       value.textContent = valueTexts[i]?.[0] ?? "";
       group.append(value);
     }
-    const hit = svg(doc, "rect", { class: "fft-dot-hit", x: 0, y: cy - ROW / 2, width, height: ROW, tabindex: 0, role: "img" });
+    const hit = svg(doc, "rect", { class: "fft-dot-hit", x: 0, y: cy - LANE / 2, width, height: LANE, tabindex: 0, role: "img" });
     hit.setAttribute("aria-label", `${name}: ${items.length ? items.map((it) => `${it.label} ${it.value}`).join(", ") : "no value"}`);
     const activate = () => {
       wrap.setAttribute("data-active", "");

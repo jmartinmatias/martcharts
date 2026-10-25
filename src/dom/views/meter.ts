@@ -1,9 +1,8 @@
 import { readNumber } from "../../core/formats.ts";
 import type { ViewRenderer } from "../../core/view-context.ts";
 import type { MeterView } from "../../core/views.ts";
-import { html, selectable } from "./shared.ts";
+import { activeGroup, hiddenTableOf, html, roving, selectable, shareFormat } from "./shared.ts";
 import { checkMark, standing } from "./target.ts";
-import { roving } from "./focus.ts";
 
 /**
  * Draws the `meter` view: one meter per row, with a label, attainment as a
@@ -15,10 +14,11 @@ import { roving } from "./focus.ts";
 export const renderMeter: ViewRenderer<MeterView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
   const { value: valueField, target: targetField, label: labelField } = ctx.view;
-  const percent = new Intl.NumberFormat(ctx.spec.locale, { style: "percent", maximumFractionDigits: 0 });
+  const percent = shareFormat(ctx.spec.locale);
   const list = html(doc, "div", "fft-meters");
   list.setAttribute("role", "list");
-  for (const row of ctx.rows) {
+  const group = activeGroup(list, ctx.tooltip);
+  ctx.rows.forEach((row, i) => {
     const value = readNumber(row[valueField]);
     const target = readNumber(row[targetField]);
     const ratio = value !== null && target !== null && target !== 0 ? value / target : null;
@@ -27,6 +27,7 @@ export const renderMeter: ViewRenderer<MeterView> = (ctx) => {
 
     const meter = html(doc, "div", "fft-meter");
     meter.setAttribute("role", "listitem");
+    meter.style.setProperty("--fft-i", String(i));
     if (ratio !== null && ratio > 1) meter.dataset.over = "true";
     const { met, text: stand } = standing(ctx, value, target, valueField);
     if (met) meter.dataset.met = "true";
@@ -48,9 +49,24 @@ export const renderMeter: ViewRenderer<MeterView> = (ctx) => {
     if (stand) foot.append(html(doc, "span", "fft-meter-gap", stand));
     meter.append(head, track, foot);
     meter.tabIndex = 0;
+    // The tooltip says what the meter shows in figures: the value, the target, the attainment and what is left.
+    const items = [
+      { label: ctx.label(valueField), value: ctx.format(row[valueField], valueField) },
+      { label: ctx.label(targetField), value: ctx.format(row[targetField], targetField) },
+      ...(percentText ? [{ label: "Of target", value: percentText }] : []),
+      ...(stand && !met ? [{ label: "Where it stands", value: stand }] : []),
+    ];
+    const show = () => {
+      group.on(meter);
+      ctx.tooltip.show(track, name, items);
+    };
+    meter.addEventListener("pointerenter", show);
+    meter.addEventListener("focus", show);
+    meter.addEventListener("pointerleave", () => group.off());
+    meter.addEventListener("blur", () => group.off());
     selectable(meter, () => ctx.select(row));
     list.append(meter);
-  }
+  });
   roving([...list.children]);
-  ctx.el.append(list);
+  ctx.el.append(list, hiddenTableOf(ctx, ctx.rows, [labelField ?? "", valueField, targetField]));
 };

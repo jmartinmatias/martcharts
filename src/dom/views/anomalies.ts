@@ -5,11 +5,10 @@ import { isForecast } from "../../core/views.ts";
 import type { AnomaliesView } from "../../core/views.ts";
 import { bandPath, evenLabels, linearScale, linePath, spread } from "../layout.ts";
 import type { LabelBox } from "../layout.ts";
-import { buildTable, html, selectable, svg } from "./shared.ts";
+import { buildTable, CHAR_WIDTH, html, ROW, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
 
-const CHAR_WIDTH = 6;
-const ROW = 34;
+const LANE: number = ROW.roomy;
 const GAP = 5;
 const AXIS = 26;
 /** Air inside a lane above and below its band, so the line never touches the lane's edge. */
@@ -67,7 +66,7 @@ export const renderAnomalies: ViewRenderer<AnomaliesView> = (ctx) => {
   const side = Math.min(Math.max(89, widest * CHAR_WIDTH + 21), Math.floor(ctx.width * 0.4));
   const width = Math.max(ctx.width, side + 144);
   const plot = { x: 0, w: width - side - 13 };
-  const lanesHeight = lanes.length * ROW + Math.max(0, lanes.length - 1) * GAP;
+  const lanesHeight = lanes.length * LANE + Math.max(0, lanes.length - 1) * GAP;
   const height = lanesHeight + AXIS;
   const slots = spread(dates.length, plot.x, plot.w);
   const at = (i: number) => slots[i]?.center ?? 0;
@@ -80,10 +79,10 @@ export const renderAnomalies: ViewRenderer<AnomaliesView> = (ctx) => {
   const flaggedRows: Row[] = [];
 
   lanes.forEach((lane, l) => {
-    const top = l * (ROW + GAP);
-    const bottom = top + ROW;
+    const top = l * (LANE + GAP);
+    const bottom = top + LANE;
     const group = svg(doc, "g", { class: "fft-anom-lane", "data-metric": lane.name, style: `--fft-i: ${l}` });
-    group.append(svg(doc, "rect", { class: "fft-anom-track", x: plot.x, y: top, width: plot.w, height: ROW, rx: 3 }));
+    group.append(svg(doc, "rect", { class: "fft-anom-track", x: plot.x, y: top, width: plot.w, height: LANE, rx: 2 }));
     const reading = (row: Row | undefined, field: string | undefined) => (row && field ? readNumber(row[field]) : null);
     const covered = lane.rows.flatMap((row) => [reading(row, value), reading(row, expected), reading(row, low), reading(row, high)]).filter((v): v is number => v !== null);
     // Each lane on its own scale, fitted to its readings: the shape matters here, not the amounts.
@@ -185,7 +184,8 @@ export const renderAnomalies: ViewRenderer<AnomaliesView> = (ctx) => {
   const flagKey = keyItem("fft-anom-key-flag", "Anomaly");
   (flagKey.firstChild as HTMLElement).dataset.shape = "dot";
   key.append(flagKey);
-  wrap.prepend(key);
+  // Inside a small-multiples panel the widget draws one shared legend.
+  if (!ctx.inFacet) wrap.prepend(key);
 
   const hidden = html(doc, "div", "fft-sr-only");
   const columns = [x, metric, value, expected, low, high].filter((f): f is string => Boolean(f));

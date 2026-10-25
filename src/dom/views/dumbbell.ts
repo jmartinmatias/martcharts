@@ -1,14 +1,13 @@
 import { minusFormat } from "../../core/display.ts";
 import { readNumber } from "../../core/formats.ts";
+import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { DumbbellView } from "../../core/views.ts";
 import { linearScale } from "../layout.ts";
-import { tickFormatter } from "./chart.ts";
-import { buildTable, html, selectable, svg } from "./shared.ts";
+import { highlights, tickFormatter } from "./chart.ts";
+import { buildTable, CHAR_WIDTH, html, rowHeight, selectable, svg } from "./shared.ts";
 import { roving } from "./focus.ts";
 
-const CHAR_WIDTH = 6;
-const ROW = 34;
 /** Field names that read as a moment in time (q3_2025, h1, last, before): such a pair is a before and an after. */
 const PERIOD = /(19|20)\d\d|\b[qh][1-4]\b|before|after|previous|prior|last|current|start|end/i;
 /** The arrowhead: its length along the row and half its width, in pixels. Crisp at a 2px stroke. */
@@ -37,14 +36,18 @@ export const renderDumbbell: ViewRenderer<DumbbellView> = (ctx) => {
   const { label, from, to } = ctx.view;
   const arrow = ctx.view.mark === "arrow";
   const rows = ctx.rows.filter((row) => readNumber(row[from]) !== null && readNumber(row[to]) !== null);
+  // Rows tighten as the list grows: roomy up to 8, regular to 16, compact past that (the shared row scale).
+  const LANE = rowHeight(rows.length);
   const values = rows.flatMap((row) => [readNumber(row[from]) as number, readNumber(row[to]) as number]);
+  // Small multiples pass a shared extent, so every panel draws on the same scale.
+  values.push(...(ctx.extent ?? []));
   const ticks = linearScale(values, [0, 1], { includeZero: false }).ticks;
   const tickText = tickFormatter(ctx, to, ticks);
   const names = rows.map((row) => ctx.format(row[label], label));
   const left = Math.max(34, Math.max(...names.map((n) => n.length)) * CHAR_WIDTH + 13);
   const margin = { top: 5, right: 13, bottom: 26, left };
   const width = Math.max(ctx.width, left + 144);
-  const height = margin.top + rows.length * ROW + margin.bottom;
+  const height = margin.top + rows.length * LANE + margin.bottom;
   const x = linearScale(values, [margin.left, width - margin.right], { includeZero: false });
   const change = minusFormat(new Intl.NumberFormat(ctx.spec.locale, { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1, signDisplay: "exceptZero" }));
   const periods = PERIOD.test(from) || PERIOD.test(to);
@@ -71,12 +74,13 @@ export const renderDumbbell: ViewRenderer<DumbbellView> = (ctx) => {
     if (directions.includes("up")) key("fft-db-key-up", "line", "Rose");
     if (directions.includes("down")) key("fft-db-key-down", "line", "Fell");
   } else key("fft-db-key-to", arrow ? "line" : "dot", ctx.label(to), toColor);
-  wrap.append(legend);
+  // Inside a small-multiples panel the widget draws one shared legend.
+  if (!ctx.inFacet) wrap.append(legend);
 
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
   chart.setAttribute("aria-label", `${arrow ? "Arrow plot" : "Dumbbell chart"} of ${ctx.label(from)} and ${ctx.label(to)} by ${ctx.label(label)}`);
-  const plotBottom = margin.top + rows.length * ROW;
+  const plotBottom = margin.top + rows.length * LANE;
   for (const tick of x.ticks) {
     const tx = x(tick);
     chart.append(svg(doc, "line", { class: "fft-gridline", x1: tx, x2: tx, y1: margin.top, y2: plotBottom }));
@@ -84,14 +88,18 @@ export const renderDumbbell: ViewRenderer<DumbbellView> = (ctx) => {
     text.textContent = tickText(tick);
     chart.append(text);
   }
+  // highlight keeps the named rows in color and steps the rest back to grey, as on hbar and dot.
+  const picked = highlights((ctx.view as { highlight?: unknown }).highlight);
+  const muted = (row: Row) => picked.length > 0 && !picked.includes(String(row[label]));
   rows.forEach((row, i) => {
-    const cy = margin.top + i * ROW + ROW / 2;
+    const cy = margin.top + i * LANE + LANE / 2;
     const a = readNumber(row[from]) as number;
     const b = readNumber(row[to]) as number;
     const name = names[i] ?? "";
     const direction = directions[i] ?? "flat";
     const group = svg(doc, "g", { class: "fft-db-row", style: `--fft-i: ${i}` });
     if (arrow) group.dataset.direction = direction;
+    if (muted(row)) group.dataset.muted = "";
     const text = svg(doc, "text", { class: "fft-db-label", x: margin.left - 13, y: cy, "text-anchor": "end", "dominant-baseline": "middle" });
     text.textContent = name;
     group.append(text);
@@ -134,7 +142,7 @@ export const renderDumbbell: ViewRenderer<DumbbellView> = (ctx) => {
       { label: ctx.label(to), value: ctx.format(row[to], to), ...(arrow && periods ? {} : { color: toColor }) },
       ...(periods ? (a !== 0 ? [{ label: "Change", value: change.format((b - a) / Math.abs(a)) }] : []) : [{ label: "Gap", value: ctx.format(Math.abs(a - b), to) }]),
     ];
-    const hit = svg(doc, "rect", { class: "fft-db-hit", x: 0, y: cy - ROW / 2, width, height: ROW, tabindex: 0, role: "img" });
+    const hit = svg(doc, "rect", { class: "fft-db-hit", x: 0, y: cy - LANE / 2, width, height: LANE, tabindex: 0, role: "img" });
     const said = arrow && periods && direction !== "flat" ? `, ${direction === "up" ? "rose" : "fell"}` : "";
     hit.setAttribute("aria-label", `${name}: ${items.map((it) => `${it.label} ${it.value}`).join(", ")}${said}`);
     const show = () => ctx.tooltip.show(anchor, name, items);
