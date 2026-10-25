@@ -84,6 +84,36 @@
       "insurance",
       "pension"
     ],
-    "wallet": "shareOfWallet"
+    "wallet": "shareOfWallet",
+    "audit": {
+      "currency": "EUR",
+      "sources": {
+        "holdings": {
+          "type": "url",
+          "url": "/data/holdings.json"
+        },
+        "history": {
+          "type": "url",
+          "url": "/data/client-history.json"
+        },
+        "activity": {
+          "type": "url",
+          "url": "/data/client-activity.json"
+        },
+        "health": {
+          "type": "url",
+          "url": "/data/client-health.json",
+          "match": "name"
+        },
+        "deals": {
+          "type": "url",
+          "url": "/data/deals.json"
+        },
+        "thresholds": {
+          "type": "url",
+          "url": "/data/rag-thresholds.json"
+        }
+      }
+    }
   }
 }

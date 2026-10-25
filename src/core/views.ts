@@ -2008,6 +2008,20 @@ export interface XrayView {
   trend?: string;
   flags?: string;
   actions?: string;
+  /** The wallet audit: "Audit wallet" and "Copy strategy" on the card, reading these sources for the client shown. */
+  audit?: XrayAudit;
+}
+
+/** A source the wallet audit reads: a data spec, plus the field that names the client in its rows. */
+export type XrayAuditSource = { type: string; match?: string; [option: string]: unknown };
+
+/** `audit: { key?, currency?, sources? }`: where the x-ray finds the rest of the client's wallet. */
+export interface XrayAudit {
+  /** Field of the card's row naming the client, matched against each source. Defaults to the label. */
+  key?: string;
+  /** Currency of the money fields, such as "EUR". Defaults to the currency of the first fact formatted as one. */
+  currency?: string;
+  sources?: { holdings?: XrayAuditSource; history?: XrayAuditSource; activity?: XrayAuditSource; health?: XrayAuditSource; deals?: XrayAuditSource; thresholds?: XrayAuditSource };
 }
 
 /** `{ type: "history", date, title, kind?, note?, amount?, group?, limit?, order? }`: what happened, newest first. */
@@ -2077,6 +2091,11 @@ const xray: ViewBlock = {
     trend: { type: "field", kind: "category", description: "Field whose value is a list of numbers (revenue by month, say), drawn as a small trend with its first and last values written." },
     flags: { type: "field", kind: "category", description: 'Field whose value is a list of short warnings, shown as quiet amber pills: ["No contact in 90 days", "Fee leakage"].' },
     actions: { type: "field", kind: "category", description: "Field whose value is a list of next best actions, shown as a short checklist." },
+    audit: {
+      type: "object",
+      description:
+        'The wallet audit: adds "Audit wallet" (risks, opportunities, coverage and standing, each figure traced to its field) and "Copy strategy" (a 30, 60 and 90-day account strategy as Markdown) to the card. { "key"?: field naming the client, "currency"?: "EUR", "sources": { "holdings", "history", "activity", "health", "deals", "thresholds": each a data spec such as { "type": "url", "url": "/data/holdings.json" }, with "match" naming the client field when it is not "client" or "name" } }. Sources load when the audit is first opened.',
+    },
   },
   validate(view) {
     const some = ["facts", "holdings", "wallet", "trend"].some((name) => {
@@ -2085,6 +2104,20 @@ const xray: ViewBlock = {
     });
     const problems = some ? [] : ["An x-ray needs something to show besides the name: facts, holdings, wallet or trend."];
     if (Array.isArray(view.facts) && view.facts.length > 6) problems.push(`${view.facts.length} facts are too many for one card; keep six or fewer.`);
+    const audit = view.audit as Record<string, unknown> | undefined;
+    if (audit !== undefined) {
+      if (!audit || typeof audit !== "object" || Array.isArray(audit)) problems.push('audit must be an object such as { "sources": { "holdings": { "type": "url", "url": "/data/holdings.json" } } }.');
+      else {
+        const sources = audit.sources as Record<string, unknown> | undefined;
+        const known = ["holdings", "history", "activity", "health", "deals", "thresholds"];
+        if (sources !== undefined && (typeof sources !== "object" || sources === null || Array.isArray(sources))) problems.push("audit.sources must be an object of data specs.");
+        else
+          for (const [name, source] of Object.entries(sources ?? {})) {
+            if (!known.includes(name)) problems.push(`audit.sources.${name} is not a source the audit reads: ${known.join(", ")}.`);
+            else if (!source || typeof source !== "object" || typeof (source as { type?: unknown }).type !== "string") problems.push(`audit.sources.${name} must be a data spec with a type, such as { "type": "url", "url": "/data/${name}.json" }.`);
+          }
+      }
+    }
     return problems;
   },
   checkData(view, rows) {

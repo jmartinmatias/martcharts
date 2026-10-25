@@ -410,6 +410,36 @@ formatValue(1234.5, { type: "currency", currency: "EUR" }, "en-US"); // "€1,23
 formatValue("2026-03-05", { type: "date", style: "month" }, "en-US"); // "Mar 2026"
 ```
 
+### Auditing a wallet
+
+`auditWallet(input)` audits one client's wallet from its row (`client`) and, when given, its `holdings`, `history`, monthly `activity`, `health` row, `deals` and the health `thresholds`. It returns data, not sentences:
+
+- the profile: segment, banker, since, AuM, revenue, fees;
+- the wallet: share of wallet, the full wallet estimated as AuM ÷ share, and what sits elsewhere;
+- coverage: held, eligible, penetration;
+- opportunities ranked by propensity × potential, each with an open deal on the same product;
+- risks, worst first, each with the rule that raised it (a health threshold, an anomaly flag, days since contact, complaints in 90 days, one product above 60% of the revenue);
+- momentum over twelve months, the pipeline, the last touchpoints, and the gaps: every source or field it could not read.
+
+Every figure carries `from`, the field it was read from (`client.aum`, `holdings[FX].potential`), so the audit can be checked.
+
+`strategyMarkdown(audit, locale)` writes the account strategy in English, French or German: a three-line summary, where the wallet stands, what we hold and could, risks first, ranked opportunities, actions within 30, 60 and 90 days (each with its owner and a target taken from the thresholds or today's value), talking points, what to watch, and the data and assumptions. `strategyText` gives the same as plain text for an email or a CRM note.
+
+On a card, the x-ray's `audit` option does the same for the client it shows, adding "Audit wallet" (a panel of risks, opportunities, coverage and standing) and "Copy strategy" (with "Download .md"). Its sources load on first use and are matched by name, so a card that follows the clicked client audits that client:
+
+```json
+"audit": {
+  "currency": "EUR",
+  "sources": {
+    "holdings": { "type": "url", "url": "/data/holdings.json" },
+    "health": { "type": "url", "url": "/data/client-health.json", "match": "name" },
+    "thresholds": { "type": "url", "url": "/data/rag-thresholds.json" }
+  }
+}
+```
+
+`node scripts/wallet-strategy.ts "Aldana Holdings" fr-FR` prints the strategy for a client of the commercial cockpit's data.
+
 ## Styling
 
 ```json

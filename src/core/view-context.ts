@@ -67,6 +67,8 @@ export interface ViewContext<V extends { type: string } = ViewSpec> {
   colorForRow?(row: Row): string | undefined;
   /** The widget's tooltip. */
   tooltip: Tooltip;
+  /** `fetch` for data a view loads itself, such as the x-ray's audit sources. The widget's own, else the global one. */
+  fetch?: typeof fetch;
   /** Reports that the viewer picked a row. The widget fires an `fft-select` event with it. */
   select(row: Row): void;
   /** Extra values the value axis must cover, so panels of small multiples share one scale. */

@@ -5,6 +5,7 @@ import type { XrayView } from "../../core/views.ts";
 import { sparkline } from "./kpi.ts";
 import { fieldList, hiddenTableOf, html, shareFormat, svg } from "./shared.ts";
 import { wordsFor } from "./words.ts";
+import { auditTools } from "./xray-audit.ts";
 
 /** Values that read as "held": true, 1, "true", "yes", "y". */
 const held = (value: unknown): boolean => value === true || value === 1 || /^(true|yes|y|held|holds)$/i.test(String(value ?? ""));
@@ -142,6 +143,9 @@ export const renderXray: ViewRenderer<XrayView> = (ctx) => {
       card.append(section);
     }
   }
+
+  // The wallet audit: "Audit wallet" and "Copy strategy" for the client shown, when the spec names its sources.
+  if (ctx.view.audit) card.append(auditTools(ctx, row));
 
   card.append(hiddenTableOf(ctx, [row], [label, ...(detail ? [detail] : []), ...facts, ...(wallet ? [wallet] : [])]));
   ctx.el.append(card);

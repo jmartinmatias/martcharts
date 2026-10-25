@@ -1025,6 +1025,7 @@ A client x-ray: one client on one card, from its first row. The name and a detai
 | `trend` | field name (category) |  |  | Field whose value is a list of numbers (revenue by month, say), drawn as a small trend with its first and last values written. |
 | `flags` | field name (category) |  |  | Field whose value is a list of short warnings, shown as quiet amber pills: ["No contact in 90 days", "Fee leakage"]. |
 | `actions` | field name (category) |  |  | Field whose value is a list of next best actions, shown as a short checklist. |
+| `audit` | object |  |  | The wallet audit: adds "Audit wallet" (risks, opportunities, coverage and standing, each figure traced to its field) and "Copy strategy" (a 30, 60 and 90-day account strategy as Markdown) to the card. { "key"?: field naming the client, "currency"?: "EUR", "sources": { "holdings", "history", "activity", "health", "deals", "thresholds": each a data spec such as { "type": "url", "url": "/data/holdings.json" }, with "match" naming the client field when it is not "client" or "name" } }. Sources load when the audit is first opened. |
 
 ## Headline
 

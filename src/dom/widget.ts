@@ -833,6 +833,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       // color by category or by row.
       ...colorsFor(drawRows),
       tooltip: templatedTooltip(),
+      ...(options.fetch ? { fetch: options.fetch } : {}),
       select: (row) => root.dispatchEvent(new CustomEvent<SelectDetail>("fft-select", { bubbles: true, detail: { row, spec: current } })),
     };
   }

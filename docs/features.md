@@ -68,7 +68,7 @@ Start from what you want the reader to see. Every view takes plain rows; `sugges
 | Counted units and how binding they are | `strips` (one square per provision, colored by part, with the density per page) |
 | What stepped out of line | `anomalies` (one lane per metric, its expected band behind it, the days outside it flagged) |
 | Who is on track, red, amber or green | `ragboard` (a scorecard, worst first, with the move since last period), `ragtrend` (each status period by period, and why it changed) |
-| One client, and where to sell next | `whitespace` (the cross-sell map: held, open by propensity, not eligible), `xray` (one client on one card), `history` (every touchpoint, newest first) |
+| One client, and where to sell next | `whitespace` (the cross-sell map: held, open by propensity, not eligible), `xray` (one client on one card, with a wallet audit and a copyable 30, 60 and 90-day account strategy), `history` (every touchpoint, newest first) |
 | Records to read | `table` (sortable; search, pages, a pinned first column, and sparkline, status pill, in-cell bar, heat and RAG cells), `list` |
 
 Option names are the same across views (`value` for the measure, `color` for color by category, `flag` for a yes/no field); older spellings still work and say once what they are now called.
