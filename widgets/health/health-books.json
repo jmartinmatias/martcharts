@@ -1,0 +1,106 @@
+{
+  "id": "health-books",
+  "locale": "en-US",
+  "source": {
+    "name": "Client health model (fictional)"
+  },
+  "title": "Each banker's book at a glance",
+  "subtitle": "Clients, load against capacity, and each perspective's status",
+  "description": "One row per relationship manager: how many clients, how loaded the book is, and its status on each perspective.",
+  "data": {
+    "type": "url",
+    "url": "/data/rm-health.json"
+  },
+  "transform": [
+    {
+      "type": "sort",
+      "field": "red",
+      "order": "desc"
+    }
+  ],
+  "fields": {
+    "rm": {
+      "label": "Relationship manager"
+    },
+    "region": {
+      "label": "Region"
+    },
+    "clients": {
+      "label": "Clients"
+    },
+    "load": {
+      "label": "Load",
+      "format": {
+        "type": "bar",
+        "format": {
+          "type": "percent"
+        }
+      }
+    },
+    "red": {
+      "label": "Red clients"
+    },
+    "clientSuccessStatus": {
+      "label": "Client success",
+      "format": {
+        "type": "badge",
+        "tones": {
+          "Red": "negative",
+          "Amber": "warning",
+          "Green": "positive",
+          "No data": "neutral"
+        }
+      }
+    },
+    "bizDevStatus": {
+      "label": "Business development",
+      "format": {
+        "type": "badge",
+        "tones": {
+          "Red": "negative",
+          "Amber": "warning",
+          "Green": "positive",
+          "No data": "neutral"
+        }
+      }
+    },
+    "coverageStatus": {
+      "label": "Coverage",
+      "format": {
+        "type": "badge",
+        "tones": {
+          "Red": "negative",
+          "Amber": "warning",
+          "Green": "positive",
+          "No data": "neutral"
+        }
+      }
+    },
+    "relationshipStatus": {
+      "label": "Relationship",
+      "format": {
+        "type": "badge",
+        "tones": {
+          "Red": "negative",
+          "Amber": "warning",
+          "Green": "positive",
+          "No data": "neutral"
+        }
+      }
+    }
+  },
+  "view": {
+    "type": "table",
+    "columns": [
+      "rm",
+      "clients",
+      "load",
+      "red",
+      "clientSuccessStatus",
+      "bizDevStatus",
+      "coverageStatus",
+      "relationshipStatus"
+    ],
+    "stickyFirst": true
+  }
+}

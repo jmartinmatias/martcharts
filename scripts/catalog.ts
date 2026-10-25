@@ -156,6 +156,7 @@ const page = `<!doctype html>
     <a href="../index.html#playground" title="Edit any widget's spec, view and style, with a live preview">Playground</a>
     <a href="../editor.html" title="A chart from a table in four steps: drop the data, describe the columns, pick and refine the chart, publish and embed">Editor</a>
     <a href="../commercial.html" title="The commercial cockpit: products, coverage, sales, campaigns, adoption, whitespace, clients and anomalies on one page">Commercial</a>
+    <a href="../health.html" title="Client health in red, amber and green: client success, business development, coverage and the relationship, with who owns the next step">Client health</a>
     <a href="../catalog/index.html" aria-current="page" title="Every chart type: what data it needs, when to use it, and a spec to copy">Catalog</a>
     <a href="../catalog/guide.html" title="What each chart needs, row by row, the data drawing it, when to use it, and which other charts the same data makes">Data guide</a>
     <a href="../examples/drop-in.html" title="Every way to put a chart on a page: one tag, a JSON file, a CSV, or just a data address">Drop-in</a>

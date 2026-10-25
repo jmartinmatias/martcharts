@@ -1,0 +1,58 @@
+{
+  "id": "health-clientSuccess-key",
+  "locale": "en-US",
+  "source": {
+    "name": "Client health model (fictional)"
+  },
+  "title": "Client sentiment by banker",
+  "subtitle": "Average NPS of each banker's clients: green from 30, amber from 0",
+  "description": "The key client success measure, averaged over each banker's clients, against the thresholds that set its status.",
+  "data": {
+    "type": "url",
+    "url": "/data/client-health.json"
+  },
+  "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": "rm",
+      "measures": [
+        {
+          "op": "avg",
+          "field": "nps"
+        }
+      ]
+    },
+    {
+      "type": "sort",
+      "field": "nps",
+      "order": "desc"
+    }
+  ],
+  "fields": {
+    "rm": {
+      "label": "Relationship manager"
+    },
+    "nps": {
+      "label": "NPS",
+      "format": {
+        "type": "number",
+        "decimals": 0
+      }
+    }
+  },
+  "view": {
+    "type": "bar",
+    "x": "rm",
+    "y": "nps",
+    "reference": [
+      {
+        "value": 30,
+        "label": "Green from 30"
+      },
+      {
+        "value": 0,
+        "label": "Amber from 0"
+      }
+    ]
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "id": "health-coverage-board",
+  "locale": "en-US",
+  "source": {
+    "name": "Client health model (fictional)"
+  },
+  "title": "Coverage, measure by measure",
+  "subtitle": "Every client's status on each measure, worst first, with the move since last quarter",
+  "description": "The coverage scorecard: one row per client, one status per measure, the perspective's status and its move since last quarter, and the next step.",
+  "data": {
+    "type": "url",
+    "url": "/data/client-health.json"
+  },
+  "fields": {
+    "name": {
+      "label": "Client"
+    },
+    "rm": {
+      "label": "Relationship manager"
+    },
+    "segment": {
+      "label": "Segment"
+    },
+    "region": {
+      "label": "Region"
+    },
+    "aum": {
+      "label": "AuM",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "coverageRag": {
+      "label": "Coverage"
+    },
+    "daysSinceMeetingRag": {
+      "label": "Days since meeting"
+    },
+    "cadenceRag": {
+      "label": "Meetings vs plan"
+    },
+    "rmLoadRag": {
+      "label": "Banker load"
+    },
+    "reviewOverdueRag": {
+      "label": "Review overdue, days"
+    },
+    "action": {
+      "label": "Next step"
+    }
+  },
+  "view": {
+    "type": "ragboard",
+    "label": "name",
+    "dimensions": [
+      "daysSinceMeetingRag",
+      "cadenceRag",
+      "rmLoadRag",
+      "reviewOverdueRag"
+    ],
+    "overall": "coverageRag",
+    "previous": {
+      "coverageRag": "coveragePrevRag"
+    },
+    "sort": "worst",
+    "group": "segment",
+    "note": "action"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "id": "health-thresholds",
+  "locale": "en-US",
+  "source": {
+    "name": "Client health model (fictional)"
+  },
+  "title": "How each status is set",
+  "subtitle": "Green from, amber from, and why, for every measure",
+  "description": "The rules behind every status on this page: where green ends, where amber ends, which way is good, and the reason.",
+  "data": {
+    "type": "url",
+    "url": "/data/rag-thresholds.json"
+  },
+  "fields": {
+    "perspectiveLabel": {
+      "label": "Perspective"
+    },
+    "label": {
+      "label": "Measure"
+    },
+    "green": {
+      "label": "Green from"
+    },
+    "amber": {
+      "label": "Amber from"
+    },
+    "goodWhen": {
+      "label": "Good when"
+    },
+    "unit": {
+      "label": "Unit"
+    },
+    "rationale": {
+      "label": "Why"
+    }
+  },
+  "view": {
+    "type": "table",
+    "columns": [
+      "perspectiveLabel",
+      "label",
+      "green",
+      "amber",
+      "goodWhen",
+      "unit",
+      "rationale"
+    ],
+    "sortable": false,
+    "stickyFirst": true
+  }
+}

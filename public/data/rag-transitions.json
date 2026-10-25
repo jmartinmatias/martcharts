@@ -1,0 +1,8 @@
+[
+  {"from":"Green in Q3","to":"Green in Q4","clients":27},
+  {"from":"Green in Q3","to":"Amber in Q4","clients":2},
+  {"from":"Amber in Q3","to":"Green in Q4","clients":6},
+  {"from":"Amber in Q3","to":"Amber in Q4","clients":15},
+  {"from":"Red in Q3","to":"Amber in Q4","clients":2},
+  {"from":"Red in Q3","to":"Red in Q4","clients":8}
+]

@@ -1,0 +1,58 @@
+{
+  "id": "health-bizDev-key",
+  "locale": "en-US",
+  "source": {
+    "name": "Client health model (fictional)"
+  },
+  "title": "Pipeline cover by banker",
+  "subtitle": "Average open pipeline against target: green from 3×, amber from 1.5×",
+  "description": "The key business development measure, averaged over each banker's clients, against the thresholds that set its status.",
+  "data": {
+    "type": "url",
+    "url": "/data/client-health.json"
+  },
+  "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": "rm",
+      "measures": [
+        {
+          "op": "avg",
+          "field": "pipelineCoverage"
+        }
+      ]
+    },
+    {
+      "type": "sort",
+      "field": "pipelineCoverage",
+      "order": "desc"
+    }
+  ],
+  "fields": {
+    "rm": {
+      "label": "Relationship manager"
+    },
+    "pipelineCoverage": {
+      "label": "Pipeline cover",
+      "format": {
+        "type": "number",
+        "decimals": 1
+      }
+    }
+  },
+  "view": {
+    "type": "bar",
+    "x": "rm",
+    "y": "pipelineCoverage",
+    "reference": [
+      {
+        "value": 3,
+        "label": "Green from 3×"
+      },
+      {
+        "value": 1.5,
+        "label": "Amber from 1.5×"
+      }
+    ]
+  }
+}

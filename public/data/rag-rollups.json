@@ -1,0 +1,5 @@
+[
+  {"level":"Perspective","rule":"Red when two or more of its metrics are red, or one is red and two others amber; amber when one is red or two or more are amber; green otherwise. Metrics with no data are left out."},
+  {"level":"Overall","rule":"Red when two or more perspectives are red, or one is red and another amber; amber when one is red or two or more are amber; green otherwise."},
+  {"level":"Relationship manager","rule":"Per perspective: red when a quarter or more of the book is red; amber when red and amber together pass 40%; green otherwise."}
+]

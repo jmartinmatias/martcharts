@@ -1,0 +1,71 @@
+{
+  "id": "health-bizDev-board",
+  "locale": "en-US",
+  "source": {
+    "name": "Client health model (fictional)"
+  },
+  "title": "Business development, measure by measure",
+  "subtitle": "Every client's status on each measure, worst first, with the move since last quarter",
+  "description": "The business development scorecard: one row per client, one status per measure, the perspective's status and its move since last quarter, and the next step.",
+  "data": {
+    "type": "url",
+    "url": "/data/client-health.json"
+  },
+  "fields": {
+    "name": {
+      "label": "Client"
+    },
+    "rm": {
+      "label": "Relationship manager"
+    },
+    "segment": {
+      "label": "Segment"
+    },
+    "region": {
+      "label": "Region"
+    },
+    "aum": {
+      "label": "AuM",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "bizDevRag": {
+      "label": "Business development"
+    },
+    "pipelineCoverageRag": {
+      "label": "Pipeline cover"
+    },
+    "winRateRag": {
+      "label": "Win rate"
+    },
+    "newMoneyVsTargetRag": {
+      "label": "New money vs target"
+    },
+    "crossSellAddedRag": {
+      "label": "Products added"
+    },
+    "action": {
+      "label": "Next step"
+    }
+  },
+  "view": {
+    "type": "ragboard",
+    "label": "name",
+    "dimensions": [
+      "pipelineCoverageRag",
+      "winRateRag",
+      "newMoneyVsTargetRag",
+      "crossSellAddedRag"
+    ],
+    "overall": "bizDevRag",
+    "previous": {
+      "bizDevRag": "bizDevPrevRag"
+    },
+    "sort": "worst",
+    "group": "segment",
+    "note": "action"
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "id": "health-on-track",
+  "locale": "en-US",
+  "source": {
+    "name": "Client health model (fictional)"
+  },
+  "title": "Clients on track",
+  "subtitle": "{last:quarter}, against the quarter before",
+  "description": "How many clients are green, amber and red overall this quarter, and the share on track, each against last quarter.",
+  "data": {
+    "type": "url",
+    "url": "/data/client-health-history.json"
+  },
+  "transform": [
+    {
+      "type": "pivot",
+      "row": "quarter",
+      "column": "overallStatus",
+      "value": "clientId",
+      "op": "count",
+      "fill": 0
+    },
+    {
+      "type": "calc",
+      "as": "watched",
+      "op": "add",
+      "left": "Green",
+      "right": "Amber"
+    },
+    {
+      "type": "calc",
+      "as": "clients",
+      "op": "add",
+      "left": "watched",
+      "right": "Red"
+    },
+    {
+      "type": "calc",
+      "as": "onTrack",
+      "op": "divide",
+      "left": "Green",
+      "right": "clients"
+    }
+  ],
+  "fields": {
+    "quarter": {
+      "label": "Quarter"
+    },
+    "onTrack": {
+      "label": "Share on track",
+      "format": {
+        "type": "percent"
+      }
+    },
+    "Red": {
+      "label": "Off track (red)"
+    },
+    "Amber": {
+      "label": "To watch (amber)"
+    },
+    "Green": {
+      "label": "On track (green)"
+    }
+  },
+  "view": {
+    "type": "kpis",
+    "series": true,
+    "items": [
+      {
+        "value": "onTrack",
+        "label": "Share of clients on track",
+        "compare": "previous"
+      },
+      {
+        "value": "Green",
+        "label": "On track",
+        "compare": "previous"
+      },
+      {
+        "value": "Amber",
+        "label": "To watch",
+        "compare": "previous",
+        "goodWhen": "down"
+      },
+      {
+        "value": "Red",
+        "label": "Off track",
+        "compare": "previous",
+        "goodWhen": "down"
+      }
+    ]
+  }
+}

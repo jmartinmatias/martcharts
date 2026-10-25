@@ -1,0 +1,75 @@
+{
+  "id": "health-relationship-board",
+  "locale": "en-US",
+  "source": {
+    "name": "Client health model (fictional)"
+  },
+  "title": "Relationship health, measure by measure",
+  "subtitle": "Every client's status on each measure, worst first, with the move since last quarter",
+  "description": "The relationship scorecard: one row per client, one status per measure, the perspective's status and its move since last quarter, and the next step.",
+  "data": {
+    "type": "url",
+    "url": "/data/client-health.json"
+  },
+  "fields": {
+    "name": {
+      "label": "Client"
+    },
+    "rm": {
+      "label": "Relationship manager"
+    },
+    "segment": {
+      "label": "Segment"
+    },
+    "region": {
+      "label": "Region"
+    },
+    "aum": {
+      "label": "AuM",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "relationshipRag": {
+      "label": "Relationship"
+    },
+    "walletTrendRag": {
+      "label": "Wallet share, 12 months"
+    },
+    "attritionRiskRag": {
+      "label": "Attrition risk"
+    },
+    "feeLeakageRag": {
+      "label": "Fee leakage"
+    },
+    "kycDaysRag": {
+      "label": "Days to KYC refresh"
+    },
+    "sentimentRag": {
+      "label": "Sentiment"
+    },
+    "action": {
+      "label": "Next step"
+    }
+  },
+  "view": {
+    "type": "ragboard",
+    "label": "name",
+    "dimensions": [
+      "walletTrendRag",
+      "attritionRiskRag",
+      "feeLeakageRag",
+      "kycDaysRag",
+      "sentimentRag"
+    ],
+    "overall": "relationshipRag",
+    "previous": {
+      "relationshipRag": "relationshipPrevRag"
+    },
+    "sort": "worst",
+    "group": "segment",
+    "note": "action"
+  }
+}
