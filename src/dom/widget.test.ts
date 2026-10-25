@@ -82,9 +82,9 @@ describe("createWidget", () => {
   });
 
   test("an invalid spec shows every error with where it is", async () => {
-    await createWidget(target, { data: { type: "inline", rows: [] }, view: { type: "pie" } }).ready;
+    await createWidget(target, { data: { type: "inline", rows: [] }, view: { type: "sparkline" } }).ready;
     expect(root()?.dataset.state).toBe("error");
-    expect(text(".fft-message")).toContain('view.type: Unknown view "pie"');
+    expect(text(".fft-message")).toContain('view.type: Unknown view "sparkline"');
   });
 
   test("a failing data source shows its message", async () => {

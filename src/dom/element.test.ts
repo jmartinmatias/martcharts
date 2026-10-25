@@ -129,9 +129,9 @@ describe("<fft-widget>", () => {
 
     test("an unknown chart or a missing file says so in the widget", async () => {
       serve({ "/t3.csv": "a,b\nx,1\n" });
-      document.body.innerHTML = `<fft-widget data="/t3.csv" chart="pie"></fft-widget><fft-widget data="/missing.csv"></fft-widget>`;
-      const [pie, missing] = [...document.querySelectorAll("fft-widget")];
-      await vi.waitFor(() => expect(pie?.querySelector(".fft-message")?.textContent).toContain('Unknown chart "pie"'));
+      document.body.innerHTML = `<fft-widget data="/t3.csv" chart="sparkline"></fft-widget><fft-widget data="/missing.csv"></fft-widget>`;
+      const [sparkline, missing] = [...document.querySelectorAll("fft-widget")];
+      await vi.waitFor(() => expect(sparkline?.querySelector(".fft-message")?.textContent).toContain('Unknown chart "sparkline"'));
       await vi.waitFor(() => expect(missing?.querySelector(".fft-message")?.textContent).toContain("Could not draw /missing.csv"));
     });
   });

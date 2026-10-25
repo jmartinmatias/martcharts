@@ -159,7 +159,7 @@ Start from what you want the reader to see. Every view takes plain rows; `sugges
 | Many time series at once | `horizon` (a thin row per series, values folded into bands of deepening color, blue above the baseline and red below) |
 | Rank over time | `bump` |
 | A cycle that wraps round | `rose` (a polar area chart for hours of the day or months of the year: wedges true to their values by area, series stacked outward) |
-| Parts of a whole | `donut` (up to 6 parts), `waffle` (in 100 countable squares), `treemap` (many parts), `sunburst` (two or three levels), `icicle` (a hierarchy laid flat in columns, up to four levels, easier to label), `bar` or `area` with `"stacked": "percent"` |
+| Parts of a whole | `pie` (shares written on the slices; `"labels": "outside"` names them beside the disc), `donut` (up to 6 parts, the total in the middle; `"arc": "half"` with `"majority": true` is an election donut), multiple pies or donuts with `facet` (the same part in the same color in every panel), `waffle` (in 100 countable squares), `treemap` (many parts), `sunburst` (two or three levels), `icicle` (a hierarchy laid flat in columns, up to four levels, easier to label), `bar` or `area` with `"stacked": "percent"` |
 | How a mix flows over time | `area` with `"stacked": "stream"` (a streamgraph: smooth layers around a center line, each named inside itself) |
 | Size and mix at once | `marimekko` |
 | What makes up a change | `waterfall` (a bridge from one total to the next), `variance` (actual against plan, good or bad) |

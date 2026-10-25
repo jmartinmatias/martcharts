@@ -113,12 +113,25 @@ export interface MeterView {
   label?: string;
 }
 
-/** `{ type: "donut", label, value, caption? }`: part-to-whole for up to 6 slices. */
+/** `{ type: "donut", label, value, caption?, arc?, majority? }`: part-to-whole for up to 6 slices. */
 export interface DonutView {
   type: "donut";
   label: string;
   value: string;
   caption?: string;
+  /** "half" draws a semicircle open at the bottom, slices left to right in the order given: a parliament. */
+  arc?: "full" | "half";
+  /** On a half ring, a tick at the halfway point, labelled with the majority (more than half of the total). */
+  majority?: boolean;
+}
+
+/** `{ type: "pie", label, value, labels? }`: part-to-whole as a full disc, for up to 6 slices. */
+export interface PieView {
+  type: "pie";
+  label: string;
+  value: string;
+  /** Where the slices are named: shares inside the slices with a legend (default), names and shares outside with leader lines, or the legend alone. */
+  labels?: "inside" | "outside" | "legend";
 }
 
 /** `{ type: "waterfall", label, value, totals?, endLabel? }`: a bridge from one total to another. */
@@ -1145,21 +1158,56 @@ const beeswarm: ViewBlock = {
 
 const donut: ViewBlock = {
   type: "donut",
+  categories: (view) => String(view.label),
   description: "Part-to-whole at a glance: a ring of up to 6 slices with the total in the middle and a legend of values and shares. Compare close values with a bar chart instead.",
   options: {
     label: { type: "field", kind: "category", required: true, description: "Field naming each slice." },
     value: { type: "field", kind: "number", required: true, description: "Field with each slice's amount. Zero, negative and missing values are left out." },
-    caption: { type: "string", description: "Text under the total in the middle. Defaults to the value field's label." },
+    caption: { type: "string", description: "Text under the total in the middle. Defaults to the value field's label, or to \"seats\" when the value field is seats." },
+    arc: {
+      type: "enum",
+      values: ["full", "half"],
+      default: "full",
+      description: '"half" draws a semicircle open at the bottom with the slices from left to right in the order given: an election donut, seats by party in the order they sit.',
+    },
+    majority: { type: "boolean", default: false, description: "On a half ring, a thin tick at the halfway point labelled Majority and the seats it takes (more than half of the total); the slice that crosses it says so in its tooltip." },
+  },
+  validate(view) {
+    return view.majority && view.arc !== "half" ? ['majority marks a half ring: set arc to "half" too.'] : [];
   },
   checkData(view, rows) {
-    const kept = rows.filter((row) => {
-      const v = readNumber(row[view.value as string]);
-      return v !== null && v > 0;
-    }).length;
-    const messages: string[] = [];
-    if (kept > 6) messages.push(`${kept} slices. Past 6 they get hard to compare: fold the smallest into "Other", or use a bar chart.`);
-    if (kept < rows.length) messages.push(`${rows.length - kept} rows with zero, negative or missing values are left out of the donut.`);
-    return messages;
+    return checkSlices(view, rows, "donut");
+  },
+};
+
+/** Slices a donut or pie can draw, and what it warns about: past 6 they get hard to compare, and rows with no positive value are left out. */
+function checkSlices(view: Record<string, unknown>, rows: Row[], noun: string): string[] {
+  const kept = rows.filter((row) => {
+    const v = readNumber(row[view.value as string]);
+    return v !== null && v > 0;
+  }).length;
+  const messages: string[] = [];
+  if (kept > 6) messages.push(`${kept} slices. Past 6 they get hard to compare: fold the smallest into "Other", or use a bar chart.`);
+  if (kept < rows.length) messages.push(`${rows.length - kept} rows with zero, negative or missing values are left out of the ${noun}.`);
+  return messages;
+}
+
+const pie: ViewBlock = {
+  type: "pie",
+  categories: (view) => String(view.label),
+  description: "Part-to-whole as a full disc: up to 6 slices from twelve o'clock clockwise, each wide in proportion to its share, with the shares written on the slices and a legend of values. Use a donut when the total matters too, and a bar chart to compare close shares.",
+  options: {
+    label: { type: "field", kind: "category", required: true, description: "Field naming each slice." },
+    value: { type: "field", kind: "number", required: true, description: "Field with each slice's amount. Zero, negative and missing values are left out." },
+    labels: {
+      type: "enum",
+      values: ["inside", "outside", "legend"],
+      default: "inside",
+      description: '"inside" writes each share on its slice (thin slices skip theirs) with a legend of names and values; "outside" writes names and shares beside the disc on short leader lines, with no legend; "legend" leaves the disc bare.',
+    },
+  },
+  checkData(view, rows) {
+    return checkSlices(view, rows, "pie");
   },
 };
 
@@ -1527,4 +1575,4 @@ const locator: ViewBlock = {
   },
 };
 
-export const builtinViews: ViewBlock[] = [table, list, kpi, kpis, bar, hbar, line, area, meter, bullet, donut, treemap, funnel, waterfall, heatmap, calendar, scatter, beeswarm, ridgeline, sankey, dumbbell, slope, bump, marimekko, histogram, rings, timeline, waffle, variance, gauge, pareto, boxplot, likert, candlestick, sunburst, chord, radar, rose, horizon, icicle, dot, pyramid, dual, choropleth, symbols, locator];
+export const builtinViews: ViewBlock[] = [table, list, kpi, kpis, bar, hbar, line, area, meter, bullet, donut, treemap, funnel, waterfall, heatmap, calendar, scatter, beeswarm, ridgeline, sankey, dumbbell, slope, bump, marimekko, histogram, rings, timeline, waffle, variance, gauge, pareto, boxplot, likert, candlestick, sunburst, chord, radar, rose, horizon, icicle, dot, pyramid, dual, choropleth, symbols, locator, pie];

@@ -88,7 +88,7 @@ describe("switchChart", () => {
   });
 
   test("an unknown chart says which exist", () => {
-    expect(switchChart(catalog("bar"), "pie").assessment).toMatch(/no chart "pie"/);
+    expect(switchChart(catalog("bar"), "sparkline").assessment).toMatch(/no chart "sparkline"/);
   });
 
   test("every switch that fits is a valid spec", () => {

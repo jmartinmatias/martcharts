@@ -532,6 +532,16 @@ export const BASE_CSS = `
 .fft-donut-name { grid-area: name; font-size: 11px; line-height: 13px; color: var(--fft-text-secondary); overflow-wrap: anywhere; }
 .fft-donut-value { grid-area: value; font-weight: 600; font-variant-numeric: tabular-nums; }
 .fft-donut-share { grid-area: share; text-align: right; font-size: 11px; color: var(--fft-muted); font-variant-numeric: tabular-nums; }
+.fft-donut-figure[data-arc="half"] .fft-donut-center { justify-content: flex-end; padding-bottom: 1px; }
+.fft-donut-majority { stroke: var(--fft-text); stroke-width: 1.5; pointer-events: none; }
+.fft-donut-majority-label { fill: var(--fft-text-secondary); font-size: 11px; }
+.fft-pie-slice { stroke: var(--fft-surface); stroke-width: 2; stroke-linejoin: round; cursor: pointer; outline: none; transition: opacity 377ms var(--fft-ease); }
+.fft-pie[data-active] .fft-pie-slice:not([data-active]) { opacity: 0.38; }
+.fft-pie-slice:focus-visible { stroke: var(--fft-accent); stroke-width: 3; }
+.fft-pie-label { fill: #fff; font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; paint-order: stroke; stroke: rgba(0, 0, 0, 0.35); stroke-width: 2px; stroke-linejoin: round; }
+.fft-pie-leader { fill: none; stroke: var(--fft-axis); stroke-width: 1; pointer-events: none; }
+.fft-pie-name { fill: var(--fft-text); font-size: 11px; pointer-events: none; }
+.fft-pie-name-share { fill: var(--fft-text-secondary); font-variant-numeric: tabular-nums; }
 
 .fft-rings { display: flex; flex-wrap: wrap; align-items: center; gap: 21px; }
 .fft-rings-figure { flex: none; }
@@ -1174,6 +1184,7 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-widget[data-animate] .fft-forecast-zone,
 .fft-widget[data-animate] .fft-forecast-label { animation: fft-fade 610ms var(--fft-ease) 377ms both; }
 .fft-widget[data-animate] .fft-slice { stroke-dasharray: 1; animation: fft-draw 987ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 89ms); }
+.fft-widget[data-animate] .fft-pie-slice, .fft-widget[data-animate] .fft-pie-label, .fft-widget[data-animate] .fft-pie-name, .fft-widget[data-animate] .fft-pie-leader { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: calc(var(--fft-i, 0) * 89ms); }
 .fft-widget[data-animate] .fft-end-label,
 .fft-widget[data-animate] .fft-stream-label,
 .fft-widget[data-animate] .fft-area,

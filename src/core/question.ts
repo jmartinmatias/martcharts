@@ -186,6 +186,7 @@ export function questionOf(spec: WidgetSpec, rows: Row[] = []): Question {
       return ask("number", items.length && items.length <= 3 ? `where do ${list(items.map(name))} stand right now?` : "where do the key numbers stand right now?");
     }
     case "donut":
+    case "pie":
     case "waffle":
     case "treemap": {
       const [label, value] = [one(view.label), one(view.value)];

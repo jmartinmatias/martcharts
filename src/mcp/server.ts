@@ -137,7 +137,7 @@ const VIEW_GUIDE = [
   "Two measures in different units over the same periods: dual (revenue and churn, one panel each sharing the time axis, each on its own scale; never a second axis).",
   "Many time series at once: horizon (one thin row each, values folded into bands of deepening color, blue above the baseline and red below).",
   "Rank over time: bump.",
-  'Parts of a whole: donut (up to 6 parts), waffle (100 countable squares), treemap (many parts), sunburst (two or three levels), icicle (a hierarchy laid flat, up to four levels, easier to label), bar or area with stacked "percent".',
+  'Parts of a whole: donut (up to 6 parts, the total in the middle; arc "half" with majority is an election donut), pie (the shares written on the slices), waffle (100 countable squares), treemap (many parts), sunburst (two or three levels), icicle (a hierarchy laid flat, up to four levels, easier to label), bar or area with stacked "percent".',
   'How a mix flows over time: area with stacked "stream" (a streamgraph; best with many periods and 3 to 8 layers).',
   "A cycle that wraps round (hours of the day, months of the year): rose (a polar area chart, wedges true by area, series stacked outward).",
   'What comes next: line, or an unstacked area, with forecast (a true/false field) and band ({ low, high, label }): a forecast fan.',

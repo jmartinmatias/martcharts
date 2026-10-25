@@ -1,0 +1,28 @@
+{
+  "id": "seats-by-party",
+  "title": "Seats after the election",
+  "subtitle": "Parties in the order they sit, left to right",
+  "description": "An election donut: each party's seats as a slice of the half ring, with the majority line at the top. Which coalition reaches 301?",
+  "footer": "Source: electoral commission, final count",
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      { "party": "Green Alliance", "seats": 72 },
+      { "party": "Social Democrats", "seats": 168 },
+      { "party": "Liberal Centre", "seats": 95 },
+      { "party": "Civic Union", "seats": 184 },
+      { "party": "National Front", "seats": 81 }
+    ]
+  },
+  "fields": {
+    "seats": { "label": "Seats" }
+  },
+  "view": {
+    "type": "donut",
+    "label": "party",
+    "value": "seats",
+    "arc": "half",
+    "majority": true
+  }
+}
