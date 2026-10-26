@@ -40,6 +40,9 @@ function sampleList(locale: string | undefined): { label: string; url: string }[
   return Object.entries(names).map(([url, words]) => ({ label: words[at] ?? words[0], url }));
 }
 
+// French and German option names and hints, loaded only for a French or German page (the page reloads on a change).
+if (/^(fr|de)\b/i.test(siteLocale() ?? "")) await import("../src/core/option-words.ts");
+
 // ---- The editor ----
 document.body.dataset.fftPlace = PLACES.editor;
 const editor = createEditor($("#editor"), {

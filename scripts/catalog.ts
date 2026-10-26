@@ -14,6 +14,7 @@ import { typeSummary } from "../src/core/type-words.ts";
 import { FIND_JS } from "./find.ts";
 import { catalogTabs, navBar } from "./site-nav.ts";
 import { placedRef } from "../src/core/ref.ts";
+import { kindWord } from "../src/core/option-words.ts";
 import { PLACES } from "../demo/routes.ts";
 
 /** A ref the search box offers as an example: one the catalog shows today (its bar chart's). */
@@ -64,7 +65,7 @@ const index: string[] = [
   "| --- | --- | --- | --- | --- |",
 ];
 const sections: string[] = [];
-const cards: { type: string; summary: string; question: string; needs: string }[] = [];
+const cards: { type: string; summary: string; question: string; needs: string; needsFr: string; needsDe: string }[] = [];
 
 for (const view of views) {
   const example = byView.get(view.type)?.[0];
@@ -91,7 +92,11 @@ for (const view of views) {
   const issues = validateSpec(spec, rows);
   if (hasErrors(issues)) throw new Error(`catalog/${view.type}.json does not validate: ${JSON.stringify(issues)}`);
   await writeFile(root(`catalog/${view.type}.json`), `${stringify(spec)}\n`);
-  cards.push({ type: view.type, summary: entry.summary, question: entry.question ?? "", needs: entry.needs.filter((n) => n.required).map((n) => `${n.option}: ${n.holds}${n.many ? "+" : ""}`).join(", ") });
+  const required = entry.needs.filter((n) => n.required);
+  // The same line in French and German: the option names stay as written (they are code), what they hold is in words.
+  const needsIn = (lang: "fr" | "de") =>
+    `${lang === "fr" ? "il faut" : "braucht"} ${required.map((n) => `${n.option}${lang === "fr" ? " : " : ": "}${kindWord(n.holds, lang)}${n.many ? "+" : ""}`).join(", ") || (lang === "fr" ? "n'importe quelles lignes" : "beliebige Zeilen")}`;
+  cards.push({ type: view.type, summary: entry.summary, question: entry.question ?? "", needs: required.map((n) => `${n.option}: ${n.holds}${n.many ? "+" : ""}`).join(", "), needsFr: needsIn("fr"), needsDe: needsIn("de") });
 
   index.push(`| [\`${view.type}\`](#${view.type}) | ${cell(entry.summary)} | ${cell(entry.question ?? "")} | ${needs} | [${view.type}.json](../catalog/${view.type}.json) |`);
   sections.push(`**Answers**: ${entry.question}`, "");
@@ -181,7 +186,7 @@ ${cards
     (c) => `    <section class="card" id="${c.type}" data-search="${escape(`${c.type} ${c.summary} ${typeSummary(c.type, "fr") ?? ""} ${typeSummary(c.type, "de") ?? ""} ${c.needs} ${SEARCH_WORDS[c.type] ?? ""}`.toLowerCase())}" data-more="${escape(c.question.toLowerCase())}">
       <h2>${c.type}</h2>
       <p${inLanguages(typeSummary(c.type, "fr"), typeSummary(c.type, "de"))}>${escape(c.summary)}</p>
-      <p class="needs">needs ${escape(c.needs || "any rows")}</p>
+      <p class="needs"${inLanguages(c.needsFr, c.needsDe)}>needs ${escape(c.needs || "any rows")}</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="${c.type}">Copy spec</button><button type="button" data-copy="tag" data-type="${c.type}">Copy tag</button><a href="guide.html#c-${c.type}">Data and switches</a></div>
       <fft-widget src="${c.type}.json" actions="info csv image explain expand"></fft-widget>
     </section>`,

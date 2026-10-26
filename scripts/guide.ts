@@ -13,6 +13,7 @@ import { blockTypes, chartGuide, chartsFor, dataContract, describeChart, guideMa
 import type { ChartSwitch, Purpose, Row, WidgetSpec } from "../src/core/index.ts";
 import { SEARCH_WORDS } from "../src/core/search-words.ts";
 import { PURPOSE_WORDS, switchAdvice, typeSummary } from "../src/core/type-words.ts";
+import { guideLine, kindWord, optionHint } from "../src/core/option-words.ts";
 import { FIND_JS } from "./find.ts";
 import { catalogTabs, navBar } from "./site-nav.ts";
 
@@ -20,6 +21,13 @@ const root = (path: string) => fileURLToPath(new URL(`../${path}`, import.meta.u
 const escape = (text: unknown) => String(text ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 /** An element's French and German, as attributes the site's language script swaps in (no inline script: CSP). */
 const inLanguages = (fr?: string, de?: string) => `${fr ? ` data-fr="${escape(fr)}"` : ""}${de ? ` data-de="${escape(de)}"` : ""}`;
+/** A guide line (a use, how it is built, what a row is) with its French and German. */
+const lineIn = (english: string) => inLanguages(guideLine(english, "fr"), guideLine(english, "de"));
+/** What a field holds, with " (one or more)" for a list, in the three languages. */
+const holdsIn = (kind: string, many: boolean) =>
+  `<span${inLanguages(`${kindWord(kind, "fr")}${many ? " (un ou plusieurs)" : ""}`, `${kindWord(kind, "de")}${many ? " (eines oder mehrere)" : ""}`)}>${kind}${many ? " (one or more)" : ""}</span>`;
+/** Words that only English needs (a switch's caveats): French and German say the same in the assessment. */
+const englishOnly = ' data-fr="" data-de=""';
 const jobIn = (purpose: Purpose) => inLanguages(PURPOSE_WORDS.fr[purpose], PURPOSE_WORDS.de[purpose]);
 /** The verdicts in French and German, beside their mark. */
 const VERDICT_IN: Record<string, [string, string]> = { better: ["Meilleur", "Besser"], same: ["Même usage", "Gleicher Zweck"], "trade-off": ["Compromis", "Abwägung"], different: ["Autre question", "Andere Frage"], worse: ["Moins bon", "Schlechter"] };
@@ -153,10 +161,14 @@ const section = ({ type, spec, rows, switches }: Built) => {
     <summary>The chart live, the table it needs, its data, and the charts the same data makes</summary>
     <div class="top">
       <div class="live">
-        <label class="as"><span>Show this data as</span>
+        <label class="as"><span data-fr="Montrer ces données en" data-de="Diese Daten zeigen als">Show this data as</span>
           <select data-type="${type}">
-            <option value="${type}">${type} (as made)</option>
-            ${ok.map((s) => `<option value="${s.to}">${s.to}: ${escape((VERDICT_WORDS[s.verdict ?? "worse"] ?? "").toLowerCase())}${s.fit === "stretch" ? ", stretch" : ""}</option>`).join("\n            ")}
+            <option value="${type}"${inLanguages(`${type} (tel quel)`, `${type} (wie gebaut)`)}>${type} (as made)</option>
+            ${ok.map((s) => {
+              const [fr, de] = VERDICT_IN[s.verdict ?? "worse"] ?? ["", ""];
+              const stretch = s.fit === "stretch";
+              return `<option value="${s.to}"${inLanguages(`${s.to} : ${fr.toLowerCase()}${stretch ? ", à la limite" : ""}`, `${s.to}: ${de}${stretch ? ", grenzwertig" : ""}`)}>${s.to}: ${escape((VERDICT_WORDS[s.verdict ?? "worse"] ?? "").toLowerCase())}${stretch ? ", stretch" : ""}</option>`;
+            }).join("\n            ")}
           </select>
         </label>
         <p class="said" id="said-${type}" aria-live="polite"></p>
@@ -164,24 +176,24 @@ const section = ({ type, spec, rows, switches }: Built) => {
       </div>
       <div class="uses">
         <h3>Best for</h3>
-        <ul>${(guide?.bestFor ?? []).map((b) => `<li>${escape(b)}</li>`).join("")}</ul>
+        <ul>${(guide?.bestFor ?? []).map((b) => `<li${lineIn(b)}>${escape(b)}</li>`).join("")}</ul>
         <h3>Least useful for</h3>
-        <ul class="avoid">${(guide?.avoidFor ?? []).map((a) => `<li>${escape(a)}</li>`).join("")}</ul>
+        <ul class="avoid">${(guide?.avoidFor ?? []).map((a) => `<li${lineIn(a)}>${escape(a)}</li>`).join("")}</ul>
       </div>
     </div>
 
     <h3>The table it needs</h3>
-    <p><strong>One row is:</strong> ${escape(contract.rowMeans)} <strong>How it is built:</strong> ${escape(contract.build)}${min !== undefined || max !== undefined ? ` <strong>Reads well with</strong> ${min ?? 1} to ${max ?? "any number of"} rows.` : ""}</p>
+    <p><strong>One row is:</strong> <span${lineIn(contract.rowMeans)}>${escape(contract.rowMeans)}</span> <strong>How it is built:</strong> <span${lineIn(contract.build)}>${escape(contract.build)}</span>${min !== undefined || max !== undefined ? ` <strong>Reads well with</strong> <span${inLanguages(`${min ?? 1} à ${max ?? "autant de"} lignes.`, `${min ?? 1} bis ${max ?? "beliebig vielen"} Zeilen.`)}>${min ?? 1} to ${max ?? "any number of"} rows.</span>` : ""}</p>
     <div class="scroll"><table>
       <thead><tr><th scope="col">Option</th><th scope="col">Holds</th><th scope="col">Required</th><th scope="col">What it does</th></tr></thead>
-      <tbody>${contract.needs.map((n) => `<tr><td><code>${n.option}</code></td><td>${n.holds}${n.many ? " (one or more)" : ""}</td><td>${n.required ? "yes" : ""}</td><td>${escape(n.description)}</td></tr>`).join("") || `<tr><td colspan="4">Any rows: every field becomes a column.</td></tr>`}</tbody>
+      <tbody>${contract.needs.map((n) => `<tr><td><code>${n.option}</code></td><td>${holdsIn(n.holds, n.many)}</td><td>${n.required ? "yes" : ""}</td><td${inLanguages(optionHint(n.description, "fr"), optionHint(n.description, "de"))}>${escape(n.description)}</td></tr>`).join("") || `<tr><td colspan="4">Any rows: every field becomes a column.</td></tr>`}</tbody>
     </table></div>
 
     <h3>This example's columns</h3>
     <div class="scroll"><table>
       <thead><tr><th scope="col">Column</th><th scope="col">Holds</th><th scope="col">Drawn as</th><th scope="col">Values</th></tr></thead>
       <tbody>${contract.columns
-        .map((c) => `<tr${c.roles.length ? "" : ' class="unused"'}><td><code>${escape(c.name)}</code>${c.label ? ` <span class="muted">${escape(c.label)}</span>` : ""}</td><td>${c.kind}</td><td>${c.roles.length ? c.roles.map((r) => `<code>${escape(r)}</code>`).join(" ") : "not drawn"}</td><td>${c.min !== undefined ? `${escape(c.min)} to ${escape(c.max)}` : `${c.distinct} different: ${c.examples.map((e) => escape(show(e))).join(", ")}`}</td></tr>`)
+        .map((c) => `<tr${c.roles.length ? "" : ' class="unused"'}><td><code>${escape(c.name)}</code>${c.label ? ` <span class="muted">${escape(c.label)}</span>` : ""}</td><td${inLanguages(kindWord(c.kind, "fr"), kindWord(c.kind, "de"))}>${c.kind}</td><td>${c.roles.length ? c.roles.map((r) => `<code>${escape(r)}</code>`).join(" ") : `<span data-fr="non tracée" data-de="nicht gezeichnet">not drawn</span>`}</td><td>${c.min !== undefined ? `${escape(c.min)} <span data-fr="à" data-de="bis">to</span> ${escape(c.max)}` : `<span${inLanguages(`${c.distinct} différentes :`, `${c.distinct} verschiedene:`)}>${c.distinct} different:</span> ${c.examples.map((e) => escape(show(e))).join(", ")}`}</td></tr>`)
         .join("")}</tbody>
     </table></div>
     ${contract.warnings.length ? `<p class="warn">${contract.warnings.map(escape).join(" ")}</p>` : ""}
@@ -200,7 +212,7 @@ const section = ({ type, spec, rows, switches }: Built) => {
     <div class="scroll"><table class="switches">
       <thead><tr><th scope="col">Chart</th><th scope="col">Verdict</th><th scope="col">Assessment</th><th scope="col"><span class="sr">Preview</span></th></tr></thead>
       <tbody>${ok
-        .map((s) => `<tr data-to="${s.to}" data-verdict="${s.verdict}"><td><a href="#c-${s.to}"><code>${s.to}</code></a></td><td><span class="verdict v-${s.verdict}">${MARK[s.verdict ?? "worse"]} <span${inLanguages(...(VERDICT_IN[s.verdict ?? "worse"] ?? []))}>${VERDICT_WORDS[s.verdict ?? "worse"]}</span></span>${s.fit === "stretch" ? '<br><span class="muted">stretch</span>' : ""}</td><td class="assess"><span${inLanguages(switchAdvice(s, "fr"), switchAdvice(s, "de"))}>${escape(s.assessment)}</span>${s.caveats.length ? `<br><span class="muted">${escape(s.caveats.join(" "))}</span>` : ""}</td><td><button type="button" data-from="${type}" data-to="${s.to}">Show</button></td></tr>`)
+        .map((s) => `<tr data-to="${s.to}" data-verdict="${s.verdict}"><td><a href="#c-${s.to}"><code>${s.to}</code></a></td><td><span class="verdict v-${s.verdict}">${MARK[s.verdict ?? "worse"]} <span${inLanguages(...(VERDICT_IN[s.verdict ?? "worse"] ?? []))}>${VERDICT_WORDS[s.verdict ?? "worse"]}</span></span>${s.fit === "stretch" ? '<br><span class="muted">stretch</span>' : ""}</td><td class="assess"><span${inLanguages(switchAdvice(s, "fr"), switchAdvice(s, "de"))}>${escape(s.assessment)}</span>${s.caveats.length ? `<br><span class="muted"${englishOnly}>${escape(s.caveats.join(" "))}</span>` : ""}</td><td><button type="button" data-from="${type}" data-to="${s.to}">Show</button></td></tr>`)
         .join("")}</tbody>
     </table></div>
     ${no.length ? `<details class="nope"><summary>Not possible with this data (${no.length})</summary><ul>${no.map((s) => `<li><code>${s.to}</code>: <span${inLanguages(switchAdvice(s, "fr"), switchAdvice(s, "de"))}>${escape(s.caveats[0] ?? s.assessment)}</span></li>`).join("")}</ul></details>` : ""}

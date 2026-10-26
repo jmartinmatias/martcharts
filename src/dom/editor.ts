@@ -20,6 +20,10 @@ import { fork } from "../core/fork.ts";
 import { chartGuide, switchChart } from "../core/guide.ts";
 import { pickWhy, switchAdvice } from "../core/type-words.ts";
 import type { TypeLang } from "../core/type-words.ts";
+import type { OptionWords } from "../core/option-words.ts";
+
+/** The French and German option words, when some script on the page registered them (src/core/option-words.ts). */
+const optionWords = (): OptionWords | undefined => (globalThis as { [key: symbol]: OptionWords | undefined })[Symbol.for("martcharts.option-words")];
 import { describePresets } from "../core/presets.ts";
 import { recommendCharts } from "../core/recommend.ts";
 import { describeBlocks, getBlock } from "../core/registry.ts";
@@ -1441,7 +1445,9 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
 
   /** One control for a view option, from its schema, tagged with the option's canonical name so hosts and tests can find it. */
   function controlFor(name: string, option: OptionSchema, value: unknown, ofKind: (kind: Kind | undefined) => string[], current: Row[]): HTMLElement | undefined {
-    const control = controlOf(name, option, value, ofKind, current);
+    // In French or German, the option's hint reads in that language when the page brought the words (option-words.ts).
+    const words = typeLang ? optionWords() : undefined;
+    const control = controlOf(name, words && typeLang ? { ...option, description: words.optionHint(option.description, typeLang) } : option, value, ofKind, current);
     if (control) control.dataset.option = keyOf(name);
     return control;
   }
@@ -1515,7 +1521,7 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
 
   function controlOf(name: string, option: OptionSchema, value: unknown, ofKind: (kind: Kind | undefined) => string[], current: Row[]): HTMLElement | undefined {
     const type = spec.view.type;
-    const label = humanize(keyOf(name));
+    const label = (typeLang ? optionWords()?.optionLabel(keyOf(name), typeLang) : undefined) ?? humanize(keyOf(name));
     const put = (next: unknown) => putOpt(name, next);
     const describe = (node: HTMLElement) => {
       node.title = option.description;
