@@ -90,6 +90,7 @@
         }
       },
       "headline": {
+        "compareLabel": "vs août",
         "caption": "CA de {last:month}"
       },
       "view": {
@@ -119,6 +120,7 @@
         }
       },
       "headline": {
+        "compareLabel": "ggü. Aug.",
         "caption": "Umsatz im {last:month}"
       },
       "view": {

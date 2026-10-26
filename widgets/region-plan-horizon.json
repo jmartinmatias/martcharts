@@ -2,8 +2,10 @@
   "id": "region-plan-horizon",
   "title": "Daily revenue against plan",
   "subtitle": "By region, {first:day} to {last:day}",
-  "description": "Each region's daily revenue against plan, blue above and red below. East beats plan every day, by about \u20ac6K a day in July and \u20ac16K by September. South falls behind in mid-August, worst on Aug 15 at \u20ac14.6K under. West misses every weekend, Central turns positive with September's campaign, and Online swings both ways.",
-  "source": {"name": "Finance ledger and daily plan"},
+  "description": "Each region's daily revenue against plan, blue above and red below. East beats plan every day, by about €6K a day in July and €16K by September. South falls behind in mid-August, worst on Aug 15 at €14.6K under. West misses every weekend, Central turns positive with September's campaign, and Online swings both ways.",
+  "source": {
+    "name": "Finance ledger and daily plan"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -847,6 +849,7 @@
       }
     },
     "North": {
+      "label": "North",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -854,6 +857,7 @@
       }
     },
     "South": {
+      "label": "South",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -861,6 +865,7 @@
       }
     },
     "East": {
+      "label": "East",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -868,6 +873,7 @@
       }
     },
     "West": {
+      "label": "West",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -875,6 +881,7 @@
       }
     },
     "Central": {
+      "label": "Central",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -882,6 +889,7 @@
       }
     },
     "Online": {
+      "label": "Online",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -901,7 +909,7 @@
       "Online"
     ],
     "bands": 3,
-  "baselineLabel": "plan"
+    "baselineLabel": "plan"
   },
   "i18n": {
     "fr": {
@@ -914,6 +922,24 @@
       "fields": {
         "day": {
           "label": "Jour"
+        },
+        "North": {
+          "label": "Nord"
+        },
+        "South": {
+          "label": "Sud"
+        },
+        "East": {
+          "label": "Est"
+        },
+        "West": {
+          "label": "Ouest"
+        },
+        "Central": {
+          "label": "Centre"
+        },
+        "Online": {
+          "label": "En ligne"
         }
       }
     },
@@ -927,6 +953,24 @@
       "fields": {
         "day": {
           "label": "Tag"
+        },
+        "North": {
+          "label": "Nord"
+        },
+        "South": {
+          "label": "Süd"
+        },
+        "East": {
+          "label": "Ost"
+        },
+        "West": {
+          "label": "West"
+        },
+        "Central": {
+          "label": "Mitte"
+        },
+        "Online": {
+          "label": "Online"
         }
       }
     }

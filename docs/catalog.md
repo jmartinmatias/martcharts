@@ -2708,6 +2708,7 @@ Many time series at once, each in a thin row: values are measured from a baselin
       }
     },
     "North": {
+      "label": "North",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -2715,6 +2716,7 @@ Many time series at once, each in a thin row: values are measured from a baselin
       }
     },
     "South": {
+      "label": "South",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -2722,6 +2724,7 @@ Many time series at once, each in a thin row: values are measured from a baselin
       }
     },
     "East": {
+      "label": "East",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -2729,6 +2732,7 @@ Many time series at once, each in a thin row: values are measured from a baselin
       }
     },
     "West": {
+      "label": "West",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -2736,6 +2740,7 @@ Many time series at once, each in a thin row: values are measured from a baselin
       }
     },
     "Central": {
+      "label": "Central",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -2743,6 +2748,7 @@ Many time series at once, each in a thin row: values are measured from a baselin
       }
     },
     "Online": {
+      "label": "Online",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -2775,6 +2781,24 @@ Many time series at once, each in a thin row: values are measured from a baselin
       "fields": {
         "day": {
           "label": "Jour"
+        },
+        "North": {
+          "label": "Nord"
+        },
+        "South": {
+          "label": "Sud"
+        },
+        "East": {
+          "label": "Est"
+        },
+        "West": {
+          "label": "Ouest"
+        },
+        "Central": {
+          "label": "Centre"
+        },
+        "Online": {
+          "label": "En ligne"
         }
       }
     },
@@ -2788,6 +2812,24 @@ Many time series at once, each in a thin row: values are measured from a baselin
       "fields": {
         "day": {
           "label": "Tag"
+        },
+        "North": {
+          "label": "Nord"
+        },
+        "South": {
+          "label": "Süd"
+        },
+        "East": {
+          "label": "Ost"
+        },
+        "West": {
+          "label": "West"
+        },
+        "Central": {
+          "label": "Mitte"
+        },
+        "Online": {
+          "label": "Online"
         }
       }
     }
@@ -3572,6 +3614,7 @@ Lines showing change over an ordered axis, usually time. Several y fields draw s
         }
       },
       "headline": {
+        "compareLabel": "vs août",
         "caption": "CA de {last:month}"
       },
       "view": {
@@ -3601,6 +3644,7 @@ Lines showing change over an ordered axis, usually time. Several y fields draw s
         }
       },
       "headline": {
+        "compareLabel": "ggü. Aug.",
         "caption": "Umsatz im {last:month}"
       },
       "view": {

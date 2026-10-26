@@ -3352,6 +3352,10 @@
   {
     "ref": "W-YTWD",
     "title": "Signups by channel",
+    "titles": {
+      "fr": "Inscriptions par canal",
+      "de": "Anmeldungen je Kanal"
+    },
     "key": "inline",
     "place": "embed",
     "where": "Embed › The spec inside the tag",
@@ -3372,6 +3376,10 @@
   {
     "ref": "W-H4J7",
     "title": "Tickets this week",
+    "titles": {
+      "fr": "Tickets de la semaine",
+      "de": "Tickets dieser Woche"
+    },
     "key": "csv",
     "place": "embed",
     "where": "Embed › A CSV file",

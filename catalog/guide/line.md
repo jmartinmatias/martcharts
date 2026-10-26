@@ -181,6 +181,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         }
       },
       "headline": {
+        "compareLabel": "vs août",
         "caption": "CA de {last:month}"
       },
       "view": {
@@ -210,6 +211,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         }
       },
       "headline": {
+        "compareLabel": "ggü. Aug.",
         "caption": "Umsatz im {last:month}"
       },
       "view": {

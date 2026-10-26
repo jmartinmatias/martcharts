@@ -36,12 +36,12 @@ Many time series at once, each in a thin row: values are measured from a baselin
 | Column | Holds | Drawn as | Values |
 | --- | --- | --- | --- |
 | `day` (Day) | date | `x` | 92 different, e.g. "2026-07-01", "2026-07-02", "2026-07-03" |
-| `North` | number | `y` | -900 to 5000 |
-| `South` | number | `y` | -14600 to 3500 |
-| `East` | number | `y` | 1800 to 20500 |
-| `West` | number | `y` | -8900 to 4900 |
-| `Central` | number | `y` | -5000 to 11500 |
-| `Online` | number | `y` | -13400 to 12300 |
+| `North` (North) | number | `y` | -900 to 5000 |
+| `South` (South) | number | `y` | -14600 to 3500 |
+| `East` (East) | number | `y` | 1800 to 20500 |
+| `West` (West) | number | `y` | -8900 to 4900 |
+| `Central` (Central) | number | `y` | -5000 to 11500 |
+| `Online` (Online) | number | `y` | -13400 to 12300 |
 
 ## The data drawing it now
 
@@ -293,6 +293,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       }
     },
     "North": {
+      "label": "North",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -300,6 +301,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       }
     },
     "South": {
+      "label": "South",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -307,6 +309,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       }
     },
     "East": {
+      "label": "East",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -314,6 +317,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       }
     },
     "West": {
+      "label": "West",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -321,6 +325,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       }
     },
     "Central": {
+      "label": "Central",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -328,6 +333,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       }
     },
     "Online": {
+      "label": "Online",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -360,6 +366,24 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "fields": {
         "day": {
           "label": "Jour"
+        },
+        "North": {
+          "label": "Nord"
+        },
+        "South": {
+          "label": "Sud"
+        },
+        "East": {
+          "label": "Est"
+        },
+        "West": {
+          "label": "Ouest"
+        },
+        "Central": {
+          "label": "Centre"
+        },
+        "Online": {
+          "label": "En ligne"
         }
       }
     },
@@ -373,6 +397,24 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "fields": {
         "day": {
           "label": "Tag"
+        },
+        "North": {
+          "label": "Nord"
+        },
+        "South": {
+          "label": "Süd"
+        },
+        "East": {
+          "label": "Ost"
+        },
+        "West": {
+          "label": "West"
+        },
+        "Central": {
+          "label": "Mitte"
+        },
+        "Online": {
+          "label": "Online"
         }
       }
     }

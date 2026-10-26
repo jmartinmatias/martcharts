@@ -113,6 +113,7 @@
       }
     },
     "North": {
+      "label": "North",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -120,6 +121,7 @@
       }
     },
     "South": {
+      "label": "South",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -127,6 +129,7 @@
       }
     },
     "East": {
+      "label": "East",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -134,6 +137,7 @@
       }
     },
     "West": {
+      "label": "West",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -141,6 +145,7 @@
       }
     },
     "Central": {
+      "label": "Central",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -148,6 +153,7 @@
       }
     },
     "Online": {
+      "label": "Online",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -180,6 +186,24 @@
       "fields": {
         "day": {
           "label": "Jour"
+        },
+        "North": {
+          "label": "Nord"
+        },
+        "South": {
+          "label": "Sud"
+        },
+        "East": {
+          "label": "Est"
+        },
+        "West": {
+          "label": "Ouest"
+        },
+        "Central": {
+          "label": "Centre"
+        },
+        "Online": {
+          "label": "En ligne"
         }
       }
     },
@@ -193,6 +217,24 @@
       "fields": {
         "day": {
           "label": "Tag"
+        },
+        "North": {
+          "label": "Nord"
+        },
+        "South": {
+          "label": "Süd"
+        },
+        "East": {
+          "label": "Ost"
+        },
+        "West": {
+          "label": "West"
+        },
+        "Central": {
+          "label": "Mitte"
+        },
+        "Online": {
+          "label": "Online"
         }
       }
     }
