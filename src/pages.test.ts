@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, normalize } from "node:path";
 import { describe, expect, test } from "vitest";
 import { STATIC_PATHS } from "../scripts/site-pages.ts";
@@ -200,5 +200,31 @@ describe("the published site", () => {
       expect([page, code.includes("previewStyle: lookStyle"), /addEventListener\("martcharts:look"[\s\S]*preventDefault\(\)[\s\S]*restyle\(\)/.test(code)]).toEqual([page, true, true]);
     }
     for (const page of ["editor.html", "composer.html"]) expect(readFileSync(page, "utf8")).toContain("scrollbar-gutter: stable");
+  test("the pages with their own body (Embed, Catalog, Data guide) sit in every page's column: 1280px, border-box", () => {
+    expect(readFileSync("examples/drop-in.html", "utf8")).toMatch(/body \{[^}]*box-sizing: border-box; margin: 0 auto; max-width: 1280px;/);
+    for (const script of ["scripts/catalog.ts", "scripts/guide.ts"]) {
+      expect([script, /body \{[^}]*box-sizing: border-box; margin: 0 auto; max-width: 1280px;/.test(readFileSync(script, "utf8"))]).toEqual([script, true]);
+    }
+  });
+
+  test("one link colour for the site's own links, readable on every backdrop, and pill buttons in the Look menu and catalog", () => {
+    const css = readFileSync("demo/site-nav.css", "utf8");
+    expect(css).toMatch(/:root \{ --site-link: #1d63b8; \}/);
+    expect(css).toMatch(/:root\[data-theme="dark"\] \{ --site-link: #6aa8f0; \}/);
+    expect(css).toMatch(/a\.strip-link \{\s*color: var\(--site-link\)/);
+    expect(/\.site-look-group button \{[^}]*\}/.exec(css)?.[0]).toMatch(/border-radius: 999px/);
+    expect(/html body \.tools > button \{[^}]*\}/.exec(css)?.[0]).toMatch(/border-radius: 999px/);
+    expect(readFileSync("demo/home.ts", "utf8")).not.toMatch(/style\.cssText/);
+  });
+
+  test("every board says its date the same way, and no board card adds a byline beside the board's source", () => {
+    for (const file of ["gallery", "commercial-cockpit", "client-health", "regulatory-landscape"]) {
+      const asOf = JSON.parse(readFileSync(`dashboards/${file}.json`, "utf8")).asOf as string;
+      expect([file, /^Data to (\{latest\}|[A-Z][a-z]+ \d{4})$/.test(asOf)]).toEqual([file, true]);
+    }
+    const bylines = readdirSync("widgets", { recursive: true })
+      .map(String)
+      .filter((file) => file.endsWith(".json") && "byline" in JSON.parse(readFileSync(`widgets/${file}`, "utf8")));
+    expect(bylines).toEqual([]);
   });
 });

@@ -1,24 +1,26 @@
 {
   "id": "revenue-bridge",
   "title": "Revenue bridge",
-  "subtitle": "Q2 to Q3 2026",
-  "description": "What moved quarterly revenue from Q2 to Q3: gains from new customers, upsell and pricing, losses from churn and discounts.",
-  "source": {"name": "Finance ledger"},
+  "subtitle": "August to September 2026",
+  "description": "What moved monthly revenue from August to September: gains from new customers, upsell and pricing, losses from churn and discounts.",
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
     "rows": [
       {
-        "step": "Q2 revenue",
-        "amount": 1180000
+        "step": "August revenue",
+        "amount": 1142000
       },
       {
         "step": "New customers",
-        "amount": 142000
+        "amount": 150000
       },
       {
         "step": "Upsell",
-        "amount": 58000
+        "amount": 62000
       },
       {
         "step": "Pricing",
@@ -26,11 +28,11 @@
       },
       {
         "step": "Churn",
-        "amount": -84000
+        "amount": -66000
       },
       {
         "step": "Discounts",
-        "amount": -33000
+        "amount": -25000
       }
     ]
   },
@@ -49,9 +51,9 @@
     "label": "step",
     "value": "amount",
     "totals": [
-      "Q2 revenue"
+      "August revenue"
     ],
-    "endLabel": "Q3 revenue",
+    "endLabel": "September revenue",
     "fit": true
   }
 }

@@ -33,7 +33,7 @@
   ],
   "fields": {
     "count": {
-      "label": "Applying within a year"
+      "label": "Regulations"
     }
   },
   "view": {
@@ -43,6 +43,5 @@
   },
   "source": {
     "name": "Regulatory watch (fictional)"
-  },
-  "byline": "Compliance office"
+  }
 }

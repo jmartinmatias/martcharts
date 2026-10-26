@@ -40,7 +40,7 @@
       }
     },
     "consultationsOpen": {
-      "label": "Open consultations"
+      "label": "Consultations"
     }
   },
   "view": {
@@ -51,6 +51,5 @@
   },
   "source": {
     "name": "Regulatory watch (fictional)"
-  },
-  "byline": "Compliance office"
+  }
 }

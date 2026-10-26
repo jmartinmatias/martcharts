@@ -1,10 +1,13 @@
 {
   "id": "revenue-by-region",
   "title": "Revenue by region",
-  "subtitle": "Q3 2026, all products",
+  "subtitle": "September 2026, all products",
   "description": "Revenue and cost per sales region, largest first, with the leading region highlighted.",
-  "note": "Q3 2026, booked revenue and cost",
-  "source": { "name": "Finance ledger", "url": "https://example.com/finance/ledger" },
+  "note": "September 2026, booked revenue and cost",
+  "source": {
+    "name": "Finance ledger",
+    "url": "https://example.com/finance/ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "url",

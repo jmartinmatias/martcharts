@@ -1,8 +1,8 @@
 {
   "id": "region-product-mix",
   "title": "Market size and mix",
-  "subtitle": "Q3 2026 revenue, by region and product",
-  "description": "Each region's Q3 revenue as a column as wide as its share of the total, split by product share. East is the biggest market; West leans on Analytics, Central on Services.",
+  "subtitle": "September 2026 revenue, by region and product",
+  "description": "Each region's September revenue as a column as wide as its share of the total, split by product share. East is the biggest market.",
   "source": {
     "name": "Finance ledger"
   },
@@ -12,16 +12,16 @@
     "rows": [
       {"region":"East","product":"Platform","revenue":160000},
       {"region":"East","product":"Analytics","revenue":120000},
-      {"region":"East","product":"Services","revenue":68000},
+      {"region":"East","product":"Services","revenue":58000},
       {"region":"North","product":"Platform","revenue":110000},
       {"region":"North","product":"Analytics","revenue":98000},
-      {"region":"North","product":"Services","revenue":74000},
+      {"region":"North","product":"Services","revenue":70000},
       {"region":"Central","product":"Platform","revenue":90000},
       {"region":"Central","product":"Analytics","revenue":70000},
       {"region":"Central","product":"Services","revenue":99000},
       {"region":"West","product":"Platform","revenue":60000},
       {"region":"West","product":"Analytics","revenue":95000},
-      {"region":"West","product":"Services","revenue":49000},
+      {"region":"West","product":"Services","revenue":50000},
       {"region":"South","product":"Platform","revenue":100000},
       {"region":"South","product":"Analytics","revenue":40000},
       {"region":"South","product":"Services","revenue":64000}

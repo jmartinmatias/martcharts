@@ -68,8 +68,8 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
 {
   "id": "region-targets",
   "title": "Target attainment",
-  "subtitle": "Q3 2026 revenue against plan",
-  "description": "How close each region is to its quarterly revenue target.",
+  "subtitle": "September 2026 revenue against plan",
+  "description": "How close each region is to its September revenue target.",
   "source": {
     "name": "Sales ledger"
   },

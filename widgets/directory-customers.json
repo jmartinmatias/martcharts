@@ -3,50 +3,271 @@
   "title": "Customer directory",
   "subtitle": "Every active account, with its plan and renewal",
   "description": "A long table made easy to work: search by any word, eight rows a page, the customer's name pinned while the columns scroll on a phone.",
-  "source": { "name": "OneCRM accounts", "url": "https://example.com/crm/accounts" },
-  "byline": "Revenue operations",
+  "source": {
+    "name": "OneCRM accounts",
+    "url": "https://example.com/crm/accounts"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
     "rows": [
-      {"name":"Aurora Logistics","country":"Luxembourg","segment":"Enterprise","plan":"Scale","seats":420,"revenue":214000,"renewal":"2027-03-31"},
-      {"name":"Beacon Health","country":"Germany","segment":"Enterprise","plan":"Scale","seats":380,"revenue":198500,"renewal":"2027-01-15"},
-      {"name":"Cobalt Foods","country":"France","segment":"Mid-market","plan":"Team","seats":96,"revenue":88200,"renewal":"2026-12-01"},
-      {"name":"Delta Retail","country":"Belgium","segment":"Mid-market","plan":"Team","seats":120,"revenue":97600,"renewal":"2027-02-28"},
-      {"name":"Everly Studios","country":"Netherlands","segment":"SMB","plan":"Starter","seats":18,"revenue":14300,"renewal":"2026-11-20"},
-      {"name":"Fjord Marine","country":"Norway","segment":"Mid-market","plan":"Team","seats":74,"revenue":61900,"renewal":"2027-04-10"},
-      {"name":"Granite Build","country":"Austria","segment":"SMB","plan":"Starter","seats":25,"revenue":19800,"renewal":"2026-12-15"},
-      {"name":"Harbor Insurance","country":"Luxembourg","segment":"Enterprise","plan":"Scale","seats":510,"revenue":262000,"renewal":"2027-06-30"},
-      {"name":"Iris Pharma","country":"Switzerland","segment":"Enterprise","plan":"Scale","seats":290,"revenue":171400,"renewal":"2027-05-01"},
-      {"name":"Juniper Energy","country":"Spain","segment":"Mid-market","plan":"Team","seats":88,"revenue":72300,"renewal":"2026-11-30"},
-      {"name":"Kestrel Air","country":"Ireland","segment":"Mid-market","plan":"Team","seats":140,"revenue":110500,"renewal":"2027-03-05"},
-      {"name":"Lumen Media","country":"Portugal","segment":"SMB","plan":"Starter","seats":12,"revenue":9800,"renewal":"2026-12-20"},
-      {"name":"Meridian Bank","country":"Luxembourg","segment":"Enterprise","plan":"Scale","seats":640,"revenue":318000,"renewal":"2027-09-30"},
-      {"name":"Nordic Paper","country":"Sweden","segment":"Mid-market","plan":"Team","seats":66,"revenue":54700,"renewal":"2027-01-31"},
-      {"name":"Orchard Schools","country":"Denmark","segment":"SMB","plan":"Starter","seats":30,"revenue":21600,"renewal":"2026-11-15"},
-      {"name":"Pioneer Mobility","country":"Germany","segment":"Enterprise","plan":"Scale","seats":355,"revenue":187900,"renewal":"2027-02-14"},
-      {"name":"Quill Publishing","country":"France","segment":"SMB","plan":"Starter","seats":22,"revenue":16900,"renewal":"2027-01-10"},
-      {"name":"Riverstone Hotels","country":"Italy","segment":"Mid-market","plan":"Team","seats":102,"revenue":84100,"renewal":"2027-04-22"},
-      {"name":"Summit Legal","country":"Belgium","segment":"SMB","plan":"Starter","seats":16,"revenue":13200,"renewal":"2026-12-05"},
-      {"name":"Tidal Telecom","country":"Netherlands","segment":"Enterprise","plan":"Scale","seats":470,"revenue":241300,"renewal":"2027-07-15"},
-      {"name":"Umbra Security","country":"Finland","segment":"Mid-market","plan":"Team","seats":58,"revenue":47500,"renewal":"2027-03-18"},
-      {"name":"Vega Analytics","country":"Spain","segment":"SMB","plan":"Starter","seats":28,"revenue":20400,"renewal":"2026-11-25"},
-      {"name":"Willow Care","country":"Ireland","segment":"Mid-market","plan":"Team","seats":84,"revenue":69800,"renewal":"2027-05-20"},
-      {"name":"Zenith Motors","country":"Germany","segment":"Enterprise","plan":"Scale","seats":600,"revenue":296000,"renewal":"2027-08-31"}
+      {
+        "name": "Aurora Logistics",
+        "country": "Luxembourg",
+        "segment": "Enterprise",
+        "plan": "Scale",
+        "seats": 420,
+        "revenue": 214000,
+        "renewal": "2027-03-31"
+      },
+      {
+        "name": "Beacon Health",
+        "country": "Germany",
+        "segment": "Enterprise",
+        "plan": "Scale",
+        "seats": 380,
+        "revenue": 198500,
+        "renewal": "2027-01-15"
+      },
+      {
+        "name": "Cobalt Foods",
+        "country": "France",
+        "segment": "Mid-market",
+        "plan": "Team",
+        "seats": 96,
+        "revenue": 88200,
+        "renewal": "2026-12-01"
+      },
+      {
+        "name": "Delta Retail",
+        "country": "Belgium",
+        "segment": "Mid-market",
+        "plan": "Team",
+        "seats": 120,
+        "revenue": 97600,
+        "renewal": "2027-02-28"
+      },
+      {
+        "name": "Everly Studios",
+        "country": "Netherlands",
+        "segment": "SMB",
+        "plan": "Starter",
+        "seats": 18,
+        "revenue": 14300,
+        "renewal": "2026-11-20"
+      },
+      {
+        "name": "Fjord Marine",
+        "country": "Norway",
+        "segment": "Mid-market",
+        "plan": "Team",
+        "seats": 74,
+        "revenue": 61900,
+        "renewal": "2027-04-10"
+      },
+      {
+        "name": "Granite Build",
+        "country": "Austria",
+        "segment": "SMB",
+        "plan": "Starter",
+        "seats": 25,
+        "revenue": 19800,
+        "renewal": "2026-12-15"
+      },
+      {
+        "name": "Harbor Insurance",
+        "country": "Luxembourg",
+        "segment": "Enterprise",
+        "plan": "Scale",
+        "seats": 510,
+        "revenue": 262000,
+        "renewal": "2027-06-30"
+      },
+      {
+        "name": "Iris Pharma",
+        "country": "Switzerland",
+        "segment": "Enterprise",
+        "plan": "Scale",
+        "seats": 290,
+        "revenue": 171400,
+        "renewal": "2027-05-01"
+      },
+      {
+        "name": "Juniper Energy",
+        "country": "Spain",
+        "segment": "Mid-market",
+        "plan": "Team",
+        "seats": 88,
+        "revenue": 72300,
+        "renewal": "2026-11-30"
+      },
+      {
+        "name": "Kestrel Air",
+        "country": "Ireland",
+        "segment": "Mid-market",
+        "plan": "Team",
+        "seats": 140,
+        "revenue": 110500,
+        "renewal": "2027-03-05"
+      },
+      {
+        "name": "Lumen Media",
+        "country": "Portugal",
+        "segment": "SMB",
+        "plan": "Starter",
+        "seats": 12,
+        "revenue": 9800,
+        "renewal": "2026-12-20"
+      },
+      {
+        "name": "Meridian Bank",
+        "country": "Luxembourg",
+        "segment": "Enterprise",
+        "plan": "Scale",
+        "seats": 640,
+        "revenue": 318000,
+        "renewal": "2027-09-30"
+      },
+      {
+        "name": "Nordic Paper",
+        "country": "Sweden",
+        "segment": "Mid-market",
+        "plan": "Team",
+        "seats": 66,
+        "revenue": 54700,
+        "renewal": "2027-01-31"
+      },
+      {
+        "name": "Orchard Schools",
+        "country": "Denmark",
+        "segment": "SMB",
+        "plan": "Starter",
+        "seats": 30,
+        "revenue": 21600,
+        "renewal": "2026-11-15"
+      },
+      {
+        "name": "Pioneer Mobility",
+        "country": "Germany",
+        "segment": "Enterprise",
+        "plan": "Scale",
+        "seats": 355,
+        "revenue": 187900,
+        "renewal": "2027-02-14"
+      },
+      {
+        "name": "Quill Publishing",
+        "country": "France",
+        "segment": "SMB",
+        "plan": "Starter",
+        "seats": 22,
+        "revenue": 16900,
+        "renewal": "2027-01-10"
+      },
+      {
+        "name": "Riverstone Hotels",
+        "country": "Italy",
+        "segment": "Mid-market",
+        "plan": "Team",
+        "seats": 102,
+        "revenue": 84100,
+        "renewal": "2027-04-22"
+      },
+      {
+        "name": "Summit Legal",
+        "country": "Belgium",
+        "segment": "SMB",
+        "plan": "Starter",
+        "seats": 16,
+        "revenue": 13200,
+        "renewal": "2026-12-05"
+      },
+      {
+        "name": "Tidal Telecom",
+        "country": "Netherlands",
+        "segment": "Enterprise",
+        "plan": "Scale",
+        "seats": 470,
+        "revenue": 241300,
+        "renewal": "2027-07-15"
+      },
+      {
+        "name": "Umbra Security",
+        "country": "Finland",
+        "segment": "Mid-market",
+        "plan": "Team",
+        "seats": 58,
+        "revenue": 47500,
+        "renewal": "2027-03-18"
+      },
+      {
+        "name": "Vega Analytics",
+        "country": "Spain",
+        "segment": "SMB",
+        "plan": "Starter",
+        "seats": 28,
+        "revenue": 20400,
+        "renewal": "2026-11-25"
+      },
+      {
+        "name": "Willow Care",
+        "country": "Ireland",
+        "segment": "Mid-market",
+        "plan": "Team",
+        "seats": 84,
+        "revenue": 69800,
+        "renewal": "2027-05-20"
+      },
+      {
+        "name": "Zenith Motors",
+        "country": "Germany",
+        "segment": "Enterprise",
+        "plan": "Scale",
+        "seats": 600,
+        "revenue": 296000,
+        "renewal": "2027-08-31"
+      }
     ]
   },
   "fields": {
-    "name": { "label": "Customer" },
-    "plan": { "format": { "type": "badge" } },
-    "revenue": { "label": "Annual revenue", "format": { "type": "currency", "currency": "EUR", "decimals": 0 } },
-    "renewal": { "format": { "type": "date" } }
+    "name": {
+      "label": "Customer"
+    },
+    "plan": {
+      "format": {
+        "type": "badge"
+      }
+    },
+    "revenue": {
+      "label": "Annual revenue",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "decimals": 0
+      }
+    },
+    "renewal": {
+      "format": {
+        "type": "date"
+      }
+    }
   },
   "view": {
     "type": "table",
-    "columns": ["name", "country", "segment", "plan", "seats", "revenue", "renewal"],
+    "columns": [
+      "name",
+      "country",
+      "segment",
+      "plan",
+      "seats",
+      "revenue",
+      "renewal"
+    ],
     "search": true,
     "pageSize": 8,
     "stickyFirst": true,
-    "align": { "plan": "center" }
+    "align": {
+      "plan": "center"
+    }
   }
 }

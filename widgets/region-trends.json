@@ -3,7 +3,9 @@
   "title": "Regional trends",
   "subtitle": "Monthly revenue, April to September",
   "description": "Each region's six-month revenue trend and its total.",
-  "source": {"name": "Finance ledger"},
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -11,152 +13,152 @@
       {
         "region": "North",
         "month": "2026-04",
-        "revenue": 44000
+        "revenue": 217000
       },
       {
         "region": "North",
         "month": "2026-05",
-        "revenue": 46000
+        "revenue": 213000
       },
       {
         "region": "North",
         "month": "2026-06",
-        "revenue": 45000
+        "revenue": 217000
       },
       {
         "region": "North",
         "month": "2026-07",
-        "revenue": 48000
+        "revenue": 244000
       },
       {
         "region": "North",
         "month": "2026-08",
-        "revenue": 47000
+        "revenue": 233000
       },
       {
         "region": "North",
         "month": "2026-09",
-        "revenue": 52000
+        "revenue": 278000
       },
       {
         "region": "South",
         "month": "2026-04",
-        "revenue": 33000
+        "revenue": 183000
       },
       {
         "region": "South",
         "month": "2026-05",
-        "revenue": 32000
+        "revenue": 166000
       },
       {
         "region": "South",
         "month": "2026-06",
-        "revenue": 35000
+        "revenue": 189000
       },
       {
         "region": "South",
         "month": "2026-07",
-        "revenue": 34000
+        "revenue": 193000
       },
       {
         "region": "South",
         "month": "2026-08",
-        "revenue": 36000
+        "revenue": 200000
       },
       {
         "region": "South",
         "month": "2026-09",
-        "revenue": 34000
+        "revenue": 204000
       },
       {
         "region": "East",
         "month": "2026-04",
-        "revenue": 52000
+        "revenue": 249000
       },
       {
         "region": "East",
         "month": "2026-05",
-        "revenue": 55000
+        "revenue": 248000
       },
       {
         "region": "East",
         "month": "2026-06",
-        "revenue": 58000
+        "revenue": 272000
       },
       {
         "region": "East",
         "month": "2026-07",
-        "revenue": 57000
+        "revenue": 280000
       },
       {
         "region": "East",
         "month": "2026-08",
-        "revenue": 61000
+        "revenue": 294000
       },
       {
         "region": "East",
         "month": "2026-09",
-        "revenue": 65000
+        "revenue": 338000
       },
       {
         "region": "West",
         "month": "2026-04",
-        "revenue": 30000
+        "revenue": 158000
       },
       {
         "region": "West",
         "month": "2026-05",
-        "revenue": 31000
+        "revenue": 153000
       },
       {
         "region": "West",
         "month": "2026-06",
-        "revenue": 33000
+        "revenue": 169000
       },
       {
         "region": "West",
         "month": "2026-07",
-        "revenue": 32000
+        "revenue": 173000
       },
       {
         "region": "West",
         "month": "2026-08",
-        "revenue": 35000
+        "revenue": 185000
       },
       {
         "region": "West",
         "month": "2026-09",
-        "revenue": 36000
+        "revenue": 205000
       },
       {
         "region": "Central",
         "month": "2026-04",
-        "revenue": 40000
+        "revenue": 203000
       },
       {
         "region": "Central",
         "month": "2026-05",
-        "revenue": 42000
+        "revenue": 200000
       },
       {
         "region": "Central",
         "month": "2026-06",
-        "revenue": 41000
+        "revenue": 203000
       },
       {
         "region": "Central",
         "month": "2026-07",
-        "revenue": 44000
+        "revenue": 230000
       },
       {
         "region": "Central",
         "month": "2026-08",
-        "revenue": 45000
+        "revenue": 230000
       },
       {
         "region": "Central",
         "month": "2026-09",
-        "revenue": 47000
+        "revenue": 259000
       }
     ]
   },

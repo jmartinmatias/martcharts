@@ -1,9 +1,11 @@
 {
   "id": "region-targets",
   "title": "Target attainment",
-  "subtitle": "Q3 2026 revenue against plan",
-  "description": "How close each region is to its quarterly revenue target.",
-  "source": {"name": "Sales ledger"},
+  "subtitle": "September 2026 revenue against plan",
+  "description": "How close each region is to its September revenue target.",
+  "source": {
+    "name": "Sales ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "url",

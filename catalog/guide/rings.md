@@ -36,24 +36,24 @@ Concentric progress rings, one per row from the outside in, each filled to its s
 | Column | Holds | Drawn as | Values |
 | --- | --- | --- | --- |
 | `product` | category | `label` | 3 different, e.g. "Analytics", "Platform", "Services" |
-| `revenue` (Revenue) | number | `value` | 231000 to 412000 |
-| `target` (Target) | number | `target` | 300000 to 450000 |
+| `revenue` (Revenue) | number | `value` | 341000 to 520000 |
+| `target` (Target) | number | `target` | 330000 to 540000 |
 
 ## The data drawing it now
 
 | product | revenue | target |
 | --- | --- | --- |
-| Analytics | 386000 | 360000 |
-| Platform | 412000 | 450000 |
-| Services | 231000 | 300000 |
+| Analytics | 423000 | 400000 |
+| Platform | 520000 | 540000 |
+| Services | 341000 | 330000 |
 
 As CSV:
 
 ```csv
 product,revenue,target
-Analytics,386000,360000
-Platform,412000,450000
-Services,231000,300000
+Analytics,423000,400000
+Platform,520000,540000
+Services,341000,330000
 ```
 
 ## The spec
@@ -63,9 +63,9 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
 ```json
 {
   "id": "product-targets",
-  "title": "Q3 targets",
+  "title": "September targets",
   "subtitle": "Revenue against plan, by product",
-  "description": "Each product's Q3 revenue as a share of its target. Analytics beat its target; Services trails at 77%.",
+  "description": "Each product's September revenue as a share of its target. Analytics and Services beat theirs; Platform trails at 96%.",
   "source": {
     "name": "Finance ledger"
   },
@@ -75,18 +75,18 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "rows": [
       {
         "product": "Analytics",
-        "revenue": 386000,
-        "target": 360000
+        "revenue": 423000,
+        "target": 400000
       },
       {
         "product": "Platform",
-        "revenue": 412000,
-        "target": 450000
+        "revenue": 520000,
+        "target": 540000
       },
       {
         "product": "Services",
-        "revenue": 231000,
-        "target": 300000
+        "revenue": 341000,
+        "target": 330000
       }
     ]
   },

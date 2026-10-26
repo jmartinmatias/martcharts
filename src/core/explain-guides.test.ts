@@ -113,7 +113,7 @@ describe("explainChart, sharper examples", () => {
     const expected: Record<string, string> = {
       "visits-by-hour": "Here, 12:00 is the busiest hour, with 1,900 in all; Mobile brings more than Desktop in 15 of 24 hours.",
       "plan-moves": "Here, the biggest move is from Starter to Growth: 120 customers; 30 went the other way, so Growth gained 90 from Starter.",
-      "region-trends": "Here, every region grew from start to finish, and East grew the most, from €52K to €65K.",
+      "region-trends": "Here, every region grew from start to finish, and East grew the most, from €249K to €338K.",
     };
     const fetch = createLocalFetch("public");
     for (const [id, sentence] of Object.entries(expected)) {

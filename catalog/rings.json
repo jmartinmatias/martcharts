@@ -1,8 +1,8 @@
 {
   "id": "product-targets",
-  "title": "Q3 targets",
+  "title": "September targets",
   "subtitle": "Revenue against plan, by product",
-  "description": "Each product's Q3 revenue as a share of its target. Analytics beat its target; Services trails at 77%.",
+  "description": "Each product's September revenue as a share of its target. Analytics and Services beat theirs; Platform trails at 96%.",
   "source": {
     "name": "Finance ledger"
   },
@@ -10,9 +10,9 @@
   "data": {
     "type": "inline",
     "rows": [
-      {"product":"Analytics","revenue":386000,"target":360000},
-      {"product":"Platform","revenue":412000,"target":450000},
-      {"product":"Services","revenue":231000,"target":300000}
+      {"product":"Analytics","revenue":423000,"target":400000},
+      {"product":"Platform","revenue":520000,"target":540000},
+      {"product":"Services","revenue":341000,"target":330000}
     ]
   },
   "fields": {

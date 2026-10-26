@@ -32,7 +32,6 @@
   "source": {
     "name": "Regulatory watch (fictional)"
   },
-  "byline": "Compliance office",
   "transform": [
     {
       "type": "filter",

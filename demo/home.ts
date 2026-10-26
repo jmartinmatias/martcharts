@@ -35,8 +35,7 @@ const draw = () => {
     link.className = "strip-link";
     link.href = boardHref(board);
     link.textContent = label;
-    // Quiet, under its card: the page's own link colour, a small size, no extra chrome.
-    link.style.cssText = "display:inline-block;margin:8px 0 0 2px;font-size:13px;";
+    // Quiet, under its card, in the site's link colour (site-nav.css); its place and size are the page's (index.html).
     slot.append(card, link);
     strip.append(slot);
     createWidget(card, withLook(spec, fork), { actions: ["explain"] });

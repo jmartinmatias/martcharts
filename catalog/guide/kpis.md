@@ -126,7 +126,8 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "format": {
         "type": "currency",
         "currency": "EUR",
-        "compact": true
+        "compact": true,
+        "decimals": 2
       }
     },
     "profit": {
