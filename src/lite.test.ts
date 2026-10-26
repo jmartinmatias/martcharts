@@ -17,13 +17,16 @@ const FULL_BEFORE = 298_224;
 describe("bundle sizes (after npm run build:lib)", () => {
   const full = gz("dist/martcharts.iife.js");
   const lite = gz("dist/martcharts-lite.iife.js");
-  test.skipIf(full === undefined)("the full bundle stays within 7% of its size when the lite build began", () => {
+  test.skipIf(full === undefined)("the full bundle stays within 11% of its size when the lite build began", () => {
     // 5% until the builder and reading features of late October 2026: the Composer's saved dashboards with undo, refs
     // unique to each chart's place, quarters in words, per-row units and the phone layout of the whitespace grid took
     // it to 105.6%. Raise it again only for a feature, never for creep.
-    expect(full).toBeLessThanOrEqual(Math.round(FULL_BEFORE * 1.07));
+    // 11% after French and German throughout: authored words laid over in each language, every chart type's summary,
+    // jobs and switching advice in French and German for the Editor (type-words.ts), and words for data values took it
+    // to 110.2%. The full bundle carries every language by design; pages that only show charts use the lite one.
+    expect(full).toBeLessThanOrEqual(Math.round(FULL_BEFORE * 1.11));
   });
-  test.skipIf(lite === undefined || full === undefined)("the lite bundle stays under 77% of the full bundle's starting size, and under three quarters of today's", () => {
+  test.skipIf(lite === undefined || full === undefined)("the lite bundle stays under 78% of the full bundle's starting size, and under three quarters of today's", () => {
     // 206,759 bytes gzipped when made: 69% of 298,224. What remains is what showing charts uses: the English reading
     // guides, the stylesheet, the views' option schemas (validation messages read them) and the chart picker behind
     // <fft-widget data="…">.
@@ -34,7 +37,9 @@ describe("bundle sizes (after npm run build:lib)", () => {
     // 77% after the functional audit's reader fixes (one board-level empty message with Clear, how far a click
     // reaches, the Details panel in words, changes in points on percent tiles, target lines read from a field) added
     // about 2 KB gzipped of display code.
-    expect(lite).toBeLessThanOrEqual(Math.round(FULL_BEFORE * 0.77));
+    // 78% after words for data values (a field's values shown as words on axes, legends, tooltips and tables) and
+    // authored words laid over in the page's language, which every chart draws with.
+    expect(lite).toBeLessThanOrEqual(Math.round(FULL_BEFORE * 0.78));
     expect(lite as number).toBeLessThan((full as number) * 0.75);
   });
   test.skipIf(!existsSync("dist/martcharts-lite.iife.js"))("the lite bundle carries no editor, composer, Taller, palette picker or French and German reading", () => {
