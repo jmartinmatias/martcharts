@@ -37,7 +37,7 @@ export const SEARCH_WORDS: Record<string, string> = {
   waffle: "share percent squares part of whole",
   variance: "budget plan versus actual over under",
   gauge: "dial speedometer score",
-  pareto: "80/20 vital few causes",
+  pareto: "share of total 80/20 vital few causes",
   boxplot: "distribution quartiles outliers spread",
   likert: "survey agree disagree answers",
   candlestick: "price stock ohlc trading",
