@@ -42,9 +42,10 @@ export interface WidgetOptions {
   fetch?: typeof fetch;
   /**
    * Why there are no rows, when a host knows: a dashboard says which of its filters emptied the card ("Nothing for
-   * Topic: Prudential") and offers to clear them, instead of the generic "No data to show".
+   * Topic: Prudential") and offers to clear them, instead of the generic "No data to show". Its `hint` matches how
+   * many filters it names ("Clear these filters…" for two).
    */
-  emptyNote?: () => { text: string; action?: { label: string; run: () => void } } | undefined;
+  emptyNote?: () => { text: string; hint?: string; action?: { label: string; run: () => void } } | undefined;
   /**
    * Buttons offered in the widget's corner: `csv` downloads the rows, `image`
    * downloads the chart as a PNG (shown only when the view draws a chart),
@@ -410,12 +411,22 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     detail(list, W().widget.chart, entry ? `${view}: ${entry.summary}` : view);
     const data = current.data ?? { type: "" };
     const address = typeof data.url === "string" ? data.url : undefined;
-    detail(list, W().widget.data, address ? link(address, address) : data.type === "inline" ? W().widget.writtenInSpec : data.type === "fn" ? W().widget.loadedByPage : data.type);
-    if (typeof data.path === "string") detail(list, W().widget.inside, data.path);
-    const steps = (current.transform ?? []).map((step) => step.type);
-    detail(list, W().widget.steps, steps.length ? steps.join(" → ") : undefined);
+    const ww = W().widget;
+    // For a reader: how many rows, from where, and what was done to them, in words.
+    const sourceName = current.source?.name || (address ? address.split("/").pop() : data.type === "inline" ? ww.writtenInSpec : data.type === "fn" ? ww.loadedByPage : data.type);
+    detail(list, ww.data, loaded ? ww.rowsFrom(rows.length.toLocaleString(locale()), String(sourceName ?? "")) : ww.notLoaded);
+    const steps = (current.transform ?? []).map((step) => ww.stepWords[step.type] ?? step.type);
+    detail(list, ww.steps, steps.length ? ww.stepsSaid(steps) : undefined);
+    if (current.facet?.field) detail(list, ww.panels, ww.onePer(fieldLabel(current.facet.field, current.fields)));
+    parts.push(list);
+
+    // For developers, folded: the address, the path inside it, the fields by their names and formats, the locale and id.
     const names = [...new Set(rows.slice(0, 50).flatMap((row) => Object.keys(row)))];
-    detail(list, W().widget.rows, loaded ? W().widget.rowsDrawn(rows.length.toLocaleString(locale()), names.length) : W().widget.notLoaded);
+    const tech = make("dl", "fft-back-list");
+    detail(tech, ww.data, address ? link(address, address) : data.type === "inline" ? ww.writtenInSpec : data.type === "fn" ? ww.loadedByPage : data.type);
+    if (typeof data.path === "string") detail(tech, ww.inside, data.path);
+    if (current.transform?.length) detail(tech, ww.steps, current.transform.map((step) => step.type).join(" → "));
+    detail(tech, ww.rows, loaded ? ww.rowsDrawn(rows.length.toLocaleString(locale()), names.length) : ww.notLoaded);
     if (names.length) {
       const shown = names.slice(0, 12).map((name) => {
         const label = fieldLabel(name, current.fields);
@@ -423,14 +434,17 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
         const kind = typeof format === "string" ? format : format && typeof format === "object" && "type" in format ? String(format.type) : "";
         return `${label === name ? name : `${label} (${name})`}${kind ? `: ${kind}` : ""}`;
       });
-      detail(list, W().widget.fields, shown.join(", ") + (names.length > 12 ? W().widget.andMore(names.length - 12) : ""));
+      detail(tech, ww.fields, shown.join(", ") + (names.length > 12 ? ww.andMore(names.length - 12) : ""));
     }
-    if (current.facet?.field) detail(list, W().widget.panels, W().widget.onePer(fieldLabel(current.facet.field, current.fields)));
-    if (current.locale) detail(list, W().widget.locale, current.locale);
-    if (current.id) detail(list, W().widget.id, W().widget.idRef(current.id, widgetRef(current.id)));
+    if (current.locale) detail(tech, ww.locale, current.locale);
+    if (current.id) detail(tech, ww.id, ww.idRef(current.id, widgetRef(current.id)));
     const warnings = issues.filter((issue) => issue.level !== "error");
-    if (warnings.length) detail(list, W().widget.notes, warnings.map((issue) => `${issue.path}: ${issue.message}`).join(" "));
-    parts.push(list);
+    if (warnings.length) detail(tech, ww.notes, warnings.map((issue) => `${issue.path}: ${issue.message}`).join(" "));
+    const fold = make("details", "fft-back-tech");
+    const summary = make("summary", "fft-back-kicker");
+    summary.textContent = ww.forDevelopers;
+    fold.append(summary, tech);
+    parts.push(fold);
 
     const links = (current.links ?? []).filter((item) => item && typeof item.href === "string");
     if (links.length) {
@@ -878,7 +892,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       drawn = false;
       const note = options.emptyNote?.();
       if (note) {
-        showMessage("empty", note.text, [], W().widget.clearHint);
+        showMessage("empty", note.text, [], note.hint ?? W().widget.clearHint);
         if (note.action) {
           const button = doc.createElement("button");
           button.type = "button";
@@ -1419,10 +1433,14 @@ function createTooltip(root: HTMLElement, tip: HTMLElement): Tooltip {
       const screen = doc.documentElement.clientWidth;
       if (screen > 0) left = Math.max(Math.min(left, screen - 8 - frame.left - half), 8 - frame.left + half);
       tip.style.left = `${left}px`;
-      // Above the anchor by default; below it when the view asks, for marks whose room is underneath.
-      if (options.below) tip.dataset.placement = "below";
+      // Above the anchor by default; below it when the view asks, for marks whose room is underneath, or when above
+      // would lay it over the card's title and subtitle (a mark near the top of the chart).
+      const header = root.querySelector(".fft-header")?.getBoundingClientRect();
+      const coversTitle = Boolean(header && header.height > 0 && box.top - tip.offsetHeight - 8 < header.bottom);
+      const below = Boolean(options.below) || coversTitle;
+      if (below) tip.dataset.placement = "below";
       else delete tip.dataset.placement;
-      tip.style.top = `${(options.below ? box.bottom : box.top) - frame.top}px`;
+      tip.style.top = `${(below ? box.bottom : box.top) - frame.top}px`;
     },
     hide() {
       clearTimeout(closing);

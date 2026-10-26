@@ -201,6 +201,7 @@ export function hiddenTable(doc: Document, headers: string[], rows: string[][]):
     table.append(tr);
   }
   hidden.append(table);
+  speakShortFigures(hidden);
   return hidden;
 }
 
@@ -369,5 +370,25 @@ export { roving };
 export function hiddenTableOf(ctx: ViewContext<{ type: string }>, rows: Row[], columns: string[]): HTMLElement {
   const hidden = html(ctx.el.ownerDocument, "div", "fft-sr-only");
   hidden.append(buildTable(ctx, rows, columns.filter((field, i) => field && columns.indexOf(field) === i), false));
+  speakShortFigures(hidden);
   return hidden;
+}
+
+/** A short figure: digits, a decimal mark, digits, then a magnitude (K, M, B, Mio., Mrd., k). */
+const SHORT_FIGURE = /\d[.,]\d+\s?(?:K|M|B|T|k|Md|Mio\.?|Mrd\.?|Bn|bn)(?![\p{L}])/u;
+
+/**
+ * Read aloud, a short figure says no zeros it does not need: "€820K", not "€820.00K". A format's fixed decimals line
+ * figures up on screen, which a listener does not see. Only cells holding a short figure change.
+ */
+function speakShortFigures(hidden: HTMLElement): void {
+  for (const cell of hidden.querySelectorAll("td, th")) {
+    const text = cell.textContent ?? "";
+    if (SHORT_FIGURE.test(text) && cell.children.length === 0) cell.textContent = trimZeros(text);
+  }
+}
+
+/** A short figure without trailing zeros after its decimal mark: "€820.00K" reads "€820K", "€1.20M" reads "€1.2M". */
+export function trimZeros(text: string): string {
+  return text.replace(/(\d)([.,])(\d*?)0+(?=\D|$)/g, (_all, lead: string, mark: string, kept: string) => (kept ? `${lead}${mark}${kept}` : lead));
 }

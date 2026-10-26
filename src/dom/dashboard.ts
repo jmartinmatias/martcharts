@@ -223,9 +223,13 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   // pill on every card.
   const unreached = el("p", "fft-unreached");
   unreached.hidden = true;
+  // When the filters leave every card in view empty: one message for the board (see paintAllEmpty).
+  const allEmpty = el("div", "fft-board-empty");
+  allEmpty.setAttribute("role", "status");
+  allEmpty.hidden = true;
   // The board's source, said once under it.
   const footer = spec.source?.name ? boardFooter(spec.source) : undefined;
-  root.append(skip, filterRow, unreached, grid, ...(footer ? [footer] : []), live, cardHint);
+  root.append(skip, filterRow, unreached, allEmpty, grid, ...(footer ? [footer] : []), live, cardHint);
   target.append(root);
 
   function boardFooter(source: { name: string; url?: string }): HTMLElement {
@@ -894,6 +898,8 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   async function redraw() {
     void writeState();
     await Promise.all([...widgets.entries()].map(async ([id, widget]) => widget.setSpec(await specFor(id))));
+    // Every card has drawn its new state now: one board message if they all came out empty.
+    paintAllEmpty();
   }
 
   // ---- What each change did, said once, in a polite live region ----
@@ -964,6 +970,14 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
 
   /** What a filter is called on screen: its row label, the period's label, or the field in words. */
   const filterName = (field: string) => spec.filters?.find((filter) => filter.field === field)?.label ?? fieldLabel(field);
+  /**
+   * A click filter's field as the reader saw it: the label the clicked card gives it ("Client"), else any card's
+   * label for it, else the field's own name made readable.
+   */
+  const clickName = (field: string, source?: string): string => {
+    const labelIn = (id: string | undefined) => (id ? originals.get(id)?.fields?.[field]?.label : undefined);
+    return labelIn(source) ?? [...originals.keys()].map(labelIn).find(Boolean) ?? filterName(field);
+  };
 
   /**
    * Honesty about scope: each card that a filter set right now cannot reach (its data has no such field) says so,
@@ -973,6 +987,8 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     const filters = chosenFilters();
     /** Per filter name, the cards it cannot reach, by title: the one line under the filter row says how many, and which on hover or focus. */
     const missedBy = new Map<string, string[]>();
+    /** The cards a click filter does not reach (headline tiles on the whole book, say), by title. */
+    const clickMissed: string[] = [];
     const cardName = (id: string, slot: HTMLElement) => slot.querySelector(".fft-title")?.textContent?.trim() || originals.get(id)?.title || id;
     await Promise.all(
       [...slots.entries()].map(async ([id, slot]) => {
@@ -981,9 +997,12 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
         if (range && period !== "All" && !rangeFields.some((field) => fields.has(field))) missed.push(range.label ?? B.period);
         // The click filter is for the cards that carry its field, or follow it; a card it does not reach says so on its
         // own pill (on hover), but the line under the filter row speaks only of the row's filters and the period.
-        const crossMissed = cross && cross.source !== id && !fields.has(cross.field) && follows.get(id)?.follow.field !== cross.field ? fieldLabel(cross.field) : undefined;
+        const crossMissed = cross && cross.source !== id && !fields.has(cross.field) && follows.get(id)?.follow.field !== cross.field ? clickName(cross.field, cross.source) : undefined;
         const lineNames = [...new Set(missed)];
-        if (crossMissed) missed.push(crossMissed);
+        if (crossMissed) {
+          missed.push(crossMissed);
+          clickMissed.push(id);
+        }
         let note = slot.querySelector<HTMLElement>(":scope > .fft-unfiltered");
         if (!missed.length) {
           note?.remove();
@@ -1018,7 +1037,67 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       item.setAttribute("aria-label", `${C.doesNotApply(name, cards.length)}. ${list}`);
       unreached.append(item);
     }
-    unreached.hidden = missedBy.size === 0;
+    // A click filter's reach, said once at the end: the cards that follow it, out of all, so tiles that stay on the
+    // whole book are not mistaken for the clicked client's figures. Its own card counts as showing it.
+    if (cross && clickMissed.length) {
+      const total = slots.size;
+      const value = formatValue(cross.value, undefined, undefined);
+      const shown = total - clickMissed.length;
+      if (unreached.childNodes.length) unreached.append(" · ");
+      const item = el("span", "fft-unreached-item", C.clickReach(value, shown, total));
+      const list = C.cardsList(clickMissed.sort((a, b) => ids.indexOf(a) - ids.indexOf(b)).map((id) => cardName(id, slots.get(id) as HTMLElement)));
+      item.tabIndex = 0;
+      item.title = list;
+      item.dataset.cards = list;
+      item.setAttribute("aria-label", `${C.clickReach(value, shown, total)}. ${list}`);
+      unreached.append(item);
+    }
+    unreached.hidden = unreached.childNodes.length === 0;
+  }
+
+  // ---- One message when the filters leave every card in view empty ----
+  /**
+   * When every card in view came out empty from the board's own filters, the board says so once, with one Clear,
+   * and the empty cards step aside, rather than the same "Nothing for…" on each of them.
+   */
+  function paintAllEmpty() {
+    const inView = [...slots.entries()].filter(([, slot]) => !slot.hidden && !slot.closest("[hidden]"));
+    const empties = inView.filter(([, slot]) => slot.querySelector(".fft-widget[data-state='empty'] .fft-state-action"));
+    const all = inView.length > 1 && empties.length === inView.length;
+    root.toggleAttribute("data-all-empty", all);
+    if (!all) {
+      if (!allEmpty.hidden) allEmpty.hidden = true;
+      return;
+    }
+    const said = boardSaid();
+    if (!said.length) return;
+    const text = el("p", "fft-board-empty-text", C.nothingInView(said));
+    const button = el("button", "fft-state-action", said.length === 1 ? B.clearOne : B.clearMany);
+    (button as HTMLButtonElement).type = "button";
+    button.addEventListener("click", () => {
+      void (async () => {
+        await clearAll();
+        filterRow.focus({ preventScroll: true });
+      })();
+    });
+    allEmpty.replaceChildren(text, button);
+    allEmpty.hidden = false;
+  }
+
+  /** Every filter in force, in words: what the board-level message names. */
+  function boardSaid(): string[] {
+    const said: string[] = [];
+    for (const [field, value] of active) if (value !== null && value !== undefined) said.push(`${filterName(field)}: ${formatValue(value, undefined, undefined)}`);
+    if (range && period !== "All") said.push(`${range.label ?? B.period}: ${period}`);
+    if (cross) said.push(`${clickName(cross.field, cross.source)}: ${formatValue(cross.value, undefined, undefined)}`);
+    return said;
+  }
+
+  /** Clears every filter, the period and the click filter. */
+  async function clearAll() {
+    for (const [field, value] of [...active]) if (value !== null && value !== undefined) await setFilter(field, null);
+    if (range && period !== "All") await setRange("All");
+    if (cross) await setCrossFilter(null);
   }
 
   /** The printed state line and the as-of date: what the page shows, in words. */
@@ -1028,7 +1107,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     if (section) parts.push(B.section(section.title));
     for (const [field, value] of Object.entries(chosenFilters())) parts.push(`${filterName(field)}: ${formatValue(value, undefined, undefined)}`);
     if (range) parts.push(`${range.label ?? B.period}: ${period === "All" ? B.all : period}`);
-    if (cross) parts.push(`${fieldLabel(cross.field)}: ${formatValue(cross.value, undefined, undefined)}`);
+    if (cross) parts.push(`${clickName(cross.field, cross.source)}: ${formatValue(cross.value, undefined, undefined)}`);
     const asOfLine = asOf ? asOfText(spec.asOf as string, range ? await drawnLatest() : "", boardLocale) : "";
     paintFiltersToggle();
     if (asOf) asOf.textContent = asOfLine;
@@ -1062,7 +1141,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     cross = field === null ? undefined : { field, value, ...(source ? { source } : {}) };
     if (!cross) crossOrigin = undefined;
     if (cross) {
-      const text = `${fieldLabel(cross.field)}: ${formatValue(cross.value, undefined, undefined)}`;
+      const text = `${clickName(cross.field, cross.source)}: ${formatValue(cross.value, undefined, undefined)}`;
       chip.replaceChildren(el("span", "fft-crossfilter-text", text), el("span", "fft-crossfilter-x", "\u00d7"));
       chip.setAttribute("aria-label", B.clearFilter(text));
       chip.title = B.clearThis;
@@ -1082,7 +1161,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     const goal = focusAfter;
     focusAfter = undefined;
     if (goal) refocus(goal.origin, goal.fallback);
-    if (cross) await sayChange(A.set(fieldLabel(cross.field), formatValue(cross.value, undefined, undefined)));
+    if (cross) await sayChange(A.set(clickName(cross.field, cross.source), formatValue(cross.value, undefined, undefined)));
     else if (was) await sayChange(A.cleared(fieldLabel(was.field)));
   }
 
@@ -1139,14 +1218,21 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     }
     // The periods are one stop too: arrow keys move between 3M, 6M, 12M and All.
     roving(periodButtons);
+    stopOnChosenPeriod();
     group.append(label, track);
     controls.append(group);
+  }
+
+  /** The periods' one tab stop is the chosen period, so Tab lands on "All" when All is on, not on 3M. */
+  function stopOnChosenPeriod() {
+    for (const button of periodButtons) button.setAttribute("tabindex", button.dataset.value === period ? "0" : "-1");
   }
 
   async function setRange(option: string) {
     const changed = option !== period;
     period = option;
     for (const button of periodButtons) button.setAttribute("aria-pressed", String(button.dataset.value === option));
+    stopOnChosenPeriod();
     writeHash();
     await redraw();
     if (changed && range) await sayChange(A.set(range.label ?? B.period, option === "All" ? B.all : option));
@@ -1259,12 +1345,13 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       if (menu.hidden) return;
       menu.hidden = true;
       button.setAttribute("aria-expanded", "false");
-      if (refocus) button.focus();
+      // Focus moves without scrolling: the menu sits in the pinned filter row, already in view.
+      if (refocus) button.focus({ preventScroll: true });
     };
     const open = () => {
       menu.hidden = false;
       button.setAttribute("aria-expanded", "true");
-      items[0]?.focus();
+      items[0]?.focus({ preventScroll: true });
     };
     if (options.hash) {
       item(B.copyLink, B.copyLinkTitle, async (self) => {
@@ -1307,10 +1394,10 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       const at = items.indexOf(doc.activeElement as HTMLButtonElement);
       if (event.key === "ArrowDown" || event.key === "ArrowUp") {
         event.preventDefault();
-        items[(at + (event.key === "ArrowDown" ? 1 : items.length - 1)) % items.length]?.focus();
+        items[(at + (event.key === "ArrowDown" ? 1 : items.length - 1)) % items.length]?.focus({ preventScroll: true });
       } else if (event.key === "Home" || event.key === "End") {
         event.preventDefault();
-        (event.key === "Home" ? items[0] : items.at(-1))?.focus();
+        (event.key === "Home" ? items[0] : items.at(-1))?.focus({ preventScroll: true });
       } else if (event.key === "Escape") {
         // The menu takes Escape first, so it does not also clear a click filter.
         event.preventDefault();
@@ -1341,7 +1428,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
    * Why a card came out empty, when the board's own filters did it: "Nothing for Topic: Prudential", with a button
    * that clears just those filters. Undefined when no filter reaches the card, so its own empty message stands.
    */
-  function emptyNote(id: string): { text: string; action: { label: string; run: () => void } } | undefined {
+  function emptyNote(id: string): { text: string; hint: string; action: { label: string; run: () => void } } | undefined {
     const fields = knownFields.get(id);
     if (!fields) return undefined;
     const said: string[] = [];
@@ -1356,14 +1443,31 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       clears.push(() => setRange("All"));
     }
     if (cross && cross.source !== id && fields.has(cross.field)) {
-      said.push(`${fieldLabel(cross.field)}: ${formatValue(cross.value, undefined, undefined)}`);
+      said.push(`${clickName(cross.field, cross.source)}: ${formatValue(cross.value, undefined, undefined)}`);
       clears.push(() => setCrossFilter(null));
     }
     if (!said.length) return undefined;
+    const W = wordsFor(boardLocale).widget;
     return {
       text: B.nothingFor(said),
-      action: { label: said.length === 1 ? B.clearOne : B.clearMany, run: () => void (async () => { for (const clear of clears) await clear(); })() },
+      hint: said.length === 1 ? W.clearHint : W.clearHintMany,
+      action: {
+        label: said.length === 1 ? B.clearOne : B.clearMany,
+        run: () =>
+          void (async () => {
+            for (const clear of clears) await clear();
+            // The button goes with the empty message: focus lands on the card it was in, now showing its data.
+            focusCard(id);
+          })(),
+      },
     };
+  }
+
+  /** Focuses a card (its keyboard stop, else the first thing in it), else the filter row, without scrolling the page. */
+  function focusCard(id: string) {
+    const slot = slots.get(id);
+    const target = slot && !slot.hidden ? (slot.getAttribute("tabindex") !== null ? slot : slot.querySelector<HTMLElement>("[tabindex], button, a[href]")) : null;
+    (target ?? filterRow).focus({ preventScroll: true });
   }
 
   async function setFilter(field: string, value: unknown) {
@@ -1495,6 +1599,12 @@ const BOARD_CSS = `
 @media (hover: hover) { .fft-cell-slot:hover > .fft-unfiltered { display: block; } }
 .fft-unreached { margin: 5px 0 0; font-size: 12px; line-height: 18px; color: var(--fft-muted, #6e6e73); }
 .fft-unreached[hidden] { display: none; }
+/* Every card in view empty from the filters: one plain line and one Clear for the board, and the empty cards step aside. */
+.fft-board-empty { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 13px; margin: 21px 0; }
+.fft-board-empty[hidden] { display: none; }
+.fft-board-empty-text { margin: 0; font-size: 15px; line-height: 21px; color: var(--fft-text, #1d1d1f); }
+.fft-board-empty .fft-state-action { margin-top: 0; }
+.fft-dashboard[data-all-empty] .fft-cell-slot:has(.fft-widget[data-state="empty"]) { display: none; }
 .fft-unreached-item { position: relative; border-bottom: 1px dotted currentColor; cursor: help; outline: none; }
 .fft-unreached-item:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 2px; border-radius: 3px; }
 .fft-unreached-item:is(:hover, :focus-visible)::after { content: attr(data-cards); position: absolute; left: 0; top: calc(100% + 5px); z-index: 5; width: max-content; max-width: min(420px, 80vw); padding: 5px 8px; border-radius: 8px; background: var(--fft-raised, var(--fft-surface, #fff)); color: var(--fft-text, #1d1d1f); box-shadow: 0 0 0 1px var(--fft-border, rgba(0,0,0,.1)), 0 8px 21px rgba(0,0,0,.18); white-space: normal; }
