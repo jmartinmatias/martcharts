@@ -60,20 +60,20 @@ const slot = (id: string) => target.querySelector(`.fft-cell-slot[data-widget="$
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 describe("the line under the filter row speaks only of the row's filters", () => {
-  test("a click on a client is left out of the line; a row filter that misses cards is in it", async () => {
+  test("a click on a client says once how far it reaches (no 'Name does not apply'); a row filter that misses cards is in the line too", async () => {
     const spec: DashboardSpec = { filters: [{ field: "segment" }], widgets: [{ widget: "clients" }, { widget: "regions" }] };
     board = createDashboard(target, spec, { widgets });
     await board.ready;
     await board.setCrossFilter("name", "Moreau Holdings", "clients");
     await settle();
     const line = () => target.querySelector(".fft-unreached") as HTMLElement;
-    expect(line().hidden).toBe(true);
-    expect(line().textContent).not.toMatch(/Name/);
+    expect(line().hidden).toBe(false);
+    expect(line().textContent).toBe("Moreau Holdings shows on 1 of 2 cards");
     await board.setFilter("segment", "Affluent");
     await settle();
     expect(line().hidden).toBe(false);
     expect(line().textContent).toMatch(/Segment/);
-    expect(line().textContent).not.toMatch(/Name/);
+    expect(line().textContent).not.toMatch(/Name does not apply/);
     // The card the click cannot reach still says so on its own pill, for a reader who points at it.
     expect(slot("regions").querySelector(".fft-unfiltered")?.textContent).toMatch(/Name/);
   });

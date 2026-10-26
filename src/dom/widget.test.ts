@@ -516,6 +516,24 @@ describe("tooltip", () => {
     expect([below, [tip.dataset.placement, tip.style.top]]).toEqual([["below", "130px"], [undefined, "100px"]]);
   });
 
+  test("a mark near the top of the chart opens its tooltip below, so it never covers the card's title", async () => {
+    let ctx!: ViewContext;
+    registerView({ type: "test-tip-title", description: "Keeps ctx", options: {}, render: (c: ViewContext) => void (ctx = c) });
+    await createWidget(target, { title: "Revenue by client", data: { type: "inline", rows: rows(1) }, view: { type: "test-tip-title" } }).ready;
+    const tip = target.querySelector<HTMLElement>(".fft-tooltip") as HTMLElement;
+    (root() as HTMLElement).getBoundingClientRect = () => box(0, 50, 600, 300);
+    (target.querySelector(".fft-header") as HTMLElement).getBoundingClientRect = () => box(0, 50, 600, 60);
+    Object.defineProperty(tip, "offsetHeight", { configurable: true, get: () => 70 });
+    const near = document.createElement("div");
+    near.getBoundingClientRect = () => box(100, 130, 20, 20);
+    ctx.tooltip.show(near, "Goossens Trust", []);
+    const nearTop = tip.dataset.placement;
+    const far = document.createElement("div");
+    far.getBoundingClientRect = () => box(100, 250, 20, 20);
+    ctx.tooltip.show(far, "Aldana Holdings", []);
+    expect([nearTop, tip.dataset.placement]).toEqual(["below", undefined]);
+  });
+
   test("on a wide screen it stays centered over the mark", async () => {
     expect(await placeTip(1280, 100, 800, 400, 40)).toBe(320);
   });

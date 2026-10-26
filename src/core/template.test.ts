@@ -27,8 +27,22 @@ describe("fillTemplate", () => {
     expect(fillTemplate("Revenue {soon} by {region}", rows, fields, "en-US")).toBe("Revenue {soon} by {region}");
   });
 
-  test("with no rows, values are empty and the count is zero", () => {
-    expect(fillTemplate("{count} rows from {first:month}", [], fields, "en-US")).toBe("0 rows from ");
+  test("with no rows, values are empty and the count is zero, with no word left hanging", () => {
+    expect(fillTemplate("{count} rows from {first:month}", [], fields, "en-US")).toBe("0 rows");
+  });
+
+  test("a value filtered away leaves no dangling separator or connecting word, and the text starts with a capital", () => {
+    expect([
+      fillTemplate("{last:quarter}, against the quarter before", [], undefined, "en-US"),
+      fillTemplate("Overall status, {last:quarter}", [], undefined, "en-US"),
+      fillTemplate("{first:month} to {last:month}", [], undefined, "en-US"),
+      fillTemplate("{last:month}, with the trend since {first:month}", [], undefined, "en-US"),
+      fillTemplate("{last:mois}, tendance depuis {first:mois}", [], undefined, "fr-FR"),
+    ]).toEqual(["Against the quarter before", "Overall status", "", "With the trend", "Tendance"]);
+  });
+
+  test("text whose templates all have values is left exactly as filled", () => {
+    expect(fillTemplate("{last:q}, against the quarter before", [{ q: "x" }], undefined, "en-US")).toBe("x, against the quarter before");
   });
 });
 

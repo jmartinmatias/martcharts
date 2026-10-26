@@ -69,7 +69,12 @@ function show(key: string, keepHash: boolean) {
   if (!keepHash) url.hash = "";
   history.replaceState(null, "", url);
   board?.destroy();
+  for (const old of document.querySelectorAll("body > .fft-skip")) old.remove();
   board = createDashboard(mount, boardOf(tab.board) as DashboardSpec, options);
+  // The board's skip links come first in the page's tab order, before the site menu, the Look menu and the tabs:
+  // a keyboard reader reaches "Skip to filters" with the first Tab, as skip links promise.
+  const skipLinks = mount.querySelector(".fft-skip");
+  if (skipLinks) document.body.prepend(skipLinks);
   const style = lookStyle();
   if (style) void board.setOverride({ style });
   // An old address may name a section this board no longer has (#maps): once the board is drawn, drop that part.
