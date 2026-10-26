@@ -2454,7 +2454,7 @@ Progress against a target, one meter per row: attainment as a percentage, a bar 
 
 **Answers**: Which region is above or below target?
 
-**How to read it**: Each bar fills up toward its target. A full bar means the goal for revenue is reached; the percentage says how close it is. Here, 2 of 5 regions have reached their goal: North and Central.
+**How to read it**: Each bar fills up toward its target. A full bar means the goal for revenue is reached; the percentage says how close it is. Here, 4 of 5 regions have reached their goal: East, North, Central and West.
 
 **Drop it in**: `<fft-widget src="catalog/meter.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "meter" }` hands an agent this spec). Source widget: [widgets/region-targets.json](../widgets/region-targets.json).
 
@@ -2471,11 +2471,11 @@ Progress against a target, one meter per row: attainment as a percentage, a bar 
   "data": {
     "type": "inline",
     "rows": [
-      {"region":"East","revenue":338000,"target":360000},
-      {"region":"North","revenue":278000,"target":270000},
-      {"region":"Central","revenue":259000,"target":250000},
-      {"region":"West","revenue":205000,"target":220000},
-      {"region":"South","revenue":204000,"target":230000}
+      {"region":"East","revenue":338000,"target":327000},
+      {"region":"North","revenue":278000,"target":243000},
+      {"region":"Central","revenue":259000,"target":225000},
+      {"region":"West","revenue":205000,"target":198000},
+      {"region":"South","revenue":204000,"target":207000}
     ]
   },
   "fields": {
