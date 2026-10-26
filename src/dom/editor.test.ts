@@ -416,3 +416,32 @@ describe("the whole", () => {
     expect(ed.spec.view.highlight).toBeUndefined();
   });
 });
+
+describe("the editor's look and samples", () => {
+  test("the live chart draws in the host's look, never written into the spec, and restyle follows a change", async () => {
+    let preset = "glass";
+    const ed = open({ previewStyle: () => ({ preset }) });
+    ed.setData(TSV, "sales");
+    await tick();
+    await tick();
+    const live = () => target.querySelector(".fft-widget")?.getAttribute("data-preset");
+    expect([live(), ed.spec.style?.preset]).toEqual(["glass", undefined]);
+    preset = "paper";
+    await ed.restyle();
+    expect(live()).toBe("paper");
+  });
+
+  test("only the sample loaded now reads as chosen (aria-pressed)", async () => {
+    open({ samples: [{ label: "One", text: TSV }, { label: "Two", text: CSV }] });
+    const chips = () => all(".fft-ed-chip").filter((chip) => ["One", "Two"].includes(chip.textContent?.trim() ?? ""));
+    expect(chips().map((chip) => chip.getAttribute("aria-pressed"))).toEqual(["false", "false"]);
+    (chips()[0] as HTMLElement).click();
+    await tick();
+    editor?.go(1);
+    (chips()[1] as HTMLElement).click();
+    await tick();
+    editor?.go(1);
+    expect(chips().map((chip) => chip.getAttribute("aria-pressed"))).toEqual(["false", "true"]);
+  });
+});
+

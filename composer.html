@@ -39,6 +39,8 @@
         --accent: #3987e5;
       }
       * { box-sizing: border-box; }
+      /* Room for the scrollbar kept from the start, so loading a sample never shifts the page sideways. */
+      html { scrollbar-gutter: stable; }
       body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif; overflow-x: clip; }
       main {
         max-width: 1280px; margin: 0 auto;

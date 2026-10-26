@@ -256,3 +256,31 @@ test("the composer's layouts follow its host's width: a container query reads an
   expect(/\.fft-composer \{[^}]*\}/.exec(COMPOSER_CSS)?.[0]).not.toMatch(/container-type/);
 });
 });
+
+describe("the composer's look", () => {
+  test("its controls have the kit's colours: the light and dark tokens are defined on the composer, so borders and fills resolve", () => {
+    composer = createComposer(target, { hash: false });
+    const css = [...document.querySelectorAll("style")].map((node) => node.textContent ?? "").join("\n");
+    const tokens = /\.fft-composer \{([^}]*)\}/.exec(css)?.[1] ?? "";
+    expect([tokens.includes("--fft-grid:"), tokens.includes("--fft-surface:"), tokens.includes("--fft-text:")]).toEqual([true, true, true]);
+    expect(css).toMatch(/:root\[data-theme="dark"\] \.fft-composer \{/);
+    expect(css).toMatch(/\.fft-cmp-button \{[^}]*min-height: var\(--fft-control-h\)[^}]*border-radius: 999px/);
+  });
+
+  test("an empty board's preview says what fills it, instead of a blank panel", () => {
+    composer = createComposer(target, { hash: false });
+    expect(target.querySelector(".fft-cmp-preview-empty")?.textContent).toBe("Add a chart to see the dashboard here.");
+  });
+
+  test("the preview draws in the host's look, and restyle follows a change", async () => {
+    let preset = "glass";
+    composer = createComposer(target, { hash: false, previewStyle: () => ({ preset }) });
+    composer.add(chart("a", { type: "list", label: "region" }));
+    await composer.ready;
+    expect(target.querySelector(".fft-cmp-preview .fft-widget")?.getAttribute("data-preset")).toBe("glass");
+    preset = "paper";
+    await composer.restyle();
+    expect(target.querySelector(".fft-cmp-preview .fft-widget")?.getAttribute("data-preset")).toBe("paper");
+  });
+});
+

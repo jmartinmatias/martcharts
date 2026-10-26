@@ -193,4 +193,12 @@ describe("the published site", () => {
     expect(css).toMatch(/html body h1 \{[^}]*font-size: 28px; font-weight: 650;/);
     expect(css).toMatch(/html body h1 \+ p \{[^}]*font-size: 16px;/);
   });
+
+  test("the Editor and the Composer draw in the site's Look and follow the Look menu without a reload, like Home and the dashboards", () => {
+    for (const page of ["demo/editor.ts", "demo/composer.ts"]) {
+      const code = readFileSync(page, "utf8");
+      expect([page, code.includes("previewStyle: lookStyle"), /addEventListener\("martcharts:look"[\s\S]*preventDefault\(\)[\s\S]*restyle\(\)/.test(code)]).toEqual([page, true, true]);
+    }
+    for (const page of ["editor.html", "composer.html"]) expect(readFileSync(page, "utf8")).toContain("scrollbar-gutter: stable");
+  });
 });

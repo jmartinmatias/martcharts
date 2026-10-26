@@ -16,6 +16,7 @@ import { fieldLabel } from "../core/display.ts";
 import { runPipeline } from "../core/pipeline.ts";
 import type { Row, WidgetSpec } from "../core/types.ts";
 import { wordsFor } from "../core/words.ts";
+import { DARK, LIGHT } from "./styles.ts";
 import { liteBundleUrl, localBoardStore, slugOf } from "./board-store.ts";
 import type { BoardStore, SavedBoard, SavedChart } from "./board-store.ts";
 import { createDashboard } from "./dashboard.ts";
@@ -42,6 +43,8 @@ export interface ComposerOptions {
   embedHref?: string;
   /** Where the script embed loads the drop-in bundle from. Default: the lite bundle next to this page, as an absolute address. */
   bundleHref?: string;
+  /** The style the live preview draws in (a host's look, `{ preset: "glass" }`), read at each draw. Default: the board's own. */
+  previewStyle?(): Record<string, unknown> | undefined;
 }
 
 /** A live composer on the page. */
@@ -70,6 +73,8 @@ export interface Composer {
   undo(): boolean;
   /** Saves the board in the store and returns it. */
   save(): Promise<SavedBoard>;
+  /** Redraws the preview in `previewStyle` as it stands now (after the host's look changed). */
+  restyle(): Promise<void>;
   destroy(): void;
 }
 
@@ -134,9 +139,15 @@ function filterable(rows: Row[], field: string): boolean {
 }
 
 const CSS = `
-.fft-composer { --fft-cmp-gap: 21px; display: grid; grid-template-columns: minmax(0, 233px) minmax(0, 1fr); grid-template-areas: "tray board" "preview preview" "publish publish"; gap: var(--fft-cmp-gap); color: var(--fft-text); font-size: 13px; }
+/* The kit's colour tokens, light by default, dark by the page's scheme or data-theme, as the editor has: without them
+   every border and fill here (var(--fft-grid), var(--fft-surface)) resolved to nothing and the controls read as text. */
+.fft-composer {${LIGHT}}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .fft-composer {${DARK}} }
+:root[data-theme="dark"] .fft-composer {${DARK}}
+.fft-composer { --fft-cmp-gap: 21px; --fft-control-h: 30px; display: grid; grid-template-columns: minmax(0, 233px) minmax(0, 1fr); grid-template-areas: "tray board" "preview preview" "publish publish"; gap: var(--fft-cmp-gap); color: var(--fft-text); font-size: 13px; }
 /* A container query reads an ancestor, never the element itself: the composer's host is the container its layouts follow. */
 :has(> .fft-composer) { container-type: inline-size; }
+@media (pointer: coarse) { .fft-composer { --fft-control-h: 34px; } }
 .fft-cmp-tray { grid-area: tray; }
 .fft-cmp-board { grid-area: board; }
 .fft-cmp-publish { grid-area: publish; display: flex; flex-direction: column; gap: 13px; min-width: 0; }
@@ -155,10 +166,11 @@ const CSS = `
 .fft-cmp-card[data-section] { background: transparent; border-style: dashed; }
 .fft-cmp-card[data-over] { box-shadow: inset 0 2px 0 var(--fft-accent); }
 .fft-cmp-empty { margin: 0; color: var(--fft-muted); }
-.fft-cmp-button { min-height: 30px; padding: 0 10px; border: 1px solid var(--fft-grid); border-radius: 999px; background: transparent; color: inherit; font: inherit; font-size: 12px; cursor: pointer; white-space: nowrap; }
+.fft-cmp-preview-empty { margin: 0; padding: 21px; border: 1px dashed var(--fft-grid); border-radius: 13px; color: var(--fft-muted); text-align: center; }
+.fft-cmp-button { box-sizing: border-box; min-height: var(--fft-control-h); padding: 0 13px; border: 1px solid var(--fft-grid); border-radius: 999px; background: color-mix(in srgb, var(--fft-text) 5%, transparent); color: inherit; font: inherit; font-size: 12px; cursor: pointer; white-space: nowrap; }
 .fft-cmp-button:hover { background: color-mix(in srgb, var(--fft-text) 6%, transparent); }
 .fft-cmp-button:disabled { opacity: 0.4; cursor: default; }
-.fft-cmp-input, .fft-cmp-select { min-height: 30px; padding: 0 8px; border: 1px solid var(--fft-grid); border-radius: 5px; background: var(--fft-surface); color: inherit; font: inherit; font-size: 13px; }
+.fft-cmp-input, .fft-cmp-select { box-sizing: border-box; min-height: var(--fft-control-h); padding: 0 11px; border: 1px solid var(--fft-grid); border-radius: 8px; background: var(--fft-surface); color: inherit; font: inherit; font-size: 13px; }
 .fft-cmp-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(144px, 100%), 1fr)); gap: 8px; }
 .fft-cmp-meta label, .fft-cmp-field { display: flex; flex-direction: column; gap: 3px; min-width: 0; color: var(--fft-text-secondary); font-size: 12px; }
 .fft-cmp-meta .fft-cmp-input, .fft-cmp-field .fft-cmp-input, .fft-cmp-field .fft-cmp-select { width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; }
@@ -498,8 +510,16 @@ export function createComposer(target: HTMLElement, options: ComposerOptions = {
     preview?.destroy();
     previewEl.replaceChildren();
     previewWrap.replaceChildren(el("h3", undefined, w.preview), previewEl);
+    // An empty board draws nothing: say what fills it instead of leaving a blank panel.
+    if (!board.widgets.some((cell) => typeof cell.widget === "string" || cell.spec !== undefined)) {
+      preview = undefined;
+      previewEl.append(el("p", "fft-cmp-preview-empty", w.previewEmpty));
+      ready = Promise.resolve();
+      return;
+    }
     preview = createDashboard(previewEl, board, { fetch: options.fetch });
-    ready = preview.ready;
+    const style = options.previewStyle?.();
+    ready = style ? preview.ready.then(() => preview?.setOverride({ style })) : preview.ready;
   }
 
   function paint() {
@@ -647,6 +667,11 @@ export function createComposer(target: HTMLElement, options: ComposerOptions = {
     filterChoices,
     undo,
     save,
+    async restyle() {
+      if (!preview) return;
+      ready = preview.setOverride({ style: options.previewStyle?.() ?? { preset: "default" } });
+      await ready;
+    },
     destroy() {
       doc.removeEventListener("keydown", onKey);
       preview?.destroy();

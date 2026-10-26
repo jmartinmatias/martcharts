@@ -76,6 +76,9 @@ export interface EditorOptions {
   actions?: WidgetAction[];
   /** The editor's language, as a locale ("fr-LU", "de-DE"). Default: the page's own `lang`, then English. */
   locale?: string;
+  /** The style the live chart draws in (a host's look, `{ preset: "glass" }`), read at each draw. It styles what is
+   *  drawn only, never the spec you export; a spec that picks its own preset keeps it. */
+  previewStyle?(): { preset?: string } | undefined;
   /** Words to replace, on top of the language's own. */
   strings?: Partial<typeof STRINGS>;
 }
@@ -96,6 +99,8 @@ export interface Editor {
   setData(text: string, name?: string): void;
   /** Replaces the spec (and the data, when inline). */
   setSpec(spec: WidgetSpec): void;
+  /** Redraws the live and published charts in `previewStyle` as it stands now (after the host's look changed). */
+  restyle(): Promise<void>;
   /** Undoes the last change. Returns false when there is nothing to undo. */
   undo(): boolean;
   /** Removes the editor. */
@@ -405,6 +410,13 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
   const history: Snapshot[] = [];
   let preview: Widget | undefined;
   let published: Widget | undefined;
+  /** The name the data was last loaded under (a sample's label, a file's name), so its sample chip reads as chosen. */
+  let loadedName: string | undefined;
+  /** The spec as drawn: in the host's look (previewStyle) unless the spec picks its own preset. Never exported. */
+  const drawn = (shown: WidgetSpec): WidgetSpec => {
+    const look = options.previewStyle?.();
+    return look?.preset && !shown.style?.preset ? { ...shown, style: { ...shown.style, ...look } } : shown;
+  };
   let paletteCleanup: (() => void) | undefined;
   const cleanups: (() => void)[] = [];
 
@@ -623,11 +635,11 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
     if (hasErrors(issues)) return;
     if (!preview) {
       previewSlot.replaceChildren();
-      preview = createWidget(previewSlot, spec, { actions: ["explain"] });
-    } else await preview.setSpec(spec);
+      preview = createWidget(previewSlot, drawn(spec), { actions: ["explain"] });
+    } else await preview.setSpec(drawn(spec));
     await preview.ready;
     wireLegend();
-    if (step === 4 && published) await published.setSpec(spec);
+    if (step === 4 && published) await published.setSpec(drawn(spec));
   }
 
   // Direct manipulation: a click on a mark highlights its category; a click on a legend entry drops that series.
@@ -835,6 +847,8 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
           }, "fft-ed-chip"),
         );
       }
+      // Only the sample loaded now reads as chosen, in shape and for a screen reader (aria-pressed).
+      [...chips.children].forEach((chip, i) => chip.setAttribute("aria-pressed", String(options.samples?.[i]?.label === loadedName)));
       panel.append(field(t("samples"), chips));
     }
 
@@ -932,6 +946,7 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
 
   /** New data: parsed, the columns reset, the chart suggested afresh. */
   function loadText(text: string, name?: string, repaint = true) {
+    loadedName = name;
     const trimmed = text.trim();
     const kind: DataState["kind"] = /^[[{]/.test(trimmed) ? "json" : "table";
     data = { ...data, text, kind, ...(name ? { name } : {}) };
@@ -1875,7 +1890,7 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
     big.setAttribute("aria-label", t("publishedChart"));
     panel.append(big);
     published?.destroy();
-    published = createWidget(big, spec, { actions: options.actions ?? ["csv", "image", "copy", "explain"] });
+    published = createWidget(big, drawn(spec), { actions: options.actions ?? ["csv", "image", "copy", "explain"] });
     const json = JSON.stringify(spec, null, 2);
     const src = options.srcOf?.(spec) ?? `widgets/${spec.id ?? "chart"}.json`;
     // Absolute, so the snippet works pasted into any other site; the lite bundle, which is all a shown chart needs.
@@ -2047,6 +2062,9 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
     setData: (text, name) => loadText(text, name),
     setSpec,
     undo,
+    async restyle() {
+      await Promise.all([preview?.setSpec(drawn(spec)), published?.setSpec(drawn(spec))]);
+    },
     destroy() {
       doc.removeEventListener("keydown", onKey);
       previewSlot.removeEventListener("fft-select", onSelect);
@@ -2104,7 +2122,9 @@ export const EDITOR_CSS = `
 .fft-ed-nav { display: flex; gap: 13px; align-items: center; margin-top: 21px; padding-top: 13px; border-top: 1px solid var(--fft-border); }
 .fft-ed-nav .fft-ed-primary { margin-left: auto; }
 .fft-ed-button, .fft-ed-chip, .fft-ed-segment, .fft-ed-icon, .fft-ed-tab { font: inherit; font-size: 13px; color: var(--fft-text); background: transparent; border: 1px solid var(--fft-border); border-radius: 8px; padding: 6px 13px; cursor: pointer; min-height: 34px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-.fft-ed-button:hover, .fft-ed-chip:hover, .fft-ed-icon:hover { background: var(--fft-grid); }
+.fft-ed-button:hover, .fft-ed-chip:hover, .fft-ed-icon:hover { background: color-mix(in srgb, var(--fft-text) 6%, transparent); }
+/* Buttons are pills, as in the composer and the dashboard's filter row: one shape language across the site. */
+.fft-ed-button, .fft-ed-icon { border-radius: 999px; }
 .fft-ed-primary { background: var(--fft-text); color: var(--fft-surface); border-color: var(--fft-text); font-weight: 600; }
 .fft-ed-primary:hover { background: var(--fft-text); opacity: 0.9; }
 .fft-ed-button:disabled, .fft-ed-icon:disabled { opacity: 0.45; cursor: default; }
