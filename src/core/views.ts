@@ -99,6 +99,8 @@ export interface KpisItem {
   target?: string;
   /** Thresholds that give the tile a RAG status pill. */
   rag?: KpiRag;
+  /** How the change reads: in percentage points (a percent field's default) or relative to before. */
+  delta?: "points" | "relative";
 }
 
 /** `{ type: "kpis", items, series? }`: a row of stat tiles in one widget. */
@@ -744,7 +746,7 @@ const kpis: ViewBlock = {
     items: {
       type: "array",
       required: true,
-      description: 'Tiles, each { value, label?, compare?, compareLabel?, goodWhen?, target?, rag? }. compare is a field or "previous" (the row before); target is a field, and the tile then says where it stands (Target met, or how far to go); rag is { green, amber, goodWhen? } and adds a Red, Amber or Green status pill. Example: [{ "value": "revenue", "compare": "previous", "target": "target" }].',
+      description: 'Tiles, each { value, label?, compare?, compareLabel?, goodWhen?, target?, rag?, delta? }. compare is a field or "previous" (the row before); target is a field, and the tile then says where it stands (Target met, or how far to go); rag is { green, amber, goodWhen? } and adds a Red, Amber or Green status pill; delta is "points" or "relative": a percent field changes in percentage points (48% to 55% reads +7 pts), any other relative to before (+13.8%). Example: [{ "value": "revenue", "compare": "previous", "target": "target" }].',
     },
     series: { type: "boolean", default: false, description: "Read the rows as a time series: values from the last row, compared with the row before, plus a sparkline per tile." },
   },
@@ -754,7 +756,10 @@ const kpis: ViewBlock = {
     if (items.length === 0) return ["items needs at least one entry."];
     return items.flatMap((item: Partial<KpisItem> | null, i) => {
       if (!item || typeof item.value !== "string" || !item.value) return [`items[${i}] needs a value field.`];
-      const problems = item.goodWhen !== undefined && item.goodWhen !== "up" && item.goodWhen !== "down" ? [`items[${i}].goodWhen must be up or down.`] : [];
+      const problems = [
+        ...(item.goodWhen !== undefined && item.goodWhen !== "up" && item.goodWhen !== "down" ? [`items[${i}].goodWhen must be up or down.`] : []),
+        ...(item.delta !== undefined && item.delta !== "points" && item.delta !== "relative" ? [`items[${i}].delta must be points or relative.`] : []),
+      ];
       return [...problems, ...checkKpiRag(item.rag, `items[${i}].rag`)];
     });
   },

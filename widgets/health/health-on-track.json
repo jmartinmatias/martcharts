@@ -72,7 +72,8 @@
     "items": [
       {
         "value": "onTrack",
-        "label": "Share of clients on track"
+        "label": "Share of clients on track",
+        "compare": "previous"
       },
       {
         "value": "Green",

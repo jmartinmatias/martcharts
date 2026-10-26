@@ -5,6 +5,7 @@
  */
 import { readFileSync } from "node:fs";
 import { expect, test } from "vitest";
+import { resolveReferences } from "./core/reference.ts";
 
 type Row = Record<string, unknown>;
 const json = (path: string) => JSON.parse(readFileSync(path, "utf8"));
@@ -79,14 +80,17 @@ test("one target and one cost: the regions' targets and costs add up to Septembe
 test("a card that a filter can narrow never names a fixed count or 'all regions' in its words, and draws no average over one bar", () => {
   const region = widget("revenue-by-region");
   expect(region.headline.caption).not.toMatch(/all regions/i);
-  expect(region.view.reference ?? []).toEqual([]);
+  // Its average line draws over the regions, and steps aside when a Region filter leaves one bar.
+  const regions = [...byRegion].map(([name, revenue]) => ({ region: name, revenue }));
+  expect([resolveReferences(region.view, regions).length, resolveReferences(region.view, regions.slice(0, 1))]).toEqual([1, []]);
   expect(json("widgets/commercial/cc-call-list.json").subtitle).not.toMatch(/\b(ten|10)\b/i);
   expect(json("widgets/commercial/cc-revenue-pareto.json").subtitle).not.toMatch(/\btop \d+/i);
 });
 
-test("a share's tile shows no relative change: +13.8% beside 55% would read as points", () => {
-  const items = json("widgets/health/health-on-track.json").view.items as Row[];
-  expect(items.find((item) => item.value === "onTrack")?.compare).toBeUndefined();
+test("a share's tile compares with the quarter before, and its field is a percent, so the tile says the change in points", () => {
+  const spec = json("widgets/health/health-on-track.json");
+  const items = spec.view.items as Row[];
+  expect([items.find((item) => item.value === "onTrack")?.compare, spec.fields.onTrack.format.type]).toEqual(["previous", "percent"]);
 });
 
 test("the cockpit's headline moves differ by segment, and the last month is each client's figure on the client list", () => {
@@ -103,4 +107,27 @@ test("the cockpit's headline moves differ by segment, and the last month is each
   }
   const clients = new Map((json("public/data/clients.json") as Row[]).map((c) => [String(c.name), c]));
   for (const r of activity.filter((row) => row.month === now)) expect([r.client, r.aum]).toEqual([r.client, clients.get(String(r.client))?.aum]);
+});
+
+test("the headline tiles and the monthly cards follow the Region filter: the regions' months add up to the company's, and North alone shows North", async () => {
+  const { runPipeline } = await import("./core/index.ts");
+  const { createLocalFetch } = await import("./mcp/store.ts");
+  const local = { fetch: createLocalFetch("public") };
+  const byRegionMonths: Row[] = json("public/data/monthly-by-region.json");
+  // Every month, the five regions add up to the company's figures, churn included (churned over clients).
+  for (const m of monthly) {
+    const part = byRegionMonths.filter((r) => r.month === m.month);
+    const sum = (k: string) => part.reduce((a, r) => a + Number(r[k]), 0);
+    expect([m.month, sum("revenue"), sum("cost"), sum("target"), sum("newCustomers"), Math.round((sum("churned") / sum("clients")) * 1000) / 1000]).toEqual([m.month, m.revenue, m.cost, m.target, m.newCustomers, m.churn]);
+  }
+  for (const id of ["q3-at-a-glance", "monthly-revenue", "revenue-vs-target"]) {
+    const spec = widget(id);
+    const all = await runPipeline(spec, local);
+    expect([id, all.at(-1)?.revenue, all.length]).toEqual([id, september, monthly.length]);
+    const north = await runPipeline({ ...spec, transform: [{ type: "filter", field: "region", op: "==", value: "North" }, ...(spec.transform ?? [])] }, local);
+    expect([id, north.at(-1)?.revenue]).toEqual([id, byRegion.get("North")]);
+  }
+  const tiles = await runPipeline(widget("q3-at-a-glance"), local);
+  const last = monthly.at(-1) as Row;
+  expect([tiles.at(-1)?.profit, Math.round(Number(tiles.at(-1)?.churn) * 1000) / 1000, tiles.at(-1)?.target]).toEqual([september - Number(last.cost), last.churn, last.target]);
 });

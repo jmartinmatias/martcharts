@@ -49,7 +49,13 @@ export const renderKpis: ViewRenderer<KpisView> = (ctx) => {
     if (quiet) tile.dataset.quiet = "";
     // With RAG thresholds, a pill says where the tile stands: its shape and its words, never color alone.
     if (item.rag && now !== null) tile.append(ragPill(doc, ragFromValue(now, item.rag), { locale: ctx.spec.locale }, "fft-stat-rag"));
-    if (now !== null && then !== null && then !== 0 && !noChange((now - then) / Math.abs(then))) {
+    // A share changes in points: 48% to 55% is +7 pts, never +14.6%. A percent field says it in points unless the
+    // tile asks otherwise.
+    const isShare = (ctx.spec.fields?.[field]?.format as { type?: string } | undefined)?.type === "percent";
+    const points = (item.delta ?? (isShare ? "points" : "relative")) === "points";
+    if (points && now !== null && then !== null && Math.abs(now - then) >= 0.0005) {
+      tile.append(deltaElement(doc, now - then, item.goodWhen ?? "up", item.compareLabel, ctx.spec.locale, "points"));
+    } else if (!points && now !== null && then !== null && then !== 0 && !noChange((now - then) / Math.abs(then))) {
       tile.append(deltaElement(doc, (now - then) / Math.abs(then), item.goodWhen ?? "up", item.compareLabel, ctx.spec.locale));
     }
     // With a target, the same plain line as a single headline number: met, or how far to go.

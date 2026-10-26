@@ -65,6 +65,13 @@
       "revenue",
       "cost"
     ],
-    "highlight": "East"
+    "highlight": "East",
+    "reference": [
+      {
+        "field": "revenue",
+        "agg": "avg",
+        "label": "Average"
+      }
+    ]
   }
 }
