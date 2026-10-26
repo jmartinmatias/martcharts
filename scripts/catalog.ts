@@ -10,6 +10,7 @@ import { describeBlocks, describeChart, hasErrors, needsText, runPipeline, valid
 import type { Row, WidgetSpec } from "../src/core/index.ts";
 import { createLocalFetch } from "../src/mcp/store.ts";
 import { SEARCH_WORDS } from "../src/core/search-words.ts";
+import { FIND_JS } from "./find.ts";
 import { catalogTabs, navBar } from "./site-nav.ts";
 import { placedRef } from "../src/core/ref.ts";
 import { PLACES } from "../demo/routes.ts";
@@ -155,6 +156,10 @@ const page = `<!doctype html>
     .count { font-size: 13px; opacity: .7; margin-left: 8px; }
     .ref-hits { margin: 0 0 21px; padding: 0; list-style: none; font-size: 14px; line-height: 1.6; }
     .ref-hits code { font: 12px ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: 0.06em; }
+    .none { margin: 0 0 21px; font-size: 14px; }
+    .none button { margin-left: 8px; }
+    /* The chart a ref led to: ringed for a moment, so the eye lands on it. */
+    .card.found { outline: 2px solid var(--site-link, AccentColor); outline-offset: 8px; border-radius: 2px; }
   </style>
 </head>
 <body data-fft-place="catalog">
@@ -166,10 +171,11 @@ ${catalogTabs("charts")}
   </header>
   <p><label for="find">Find a chart by name, question, data or ref (W-…)</label><br><input id="find" type="search" placeholder="trend, share, date, ${EXAMPLE_REF}…" autocomplete="off"><span class="count" id="count" aria-live="polite"></span></p>
   <ul class="ref-hits" id="ref-hits" aria-live="polite" hidden></ul>
+  <p class="none" id="none" role="status" hidden><span id="none-words"></span> <button type="button" id="clear">Clear search</button></p>
   <div class="grid">
 ${cards
   .map(
-    (c) => `    <section class="card" id="${c.type}" data-search="${escape(`${c.type} ${c.summary} ${c.question} ${c.needs} ${SEARCH_WORDS[c.type] ?? ""}`.toLowerCase())}">
+    (c) => `    <section class="card" id="${c.type}" data-search="${escape(`${c.type} ${c.summary} ${c.needs} ${SEARCH_WORDS[c.type] ?? ""}`.toLowerCase())}" data-more="${escape(c.question.toLowerCase())}">
       <h2>${c.type}</h2>
       <p>${escape(c.summary)}</p>
       <p class="needs">needs ${escape(c.needs || "any rows")}</p>
@@ -180,44 +186,69 @@ ${cards
   .join("\n")}
   </div>
   <script>
+${FIND_JS}
     const find = document.getElementById("find");
     const count = document.getElementById("count");
-    const cards = [...document.querySelectorAll(".card")];
+    const none = document.getElementById("none");
+    const noneWords = document.getElementById("none-words");
+    const cards = [...document.querySelectorAll(".card")].map((el) => ({ el, keywords: tokens(el.dataset.search), everything: tokens(el.dataset.search + " " + el.dataset.more) }));
     // A ref (W-AM22) names one chart in one place on the site: the index (docs/refs.json) says which and where.
     const hits = document.getElementById("ref-hits");
-    let index;
-    async function findRef(text) {
-      const ref = text.trim().toUpperCase();
-      if (!/^W-[0-9A-Z]{4}$/.test(ref)) {
-        hits.hidden = true;
-        return false;
-      }
-      index = index || (await fetch("../docs/refs.json").then((r) => r.json()).catch(() => []));
-      const found = index.filter((entry) => entry.ref === ref || entry.formerly === ref);
+    function showAll() {
+      for (const card of cards) card.el.hidden = false;
+      hits.hidden = true;
+      none.hidden = true;
       count.textContent = "";
-      hits.replaceChildren(...(found.length ? found.map((entry) => {
-        const item = document.createElement("li");
-        const link = document.createElement("a");
-        link.href = "../" + entry.url;
-        link.textContent = (entry.title || entry.key) + ", " + entry.where;
-        const code = document.createElement("code");
-        code.textContent = entry.ref + " ";
-        item.append(code, link);
-        if (entry.ref !== ref) item.prepend(ref + " is now ");
-        return item;
-      }) : [Object.assign(document.createElement("li"), { textContent: "No chart on the site has the ref " + ref + "." })]));
-      hits.hidden = false;
-      return true;
     }
-    find.addEventListener("input", async () => {
-      if (await findRef(find.value)) return;
-      const words = find.value.toLowerCase().split(/\\s+/).filter(Boolean);
-      let shown = 0;
-      for (const card of cards) {
-        card.hidden = !words.every((word) => card.dataset.search.includes(word));
-        if (!card.hidden) shown++;
-      }
-      count.textContent = words.length ? shown + " of " + cards.length : "";
+    // A ref led to a chart on this page: clear the search, then bring the card into view and onto the keyboard.
+    function showHere(hash) {
+      find.value = "";
+      showAll();
+      const card = document.getElementById(decodeURIComponent(hash.slice(1)));
+      if (!card) return;
+      history.replaceState(null, "", hash);
+      card.tabIndex = -1;
+      card.classList.add("found");
+      card.scrollIntoView({ block: "start", behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+      card.focus({ preventScroll: true });
+      setTimeout(() => card.classList.remove("found"), 2400);
+    }
+    function filterWords(text) {
+      hits.hidden = true;
+      const words = tokens(text);
+      if (!words.length) return showAll();
+      const shown = new Set(matchWords(words, cards));
+      for (const card of cards) card.el.hidden = !shown.has(card);
+      count.textContent = shown.size + " of " + cards.length;
+      noneWords.textContent = "No chart matches \u201c" + text.trim() + "\u201d.";
+      none.hidden = shown.size > 0;
+    }
+    // The ref's charts are the result: the grid steps aside until one is chosen or the search is cleared.
+    function showRef(result) {
+      for (const card of cards) card.el.hidden = true;
+      hits.replaceChildren(...refItems(result, "../", showHere));
+      hits.hidden = false;
+      none.hidden = true;
+      count.textContent = "";
+    }
+    let typed = 0;
+    // Words filter at once; text shaped like a ref then asks the index, and shows the chart it names if there is one.
+    find.addEventListener("input", () => {
+      const turn = ++typed;
+      const text = find.value;
+      const read = readRef(text);
+      if (!read || !read.sure) filterWords(text);
+      if (!read) return;
+      lookUpRef(text, "../").then((result) => {
+        if (turn !== typed) return;
+        if (result) showRef(result);
+        else if (read.sure) filterWords(text);
+      });
+    });
+    document.getElementById("clear").addEventListener("click", () => {
+      find.value = "";
+      showAll();
+      find.focus();
     });
     document.addEventListener("click", async (event) => {
       const button = event.target.closest("button[data-copy]");

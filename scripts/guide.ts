@@ -12,6 +12,7 @@ import { fileURLToPath } from "node:url";
 import { blockTypes, chartGuide, chartsFor, dataContract, describeChart, guideMarkdown, PURPOSES, switchOptions } from "../src/core/index.ts";
 import type { ChartSwitch, Purpose, Row, WidgetSpec } from "../src/core/index.ts";
 import { SEARCH_WORDS } from "../src/core/search-words.ts";
+import { FIND_JS } from "./find.ts";
 import { catalogTabs, navBar } from "./site-nav.ts";
 
 const root = (path: string) => fileURLToPath(new URL(`../${path}`, import.meta.url));
@@ -280,6 +281,10 @@ const page = `<!doctype html>
     .find { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 21px; font-size: 14px; }
     .find input { font: inherit; font-size: 15px; padding: 6px 10px; min-height: 36px; width: min(100%, 360px); border: 1px solid color-mix(in srgb, CanvasText 25%, transparent); border-radius: 8px; background: Canvas; color: inherit; }
     #count, .none { color: var(--muted); font-size: 13px; }
+    .ref-hits { margin: 0 0 21px; padding: 0; list-style: none; font-size: 14px; line-height: 1.6; }
+    .ref-hits code { font: 12px ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: 0.06em; }
+    .none button { margin-left: 8px; }
+    section.chart.found { outline: 2px solid var(--site-link, AccentColor); outline-offset: 8px; border-radius: 2px; }
     details.more { margin-top: 13px; }
     details.more > summary, details.matrix-box > summary { cursor: pointer; font-size: 14px; color: var(--muted); padding: 5px 0; }
     details.more > summary:hover, details.matrix-box > summary:hover { color: CanvasText; }
@@ -297,7 +302,8 @@ ${catalogTabs("guide")}
     <p class="lede">For each of the ${charts.length} charts: the table it needs, the data drawing it, and which other charts the same data makes.</p>
   </header>
 
-  <p class="find"><label for="find">Find a chart</label> <input type="search" id="find" placeholder="Name or job, such as trend or map" autocomplete="off"> <span id="count" aria-live="polite"></span></p>
+  <p class="find"><label for="find">Find a chart by name, job or ref (W-…)</label> <input type="search" id="find" placeholder="Name or job, such as trend or map" autocomplete="off"> <span id="count" aria-live="polite"></span></p>
+  <ul class="ref-hits" id="ref-hits" aria-live="polite" hidden></ul>
 
   <h3>Which chart for which job</h3>
   <div class="scroll"><table class="jobs"><thead><tr><th scope="col">Job</th><th scope="col">Best</th><th scope="col">Good</th></tr></thead><tbody>
@@ -315,7 +321,7 @@ ${purposeTable}
     <tbody>${charts.map((from) => `<tr><th scope="row"><a href="#c-${from.type}">${from.type}</a></th>${types.map((to) => cellFor(from, to)).join("")}</tr>`).join("\n")}</tbody>
   </table></div>
   </details>
-  <p class="none" id="none" hidden>No chart matches. Try another word, such as share, time or flow.</p>
+  <p class="none" id="none" role="status" hidden>No chart matches. Try another word, such as share, time or flow. <button type="button" id="clear">Clear search</button></p>
 ${sections}
   <script type="application/json" id="switches">${JSON.stringify(views).replace(/</g, "\\u003c")}</script>
   <script>
@@ -368,20 +374,67 @@ ${sections}
     };
     window.addEventListener("hashchange", openFromHash);
     openFromHash();
-    // Find: charts whose name, summary or jobs hold every word typed.
+${FIND_JS}
+    // Find: charts whose name, summary or jobs hold every word typed, or the chart a ref names.
     const find = document.getElementById("find");
     const count = document.getElementById("count");
     const none = document.getElementById("none");
-    const charts = [...document.querySelectorAll("section.chart")];
+    const hits = document.getElementById("ref-hits");
+    const charts = [...document.querySelectorAll("section.chart")].map((el) => ({ el, keywords: tokens(el.dataset.search), everything: tokens(el.dataset.search) }));
+    function showAll() {
+      for (const chart of charts) chart.el.hidden = false;
+      hits.hidden = true;
+      none.hidden = true;
+      count.textContent = "";
+    }
+    // A ref led to a chart in this guide: clear the search, open its section and bring it onto the keyboard.
+    function showHere(hash) {
+      find.value = "";
+      showAll();
+      history.replaceState(null, "", hash);
+      openFromHash();
+      const section = document.getElementById(decodeURIComponent(hash.slice(1)));
+      if (!section) return;
+      section.tabIndex = -1;
+      section.classList.add("found");
+      section.scrollIntoView({ block: "start", behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+      section.focus({ preventScroll: true });
+      setTimeout(() => section.classList.remove("found"), 2400);
+    }
+    function filterWords(text) {
+      hits.hidden = true;
+      const words = tokens(text);
+      if (!words.length) return showAll();
+      const shown = new Set(matchWords(words, charts));
+      for (const chart of charts) chart.el.hidden = !shown.has(chart);
+      count.textContent = shown.size + " of " + charts.length;
+      none.hidden = shown.size > 0;
+    }
+    function showRef(result) {
+      for (const chart of charts) chart.el.hidden = true;
+      hits.replaceChildren(...refItems(result, "../", showHere));
+      hits.hidden = false;
+      none.hidden = true;
+      count.textContent = "";
+    }
+    let typed = 0;
+    // Words filter at once; text shaped like a ref then asks the index, and shows the chart it names if there is one.
     find.addEventListener("input", () => {
-      const words = find.value.toLowerCase().split(/\\s+/).filter(Boolean);
-      let shown = 0;
-      for (const chart of charts) {
-        chart.hidden = !words.every((word) => chart.dataset.search.includes(word));
-        if (!chart.hidden) shown++;
-      }
-      count.textContent = words.length ? shown + " of " + charts.length : "";
-      none.hidden = !words.length || shown > 0;
+      const turn = ++typed;
+      const text = find.value;
+      const read = readRef(text);
+      if (!read || !read.sure) filterWords(text);
+      if (!read) return;
+      lookUpRef(text, "../").then((result) => {
+        if (turn !== typed) return;
+        if (result) showRef(result);
+        else if (read.sure) filterWords(text);
+      });
+    });
+    document.getElementById("clear").addEventListener("click", () => {
+      find.value = "";
+      showAll();
+      find.focus();
     });
     document.addEventListener("change", (event) => {
       const select = event.target.closest("select[data-type]");
@@ -394,7 +447,7 @@ ${sections}
         const { from, to } = button.dataset;
         open(from);
         await showAs(from, to);
-        if (button.closest(".matrix")) document.getElementById("c-" + from).scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+        if (button.closest(".matrix")) document.getElementById("c-" + from).scrollIntoView({ behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
       } else if (button.dataset.all) {
         const type = button.dataset.all;
         const { data } = await spec(type);
