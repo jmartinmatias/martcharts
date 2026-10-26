@@ -10,11 +10,11 @@
   "data": {
     "type": "inline",
     "rows": [
-      {"region":"East","revenue":338000,"target":360000},
-      {"region":"North","revenue":278000,"target":270000},
-      {"region":"Central","revenue":259000,"target":250000},
-      {"region":"West","revenue":205000,"target":220000},
-      {"region":"South","revenue":204000,"target":230000}
+      {"region":"East","revenue":338000,"target":327000},
+      {"region":"North","revenue":278000,"target":243000},
+      {"region":"Central","revenue":259000,"target":225000},
+      {"region":"West","revenue":205000,"target":198000},
+      {"region":"South","revenue":204000,"target":207000}
     ]
   },
   "fields": {

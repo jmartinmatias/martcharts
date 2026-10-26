@@ -36,28 +36,28 @@ Progress against a target, one meter per row: attainment as a percentage, a bar 
 | Column | Holds | Drawn as | Values |
 | --- | --- | --- | --- |
 | `revenue` | number | `value` | 204000 to 338000 |
-| `target` | number | `target` | 220000 to 360000 |
+| `target` | number | `target` | 198000 to 327000 |
 | `region` | category | `label` | 5 different, e.g. "East", "North", "Central" |
 
 ## The data drawing it now
 
 | revenue | target | region |
 | --- | --- | --- |
-| 338000 | 360000 | East |
-| 278000 | 270000 | North |
-| 259000 | 250000 | Central |
-| 205000 | 220000 | West |
-| 204000 | 230000 | South |
+| 338000 | 327000 | East |
+| 278000 | 243000 | North |
+| 259000 | 225000 | Central |
+| 205000 | 198000 | West |
+| 204000 | 207000 | South |
 
 As CSV:
 
 ```csv
 revenue,target,region
-338000,360000,East
-278000,270000,North
-259000,250000,Central
-205000,220000,West
-204000,230000,South
+338000,327000,East
+278000,243000,North
+259000,225000,Central
+205000,198000,West
+204000,207000,South
 ```
 
 ## The spec
@@ -80,17 +80,17 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       {
         "region": "East",
         "revenue": 338000,
-        "target": 360000
+        "target": 327000
       },
       {
         "region": "North",
         "revenue": 278000,
-        "target": 270000
+        "target": 243000
       },
       {
         "region": "Central",
         "revenue": 259000,
-        "target": 250000
+        "target": 225000
       }
     ]
   },

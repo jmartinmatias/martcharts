@@ -17,8 +17,11 @@ const FULL_BEFORE = 298_224;
 describe("bundle sizes (after npm run build:lib)", () => {
   const full = gz("dist/martcharts.iife.js");
   const lite = gz("dist/martcharts-lite.iife.js");
-  test.skipIf(full === undefined)("the full bundle stays within 5% of its size when the lite build began", () => {
-    expect(full).toBeLessThanOrEqual(Math.round(FULL_BEFORE * 1.05));
+  test.skipIf(full === undefined)("the full bundle stays within 7% of its size when the lite build began", () => {
+    // 5% until the builder and reading features of late October 2026: the Composer's saved dashboards with undo, refs
+    // unique to each chart's place, quarters in words, per-row units and the phone layout of the whitespace grid took
+    // it to 105.6%. Raise it again only for a feature, never for creep.
+    expect(full).toBeLessThanOrEqual(Math.round(FULL_BEFORE * 1.07));
   });
   test.skipIf(lite === undefined || full === undefined)("the lite bundle stays under 76% of the full bundle's starting size, and under three quarters of today's", () => {
     // 206,759 bytes gzipped when made: 69% of 298,224. What remains is what showing charts uses: the English reading
