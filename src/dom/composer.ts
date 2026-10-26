@@ -167,7 +167,10 @@ const CSS = `
 .fft-cmp-card[data-over] { box-shadow: inset 0 2px 0 var(--fft-accent); }
 .fft-cmp-empty { margin: 0; color: var(--fft-muted); }
 .fft-cmp-boards { display: flex; flex-direction: column; gap: 8px; margin: 0 0 13px; }
-.fft-cmp-saved-boards .fft-cmp-item { cursor: default; }
+.fft-cmp-saved-boards .fft-cmp-item { cursor: default; flex-wrap: wrap; }
+/* A saved dashboard's name and date wrap rather than being cut: the list is narrow, and the date tells two apart. */
+.fft-cmp-saved-boards .fft-cmp-name, .fft-cmp-saved-boards .fft-cmp-name > span { white-space: normal; overflow: visible; overflow-wrap: anywhere; }
+.fft-cmp-saved-boards .fft-cmp-name { flex: 1 1 100%; }
 .fft-cmp-saved-boards .fft-cmp-item[aria-current] { border-color: var(--fft-accent); }
 .fft-cmp-name > span { display: block; overflow: hidden; text-overflow: ellipsis; }
 .fft-cmp-when { color: var(--fft-muted); font-size: 11px; }
