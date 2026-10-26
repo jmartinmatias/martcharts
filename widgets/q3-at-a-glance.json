@@ -46,7 +46,7 @@
         "type": "currency",
         "currency": "EUR",
         "compact": true,
-        "decimals": 2
+        "digits": 3
       }
     },
     "profit": {

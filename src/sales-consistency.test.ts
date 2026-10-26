@@ -57,7 +57,8 @@ test("no revenue card calls a month a quarter, and the headline tile rounds reve
     const { title, subtitle } = widget(id);
     expect([id, /Q[1-4]/.test(`${title} ${subtitle}`)]).toEqual([id, false]);
   }
-  expect(widget("q3-at-a-glance").fields.revenue.format).toMatchObject({ compact: true, decimals: 2 });
+  // Three significant digits: €1.28M for the company matches the chart's €1,284,000, and a region reads €278K, not €278.00K.
+  expect(widget("q3-at-a-glance").fields.revenue.format).toMatchObject({ compact: true, digits: 3 });
 });
 
 test("one target and one cost: the regions' targets and costs add up to September's, so 'target met' and gross profit agree", () => {

@@ -83,7 +83,9 @@ describe("switchChart", () => {
 
   test("not possible: no second category for a heatmap, no prices for a candlestick, no dates for a calendar", () => {
     expect(switchChart(catalog("donut"), "heatmap").fit).toBe("no");
-    expect(switchChart(catalog("line"), "candlestick").assessment).toMatch(/open, high, low and close/);
+    // Not prices: the switch is refused, and the reason names what a candlestick needs that this data lacks.
+    const candle = switchChart(catalog("line"), "candlestick");
+    expect([candle.fit, /close/.test(candle.assessment)]).toEqual(["no", true]);
     expect(switchChart(catalog("bar"), "calendar").fit).toBe("no");
   });
 

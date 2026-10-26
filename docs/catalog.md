@@ -1864,7 +1864,7 @@ A row of stat tiles in one widget, each with a label, value and change: the calm
 
 **Answers**: Where do the key numbers stand right now?
 
-**How to read it**: Each tile is one key number; its arrow says whether it went up or down since last time, and a line under it whether it reached its target. Here, every number moved the right way since last time: revenue, gross profit and new customers went up, and churn went down. Revenue is past its target of €1.20M.
+**How to read it**: Each tile is one key number; its arrow says whether it went up or down since last time, and a line under it whether it reached its target. Here, every number moved the right way since last time: revenue, gross profit and new customers went up, and churn went down. Revenue is past its target of €1.2M.
 
 **Drop it in**: `<fft-widget src="catalog/kpis.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "kpis" }` hands an agent this spec). The spec below shows 6 of its 12 rows; the [full file](../catalog/kpis.json) has them all. Source widget: [widgets/q3-at-a-glance.json](../widgets/q3-at-a-glance.json).
 
@@ -1881,12 +1881,12 @@ A row of stat tiles in one widget, each with a label, value and change: the calm
   "data": {
     "type": "inline",
     "rows": [
-      {"month":"2025-10","revenue":820000,"cost":610000,"newCustomers":41,"churn":0.042,"target":850000,"profit":210000},
-      {"month":"2025-11","revenue":860000,"cost":640000,"newCustomers":38,"churn":0.041,"target":870000,"profit":220000},
-      {"month":"2025-12","revenue":910000,"cost":660000,"newCustomers":52,"churn":0.039,"target":900000,"profit":250000},
-      {"month":"2026-01","revenue":870000,"cost":650000,"newCustomers":35,"churn":0.04,"target":900000,"profit":220000},
-      {"month":"2026-02","revenue":900000,"cost":655000,"newCustomers":44,"churn":0.038,"target":920000,"profit":245000},
-      {"month":"2026-03","revenue":960000,"cost":690000,"newCustomers":49,"churn":0.037,"target":950000,"profit":270000}
+      {"month":"2025-10","revenue":820000,"cost":610000,"target":850000,"newCustomers":41,"clients":1000,"churned":42,"churn":0.042,"profit":210000},
+      {"month":"2025-11","revenue":860000,"cost":640000,"target":870000,"newCustomers":38,"clients":1000,"churned":41,"churn":0.041,"profit":220000},
+      {"month":"2025-12","revenue":910000,"cost":660000,"target":900000,"newCustomers":52,"clients":1000,"churned":39,"churn":0.039,"profit":250000},
+      {"month":"2026-01","revenue":870000,"cost":650000,"target":900000,"newCustomers":35,"clients":1000,"churned":40,"churn":0.04,"profit":220000},
+      {"month":"2026-02","revenue":900000,"cost":655000,"target":920000,"newCustomers":44,"clients":1000,"churned":38,"churn":0.038,"profit":245000},
+      {"month":"2026-03","revenue":960000,"cost":690000,"target":950000,"newCustomers":49,"clients":1000,"churned":37,"churn":0.037,"profit":270000}
     ]
   },
   "fields": {
@@ -1896,7 +1896,7 @@ A row of stat tiles in one widget, each with a label, value and change: the calm
         "type": "currency",
         "currency": "EUR",
         "compact": true,
-        "decimals": 2
+        "digits": 3
       }
     },
     "profit": {
@@ -2121,12 +2121,12 @@ Lines showing change over an ordered axis, usually time. Several y fields draw s
   "data": {
     "type": "inline",
     "rows": [
-      {"month":"2025-10","revenue":820000,"cost":610000,"newCustomers":41,"churn":0.042,"target":850000},
-      {"month":"2025-11","revenue":860000,"cost":640000,"newCustomers":38,"churn":0.041,"target":870000},
-      {"month":"2025-12","revenue":910000,"cost":660000,"newCustomers":52,"churn":0.039,"target":900000},
-      {"month":"2026-01","revenue":870000,"cost":650000,"newCustomers":35,"churn":0.04,"target":900000},
-      {"month":"2026-02","revenue":900000,"cost":655000,"newCustomers":44,"churn":0.038,"target":920000},
-      {"month":"2026-03","revenue":960000,"cost":690000,"newCustomers":49,"churn":0.037,"target":950000}
+      {"month":"2025-10","revenue":820000,"cost":610000,"target":850000},
+      {"month":"2025-11","revenue":860000,"cost":640000,"target":870000},
+      {"month":"2025-12","revenue":910000,"cost":660000,"target":900000},
+      {"month":"2026-01","revenue":870000,"cost":650000,"target":900000},
+      {"month":"2026-02","revenue":900000,"cost":655000,"target":920000},
+      {"month":"2026-03","revenue":960000,"cost":690000,"target":950000}
     ]
   },
   "fields": {
@@ -2169,7 +2169,8 @@ Lines showing change over an ordered axis, usually time. Several y fields draw s
     ],
     "reference": [
       {
-        "value": 1200000,
+        "field": "target",
+        "agg": "last",
         "label": "Target"
       }
     ]

@@ -23,7 +23,7 @@ describe("bundle sizes (after npm run build:lib)", () => {
     // it to 105.6%. Raise it again only for a feature, never for creep.
     expect(full).toBeLessThanOrEqual(Math.round(FULL_BEFORE * 1.07));
   });
-  test.skipIf(lite === undefined || full === undefined)("the lite bundle stays under 76% of the full bundle's starting size, and under three quarters of today's", () => {
+  test.skipIf(lite === undefined || full === undefined)("the lite bundle stays under 77% of the full bundle's starting size, and under three quarters of today's", () => {
     // 206,759 bytes gzipped when made: 69% of 298,224. What remains is what showing charts uses: the English reading
     // guides, the stylesheet, the views' option schemas (validation messages read them) and the chart picker behind
     // <fft-widget data="…">.
@@ -31,7 +31,10 @@ describe("bundle sizes (after npm run build:lib)", () => {
     // about 14 KB gzipped of display code, so the ceiling is 75%. Raise it again only for a feature, never for creep.
     // 76% after the board chrome (tabs, folded sections, the Share menu, printing every section, one keyboard stop per
     // card and name-based click filters) added about 0.3 KB gzipped of display code.
-    expect(lite).toBeLessThanOrEqual(Math.round(FULL_BEFORE * 0.76));
+    // 77% after the functional audit's reader fixes (one board-level empty message with Clear, how far a click
+    // reaches, the Details panel in words, changes in points on percent tiles, target lines read from a field) added
+    // about 2 KB gzipped of display code.
+    expect(lite).toBeLessThanOrEqual(Math.round(FULL_BEFORE * 0.77));
     expect(lite as number).toBeLessThan((full as number) * 0.75);
   });
   test.skipIf(!existsSync("dist/martcharts-lite.iife.js"))("the lite bundle carries no editor, composer, Taller, palette picker or French and German reading", () => {

@@ -716,7 +716,7 @@ A row of stat tiles in one widget, each with a label, value and change: the calm
 
 **One row is**: One value; with more rows, the last one is the headline and the rest draw its trend. **Built**: One tile per item, each the last row's value of its field with its change; with series, each tile draws its trend.
 
-**Needs**: any rows. Example: 12 rows of `revenue`, `target`, `profit`, `newCustomers`, `churn`, `month`, `cost`. [Full entry with the data](../catalog/guide/kpis.md).
+**Needs**: any rows. Example: 12 rows of `revenue`, `target`, `profit`, `newCustomers`, `churn`, `month`, `cost`, `clients`, `churned`. [Full entry with the data](../catalog/guide/kpis.md).
 
 | Switch to | Fit | Verdict | Assessment |
 | --- | --- | --- | --- |
@@ -804,12 +804,11 @@ Lines showing change over an ordered axis, usually time.
 
 **One row is**: One row per point in time, in order. **Built**: One point per row at x (in order) and y, joined; each y field is one series, and reference lines mark targets.
 
-**Needs**: `x` (date), `y` (number, one or more). Example: 12 rows of `month`, `revenue`, `cost`, `newCustomers`, `churn`, `target`. [Full entry with the data](../catalog/guide/line.md).
+**Needs**: `x` (date), `y` (number, one or more). Example: 12 rows of `month`, `revenue`, `cost`, `target`. [Full entry with the data](../catalog/guide/line.md).
 
 | Switch to | Fit | Verdict | Assessment |
 | --- | --- | --- | --- |
 | `area` | fits | better | Better for how each group or period splits, and still good for trend over time. The fill stresses the amount, which suits volumes like cash or traffic; with crossing series, the fills hide each other. |
-| `dual` | fits | better | Better for how two measures relate, and still good for trend over time. Right when the two series have different units: each gets its own panel and scale, and no false crossings. |
 | `horizon` | fits | same | Keeps the job (trend over time) with a different look. Fits many more series in the same height; readers need a moment to learn the color bands. |
 | `bar` | fits | trade-off | Better for ranking, top to bottom and how each group or period splits; weaker for trend over time. Better when each period's total matters on its own (monthly sales); worse for seeing the trend. |
 | `hbar` | fits | different | Answers a different question: better for ranking, top to bottom and comparing amounts across categories, but gives up trend over time. |

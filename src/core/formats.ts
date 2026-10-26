@@ -16,6 +16,11 @@ export function readNumber(value: unknown): number | null {
   return null;
 }
 
+/** Significant digits, when asked for: €1.28M, €278K and €97.4K from one setting, never €278.00K. They win over decimals. */
+function significant(digits: unknown): Intl.NumberFormatOptions | undefined {
+  return typeof digits === "number" && digits >= 1 && digits <= 21 ? { minimumFractionDigits: 0, maximumFractionDigits: 20, maximumSignificantDigits: Math.round(digits) } : undefined;
+}
+
 function fractionDigits(decimals: unknown): Intl.NumberFormatOptions {
   return typeof decimals === "number" ? { minimumFractionDigits: decimals, maximumFractionDigits: decimals } : {};
 }
@@ -36,10 +41,12 @@ const number: FormatBlock = {
   description: "Plain number with locale grouping, for example 1,234.5.",
   options: {
     decimals: { type: "number", description: "Exact number of decimal places." },
+    digits: { type: "number", description: "Significant digits instead of decimals: 3 gives 1.28M, 278K and 97.4K." },
     compact: { type: "boolean", default: false, description: "Shorten large numbers: 1.2K, 3.4M." },
   },
-  // The decimals asked for win over the compact default of one.
-  format: (value, o, locale) => numeric(value, locale, { ...compactOptions(o.compact, o.decimals === undefined ? o.places : undefined), ...fractionDigits(o.decimals) }),
+  // The decimals asked for win over the compact default of one; significant digits win over both.
+  format: (value, o, locale) =>
+    numeric(value, locale, { ...compactOptions(o.compact, o.decimals === undefined ? o.places : undefined), ...(significant(o.digits) ?? fractionDigits(o.decimals)) }),
 };
 
 const currency: FormatBlock = {
@@ -48,6 +55,7 @@ const currency: FormatBlock = {
   options: {
     currency: { type: "string", default: "USD", description: "ISO 4217 code, for example EUR, USD, GBP." },
     decimals: { type: "number", description: "Exact number of decimal places. Defaults to the currency's usual places." },
+    digits: { type: "number", description: "Significant digits instead of decimals: 3 gives €1.28M, €278K and €97.4K." },
     compact: { type: "boolean", default: false, description: "Shorten large amounts: $4.2M." },
   },
   format: (value, o, locale) =>
@@ -55,7 +63,7 @@ const currency: FormatBlock = {
       style: "currency",
       currency: typeof o.currency === "string" ? o.currency : "USD",
       ...compactOptions(o.compact, o.decimals === undefined ? o.places : undefined),
-      ...fractionDigits(o.decimals),
+      ...(significant(o.digits) ?? fractionDigits(o.decimals)),
     }),
 };
 

@@ -1,3 +1,4 @@
+import { resolveReferences } from "./reference.ts";
 /**
  * Plain reading guides for charts: one to three short sentences that say what
  * each mark is and what bigger, longer, stronger or further right means, in the
@@ -45,7 +46,7 @@ export function explainChart(written: WidgetSpec, rows: Row[] = []): string {
   if (lang !== "en" && other) return concise(other.explainIn(lang, spec, rows));
   const facet = (spec.facet as { field?: string } | undefined)?.field;
   // A dashed target line says what it is, so the chart reads against it.
-  const goal = targetLine(spec);
+  const goal = targetLine(spec, rows);
   // The target line and what it means for the marks are one sentence, so the reading stays within three.
   const lined = `${goal ? `${guide(spec)} The dashed line is the ${goal.name}${missKey(spec)}.` : guide(spec)}${highlighted(spec)}`;
   // Small multiples: one chart per value, so an example across all rows would mix the panels up.
@@ -110,14 +111,22 @@ function ragNote(spec: WidgetSpec): string {
   return ` Each status comes from a rule: ${said.join("; ")}${more}.`;
 }
 
-/** A reference line drawn at a fixed target (labelled target, plan, goal, budget or quota), on bars and lines. */
-function targetLine(spec: WidgetSpec): { value: number; name: string } | undefined {
+/**
+ * A reference line drawn at a target (labelled target, plan, goal, budget or quota), on bars and lines: at a fixed
+ * value, or read from a field (the last month's target), resolved from the rows exactly as the chart draws it.
+ */
+function targetLine(spec: WidgetSpec, rows: Row[] = []): { value: number; name: string } | undefined {
   const view = (spec.view ?? { type: "table" }) as View;
   if (!["bar", "hbar", "line", "area"].includes(view.type) || !Array.isArray(view.reference)) return undefined;
-  const found = (view.reference as { value?: unknown; label?: unknown }[]).find((r) => typeof r.value === "number" && /target|plan|goal|budget|quota/i.test(String(r.label ?? "")));
+  const found = (view.reference as { value?: unknown; field?: unknown; label?: unknown }[]).find(
+    (r) => (typeof r.value === "number" || typeof r.field === "string") && /target|plan|goal|budget|quota/i.test(String(r.label ?? "")),
+  );
   if (!found) return undefined;
+  const value = typeof found.value === "number" ? found.value : resolveReferences({ reference: [found] }, rows)[0];
+  const resolved = typeof value === "number" ? value : value && "value" in value ? value.value : undefined;
+  if (resolved === undefined) return undefined;
   const label = String(found.label);
-  return { value: found.value as number, name: /^[A-Z][a-z]*\b/.test(label) ? label.charAt(0).toLowerCase() + label.slice(1) : label };
+  return { value: resolved, name: /^[A-Z][a-z]*\b/.test(label) ? label.charAt(0).toLowerCase() + label.slice(1) : label };
 }
 
 /** Bars under a dashed target: which side of the line meets it, and how a miss looks, as the chart draws it. */
@@ -241,7 +250,7 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const row = single ? top(single) : undefined;
       const standout = row && single ? `${text(row, x)} ${view.mark === "lollipop" ? "has the highest dot" : "is the tallest"}, with ${text(row, single)}` : "";
       // Against a dashed target line: how many meet it, and which miss it, below it or, when lower is better, over it.
-      const line = targetLine(spec);
+      const line = targetLine(spec, rows);
       if (single && line) {
         const known = rows.filter((r) => value(r, single) !== null);
         const missing = known.filter((r) => (view.goodWhen === "down" ? (value(r, single) as number) > line.value : (value(r, single) as number) < line.value));
@@ -341,7 +350,7 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const [first, last] = [known[0], known.at(-1)];
       const subject = single ? "it" : nameOf(traced, spec);
       // Against a target line: did the latest actual end past it, or short of it?
-      const goal = targetLine(spec);
+      const goal = targetLine(spec, rows);
       const lastValue = last ? value(last, traced) : null;
       const against = goal && lastValue !== null ? `, ${lastValue >= goal.value ? "past" : "short of"} the ${goal.name} of ${formatValue(goal.value, spec.fields?.[traced]?.format, spec.locale)}` : "";
       // A forecast answers where it is heading: its last point, and the likely range when a band is drawn.

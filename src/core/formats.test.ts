@@ -189,3 +189,8 @@ test("a quarter reads as the reader says it: a key such as 2026-Q4 in any date s
     formatValue("2026-03-31", { type: "date", style: "quarter" }, "de-DE"),
   ]).toEqual(["Q4 2026", "Q1 2026", "T4 2026", "Q4 2026", "Q1 2026"]);
 });
+
+test("significant digits keep one look across sizes: €1.28M, €278K and €97.4K, never €278.00K", () => {
+  const f = { type: "currency", currency: "EUR", compact: true, digits: 3 } as const;
+  expect([1_284_000, 278_000, 97_400].map((n) => formatValue(n, f, "en-US"))).toEqual(["€1.28M", "€278K", "€97.4K"]);
+});

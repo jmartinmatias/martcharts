@@ -233,7 +233,9 @@ export function explainIn(lang: Other, spec: WidgetSpec, rows: Row[] = []): stri
 function targetSentence(c: Ctx): string {
   const { view, lang } = c;
   if (!["bar", "hbar", "line", "area"].includes(view.type) || !Array.isArray(view.reference)) return "";
-  const found = (view.reference as { value?: unknown; label?: unknown }[]).find((r) => typeof r.value === "number" && /target|plan|goal|budget|quota/i.test(String(r.label ?? "")));
+  const found = (view.reference as { value?: unknown; field?: unknown; label?: unknown }[]).find(
+    (r) => (typeof r.value === "number" || typeof r.field === "string") && /target|plan|goal|budget|quota/i.test(String(r.label ?? "")),
+  );
   if (!found) return "";
   const label = String(found.label);
   const line = lang === "fr" ? `La ligne pointillée représente ${label.charAt(0).toLowerCase()}${label.slice(1)}.` : `Die gestrichelte Linie ist ${label}.`;
