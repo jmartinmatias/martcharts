@@ -1,7 +1,7 @@
 {
   "id": "cc-call-list",
   "title": "Who to call this week",
-  "subtitle": "Ten clients, with the reason: silence, an anomaly, attrition risk or a likely sale",
+  "subtitle": "Highest first, with the reason: silence, an anomaly, attrition risk or a likely sale",
   "description": "Each client is scored on days since the last contact, an open anomaly, the risk of leaving and the best open opportunity; the highest scores come first, with the reason and the next best action.",
   "locale": "en-US",
   "source": {

@@ -58,3 +58,49 @@ test("no revenue card calls a month a quarter, and the headline tile rounds reve
   }
   expect(widget("q3-at-a-glance").fields.revenue.format).toMatchObject({ compact: true, decimals: 2 });
 });
+
+test("one target and one cost: the regions' targets and costs add up to September's, so 'target met' and gross profit agree", () => {
+  const items: Row[] = json("public/data/sales.json").data.items;
+  const total = (field: string) => items.reduce((sum, row) => sum + Number(row[field]), 0);
+  const last = monthly.at(-1) as Row;
+  expect([total("target"), total("cost")]).toEqual([Number(last.target), Number(last.cost)]);
+  const scorecard = new Map(rows("kpi-scorecard").map((r) => [String(r.kpi), r]));
+  expect(Number(scorecard.get("Revenue (€)")?.target)).toBe(Number(last.target));
+  expect(Number(scorecard.get("Gross margin (%)")?.actual)).toBe(Math.round(((september - Number(last.cost)) / september) * 100));
+  // Each region's margin on the scorecard is its own revenue less cost.
+  const cost = sumBy(items, "region", "cost");
+  for (const r of rows("region-scorecard")) {
+    const region = String(r.region);
+    const revenue = byRegion.get(region) ?? 0;
+    expect([region, r.margin]).toEqual([region, Math.round(((revenue - (cost.get(region) ?? 0)) / revenue) * 100) / 100]);
+  }
+});
+
+test("a card that a filter can narrow never names a fixed count or 'all regions' in its words, and draws no average over one bar", () => {
+  const region = widget("revenue-by-region");
+  expect(region.headline.caption).not.toMatch(/all regions/i);
+  expect(region.view.reference ?? []).toEqual([]);
+  expect(json("widgets/commercial/cc-call-list.json").subtitle).not.toMatch(/\b(ten|10)\b/i);
+  expect(json("widgets/commercial/cc-revenue-pareto.json").subtitle).not.toMatch(/\btop \d+/i);
+});
+
+test("a share's tile shows no relative change: +13.8% beside 55% would read as points", () => {
+  const items = json("widgets/health/health-on-track.json").view.items as Row[];
+  expect(items.find((item) => item.value === "onTrack")?.compare).toBeUndefined();
+});
+
+test("the cockpit's headline moves differ by segment, and the last month is each client's figure on the client list", () => {
+  const activity: Row[] = json("public/data/client-activity.json");
+  const months = [...new Set(activity.map((r) => String(r.month)))].sort();
+  const [before, now] = months.slice(-2) as [string, string];
+  const move = (list: Row[], field: string) => {
+    const at = (month: string) => list.filter((r) => r.month === month).reduce((sum, r) => sum + Number(r[field]), 0);
+    return Math.round(((at(now) - at(before)) / Math.abs(at(before))) * 1000) / 10;
+  };
+  for (const field of ["aum", "netNewMoney", "potential"]) {
+    const bySegment = new Set(["Private", "Affluent", "Corporate", "Institutional"].map((segment) => move(activity.filter((r) => r.segment === segment), field)));
+    expect([field, bySegment.size > 1]).toEqual([field, true]);
+  }
+  const clients = new Map((json("public/data/clients.json") as Row[]).map((c) => [String(c.name), c]));
+  for (const r of activity.filter((row) => row.month === now)) expect([r.client, r.aum]).toEqual([r.client, clients.get(String(r.client))?.aum]);
+});
