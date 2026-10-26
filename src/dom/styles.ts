@@ -821,7 +821,8 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 
 .fft-heat { display: flex; flex-direction: column; gap: 13px; }
 .fft-heatmap { display: grid; gap: 2px; align-items: stretch; }
-.fft-heat-col { font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-muted); text-align: center; padding-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* A column's name wraps to two lines, between words, rather than being cut: "Développement commercial" reads whole. The names sit on one baseline. */
+.fft-heat-col { align-self: end; font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-muted); text-align: center; padding-bottom: 3px; overflow: hidden; white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
 .fft-heat-row { font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-text-secondary); padding-right: 8px; display: flex; align-items: center; }
 .fft-cell {
   min-height: 34px; border-radius: var(--fft-radius-s); display: grid; place-items: center;
