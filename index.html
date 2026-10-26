@@ -19,6 +19,10 @@
       .route .go { display: inline-block; margin-top: 13px; color: var(--accent); font-weight: 600; }
       .strip-label { margin: 0 0 8px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); }
       .strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 13px; }
+      /* Each card grows to its row's tallest, so the links under them share one line. */
+      .strip-item { display: flex; flex-direction: column; }
+      .strip-item > div:first-child { flex: 1; display: flex; flex-direction: column; }
+      .strip-item > div:first-child > .fft-widget { flex: 1; }
     </style>
   </head>
   <body>
