@@ -185,3 +185,10 @@ describe("the data's values in the reader's language", () => {
     expect(fields).toBeGreaterThan(100);
   });
 });
+
+test("the Editor's sample tables are named in the site's language", async () => {
+  const { readFileSync } = await import("node:fs");
+  const code = readFileSync("demo/editor.ts", "utf8");
+  for (const name of ["Tickets par équipe", "Tickets nach Team", "Ventes par région et produit", "Umsatz nach Region und Produkt"]) expect(code).toContain(name);
+  expect(code).toMatch(/samples: sampleList\(siteLocale\(\)\)/);
+});

@@ -26,19 +26,27 @@ const widgetById = (id: string) => Object.values(stored).find((spec) => spec.id 
 
 const $ = <T extends HTMLElement>(selector: string) => document.querySelector(selector) as T;
 
+/** The sample tables, named in the site's language (the page reloads on a language change). */
+function sampleList(locale: string | undefined): { label: string; url: string }[] {
+  const lang = /^fr\b/i.test(locale ?? "") ? "fr" : /^de\b/i.test(locale ?? "") ? "de" : "en";
+  const names: Record<string, [string, string, string]> = {
+    "/examples/tickets.csv": ["Tickets by team", "Tickets par équipe", "Tickets nach Team"],
+    "/data/monthly.json": ["Monthly revenue", "Chiffre d'affaires mensuel", "Monatsumsatz"],
+    "/data/customers.json": ["Customers", "Clients", "Kunden"],
+    "/data/daily-orders.json": ["Daily orders", "Commandes du jour", "Tägliche Bestellungen"],
+    "/data/sales.json": ["Sales by region and product", "Ventes par région et produit", "Umsatz nach Region und Produkt"],
+  };
+  const at = { en: 0, fr: 1, de: 2 }[lang];
+  return Object.entries(names).map(([url, words]) => ({ label: words[at] ?? words[0], url }));
+}
+
 // ---- The editor ----
 document.body.dataset.fftPlace = PLACES.editor;
 const editor = createEditor($("#editor"), {
   // The editor's own words in the site's language, from the first draw (the page's lang is set only once it has loaded).
   locale: siteLocale() ?? "en-US",
   examples,
-  samples: [
-    { label: "Tickets by team", url: "/examples/tickets.csv" },
-    { label: "Monthly revenue", url: "/data/monthly.json" },
-    { label: "Customers", url: "/data/customers.json" },
-    { label: "Daily orders", url: "/data/daily-orders.json" },
-    { label: "Sales by region and product", url: "/data/sales.json" },
-  ],
+  samples: sampleList(siteLocale()),
   srcOf: (spec) => `widgets/${spec.id ?? "chart"}.json`,
   // The published site serves the embed page with the drop-in examples; a full address, so the code works anywhere.
   embedHref: new URL("examples/embed.html", location.href).href,
