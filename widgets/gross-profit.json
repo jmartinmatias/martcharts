@@ -65,6 +65,7 @@
         }
       },
       "headline": {
+        "compareLabel": "vs août",
         "caption": "marge brute de {last:month}"
       }
     },
@@ -85,6 +86,7 @@
         }
       },
       "headline": {
+        "compareLabel": "ggü. Aug.",
         "caption": "Bruttogewinn im {last:month}"
       }
     }

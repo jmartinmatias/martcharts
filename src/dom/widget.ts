@@ -140,6 +140,8 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
   // The widget's own words, in the language of its locale (kept in step with the spec as it changes).
   let speaks = spec.locale ?? pageLocale();
   const W = (): Words => wordsFor(speaks);
+  /** A field's name on screen: the author's label, else a common field's name in the card's language, else its own name made readable. */
+  const nameOf = (field: string, fields: WidgetSpec["fields"]): string => fields?.[field]?.label ?? W().fieldNames[field.toLowerCase()] ?? fieldLabel(field, fields);
   ensureStyles(doc);
   const id = `fft-${++count}`;
 
@@ -221,6 +223,26 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     layoutActions();
     return button;
   };
+  /**
+   * The built-in buttons and the More menu named in the card's language again: a language set after the first draw
+   * (a page's language switch, a tag's locale attribute) renames them, as it redraws the chart.
+   */
+  function relabel() {
+    for (const button of entries) {
+      const action = button.dataset.action as WidgetAction | undefined;
+      if (!action) continue;
+      const label = W().widget.actions[action] ?? ACTION_LABELS[action];
+      button.setAttribute("aria-label", label);
+      button.title = label;
+      const text = button.querySelector(".fft-action-text");
+      if (text) text.textContent = label;
+    }
+    if (more && menu) {
+      more.setAttribute("aria-label", W().widget.moreActions);
+      more.title = W().widget.moreActions;
+      menu.setAttribute("aria-label", W().widget.moreActions);
+    }
+  }
   /** Three or fewer actions sit in the toolbar; past three, two stay and the rest go into the More menu. */
   function layoutActions() {
     if (!bar) return;
@@ -414,7 +436,11 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
 
     const list = make("dl", "fft-back-list");
     detail(list, W().widget.answers, questionOf(localized(), rows).text);
-    detail(list, W().widget.chart, entry ? `${view}: ${entry.summary}` : view);
+    // In French or German, the type's summary in that language when the reading add-on brought it (explain-words.ts).
+    const lang = (speaks ?? "").slice(0, 2).toLowerCase();
+    const inLang = (globalThis as Record<symbol, unknown>)[Symbol.for("martcharts.type-summary")] as ((type: string, lang: string) => string | undefined) | undefined;
+    const typeSaid = (lang === "fr" || lang === "de" ? inLang?.(view, lang) : undefined) ?? entry?.summary;
+    detail(list, W().widget.chart, typeSaid ? `${view}: ${typeSaid}` : view);
     const data = current.data ?? { type: "" };
     const address = typeof data.url === "string" ? data.url : undefined;
     const ww = W().widget;
@@ -423,7 +449,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     detail(list, ww.data, loaded ? ww.rowsFrom(rows.length.toLocaleString(locale()), String(sourceName ?? "")) : ww.notLoaded);
     const steps = (current.transform ?? []).map((step) => ww.stepWords[step.type] ?? step.type);
     detail(list, ww.steps, steps.length ? ww.stepsSaid(steps) : undefined);
-    if (current.facet?.field) detail(list, ww.panels, ww.onePer(fieldLabel(current.facet.field, current.fields)));
+    if (current.facet?.field) detail(list, ww.panels, ww.onePer(nameOf(current.facet.field, current.fields)));
     parts.push(list);
 
     // For developers, folded: the address, the path inside it, the fields by their names and formats, the locale and id.
@@ -435,7 +461,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     detail(tech, ww.rows, loaded ? ww.rowsDrawn(rows.length.toLocaleString(locale()), names.length) : ww.notLoaded);
     if (names.length) {
       const shown = names.slice(0, 12).map((name) => {
-        const label = fieldLabel(name, current.fields);
+        const label = nameOf(name, current.fields);
         const format = current.fields?.[name]?.format;
         const kind = typeof format === "string" ? format : format && typeof format === "object" && "type" in format ? String(format.type) : "";
         return `${label === name ? name : `${label} (${name})`}${kind ? `: ${kind}` : ""}`;
@@ -846,7 +872,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       const show = (value: unknown) => current.fields?.[field]?.values?.[String(value)] ?? formatValue(value, current.fields?.[field]?.format, locale());
       const op: Record<string, string> = { ">": words.above, ">=": words.atLeast, "<": words.below, "<=": words.atMost, "==": words.is, "!=": words.isNot, in: words.isOneOf, "not in": words.isNoneOf };
       const value = Array.isArray(rule.value) ? rule.value.map(show).join(`, `).replace(/, ([^,]*)$/, ` ${words.or} $1`) : show(rule.value);
-      const text = typeof rule.label === "string" && rule.label ? rule.label : `${fieldLabel(field, current.fields)} ${op[rule.op] ?? rule.op} ${value}`;
+      const text = typeof rule.label === "string" && rule.label ? rule.label : `${nameOf(field, current.fields)} ${op[rule.op] ?? rule.op} ${value}`;
       const item = make("li", "fft-rule");
       const swatch = make("span", "fft-swatch");
       swatch.dataset.shape = "rect";
@@ -871,7 +897,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       spec: drawView() === current.view ? localized() : { ...localized(), view: drawView() },
       width,
       height: shown.style?.height ?? goldenHeight(width),
-      label: (field) => fieldLabel(field, fields),
+      label: (field) => nameOf(field, fields),
       // A field's word for a value (Complaints as Réclamations) wins over its format; the data keeps the value itself.
       format: (value, field) => (field ? fields?.[field]?.values?.[String(value)] : undefined) ?? formatValue(value, field ? fields?.[field]?.format : undefined, locale()),
       cell: (value, field, extra) => {
@@ -1167,7 +1193,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       return;
     }
     const name = slug(current.id ?? current.title);
-    const label = (field: string) => fieldLabel(field, current.fields);
+    const label = (field: string) => nameOf(field, current.fields);
     try {
       if (action === "csv") {
         download(doc, `${name}.csv`, new Blob([toDelimited(rows, label, ",")], { type: "text/csv;charset=utf-8" }));
@@ -1324,12 +1350,14 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       authored = fork(authored, override as Override<WidgetSpec>);
       current = speak(authored);
     speaks = current.locale ?? pageLocale();
+      relabel();
       return load();
     },
     setSpec(next) {
       authored = next;
       current = speak(next);
     speaks = current.locale ?? pageLocale();
+      relabel();
       return load();
     },
     refresh: () => load(true),

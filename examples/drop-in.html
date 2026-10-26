@@ -80,8 +80,16 @@
         { "channel": "Referral", "signups": 610 },
         { "channel": "Email", "signups": 420 }
       ] },
-      "fields": { "signups": { "label": "Signups", "format": "number" } },
-      "view": { "type": "hbar", "label": "channel", "value": "signups" }
+      "fields": { "channel": { "label": "Channel" }, "signups": { "label": "Signups", "format": "number" } },
+      "view": { "type": "hbar", "label": "channel", "value": "signups" },
+      "i18n": {
+        "fr": { "title": "Inscriptions par canal", "subtitle": "30 derniers jours",
+          "fields": { "signups": { "label": "Inscriptions" },
+            "channel": { "label": "Canal", "values": { "Search": "Recherche", "Social": "Réseaux sociaux", "Referral": "Recommandation", "Email": "E-mail" } } } },
+        "de": { "title": "Anmeldungen je Kanal", "subtitle": "Letzte 30 Tage",
+          "fields": { "signups": { "label": "Anmeldungen" },
+            "channel": { "label": "Kanal", "values": { "Search": "Suche", "Social": "Soziale Medien", "Referral": "Empfehlung", "Email": "E-Mail" } } } }
+      }
     }
   </script>
 </fft-widget>
@@ -105,7 +113,12 @@
     {
       "title": "Tickets this week",
       "data": { "type": "csv", "url": "tickets.csv" },
-      "view": { "type": "bar", "x": "team", "y": ["opened", "closed"] }
+      "fields": { "opened": { "label": "Opened" }, "closed": { "label": "Closed" } },
+      "view": { "type": "bar", "x": "team", "y": ["opened", "closed"] },
+      "i18n": {
+        "fr": { "title": "Tickets de la semaine", "fields": { "opened": { "label": "Ouverts" }, "closed": { "label": "Fermés" } } },
+        "de": { "title": "Tickets dieser Woche", "fields": { "opened": { "label": "Geöffnet" }, "closed": { "label": "Geschlossen" } } }
+      }
     }
   </script>
 </fft-widget>

@@ -114,8 +114,13 @@ describe("the words module", () => {
   });
 
   test("the French and German sets are complete: every key, every list as long as the English one", () => {
+    // fieldNames is a dictionary, not a set of keys: English reads field names from the fields themselves and has none.
     const shape = (w: unknown, path = ""): string[] =>
-      w && typeof w === "object" && !Array.isArray(w) ? Object.entries(w).flatMap(([k, v]) => shape(v, `${path}.${k}`)) : [`${path}:${Array.isArray(w) ? `list${(w as unknown[]).length}` : typeof w}`];
+      path === ".fieldNames"
+        ? [path]
+        : w && typeof w === "object" && !Array.isArray(w)
+          ? Object.entries(w).flatMap(([k, v]) => shape(v, `${path}.${k}`))
+          : [`${path}:${Array.isArray(w) ? `list${(w as unknown[]).length}` : typeof w}`];
     const en = shape(wordsFor("en"));
     for (const locale of ["fr", "de"]) expect([locale, shape(wordsFor(locale))]).toEqual([locale, en]);
   });

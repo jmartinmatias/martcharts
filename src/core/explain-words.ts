@@ -23,6 +23,10 @@ import { isYes, periodTime, timeOf } from "./views.ts";
 import { wordsFor } from "./words.ts";
 import type { Lang } from "./words.ts";
 import { cardNoun, distinctLabel, entityNoun, GENERIC_FIELD, singular } from "./nouns.ts";
+import { typeSummary } from "./type-words.ts";
+
+/** The page-wide key a chart type's French or German summary is found under (read by the card's Details). */
+export const TYPE_SUMMARY = Symbol.for("martcharts.type-summary");
 import { registerReadingLanguages } from "./reading.ts";
 
 // The English noun helpers live in nouns.ts, so the English reading layer needs none of this module; re-exported here
@@ -46,6 +50,32 @@ const many = (value: unknown): string[] => (Array.isArray(value) ? value.filter(
 // ---------------------------------------------------------------------------------------------------------------------
 // French and German: the words around the field names
 // ---------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Measures a field is often named for, read in the language when the author gave no label of their own
+ * ("Umsatz", not "Revenue"), as the charts' axes read once translated.
+ */
+const MEASURES: Record<string, { fr: string; de: string }> = {
+  amount: { fr: "montant", de: "Betrag" },
+  cost: { fr: "coût", de: "Kosten" },
+  costs: { fr: "coûts", de: "Kosten" },
+  count: { fr: "nombre", de: "Anzahl" },
+  margin: { fr: "marge", de: "Marge" },
+  month: { fr: "mois", de: "Monat" },
+  orders: { fr: "commandes", de: "Bestellungen" },
+  profit: { fr: "bénéfice", de: "Gewinn" },
+  quarter: { fr: "trimestre", de: "Quartal" },
+  region: { fr: "région", de: "Region" },
+  revenue: { fr: "chiffre d'affaires", de: "Umsatz" },
+  sales: { fr: "ventes", de: "Umsatz" },
+  segment: { fr: "segment", de: "Segment" },
+  share: { fr: "part", de: "Anteil" },
+  source: { fr: "source", de: "Quelle" },
+  target: { fr: "objectif", de: "Ziel" },
+  total: { fr: "total", de: "Summe" },
+  value: { fr: "valeur", de: "Wert" },
+  year: { fr: "année", de: "Jahr" },
+};
 
 /** Row nouns in French and German, from the English the card's words or a view's default give. */
 const NOUNS: Record<string, { fr: string; de: string }> = {
@@ -161,6 +191,9 @@ function contextOf(lang: Other, spec: WidgetSpec, rows: Row[]): Ctx {
     if (!field) return fallback;
     const short = ({ kpi: "KPI", nps: "NPS" } as Record<string, string>)[field.toLowerCase()];
     if (short && !spec.fields?.[field]?.label) return short;
+    // No label of the author's: a field named for a common measure reads in this language, never its English key.
+    const measure = !spec.fields?.[field]?.label ? (MEASURES[field.toLowerCase()] ?? NOUNS[field.toLowerCase()]) : undefined;
+    if (measure) return fr ? measure.fr : measure.de.charAt(0).toUpperCase() + measure.de.slice(1);
     const label = fieldLabel(field, spec.fields);
     // French reads a plain capitalized label in the middle of a sentence in lower case; German nouns keep their capital.
     return fr && /^[a-z]/.test(field) && /^[A-Z][a-z]*\b/.test(label) ? label.charAt(0).toLowerCase() + label.slice(1) : label;
@@ -186,7 +219,8 @@ function contextOf(lang: Other, spec: WidgetSpec, rows: Row[]): Ctx {
     rows,
     name,
     noun,
-    text: (row, field) => formatValue(row[field], spec.fields?.[field]?.format, locale),
+    // A value with words of its own in this language (Nord for North) reads as the chart shows it.
+    text: (row, field) => spec.fields?.[field]?.values?.[String(row[field])] ?? formatValue(row[field], spec.fields?.[field]?.format, locale),
     fmt: (n, field) => formatValue(n, field ? spec.fields?.[field]?.format : undefined, locale),
     pct: (share) => percent.format(share),
     value,
@@ -250,7 +284,10 @@ function highlightSentence(c: Ctx): string {
   const { view, lang } = c;
   const picked = (Array.isArray(view.highlight) ? view.highlight : view.highlight === undefined || view.highlight === "" ? [] : [view.highlight]).map(String);
   if (!picked.length) return "";
-  const names = ["line", "area"].includes(view.type) ? picked.map((field) => c.name(field)) : picked;
+  // A highlighted value reads as the chart writes it: in the category's own words for this language (Est for East).
+  const category = String(view.label ?? view.x ?? "");
+  const said = (value: string) => c.spec.fields?.[category]?.values?.[value] ?? Object.values(c.spec.fields ?? {}).map((f) => f?.values?.[value]).find(Boolean) ?? value;
+  const names = ["line", "area"].includes(view.type) ? picked.map((field) => c.name(field)) : picked.map(said);
   if (lang === "fr") return `${c.list(names)} ${names.length === 1 ? "ressort" : "ressortent"} ; le reste passe au second plan.`;
   return `${c.list(names)} ${names.length === 1 ? "sticht" : "stechen"} hervor; der Rest tritt zurück.`;
 }
@@ -1528,3 +1565,6 @@ export function questionIn(lang: Other, spec: WidgetSpec, rows: Row[], kind: str
 
 // French and German join the reading layer the moment this module loads: explain.ts and question.ts look them up.
 registerReadingLanguages({ explainIn, questionIn });
+// A chart type's one-line summary in French and German, for the card's Details: shared on the page under its own key,
+// so a lite page gets it with this add-on and an English page carries none of it.
+(globalThis as Record<symbol, unknown>)[TYPE_SUMMARY] = typeSummary;
