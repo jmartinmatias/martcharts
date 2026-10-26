@@ -62,7 +62,10 @@ export interface EditorOptions {
    * localStorage, the same store the composer reads, so a chart added here is waiting there.
    */
   store?: BoardStore;
-  /** The composer's address for a board, linked after "Add to dashboard". Default: `composer.html#board=<id>`. */
+  /**
+   * The composer's address for a board, linked after "Add to dashboard". Default: `composer.html#board=<id>`.
+   * Called with an empty id for the composer itself, linked after a save to "My charts" (default `composer.html`).
+   */
   composerHref?(boardId: string): string;
   /** The address the `src` embed code points at. Default: `widgets/<id>.json`. */
   srcOf?(spec: WidgetSpec): string;
@@ -1976,6 +1979,15 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
           await saveChart();
           if (choose.value === CHARTS) {
             say(b, t("saved"));
+            // Saved here, it waits in the Composer's "My charts": say where it goes next. A host's own save keeps it
+            // elsewhere, so there the composer link would promise a chart it cannot show.
+            if (options.save) result.replaceChildren();
+            else {
+              const next = el("a", "fft-ed-link", cw.addItInComposer);
+              next.href = options.composerHref?.("") ?? "composer.html";
+              result.replaceChildren(next);
+              delete result.dataset.board;
+            }
             return;
           }
           const board = await addChartToBoard(store, spec, choose.value !== NEW ? { id: choose.value } : { title: name.value.trim() || cw.untitledBoard });

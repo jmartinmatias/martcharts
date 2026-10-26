@@ -284,3 +284,91 @@ describe("the composer's look", () => {
   });
 });
 
+
+describe("from the editor to the composer, and between dashboards", () => {
+  const sample = chart("revenue", { type: "hbar", label: "region", value: "revenue" }, "Revenue");
+  const stored = (): { id: string; spec: DashboardSpec }[] => JSON.parse(localStorage.getItem(BOARDS_KEY) ?? "[]");
+  const listedNames = () => all(".fft-cmp-saved-boards .fft-cmp-item").map((li) => li.querySelector(".fft-cmp-name > span")?.textContent);
+  const action = (name: string, board?: string) =>
+    all<HTMLButtonElement>(`[data-action="${name}"]`).find((b) => !board || b.closest<HTMLElement>("[data-board]")?.dataset.board === board) as HTMLButtonElement;
+
+  test("a chart saved to My charts says where it goes next, and waits in the composer's tray", async () => {
+    editor = createEditor(target, { hash: false });
+    editor.setData(CSV);
+    editor.setSpec({ ...editor.spec, id: "revenue", title: "Revenue by region", view: { type: "hbar", label: "region", value: "revenue" } });
+    editor.go(4);
+    (all<HTMLButtonElement>(".fft-ed-addboard button").find((b) => b.textContent === "Save") as HTMLButtonElement).click();
+    await vi.waitFor(() => expect(target.querySelector(".fft-ed-addboard-result a")).not.toBeNull());
+    const next = target.querySelector(".fft-ed-addboard-result a") as HTMLAnchorElement;
+    expect([next.textContent, next.getAttribute("href")]).toEqual(["Add it to a dashboard in the Composer", "composer.html"]);
+    editor.destroy();
+    editor = undefined;
+    target.replaceChildren();
+    composer = createComposer(target, { hash: false });
+    expect(all(".fft-cmp-tray .fft-cmp-list:not(.fft-cmp-saved-boards) .fft-cmp-name").map((n) => n.textContent)).toContain("Revenue by region");
+  });
+
+  test("every saved dashboard is listed, untitled ones by name and date, and opens with its cards", async () => {
+    const store = localBoardStore();
+    await addChartToBoard(store, sample, { title: "Sales review" });
+    store.saveBoard({ id: "dashboard", spec: { id: "dashboard", columns: 2, widgets: [{ spec: sample }, { spec: sample }] }, savedAt: "2026-10-20T09:30:00.000Z" });
+    composer = createComposer(target, { hash: false });
+    expect(listedNames()).toEqual(["Untitled dashboard", "Sales review"]);
+    expect(target.querySelector('[data-board="dashboard"] .fft-cmp-when')?.textContent).toMatch(/Oct 20.* · 2 cards$/);
+    // A fresh board never takes a saved one's id: its first card cannot overwrite the untitled dashboard.
+    expect(composer.spec.id).toBe("dashboard-2");
+    action("open-board", "sales-review").click();
+    expect([composer.spec.title, composer.spec.widgets.length]).toEqual(["Sales review", 1]);
+    expect(target.querySelector('[data-board="sales-review"]')?.getAttribute("aria-current")).toBe("true");
+    composer.add(sample);
+    await vi.waitFor(() => expect(stored().find((b) => b.id === "sales-review")?.spec.widgets.length).toBe(2));
+  });
+
+  test("a rename keeps one copy, and never takes another dashboard's id", async () => {
+    const store = localBoardStore();
+    await addChartToBoard(store, sample, { title: "Sales review" });
+    await addChartToBoard(store, sample, { title: "Weekly" });
+    history.replaceState(null, "", "#board=weekly");
+    composer = createComposer(target, { hash: true });
+    composer.setMeta({ title: "Sales review" });
+    await vi.waitFor(() => expect(stored().map((b) => b.id).sort()).toEqual(["sales-review", "sales-review-2"]));
+    expect(composer.spec.id).toBe("sales-review-2");
+  });
+
+  test("a new board starts blank under its own id, and is stored only once it has a card", async () => {
+    await addChartToBoard(localBoardStore(), sample, { title: "Sales review" });
+    history.replaceState(null, "", "#board=sales-review");
+    composer = createComposer(target, { hash: true });
+    action("new-board").click();
+    expect([composer.spec.widgets.length, composer.spec.title]).toEqual([0, ""]);
+    expect(stored().map((b) => b.id)).toEqual(["sales-review"]);
+    composer.add(sample);
+    await vi.waitFor(() => expect(stored().map((b) => b.id).sort()).toEqual(["dashboard", "sales-review"]));
+  });
+
+  test("delete has an undo, not a confirm: the open board deleted leaves a blank one, and Undo brings it back open", async () => {
+    await addChartToBoard(localBoardStore(), sample, { title: "Sales review" });
+    history.replaceState(null, "", "#board=sales-review");
+    composer = createComposer(target, { hash: true });
+    const confirm = vi.spyOn(window, "confirm");
+    action("delete-board", "sales-review").click();
+    await vi.waitFor(() => expect(target.querySelector(".fft-cmp-deleted")?.textContent ?? "").toContain("Sales review deleted"));
+    expect(stored()).toEqual([]);
+    expect(confirm).not.toHaveBeenCalled();
+    expect(composer.spec.widgets.length).toBe(0);
+    action("restore-board").click();
+    await vi.waitFor(() => expect(stored().map((b) => b.id)).toEqual(["sales-review"]));
+    await vi.waitFor(() => expect(composer?.spec.title).toBe("Sales review"));
+    expect(target.querySelector(".fft-cmp-deleted")).toBeNull();
+    confirm.mockRestore();
+  });
+
+  test("an empty board offers no embed code or page: Publish says what unlocks them", () => {
+    composer = createComposer(target, { hash: false });
+    const publish = target.querySelector(".fft-cmp-publish") as HTMLElement;
+    expect([publish.querySelector("pre"), [...publish.querySelectorAll("a")].length]).toEqual([null, 0]);
+    expect(publish.textContent).toContain("Add a chart to publish this dashboard.");
+    composer.add(sample);
+    expect(publish.querySelector('[data-code="frame"]')).not.toBeNull();
+  });
+});

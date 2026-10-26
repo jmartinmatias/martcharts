@@ -166,6 +166,12 @@ const CSS = `
 .fft-cmp-card[data-section] { background: transparent; border-style: dashed; }
 .fft-cmp-card[data-over] { box-shadow: inset 0 2px 0 var(--fft-accent); }
 .fft-cmp-empty { margin: 0; color: var(--fft-muted); }
+.fft-cmp-boards { display: flex; flex-direction: column; gap: 8px; margin: 0 0 13px; }
+.fft-cmp-saved-boards .fft-cmp-item { cursor: default; }
+.fft-cmp-saved-boards .fft-cmp-item[aria-current] { border-color: var(--fft-accent); }
+.fft-cmp-name > span { display: block; overflow: hidden; text-overflow: ellipsis; }
+.fft-cmp-when { color: var(--fft-muted); font-size: 11px; }
+.fft-cmp-deleted { margin: 0; color: var(--fft-text-secondary); }
 .fft-cmp-preview-empty { margin: 0; padding: 21px; border: 1px dashed var(--fft-grid); border-radius: 13px; color: var(--fft-muted); text-align: center; }
 .fft-cmp-button { box-sizing: border-box; min-height: var(--fft-control-h); padding: 0 13px; border: 1px solid var(--fft-grid); border-radius: 999px; background: color-mix(in srgb, var(--fft-text) 5%, transparent); color: inherit; font: inherit; font-size: 12px; cursor: pointer; white-space: nowrap; }
 .fft-cmp-button:hover { background: color-mix(in srgb, var(--fft-text) 6%, transparent); }
@@ -228,6 +234,12 @@ export function createComposer(target: HTMLElement, options: ComposerOptions = {
   board = { columns: 2, ...board, widgets: [...board.widgets] };
   const history: string[] = [];
   let saved: SavedChart[] = [];
+  /** The dashboards in the store, latest first, for "My dashboards". */
+  let boardsList: SavedBoard[] = [];
+  /** The id the open board is stored under, once saved (a rename moves it). */
+  let storedId: string | undefined;
+  /** The dashboard deleted last, until it is restored or another is deleted. */
+  let lastDeleted: SavedBoard | undefined;
   let preview: Dashboard | undefined;
   let ready: Promise<void> = Promise.resolve();
   const fieldsCache = new Map<string, Promise<Row[]>>();
@@ -254,6 +266,8 @@ export function createComposer(target: HTMLElement, options: ComposerOptions = {
     live.textContent = text;
   };
   const columns = () => Math.min(4, Math.max(1, board.columns ?? 2));
+  /** Whether the board has a chart on it (sections alone draw nothing). */
+  const hasCards = () => board.widgets.some((cell) => typeof cell.widget === "string" || cell.spec !== undefined);
 
   /** Every change goes through here: kept for undo, the address and the store written, and everything redrawn. */
   function commit(next: DashboardSpec, announce?: string) {
@@ -264,7 +278,7 @@ export function createComposer(target: HTMLElement, options: ComposerOptions = {
     persist();
     paint();
   }
-  function persist() {
+  function writeAddress() {
     if (useHash && win) {
       try {
         win.history.replaceState(null, "", boardToHash(board));
@@ -272,8 +286,37 @@ export function createComposer(target: HTMLElement, options: ComposerOptions = {
         // Some frames refuse a new address: the board still works.
       }
     }
-    void Promise.resolve(store.saveBoard({ id: board.id ?? slugOf(board.title || "dashboard"), spec: board, savedAt: new Date().toISOString() })).catch(() => undefined);
   }
+  function persist() {
+    writeAddress();
+    const id = board.id ?? slugOf(board.title || "dashboard");
+    // A rename gives the board a new id (its title's): the copy under the old one goes, so the list shows it once.
+    const moved = storedId && storedId !== id ? storedId : undefined;
+    storedId = id;
+    const spec = board;
+    const write = () => store.saveBoard({ id, spec, savedAt: new Date().toISOString() });
+    // This browser's store answers at once, so the board is written before the next line runs; a host's may wait.
+    const removed = moved && store.removeBoard ? store.removeBoard(moved) : undefined;
+    const written = removed instanceof Promise ? removed.then(write) : write();
+    void Promise.resolve(written).then(refreshBoards).catch(() => undefined);
+  }
+  /** Reads the store's dashboards again and redraws "My dashboards". */
+  async function refreshBoards() {
+    try {
+      boardsList = await store.boards();
+    } catch {
+      boardsList = [];
+    }
+    paintBoards();
+  }
+  /** An id no other stored dashboard has: `base`, else `base-2`, `base-3`… */
+  const freeId = (base: string) => {
+    const taken = new Set(boardsList.map((b) => b.id).filter((id) => id !== storedId));
+    if (!taken.has(base)) return base;
+    let n = 2;
+    while (taken.has(`${base}-${n}`)) n++;
+    return `${base}-${n}`;
+  };
 
   // ---- The tray: saved charts and examples, each draggable or added with a button ----
   const trayItem = (spec: WidgetSpec, key: string) => {
@@ -288,8 +331,116 @@ export function createComposer(target: HTMLElement, options: ComposerOptions = {
     item.addEventListener("dragend", () => (dragging = undefined));
     return item;
   };
+  // ---- My dashboards: every board saved here, to open, start anew or delete (with an undo, not a confirm) ----
+  const boardsBox = el("div", "fft-cmp-boards");
+  /** The boards worth listing: the ones with a card or a name (an untouched new board is not one yet). */
+  const listed = () => boardsList.filter((b) => b.spec.widgets.length > 0 || Boolean(b.spec.title));
+  const boardName = (b: SavedBoard) => b.spec.title || w.untitledBoard;
+  const dateOf = (iso: string) => {
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return "";
+    try {
+      return new Intl.DateTimeFormat(options.locale ?? (doc.documentElement.lang || "en"), { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(date);
+    } catch {
+      return iso.slice(0, 10);
+    }
+  };
+  function paintBoards() {
+    boardsBox.replaceChildren(el("h3", undefined, w.myBoards));
+    const head = el("div", "fft-cmp-row");
+    const fresh = button(w.newBoard, () => startNew());
+    fresh.dataset.action = "new-board";
+    head.append(fresh);
+    boardsBox.append(head);
+    if (lastDeleted) {
+      const gone = lastDeleted;
+      const note = el("p", "fft-cmp-row fft-cmp-deleted");
+      const back = button(w.undo, () => void restore(gone));
+      back.dataset.action = "restore-board";
+      note.append(el("span", undefined, w.deletedBoard(boardName(gone))), back);
+      boardsBox.append(note);
+    }
+    const items = listed();
+    if (!items.length) {
+      boardsBox.append(el("p", "fft-cmp-empty", w.noBoards));
+      return;
+    }
+    const list = el("ul", "fft-cmp-list fft-cmp-saved-boards");
+    list.setAttribute("aria-label", w.myBoards);
+    for (const b of items) {
+      const item = el("li", "fft-cmp-item");
+      item.dataset.board = b.id;
+      const name = boardName(b);
+      const text = el("span", "fft-cmp-name");
+      text.append(el("span", undefined, name), el("span", "fft-cmp-when", `${dateOf(b.savedAt)} · ${w.cardCount(b.spec.widgets.filter((c) => !c.section).length)}`));
+      item.append(text);
+      if (b.id === storedId) {
+        item.setAttribute("aria-current", "true");
+        item.append(el("span", "fft-cmp-kind", w.openNow));
+      } else {
+        const open = button(w.openBoard, () => openBoard(b), w.openBoardOf(name));
+        open.dataset.action = "open-board";
+        item.append(open);
+      }
+      if (store.removeBoard) {
+        const del = button(w.deleteBoard, () => void deleteBoard(b), w.deleteBoardOf(name));
+        del.dataset.action = "delete-board";
+        item.append(del);
+      }
+      list.append(item);
+    }
+    boardsBox.append(list);
+  }
+  /** Shows a stored board: it becomes the one edited, with its own undo history. */
+  function openBoard(saved: SavedBoard, announce = true) {
+    board = { columns: 2, ...saved.spec, id: saved.id, widgets: [...saved.spec.widgets] };
+    storedId = saved.id;
+    history.length = 0;
+    writeAddress();
+    if (announce) say(w.openedBoard(boardName(saved)));
+    paint();
+    paintBoards();
+  }
+  /** A blank board under an id no saved one has; nothing is stored until it gets a card or a name. */
+  function startNew() {
+    storedId = undefined;
+    board = { id: freeId("dashboard"), title: "", columns: 2, widgets: [] };
+    history.length = 0;
+    writeAddress();
+    say(w.startedBoard);
+    paint();
+    paintBoards();
+    panel.querySelector<HTMLInputElement>('input[data-meta="title"]')?.focus();
+  }
+  async function deleteBoard(saved: SavedBoard) {
+    if (!store.removeBoard) return;
+    await store.removeBoard(saved.id);
+    lastDeleted = saved;
+    say(w.deletedBoard(boardName(saved)));
+    // The open board deleted: carry on with a blank one, so nothing writes it back by accident.
+    if (saved.id === storedId) {
+      storedId = undefined;
+      board = { id: freeId("dashboard"), title: "", columns: 2, widgets: [] };
+      history.length = 0;
+      writeAddress();
+      paint();
+    }
+    await refreshBoards();
+    boardsBox.querySelector<HTMLButtonElement>('[data-action="restore-board"]')?.focus();
+  }
+  async function restore(saved: SavedBoard) {
+    await store.saveBoard(saved);
+    lastDeleted = undefined;
+    say(w.restoredBoard(boardName(saved)));
+    // Deleted while open, then restored before anything else was made: it is open again.
+    const untouched = !storedId && !board.title && board.widgets.length === 0;
+    await refreshBoards();
+    if (untouched) openBoard(saved, false);
+  }
+
   function paintTray() {
-    tray.replaceChildren();
+    tray.replaceChildren(boardsBox);
+    paintBoards();
     tray.append(el("h3", undefined, w.myCharts));
     if (saved.length) {
       const list = el("ul", "fft-cmp-list");
@@ -454,6 +605,11 @@ export function createComposer(target: HTMLElement, options: ComposerOptions = {
 
     // Publish, in its own section after the preview.
     publishWrap.replaceChildren(el("h3", undefined, w.publish));
+    // Nothing to publish yet: no embed code or page for an empty board, one line saying what unlocks them.
+    if (!hasCards()) {
+      publishWrap.append(el("p", "fft-cmp-empty fft-cmp-publish-empty", w.publishEmpty));
+      return;
+    }
     const json = JSON.stringify(board, null, 2);
     const code = (title: string, text: string, file?: string) => {
       const section = el("div", "fft-cmp-field");
@@ -511,7 +667,7 @@ export function createComposer(target: HTMLElement, options: ComposerOptions = {
     previewEl.replaceChildren();
     previewWrap.replaceChildren(el("h3", undefined, w.preview), previewEl);
     // An empty board draws nothing: say what fills it instead of leaving a blank panel.
-    if (!board.widgets.some((cell) => typeof cell.widget === "string" || cell.spec !== undefined)) {
+    if (!hasCards()) {
       preview = undefined;
       previewEl.append(el("p", "fft-cmp-preview-empty", w.previewEmpty));
       ready = Promise.resolve();
@@ -571,7 +727,8 @@ export function createComposer(target: HTMLElement, options: ComposerOptions = {
       if (value.trim()) next[key] = value.trim();
       else delete next[key];
     }
-    if (meta.title !== undefined && meta.title.trim()) next.id = slugOf(meta.title);
+    // The id follows the title, but never takes another saved dashboard's.
+    if (meta.title !== undefined && meta.title.trim()) next.id = freeId(slugOf(meta.title));
     commit(next);
   }
   function setFilter(field: string, on: boolean) {
@@ -628,22 +785,41 @@ export function createComposer(target: HTMLElement, options: ComposerOptions = {
   doc.addEventListener("keydown", onKey);
 
   // ---- Start: what is saved, the board named by the address, then the first paint ----
+  /** Which stored board the opening one is: the one the address names, the same id, or none (a fresh board). */
+  const settle = () => {
+    if (!options.board && !fromAddress.spec && fromAddress.id) {
+      const stored = boardsList.find((b) => b.id === fromAddress.id);
+      if (stored) {
+        board = { columns: 2, ...stored.spec, id: stored.id, widgets: [...stored.spec.widgets] };
+        storedId = stored.id;
+        return;
+      }
+    }
+    const id = board.id ?? "dashboard";
+    if (options.board || fromAddress.spec) {
+      if (boardsList.some((b) => b.id === id)) storedId = id;
+    } else if (boardsList.some((b) => b.id === id)) {
+      // A fresh board never takes a saved one's id, or its first change would overwrite that dashboard.
+      board = { ...board, id: freeId("dashboard") };
+    }
+  };
   const start = async () => {
     try {
       saved = await store.charts();
-      if (!options.board && !fromAddress.spec && fromAddress.id) {
-        const stored = (await store.boards()).find((b) => b.id === fromAddress.id);
-        if (stored) board = { columns: 2, ...stored.spec, widgets: [...stored.spec.widgets] };
-      }
+      boardsList = await store.boards();
     } catch {
       // A host store that failed: an empty tray, the composer still works.
     }
+    settle();
     paintTray();
     paint();
   };
   const charts = store.charts();
-  if (Array.isArray(charts) && !(fromAddress.id && !options.board && !fromAddress.spec)) {
+  const boardsNow = store.boards();
+  if (Array.isArray(charts) && Array.isArray(boardsNow)) {
     saved = charts;
+    boardsList = boardsNow;
+    settle();
     paintTray();
     paint();
   } else void start();

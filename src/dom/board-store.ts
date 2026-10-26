@@ -1,7 +1,7 @@
 /**
  * Where the editor and the composer keep what people make: saved charts and the dashboards they go into. The
  * default keeps both in the browser's localStorage; a host swaps in its own store (a server, a team folder) by
- * passing anything with the same five methods.
+ * passing anything with the same five methods (and a sixth, `removeBoard`, for deleting and renaming dashboards).
  *
  * @module
  */
@@ -29,6 +29,11 @@ export interface BoardStore {
   removeChart(id: string): void | Promise<void>;
   boards(): SavedBoard[] | Promise<SavedBoard[]>;
   saveBoard(board: SavedBoard): void | Promise<void>;
+  /**
+   * Removes a dashboard. Optional: without it the composer cannot delete one, and a renamed dashboard (whose id
+   * follows its title) leaves its old copy behind.
+   */
+  removeBoard?(id: string): void | Promise<void>;
 }
 
 /** The charts' key: the same one the editor has always used, so charts saved before the store still show. */
@@ -68,6 +73,7 @@ export function localBoardStore(storage?: Storage): BoardStore {
     removeChart: (id) => write(CHARTS_KEY, charts().filter((c) => c.id !== id)),
     boards,
     saveBoard: (board) => write(BOARDS_KEY, [board, ...boards().filter((b) => b.id !== board.id)]),
+    removeBoard: (id) => write(BOARDS_KEY, boards().filter((b) => b.id !== id)),
   };
 }
 
