@@ -69,7 +69,13 @@
           "label": "Clients"
         },
         "region": {
-          "label": "Région commerciale"
+          "label": "Région commerciale",
+          "values": {
+            "West": "Ouest",
+            "South": "Sud",
+            "Midwest": "Midwest",
+            "Northeast": "Nord-Est"
+          }
         }
       }
     },
@@ -86,7 +92,13 @@
           "label": "Kunden"
         },
         "region": {
-          "label": "Vertriebsregion"
+          "label": "Vertriebsregion",
+          "values": {
+            "West": "West",
+            "South": "Süd",
+            "Midwest": "Mittlerer Westen",
+            "Northeast": "Nordosten"
+          }
         }
       }
     }

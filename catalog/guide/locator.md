@@ -151,7 +151,13 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
           "label": "Effectif"
         },
         "role": {
-          "label": "Rôle"
+          "label": "Rôle",
+          "values": {
+            "Headquarters": "Siège",
+            "Engineering": "Ingénierie",
+            "Sales": "Ventes",
+            "Support": "Support"
+          }
         }
       }
     },
@@ -174,7 +180,13 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
           "label": "Belegschaft"
         },
         "role": {
-          "label": "Rolle"
+          "label": "Rolle",
+          "values": {
+            "Headquarters": "Zentrale",
+            "Engineering": "Technik",
+            "Sales": "Vertrieb",
+            "Support": "Support"
+          }
         }
       }
     }

@@ -250,7 +250,8 @@
       "format": {
         "type": "date"
       }
-    }
+    },
+    "segment": {}
   },
   "view": {
     "type": "table",
@@ -284,6 +285,13 @@
         },
         "revenue": {
           "label": "CA annuel"
+        },
+        "segment": {
+          "values": {
+            "Enterprise": "Grandes entreprises",
+            "Mid-market": "ETI",
+            "SMB": "PME"
+          }
         }
       }
     },
@@ -300,6 +308,13 @@
         },
         "revenue": {
           "label": "Jahresumsatz"
+        },
+        "segment": {
+          "values": {
+            "Enterprise": "Großunternehmen",
+            "Mid-market": "Mittelstand",
+            "SMB": "KMU"
+          }
         }
       }
     }

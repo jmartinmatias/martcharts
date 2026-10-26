@@ -3,7 +3,9 @@
   "title": "Revenue by region, month by month",
   "subtitle": "Small multiples on one shared scale",
   "description": "Each region's monthly revenue in its own panel, all on the same scale so they compare honestly.",
-  "source": {"name": "Finance ledger"},
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -175,7 +177,8 @@
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "region": {}
   },
   "facet": {
     "field": "region"
@@ -199,6 +202,15 @@
         },
         "revenue": {
           "label": "Chiffre d'affaires"
+        },
+        "region": {
+          "values": {
+            "North": "Nord",
+            "South": "Sud",
+            "East": "Est",
+            "West": "Ouest",
+            "Central": "Centre"
+          }
         }
       }
     },
@@ -215,6 +227,15 @@
         },
         "revenue": {
           "label": "Umsatz"
+        },
+        "region": {
+          "values": {
+            "North": "Nord",
+            "South": "Süd",
+            "East": "Ost",
+            "West": "West",
+            "Central": "Mitte"
+          }
         }
       }
     }

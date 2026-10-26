@@ -199,7 +199,15 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
           "label": "Mois"
         },
         "product": {
-          "label": "Produit"
+          "label": "Produit",
+          "values": {
+            "Platform": "Plateforme",
+            "Analytics": "Analytique",
+            "Support": "Support",
+            "Integrations": "Intégrations",
+            "Training": "Formation",
+            "Consulting": "Conseil"
+          }
         },
         "revenue": {
           "label": "Chiffre d'affaires"
@@ -218,7 +226,15 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
           "label": "Monat"
         },
         "product": {
-          "label": "Produkt"
+          "label": "Produkt",
+          "values": {
+            "Platform": "Plattform",
+            "Analytics": "Analytik",
+            "Support": "Support",
+            "Integrations": "Integrationen",
+            "Training": "Schulung",
+            "Consulting": "Consulting"
+          }
         },
         "revenue": {
           "label": "Umsatz"

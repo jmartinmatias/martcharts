@@ -3,7 +3,9 @@
   "title": "How deal sizes spread",
   "subtitle": "Value distribution, per region",
   "description": "The shape of each region's deal sizes: where most deals land and how wide the spread is.",
-  "source": {"name": "CRM"},
+  "source": {
+    "name": "CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -158,7 +160,12 @@
           "label": "Valeur de l'affaire"
         },
         "region": {
-          "label": "Région"
+          "label": "Région",
+          "values": {
+            "North": "Nord",
+            "South": "Sud",
+            "East": "Est"
+          }
         }
       }
     },
@@ -169,6 +176,13 @@
       "fields": {
         "value": {
           "label": "Dealwert"
+        },
+        "region": {
+          "values": {
+            "North": "Nord",
+            "South": "Süd",
+            "East": "Ost"
+          }
         }
       }
     }

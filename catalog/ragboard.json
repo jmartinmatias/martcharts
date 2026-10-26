@@ -37,7 +37,8 @@
     },
     "relationship": {
       "label": "Relationship"
-    }
+    },
+    "segment": {}
   },
   "view": {
     "type": "ragboard",
@@ -76,6 +77,13 @@
         },
         "relationship": {
           "label": "Relation"
+        },
+        "segment": {
+          "values": {
+            "Corporate": "Entreprises",
+            "Institutional": "Institutionnels",
+            "Private": "Banque privée"
+          }
         }
       }
     },
@@ -101,6 +109,13 @@
         },
         "relationship": {
           "label": "Beziehung"
+        },
+        "segment": {
+          "values": {
+            "Corporate": "Firmenkunden",
+            "Institutional": "Institutionelle",
+            "Private": "Privatkunden"
+          }
         }
       }
     }

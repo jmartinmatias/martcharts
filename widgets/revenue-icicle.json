@@ -2,8 +2,10 @@
   "id": "revenue-icicle",
   "title": "Revenue by region, product and plan",
   "subtitle": "Q3 2026, largest first",
-  "description": "Q3 revenue split three ways, one column per level. East leads at \u20ac338K. Core makes up about two thirds of revenue in every region and is mostly sold on annual plans; Plus leans monthly everywhere except East.",
-  "source": {"name": "Finance ledger"},
+  "description": "Q3 revenue split three ways, one column per level. East leads at €338K. Core makes up about two thirds of revenue in every region and is mostly sold on annual plans; Plus leans monthly everywhere except East.",
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -168,13 +170,27 @@
       },
       "fields": {
         "region": {
-          "label": "Région"
+          "label": "Région",
+          "values": {
+            "East": "Est",
+            "North": "Nord",
+            "Central": "Centre",
+            "West": "Ouest",
+            "South": "Sud"
+          }
         },
         "product": {
-          "label": "Produit"
+          "label": "Produit",
+          "values": {
+            "Core": "Cœur"
+          }
         },
         "plan": {
-          "label": "Offre"
+          "label": "Offre",
+          "values": {
+            "Annual": "Annuel",
+            "Monthly": "Mensuel"
+          }
         },
         "revenue": {
           "label": "Chiffre d'affaires"
@@ -190,13 +206,29 @@
       },
       "fields": {
         "product": {
-          "label": "Produkt"
+          "label": "Produkt",
+          "values": {
+            "Core": "Kern"
+          }
         },
         "plan": {
-          "label": "Tarif"
+          "label": "Tarif",
+          "values": {
+            "Annual": "Jährlich",
+            "Monthly": "Monatlich"
+          }
         },
         "revenue": {
           "label": "Umsatz"
+        },
+        "region": {
+          "values": {
+            "East": "Ost",
+            "North": "Nord",
+            "Central": "Mitte",
+            "West": "West",
+            "South": "Süd"
+          }
         }
       }
     }

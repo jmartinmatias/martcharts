@@ -27,7 +27,9 @@
       "format": {
         "type": "number"
       }
-    }
+    },
+    "from": {},
+    "to": {}
   },
   "view": {
     "type": "chord",
@@ -47,6 +49,18 @@
       "fields": {
         "customers": {
           "label": "Clients"
+        },
+        "from": {
+          "values": {
+            "Growth": "Croissance",
+            "Enterprise": "Grandes entreprises"
+          }
+        },
+        "to": {
+          "values": {
+            "Growth": "Croissance",
+            "Enterprise": "Grandes entreprises"
+          }
         }
       }
     },
@@ -61,6 +75,18 @@
       "fields": {
         "customers": {
           "label": "Kunden"
+        },
+        "from": {
+          "values": {
+            "Growth": "Wachstum",
+            "Enterprise": "Großunternehmen"
+          }
+        },
+        "to": {
+          "values": {
+            "Growth": "Wachstum",
+            "Enterprise": "Großunternehmen"
+          }
         }
       }
     }

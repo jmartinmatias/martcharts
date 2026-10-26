@@ -58,7 +58,27 @@
       "description": "Les règles derrière chaque statut de cette page : où finit le vert, où finit l'orange, le bon sens, et la raison.",
       "fields": {
         "label": {
-          "label": "Mesure"
+          "label": "Mesure",
+          "values": {
+            "Onboarding completeness": "Complétude de l'entrée en relation",
+            "Digital adoption": "Adoption du digital",
+            "Service tickets open": "Tickets de service ouverts",
+            "Net promoter score": "Net Promoter Score",
+            "Complaints, last 90 days": "Réclamations, 90 derniers jours",
+            "Pipeline cover": "Couverture du pipeline",
+            "Win rate": "Taux de succès",
+            "New money against target": "Collecte face à l'objectif",
+            "Products added this year": "Produits ajoutés cette année",
+            "Days since the last meeting": "Jours depuis le dernier rendez-vous",
+            "Meetings held against plan": "Rendez-vous tenus face au plan",
+            "Relationship manager load": "Charge du chargé de clientèle",
+            "Annual review overdue": "Revue annuelle en retard",
+            "Share of wallet, 12-month change": "Part de portefeuille, évolution sur 12 mois",
+            "Attrition risk": "Risque d'attrition",
+            "Fee leakage": "Fuite de commissions",
+            "Days to the KYC refresh": "Jours avant la mise à jour KYC",
+            "Sentiment in notes": "Ton des notes"
+          }
         },
         "green": {
           "label": "Vert dès"
@@ -74,6 +94,14 @@
         },
         "rationale": {
           "label": "Pourquoi"
+        },
+        "perspectiveLabel": {
+          "values": {
+            "Client success": "Succès client",
+            "Business development": "Développement commercial",
+            "Coverage": "Couverture",
+            "Relationship": "Relation"
+          }
         }
       }
     },
@@ -86,10 +114,36 @@
       "description": "Die Regeln hinter jedem Status dieser Seite: wo Grün endet, wo Gelb endet, welche Richtung gut ist, und warum.",
       "fields": {
         "perspectiveLabel": {
-          "label": "Perspektive"
+          "label": "Perspektive",
+          "values": {
+            "Client success": "Kundenerfolg",
+            "Business development": "Geschäftsentwicklung",
+            "Coverage": "Betreuung",
+            "Relationship": "Beziehung"
+          }
         },
         "label": {
-          "label": "Kennzahl"
+          "label": "Kennzahl",
+          "values": {
+            "Onboarding completeness": "Vollständigkeit des Onboardings",
+            "Digital adoption": "Digitale Nutzung",
+            "Service tickets open": "Offene Service-Tickets",
+            "Net promoter score": "Net Promoter Score",
+            "Complaints, last 90 days": "Beschwerden, letzte 90 Tage",
+            "Pipeline cover": "Pipeline-Deckung",
+            "Win rate": "Abschlussquote",
+            "New money against target": "Neugeld gegen Ziel",
+            "Products added this year": "Produkte dieses Jahr hinzugefügt",
+            "Days since the last meeting": "Tage seit dem letzten Treffen",
+            "Meetings held against plan": "Treffen gegen Plan",
+            "Relationship manager load": "Auslastung des Kundenbetreuers",
+            "Annual review overdue": "Jahresgespräch überfällig",
+            "Share of wallet, 12-month change": "Anteil am Vermögen, Veränderung über 12 Monate",
+            "Attrition risk": "Abwanderungsrisiko",
+            "Fee leakage": "Gebührenverlust",
+            "Days to the KYC refresh": "Tage bis zur KYC-Aktualisierung",
+            "Sentiment in notes": "Stimmung in den Notizen"
+          }
         },
         "green": {
           "label": "Grün ab"

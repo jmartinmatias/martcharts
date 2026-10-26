@@ -12,11 +12,17 @@ import { fileURLToPath } from "node:url";
 import { blockTypes, chartGuide, chartsFor, dataContract, describeChart, guideMarkdown, PURPOSES, switchOptions } from "../src/core/index.ts";
 import type { ChartSwitch, Purpose, Row, WidgetSpec } from "../src/core/index.ts";
 import { SEARCH_WORDS } from "../src/core/search-words.ts";
+import { PURPOSE_WORDS, switchAdvice, typeSummary } from "../src/core/type-words.ts";
 import { FIND_JS } from "./find.ts";
 import { catalogTabs, navBar } from "./site-nav.ts";
 
 const root = (path: string) => fileURLToPath(new URL(`../${path}`, import.meta.url));
 const escape = (text: unknown) => String(text ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+/** An element's French and German, as attributes the site's language script swaps in (no inline script: CSP). */
+const inLanguages = (fr?: string, de?: string) => `${fr ? ` data-fr="${escape(fr)}"` : ""}${de ? ` data-de="${escape(de)}"` : ""}`;
+const jobIn = (purpose: Purpose) => inLanguages(PURPOSE_WORDS.fr[purpose], PURPOSE_WORDS.de[purpose]);
+/** The verdicts in French and German, beside their mark. */
+const VERDICT_IN: Record<string, [string, string]> = { better: ["Meilleur", "Besser"], same: ["Même usage", "Gleicher Zweck"], "trade-off": ["Compromis", "Abwägung"], different: ["Autre question", "Andere Frage"], worse: ["Moins bon", "Schlechter"] };
 const show = (value: unknown) => (value === null || value === undefined ? "" : typeof value === "object" ? JSON.stringify(value) : String(value));
 
 /** Rows shown in the page before "Show all". */
@@ -119,7 +125,7 @@ const purposeTable = (Object.keys(PURPOSES) as Purpose[])
   .map((purpose) => {
     const list = chartsFor(purpose);
     const links = (score: number) => list.filter((c) => c.score === score).map((c) => `<a href="#c-${c.type}">${c.type}</a>`).join(" ");
-    return `<tr><th scope="row">${escape(PURPOSES[purpose])}</th><td class="chips">${links(3)}</td><td class="chips">${links(2)}</td></tr>`;
+    return `<tr><th scope="row"${jobIn(purpose)}>${escape(PURPOSES[purpose])}</th><td class="chips">${links(3)}</td><td class="chips">${links(2)}</td></tr>`;
   })
   .join("\n");
 
@@ -134,13 +140,13 @@ const section = ({ type, spec, rows, switches }: Built) => {
   views[type] = Object.fromEntries(ok.map((s) => [s.to, s.view]));
   const { min, max } = contract.rowsRead;
   return `
-  <section class="chart" id="c-${type}" aria-labelledby="h-${type}" data-search="${escape([type, entry.summary, SEARCH_WORDS[type] ?? "", ...Object.keys(guide?.purposes ?? {}).map((p) => PURPOSES[p as Purpose])].join(" ").toLowerCase())}">
+  <section class="chart" id="c-${type}" aria-labelledby="h-${type}" data-search="${escape([type, entry.summary, typeSummary(type, "fr") ?? "", typeSummary(type, "de") ?? "", SEARCH_WORDS[type] ?? "", ...Object.keys(guide?.purposes ?? {}).map((p) => PURPOSES[p as Purpose])].join(" ").toLowerCase())}">
     <header>
       <h2 id="h-${type}"><code>${type}</code></h2>
-      <p class="summary">${escape(entry.summary)}</p>
+      <p class="summary"${inLanguages(typeSummary(type, "fr"), typeSummary(type, "de"))}>${escape(entry.summary)}</p>
       <p class="chips">${(Object.entries(guide?.purposes ?? {}) as [Purpose, 1 | 2 | 3][])
         .sort((a, b) => b[1] - a[1])
-        .map(([p, s]) => `<span class="chip s${s}" title="${STRENGTH[s]}">${escape(PURPOSES[p])}</span>`)
+        .map(([p, s]) => `<span class="chip s${s}" title="${STRENGTH[s]}"${jobIn(p)}>${escape(PURPOSES[p])}</span>`)
         .join(" ")}</p>
     </header>
     <details class="more" data-type="${type}">
@@ -194,10 +200,10 @@ const section = ({ type, spec, rows, switches }: Built) => {
     <div class="scroll"><table class="switches">
       <thead><tr><th scope="col">Chart</th><th scope="col">Verdict</th><th scope="col">Assessment</th><th scope="col"><span class="sr">Preview</span></th></tr></thead>
       <tbody>${ok
-        .map((s) => `<tr data-to="${s.to}" data-verdict="${s.verdict}"><td><a href="#c-${s.to}"><code>${s.to}</code></a></td><td><span class="verdict v-${s.verdict}">${MARK[s.verdict ?? "worse"]} ${VERDICT_WORDS[s.verdict ?? "worse"]}</span>${s.fit === "stretch" ? '<br><span class="muted">stretch</span>' : ""}</td><td class="assess">${escape(s.assessment)}${s.caveats.length ? `<br><span class="muted">${escape(s.caveats.join(" "))}</span>` : ""}</td><td><button type="button" data-from="${type}" data-to="${s.to}">Show</button></td></tr>`)
+        .map((s) => `<tr data-to="${s.to}" data-verdict="${s.verdict}"><td><a href="#c-${s.to}"><code>${s.to}</code></a></td><td><span class="verdict v-${s.verdict}">${MARK[s.verdict ?? "worse"]} <span${inLanguages(...(VERDICT_IN[s.verdict ?? "worse"] ?? []))}>${VERDICT_WORDS[s.verdict ?? "worse"]}</span></span>${s.fit === "stretch" ? '<br><span class="muted">stretch</span>' : ""}</td><td class="assess"><span${inLanguages(switchAdvice(s, "fr"), switchAdvice(s, "de"))}>${escape(s.assessment)}</span>${s.caveats.length ? `<br><span class="muted">${escape(s.caveats.join(" "))}</span>` : ""}</td><td><button type="button" data-from="${type}" data-to="${s.to}">Show</button></td></tr>`)
         .join("")}</tbody>
     </table></div>
-    ${no.length ? `<details class="nope"><summary>Not possible with this data (${no.length})</summary><ul>${no.map((s) => `<li><code>${s.to}</code>: ${escape(s.caveats[0] ?? s.assessment)}</li>`).join("")}</ul></details>` : ""}
+    ${no.length ? `<details class="nope"><summary>Not possible with this data (${no.length})</summary><ul>${no.map((s) => `<li><code>${s.to}</code>: <span${inLanguages(switchAdvice(s, "fr"), switchAdvice(s, "de"))}>${escape(s.caveats[0] ?? s.assessment)}</span></li>`).join("")}</ul></details>` : ""}
     </details>
   </section>`;
 };

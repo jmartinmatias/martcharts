@@ -96,7 +96,8 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "segment": {}
   },
   "view": {
     "type": "pie",
@@ -114,6 +115,14 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "fields": {
         "revenue": {
           "label": "Chiffre d'affaires"
+        },
+        "segment": {
+          "values": {
+            "Enterprise": "Grandes entreprises",
+            "Mid-market": "ETI",
+            "Small business": "Petites entreprises",
+            "Public sector": "Secteur public"
+          }
         }
       }
     },
@@ -127,6 +136,14 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "fields": {
         "revenue": {
           "label": "Umsatz"
+        },
+        "segment": {
+          "values": {
+            "Enterprise": "Großunternehmen",
+            "Mid-market": "Mittelstand",
+            "Small business": "Kleinunternehmen",
+            "Public sector": "Öffentlicher Sektor"
+          }
         }
       }
     }

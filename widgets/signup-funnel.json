@@ -3,7 +3,9 @@
   "title": "Signup funnel",
   "subtitle": "September 2026",
   "description": "How visitors move from first visit to paying customer.",
-  "source": {"name": "Product analytics"},
+  "source": {
+    "name": "Product analytics"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -34,7 +36,8 @@
     "people": {
       "label": "People",
       "format": "number"
-    }
+    },
+    "stage": {}
   },
   "view": {
     "type": "funnel",
@@ -52,6 +55,15 @@
       "fields": {
         "people": {
           "label": "Personnes"
+        },
+        "stage": {
+          "values": {
+            "Visits": "Visites",
+            "Signups": "Inscriptions",
+            "Activated": "Activés",
+            "Trial started": "Essai commencé",
+            "Paying": "Payants"
+          }
         }
       }
     },
@@ -64,6 +76,15 @@
       "fields": {
         "people": {
           "label": "Personen"
+        },
+        "stage": {
+          "values": {
+            "Visits": "Besuche",
+            "Signups": "Anmeldungen",
+            "Activated": "Aktiviert",
+            "Trial started": "Testphase begonnen",
+            "Paying": "Zahlend"
+          }
         }
       }
     }

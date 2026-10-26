@@ -177,10 +177,24 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
           "label": "Affaire"
         },
         "stage": {
-          "label": "Étape"
+          "label": "Étape",
+          "values": {
+            "Negotiation": "Négociation",
+            "Proposal": "Proposition",
+            "Qualified": "Qualifié",
+            "Won": "Gagné",
+            "Lost": "Perdu"
+          }
         },
         "region": {
-          "label": "Région"
+          "label": "Région",
+          "values": {
+            "North": "Nord",
+            "South": "Sud",
+            "East": "Est",
+            "West": "Ouest",
+            "Central": "Centre"
+          }
         },
         "amount": {
           "label": "Montant"
@@ -196,13 +210,29 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "description": "Jeder Deal auf einem Board nach Phase, Punkt nach Region gefärbt, Betrag auf jeder Karte, damit das Quartal auf einen Blick lesbar ist.",
       "fields": {
         "stage": {
-          "label": "Phase"
+          "label": "Phase",
+          "values": {
+            "Negotiation": "Verhandlung",
+            "Proposal": "Angebot",
+            "Qualified": "Qualifiziert",
+            "Won": "Gewonnen",
+            "Lost": "Verloren"
+          }
         },
         "amount": {
           "label": "Betrag"
         },
         "owner": {
           "label": "Verantwortlich"
+        },
+        "region": {
+          "values": {
+            "North": "Nord",
+            "South": "Süd",
+            "East": "Ost",
+            "West": "West",
+            "Central": "Mitte"
+          }
         }
       }
     }

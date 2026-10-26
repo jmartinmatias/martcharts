@@ -3,7 +3,9 @@
   "title": "First response time by team",
   "subtitle": "Median minutes to reply, September 2026",
   "description": "How long customers wait for a first reply, by support team, slowest first. Technical takes 95 minutes, over five times Enterprise's 18; every team but Technical, Data and SMB answers within the hour.",
-  "source": {"name": "Helpdesk"},
+  "source": {
+    "name": "Helpdesk"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -76,7 +78,17 @@
       },
       "fields": {
         "team": {
-          "label": "Équipe"
+          "label": "Équipe",
+          "values": {
+            "Technical": "Technique",
+            "Data": "Données",
+            "SMB": "PME",
+            "Partners": "Partenaires",
+            "Billing": "Facturation",
+            "Security": "Sécurité",
+            "Onboarding": "Entrée en relation",
+            "Enterprise": "Grandes entreprises"
+          }
         },
         "minutes": {
           "label": "Minutes médianes"
@@ -97,6 +109,18 @@
       "fields": {
         "minutes": {
           "label": "Median in Minuten"
+        },
+        "team": {
+          "values": {
+            "Technical": "Technik",
+            "Data": "Daten",
+            "SMB": "KMU",
+            "Partners": "Partner",
+            "Billing": "Abrechnung",
+            "Security": "Sicherheit",
+            "Onboarding": "Onboarding",
+            "Enterprise": "Großunternehmen"
+          }
         }
       },
       "view": {

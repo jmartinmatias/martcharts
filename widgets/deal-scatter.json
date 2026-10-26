@@ -4,7 +4,9 @@
   "subtitle": "Value against days to close, by stage",
   "description": "Whether bigger deals take longer to close, and where lost deals sit.",
   "note": "Last two quarters",
-  "source": {"name": "CRM"},
+  "source": {
+    "name": "CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -145,7 +147,12 @@
           "label": "Jours pour conclure"
         },
         "stage": {
-          "label": "Étape"
+          "label": "Étape",
+          "values": {
+            "Won": "Gagné",
+            "Open": "Ouvert",
+            "Lost": "Perdu"
+          }
         }
       }
     },
@@ -162,7 +169,12 @@
           "label": "Tage bis Abschluss"
         },
         "stage": {
-          "label": "Phase"
+          "label": "Phase",
+          "values": {
+            "Won": "Gewonnen",
+            "Open": "Offen",
+            "Lost": "Verloren"
+          }
         }
       }
     }

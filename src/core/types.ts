@@ -145,6 +145,11 @@ export interface FieldSpec {
   label?: string;
   /** How values of this field are turned into text. */
   format?: FormatSpec;
+  /**
+   * A word for each value, shown wherever the value is written (axis, legend, tooltip, table): Complaints as
+   * "Réclamations" in French, usually through `i18n`. The data, filters and addresses keep the value itself.
+   */
+  values?: Record<string, string>;
 }
 
 /** Color roles a theme can override. Each becomes a CSS custom property `--fft-<token>`. */

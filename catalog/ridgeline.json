@@ -64,7 +64,12 @@
           "label": "Valeur de l'affaire"
         },
         "region": {
-          "label": "Région"
+          "label": "Région",
+          "values": {
+            "North": "Nord",
+            "South": "Sud",
+            "East": "Est"
+          }
         }
       }
     },
@@ -75,6 +80,13 @@
       "fields": {
         "value": {
           "label": "Dealwert"
+        },
+        "region": {
+          "values": {
+            "North": "Nord",
+            "South": "Süd",
+            "East": "Ost"
+          }
         }
       }
     }

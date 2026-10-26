@@ -111,7 +111,8 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "fields": {
     "phase": {
       "label": "Phase"
-    }
+    },
+    "task": {}
   },
   "view": {
     "type": "timeline",
@@ -129,6 +130,28 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "description": "Les dates de chaque chantier par phase, remplies selon l'avancement, avec le jalon du lancement et une ligne à aujourd'hui.",
       "source": {
         "name": "Bureau de projet"
+      },
+      "fields": {
+        "task": {
+          "values": {
+            "Customer research": "Recherche client",
+            "Design system": "Système de design",
+            "Prototype": "Prototype",
+            "Platform build": "Construction de la plateforme",
+            "Integrations": "Intégrations",
+            "Private beta": "Bêta privée",
+            "Launch day": "Jour du lancement",
+            "Marketing push": "Campagne marketing"
+          }
+        },
+        "phase": {
+          "values": {
+            "Discovery": "Découverte",
+            "Design": "Conception",
+            "Build": "Réalisation",
+            "Launch": "Lancement"
+          }
+        }
       }
     },
     "de": {
@@ -137,6 +160,28 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "description": "Die Termine jedes Arbeitspakets nach Phase, nach Fortschritt gefüllt, mit dem Launch-Meilenstein und einer Linie für heute.",
       "source": {
         "name": "Projektbüro"
+      },
+      "fields": {
+        "task": {
+          "values": {
+            "Customer research": "Kundenforschung",
+            "Design system": "Designsystem",
+            "Prototype": "Prototyp",
+            "Platform build": "Plattformaufbau",
+            "Integrations": "Integrationen",
+            "Private beta": "Private Beta",
+            "Launch day": "Starttag",
+            "Marketing push": "Marketingoffensive"
+          }
+        },
+        "phase": {
+          "values": {
+            "Discovery": "Erkundung",
+            "Design": "Design",
+            "Build": "Umsetzung",
+            "Launch": "Start"
+          }
+        }
       }
     }
   }

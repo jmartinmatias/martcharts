@@ -222,7 +222,14 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
           "label": "Réglementation"
         },
         "stakeholder": {
-          "label": "Doit se conformer"
+          "label": "Doit se conformer",
+          "values": {
+            "Banks": "Banques",
+            "Insurers": "Assureurs",
+            "Asset managers": "Gestionnaires d'actifs",
+            "Payment institutions": "Établissements de paiement",
+            "Crypto providers": "Prestataires crypto"
+          }
         },
         "mustComply": {
           "label": "Doit se conformer"
@@ -242,7 +249,14 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
           "label": "Regulierung"
         },
         "stakeholder": {
-          "label": "Muss einhalten"
+          "label": "Muss einhalten",
+          "values": {
+            "Banks": "Banken",
+            "Insurers": "Versicherer",
+            "Asset managers": "Vermögensverwalter",
+            "Payment institutions": "Zahlungsinstitute",
+            "Crypto providers": "Krypto-Anbieter"
+          }
         },
         "mustComply": {
           "label": "Muss einhalten"

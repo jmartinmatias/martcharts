@@ -4,7 +4,9 @@
   "subtitle": "Middle half, median and outliers, by region",
   "description": "Each region's deal values as a box plot. East's middle half sits well above the others; South has one far outlier and North a milder one.",
   "note": "{count} deals",
-  "source": {"name": "CRM"},
+  "source": {
+    "name": "CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -160,7 +162,12 @@
           "label": "Valeur de l'affaire"
         },
         "region": {
-          "label": "Région"
+          "label": "Région",
+          "values": {
+            "North": "Nord",
+            "South": "Sud",
+            "East": "Est"
+          }
         }
       }
     },
@@ -172,6 +179,13 @@
       "fields": {
         "value": {
           "label": "Dealwert"
+        },
+        "region": {
+          "values": {
+            "North": "Nord",
+            "South": "Süd",
+            "East": "Ost"
+          }
         }
       }
     }

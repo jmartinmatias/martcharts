@@ -155,7 +155,8 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     },
     "relationship": {
       "label": "Relationship"
-    }
+    },
+    "segment": {}
   },
   "view": {
     "type": "ragboard",
@@ -194,6 +195,13 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         },
         "relationship": {
           "label": "Relation"
+        },
+        "segment": {
+          "values": {
+            "Corporate": "Entreprises",
+            "Institutional": "Institutionnels",
+            "Private": "Banque privée"
+          }
         }
       }
     },
@@ -219,6 +227,13 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         },
         "relationship": {
           "label": "Beziehung"
+        },
+        "segment": {
+          "values": {
+            "Corporate": "Firmenkunden",
+            "Institutional": "Institutionelle",
+            "Private": "Privatkunden"
+          }
         }
       }
     }

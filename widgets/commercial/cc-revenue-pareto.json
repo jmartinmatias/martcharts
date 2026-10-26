@@ -33,7 +33,10 @@
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "segment": {},
+    "region": {},
+    "cluster": {}
   },
   "view": {
     "type": "pareto",
@@ -51,6 +54,28 @@
       "fields": {
         "revenue": {
           "label": "Chiffre d'affaires"
+        },
+        "segment": {
+          "values": {
+            "Institutional": "Institutionnels",
+            "Corporate": "Entreprises",
+            "Private": "Banque privée"
+          }
+        },
+        "region": {
+          "values": {
+            "Iberia": "Péninsule ibérique",
+            "France": "France",
+            "Italy": "Italie"
+          }
+        },
+        "cluster": {
+          "values": {
+            "Growth": "Croissance",
+            "At risk": "À risque",
+            "Core": "Cœur",
+            "Dormant": "Dormant"
+          }
         }
       }
     },
@@ -67,6 +92,28 @@
         },
         "revenue": {
           "label": "Umsatz"
+        },
+        "segment": {
+          "values": {
+            "Institutional": "Institutionelle",
+            "Corporate": "Firmenkunden",
+            "Private": "Privatkunden"
+          }
+        },
+        "region": {
+          "values": {
+            "Iberia": "Iberische Halbinsel",
+            "France": "Frankreich",
+            "Italy": "Italien"
+          }
+        },
+        "cluster": {
+          "values": {
+            "Growth": "Wachstum",
+            "At risk": "Gefährdet",
+            "Core": "Kern",
+            "Dormant": "Ruhend"
+          }
         }
       }
     }

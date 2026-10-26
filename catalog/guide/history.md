@@ -169,7 +169,17 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       },
       "fields": {
         "kind": {
-          "label": "Type"
+          "label": "Type",
+          "values": {
+            "Call": "Appel",
+            "Trade": "Transaction",
+            "Campaign": "Campagne",
+            "Payment": "Paiement",
+            "Complaint": "Réclamation",
+            "Meeting": "Rendez-vous",
+            "Review": "Revue",
+            "Onboarding": "Entrée en relation"
+          }
         },
         "title": {
           "label": "Événement"
@@ -191,7 +201,17 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
           "label": "Datum"
         },
         "kind": {
-          "label": "Art"
+          "label": "Art",
+          "values": {
+            "Call": "Anruf",
+            "Trade": "Transaktion",
+            "Campaign": "Kampagne",
+            "Payment": "Zahlung",
+            "Complaint": "Beschwerde",
+            "Meeting": "Treffen",
+            "Review": "Überprüfung",
+            "Onboarding": "Onboarding"
+          }
         },
         "title": {
           "label": "Ereignis"

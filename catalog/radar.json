@@ -32,7 +32,8 @@
         "type": "number",
         "decimals": 1
       }
-    }
+    },
+    "attribute": {}
   },
   "view": {
     "type": "radar",
@@ -57,6 +58,16 @@
         },
         "market": {
           "label": "Moyenne du marché"
+        },
+        "attribute": {
+          "values": {
+            "Speed": "Rapidité",
+            "Reliability": "Fiabilité",
+            "Support": "Support",
+            "Price": "Prix",
+            "Integrations": "Intégrations",
+            "Ease of use": "Facilité d'usage"
+          }
         }
       }
     },
@@ -73,6 +84,16 @@
         },
         "market": {
           "label": "Marktdurchschnitt"
+        },
+        "attribute": {
+          "values": {
+            "Speed": "Geschwindigkeit",
+            "Reliability": "Zuverlässigkeit",
+            "Support": "Support",
+            "Price": "Preis",
+            "Integrations": "Integrationen",
+            "Ease of use": "Bedienbarkeit"
+          }
         }
       }
     }

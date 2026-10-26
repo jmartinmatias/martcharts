@@ -120,7 +120,8 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "region": {}
   },
   "view": {
     "type": "bar",
@@ -138,6 +139,17 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "description": "Core et Plus en part du CA de chaque région.",
       "source": {
         "name": "Journal des ventes"
+      },
+      "fields": {
+        "region": {
+          "values": {
+            "East": "Est",
+            "North": "Nord",
+            "Central": "Centre",
+            "West": "Ouest",
+            "South": "Sud"
+          }
+        }
       }
     },
     "de": {
@@ -146,6 +158,17 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "description": "Core und Plus als Anteil am Umsatz jeder Region.",
       "source": {
         "name": "Verkaufsjournal"
+      },
+      "fields": {
+        "region": {
+          "values": {
+            "East": "Ost",
+            "North": "Nord",
+            "Central": "Mitte",
+            "West": "West",
+            "South": "Süd"
+          }
+        }
       }
     }
   }

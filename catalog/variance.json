@@ -34,7 +34,8 @@
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "department": {}
   },
   "view": {
     "type": "variance",
@@ -54,6 +55,16 @@
       "fields": {
         "actual": {
           "label": "Réel"
+        },
+        "department": {
+          "values": {
+            "Sales": "Ventes",
+            "Marketing": "Marketing",
+            "R&D": "R&D",
+            "Support": "Support",
+            "G&A": "Frais généraux",
+            "IT": "Informatique"
+          }
         }
       }
     },
@@ -67,6 +78,16 @@
       "fields": {
         "actual": {
           "label": "Ist"
+        },
+        "department": {
+          "values": {
+            "Sales": "Vertrieb",
+            "Marketing": "Marketing",
+            "R&D": "F&E",
+            "Support": "Support",
+            "G&A": "Verwaltung",
+            "IT": "IT"
+          }
         }
       }
     }

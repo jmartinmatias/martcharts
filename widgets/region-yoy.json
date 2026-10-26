@@ -53,7 +53,8 @@
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "region": {}
   },
   "view": {
     "type": "dumbbell",
@@ -68,6 +69,17 @@
       "description": "Le CA de septembre de chaque région, l'an dernier et cette année.",
       "source": {
         "name": "Grand livre"
+      },
+      "fields": {
+        "region": {
+          "values": {
+            "East": "Est",
+            "North": "Nord",
+            "Central": "Centre",
+            "West": "Ouest",
+            "South": "Sud"
+          }
+        }
       }
     },
     "de": {
@@ -76,6 +88,17 @@
       "description": "Septemberumsatz jeder Region, Vorjahr gegen dieses Jahr.",
       "source": {
         "name": "Hauptbuch"
+      },
+      "fields": {
+        "region": {
+          "values": {
+            "East": "Ost",
+            "North": "Nord",
+            "Central": "Mitte",
+            "West": "West",
+            "South": "Süd"
+          }
+        }
       }
     }
   }

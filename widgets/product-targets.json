@@ -43,7 +43,8 @@
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "product": {}
   },
   "view": {
     "type": "rings",
@@ -65,6 +66,13 @@
         },
         "target": {
           "label": "Objectif"
+        },
+        "product": {
+          "values": {
+            "Analytics": "Analytique",
+            "Platform": "Plateforme",
+            "Services": "Services"
+          }
         }
       }
     },
@@ -81,6 +89,13 @@
         },
         "target": {
           "label": "Ziel"
+        },
+        "product": {
+          "values": {
+            "Analytics": "Analytik",
+            "Platform": "Plattform",
+            "Services": "Dienstleistungen"
+          }
         }
       }
     }

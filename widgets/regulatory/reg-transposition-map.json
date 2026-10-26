@@ -22,7 +22,8 @@
     },
     "status": {
       "label": "Transposition"
-    }
+    },
+    "topic": {}
   },
   "view": {
     "type": "choropleth",
@@ -41,6 +42,18 @@
       "fields": {
         "country": {
           "label": "État membre"
+        },
+        "status": {
+          "values": {
+            "In progress": "En cours",
+            "Transposed": "Transposé",
+            "Not started": "Pas commencé"
+          }
+        },
+        "topic": {
+          "values": {
+            "AML & sanctions": "LCB-FT et sanctions"
+          }
         }
       },
       "source": {
@@ -56,7 +69,17 @@
           "label": "Mitgliedstaat"
         },
         "status": {
-          "label": "Umsetzung"
+          "label": "Umsetzung",
+          "values": {
+            "In progress": "In Arbeit",
+            "Transposed": "Umgesetzt",
+            "Not started": "Nicht begonnen"
+          }
+        },
+        "topic": {
+          "values": {
+            "AML & sanctions": "Geldwäsche und Sanktionen"
+          }
         }
       },
       "source": {

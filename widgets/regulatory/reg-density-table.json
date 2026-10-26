@@ -68,7 +68,8 @@
         "max": 1.8,
         "decimals": 2
       }
-    }
+    },
+    "status": {}
   },
   "view": {
     "type": "table",
@@ -98,7 +99,17 @@
           "label": "Réglementation"
         },
         "topic": {
-          "label": "Thème"
+          "label": "Thème",
+          "values": {
+            "ESG & sustainability": "ESG et durabilité",
+            "Markets": "Marchés",
+            "Prudential": "Prudentiel",
+            "Payments": "Paiements",
+            "Consumer protection": "Protection des consommateurs",
+            "Operational resilience": "Résilience opérationnelle",
+            "Data, AI & digital": "Données, IA et numérique",
+            "AML & sanctions": "LCB-FT et sanctions"
+          }
         },
         "impact": {
           "label": "Impact (1 à 5)"
@@ -114,6 +125,18 @@
         },
         "perPage": {
           "label": "Dispositions par page"
+        },
+        "status": {
+          "values": {
+            "Proposal": "Proposition",
+            "Applies": "S'applique",
+            "In force": "En vigueur",
+            "Adopted": "Adopté",
+            "Consultation": "Consultation",
+            "Under review": "En révision",
+            "Published": "Publié",
+            "Repealed": "Abrogé"
+          }
         }
       },
       "source": {
@@ -129,7 +152,17 @@
           "label": "Regulierung"
         },
         "topic": {
-          "label": "Thema"
+          "label": "Thema",
+          "values": {
+            "ESG & sustainability": "ESG und Nachhaltigkeit",
+            "Markets": "Märkte",
+            "Prudential": "Aufsichtsrecht",
+            "Payments": "Zahlungsverkehr",
+            "Consumer protection": "Verbraucherschutz",
+            "Operational resilience": "Operative Resilienz",
+            "Data, AI & digital": "Daten, KI und Digitales",
+            "AML & sanctions": "Geldwäsche und Sanktionen"
+          }
         },
         "impact": {
           "label": "Wirkung (1 bis 5)"
@@ -145,6 +178,18 @@
         },
         "perPage": {
           "label": "Bestimmungen je Seite"
+        },
+        "status": {
+          "values": {
+            "Proposal": "Angebot",
+            "Applies": "Gilt",
+            "In force": "In Kraft",
+            "Adopted": "Verabschiedet",
+            "Consultation": "Konsultation",
+            "Under review": "In Prüfung",
+            "Published": "Veröffentlicht",
+            "Repealed": "Aufgehoben"
+          }
         }
       },
       "source": {

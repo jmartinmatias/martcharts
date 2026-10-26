@@ -3,28 +3,69 @@
   "title": "Leads and wins by channel",
   "subtitle": "Q3 2026",
   "description": "How many leads each channel brought in and how many turned into customers. Partner referrals bring a third of the leads of paid search but almost as many wins.",
-  "source": {"name": "CRM"},
+  "source": {
+    "name": "CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
     "rows": [
-      { "channel": "Paid search", "leads": 1840, "won": 221 },
-      { "channel": "Partner referrals", "leads": 610, "won": 198 },
-      { "channel": "Organic search", "leads": 1230, "won": 172 },
-      { "channel": "Events and webinars", "leads": 540, "won": 97 },
-      { "channel": "Outbound sales", "leads": 720, "won": 86 },
-      { "channel": "Social media", "leads": 980, "won": 59 }
+      {
+        "channel": "Paid search",
+        "leads": 1840,
+        "won": 221
+      },
+      {
+        "channel": "Partner referrals",
+        "leads": 610,
+        "won": 198
+      },
+      {
+        "channel": "Organic search",
+        "leads": 1230,
+        "won": 172
+      },
+      {
+        "channel": "Events and webinars",
+        "leads": 540,
+        "won": 97
+      },
+      {
+        "channel": "Outbound sales",
+        "leads": 720,
+        "won": 86
+      },
+      {
+        "channel": "Social media",
+        "leads": 980,
+        "won": 59
+      }
     ]
   },
   "fields": {
-    "channel": { "label": "Channel" },
-    "leads": { "label": "Leads", "format": { "type": "number" } },
-    "won": { "label": "Won", "format": { "type": "number" } }
+    "channel": {
+      "label": "Channel"
+    },
+    "leads": {
+      "label": "Leads",
+      "format": {
+        "type": "number"
+      }
+    },
+    "won": {
+      "label": "Won",
+      "format": {
+        "type": "number"
+      }
+    }
   },
   "view": {
     "type": "hbar",
     "label": "channel",
-    "value": ["leads", "won"]
+    "value": [
+      "leads",
+      "won"
+    ]
   },
   "i18n": {
     "fr": {
@@ -33,7 +74,15 @@
       "description": "Combien de prospects chaque canal a apporté et combien sont devenus clients. Les recommandations partenaires apportent un tiers des prospects du search payant mais presque autant de gains.",
       "fields": {
         "channel": {
-          "label": "Canal"
+          "label": "Canal",
+          "values": {
+            "Paid search": "Recherche payante",
+            "Partner referrals": "Recommandations de partenaires",
+            "Organic search": "Recherche naturelle",
+            "Events and webinars": "Événements et webinaires",
+            "Outbound sales": "Prospection sortante",
+            "Social media": "Réseaux sociaux"
+          }
         },
         "leads": {
           "label": "Prospects"
@@ -48,7 +97,15 @@
       "description": "Wie viele Leads jeder Kanal brachte und wie viele Kunden wurden. Partnerempfehlungen bringen ein Drittel der Leads von bezahlter Suche, aber fast so viele Abschlüsse.",
       "fields": {
         "channel": {
-          "label": "Kanal"
+          "label": "Kanal",
+          "values": {
+            "Paid search": "Bezahlte Suche",
+            "Partner referrals": "Partnerempfehlungen",
+            "Organic search": "Organische Suche",
+            "Events and webinars": "Events und Webinare",
+            "Outbound sales": "Outbound-Vertrieb",
+            "Social media": "Soziale Medien"
+          }
         },
         "won": {
           "label": "Gewonnen"

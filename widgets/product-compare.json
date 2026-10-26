@@ -3,7 +3,9 @@
   "title": "How we compare",
   "subtitle": "Customer ratings out of 10, against the market average",
   "description": "Average customer rating per attribute for our product and for the market. We lead on reliability and ease of use and trail only on price.",
-  "source": {"name": "Customer survey and analyst panel"},
+  "source": {
+    "name": "Customer survey and analyst panel"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -54,7 +56,8 @@
         "type": "number",
         "decimals": 1
       }
-    }
+    },
+    "attribute": {}
   },
   "view": {
     "type": "radar",
@@ -79,6 +82,16 @@
         },
         "market": {
           "label": "Moyenne du marché"
+        },
+        "attribute": {
+          "values": {
+            "Speed": "Rapidité",
+            "Reliability": "Fiabilité",
+            "Support": "Support",
+            "Price": "Prix",
+            "Integrations": "Intégrations",
+            "Ease of use": "Facilité d'usage"
+          }
         }
       }
     },
@@ -95,6 +108,16 @@
         },
         "market": {
           "label": "Marktdurchschnitt"
+        },
+        "attribute": {
+          "values": {
+            "Speed": "Geschwindigkeit",
+            "Reliability": "Zuverlässigkeit",
+            "Support": "Support",
+            "Price": "Preis",
+            "Integrations": "Integrationen",
+            "Ease of use": "Bedienbarkeit"
+          }
         }
       }
     }

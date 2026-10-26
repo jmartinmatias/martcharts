@@ -29,6 +29,8 @@ const $ = <T extends HTMLElement>(selector: string) => document.querySelector(se
 // ---- The editor ----
 document.body.dataset.fftPlace = PLACES.editor;
 const editor = createEditor($("#editor"), {
+  // The editor's own words in the site's language, from the first draw (the page's lang is set only once it has loaded).
+  locale: siteLocale() ?? "en-US",
   examples,
   samples: [
     { label: "Tickets by team", url: "/examples/tickets.csv" },
@@ -50,9 +52,11 @@ window.addEventListener("martcharts:look", (event) => {
   event.preventDefault();
   void editor.restyle();
 });
+// A new language: the editor's own words were written in the old one, so the page reloads. Nothing is lost: the step
+// and the chart are kept in the address.
 window.addEventListener("martcharts:lang", (event) => {
   event.preventDefault();
-  void editor.restyle();
+  location.reload();
 });
 
 // ---- Edit JSON ----

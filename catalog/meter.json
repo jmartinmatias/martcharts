@@ -31,7 +31,8 @@
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "region": {}
   },
   "view": {
     "type": "meter",
@@ -46,6 +47,17 @@
       "description": "À quelle distance chaque région est de son objectif de septembre.",
       "source": {
         "name": "Journal des ventes"
+      },
+      "fields": {
+        "region": {
+          "values": {
+            "East": "Est",
+            "North": "Nord",
+            "Central": "Centre",
+            "West": "Ouest",
+            "South": "Sud"
+          }
+        }
       }
     },
     "de": {
@@ -54,6 +66,17 @@
       "description": "Wie nah jede Region an ihrem Septemberziel ist.",
       "source": {
         "name": "Verkaufsjournal"
+      },
+      "fields": {
+        "region": {
+          "values": {
+            "East": "Ost",
+            "North": "Nord",
+            "Central": "Mitte",
+            "West": "West",
+            "South": "Süd"
+          }
+        }
       }
     }
   }

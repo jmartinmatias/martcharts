@@ -190,7 +190,19 @@
       "subtitle": "Les chiffres clés, ce qui demande attention, le pipeline, la prochaine vente, qui agit",
       "description": "Le portefeuille commercial comme un récit, pour le chargé de clientèle et le directeur commercial : les chiffres clés d'abord, puis ce qui demande attention, où est l'argent, le pipeline face à l'objectif, qui pourrait acheter quoi, et qui agit cette semaine. En dessous, la référence : couverture, portefeuille, où sont les clients, campagnes et adoption.",
       "filters": [
-        {},
+        {
+          "values": {
+            "Enterprise": "Grandes entreprises",
+            "Mid-market": "ETI",
+            "Small business": "Petites entreprises",
+            "SMB": "PME",
+            "Corporate": "Entreprises",
+            "Institutional": "Institutionnels",
+            "Private": "Banque privée",
+            "Public sector": "Secteur public",
+            "Affluent": "Clientèle aisée"
+          }
+        },
         {
           "label": "Chargé de clientèle"
         }
@@ -277,7 +289,19 @@
       "subtitle": "Die Kennzahlen, was Aufmerksamkeit braucht, die Pipeline, der nächste Abschluss, wer handelt",
       "description": "Der Vertriebsbestand als Geschichte, für Kundenberater und Vertriebsleitung: zuerst die Kennzahlen, dann was Aufmerksamkeit braucht, wo das Geld liegt, die Pipeline gegen Ziel, wer was kaufen könnte und wer diese Woche handelt. Darunter die Referenz: Betreuung, Portfolio, wo die Kunden sind, Kampagnen und Nutzung.",
       "filters": [
-        {},
+        {
+          "values": {
+            "Enterprise": "Großunternehmen",
+            "Mid-market": "Mittelstand",
+            "Small business": "Kleinunternehmen",
+            "SMB": "KMU",
+            "Corporate": "Firmenkunden",
+            "Institutional": "Institutionelle",
+            "Private": "Privatkunden",
+            "Public sector": "Öffentlicher Sektor",
+            "Affluent": "Vermögende Kunden"
+          }
+        },
         {
           "label": "Kundenberater"
         }

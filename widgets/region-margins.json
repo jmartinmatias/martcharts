@@ -4,7 +4,9 @@
   "subtitle": "Q3 2026",
   "description": "Revenue, profit and margin per region, best margin first.",
   "note": "Margin = profit / revenue",
-  "source": {"name": "Sales ledger"},
+  "source": {
+    "name": "Sales ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "url",
@@ -90,7 +92,8 @@
       "format": {
         "type": "delta"
       }
-    }
+    },
+    "region": {}
   },
   "view": {
     "type": "table",
@@ -113,6 +116,15 @@
       "fields": {
         "vsTarget": {
           "label": "vs objectif"
+        },
+        "region": {
+          "values": {
+            "Central": "Centre",
+            "North": "Nord",
+            "West": "Ouest",
+            "South": "Sud",
+            "East": "Est"
+          }
         }
       }
     },
@@ -126,6 +138,15 @@
       "fields": {
         "vsTarget": {
           "label": "gg. Ziel"
+        },
+        "region": {
+          "values": {
+            "Central": "Mitte",
+            "North": "Nord",
+            "West": "West",
+            "South": "Süd",
+            "East": "Ost"
+          }
         }
       }
     }

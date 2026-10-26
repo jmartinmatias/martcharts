@@ -31,7 +31,8 @@
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "segment": {}
   },
   "view": {
     "type": "whitespace",
@@ -52,7 +53,16 @@
       },
       "fields": {
         "product": {
-          "label": "Produit"
+          "label": "Produit",
+          "values": {
+            "Custody": "Conservation",
+            "Advisory": "Conseil",
+            "Discretionary": "Gestion sous mandat",
+            "Lending": "Crédit",
+            "Structured": "Produits structurés",
+            "Insurance": "Assurance",
+            "Pension": "Retraite"
+          }
         },
         "state": {
           "label": "État"
@@ -62,6 +72,14 @@
         },
         "potential": {
           "label": "Potentiel"
+        },
+        "segment": {
+          "values": {
+            "Private": "Banque privée",
+            "Affluent": "Clientèle aisée",
+            "Corporate": "Entreprises",
+            "Institutional": "Institutionnels"
+          }
         }
       }
     },
@@ -77,7 +95,16 @@
           "label": "Kunde"
         },
         "product": {
-          "label": "Produkt"
+          "label": "Produkt",
+          "values": {
+            "Custody": "Verwahrung",
+            "Advisory": "Beratung",
+            "Discretionary": "Vermögensverwaltung",
+            "Lending": "Kredite",
+            "Structured": "Strukturierte Produkte",
+            "Insurance": "Versicherung",
+            "Pension": "Vorsorge"
+          }
         },
         "state": {
           "label": "Bundesstaat"
@@ -87,6 +114,14 @@
         },
         "potential": {
           "label": "Potenzial"
+        },
+        "segment": {
+          "values": {
+            "Private": "Privatkunden",
+            "Affluent": "Vermögende Kunden",
+            "Corporate": "Firmenkunden",
+            "Institutional": "Institutionelle"
+          }
         }
       }
     }

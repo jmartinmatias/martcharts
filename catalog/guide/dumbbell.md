@@ -111,7 +111,8 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "region": {}
   },
   "view": {
     "type": "dumbbell",
@@ -126,6 +127,17 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "description": "Le CA de septembre de chaque région, l'an dernier et cette année.",
       "source": {
         "name": "Grand livre"
+      },
+      "fields": {
+        "region": {
+          "values": {
+            "East": "Est",
+            "North": "Nord",
+            "Central": "Centre",
+            "West": "Ouest",
+            "South": "Sud"
+          }
+        }
       }
     },
     "de": {
@@ -134,6 +146,17 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "description": "Septemberumsatz jeder Region, Vorjahr gegen dieses Jahr.",
       "source": {
         "name": "Hauptbuch"
+      },
+      "fields": {
+        "region": {
+          "values": {
+            "East": "Ost",
+            "North": "Nord",
+            "Central": "Mitte",
+            "West": "West",
+            "South": "Süd"
+          }
+        }
       }
     }
   }

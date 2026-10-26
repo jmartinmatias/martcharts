@@ -47,7 +47,13 @@
       },
       "fields": {
         "stage": {
-          "label": "Étape"
+          "label": "Étape",
+          "values": {
+            "Qualified": "Qualifié",
+            "Proposal": "Proposition",
+            "Negotiation": "Négociation",
+            "Won": "Gagné"
+          }
         },
         "deals": {
           "label": "Affaires"
@@ -63,7 +69,13 @@
       },
       "fields": {
         "stage": {
-          "label": "Phase"
+          "label": "Phase",
+          "values": {
+            "Qualified": "Qualifiziert",
+            "Proposal": "Angebot",
+            "Negotiation": "Verhandlung",
+            "Won": "Gewonnen"
+          }
         }
       }
     }

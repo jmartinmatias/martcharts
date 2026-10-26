@@ -27,7 +27,10 @@
     },
     "note": {
       "label": "What changed"
-    }
+    },
+    "segment": {},
+    "region": {},
+    "overallStatus": {}
   },
   "view": {
     "type": "ragtrend",
@@ -53,6 +56,28 @@
         },
         "note": {
           "label": "Ce qui a changé"
+        },
+        "segment": {
+          "values": {
+            "Private": "Banque privée",
+            "Affluent": "Clientèle aisée",
+            "Corporate": "Entreprises",
+            "Institutional": "Institutionnels"
+          }
+        },
+        "region": {
+          "values": {
+            "Italy": "Italie",
+            "Iberia": "Péninsule ibérique",
+            "France": "France"
+          }
+        },
+        "overallStatus": {
+          "values": {
+            "Amber": "Orange",
+            "Red": "Rouge",
+            "Green": "Vert"
+          }
         }
       }
     },
@@ -75,6 +100,28 @@
         },
         "note": {
           "label": "Was sich änderte"
+        },
+        "segment": {
+          "values": {
+            "Private": "Privatkunden",
+            "Affluent": "Vermögende Kunden",
+            "Corporate": "Firmenkunden",
+            "Institutional": "Institutionelle"
+          }
+        },
+        "region": {
+          "values": {
+            "Italy": "Italien",
+            "Iberia": "Iberische Halbinsel",
+            "France": "Frankreich"
+          }
+        },
+        "overallStatus": {
+          "values": {
+            "Amber": "Gelb",
+            "Red": "Rot",
+            "Green": "Grün"
+          }
         }
       }
     }

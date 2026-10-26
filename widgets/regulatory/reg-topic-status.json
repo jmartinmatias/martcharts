@@ -53,7 +53,17 @@
       "description": "Combien de règles porte chaque thème, et combien sont encore à venir ou déjà applicables.",
       "fields": {
         "topic": {
-          "label": "Thème"
+          "label": "Thème",
+          "values": {
+            "AML & sanctions": "LCB-FT et sanctions",
+            "Consumer protection": "Protection des consommateurs",
+            "Data, AI & digital": "Données, IA et numérique",
+            "ESG & sustainability": "ESG et durabilité",
+            "Markets": "Marchés",
+            "Operational resilience": "Résilience opérationnelle",
+            "Payments": "Paiements",
+            "Prudential": "Prudentiel"
+          }
         }
       },
       "source": {
@@ -66,7 +76,17 @@
       "description": "Wie viele Vorschriften jedes Thema trägt und wie viele noch kommen oder schon gelten.",
       "fields": {
         "topic": {
-          "label": "Thema"
+          "label": "Thema",
+          "values": {
+            "AML & sanctions": "Geldwäsche und Sanktionen",
+            "Consumer protection": "Verbraucherschutz",
+            "Data, AI & digital": "Daten, KI und Digitales",
+            "ESG & sustainability": "ESG und Nachhaltigkeit",
+            "Markets": "Märkte",
+            "Operational resilience": "Operative Resilienz",
+            "Payments": "Zahlungsverkehr",
+            "Prudential": "Aufsichtsrecht"
+          }
         }
       },
       "source": {

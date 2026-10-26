@@ -51,7 +51,10 @@
     },
     "callScore": {
       "label": "Call score"
-    }
+    },
+    "segment": {},
+    "region": {},
+    "cluster": {}
   },
   "view": {
     "type": "table",
@@ -91,6 +94,27 @@
         },
         "callScore": {
           "label": "Score d'appel"
+        },
+        "segment": {
+          "values": {
+            "Affluent": "Clientèle aisée",
+            "Private": "Banque privée",
+            "Corporate": "Entreprises",
+            "Institutional": "Institutionnels"
+          }
+        },
+        "region": {
+          "values": {
+            "Iberia": "Péninsule ibérique",
+            "France": "France",
+            "Italy": "Italie"
+          }
+        },
+        "cluster": {
+          "values": {
+            "At risk": "À risque",
+            "Dormant": "Dormant"
+          }
         }
       }
     },
@@ -122,6 +146,27 @@
         },
         "callScore": {
           "label": "Anruf-Score"
+        },
+        "segment": {
+          "values": {
+            "Affluent": "Vermögende Kunden",
+            "Private": "Privatkunden",
+            "Corporate": "Firmenkunden",
+            "Institutional": "Institutionelle"
+          }
+        },
+        "region": {
+          "values": {
+            "Iberia": "Iberische Halbinsel",
+            "France": "Frankreich",
+            "Italy": "Italien"
+          }
+        },
+        "cluster": {
+          "values": {
+            "At risk": "Gefährdet",
+            "Dormant": "Ruhend"
+          }
         }
       }
     }

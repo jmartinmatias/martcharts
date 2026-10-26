@@ -143,7 +143,8 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     },
     "pages": {
       "label": "Pages"
-    }
+    },
+    "topic": {}
   },
   "view": {
     "type": "strips",
@@ -177,6 +178,19 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         },
         "optional": {
           "label": "Facultatif"
+        },
+        "topic": {
+          "values": {
+            "Prudential": "Prudentiel",
+            "AI & digital": "IA et numérique",
+            "AML & sanctions": "LCB-FT et sanctions",
+            "Operational resilience": "Résilience opérationnelle",
+            "Markets": "Marchés",
+            "Payments": "Paiements",
+            "ESG & sustainability": "ESG et durabilité",
+            "Data & privacy": "Données et vie privée",
+            "Consumer protection": "Protection des consommateurs"
+          }
         }
       },
       "view": {
@@ -206,6 +220,19 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         },
         "pages": {
           "label": "Seiten"
+        },
+        "topic": {
+          "values": {
+            "Prudential": "Aufsichtsrecht",
+            "AI & digital": "KI und Digitales",
+            "AML & sanctions": "Geldwäsche und Sanktionen",
+            "Operational resilience": "Operative Resilienz",
+            "Markets": "Märkte",
+            "Payments": "Zahlungsverkehr",
+            "ESG & sustainability": "ESG und Nachhaltigkeit",
+            "Data & privacy": "Daten und Datenschutz",
+            "Consumer protection": "Verbraucherschutz"
+          }
         }
       },
       "view": {

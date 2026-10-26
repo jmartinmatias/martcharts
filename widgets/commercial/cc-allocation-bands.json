@@ -63,7 +63,16 @@
       },
       "fields": {
         "assetClass": {
-          "label": "Classe d'actifs"
+          "label": "Classe d'actifs",
+          "values": {
+            "Equities": "Actions",
+            "Fixed income": "Obligations",
+            "Cash": "Liquidités",
+            "Alternatives": "Alternatifs",
+            "Real estate": "Immobilier",
+            "Private markets": "Marchés privés",
+            "Commodities": "Matières premières"
+          }
         },
         "current": {
           "label": "Actuel"
@@ -82,7 +91,16 @@
       },
       "fields": {
         "assetClass": {
-          "label": "Anlageklasse"
+          "label": "Anlageklasse",
+          "values": {
+            "Equities": "Aktien",
+            "Fixed income": "Anleihen",
+            "Cash": "Liquidität",
+            "Alternatives": "Alternative Anlagen",
+            "Real estate": "Immobilien",
+            "Private markets": "Private Märkte",
+            "Commodities": "Rohstoffe"
+          }
         },
         "current": {
           "label": "Aktuell"

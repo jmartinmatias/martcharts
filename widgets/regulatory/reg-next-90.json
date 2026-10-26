@@ -103,19 +103,42 @@
           "label": "Règle"
         },
         "milestone": {
-          "label": "Jalon"
+          "label": "Jalon",
+          "values": {
+            "Review response due": "Réponse à la revue attendue",
+            "Implementation tested": "Mise en œuvre testée",
+            "Consultation response due": "Réponse à la consultation attendue",
+            "Applies": "S'applique",
+            "Annual compliance review": "Revue de conformité annuelle",
+            "Impact assessment complete": "Analyse d'impact terminée"
+          }
         },
         "owner": {
           "label": "Responsable"
         },
         "readiness": {
-          "label": "Préparation"
+          "label": "Préparation",
+          "values": {
+            "Done": "Terminé",
+            "In progress": "En cours",
+            "Not started": "Pas commencé"
+          }
         },
         "readinessPct": {
           "label": "Fait à ce jour"
         },
         "topic": {
-          "label": "Thème"
+          "label": "Thème",
+          "values": {
+            "ESG & sustainability": "ESG et durabilité",
+            "Data, AI & digital": "Données, IA et numérique",
+            "Prudential": "Prudentiel",
+            "Consumer protection": "Protection des consommateurs",
+            "Payments": "Paiements",
+            "Markets": "Marchés",
+            "AML & sanctions": "LCB-FT et sanctions",
+            "Operational resilience": "Résilience opérationnelle"
+          }
         }
       },
       "source": {
@@ -137,19 +160,42 @@
           "label": "Vorschrift"
         },
         "milestone": {
-          "label": "Meilenstein"
+          "label": "Meilenstein",
+          "values": {
+            "Review response due": "Antwort zur Überprüfung fällig",
+            "Implementation tested": "Umsetzung getestet",
+            "Consultation response due": "Antwort zur Konsultation fällig",
+            "Applies": "Gilt",
+            "Annual compliance review": "Jährliche Compliance-Prüfung",
+            "Impact assessment complete": "Folgenabschätzung abgeschlossen"
+          }
         },
         "owner": {
           "label": "Verantwortlich"
         },
         "readiness": {
-          "label": "Bereitschaft"
+          "label": "Bereitschaft",
+          "values": {
+            "Done": "Erledigt",
+            "In progress": "In Arbeit",
+            "Not started": "Nicht begonnen"
+          }
         },
         "readinessPct": {
           "label": "Bisher erledigt"
         },
         "topic": {
-          "label": "Thema"
+          "label": "Thema",
+          "values": {
+            "ESG & sustainability": "ESG und Nachhaltigkeit",
+            "Data, AI & digital": "Daten, KI und Digitales",
+            "Prudential": "Aufsichtsrecht",
+            "Consumer protection": "Verbraucherschutz",
+            "Payments": "Zahlungsverkehr",
+            "Markets": "Märkte",
+            "AML & sanctions": "Geldwäsche und Sanktionen",
+            "Operational resilience": "Operative Resilienz"
+          }
         }
       },
       "source": {

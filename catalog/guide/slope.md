@@ -108,7 +108,8 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         "type": "percent",
         "decimals": 0
       }
-    }
+    },
+    "region": {}
   },
   "view": {
     "type": "slope",
@@ -127,13 +128,33 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         },
         "h2": {
           "label": "S2 2026"
+        },
+        "region": {
+          "values": {
+            "East": "Est",
+            "Central": "Centre",
+            "North": "Nord",
+            "West": "Ouest",
+            "South": "Sud"
+          }
         }
       }
     },
     "de": {
       "title": "Abschlussquote je Region",
       "subtitle": "Erstes gegen zweites Halbjahr 2026",
-      "description": "Anteil gewonnener qualifizierter Deals je Region, erstes gegen zweites Halbjahr 2026."
+      "description": "Anteil gewonnener qualifizierter Deals je Region, erstes gegen zweites Halbjahr 2026.",
+      "fields": {
+        "region": {
+          "values": {
+            "East": "Ost",
+            "Central": "Mitte",
+            "North": "Nord",
+            "West": "West",
+            "South": "Süd"
+          }
+        }
+      }
     }
   }
 }

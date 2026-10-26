@@ -34,7 +34,9 @@
     },
     "pages": {
       "label": "Pages"
-    }
+    },
+    "topic": {},
+    "status": {}
   },
   "view": {
     "type": "strips",
@@ -67,6 +69,27 @@
         },
         "optional": {
           "label": "Facultatif (may)"
+        },
+        "topic": {
+          "values": {
+            "ESG & sustainability": "ESG et durabilité",
+            "Markets": "Marchés",
+            "Prudential": "Prudentiel",
+            "Payments": "Paiements",
+            "Consumer protection": "Protection des consommateurs",
+            "Operational resilience": "Résilience opérationnelle",
+            "Data, AI & digital": "Données, IA et numérique"
+          }
+        },
+        "status": {
+          "values": {
+            "Proposal": "Proposition",
+            "Applies": "S'applique",
+            "In force": "En vigueur",
+            "Adopted": "Adopté",
+            "Consultation": "Consultation",
+            "Under review": "En révision"
+          }
         }
       },
       "view": {
@@ -95,6 +118,27 @@
         },
         "pages": {
           "label": "Seiten"
+        },
+        "topic": {
+          "values": {
+            "ESG & sustainability": "ESG und Nachhaltigkeit",
+            "Markets": "Märkte",
+            "Prudential": "Aufsichtsrecht",
+            "Payments": "Zahlungsverkehr",
+            "Consumer protection": "Verbraucherschutz",
+            "Operational resilience": "Operative Resilienz",
+            "Data, AI & digital": "Daten, KI und Digitales"
+          }
+        },
+        "status": {
+          "values": {
+            "Proposal": "Angebot",
+            "Applies": "Gilt",
+            "In force": "In Kraft",
+            "Adopted": "Verabschiedet",
+            "Consultation": "Konsultation",
+            "Under review": "In Prüfung"
+          }
         }
       },
       "view": {

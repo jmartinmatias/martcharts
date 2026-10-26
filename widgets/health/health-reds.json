@@ -58,6 +58,14 @@
         },
         "red": {
           "label": "Clients rouges"
+        },
+        "perspective": {
+          "values": {
+            "Client success": "Succès client",
+            "Business development": "Développement commercial",
+            "Coverage": "Couverture",
+            "Relationship": "Relation"
+          }
         }
       }
     },
@@ -73,7 +81,13 @@
           "label": "Kundenberater"
         },
         "perspective": {
-          "label": "Perspektive"
+          "label": "Perspektive",
+          "values": {
+            "Client success": "Kundenerfolg",
+            "Business development": "Geschäftsentwicklung",
+            "Coverage": "Betreuung",
+            "Relationship": "Beziehung"
+          }
         },
         "red": {
           "label": "Rote Kunden"

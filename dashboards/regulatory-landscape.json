@@ -117,7 +117,19 @@
       "description": "La veille réglementaire comme un récit, pour le responsable conformité : les chiffres clés, ce qui s'applique ensuite et qui porte chaque échéance, la pression par thème, l'impact par type d'entreprise, où les règles s'appliquent, leur volume et leur densité, et, replié, la transposition nationale.",
       "filters": [
         {
-          "label": "Thème"
+          "label": "Thème",
+          "values": {
+            "Operational resilience": "Résilience opérationnelle",
+            "AML & sanctions": "LCB-FT et sanctions",
+            "AI & digital": "IA et numérique",
+            "Payments": "Paiements",
+            "ESG & sustainability": "ESG et durabilité",
+            "Prudential": "Prudentiel",
+            "Markets": "Marchés",
+            "Data & privacy": "Données et vie privée",
+            "Consumer protection": "Protection des consommateurs",
+            "Data, AI & digital": "Données, IA et numérique"
+          }
         },
         {
           "label": "Juridiction"
@@ -175,7 +187,19 @@
       "description": "Die Regulierungsbeobachtung als Geschichte, für die Compliance-Verantwortlichen: die Kennzahlen, was als Nächstes gilt und wer jede Frist verantwortet, der Druck je Thema, die Wirkung je Unternehmensart, wo die Vorschriften binden, Umfang und Dichte, und eingeklappt die nationale Umsetzung.",
       "filters": [
         {
-          "label": "Thema"
+          "label": "Thema",
+          "values": {
+            "Operational resilience": "Operative Resilienz",
+            "AML & sanctions": "Geldwäsche und Sanktionen",
+            "AI & digital": "KI und Digitales",
+            "Payments": "Zahlungsverkehr",
+            "ESG & sustainability": "ESG und Nachhaltigkeit",
+            "Prudential": "Aufsichtsrecht",
+            "Markets": "Märkte",
+            "Data & privacy": "Daten und Datenschutz",
+            "Consumer protection": "Verbraucherschutz",
+            "Data, AI & digital": "Daten, KI und Digitales"
+          }
         },
         {
           "label": "Rechtsraum"

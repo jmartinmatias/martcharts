@@ -3,7 +3,9 @@
   "title": "Revenue mix",
   "subtitle": "Q3 2026, Core and Plus by region",
   "description": "How each region's revenue splits between the two products, largest region first.",
-  "source": {"name": "Sales ledger"},
+  "source": {
+    "name": "Sales ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "url",
@@ -52,7 +54,8 @@
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "region": {}
   },
   "headline": {
     "value": "total",
@@ -78,6 +81,17 @@
       },
       "headline": {
         "caption": "CA du T3, les deux produits"
+      },
+      "fields": {
+        "region": {
+          "values": {
+            "East": "Est",
+            "North": "Nord",
+            "Central": "Centre",
+            "West": "Ouest",
+            "South": "Sud"
+          }
+        }
       }
     },
     "de": {
@@ -90,6 +104,15 @@
       "fields": {
         "total": {
           "label": "Gesamt"
+        },
+        "region": {
+          "values": {
+            "East": "Ost",
+            "North": "Nord",
+            "Central": "Mitte",
+            "West": "West",
+            "South": "Süd"
+          }
         }
       },
       "headline": {

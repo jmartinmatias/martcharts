@@ -3,7 +3,9 @@
   "title": "Product share",
   "subtitle": "Of each region's revenue",
   "description": "Core and Plus as a share of each region's revenue.",
-  "source": {"name": "Sales ledger"},
+  "source": {
+    "name": "Sales ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "url",
@@ -44,7 +46,8 @@
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "region": {}
   },
   "view": {
     "type": "bar",
@@ -62,6 +65,17 @@
       "description": "Core et Plus en part du CA de chaque région.",
       "source": {
         "name": "Journal des ventes"
+      },
+      "fields": {
+        "region": {
+          "values": {
+            "East": "Est",
+            "North": "Nord",
+            "Central": "Centre",
+            "West": "Ouest",
+            "South": "Sud"
+          }
+        }
       }
     },
     "de": {
@@ -70,6 +84,17 @@
       "description": "Core und Plus als Anteil am Umsatz jeder Region.",
       "source": {
         "name": "Verkaufsjournal"
+      },
+      "fields": {
+        "region": {
+          "values": {
+            "East": "Ost",
+            "North": "Nord",
+            "Central": "Mitte",
+            "West": "West",
+            "South": "Süd"
+          }
+        }
       }
     }
   }

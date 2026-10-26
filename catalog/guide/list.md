@@ -109,7 +109,8 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
           "compact": true
         }
       }
-    }
+    },
+    "segment": {}
   },
   "view": {
     "type": "list",
@@ -121,12 +122,28 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "fr": {
       "title": "Meilleurs clients",
       "subtitle": "Par CA, depuis janvier",
-      "description": "Les cinq clients au plus fort chiffre d'affaires."
+      "description": "Les cinq clients au plus fort chiffre d'affaires.",
+      "fields": {
+        "segment": {
+          "values": {
+            "Enterprise": "Grandes entreprises",
+            "Mid-market": "ETI"
+          }
+        }
+      }
     },
     "de": {
       "title": "Top-Kunden",
       "subtitle": "Nach Umsatz, seit Jahresbeginn",
-      "description": "Die fünf Kunden mit dem meisten Umsatz."
+      "description": "Die fünf Kunden mit dem meisten Umsatz.",
+      "fields": {
+        "segment": {
+          "values": {
+            "Enterprise": "Großunternehmen",
+            "Mid-market": "Mittelstand"
+          }
+        }
+      }
     }
   }
 }

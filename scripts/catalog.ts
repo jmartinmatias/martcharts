@@ -10,6 +10,7 @@ import { describeBlocks, describeChart, hasErrors, needsText, runPipeline, valid
 import type { Row, WidgetSpec } from "../src/core/index.ts";
 import { createLocalFetch } from "../src/mcp/store.ts";
 import { SEARCH_WORDS } from "../src/core/search-words.ts";
+import { typeSummary } from "../src/core/type-words.ts";
 import { FIND_JS } from "./find.ts";
 import { catalogTabs, navBar } from "./site-nav.ts";
 import { placedRef } from "../src/core/ref.ts";
@@ -126,6 +127,8 @@ const doc = [
 await writeFile(root("docs/catalog.md"), doc);
 
 const escape = (text: string) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+/** An element's French and German, as attributes the site's language script swaps in (no inline script: CSP). */
+const inLanguages = (fr?: string, de?: string) => `${fr ? ` data-fr="${escape(fr)}"` : ""}${de ? ` data-de="${escape(de)}"` : ""}`;
 
 const page = `<!doctype html>
 <html lang="en">
@@ -175,9 +178,9 @@ ${catalogTabs("charts")}
   <div class="grid">
 ${cards
   .map(
-    (c) => `    <section class="card" id="${c.type}" data-search="${escape(`${c.type} ${c.summary} ${c.needs} ${SEARCH_WORDS[c.type] ?? ""}`.toLowerCase())}" data-more="${escape(c.question.toLowerCase())}">
+    (c) => `    <section class="card" id="${c.type}" data-search="${escape(`${c.type} ${c.summary} ${typeSummary(c.type, "fr") ?? ""} ${typeSummary(c.type, "de") ?? ""} ${c.needs} ${SEARCH_WORDS[c.type] ?? ""}`.toLowerCase())}" data-more="${escape(c.question.toLowerCase())}">
       <h2>${c.type}</h2>
-      <p>${escape(c.summary)}</p>
+      <p${inLanguages(typeSummary(c.type, "fr"), typeSummary(c.type, "de"))}>${escape(c.summary)}</p>
       <p class="needs">needs ${escape(c.needs || "any rows")}</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="${c.type}">Copy spec</button><button type="button" data-copy="tag" data-type="${c.type}">Copy tag</button><a href="guide.html#c-${c.type}">Data and switches</a></div>
       <fft-widget src="${c.type}.json" actions="info csv image explain expand"></fft-widget>

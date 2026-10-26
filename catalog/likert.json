@@ -37,6 +37,17 @@
       "note": "240 réponses",
       "source": {
         "name": "Baromètre RH"
+      },
+      "fields": {
+        "question": {
+          "values": {
+            "I understand our strategy": "Je comprends notre stratégie",
+            "My manager supports my growth": "Mon manager soutient mon évolution",
+            "I have the tools to do my job": "J'ai les outils pour faire mon travail",
+            "My workload is sustainable": "Ma charge de travail est tenable",
+            "I would recommend working here": "Je recommanderais de travailler ici"
+          }
+        }
       }
     },
     "de": {
@@ -46,7 +57,21 @@
       "note": "240 Antworten",
       "source": {
         "name": "HR-Pulsumfrage"
+      },
+      "fields": {
+        "question": {
+          "values": {
+            "I understand our strategy": "Ich verstehe unsere Strategie",
+            "My manager supports my growth": "Meine Führungskraft fördert meine Entwicklung",
+            "I have the tools to do my job": "Ich habe die Werkzeuge für meine Arbeit",
+            "My workload is sustainable": "Meine Arbeitslast ist tragbar",
+            "I would recommend working here": "Ich würde diesen Arbeitgeber empfehlen"
+          }
+        }
       }
     }
+  },
+  "fields": {
+    "question": {}
   }
 }

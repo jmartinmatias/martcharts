@@ -989,6 +989,9 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
 
   /** What a filter is called on screen: its row label, the period's label, or the field in words. */
   const filterName = (field: string) => spec.filters?.find((filter) => filter.field === field)?.label ?? fieldLabel(field);
+  /** A filtered value in words: the filter's own word for it in the board's language (Affluent reads Aisé), else the value. */
+  const valueWord = (field: string, value: unknown) =>
+    spec.filters?.find((filter) => filter.field === field)?.values?.[String(value)] ?? formatValue(value, undefined, undefined);
   /**
    * A click filter's field as the reader saw it: the label the clicked card gives it ("Client"), else any card's
    * label for it, else the field's own name made readable.
@@ -1060,7 +1063,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     // whole book are not mistaken for the clicked client's figures. Its own card counts as showing it.
     if (cross && clickMissed.length) {
       const total = slots.size;
-      const value = formatValue(cross.value, undefined, undefined);
+      const value = valueWord(cross.field, cross.value);
       const shown = total - clickMissed.length;
       if (unreached.childNodes.length) unreached.append(" · ");
       const item = el("span", "fft-unreached-item", C.clickReach(value, shown, total));
@@ -1106,9 +1109,9 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   /** Every filter in force, in words: what the board-level message names. */
   function boardSaid(): string[] {
     const said: string[] = [];
-    for (const [field, value] of active) if (value !== null && value !== undefined) said.push(`${filterName(field)}: ${formatValue(value, undefined, undefined)}`);
+    for (const [field, value] of active) if (value !== null && value !== undefined) said.push(`${filterName(field)}: ${valueWord(field, value)}`);
     if (range && period !== "All") said.push(`${range.label ?? B.period}: ${period}`);
-    if (cross) said.push(`${clickName(cross.field, cross.source)}: ${formatValue(cross.value, undefined, undefined)}`);
+    if (cross) said.push(`${clickName(cross.field, cross.source)}: ${valueWord(cross.field, cross.value)}`);
     return said;
   }
 
@@ -1124,9 +1127,9 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     const parts: string[] = [];
     const section = sections.find(({ node }) => node.id === shownSection);
     if (section) parts.push(B.section(section.title));
-    for (const [field, value] of Object.entries(chosenFilters())) parts.push(`${filterName(field)}: ${formatValue(value, undefined, undefined)}`);
+    for (const [field, value] of Object.entries(chosenFilters())) parts.push(`${filterName(field)}: ${valueWord(field, value)}`);
     if (range) parts.push(`${range.label ?? B.period}: ${period === "All" ? B.all : period}`);
-    if (cross) parts.push(`${clickName(cross.field, cross.source)}: ${formatValue(cross.value, undefined, undefined)}`);
+    if (cross) parts.push(`${clickName(cross.field, cross.source)}: ${valueWord(cross.field, cross.value)}`);
     const asOfLine = asOf ? asOfText(spec.asOf as string, range ? await drawnLatest() : "", boardLocale) : "";
     paintFiltersToggle();
     if (asOf) asOf.textContent = asOfLine;
@@ -1160,7 +1163,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     cross = field === null ? undefined : { field, value, ...(source ? { source } : {}) };
     if (!cross) crossOrigin = undefined;
     if (cross) {
-      const text = `${clickName(cross.field, cross.source)}: ${formatValue(cross.value, undefined, undefined)}`;
+      const text = `${clickName(cross.field, cross.source)}: ${valueWord(cross.field, cross.value)}`;
       chip.replaceChildren(el("span", "fft-crossfilter-text", text), el("span", "fft-crossfilter-x", "\u00d7"));
       chip.setAttribute("aria-label", B.clearFilter(text));
       chip.title = B.clearThis;
@@ -1180,7 +1183,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     const goal = focusAfter;
     focusAfter = undefined;
     if (goal) refocus(goal.origin, goal.fallback);
-    if (cross) await sayChange(A.set(clickName(cross.field, cross.source), formatValue(cross.value, undefined, undefined)));
+    if (cross) await sayChange(A.set(clickName(cross.field, cross.source), valueWord(cross.field, cross.value)));
     else if (was) await sayChange(A.cleared(fieldLabel(was.field)));
   }
 
@@ -1278,7 +1281,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       const select = el("select", "");
       select.id = selectId;
       select.add(new Option(B.all, ""));
-      seen.forEach((value, i) => select.add(new Option(formatValue(value, undefined, undefined), String(i))));
+      seen.forEach((value, i) => select.add(new Option(valueWord(filter.field, value), String(i))));
       select.addEventListener("change", () => void setFilter(filter.field, select.value === "" ? null : seen[Number(select.value)]));
       selects.set(filter.field, { select, values: seen });
       wrap.append(label, select);
@@ -1454,7 +1457,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     const clears: (() => Promise<void>)[] = [];
     for (const [field, value] of active) {
       if (value === null || value === undefined || !fields.has(field)) continue;
-      said.push(`${filterName(field)}: ${formatValue(value, undefined, undefined)}`);
+      said.push(`${filterName(field)}: ${valueWord(field, value)}`);
       clears.push(() => setFilter(field, null));
     }
     if (range && period !== "All" && rangeFields.some((field) => fields.has(field))) {
@@ -1462,7 +1465,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       clears.push(() => setRange("All"));
     }
     if (cross && cross.source !== id && fields.has(cross.field)) {
-      said.push(`${clickName(cross.field, cross.source)}: ${formatValue(cross.value, undefined, undefined)}`);
+      said.push(`${clickName(cross.field, cross.source)}: ${valueWord(cross.field, cross.value)}`);
       clears.push(() => setCrossFilter(null));
     }
     if (!said.length) return undefined;
@@ -1501,7 +1504,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     await redraw();
     const none = (v: unknown) => v === null || v === undefined;
     if (none(value) && !none(before)) await sayChange(A.cleared(filterName(field)));
-    else if (!none(value) && JSON.stringify(value) !== JSON.stringify(before)) await sayChange(A.set(filterName(field), formatValue(value, undefined, undefined)));
+    else if (!none(value) && JSON.stringify(value) !== JSON.stringify(before)) await sayChange(A.set(filterName(field), valueWord(field, value)));
   }
 
   const ready = (async () => {

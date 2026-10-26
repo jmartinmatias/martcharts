@@ -72,10 +72,26 @@
           "label": "Réglementation"
         },
         "topic": {
-          "label": "Thème"
+          "label": "Thème",
+          "values": {
+            "Operational resilience": "Résilience opérationnelle",
+            "Data, AI & digital": "Données, IA et numérique",
+            "AML & sanctions": "LCB-FT et sanctions",
+            "Prudential": "Prudentiel",
+            "Markets": "Marchés",
+            "ESG & sustainability": "ESG et durabilité",
+            "Payments": "Paiements"
+          }
         },
         "status": {
-          "label": "Statut"
+          "label": "Statut",
+          "values": {
+            "Applies": "S'applique",
+            "In force": "En vigueur",
+            "Under review": "En révision",
+            "Adopted": "Adopté",
+            "Consultation": "Consultation"
+          }
         },
         "impact": {
           "label": "Impact (1 à 5)"
@@ -106,7 +122,16 @@
           "label": "Regulierung"
         },
         "topic": {
-          "label": "Thema"
+          "label": "Thema",
+          "values": {
+            "Operational resilience": "Operative Resilienz",
+            "Data, AI & digital": "Daten, KI und Digitales",
+            "AML & sanctions": "Geldwäsche und Sanktionen",
+            "Prudential": "Aufsichtsrecht",
+            "Markets": "Märkte",
+            "ESG & sustainability": "ESG und Nachhaltigkeit",
+            "Payments": "Zahlungsverkehr"
+          }
         },
         "impact": {
           "label": "Wirkung (1 bis 5)"
@@ -122,6 +147,15 @@
         },
         "applies": {
           "label": "Anwendbar"
+        },
+        "status": {
+          "values": {
+            "Applies": "Gilt",
+            "In force": "In Kraft",
+            "Under review": "In Prüfung",
+            "Adopted": "Verabschiedet",
+            "Consultation": "Konsultation"
+          }
         }
       },
       "source": {

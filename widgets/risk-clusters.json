@@ -35,7 +35,9 @@
     },
     "name": {
       "label": "Client"
-    }
+    },
+    "segment": {},
+    "region": {}
   },
   "view": {
     "type": "scatter",
@@ -64,7 +66,28 @@
           "label": "Actifs gérés"
         },
         "cluster": {
-          "label": "Groupe"
+          "label": "Groupe",
+          "values": {
+            "Core": "Cœur",
+            "Growth": "Croissance",
+            "At risk": "À risque",
+            "Dormant": "Dormant"
+          }
+        },
+        "segment": {
+          "values": {
+            "Private": "Banque privée",
+            "Affluent": "Clientèle aisée",
+            "Corporate": "Entreprises",
+            "Institutional": "Institutionnels"
+          }
+        },
+        "region": {
+          "values": {
+            "Italy": "Italie",
+            "Iberia": "Péninsule ibérique",
+            "France": "France"
+          }
         }
       }
     },
@@ -84,6 +107,29 @@
         },
         "name": {
           "label": "Kunde"
+        },
+        "segment": {
+          "values": {
+            "Private": "Privatkunden",
+            "Affluent": "Vermögende Kunden",
+            "Corporate": "Firmenkunden",
+            "Institutional": "Institutionelle"
+          }
+        },
+        "region": {
+          "values": {
+            "Italy": "Italien",
+            "Iberia": "Iberische Halbinsel",
+            "France": "Frankreich"
+          }
+        },
+        "cluster": {
+          "values": {
+            "Core": "Kern",
+            "Growth": "Wachstum",
+            "At risk": "Gefährdet",
+            "Dormant": "Ruhend"
+          }
         }
       }
     }

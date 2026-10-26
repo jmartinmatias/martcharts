@@ -79,7 +79,16 @@
       },
       "fields": {
         "product": {
-          "label": "Produit"
+          "label": "Produit",
+          "values": {
+            "Custody": "Conservation",
+            "Advisory": "Conseil",
+            "Lending": "Crédit",
+            "Discretionary": "Gestion sous mandat",
+            "Pension": "Retraite",
+            "Insurance": "Assurance",
+            "Structured": "Produits structurés"
+          }
         },
         "penetration": {
           "label": "Aujourd'hui"
@@ -98,7 +107,16 @@
       },
       "fields": {
         "product": {
-          "label": "Produkt"
+          "label": "Produkt",
+          "values": {
+            "Custody": "Verwahrung",
+            "Advisory": "Beratung",
+            "Lending": "Kredite",
+            "Discretionary": "Vermögensverwaltung",
+            "Pension": "Vorsorge",
+            "Insurance": "Versicherung",
+            "Structured": "Strukturierte Produkte"
+          }
         },
         "penetration": {
           "label": "Heute"

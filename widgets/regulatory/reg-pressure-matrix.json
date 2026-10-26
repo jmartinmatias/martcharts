@@ -78,7 +78,17 @@
           "label": "Trimestre"
         },
         "topic": {
-          "label": "Thème"
+          "label": "Thème",
+          "values": {
+            "Operational resilience": "Résilience opérationnelle",
+            "AML & sanctions": "LCB-FT et sanctions",
+            "ESG & sustainability": "ESG et durabilité",
+            "Prudential": "Prudentiel",
+            "Consumer protection": "Protection des consommateurs",
+            "Markets": "Marchés",
+            "Payments": "Paiements",
+            "Data, AI & digital": "Données, IA et numérique"
+          }
         },
         "impact": {
           "label": "Impact moyen"
@@ -97,7 +107,17 @@
           "label": "Quartal"
         },
         "topic": {
-          "label": "Thema"
+          "label": "Thema",
+          "values": {
+            "Operational resilience": "Operative Resilienz",
+            "AML & sanctions": "Geldwäsche und Sanktionen",
+            "ESG & sustainability": "ESG und Nachhaltigkeit",
+            "Prudential": "Aufsichtsrecht",
+            "Consumer protection": "Verbraucherschutz",
+            "Markets": "Märkte",
+            "Payments": "Zahlungsverkehr",
+            "Data, AI & digital": "Daten, KI und Digitales"
+          }
         },
         "obligations": {
           "label": "Pflichten"

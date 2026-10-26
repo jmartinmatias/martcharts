@@ -132,12 +132,32 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "fr": {
       "title": "Affaires ouvertes",
       "subtitle": "Le plus grand d'abord",
-      "description": "Affaires en cours, avec leur étape."
+      "description": "Affaires en cours, avec leur étape.",
+      "fields": {
+        "stage": {
+          "values": {
+            "Won": "Gagné",
+            "Negotiation": "Négociation",
+            "Proposal": "Proposition",
+            "At risk": "À risque"
+          }
+        }
+      }
     },
     "de": {
       "title": "Offene Deals",
       "subtitle": "Größte zuerst",
-      "description": "Laufende Deals mit ihrer Phase."
+      "description": "Laufende Deals mit ihrer Phase.",
+      "fields": {
+        "stage": {
+          "values": {
+            "Won": "Gewonnen",
+            "Negotiation": "Verhandlung",
+            "Proposal": "Angebot",
+            "At risk": "Gefährdet"
+          }
+        }
+      }
     }
   }
 }

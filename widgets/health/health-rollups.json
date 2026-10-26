@@ -37,7 +37,12 @@
       "description": "Les règles d'agrégation : les mesures en une perspective, les perspectives en statut global du client, et les clients en portefeuille.",
       "fields": {
         "level": {
-          "label": "Niveau"
+          "label": "Niveau",
+          "values": {
+            "Perspective": "Perspective",
+            "Overall": "Global",
+            "Relationship manager": "Chargé de clientèle"
+          }
         },
         "rule": {
           "label": "Règle"
@@ -53,7 +58,12 @@
       "description": "Die Verdichtungsregeln: Kennzahlen zur Perspektive, Perspektiven zum Gesamtstatus des Kunden, Kunden zum Bestand eines Beraters.",
       "fields": {
         "level": {
-          "label": "Ebene"
+          "label": "Ebene",
+          "values": {
+            "Perspective": "Perspektive",
+            "Overall": "Gesamt",
+            "Relationship manager": "Kundenbetreuer"
+          }
         },
         "rule": {
           "label": "Vorschrift"

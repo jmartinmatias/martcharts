@@ -4,7 +4,9 @@
   "subtitle": "Q3 2026, customers moving between tiers",
   "description": "Every upgrade and downgrade between plans this quarter. Starter to Growth is the biggest move; downgrades are the thin ribbons running back.",
   "note": "{sum:customers} moves",
-  "source": {"name": "Billing"},
+  "source": {
+    "name": "Billing"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -57,7 +59,9 @@
       "format": {
         "type": "number"
       }
-    }
+    },
+    "from": {},
+    "to": {}
   },
   "view": {
     "type": "chord",
@@ -77,6 +81,18 @@
       "fields": {
         "customers": {
           "label": "Clients"
+        },
+        "from": {
+          "values": {
+            "Growth": "Croissance",
+            "Enterprise": "Grandes entreprises"
+          }
+        },
+        "to": {
+          "values": {
+            "Growth": "Croissance",
+            "Enterprise": "Grandes entreprises"
+          }
         }
       }
     },
@@ -91,6 +107,18 @@
       "fields": {
         "customers": {
           "label": "Kunden"
+        },
+        "from": {
+          "values": {
+            "Growth": "Wachstum",
+            "Enterprise": "Großunternehmen"
+          }
+        },
+        "to": {
+          "values": {
+            "Growth": "Wachstum",
+            "Enterprise": "Großunternehmen"
+          }
         }
       }
     }

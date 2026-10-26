@@ -168,7 +168,13 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
           "label": "Clients"
         },
         "region": {
-          "label": "Région commerciale"
+          "label": "Région commerciale",
+          "values": {
+            "West": "Ouest",
+            "South": "Sud",
+            "Midwest": "Midwest",
+            "Northeast": "Nord-Est"
+          }
         }
       }
     },
@@ -185,7 +191,13 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
           "label": "Kunden"
         },
         "region": {
-          "label": "Vertriebsregion"
+          "label": "Vertriebsregion",
+          "values": {
+            "West": "West",
+            "South": "Süd",
+            "Midwest": "Mittlerer Westen",
+            "Northeast": "Nordosten"
+          }
         }
       }
     }

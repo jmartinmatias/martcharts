@@ -65,7 +65,11 @@
       },
       "fields": {
         "product": {
-          "label": "Produit"
+          "label": "Produit",
+          "values": {
+            "Enterprise": "Grandes entreprises",
+            "Core": "Cœur"
+          }
         },
         "ease": {
           "label": "Simplicité"
@@ -85,7 +89,11 @@
       },
       "fields": {
         "product": {
-          "label": "Produkt"
+          "label": "Produkt",
+          "values": {
+            "Enterprise": "Großunternehmen",
+            "Core": "Kern"
+          }
         },
         "ease": {
           "label": "Bedienung"

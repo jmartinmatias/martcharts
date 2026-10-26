@@ -3,7 +3,9 @@
   "title": "Operating costs against budget",
   "subtitle": "Q3 2026, by department",
   "description": "Each department's Q3 spend minus its budget. Sales and R&D ran over; Marketing, Support and IT came in under.",
-  "source": {"name": "Finance ledger"},
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -56,7 +58,8 @@
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "department": {}
   },
   "view": {
     "type": "variance",
@@ -76,6 +79,16 @@
       "fields": {
         "actual": {
           "label": "Réel"
+        },
+        "department": {
+          "values": {
+            "Sales": "Ventes",
+            "Marketing": "Marketing",
+            "R&D": "R&D",
+            "Support": "Support",
+            "G&A": "Frais généraux",
+            "IT": "Informatique"
+          }
         }
       }
     },
@@ -89,6 +102,16 @@
       "fields": {
         "actual": {
           "label": "Ist"
+        },
+        "department": {
+          "values": {
+            "Sales": "Vertrieb",
+            "Marketing": "Marketing",
+            "R&D": "F&E",
+            "Support": "Support",
+            "G&A": "Verwaltung",
+            "IT": "IT"
+          }
         }
       }
     }

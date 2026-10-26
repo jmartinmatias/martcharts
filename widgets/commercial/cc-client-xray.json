@@ -61,7 +61,9 @@
     },
     "fx": {
       "label": "FX"
-    }
+    },
+    "segment": {},
+    "cluster": {}
   },
   "view": {
     "type": "xray",
@@ -148,6 +150,16 @@
         },
         "fx": {
           "label": "Change"
+        },
+        "segment": {
+          "values": {
+            "Private": "Banque privée"
+          }
+        },
+        "cluster": {
+          "values": {
+            "Core": "Cœur"
+          }
         }
       }
     },
@@ -182,6 +194,16 @@
         },
         "fx": {
           "label": "Devisen"
+        },
+        "segment": {
+          "values": {
+            "Private": "Privatkunden"
+          }
+        },
+        "cluster": {
+          "values": {
+            "Core": "Kern"
+          }
         }
       }
     }

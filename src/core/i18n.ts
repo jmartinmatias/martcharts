@@ -26,6 +26,11 @@ export function i18nLanguage(locale: string | undefined): I18nLanguage | undefin
   return (I18N_LANGUAGES as readonly string[]).includes(lang ?? "") ? (lang as I18nLanguage) : undefined;
 }
 
+/** A map of words: every value a string. */
+function isWordMap(value: unknown): value is Record<string, string> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value) && Object.values(value as object).every((v) => typeof v === "string");
+}
+
 /** Lays one value over another: words replace words, objects merge key by key, arrays item by item. */
 function lay(base: unknown, over: unknown): unknown {
   if (typeof over === "string") return over;
@@ -38,6 +43,8 @@ function lay(base: unknown, over: unknown): unknown {
     const out: Record<string, unknown> = { ...(base as Record<string, unknown>) };
     for (const [key, value] of Object.entries(over as Record<string, unknown>)) {
       if (key in out) out[key] = lay(out[key], value);
+      // A field's or a filter's words for its values may be new in a language: a map of words, never a setting.
+      else if (key === "values" && isWordMap(value)) out[key] = value;
     }
     return out;
   }

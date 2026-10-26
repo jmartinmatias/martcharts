@@ -178,7 +178,15 @@ An anomaly tracker: one thin lane per metric over time, the band it was expected
       },
       "fields": {
         "metric": {
-          "label": "Mesure"
+          "label": "Mesure",
+          "values": {
+            "Net new money": "Collecte nette",
+            "Fee revenue": "Revenus de commissions",
+            "Trades": "Transactions",
+            "Complaints": "Réclamations",
+            "Logins": "Connexions",
+            "FX volume": "Volume de change"
+          }
         },
         "value": {
           "label": "Relevé"
@@ -206,7 +214,15 @@ An anomaly tracker: one thin lane per metric over time, the band it was expected
           "label": "Datum"
         },
         "metric": {
-          "label": "Kennzahl"
+          "label": "Kennzahl",
+          "values": {
+            "Net new money": "Nettoneugeld",
+            "Fee revenue": "Provisionserträge",
+            "Trades": "Transaktionen",
+            "Complaints": "Beschwerden",
+            "Logins": "Anmeldungen",
+            "FX volume": "Devisenvolumen"
+          }
         },
         "value": {
           "label": "Messwert"
@@ -434,7 +450,8 @@ Vertical bars comparing amounts across categories. Several y fields draw grouped
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "region": {}
   },
   "view": {
     "type": "bar",
@@ -452,6 +469,17 @@ Vertical bars comparing amounts across categories. Several y fields draw grouped
       "description": "Core et Plus en part du CA de chaque région.",
       "source": {
         "name": "Journal des ventes"
+      },
+      "fields": {
+        "region": {
+          "values": {
+            "East": "Est",
+            "North": "Nord",
+            "Central": "Centre",
+            "West": "Ouest",
+            "South": "Sud"
+          }
+        }
       }
     },
     "de": {
@@ -460,6 +488,17 @@ Vertical bars comparing amounts across categories. Several y fields draw grouped
       "description": "Core und Plus als Anteil am Umsatz jeder Region.",
       "source": {
         "name": "Verkaufsjournal"
+      },
+      "fields": {
+        "region": {
+          "values": {
+            "East": "Ost",
+            "North": "Nord",
+            "Central": "Mitte",
+            "West": "West",
+            "South": "Süd"
+          }
+        }
       }
     }
   }
@@ -534,7 +573,12 @@ A distribution: one dot per row along a value axis, nudged apart so none overlap
           "label": "Valeur de l'affaire"
         },
         "region": {
-          "label": "Région"
+          "label": "Région",
+          "values": {
+            "North": "Nord",
+            "South": "Sud",
+            "East": "Est"
+          }
         }
       }
     },
@@ -545,6 +589,13 @@ A distribution: one dot per row along a value axis, nudged apart so none overlap
       "fields": {
         "value": {
           "label": "Dealwert"
+        },
+        "region": {
+          "values": {
+            "North": "Nord",
+            "South": "Süd",
+            "East": "Ost"
+          }
         }
       }
     }
@@ -643,10 +694,24 @@ A status board: one column per stage with its count in the header, and the items
           "label": "Affaire"
         },
         "stage": {
-          "label": "Étape"
+          "label": "Étape",
+          "values": {
+            "Negotiation": "Négociation",
+            "Proposal": "Proposition",
+            "Qualified": "Qualifié",
+            "Won": "Gagné",
+            "Lost": "Perdu"
+          }
         },
         "region": {
-          "label": "Région"
+          "label": "Région",
+          "values": {
+            "North": "Nord",
+            "South": "Sud",
+            "East": "Est",
+            "West": "Ouest",
+            "Central": "Centre"
+          }
         },
         "amount": {
           "label": "Montant"
@@ -662,13 +727,29 @@ A status board: one column per stage with its count in the header, and the items
       "description": "Jeder Deal auf einem Board nach Phase, Punkt nach Region gefärbt, Betrag auf jeder Karte, damit das Quartal auf einen Blick lesbar ist.",
       "fields": {
         "stage": {
-          "label": "Phase"
+          "label": "Phase",
+          "values": {
+            "Negotiation": "Verhandlung",
+            "Proposal": "Angebot",
+            "Qualified": "Qualifiziert",
+            "Won": "Gewonnen",
+            "Lost": "Verloren"
+          }
         },
         "amount": {
           "label": "Betrag"
         },
         "owner": {
           "label": "Verantwortlich"
+        },
+        "region": {
+          "values": {
+            "North": "Nord",
+            "South": "Süd",
+            "East": "Ost",
+            "West": "West",
+            "Central": "Mitte"
+          }
         }
       }
     }
@@ -746,7 +827,12 @@ A box plot per group on one shared axis: a box over the middle half of the value
           "label": "Valeur de l'affaire"
         },
         "region": {
-          "label": "Région"
+          "label": "Région",
+          "values": {
+            "North": "Nord",
+            "South": "Sud",
+            "East": "Est"
+          }
         }
       }
     },
@@ -758,6 +844,13 @@ A box plot per group on one shared axis: a box over the middle half of the value
       "fields": {
         "value": {
           "label": "Dealwert"
+        },
+        "region": {
+          "values": {
+            "North": "Nord",
+            "South": "Süd",
+            "East": "Ost"
+          }
         }
       }
     }
@@ -821,7 +914,8 @@ Actual against target, one compact row per item: a value bar and a target tick o
         "type": "number",
         "compact": true
       }
-    }
+    },
+    "kpi": {}
   },
   "view": {
     "type": "bullet",
@@ -844,6 +938,15 @@ Actual against target, one compact row per item: a value bar and a target tick o
         },
         "target": {
           "label": "Objectif"
+        },
+        "kpi": {
+          "values": {
+            "Revenue (€)": "CA (€)",
+            "New customers": "Nouveaux clients",
+            "Gross margin (%)": "Marge brute (%)",
+            "Net promoter score": "Net Promoter Score",
+            "Tickets resolved": "Tickets résolus"
+          }
         }
       }
     },
@@ -861,6 +964,15 @@ Actual against target, one compact row per item: a value bar and a target tick o
         },
         "target": {
           "label": "Ziel"
+        },
+        "kpi": {
+          "values": {
+            "Revenue (€)": "Umsatz (€)",
+            "New customers": "Neukunden",
+            "Gross margin (%)": "Bruttomarge (%)",
+            "Net promoter score": "Net Promoter Score",
+            "Tickets resolved": "Gelöste Tickets"
+          }
         }
       }
     }
@@ -952,7 +1064,15 @@ Rank over time: in every period the series are ranked by value (highest first), 
           "label": "Mois"
         },
         "product": {
-          "label": "Produit"
+          "label": "Produit",
+          "values": {
+            "Platform": "Plateforme",
+            "Analytics": "Analytique",
+            "Support": "Support",
+            "Integrations": "Intégrations",
+            "Training": "Formation",
+            "Consulting": "Conseil"
+          }
         },
         "revenue": {
           "label": "Chiffre d'affaires"
@@ -971,7 +1091,15 @@ Rank over time: in every period the series are ranked by value (highest first), 
           "label": "Monat"
         },
         "product": {
-          "label": "Produkt"
+          "label": "Produkt",
+          "values": {
+            "Platform": "Plattform",
+            "Analytics": "Analytik",
+            "Support": "Support",
+            "Integrations": "Integrationen",
+            "Training": "Schulung",
+            "Consulting": "Consulting"
+          }
         },
         "revenue": {
           "label": "Umsatz"
@@ -1264,7 +1392,9 @@ Flows between groups around a circle: each group an arc as long as everything it
       "format": {
         "type": "number"
       }
-    }
+    },
+    "from": {},
+    "to": {}
   },
   "view": {
     "type": "chord",
@@ -1284,6 +1414,18 @@ Flows between groups around a circle: each group an arc as long as everything it
       "fields": {
         "customers": {
           "label": "Clients"
+        },
+        "from": {
+          "values": {
+            "Growth": "Croissance",
+            "Enterprise": "Grandes entreprises"
+          }
+        },
+        "to": {
+          "values": {
+            "Growth": "Croissance",
+            "Enterprise": "Grandes entreprises"
+          }
         }
       }
     },
@@ -1298,6 +1440,18 @@ Flows between groups around a circle: each group an arc as long as everything it
       "fields": {
         "customers": {
           "label": "Kunden"
+        },
+        "from": {
+          "values": {
+            "Growth": "Wachstum",
+            "Enterprise": "Großunternehmen"
+          }
+        },
+        "to": {
+          "values": {
+            "Growth": "Wachstum",
+            "Enterprise": "Großunternehmen"
+          }
         }
       }
     }
@@ -1448,7 +1602,8 @@ Part-to-whole at a glance: a ring of up to 6 slices with the total in the middle
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "segment": {}
   },
   "view": {
     "type": "donut",
@@ -1463,6 +1618,13 @@ Part-to-whole at a glance: a ring of up to 6 slices with the total in the middle
       "fields": {
         "revenue": {
           "label": "Chiffre d'affaires"
+        },
+        "segment": {
+          "values": {
+            "Enterprise": "Grandes entreprises",
+            "Mid-market": "ETI",
+            "Small business": "Petites entreprises"
+          }
         }
       }
     },
@@ -1473,6 +1635,13 @@ Part-to-whole at a glance: a ring of up to 6 slices with the total in the middle
       "fields": {
         "revenue": {
           "label": "Umsatz"
+        },
+        "segment": {
+          "values": {
+            "Enterprise": "Großunternehmen",
+            "Mid-market": "Mittelstand",
+            "Small business": "Kleinunternehmen"
+          }
         }
       }
     }
@@ -1567,7 +1736,11 @@ A dot plot: one row per item and one dot per measure on one shared axis, with a 
       },
       "fields": {
         "product": {
-          "label": "Produit"
+          "label": "Produit",
+          "values": {
+            "Enterprise": "Grandes entreprises",
+            "Core": "Cœur"
+          }
         },
         "ease": {
           "label": "Simplicité"
@@ -1587,7 +1760,11 @@ A dot plot: one row per item and one dot per measure on one shared axis, with a 
       },
       "fields": {
         "product": {
-          "label": "Produkt"
+          "label": "Produkt",
+          "values": {
+            "Enterprise": "Großunternehmen",
+            "Core": "Kern"
+          }
         },
         "ease": {
           "label": "Bedienung"
@@ -1775,7 +1952,8 @@ Before and after per item on one shared axis: a muted dot for before, an accent 
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "region": {}
   },
   "view": {
     "type": "dumbbell",
@@ -1790,6 +1968,17 @@ Before and after per item on one shared axis: a muted dot for before, an accent 
       "description": "Le CA de septembre de chaque région, l'an dernier et cette année.",
       "source": {
         "name": "Grand livre"
+      },
+      "fields": {
+        "region": {
+          "values": {
+            "East": "Est",
+            "North": "Nord",
+            "Central": "Centre",
+            "West": "Ouest",
+            "South": "Sud"
+          }
+        }
       }
     },
     "de": {
@@ -1798,6 +1987,17 @@ Before and after per item on one shared axis: a muted dot for before, an accent 
       "description": "Septemberumsatz jeder Region, Vorjahr gegen dieses Jahr.",
       "source": {
         "name": "Hauptbuch"
+      },
+      "fields": {
+        "region": {
+          "values": {
+            "East": "Ost",
+            "North": "Nord",
+            "Central": "Mitte",
+            "West": "West",
+            "South": "Süd"
+          }
+        }
       }
     }
   }
@@ -1847,7 +2047,8 @@ Stages in order as centered bars narrowing from the first, with the conversion r
     "people": {
       "label": "People",
       "format": "number"
-    }
+    },
+    "stage": {}
   },
   "view": {
     "type": "funnel",
@@ -1865,6 +2066,15 @@ Stages in order as centered bars narrowing from the first, with the conversion r
       "fields": {
         "people": {
           "label": "Personnes"
+        },
+        "stage": {
+          "values": {
+            "Visits": "Visites",
+            "Signups": "Inscriptions",
+            "Activated": "Activés",
+            "Trial started": "Essai commencé",
+            "Paying": "Payants"
+          }
         }
       }
     },
@@ -1877,6 +2087,15 @@ Stages in order as centered bars narrowing from the first, with the conversion r
       "fields": {
         "people": {
           "label": "Personen"
+        },
+        "stage": {
+          "values": {
+            "Visits": "Besuche",
+            "Signups": "Anmeldungen",
+            "Activated": "Aktiviert",
+            "Trial started": "Testphase begonnen",
+            "Paying": "Zahlend"
+          }
         }
       }
     }
@@ -2037,7 +2256,18 @@ Horizontal bars for rankings and long labels: label on the left, bar, value at t
       },
       "fields": {
         "feature": {
-          "label": "Fonction"
+          "label": "Fonction",
+          "values": {
+            "Dashboards": "Tableaux de bord",
+            "Exports": "Exports",
+            "Alerts": "Alertes",
+            "Sharing": "Partage",
+            "Scheduled reports": "Rapports planifiés",
+            "API access": "Accès API",
+            "Custom fields": "Champs personnalisés",
+            "Forecasting": "Prévisions",
+            "Audit log": "Journal d'audit"
+          }
         },
         "share": {
           "label": "Comptes utilisateurs"
@@ -2053,7 +2283,18 @@ Horizontal bars for rankings and long labels: label on the left, bar, value at t
       },
       "fields": {
         "feature": {
-          "label": "Funktion"
+          "label": "Funktion",
+          "values": {
+            "Dashboards": "Dashboards",
+            "Exports": "Exporte",
+            "Alerts": "Warnungen",
+            "Sharing": "Teilen",
+            "Scheduled reports": "Geplante Berichte",
+            "API access": "API-Zugang",
+            "Custom fields": "Benutzerdefinierte Felder",
+            "Forecasting": "Prognosen",
+            "Audit log": "Prüfprotokoll"
+          }
         },
         "share": {
           "label": "Nutzende Konten"
@@ -2136,7 +2377,16 @@ A grid of cells shaded on one blue scale from light (low) to dark (high), for pa
           "label": "Heure"
         },
         "day": {
-          "label": "Jour"
+          "label": "Jour",
+          "values": {
+            "Mon": "lun.",
+            "Tue": "mar.",
+            "Wed": "mer.",
+            "Thu": "jeu.",
+            "Fri": "ven.",
+            "Sat": "sam.",
+            "Sun": "dim."
+          }
         }
       }
     },
@@ -2150,7 +2400,16 @@ A grid of cells shaded on one blue scale from light (low) to dark (high), for pa
           "label": "Zeit"
         },
         "day": {
-          "label": "Tag"
+          "label": "Tag",
+          "values": {
+            "Mon": "Mo.",
+            "Tue": "Di.",
+            "Wed": "Mi.",
+            "Thu": "Do.",
+            "Fri": "Fr.",
+            "Sat": "Sa.",
+            "Sun": "So."
+          }
         }
       }
     }
@@ -2226,7 +2485,12 @@ A distribution as touching bars: the value's range is cut into bins on round edg
           "label": "Valeur de l'affaire"
         },
         "region": {
-          "label": "Région"
+          "label": "Région",
+          "values": {
+            "North": "Nord",
+            "South": "Sud",
+            "East": "Est"
+          }
         }
       }
     },
@@ -2237,6 +2501,13 @@ A distribution as touching bars: the value's range is cut into bins on round edg
       "fields": {
         "value": {
           "label": "Dealwert"
+        },
+        "region": {
+          "values": {
+            "North": "Nord",
+            "South": "Süd",
+            "East": "Ost"
+          }
         }
       }
     }
@@ -2329,7 +2600,17 @@ A client's story as a vertical timeline: one event per row with its date, title,
       },
       "fields": {
         "kind": {
-          "label": "Type"
+          "label": "Type",
+          "values": {
+            "Call": "Appel",
+            "Trade": "Transaction",
+            "Campaign": "Campagne",
+            "Payment": "Paiement",
+            "Complaint": "Réclamation",
+            "Meeting": "Rendez-vous",
+            "Review": "Revue",
+            "Onboarding": "Entrée en relation"
+          }
         },
         "title": {
           "label": "Événement"
@@ -2351,7 +2632,17 @@ A client's story as a vertical timeline: one event per row with its date, title,
           "label": "Datum"
         },
         "kind": {
-          "label": "Art"
+          "label": "Art",
+          "values": {
+            "Call": "Anruf",
+            "Trade": "Transaktion",
+            "Campaign": "Kampagne",
+            "Payment": "Zahlung",
+            "Complaint": "Beschwerde",
+            "Meeting": "Treffen",
+            "Review": "Überprüfung",
+            "Onboarding": "Onboarding"
+          }
         },
         "title": {
           "label": "Ereignis"
@@ -2582,13 +2873,27 @@ A hierarchy laid flat: a column for the total, then one per level left to right,
       },
       "fields": {
         "region": {
-          "label": "Région"
+          "label": "Région",
+          "values": {
+            "East": "Est",
+            "North": "Nord",
+            "Central": "Centre",
+            "West": "Ouest",
+            "South": "Sud"
+          }
         },
         "product": {
-          "label": "Produit"
+          "label": "Produit",
+          "values": {
+            "Core": "Cœur"
+          }
         },
         "plan": {
-          "label": "Offre"
+          "label": "Offre",
+          "values": {
+            "Annual": "Annuel",
+            "Monthly": "Mensuel"
+          }
         },
         "revenue": {
           "label": "Chiffre d'affaires"
@@ -2604,13 +2909,29 @@ A hierarchy laid flat: a column for the total, then one per level left to right,
       },
       "fields": {
         "product": {
-          "label": "Produkt"
+          "label": "Produkt",
+          "values": {
+            "Core": "Kern"
+          }
         },
         "plan": {
-          "label": "Tarif"
+          "label": "Tarif",
+          "values": {
+            "Annual": "Jährlich",
+            "Monthly": "Monatlich"
+          }
         },
         "revenue": {
           "label": "Umsatz"
+        },
+        "region": {
+          "values": {
+            "East": "Ost",
+            "North": "Nord",
+            "Central": "Mitte",
+            "West": "West",
+            "South": "Süd"
+          }
         }
       }
     }
@@ -2968,10 +3289,27 @@ Stage swimlanes: one row per item on a shared date axis, each stage drawn from i
           "label": "Applicable"
         },
         "status": {
-          "label": "Statut"
+          "label": "Statut",
+          "values": {
+            "Applies": "S'applique",
+            "In force": "En vigueur",
+            "Adopted": "Adopté",
+            "Consultation": "Consultation"
+          }
         },
         "topic": {
-          "label": "Thème"
+          "label": "Thème",
+          "values": {
+            "Operational resilience": "Résilience opérationnelle",
+            "Prudential": "Prudentiel",
+            "AML & sanctions": "LCB-FT et sanctions",
+            "AI & digital": "IA et numérique",
+            "Markets": "Marchés",
+            "ESG & sustainability": "ESG et durabilité",
+            "Payments": "Paiements",
+            "Consumer protection": "Protection des consommateurs",
+            "Data & privacy": "Données et vie privée"
+          }
         }
       }
     },
@@ -3003,7 +3341,26 @@ Stage swimlanes: one row per item on a shared date axis, each stage drawn from i
           "label": "Wirkung"
         },
         "topic": {
-          "label": "Thema"
+          "label": "Thema",
+          "values": {
+            "Operational resilience": "Operative Resilienz",
+            "Prudential": "Aufsichtsrecht",
+            "AML & sanctions": "Geldwäsche und Sanktionen",
+            "AI & digital": "KI und Digitales",
+            "Markets": "Märkte",
+            "ESG & sustainability": "ESG und Nachhaltigkeit",
+            "Payments": "Zahlungsverkehr",
+            "Consumer protection": "Verbraucherschutz",
+            "Data & privacy": "Daten und Datenschutz"
+          }
+        },
+        "status": {
+          "values": {
+            "Applies": "Gilt",
+            "In force": "In Kraft",
+            "Adopted": "Verabschiedet",
+            "Consultation": "Konsultation"
+          }
         }
       }
     }
@@ -3068,6 +3425,17 @@ Survey answers as diverging stacked bars: one bar per question, its responses in
       "note": "240 réponses",
       "source": {
         "name": "Baromètre RH"
+      },
+      "fields": {
+        "question": {
+          "values": {
+            "I understand our strategy": "Je comprends notre stratégie",
+            "My manager supports my growth": "Mon manager soutient mon évolution",
+            "I have the tools to do my job": "J'ai les outils pour faire mon travail",
+            "My workload is sustainable": "Ma charge de travail est tenable",
+            "I would recommend working here": "Je recommanderais de travailler ici"
+          }
+        }
       }
     },
     "de": {
@@ -3077,8 +3445,22 @@ Survey answers as diverging stacked bars: one bar per question, its responses in
       "note": "240 Antworten",
       "source": {
         "name": "HR-Pulsumfrage"
+      },
+      "fields": {
+        "question": {
+          "values": {
+            "I understand our strategy": "Ich verstehe unsere Strategie",
+            "My manager supports my growth": "Meine Führungskraft fördert meine Entwicklung",
+            "I have the tools to do my job": "Ich habe die Werkzeuge für meine Arbeit",
+            "My workload is sustainable": "Meine Arbeitslast ist tragbar",
+            "I would recommend working here": "Ich würde diesen Arbeitgeber empfehlen"
+          }
+        }
       }
     }
+  },
+  "fields": {
+    "question": {}
   }
 }
 ```
@@ -3284,7 +3666,8 @@ A stacked list: one line per row with a label, optional detail underneath, and a
           "compact": true
         }
       }
-    }
+    },
+    "segment": {}
   },
   "view": {
     "type": "list",
@@ -3296,12 +3679,28 @@ A stacked list: one line per row with a label, optional detail underneath, and a
     "fr": {
       "title": "Meilleurs clients",
       "subtitle": "Par CA, depuis janvier",
-      "description": "Les cinq clients au plus fort chiffre d'affaires."
+      "description": "Les cinq clients au plus fort chiffre d'affaires.",
+      "fields": {
+        "segment": {
+          "values": {
+            "Enterprise": "Grandes entreprises",
+            "Mid-market": "ETI"
+          }
+        }
+      }
     },
     "de": {
       "title": "Top-Kunden",
       "subtitle": "Nach Umsatz, seit Jahresbeginn",
-      "description": "Die fünf Kunden mit dem meisten Umsatz."
+      "description": "Die fünf Kunden mit dem meisten Umsatz.",
+      "fields": {
+        "segment": {
+          "values": {
+            "Enterprise": "Großunternehmen",
+            "Mid-market": "Mittelstand"
+          }
+        }
+      }
     }
   }
 }
@@ -3394,7 +3793,13 @@ A small, clean map that says where things are: a marker and an always-on name fo
           "label": "Effectif"
         },
         "role": {
-          "label": "Rôle"
+          "label": "Rôle",
+          "values": {
+            "Headquarters": "Siège",
+            "Engineering": "Ingénierie",
+            "Sales": "Ventes",
+            "Support": "Support"
+          }
         }
       }
     },
@@ -3417,7 +3822,13 @@ A small, clean map that says where things are: a marker and an always-on name fo
           "label": "Belegschaft"
         },
         "role": {
-          "label": "Rolle"
+          "label": "Rolle",
+          "values": {
+            "Headquarters": "Zentrale",
+            "Engineering": "Technik",
+            "Sales": "Vertrieb",
+            "Support": "Support"
+          }
         }
       }
     }
@@ -3496,10 +3907,22 @@ A mosaic: one column per category, as wide as its total, split into segments by 
       },
       "fields": {
         "region": {
-          "label": "Région"
+          "label": "Région",
+          "values": {
+            "East": "Est",
+            "North": "Nord",
+            "Central": "Centre",
+            "West": "Ouest",
+            "South": "Sud"
+          }
         },
         "product": {
-          "label": "Produit"
+          "label": "Produit",
+          "values": {
+            "Platform": "Plateforme",
+            "Analytics": "Analytique",
+            "Services": "Services"
+          }
         },
         "revenue": {
           "label": "Chiffre d'affaires"
@@ -3515,10 +3938,24 @@ A mosaic: one column per category, as wide as its total, split into segments by 
       },
       "fields": {
         "product": {
-          "label": "Produkt"
+          "label": "Produkt",
+          "values": {
+            "Platform": "Plattform",
+            "Analytics": "Analytik",
+            "Services": "Dienstleistungen"
+          }
         },
         "revenue": {
           "label": "Umsatz"
+        },
+        "region": {
+          "values": {
+            "East": "Ost",
+            "North": "Nord",
+            "Central": "Mitte",
+            "West": "West",
+            "South": "Süd"
+          }
         }
       }
     }
@@ -3602,7 +4039,14 @@ A mark matrix (a punchcard): one mark per pair of x and y, sized by a value, sha
           "label": "Réglementation"
         },
         "stakeholder": {
-          "label": "Doit se conformer"
+          "label": "Doit se conformer",
+          "values": {
+            "Banks": "Banques",
+            "Insurers": "Assureurs",
+            "Asset managers": "Gestionnaires d'actifs",
+            "Payment institutions": "Établissements de paiement",
+            "Crypto providers": "Prestataires crypto"
+          }
         },
         "mustComply": {
           "label": "Doit se conformer"
@@ -3622,7 +4066,14 @@ A mark matrix (a punchcard): one mark per pair of x and y, sized by a value, sha
           "label": "Regulierung"
         },
         "stakeholder": {
-          "label": "Muss einhalten"
+          "label": "Muss einhalten",
+          "values": {
+            "Banks": "Banken",
+            "Insurers": "Versicherer",
+            "Asset managers": "Vermögensverwalter",
+            "Payment institutions": "Zahlungsinstitute",
+            "Crypto providers": "Krypto-Anbieter"
+          }
         },
         "mustComply": {
           "label": "Muss einhalten"
@@ -3687,7 +4138,8 @@ Progress against a target, one meter per row: attainment as a percentage, a bar 
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "region": {}
   },
   "view": {
     "type": "meter",
@@ -3702,6 +4154,17 @@ Progress against a target, one meter per row: attainment as a percentage, a bar 
       "description": "À quelle distance chaque région est de son objectif de septembre.",
       "source": {
         "name": "Journal des ventes"
+      },
+      "fields": {
+        "region": {
+          "values": {
+            "East": "Est",
+            "North": "Nord",
+            "Central": "Centre",
+            "West": "Ouest",
+            "South": "Sud"
+          }
+        }
       }
     },
     "de": {
@@ -3710,6 +4173,17 @@ Progress against a target, one meter per row: attainment as a percentage, a bar 
       "description": "Wie nah jede Region an ihrem Septemberziel ist.",
       "source": {
         "name": "Verkaufsjournal"
+      },
+      "fields": {
+        "region": {
+          "values": {
+            "East": "Ost",
+            "North": "Nord",
+            "Central": "Mitte",
+            "West": "West",
+            "South": "Süd"
+          }
+        }
       }
     }
   }
@@ -3763,7 +4237,8 @@ The 80/20 view: categories sorted largest first as bars of their share of the to
       "format": {
         "type": "number"
       }
-    }
+    },
+    "cause": {}
   },
   "view": {
     "type": "pareto",
@@ -3777,13 +4252,41 @@ The 80/20 view: categories sorted largest first as bars of their share of the to
       "description": "Tickets par cause, la plus grande d'abord. Quatre causes font plus de 80 % du volume : à traiter en premier.",
       "source": {
         "name": "Support client"
+      },
+      "fields": {
+        "cause": {
+          "values": {
+            "Login problems": "Problèmes de connexion",
+            "Billing questions": "Questions de facturation",
+            "Slow pages": "Pages lentes",
+            "Integrations": "Intégrations",
+            "Exports": "Exports",
+            "Notifications": "Notifications",
+            "Permissions": "Droits d'accès",
+            "Other": "Autres"
+          }
+        }
       }
     },
     "de": {
       "title": "Was Support-Tickets auslöst",
       "subtitle": "Q3 2026, nach Ursache, mit laufender Summe",
       "description": "Tickets nach Ursache, größte zuerst. Vier Ursachen machen über 80 % aus: die zuerst beheben.",
-      "note": "{sum:tickets} Tickets"
+      "note": "{sum:tickets} Tickets",
+      "fields": {
+        "cause": {
+          "values": {
+            "Login problems": "Anmeldeprobleme",
+            "Billing questions": "Abrechnungsfragen",
+            "Slow pages": "Langsame Seiten",
+            "Integrations": "Integrationen",
+            "Exports": "Exporte",
+            "Notifications": "Benachrichtigungen",
+            "Permissions": "Berechtigungen",
+            "Other": "Sonstige"
+          }
+        }
+      }
     }
   }
 }
@@ -3835,7 +4338,8 @@ Part-to-whole as a full disc: up to 6 slices from twelve o'clock clockwise, each
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "segment": {}
   },
   "view": {
     "type": "pie",
@@ -3853,6 +4357,14 @@ Part-to-whole as a full disc: up to 6 slices from twelve o'clock clockwise, each
       "fields": {
         "revenue": {
           "label": "Chiffre d'affaires"
+        },
+        "segment": {
+          "values": {
+            "Enterprise": "Grandes entreprises",
+            "Mid-market": "ETI",
+            "Small business": "Petites entreprises",
+            "Public sector": "Secteur public"
+          }
         }
       }
     },
@@ -3866,6 +4378,14 @@ Part-to-whole as a full disc: up to 6 slices from twelve o'clock clockwise, each
       "fields": {
         "revenue": {
           "label": "Umsatz"
+        },
+        "segment": {
+          "values": {
+            "Enterprise": "Großunternehmen",
+            "Mid-market": "Mittelstand",
+            "Small business": "Kleinunternehmen",
+            "Public sector": "Öffentlicher Sektor"
+          }
         }
       }
     }
@@ -4034,7 +4554,8 @@ Profiles across several attributes: one spoke per row, rings for one shared scal
         "type": "number",
         "decimals": 1
       }
-    }
+    },
+    "attribute": {}
   },
   "view": {
     "type": "radar",
@@ -4059,6 +4580,16 @@ Profiles across several attributes: one spoke per row, rings for one shared scal
         },
         "market": {
           "label": "Moyenne du marché"
+        },
+        "attribute": {
+          "values": {
+            "Speed": "Rapidité",
+            "Reliability": "Fiabilité",
+            "Support": "Support",
+            "Price": "Prix",
+            "Integrations": "Intégrations",
+            "Ease of use": "Facilité d'usage"
+          }
         }
       }
     },
@@ -4075,6 +4606,16 @@ Profiles across several attributes: one spoke per row, rings for one shared scal
         },
         "market": {
           "label": "Marktdurchschnitt"
+        },
+        "attribute": {
+          "values": {
+            "Speed": "Geschwindigkeit",
+            "Reliability": "Zuverlässigkeit",
+            "Support": "Support",
+            "Price": "Preis",
+            "Integrations": "Integrationen",
+            "Ease of use": "Bedienbarkeit"
+          }
         }
       }
     }
@@ -4139,7 +4680,8 @@ A RAG scorecard: one row per entity (a client, a relationship manager, a deal) a
     },
     "relationship": {
       "label": "Relationship"
-    }
+    },
+    "segment": {}
   },
   "view": {
     "type": "ragboard",
@@ -4178,6 +4720,13 @@ A RAG scorecard: one row per entity (a client, a relationship manager, a deal) a
         },
         "relationship": {
           "label": "Relation"
+        },
+        "segment": {
+          "values": {
+            "Corporate": "Entreprises",
+            "Institutional": "Institutionnels",
+            "Private": "Banque privée"
+          }
         }
       }
     },
@@ -4203,6 +4752,13 @@ A RAG scorecard: one row per entity (a client, a relationship manager, a deal) a
         },
         "relationship": {
           "label": "Beziehung"
+        },
+        "segment": {
+          "values": {
+            "Corporate": "Firmenkunden",
+            "Institutional": "Institutionelle",
+            "Private": "Privatkunden"
+          }
         }
       }
     }
@@ -4386,7 +4942,12 @@ One smooth distribution curve per group on a shared axis, overlapping like a mou
           "label": "Valeur de l'affaire"
         },
         "region": {
-          "label": "Région"
+          "label": "Région",
+          "values": {
+            "North": "Nord",
+            "South": "Sud",
+            "East": "Est"
+          }
         }
       }
     },
@@ -4397,6 +4958,13 @@ One smooth distribution curve per group on a shared axis, overlapping like a mou
       "fields": {
         "value": {
           "label": "Dealwert"
+        },
+        "region": {
+          "values": {
+            "North": "Nord",
+            "South": "Süd",
+            "East": "Ost"
+          }
         }
       }
     }
@@ -4458,7 +5026,8 @@ Concentric progress rings, one per row from the outside in, each filled to its s
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "product": {}
   },
   "view": {
     "type": "rings",
@@ -4480,6 +5049,13 @@ Concentric progress rings, one per row from the outside in, each filled to its s
         },
         "target": {
           "label": "Objectif"
+        },
+        "product": {
+          "values": {
+            "Analytics": "Analytique",
+            "Platform": "Plateforme",
+            "Services": "Services"
+          }
         }
       }
     },
@@ -4496,6 +5072,13 @@ Concentric progress rings, one per row from the outside in, each filled to its s
         },
         "target": {
           "label": "Ziel"
+        },
+        "product": {
+          "values": {
+            "Analytics": "Analytik",
+            "Platform": "Plattform",
+            "Services": "Dienstleistungen"
+          }
         }
       }
     }
@@ -4651,7 +5234,9 @@ Flows between stages as ribbons as thick as their volume, for example traffic so
         "type": "number",
         "compact": true
       }
-    }
+    },
+    "from": {},
+    "to": {}
   },
   "view": {
     "type": "sankey",
@@ -4670,6 +5255,18 @@ Flows between stages as ribbons as thick as their volume, for example traffic so
       "fields": {
         "visits": {
           "label": "Visites"
+        },
+        "from": {
+          "values": {
+            "Pricing": "Prix"
+          }
+        },
+        "to": {
+          "values": {
+            "Pricing": "Prix",
+            "Signed up": "Inscrits",
+            "Left": "Partis"
+          }
         }
       }
     },
@@ -4683,6 +5280,18 @@ Flows between stages as ribbons as thick as their volume, for example traffic so
       "fields": {
         "visits": {
           "label": "Besuche"
+        },
+        "from": {
+          "values": {
+            "Pricing": "Preise"
+          }
+        },
+        "to": {
+          "values": {
+            "Pricing": "Preise",
+            "Signed up": "Registriert",
+            "Left": "Abgewandert"
+          }
         }
       }
     }
@@ -4788,6 +5397,13 @@ One dot per row placed by two numbers, to show how they relate. An optional grou
         },
         "revenue": {
           "label": "Chiffre d'affaires"
+        },
+        "segment": {
+          "values": {
+            "Enterprise": "Grandes entreprises",
+            "Mid-market": "ETI",
+            "Small business": "Petites entreprises"
+          }
         }
       }
     },
@@ -4808,6 +5424,13 @@ One dot per row placed by two numbers, to show how they relate. An optional grou
         },
         "revenue": {
           "label": "Umsatz"
+        },
+        "segment": {
+          "values": {
+            "Enterprise": "Großunternehmen",
+            "Mid-market": "Mittelstand",
+            "Small business": "Kleinunternehmen"
+          }
         }
       }
     }
@@ -4869,7 +5492,8 @@ Each item's move between two points in time, as a line from a left column to a r
         "type": "percent",
         "decimals": 0
       }
-    }
+    },
+    "region": {}
   },
   "view": {
     "type": "slope",
@@ -4888,13 +5512,33 @@ Each item's move between two points in time, as a line from a left column to a r
         },
         "h2": {
           "label": "S2 2026"
+        },
+        "region": {
+          "values": {
+            "East": "Est",
+            "Central": "Centre",
+            "North": "Nord",
+            "West": "Ouest",
+            "South": "Sud"
+          }
         }
       }
     },
     "de": {
       "title": "Abschlussquote je Region",
       "subtitle": "Erstes gegen zweites Halbjahr 2026",
-      "description": "Anteil gewonnener qualifizierter Deals je Region, erstes gegen zweites Halbjahr 2026."
+      "description": "Anteil gewonnener qualifizierter Deals je Region, erstes gegen zweites Halbjahr 2026.",
+      "fields": {
+        "region": {
+          "values": {
+            "East": "Ost",
+            "Central": "Mitte",
+            "North": "Nord",
+            "West": "West",
+            "South": "Süd"
+          }
+        }
+      }
     }
   }
 }
@@ -4957,7 +5601,8 @@ Unit strips: one row per item with a strip of small squares, one per unit, color
     },
     "pages": {
       "label": "Pages"
-    }
+    },
+    "topic": {}
   },
   "view": {
     "type": "strips",
@@ -4991,6 +5636,19 @@ Unit strips: one row per item with a strip of small squares, one per unit, color
         },
         "optional": {
           "label": "Facultatif"
+        },
+        "topic": {
+          "values": {
+            "Prudential": "Prudentiel",
+            "AI & digital": "IA et numérique",
+            "AML & sanctions": "LCB-FT et sanctions",
+            "Operational resilience": "Résilience opérationnelle",
+            "Markets": "Marchés",
+            "Payments": "Paiements",
+            "ESG & sustainability": "ESG et durabilité",
+            "Data & privacy": "Données et vie privée",
+            "Consumer protection": "Protection des consommateurs"
+          }
         }
       },
       "view": {
@@ -5020,6 +5678,19 @@ Unit strips: one row per item with a strip of small squares, one per unit, color
         },
         "pages": {
           "label": "Seiten"
+        },
+        "topic": {
+          "values": {
+            "Prudential": "Aufsichtsrecht",
+            "AI & digital": "KI und Digitales",
+            "AML & sanctions": "Geldwäsche und Sanktionen",
+            "Operational resilience": "Operative Resilienz",
+            "Markets": "Märkte",
+            "Payments": "Zahlungsverkehr",
+            "ESG & sustainability": "ESG und Nachhaltigkeit",
+            "Data & privacy": "Daten und Datenschutz",
+            "Consumer protection": "Verbraucherschutz"
+          }
         }
       },
       "view": {
@@ -5105,10 +5776,22 @@ A hierarchy as rings: the inner ring splits the total by the first level, each o
       },
       "fields": {
         "region": {
-          "label": "Région"
+          "label": "Région",
+          "values": {
+            "East": "Est",
+            "North": "Nord",
+            "Central": "Centre",
+            "West": "Ouest",
+            "South": "Sud"
+          }
         },
         "product": {
-          "label": "Produit"
+          "label": "Produit",
+          "values": {
+            "Platform": "Plateforme",
+            "Analytics": "Analytique",
+            "Services": "Services"
+          }
         },
         "revenue": {
           "label": "Chiffre d'affaires"
@@ -5126,10 +5809,24 @@ A hierarchy as rings: the inner ring splits the total by the first level, each o
       },
       "fields": {
         "product": {
-          "label": "Produkt"
+          "label": "Produkt",
+          "values": {
+            "Platform": "Plattform",
+            "Analytics": "Analytik",
+            "Services": "Dienstleistungen"
+          }
         },
         "revenue": {
           "label": "Umsatz"
+        },
+        "region": {
+          "values": {
+            "East": "Ost",
+            "North": "Nord",
+            "Central": "Mitte",
+            "West": "West",
+            "South": "Süd"
+          }
         }
       },
       "view": {
@@ -5217,7 +5914,13 @@ A map with a circle on each place, its area true to a value: customers by state,
           "label": "Clients"
         },
         "region": {
-          "label": "Région commerciale"
+          "label": "Région commerciale",
+          "values": {
+            "West": "Ouest",
+            "South": "Sud",
+            "Midwest": "Midwest",
+            "Northeast": "Nord-Est"
+          }
         }
       }
     },
@@ -5234,7 +5937,13 @@ A map with a circle on each place, its area true to a value: customers by state,
           "label": "Kunden"
         },
         "region": {
-          "label": "Vertriebsregion"
+          "label": "Vertriebsregion",
+          "values": {
+            "West": "West",
+            "South": "Süd",
+            "Midwest": "Mittlerer Westen",
+            "Northeast": "Nordosten"
+          }
         }
       }
     }
@@ -5317,12 +6026,32 @@ Rows and columns. The default view, and the one to use when people need exact va
     "fr": {
       "title": "Affaires ouvertes",
       "subtitle": "Le plus grand d'abord",
-      "description": "Affaires en cours, avec leur étape."
+      "description": "Affaires en cours, avec leur étape.",
+      "fields": {
+        "stage": {
+          "values": {
+            "Won": "Gagné",
+            "Negotiation": "Négociation",
+            "Proposal": "Proposition",
+            "At risk": "À risque"
+          }
+        }
+      }
     },
     "de": {
       "title": "Offene Deals",
       "subtitle": "Größte zuerst",
-      "description": "Laufende Deals mit ihrer Phase."
+      "description": "Laufende Deals mit ihrer Phase.",
+      "fields": {
+        "stage": {
+          "values": {
+            "Won": "Gewonnen",
+            "Negotiation": "Verhandlung",
+            "Proposal": "Angebot",
+            "At risk": "Gefährdet"
+          }
+        }
+      }
     }
   }
 }
@@ -5374,7 +6103,8 @@ A Gantt-style timeline: one row per task with a bar from its start to its end da
   "fields": {
     "phase": {
       "label": "Phase"
-    }
+    },
+    "task": {}
   },
   "view": {
     "type": "timeline",
@@ -5392,6 +6122,28 @@ A Gantt-style timeline: one row per task with a bar from its start to its end da
       "description": "Les dates de chaque chantier par phase, remplies selon l'avancement, avec le jalon du lancement et une ligne à aujourd'hui.",
       "source": {
         "name": "Bureau de projet"
+      },
+      "fields": {
+        "task": {
+          "values": {
+            "Customer research": "Recherche client",
+            "Design system": "Système de design",
+            "Prototype": "Prototype",
+            "Platform build": "Construction de la plateforme",
+            "Integrations": "Intégrations",
+            "Private beta": "Bêta privée",
+            "Launch day": "Jour du lancement",
+            "Marketing push": "Campagne marketing"
+          }
+        },
+        "phase": {
+          "values": {
+            "Discovery": "Découverte",
+            "Design": "Conception",
+            "Build": "Réalisation",
+            "Launch": "Lancement"
+          }
+        }
       }
     },
     "de": {
@@ -5400,6 +6152,28 @@ A Gantt-style timeline: one row per task with a bar from its start to its end da
       "description": "Die Termine jedes Arbeitspakets nach Phase, nach Fortschritt gefüllt, mit dem Launch-Meilenstein und einer Linie für heute.",
       "source": {
         "name": "Projektbüro"
+      },
+      "fields": {
+        "task": {
+          "values": {
+            "Customer research": "Kundenforschung",
+            "Design system": "Designsystem",
+            "Prototype": "Prototyp",
+            "Platform build": "Plattformaufbau",
+            "Integrations": "Integrationen",
+            "Private beta": "Private Beta",
+            "Launch day": "Starttag",
+            "Marketing push": "Marketingoffensive"
+          }
+        },
+        "phase": {
+          "values": {
+            "Discovery": "Erkundung",
+            "Design": "Design",
+            "Build": "Umsetzung",
+            "Launch": "Start"
+          }
+        }
       }
     }
   }
@@ -5474,6 +6248,13 @@ Part-to-whole for many categories: tiles sized by value, kept close to square. U
       "fields": {
         "revenue": {
           "label": "Chiffre d'affaires"
+        },
+        "segment": {
+          "values": {
+            "Enterprise": "Grandes entreprises",
+            "Mid-market": "ETI",
+            "Small business": "Petites entreprises"
+          }
         }
       }
     },
@@ -5484,6 +6265,13 @@ Part-to-whole for many categories: tiles sized by value, kept close to square. U
       "fields": {
         "revenue": {
           "label": "Umsatz"
+        },
+        "segment": {
+          "values": {
+            "Enterprise": "Großunternehmen",
+            "Mid-market": "Mittelstand",
+            "Small business": "Kleinunternehmen"
+          }
         }
       }
     }
@@ -5548,7 +6336,8 @@ Variance against plan, as in financial reporting: per row a bar from a zero line
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "department": {}
   },
   "view": {
     "type": "variance",
@@ -5568,6 +6357,16 @@ Variance against plan, as in financial reporting: per row a bar from a zero line
       "fields": {
         "actual": {
           "label": "Réel"
+        },
+        "department": {
+          "values": {
+            "Sales": "Ventes",
+            "Marketing": "Marketing",
+            "R&D": "R&D",
+            "Support": "Support",
+            "G&A": "Frais généraux",
+            "IT": "Informatique"
+          }
         }
       }
     },
@@ -5581,6 +6380,16 @@ Variance against plan, as in financial reporting: per row a bar from a zero line
       "fields": {
         "actual": {
           "label": "Ist"
+        },
+        "department": {
+          "values": {
+            "Sales": "Vertrieb",
+            "Marketing": "Marketing",
+            "R&D": "F&E",
+            "Support": "Support",
+            "G&A": "Verwaltung",
+            "IT": "IT"
+          }
         }
       }
     }
@@ -5634,7 +6443,8 @@ Part to whole as a 10 by 10 grid where each square is one percent, filled catego
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "source": {}
   },
   "view": {
     "type": "waffle",
@@ -5652,6 +6462,14 @@ Part to whole as a 10 by 10 grid where each square is one percent, filled catego
       "fields": {
         "revenue": {
           "label": "Chiffre d'affaires"
+        },
+        "source": {
+          "values": {
+            "Subscriptions": "Abonnements",
+            "Services": "Services",
+            "Licenses": "Licences",
+            "Other": "Autres"
+          }
         }
       }
     },
@@ -5665,6 +6483,14 @@ Part to whole as a 10 by 10 grid where each square is one percent, filled catego
       "fields": {
         "revenue": {
           "label": "Umsatz"
+        },
+        "source": {
+          "values": {
+            "Subscriptions": "Abonnements",
+            "Services": "Dienstleistungen",
+            "Licenses": "Lizenzen",
+            "Other": "Sonstige"
+          }
         }
       }
     }
@@ -5720,7 +6546,8 @@ A bridge: how a total moves to another through increases and decreases, each flo
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "step": {}
   },
   "view": {
     "type": "waterfall",
@@ -5743,6 +6570,16 @@ A bridge: how a total moves to another through increases and decreases, each flo
       "fields": {
         "amount": {
           "label": "Chiffre d'affaires"
+        },
+        "step": {
+          "values": {
+            "August revenue": "CA d'août",
+            "New customers": "Nouveaux clients",
+            "Upsell": "Montée en gamme",
+            "Pricing": "Prix",
+            "Churn": "Attrition",
+            "Discounts": "Remises"
+          }
         }
       },
       "view": {
@@ -5759,6 +6596,16 @@ A bridge: how a total moves to another through increases and decreases, each flo
       "fields": {
         "amount": {
           "label": "Umsatz"
+        },
+        "step": {
+          "values": {
+            "August revenue": "Umsatz August",
+            "New customers": "Neukunden",
+            "Upsell": "Upselling",
+            "Pricing": "Preise",
+            "Churn": "Abwanderung",
+            "Discounts": "Rabatte"
+          }
         }
       },
       "view": {
@@ -5858,7 +6705,16 @@ The cross-sell map (whitespace analysis): one cell per client and product, fille
       },
       "fields": {
         "product": {
-          "label": "Produit"
+          "label": "Produit",
+          "values": {
+            "Custody": "Conservation",
+            "Advisory": "Conseil",
+            "Discretionary": "Gestion sous mandat",
+            "Lending": "Crédit",
+            "Structured": "Produits structurés",
+            "Insurance": "Assurance",
+            "Pension": "Retraite"
+          }
         },
         "state": {
           "label": "Statut"
@@ -5884,7 +6740,16 @@ The cross-sell map (whitespace analysis): one cell per client and product, fille
           "label": "Kunde"
         },
         "product": {
-          "label": "Produkt"
+          "label": "Produkt",
+          "values": {
+            "Custody": "Verwahrung",
+            "Advisory": "Beratung",
+            "Discretionary": "Vermögensverwaltung",
+            "Lending": "Kredite",
+            "Structured": "Strukturierte Produkte",
+            "Insurance": "Versicherung",
+            "Pension": "Vorsorge"
+          }
         },
         "propensity": {
           "label": "Neigung"

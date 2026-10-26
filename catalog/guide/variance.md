@@ -112,7 +112,8 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "department": {}
   },
   "view": {
     "type": "variance",
@@ -132,6 +133,16 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "fields": {
         "actual": {
           "label": "Réel"
+        },
+        "department": {
+          "values": {
+            "Sales": "Ventes",
+            "Marketing": "Marketing",
+            "R&D": "R&D",
+            "Support": "Support",
+            "G&A": "Frais généraux",
+            "IT": "Informatique"
+          }
         }
       }
     },
@@ -145,6 +156,16 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "fields": {
         "actual": {
           "label": "Ist"
+        },
+        "department": {
+          "values": {
+            "Sales": "Vertrieb",
+            "Marketing": "Marketing",
+            "R&D": "F&E",
+            "Support": "Support",
+            "G&A": "Verwaltung",
+            "IT": "IT"
+          }
         }
       }
     }

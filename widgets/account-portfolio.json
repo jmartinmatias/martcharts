@@ -4,7 +4,9 @@
   "subtitle": "Growth against margin, year to date",
   "description": "Each account placed by its revenue growth and gross margin, the bubble sized by its revenue and colored by segment. Top right is where to invest; the big Enterprise accounts grow slowly but earn well.",
   "note": "{count} accounts",
-  "source": {"name": "Finance ledger"},
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -148,6 +150,13 @@
         },
         "revenue": {
           "label": "Chiffre d'affaires"
+        },
+        "segment": {
+          "values": {
+            "Enterprise": "Grandes entreprises",
+            "Mid-market": "ETI",
+            "Small business": "Petites entreprises"
+          }
         }
       }
     },
@@ -168,6 +177,13 @@
         },
         "revenue": {
           "label": "Umsatz"
+        },
+        "segment": {
+          "values": {
+            "Enterprise": "Großunternehmen",
+            "Mid-market": "Mittelstand",
+            "Small business": "Kleinunternehmen"
+          }
         }
       }
     }

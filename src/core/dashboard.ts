@@ -53,6 +53,8 @@ export interface DashboardFilter {
   field: string;
   /** Label beside the control. Defaults to the field name in words. */
   label?: string;
+  /** A word for each value, shown in the control and the state line (Affluent as "Aisé" in French, through i18n); the filter and the address keep the data's own value. */
+  values?: Record<string, string>;
 }
 
 /**

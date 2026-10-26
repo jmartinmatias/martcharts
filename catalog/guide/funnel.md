@@ -94,7 +94,8 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "people": {
       "label": "People",
       "format": "number"
-    }
+    },
+    "stage": {}
   },
   "view": {
     "type": "funnel",
@@ -112,6 +113,15 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "fields": {
         "people": {
           "label": "Personnes"
+        },
+        "stage": {
+          "values": {
+            "Visits": "Visites",
+            "Signups": "Inscriptions",
+            "Activated": "Activés",
+            "Trial started": "Essai commencé",
+            "Paying": "Payants"
+          }
         }
       }
     },
@@ -124,6 +134,15 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "fields": {
         "people": {
           "label": "Personen"
+        },
+        "stage": {
+          "values": {
+            "Visits": "Besuche",
+            "Signups": "Anmeldungen",
+            "Activated": "Aktiviert",
+            "Trial started": "Testphase begonnen",
+            "Paying": "Zahlend"
+          }
         }
       }
     }

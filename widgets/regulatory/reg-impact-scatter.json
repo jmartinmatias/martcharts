@@ -20,7 +20,9 @@
     },
     "mustComply": {
       "label": "Stakeholder types bound"
-    }
+    },
+    "topic": {},
+    "status": {}
   },
   "view": {
     "type": "scatter",
@@ -60,6 +62,30 @@
         },
         "mustComply": {
           "label": "Types d'acteurs concernés"
+        },
+        "topic": {
+          "values": {
+            "Operational resilience": "Résilience opérationnelle",
+            "Markets": "Marchés",
+            "ESG & sustainability": "ESG et durabilité",
+            "Data, AI & digital": "Données, IA et numérique",
+            "Payments": "Paiements",
+            "AML & sanctions": "LCB-FT et sanctions",
+            "Prudential": "Prudentiel",
+            "Consumer protection": "Protection des consommateurs"
+          }
+        },
+        "status": {
+          "values": {
+            "Applies": "S'applique",
+            "Under review": "En révision",
+            "In force": "En vigueur",
+            "Adopted": "Adopté",
+            "Consultation": "Consultation",
+            "Proposal": "Proposition",
+            "Published": "Publié",
+            "Repealed": "Abrogé"
+          }
         }
       },
       "view": {
@@ -92,6 +118,30 @@
         },
         "mustComply": {
           "label": "Gebundene Akteurstypen"
+        },
+        "topic": {
+          "values": {
+            "Operational resilience": "Operative Resilienz",
+            "Markets": "Märkte",
+            "ESG & sustainability": "ESG und Nachhaltigkeit",
+            "Data, AI & digital": "Daten, KI und Digitales",
+            "Payments": "Zahlungsverkehr",
+            "AML & sanctions": "Geldwäsche und Sanktionen",
+            "Prudential": "Aufsichtsrecht",
+            "Consumer protection": "Verbraucherschutz"
+          }
+        },
+        "status": {
+          "values": {
+            "Applies": "Gilt",
+            "Under review": "In Prüfung",
+            "In force": "In Kraft",
+            "Adopted": "Verabschiedet",
+            "Consultation": "Konsultation",
+            "Proposal": "Angebot",
+            "Published": "Veröffentlicht",
+            "Repealed": "Aufgehoben"
+          }
         }
       },
       "view": {

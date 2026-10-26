@@ -3,7 +3,9 @@
   "title": "Deal sizes",
   "subtitle": "Closed this half, in €20K bands",
   "description": "How many deals fall in each value band, with the median marked. Half the deals sit under €60K; a long tail runs to €180K.",
-  "source": {"name": "CRM"},
+  "source": {
+    "name": "CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -159,7 +161,12 @@
           "label": "Valeur de l'affaire"
         },
         "region": {
-          "label": "Région"
+          "label": "Région",
+          "values": {
+            "North": "Nord",
+            "South": "Sud",
+            "East": "Est"
+          }
         }
       }
     },
@@ -170,6 +177,13 @@
       "fields": {
         "value": {
           "label": "Dealwert"
+        },
+        "region": {
+          "values": {
+            "North": "Nord",
+            "South": "Süd",
+            "East": "Ost"
+          }
         }
       }
     }

@@ -148,10 +148,22 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       },
       "fields": {
         "region": {
-          "label": "Région"
+          "label": "Région",
+          "values": {
+            "East": "Est",
+            "North": "Nord",
+            "Central": "Centre",
+            "West": "Ouest",
+            "South": "Sud"
+          }
         },
         "product": {
-          "label": "Produit"
+          "label": "Produit",
+          "values": {
+            "Platform": "Plateforme",
+            "Analytics": "Analytique",
+            "Services": "Services"
+          }
         },
         "revenue": {
           "label": "Chiffre d'affaires"
@@ -169,10 +181,24 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       },
       "fields": {
         "product": {
-          "label": "Produkt"
+          "label": "Produkt",
+          "values": {
+            "Platform": "Plattform",
+            "Analytics": "Analytik",
+            "Services": "Dienstleistungen"
+          }
         },
         "revenue": {
           "label": "Umsatz"
+        },
+        "region": {
+          "values": {
+            "East": "Ost",
+            "North": "Nord",
+            "Central": "Mitte",
+            "West": "West",
+            "South": "Süd"
+          }
         }
       },
       "view": {

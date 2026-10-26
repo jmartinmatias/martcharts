@@ -244,10 +244,27 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
           "label": "Applicable"
         },
         "status": {
-          "label": "Statut"
+          "label": "Statut",
+          "values": {
+            "Applies": "S'applique",
+            "In force": "En vigueur",
+            "Adopted": "Adopté",
+            "Consultation": "Consultation"
+          }
         },
         "topic": {
-          "label": "Thème"
+          "label": "Thème",
+          "values": {
+            "Operational resilience": "Résilience opérationnelle",
+            "Prudential": "Prudentiel",
+            "AML & sanctions": "LCB-FT et sanctions",
+            "AI & digital": "IA et numérique",
+            "Markets": "Marchés",
+            "ESG & sustainability": "ESG et durabilité",
+            "Payments": "Paiements",
+            "Consumer protection": "Protection des consommateurs",
+            "Data & privacy": "Données et vie privée"
+          }
         }
       }
     },
@@ -279,7 +296,26 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
           "label": "Wirkung"
         },
         "topic": {
-          "label": "Thema"
+          "label": "Thema",
+          "values": {
+            "Operational resilience": "Operative Resilienz",
+            "Prudential": "Aufsichtsrecht",
+            "AML & sanctions": "Geldwäsche und Sanktionen",
+            "AI & digital": "KI und Digitales",
+            "Markets": "Märkte",
+            "ESG & sustainability": "ESG und Nachhaltigkeit",
+            "Payments": "Zahlungsverkehr",
+            "Consumer protection": "Verbraucherschutz",
+            "Data & privacy": "Daten und Datenschutz"
+          }
+        },
+        "status": {
+          "values": {
+            "Applies": "Gilt",
+            "In force": "In Kraft",
+            "Adopted": "Verabschiedet",
+            "Consultation": "Konsultation"
+          }
         }
       }
     }

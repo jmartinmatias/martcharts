@@ -173,8 +173,45 @@
       "No chart matches “{0}”.": ["Aucun graphique ne correspond à « {0} ».", "Kein Diagramm passt zu „{0}“."],
       "No chart on the site has the ref {0}.": ["Aucun graphique du site n'a la réf. {0}.", "Kein Diagramm der Website hat die Ref. {0}."],
       "{0} is now ": ["{0} est désormais ", "{0} heißt jetzt "],
+      // The data guide's own headings, labels and buttons (its charts' summaries, jobs and advice carry their own).
+      "The chart live, the table it needs, its data, and the charts the same data makes": ["Le graphique en direct, le tableau qu'il lui faut, ses données et les graphiques que ces données permettent", "Das Diagramm live, die Tabelle, die es braucht, seine Daten und die Diagramme aus denselben Daten"],
+      "Best for": ["Idéal pour", "Ideal für"],
+      "Least useful for": ["Moins utile pour", "Weniger nützlich für"],
+      "The table it needs": ["Le tableau qu'il lui faut", "Die Tabelle, die es braucht"],
+      "One row is:": ["Une ligne, c'est :", "Eine Zeile ist:"],
+      "How it is built:": ["Comment il est construit :", "Wie es aufgebaut ist:"],
+      "Reads well with": ["Se lit bien avec", "Liest sich gut mit"],
+      "This example's columns": ["Les colonnes de cet exemple", "Die Spalten dieses Beispiels"],
+      "The data drawing it now": ["Les données qui le dessinent", "Die Daten, die es jetzt zeichnen"],
+      "The same data as another chart": ["Les mêmes données en un autre graphique", "Dieselben Daten als anderes Diagramm"],
+      Job: ["Usage", "Zweck"],
+      Best: ["Idéal", "Am besten"],
+      Good: ["Bon", "Gut"],
+      Chart: ["Graphique", "Diagramm"],
+      Verdict: ["Verdict", "Urteil"],
+      Assessment: ["Appréciation", "Einschätzung"],
+      Preview: ["Aperçu", "Vorschau"],
+      Show: ["Afficher", "Zeigen"],
+      Option: ["Option", "Option"],
+      Holds: ["Contient", "Enthält"],
+      Required: ["Requis", "Erforderlich"],
+      "What it does": ["Rôle", "Funktion"],
+      Column: ["Colonne", "Spalte"],
+      "Drawn as": ["Dessinée comme", "Gezeichnet als"],
+      Values: ["Valeurs", "Werte"],
+      yes: ["oui", "ja"],
+      stretch: ["à la limite", "grenzwertig"],
+      "Copy as CSV": ["Copier en CSV", "Als CSV kopieren"],
+      "Copy for an LLM": ["Copier pour un LLM", "Für ein LLM kopieren"],
+      "Open as Markdown": ["Ouvrir en Markdown", "Als Markdown öffnen"],
+      "Spec (JSON)": ["Spéc. (JSON)", "Spezifikation (JSON)"],
+      "Any rows: every field becomes a column.": ["N'importe quelles lignes : chaque champ devient une colonne.", "Beliebige Zeilen: Jedes Feld wird eine Spalte."],
     },
     patterns: [
+      [/^Not possible with this data \((\d+)\)$/, "Pas possible avec ces données ($1)", "Mit diesen Daten nicht möglich ($1)"],
+      [/^Show all (\d+) rows$/, "Afficher les $1 lignes", "Alle $1 Zeilen zeigen"],
+      [/^(\d+) rows?$/, "$1 ligne(s)", "$1 Zeile(n)"],
+      [/^needs (.+)$/, "il faut $1", "braucht $1"],
       [/^(\d+) chart types\. Each is one tag,$/, "$1 types de graphiques. Chacun est une seule balise,", "$1 Diagrammtypen. Jeder ist ein einziges Tag,"],
       [/^For each of the (\d+) charts: the table it needs, the data drawing it, and which other charts the same data makes\.$/, "Pour chacun des $1 graphiques : le tableau qu'il lui faut, les données qui le dessinent, et les autres graphiques que ces données permettent.", "Für jedes der $1 Diagramme: die Tabelle, die es braucht, die Daten, die es zeichnen, und welche anderen Diagramme dieselben Daten ergeben."],
       [/^trend, share, date, (W-[0-9A-Z]{4}…)$/, "tendance, part, date, $1", "Trend, Anteil, Datum, $1"],
@@ -276,6 +313,12 @@
   /** The page's own words in the language: each text and label as written in English, swapped, and back for English. */
   const translatePage = () => {
     if (!document.body) return;
+    // Generated text that carries its own French and German (the catalog's and the guide's chart summaries, jobs and
+    // advice): the element shows its own words in the language picked, and its English again for English.
+    for (const el of document.body.querySelectorAll("[data-fr], [data-de]")) {
+      if (el.dataset.en === undefined) el.dataset.en = el.textContent ?? "";
+      el.textContent = (lang === "fr" ? el.dataset.fr : lang === "de" ? el.dataset.de : undefined) ?? el.dataset.en;
+    }
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     for (let node = walker.nextNode(); node; node = walker.nextNode()) {
       if (node.parentElement?.closest(NOT_SITE)) continue;

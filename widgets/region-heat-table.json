@@ -269,7 +269,14 @@
       },
       "fields": {
         "region": {
-          "label": "Région"
+          "label": "Région",
+          "values": {
+            "East": "Est",
+            "North": "Nord",
+            "Central": "Centre",
+            "West": "Ouest",
+            "South": "Sud"
+          }
         },
         "2026-04": {
           "label": "Avr."
@@ -316,6 +323,15 @@
         },
         "2026-09": {
           "label": "Sep."
+        },
+        "region": {
+          "values": {
+            "East": "Ost",
+            "North": "Nord",
+            "Central": "Mitte",
+            "West": "West",
+            "South": "Süd"
+          }
         }
       }
     }

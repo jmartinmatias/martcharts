@@ -3,7 +3,9 @@
   "title": "Lead pipeline",
   "subtitle": "Q3 2026, by stage",
   "description": "How many leads reached each stage of the sales pipeline.",
-  "source": {"name": "CRM"},
+  "source": {
+    "name": "CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -34,7 +36,8 @@
     "leads": {
       "label": "Leads",
       "format": "number"
-    }
+    },
+    "stage": {}
   },
   "headline": {
     "value": "leads",
@@ -54,6 +57,15 @@
       "fields": {
         "leads": {
           "label": "Prospects"
+        },
+        "stage": {
+          "values": {
+            "New leads": "Nouveaux prospects",
+            "Contacted": "Contacté",
+            "Qualified": "Qualifié",
+            "Proposal sent": "Proposition envoyée",
+            "Won": "Gagné"
+          }
         }
       },
       "headline": {
@@ -66,6 +78,17 @@
       "description": "Wie viele Leads jede Stufe der Vertriebspipeline erreichten.",
       "headline": {
         "caption": "gewonnene Deals in diesem Quartal"
+      },
+      "fields": {
+        "stage": {
+          "values": {
+            "New leads": "Neue Leads",
+            "Contacted": "Kontaktiert",
+            "Qualified": "Qualifiziert",
+            "Proposal sent": "Angebot gesendet",
+            "Won": "Gewonnen"
+          }
+        }
       }
     }
   }

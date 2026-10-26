@@ -64,7 +64,13 @@
           "label": "Effectif"
         },
         "role": {
-          "label": "Rôle"
+          "label": "Rôle",
+          "values": {
+            "Headquarters": "Siège",
+            "Engineering": "Ingénierie",
+            "Sales": "Ventes",
+            "Support": "Support"
+          }
         }
       }
     },
@@ -87,7 +93,13 @@
           "label": "Belegschaft"
         },
         "role": {
-          "label": "Rolle"
+          "label": "Rolle",
+          "values": {
+            "Headquarters": "Zentrale",
+            "Engineering": "Technik",
+            "Sales": "Vertrieb",
+            "Support": "Support"
+          }
         }
       }
     }

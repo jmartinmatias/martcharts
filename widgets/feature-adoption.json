@@ -3,7 +3,9 @@
   "title": "Feature adoption",
   "subtitle": "Share of active accounts using each one, September 2026",
   "description": "Which features active accounts actually use. Dashboards lead at 91%; Forecasting, SSO and the audit log reach fewer than two in five accounts.",
-  "source": {"name": "Product analytics"},
+  "source": {
+    "name": "Product analytics"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -78,7 +80,18 @@
       },
       "fields": {
         "feature": {
-          "label": "Fonction"
+          "label": "Fonction",
+          "values": {
+            "Dashboards": "Tableaux de bord",
+            "Exports": "Exports",
+            "Alerts": "Alertes",
+            "Sharing": "Partage",
+            "Scheduled reports": "Rapports planifiés",
+            "API access": "Accès API",
+            "Custom fields": "Champs personnalisés",
+            "Forecasting": "Prévisions",
+            "Audit log": "Journal d'audit"
+          }
         },
         "share": {
           "label": "Comptes utilisateurs"
@@ -94,7 +107,18 @@
       },
       "fields": {
         "feature": {
-          "label": "Funktion"
+          "label": "Funktion",
+          "values": {
+            "Dashboards": "Dashboards",
+            "Exports": "Exporte",
+            "Alerts": "Warnungen",
+            "Sharing": "Teilen",
+            "Scheduled reports": "Geplante Berichte",
+            "API access": "API-Zugang",
+            "Custom fields": "Benutzerdefinierte Felder",
+            "Forecasting": "Prognosen",
+            "Audit log": "Prüfprotokoll"
+          }
         },
         "share": {
           "label": "Nutzende Konten"

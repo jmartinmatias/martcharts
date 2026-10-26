@@ -95,7 +95,8 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "segment": {}
   },
   "view": {
     "type": "donut",
@@ -110,6 +111,13 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "fields": {
         "revenue": {
           "label": "Chiffre d'affaires"
+        },
+        "segment": {
+          "values": {
+            "Enterprise": "Grandes entreprises",
+            "Mid-market": "ETI",
+            "Small business": "Petites entreprises"
+          }
         }
       }
     },
@@ -120,6 +128,13 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "fields": {
         "revenue": {
           "label": "Umsatz"
+        },
+        "segment": {
+          "values": {
+            "Enterprise": "Großunternehmen",
+            "Mid-market": "Mittelstand",
+            "Small business": "Kleinunternehmen"
+          }
         }
       }
     }

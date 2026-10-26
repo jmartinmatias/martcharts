@@ -24,7 +24,8 @@
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "source": {}
   },
   "view": {
     "type": "waffle",
@@ -42,6 +43,14 @@
       "fields": {
         "revenue": {
           "label": "Chiffre d'affaires"
+        },
+        "source": {
+          "values": {
+            "Subscriptions": "Abonnements",
+            "Services": "Services",
+            "Licenses": "Licences",
+            "Other": "Autres"
+          }
         }
       }
     },
@@ -55,6 +64,14 @@
       "fields": {
         "revenue": {
           "label": "Umsatz"
+        },
+        "source": {
+          "values": {
+            "Subscriptions": "Abonnements",
+            "Services": "Dienstleistungen",
+            "Licenses": "Lizenzen",
+            "Other": "Sonstige"
+          }
         }
       }
     }

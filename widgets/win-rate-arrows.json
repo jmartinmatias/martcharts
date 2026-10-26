@@ -4,22 +4,58 @@
   "subtitle": "Share of qualified deals won, 2025 against 2026, by region",
   "description": "An arrow plot: each region's win rate moves from last year to this year. Blue arrows rose, red ones fell. East and North gained the most; South slipped.",
   "note": "Closed deals",
-  "source": {"name": "CRM"},
+  "source": {
+    "name": "CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
     "rows": [
-      { "region": "East", "won_2025": 0.24, "won_2026": 0.31 },
-      { "region": "North", "won_2025": 0.22, "won_2026": 0.28 },
-      { "region": "Central", "won_2025": 0.27, "won_2026": 0.29 },
-      { "region": "West", "won_2025": 0.19, "won_2026": 0.21 },
-      { "region": "South", "won_2025": 0.26, "won_2026": 0.22 }
+      {
+        "region": "East",
+        "won_2025": 0.24,
+        "won_2026": 0.31
+      },
+      {
+        "region": "North",
+        "won_2025": 0.22,
+        "won_2026": 0.28
+      },
+      {
+        "region": "Central",
+        "won_2025": 0.27,
+        "won_2026": 0.29
+      },
+      {
+        "region": "West",
+        "won_2025": 0.19,
+        "won_2026": 0.21
+      },
+      {
+        "region": "South",
+        "won_2025": 0.26,
+        "won_2026": 0.22
+      }
     ]
   },
   "fields": {
-    "region": { "label": "Region" },
-    "won_2025": { "label": "2025", "format": { "type": "percent", "decimals": 0 } },
-    "won_2026": { "label": "2026", "format": { "type": "percent", "decimals": 0 } }
+    "region": {
+      "label": "Region"
+    },
+    "won_2025": {
+      "label": "2025",
+      "format": {
+        "type": "percent",
+        "decimals": 0
+      }
+    },
+    "won_2026": {
+      "label": "2026",
+      "format": {
+        "type": "percent",
+        "decimals": 0
+      }
+    }
   },
   "view": {
     "type": "dumbbell",
@@ -36,7 +72,14 @@
       "note": "Affaires conclues",
       "fields": {
         "region": {
-          "label": "Région"
+          "label": "Région",
+          "values": {
+            "East": "Est",
+            "North": "Nord",
+            "Central": "Centre",
+            "West": "Ouest",
+            "South": "Sud"
+          }
         }
       }
     },
@@ -44,7 +87,18 @@
       "title": "Abschlussquote im Jahresvergleich",
       "subtitle": "Anteil gewonnener qualifizierter Deals, 2025 gegen 2026, je Region",
       "description": "Ein Pfeildiagramm: die Abschlussquote jeder Region vom Vorjahr zu diesem Jahr. Blaue Pfeile stiegen, rote fielen. Osten und Norden legten am meisten zu; der Süden fiel zurück.",
-      "note": "Abgeschlossene Deals"
+      "note": "Abgeschlossene Deals",
+      "fields": {
+        "region": {
+          "values": {
+            "East": "Ost",
+            "North": "Nord",
+            "Central": "Mitte",
+            "West": "West",
+            "South": "Süd"
+          }
+        }
+      }
     }
   }
 }

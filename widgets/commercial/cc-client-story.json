@@ -32,7 +32,9 @@
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "kind": {},
+    "segment": {}
   },
   "view": {
     "type": "history",
@@ -53,6 +55,23 @@
       "fields": {
         "amount": {
           "label": "Montant"
+        },
+        "kind": {
+          "values": {
+            "Onboarding": "Entrée en relation",
+            "Meeting": "Rendez-vous",
+            "Trade": "Transaction",
+            "Campaign": "Campagne",
+            "Payment": "Paiement",
+            "Review": "Revue",
+            "Complaint": "Réclamation",
+            "Call": "Appel"
+          }
+        },
+        "segment": {
+          "values": {
+            "Private": "Banque privée"
+          }
         }
       }
     },
@@ -69,6 +88,23 @@
         },
         "amount": {
           "label": "Betrag"
+        },
+        "kind": {
+          "values": {
+            "Onboarding": "Onboarding",
+            "Meeting": "Treffen",
+            "Trade": "Transaktion",
+            "Campaign": "Kampagne",
+            "Payment": "Zahlung",
+            "Review": "Überprüfung",
+            "Complaint": "Beschwerde",
+            "Call": "Anruf"
+          }
+        },
+        "segment": {
+          "values": {
+            "Private": "Privatkunden"
+          }
         }
       }
     }

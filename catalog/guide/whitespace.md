@@ -239,7 +239,16 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       },
       "fields": {
         "product": {
-          "label": "Produit"
+          "label": "Produit",
+          "values": {
+            "Custody": "Conservation",
+            "Advisory": "Conseil",
+            "Discretionary": "Gestion sous mandat",
+            "Lending": "Crédit",
+            "Structured": "Produits structurés",
+            "Insurance": "Assurance",
+            "Pension": "Retraite"
+          }
         },
         "state": {
           "label": "Statut"
@@ -265,7 +274,16 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
           "label": "Kunde"
         },
         "product": {
-          "label": "Produkt"
+          "label": "Produkt",
+          "values": {
+            "Custody": "Verwahrung",
+            "Advisory": "Beratung",
+            "Discretionary": "Vermögensverwaltung",
+            "Lending": "Kredite",
+            "Structured": "Strukturierte Produkte",
+            "Insurance": "Versicherung",
+            "Pension": "Vorsorge"
+          }
         },
         "propensity": {
           "label": "Neigung"

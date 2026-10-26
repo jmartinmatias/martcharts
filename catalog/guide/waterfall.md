@@ -98,7 +98,8 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "step": {}
   },
   "view": {
     "type": "waterfall",
@@ -121,6 +122,16 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "fields": {
         "amount": {
           "label": "Chiffre d'affaires"
+        },
+        "step": {
+          "values": {
+            "August revenue": "CA d'août",
+            "New customers": "Nouveaux clients",
+            "Upsell": "Montée en gamme",
+            "Pricing": "Prix",
+            "Churn": "Attrition",
+            "Discounts": "Remises"
+          }
         }
       },
       "view": {
@@ -137,6 +148,16 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "fields": {
         "amount": {
           "label": "Umsatz"
+        },
+        "step": {
+          "values": {
+            "August revenue": "Umsatz August",
+            "New customers": "Neukunden",
+            "Upsell": "Upselling",
+            "Pricing": "Preise",
+            "Churn": "Abwanderung",
+            "Discounts": "Rabatte"
+          }
         }
       },
       "view": {

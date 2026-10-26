@@ -187,7 +187,16 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
           "label": "Heure"
         },
         "day": {
-          "label": "Jour"
+          "label": "Jour",
+          "values": {
+            "Mon": "lun.",
+            "Tue": "mar.",
+            "Wed": "mer.",
+            "Thu": "jeu.",
+            "Fri": "ven.",
+            "Sat": "sam.",
+            "Sun": "dim."
+          }
         }
       }
     },
@@ -201,7 +210,16 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
           "label": "Zeit"
         },
         "day": {
-          "label": "Tag"
+          "label": "Tag",
+          "values": {
+            "Mon": "Mo.",
+            "Tue": "Di.",
+            "Wed": "Mi.",
+            "Thu": "Do.",
+            "Fri": "Fr.",
+            "Sat": "Sa.",
+            "Sun": "So."
+          }
         }
       }
     }

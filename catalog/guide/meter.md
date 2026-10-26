@@ -108,7 +108,8 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "region": {}
   },
   "view": {
     "type": "meter",
@@ -123,6 +124,17 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "description": "À quelle distance chaque région est de son objectif de septembre.",
       "source": {
         "name": "Journal des ventes"
+      },
+      "fields": {
+        "region": {
+          "values": {
+            "East": "Est",
+            "North": "Nord",
+            "Central": "Centre",
+            "West": "Ouest",
+            "South": "Sud"
+          }
+        }
       }
     },
     "de": {
@@ -131,6 +143,17 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "description": "Wie nah jede Region an ihrem Septemberziel ist.",
       "source": {
         "name": "Verkaufsjournal"
+      },
+      "fields": {
+        "region": {
+          "values": {
+            "East": "Ost",
+            "North": "Nord",
+            "Central": "Mitte",
+            "West": "West",
+            "South": "Süd"
+          }
+        }
       }
     }
   }

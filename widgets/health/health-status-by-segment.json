@@ -69,6 +69,14 @@
         },
         "Green": {
           "label": "Sur la bonne voie (vert)"
+        },
+        "segment": {
+          "values": {
+            "Private": "Banque privée",
+            "Affluent": "Clientèle aisée",
+            "Corporate": "Entreprises",
+            "Institutional": "Institutionnels"
+          }
         }
       }
     },
@@ -88,6 +96,14 @@
         },
         "Green": {
           "label": "Im Plan (grün)"
+        },
+        "segment": {
+          "values": {
+            "Private": "Privatkunden",
+            "Affluent": "Vermögende Kunden",
+            "Corporate": "Firmenkunden",
+            "Institutional": "Institutionelle"
+          }
         }
       }
     }

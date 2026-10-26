@@ -95,7 +95,8 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "source": {}
   },
   "view": {
     "type": "waffle",
@@ -113,6 +114,14 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "fields": {
         "revenue": {
           "label": "Chiffre d'affaires"
+        },
+        "source": {
+          "values": {
+            "Subscriptions": "Abonnements",
+            "Services": "Services",
+            "Licenses": "Licences",
+            "Other": "Autres"
+          }
         }
       }
     },
@@ -126,6 +135,14 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "fields": {
         "revenue": {
           "label": "Umsatz"
+        },
+        "source": {
+          "values": {
+            "Subscriptions": "Abonnements",
+            "Services": "Dienstleistungen",
+            "Licenses": "Lizenzen",
+            "Other": "Sonstige"
+          }
         }
       }
     }

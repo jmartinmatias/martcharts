@@ -3,32 +3,91 @@
   "title": "Product mix by region",
   "subtitle": "Q3 2026",
   "description": "Multiple donuts: how each region's revenue splits between the three products, the same product in the same color in every panel.",
-  "source": {"name": "Sales ledger"},
+  "source": {
+    "name": "Sales ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
     "rows": [
-      { "region": "East", "product": "Core", "revenue": 214000 },
-      { "region": "East", "product": "Plus", "revenue": 98000 },
-      { "region": "East", "product": "Services", "revenue": 26000 },
-      { "region": "North", "product": "Core", "revenue": 151000 },
-      { "region": "North", "product": "Plus", "revenue": 104000 },
-      { "region": "North", "product": "Services", "revenue": 23000 },
-      { "region": "West", "product": "Core", "revenue": 96000 },
-      { "region": "West", "product": "Plus", "revenue": 87000 },
-      { "region": "West", "product": "Services", "revenue": 22000 },
-      { "region": "South", "product": "Core", "revenue": 128000 },
-      { "region": "South", "product": "Plus", "revenue": 58000 },
-      { "region": "South", "product": "Services", "revenue": 18000 }
+      {
+        "region": "East",
+        "product": "Core",
+        "revenue": 214000
+      },
+      {
+        "region": "East",
+        "product": "Plus",
+        "revenue": 98000
+      },
+      {
+        "region": "East",
+        "product": "Services",
+        "revenue": 26000
+      },
+      {
+        "region": "North",
+        "product": "Core",
+        "revenue": 151000
+      },
+      {
+        "region": "North",
+        "product": "Plus",
+        "revenue": 104000
+      },
+      {
+        "region": "North",
+        "product": "Services",
+        "revenue": 23000
+      },
+      {
+        "region": "West",
+        "product": "Core",
+        "revenue": 96000
+      },
+      {
+        "region": "West",
+        "product": "Plus",
+        "revenue": 87000
+      },
+      {
+        "region": "West",
+        "product": "Services",
+        "revenue": 22000
+      },
+      {
+        "region": "South",
+        "product": "Core",
+        "revenue": 128000
+      },
+      {
+        "region": "South",
+        "product": "Plus",
+        "revenue": 58000
+      },
+      {
+        "region": "South",
+        "product": "Services",
+        "revenue": 18000
+      }
     ]
   },
   "fields": {
     "revenue": {
       "label": "Revenue",
-      "format": { "type": "currency", "currency": "EUR", "compact": true }
-    }
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "region": {},
+    "product": {}
   },
-  "facet": { "field": "region", "columns": 2 },
+  "facet": {
+    "field": "region",
+    "columns": 2
+  },
   "view": {
     "type": "donut",
     "label": "product",
@@ -45,6 +104,20 @@
       "fields": {
         "revenue": {
           "label": "Chiffre d'affaires"
+        },
+        "region": {
+          "values": {
+            "East": "Est",
+            "North": "Nord",
+            "West": "Ouest",
+            "South": "Sud"
+          }
+        },
+        "product": {
+          "values": {
+            "Core": "Cœur",
+            "Services": "Services"
+          }
         }
       }
     },
@@ -57,6 +130,20 @@
       "fields": {
         "revenue": {
           "label": "Umsatz"
+        },
+        "region": {
+          "values": {
+            "East": "Ost",
+            "North": "Nord",
+            "West": "West",
+            "South": "Süd"
+          }
+        },
+        "product": {
+          "values": {
+            "Core": "Kern",
+            "Services": "Dienstleistungen"
+          }
         }
       }
     }

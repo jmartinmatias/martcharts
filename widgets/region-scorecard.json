@@ -87,7 +87,14 @@
       },
       "fields": {
         "region": {
-          "label": "Région"
+          "label": "Région",
+          "values": {
+            "East": "Est",
+            "North": "Nord",
+            "Central": "Centre",
+            "West": "Ouest",
+            "South": "Sud"
+          }
         },
         "revenue": {
           "label": "Chiffre d'affaires"
@@ -110,6 +117,15 @@
         },
         "margin": {
           "label": "Bruttomarge"
+        },
+        "region": {
+          "values": {
+            "East": "Ost",
+            "North": "Nord",
+            "Central": "Mitte",
+            "West": "West",
+            "South": "Süd"
+          }
         }
       }
     }

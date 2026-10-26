@@ -3,28 +3,82 @@
   "title": "Revenue mix by region",
   "subtitle": "Q3 2026 share, by product line",
   "description": "What each region sells: Core is more than half of revenue everywhere except West, where Enterprise is the biggest line.",
-  "source": {"name": "Finance ledger"},
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
     "rows": [
-      { "region": "East", "core": 182000, "plus": 96000, "enterprise": 60000 },
-      { "region": "North", "core": 161000, "plus": 71000, "enterprise": 46000 },
-      { "region": "Central", "core": 143000, "plus": 68000, "enterprise": 48000 },
-      { "region": "South", "core": 128000, "plus": 52000, "enterprise": 24000 },
-      { "region": "West", "core": 74000, "plus": 41000, "enterprise": 90000 }
+      {
+        "region": "East",
+        "core": 182000,
+        "plus": 96000,
+        "enterprise": 60000
+      },
+      {
+        "region": "North",
+        "core": 161000,
+        "plus": 71000,
+        "enterprise": 46000
+      },
+      {
+        "region": "Central",
+        "core": 143000,
+        "plus": 68000,
+        "enterprise": 48000
+      },
+      {
+        "region": "South",
+        "core": 128000,
+        "plus": 52000,
+        "enterprise": 24000
+      },
+      {
+        "region": "West",
+        "core": 74000,
+        "plus": 41000,
+        "enterprise": 90000
+      }
     ]
   },
   "fields": {
-    "region": { "label": "Region" },
-    "core": { "label": "Core", "format": { "type": "currency", "currency": "EUR", "compact": true } },
-    "plus": { "label": "Plus", "format": { "type": "currency", "currency": "EUR", "compact": true } },
-    "enterprise": { "label": "Enterprise", "format": { "type": "currency", "currency": "EUR", "compact": true } }
+    "region": {
+      "label": "Region"
+    },
+    "core": {
+      "label": "Core",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "plus": {
+      "label": "Plus",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "enterprise": {
+      "label": "Enterprise",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
   },
   "view": {
     "type": "hbar",
     "label": "region",
-    "value": ["core", "plus", "enterprise"],
+    "value": [
+      "core",
+      "plus",
+      "enterprise"
+    ],
     "stacked": "percent"
   },
   "i18n": {
@@ -37,7 +91,14 @@
       },
       "fields": {
         "region": {
-          "label": "Région"
+          "label": "Région",
+          "values": {
+            "East": "Est",
+            "North": "Nord",
+            "Central": "Centre",
+            "South": "Sud",
+            "West": "Ouest"
+          }
         }
       }
     },
@@ -47,6 +108,17 @@
       "description": "Was jede Region verkauft: Core macht überall mehr als die Hälfte aus, außer im Westen, wo Enterprise die größte Linie ist.",
       "source": {
         "name": "Hauptbuch"
+      },
+      "fields": {
+        "region": {
+          "values": {
+            "East": "Ost",
+            "North": "Nord",
+            "Central": "Mitte",
+            "South": "Süd",
+            "West": "West"
+          }
+        }
       }
     }
   }

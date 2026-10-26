@@ -104,7 +104,8 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "format": {
         "type": "number"
       }
-    }
+    },
+    "cause": {}
   },
   "view": {
     "type": "pareto",
@@ -118,13 +119,41 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "description": "Tickets par cause, la plus grande d'abord. Quatre causes font plus de 80 % du volume : à traiter en premier.",
       "source": {
         "name": "Support client"
+      },
+      "fields": {
+        "cause": {
+          "values": {
+            "Login problems": "Problèmes de connexion",
+            "Billing questions": "Questions de facturation",
+            "Slow pages": "Pages lentes",
+            "Integrations": "Intégrations",
+            "Exports": "Exports",
+            "Notifications": "Notifications",
+            "Permissions": "Droits d'accès",
+            "Other": "Autres"
+          }
+        }
       }
     },
     "de": {
       "title": "Was Support-Tickets auslöst",
       "subtitle": "Q3 2026, nach Ursache, mit laufender Summe",
       "description": "Tickets nach Ursache, größte zuerst. Vier Ursachen machen über 80 % aus: die zuerst beheben.",
-      "note": "{sum:tickets} Tickets"
+      "note": "{sum:tickets} Tickets",
+      "fields": {
+        "cause": {
+          "values": {
+            "Login problems": "Anmeldeprobleme",
+            "Billing questions": "Abrechnungsfragen",
+            "Slow pages": "Langsame Seiten",
+            "Integrations": "Integrationen",
+            "Exports": "Exporte",
+            "Notifications": "Benachrichtigungen",
+            "Permissions": "Berechtigungen",
+            "Other": "Sonstige"
+          }
+        }
+      }
     }
   }
 }

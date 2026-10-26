@@ -17,7 +17,9 @@ import { alsoAccepts, canonicalSpec, canonicalView } from "../core/canonical.ts"
 import { formatValue, humanize } from "../core/display.ts";
 import { basemapNames } from "../core/geo.ts";
 import { fork } from "../core/fork.ts";
-import { switchChart } from "../core/guide.ts";
+import { chartGuide, switchChart } from "../core/guide.ts";
+import { pickWhy, switchAdvice } from "../core/type-words.ts";
+import type { TypeLang } from "../core/type-words.ts";
 import { describePresets } from "../core/presets.ts";
 import { recommendCharts } from "../core/recommend.ts";
 import { describeBlocks, getBlock } from "../core/registry.ts";
@@ -32,7 +34,7 @@ import { fieldList } from "./views/shared.ts";
 import { createWidget } from "./widget.ts";
 import type { Widget } from "./widget.ts";
 import { frameEmbed } from "./embed.ts";
-import { wordsFor, WORDS_EN } from "../core/words.ts";
+import { langOf, wordsFor, WORDS_EN } from "../core/words.ts";
 import { addChartToBoard, liteBundleUrl, localBoardStore } from "./board-store.ts";
 import type { BoardStore, SavedBoard, SavedChart } from "./board-store.ts";
 
@@ -360,6 +362,9 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
   ensureEditorStyles(doc);
   const strings: Strings = { ...wordsFor(options.locale ?? doc.documentElement.lang).editor, ...options.strings } as Strings;
   const t = <K extends keyof Strings>(key: K): Strings[K] => strings[key];
+  // The chart advice (why a chart fits, what a switch gains or loses) in the editor's language when French or German.
+  const uiLang = langOf(options.locale ?? doc.documentElement.lang);
+  const typeLang: TypeLang | undefined = uiLang === "fr" || uiLang === "de" ? uiLang : undefined;
   const fetcher = options.fetch ?? win?.fetch?.bind(win) ?? globalThis.fetch;
   const useHash = options.hash ?? Boolean(win && win.location);
   const session = (() => {
@@ -1189,7 +1194,7 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
     for (const { type } of describeBlocks("view")) {
       const pick = pickOf.get(type);
       if (pick) {
-        cards.push({ type, group: 0, why: pick.why, view: pick.view });
+        cards.push({ type, group: 0, why: typeLang ? pickWhy(type, chartGuide(type)?.purposes, typeLang) : pick.why, view: pick.view });
         continue;
       }
       let fit: ReturnType<typeof switchChart> | undefined;
@@ -1198,8 +1203,10 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
       } catch {
         fit = undefined;
       }
-      if (fit && fit.fit !== "no") cards.push({ type, group: 1, view: fit.view, why: fit.assessment });
-      else cards.push({ type, group: 2, why: fit?.caveats[0] ?? fit?.assessment });
+      // In French or German, the advice is built from the same facts in that language (type-words.ts).
+      const said = (sw: ReturnType<typeof switchChart> | undefined, english: string | undefined) => (sw && typeLang ? switchAdvice(sw, typeLang) : english);
+      if (fit && fit.fit !== "no") cards.push({ type, group: 1, view: fit.view, why: said(fit, fit.assessment) });
+      else cards.push({ type, group: 2, why: said(fit, fit?.caveats[0] ?? fit?.assessment) });
     }
     cards.sort((a, b) => a.group - b.group || (pickOf.get(b.type)?.score ?? 0) - (pickOf.get(a.type)?.score ?? 0) || a.type.localeCompare(b.type));
     const groups: [string, HTMLElement][] = [

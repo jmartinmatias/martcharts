@@ -3,7 +3,9 @@
   "title": "Revenue by customer",
   "subtitle": "Year to date, by segment",
   "description": "Every customer's share of revenue, grouped by segment.",
-  "source": {"name": "CRM"},
+  "source": {
+    "name": "CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "url",
@@ -43,6 +45,13 @@
       "fields": {
         "revenue": {
           "label": "Chiffre d'affaires"
+        },
+        "segment": {
+          "values": {
+            "Enterprise": "Grandes entreprises",
+            "Mid-market": "ETI",
+            "Small business": "Petites entreprises"
+          }
         }
       }
     },
@@ -53,6 +62,13 @@
       "fields": {
         "revenue": {
           "label": "Umsatz"
+        },
+        "segment": {
+          "values": {
+            "Enterprise": "Großunternehmen",
+            "Mid-market": "Mittelstand",
+            "Small business": "Kleinunternehmen"
+          }
         }
       }
     }

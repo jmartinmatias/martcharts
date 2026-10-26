@@ -90,7 +90,10 @@
           "No data": "neutral"
         }
       }
-    }
+    },
+    "overallPrevStatus": {},
+    "movedFrom": {},
+    "movedTo": {}
   },
   "view": {
     "type": "table",
@@ -121,22 +124,81 @@
           "label": "Chargé de clientèle"
         },
         "region": {
-          "label": "Région"
+          "label": "Région",
+          "values": {
+            "Iberia": "Péninsule ibérique",
+            "Italy": "Italie",
+            "France": "France"
+          }
         },
         "overallStatus": {
-          "label": "Global"
+          "label": "Global",
+          "values": {
+            "Red": "Rouge",
+            "Amber": "Orange",
+            "Green": "Vert"
+          }
         },
         "clientSuccessStatus": {
-          "label": "Succès client"
+          "label": "Succès client",
+          "values": {
+            "Red": "Rouge",
+            "Green": "Vert",
+            "Amber": "Orange"
+          }
         },
         "bizDevStatus": {
-          "label": "Développement commercial"
+          "label": "Développement commercial",
+          "values": {
+            "Red": "Rouge",
+            "Amber": "Orange",
+            "Green": "Vert"
+          }
         },
         "coverageStatus": {
-          "label": "Couverture"
+          "label": "Couverture",
+          "values": {
+            "Amber": "Orange",
+            "Green": "Vert",
+            "Red": "Rouge"
+          }
         },
         "relationshipStatus": {
-          "label": "Relation"
+          "label": "Relation",
+          "values": {
+            "Amber": "Orange",
+            "Red": "Rouge",
+            "Green": "Vert"
+          }
+        },
+        "segment": {
+          "values": {
+            "Corporate": "Entreprises",
+            "Private": "Banque privée",
+            "Affluent": "Clientèle aisée",
+            "Institutional": "Institutionnels"
+          }
+        },
+        "overallPrevStatus": {
+          "values": {
+            "Red": "Rouge",
+            "Amber": "Orange",
+            "Green": "Vert"
+          }
+        },
+        "movedFrom": {
+          "values": {
+            "Red in Q3": "Rouge au T3",
+            "Amber in Q3": "Orange au T3",
+            "Green in Q3": "Vert au T3"
+          }
+        },
+        "movedTo": {
+          "values": {
+            "Red in Q4": "Rouge au T4",
+            "Amber in Q4": "Orange au T4",
+            "Green in Q4": "Vert au T4"
+          }
         }
       }
     },
@@ -155,19 +217,80 @@
           "label": "Kundenberater"
         },
         "overallStatus": {
-          "label": "Gesamt"
+          "label": "Gesamt",
+          "values": {
+            "Red": "Rot",
+            "Amber": "Gelb",
+            "Green": "Grün"
+          }
         },
         "clientSuccessStatus": {
-          "label": "Kundenerfolg"
+          "label": "Kundenerfolg",
+          "values": {
+            "Red": "Rot",
+            "Green": "Grün",
+            "Amber": "Gelb"
+          }
         },
         "bizDevStatus": {
-          "label": "Geschäftsentwicklung"
+          "label": "Geschäftsentwicklung",
+          "values": {
+            "Red": "Rot",
+            "Amber": "Gelb",
+            "Green": "Grün"
+          }
         },
         "coverageStatus": {
-          "label": "Betreuung"
+          "label": "Betreuung",
+          "values": {
+            "Amber": "Gelb",
+            "Green": "Grün",
+            "Red": "Rot"
+          }
         },
         "relationshipStatus": {
-          "label": "Beziehung"
+          "label": "Beziehung",
+          "values": {
+            "Amber": "Gelb",
+            "Red": "Rot",
+            "Green": "Grün"
+          }
+        },
+        "segment": {
+          "values": {
+            "Corporate": "Firmenkunden",
+            "Private": "Privatkunden",
+            "Affluent": "Vermögende Kunden",
+            "Institutional": "Institutionelle"
+          }
+        },
+        "region": {
+          "values": {
+            "Iberia": "Iberische Halbinsel",
+            "Italy": "Italien",
+            "France": "Frankreich"
+          }
+        },
+        "overallPrevStatus": {
+          "values": {
+            "Red": "Rot",
+            "Amber": "Gelb",
+            "Green": "Grün"
+          }
+        },
+        "movedFrom": {
+          "values": {
+            "Red in Q3": "Rot im Q3",
+            "Amber in Q3": "Gelb im Q3",
+            "Green in Q3": "Grün im Q3"
+          }
+        },
+        "movedTo": {
+          "values": {
+            "Red in Q4": "Rot im Q4",
+            "Amber in Q4": "Gelb im Q4",
+            "Green in Q4": "Grün im Q4"
+          }
         }
       }
     }

@@ -20,7 +20,8 @@
     },
     "impact": {
       "label": "Impact (1 to 5)"
-    }
+    },
+    "topic": {}
   },
   "view": {
     "type": "matrix",
@@ -50,13 +51,31 @@
           "label": "Réglementation"
         },
         "stakeholder": {
-          "label": "Type d'acteur"
+          "label": "Type d'acteur",
+          "values": {
+            "Banks": "Banques",
+            "Insurers": "Assureurs",
+            "Asset managers": "Gestionnaires d'actifs",
+            "Payment institutions": "Établissements de paiement",
+            "Crypto providers": "Prestataires crypto"
+          }
         },
         "binds": {
           "label": "Doit se conformer"
         },
         "impact": {
           "label": "Impact (1 à 5)"
+        },
+        "topic": {
+          "values": {
+            "Operational resilience": "Résilience opérationnelle",
+            "Data, AI & digital": "Données, IA et numérique",
+            "AML & sanctions": "LCB-FT et sanctions",
+            "Prudential": "Prudentiel",
+            "Markets": "Marchés",
+            "ESG & sustainability": "ESG et durabilité",
+            "Payments": "Paiements"
+          }
         }
       },
       "source": {
@@ -72,13 +91,31 @@
           "label": "Regulierung"
         },
         "stakeholder": {
-          "label": "Akteurstyp"
+          "label": "Akteurstyp",
+          "values": {
+            "Banks": "Banken",
+            "Insurers": "Versicherer",
+            "Asset managers": "Vermögensverwalter",
+            "Payment institutions": "Zahlungsinstitute",
+            "Crypto providers": "Krypto-Anbieter"
+          }
         },
         "binds": {
           "label": "Muss einhalten"
         },
         "impact": {
           "label": "Wirkung (1 bis 5)"
+        },
+        "topic": {
+          "values": {
+            "Operational resilience": "Operative Resilienz",
+            "Data, AI & digital": "Daten, KI und Digitales",
+            "AML & sanctions": "Geldwäsche und Sanktionen",
+            "Prudential": "Aufsichtsrecht",
+            "Markets": "Märkte",
+            "ESG & sustainability": "ESG und Nachhaltigkeit",
+            "Payments": "Zahlungsverkehr"
+          }
         }
       },
       "source": {

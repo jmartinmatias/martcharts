@@ -4,27 +4,82 @@
   "subtitle": "Nine sites across Europe",
   "description": "Where the company's offices are, each named on a tile grid of Europe with its headcount under it, colored by what the site does.",
   "note": "October 2026",
-  "source": {"name": "Facilities register"},
+  "source": {
+    "name": "Facilities register"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
     "rows": [
-      { "office": "Paris", "country": "FR", "people": "240 people", "role": "Headquarters" },
-      { "office": "Berlin", "country": "DE", "people": "130 people", "role": "Engineering" },
-      { "office": "Lisbon", "country": "PT", "people": "85 people", "role": "Engineering" },
-      { "office": "Warsaw", "country": "PL", "people": "70 people", "role": "Engineering" },
-      { "office": "London", "country": "GB", "people": "95 people", "role": "Sales" },
-      { "office": "Milan", "country": "IT", "people": "40 people", "role": "Sales" },
-      { "office": "Madrid", "country": "ES", "people": "35 people", "role": "Sales" },
-      { "office": "Stockholm", "country": "SE", "people": "25 people", "role": "Sales" },
-      { "office": "Dublin", "country": "IE", "people": "60 people", "role": "Support" }
+      {
+        "office": "Paris",
+        "country": "FR",
+        "people": "240 people",
+        "role": "Headquarters"
+      },
+      {
+        "office": "Berlin",
+        "country": "DE",
+        "people": "130 people",
+        "role": "Engineering"
+      },
+      {
+        "office": "Lisbon",
+        "country": "PT",
+        "people": "85 people",
+        "role": "Engineering"
+      },
+      {
+        "office": "Warsaw",
+        "country": "PL",
+        "people": "70 people",
+        "role": "Engineering"
+      },
+      {
+        "office": "London",
+        "country": "GB",
+        "people": "95 people",
+        "role": "Sales"
+      },
+      {
+        "office": "Milan",
+        "country": "IT",
+        "people": "40 people",
+        "role": "Sales"
+      },
+      {
+        "office": "Madrid",
+        "country": "ES",
+        "people": "35 people",
+        "role": "Sales"
+      },
+      {
+        "office": "Stockholm",
+        "country": "SE",
+        "people": "25 people",
+        "role": "Sales"
+      },
+      {
+        "office": "Dublin",
+        "country": "IE",
+        "people": "60 people",
+        "role": "Support"
+      }
     ]
   },
   "fields": {
-    "office": { "label": "Office" },
-    "country": { "label": "Country" },
-    "people": { "label": "Headcount" },
-    "role": { "label": "Role" }
+    "office": {
+      "label": "Office"
+    },
+    "country": {
+      "label": "Country"
+    },
+    "people": {
+      "label": "Headcount"
+    },
+    "role": {
+      "label": "Role"
+    }
   },
   "view": {
     "type": "locator",
@@ -54,7 +109,13 @@
           "label": "Effectif"
         },
         "role": {
-          "label": "Rôle"
+          "label": "Rôle",
+          "values": {
+            "Headquarters": "Siège",
+            "Engineering": "Ingénierie",
+            "Sales": "Ventes",
+            "Support": "Support"
+          }
         }
       }
     },
@@ -77,7 +138,13 @@
           "label": "Belegschaft"
         },
         "role": {
-          "label": "Rolle"
+          "label": "Rolle",
+          "values": {
+            "Headquarters": "Zentrale",
+            "Engineering": "Technik",
+            "Sales": "Vertrieb",
+            "Support": "Support"
+          }
         }
       }
     }

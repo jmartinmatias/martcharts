@@ -3,22 +3,41 @@
   "title": "Where Q3 revenue came from",
   "subtitle": "Share by segment, Q3 2026",
   "description": "Each segment's slice of the quarter's revenue: the shares on the slices, the amounts in the legend.",
-  "source": {"name": "Finance ledger"},
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
     "rows": [
-      { "segment": "Enterprise", "revenue": 660100 },
-      { "segment": "Mid-market", "revenue": 447000 },
-      { "segment": "Small business", "revenue": 212400 },
-      { "segment": "Public sector", "revenue": 97600 }
+      {
+        "segment": "Enterprise",
+        "revenue": 660100
+      },
+      {
+        "segment": "Mid-market",
+        "revenue": 447000
+      },
+      {
+        "segment": "Small business",
+        "revenue": 212400
+      },
+      {
+        "segment": "Public sector",
+        "revenue": 97600
+      }
     ]
   },
   "fields": {
     "revenue": {
       "label": "Revenue",
-      "format": { "type": "currency", "currency": "EUR", "compact": true }
-    }
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "segment": {}
   },
   "view": {
     "type": "pie",
@@ -36,6 +55,14 @@
       "fields": {
         "revenue": {
           "label": "Chiffre d'affaires"
+        },
+        "segment": {
+          "values": {
+            "Enterprise": "Grandes entreprises",
+            "Mid-market": "ETI",
+            "Small business": "Petites entreprises",
+            "Public sector": "Secteur public"
+          }
         }
       }
     },
@@ -49,6 +76,14 @@
       "fields": {
         "revenue": {
           "label": "Umsatz"
+        },
+        "segment": {
+          "values": {
+            "Enterprise": "Großunternehmen",
+            "Mid-market": "Mittelstand",
+            "Small business": "Kleinunternehmen",
+            "Public sector": "Öffentlicher Sektor"
+          }
         }
       }
     }

@@ -144,12 +144,36 @@
       "subtitle": "Chaque client sur quatre perspectives, ce qui a changé, et qui agit",
       "description": "La santé de chaque client comme un récit : la vue d'ensemble, puis chaque perspective (succès client, développement commercial, couverture et relation), puis mouvements et actions, chaque client sur les quatre perspectives, et les règles derrière chaque statut.",
       "filters": [
-        {},
+        {
+          "values": {
+            "Enterprise": "Grandes entreprises",
+            "Mid-market": "ETI",
+            "Small business": "Petites entreprises",
+            "SMB": "PME",
+            "Corporate": "Entreprises",
+            "Institutional": "Institutionnels",
+            "Private": "Banque privée",
+            "Public sector": "Secteur public",
+            "Affluent": "Clientèle aisée"
+          }
+        },
         {
           "label": "Chargé de clientèle"
         },
         {
-          "label": "Région"
+          "label": "Région",
+          "values": {
+            "West": "Ouest",
+            "South": "Sud",
+            "Midwest": "Midwest",
+            "Northeast": "Nord-Est",
+            "North": "Nord",
+            "East": "Est",
+            "Central": "Centre",
+            "Italy": "Italie",
+            "Iberia": "Péninsule ibérique",
+            "France": "France"
+          }
         }
       ],
       "widgets": [
@@ -213,9 +237,35 @@
       "subtitle": "Jeder Kunde in vier Perspektiven, was sich änderte und wer handelt",
       "description": "Die Gesundheit jedes Kunden als Geschichte: der Überblick, dann jede Perspektive (Kundenerfolg, Geschäftsentwicklung, Betreuung und Beziehung), dann Bewegung und Aktionen, jeder Kunde in allen vier Perspektiven und die Regeln hinter jedem Status.",
       "filters": [
-        {},
+        {
+          "values": {
+            "Enterprise": "Großunternehmen",
+            "Mid-market": "Mittelstand",
+            "Small business": "Kleinunternehmen",
+            "SMB": "KMU",
+            "Corporate": "Firmenkunden",
+            "Institutional": "Institutionelle",
+            "Private": "Privatkunden",
+            "Public sector": "Öffentlicher Sektor",
+            "Affluent": "Vermögende Kunden"
+          }
+        },
         {
           "label": "Kundenberater"
+        },
+        {
+          "values": {
+            "West": "West",
+            "South": "Süd",
+            "Midwest": "Mittlerer Westen",
+            "Northeast": "Nordosten",
+            "North": "Nord",
+            "East": "Ost",
+            "Central": "Mitte",
+            "Italy": "Italien",
+            "Iberia": "Iberische Halbinsel",
+            "France": "Frankreich"
+          }
         }
       ],
       "widgets": [

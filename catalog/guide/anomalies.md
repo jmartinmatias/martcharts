@@ -452,7 +452,15 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       },
       "fields": {
         "metric": {
-          "label": "Mesure"
+          "label": "Mesure",
+          "values": {
+            "Net new money": "Collecte nette",
+            "Fee revenue": "Revenus de commissions",
+            "Trades": "Transactions",
+            "Complaints": "Réclamations",
+            "Logins": "Connexions",
+            "FX volume": "Volume de change"
+          }
         },
         "value": {
           "label": "Relevé"
@@ -480,7 +488,15 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
           "label": "Datum"
         },
         "metric": {
-          "label": "Kennzahl"
+          "label": "Kennzahl",
+          "values": {
+            "Net new money": "Nettoneugeld",
+            "Fee revenue": "Provisionserträge",
+            "Trades": "Transaktionen",
+            "Complaints": "Beschwerden",
+            "Logins": "Anmeldungen",
+            "FX volume": "Devisenvolumen"
+          }
         },
         "value": {
           "label": "Messwert"

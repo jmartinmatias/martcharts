@@ -107,7 +107,9 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "format": {
         "type": "number"
       }
-    }
+    },
+    "from": {},
+    "to": {}
   },
   "view": {
     "type": "chord",
@@ -127,6 +129,18 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "fields": {
         "customers": {
           "label": "Clients"
+        },
+        "from": {
+          "values": {
+            "Growth": "Croissance",
+            "Enterprise": "Grandes entreprises"
+          }
+        },
+        "to": {
+          "values": {
+            "Growth": "Croissance",
+            "Enterprise": "Grandes entreprises"
+          }
         }
       }
     },
@@ -141,6 +155,18 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "fields": {
         "customers": {
           "label": "Kunden"
+        },
+        "from": {
+          "values": {
+            "Growth": "Wachstum",
+            "Enterprise": "Großunternehmen"
+          }
+        },
+        "to": {
+          "values": {
+            "Growth": "Wachstum",
+            "Enterprise": "Großunternehmen"
+          }
         }
       }
     }

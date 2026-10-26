@@ -112,7 +112,8 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         "type": "number",
         "compact": true
       }
-    }
+    },
+    "kpi": {}
   },
   "view": {
     "type": "bullet",
@@ -135,6 +136,15 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         },
         "target": {
           "label": "Objectif"
+        },
+        "kpi": {
+          "values": {
+            "Revenue (€)": "CA (€)",
+            "New customers": "Nouveaux clients",
+            "Gross margin (%)": "Marge brute (%)",
+            "Net promoter score": "Net Promoter Score",
+            "Tickets resolved": "Tickets résolus"
+          }
         }
       }
     },
@@ -152,6 +162,15 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         },
         "target": {
           "label": "Ziel"
+        },
+        "kpi": {
+          "values": {
+            "Revenue (€)": "Umsatz (€)",
+            "New customers": "Neukunden",
+            "Gross margin (%)": "Bruttomarge (%)",
+            "Net promoter score": "Net Promoter Score",
+            "Tickets resolved": "Gelöste Tickets"
+          }
         }
       }
     }

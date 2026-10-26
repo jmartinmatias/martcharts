@@ -116,7 +116,9 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         "type": "number",
         "compact": true
       }
-    }
+    },
+    "from": {},
+    "to": {}
   },
   "view": {
     "type": "sankey",
@@ -135,6 +137,18 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "fields": {
         "visits": {
           "label": "Visites"
+        },
+        "from": {
+          "values": {
+            "Pricing": "Prix"
+          }
+        },
+        "to": {
+          "values": {
+            "Pricing": "Prix",
+            "Signed up": "Inscrits",
+            "Left": "Partis"
+          }
         }
       }
     },
@@ -148,6 +162,18 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "fields": {
         "visits": {
           "label": "Besuche"
+        },
+        "from": {
+          "values": {
+            "Pricing": "Preise"
+          }
+        },
+        "to": {
+          "values": {
+            "Pricing": "Preise",
+            "Signed up": "Registriert",
+            "Left": "Abgewandert"
+          }
         }
       }
     }

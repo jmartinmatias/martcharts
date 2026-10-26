@@ -63,10 +63,24 @@
       },
       "fields": {
         "from": {
-          "label": "Détient"
+          "label": "Détient",
+          "values": {
+            "Custody held": "Conservation détenu",
+            "Advisory held": "Conseil détenu",
+            "Insurance held": "Assurance détenu",
+            "Lending held": "Crédit détenu",
+            "Pension held": "Retraite détenu"
+          }
         },
         "to": {
-          "label": "Pourrait acheter"
+          "label": "Pourrait acheter",
+          "values": {
+            "Pension opportunity": "Opportunité : Retraite",
+            "Advisory opportunity": "Opportunité : Conseil",
+            "Discretionary opportunity": "Opportunité : Gestion sous mandat",
+            "Lending opportunity": "Opportunité : Crédit",
+            "Insurance opportunity": "Opportunité : Assurance"
+          }
         }
       }
     },
@@ -79,10 +93,24 @@
       },
       "fields": {
         "from": {
-          "label": "Hält"
+          "label": "Hält",
+          "values": {
+            "Custody held": "Verwahrung gehalten",
+            "Advisory held": "Beratung gehalten",
+            "Insurance held": "Versicherung gehalten",
+            "Lending held": "Kredite gehalten",
+            "Pension held": "Vorsorge gehalten"
+          }
         },
         "to": {
-          "label": "Könnte kaufen"
+          "label": "Könnte kaufen",
+          "values": {
+            "Pension opportunity": "Chance: Vorsorge",
+            "Advisory opportunity": "Chance: Beratung",
+            "Discretionary opportunity": "Chance: Vermögensverwaltung",
+            "Lending opportunity": "Chance: Kredite",
+            "Insurance opportunity": "Chance: Versicherung"
+          }
         },
         "clients": {
           "label": "Kunden"

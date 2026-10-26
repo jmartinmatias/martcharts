@@ -65,7 +65,14 @@
     },
     "daysOpen": {
       "label": "Days open"
-    }
+    },
+    "clientSuccessStatus": {},
+    "bizDevStatus": {},
+    "coverageStatus": {},
+    "relationshipStatus": {},
+    "overallPrevStatus": {},
+    "movedFrom": {},
+    "movedTo": {}
   },
   "view": {
     "type": "table",
@@ -94,13 +101,22 @@
           "label": "Chargé de clientèle"
         },
         "region": {
-          "label": "Région"
+          "label": "Région",
+          "values": {
+            "Iberia": "Péninsule ibérique",
+            "Italy": "Italie",
+            "France": "France"
+          }
         },
         "aum": {
           "label": "Actifs gérés"
         },
         "overallStatus": {
-          "label": "Statut"
+          "label": "Statut",
+          "values": {
+            "Red": "Rouge",
+            "Amber": "Orange"
+          }
         },
         "owner": {
           "label": "Responsable"
@@ -110,6 +126,62 @@
         },
         "daysOpen": {
           "label": "Jours ouverts"
+        },
+        "segment": {
+          "values": {
+            "Corporate": "Entreprises",
+            "Private": "Banque privée",
+            "Affluent": "Clientèle aisée",
+            "Institutional": "Institutionnels"
+          }
+        },
+        "clientSuccessStatus": {
+          "values": {
+            "Red": "Rouge",
+            "Green": "Vert",
+            "Amber": "Orange"
+          }
+        },
+        "bizDevStatus": {
+          "values": {
+            "Red": "Rouge",
+            "Amber": "Orange",
+            "Green": "Vert"
+          }
+        },
+        "coverageStatus": {
+          "values": {
+            "Amber": "Orange",
+            "Green": "Vert",
+            "Red": "Rouge"
+          }
+        },
+        "relationshipStatus": {
+          "values": {
+            "Amber": "Orange",
+            "Red": "Rouge",
+            "Green": "Vert"
+          }
+        },
+        "overallPrevStatus": {
+          "values": {
+            "Red": "Rouge",
+            "Amber": "Orange",
+            "Green": "Vert"
+          }
+        },
+        "movedFrom": {
+          "values": {
+            "Red in Q3": "Rouge au T3",
+            "Amber in Q3": "Orange au T3",
+            "Green in Q3": "Vert au T3"
+          }
+        },
+        "movedTo": {
+          "values": {
+            "Red in Q4": "Rouge au T4",
+            "Amber in Q4": "Orange au T4"
+          }
         }
       }
     },
@@ -135,6 +207,75 @@
         },
         "daysOpen": {
           "label": "Tage offen"
+        },
+        "segment": {
+          "values": {
+            "Corporate": "Firmenkunden",
+            "Private": "Privatkunden",
+            "Affluent": "Vermögende Kunden",
+            "Institutional": "Institutionelle"
+          }
+        },
+        "region": {
+          "values": {
+            "Iberia": "Iberische Halbinsel",
+            "Italy": "Italien",
+            "France": "Frankreich"
+          }
+        },
+        "clientSuccessStatus": {
+          "values": {
+            "Red": "Rot",
+            "Green": "Grün",
+            "Amber": "Gelb"
+          }
+        },
+        "bizDevStatus": {
+          "values": {
+            "Red": "Rot",
+            "Amber": "Gelb",
+            "Green": "Grün"
+          }
+        },
+        "coverageStatus": {
+          "values": {
+            "Amber": "Gelb",
+            "Green": "Grün",
+            "Red": "Rot"
+          }
+        },
+        "relationshipStatus": {
+          "values": {
+            "Amber": "Gelb",
+            "Red": "Rot",
+            "Green": "Grün"
+          }
+        },
+        "overallStatus": {
+          "values": {
+            "Red": "Rot",
+            "Amber": "Gelb"
+          }
+        },
+        "overallPrevStatus": {
+          "values": {
+            "Red": "Rot",
+            "Amber": "Gelb",
+            "Green": "Grün"
+          }
+        },
+        "movedFrom": {
+          "values": {
+            "Red in Q3": "Rot im Q3",
+            "Amber in Q3": "Gelb im Q3",
+            "Green in Q3": "Grün im Q3"
+          }
+        },
+        "movedTo": {
+          "values": {
+            "Red in Q4": "Rot im Q4",
+            "Amber in Q4": "Gelb im Q4"
+          }
         }
       }
     }

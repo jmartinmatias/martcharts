@@ -57,7 +57,16 @@
       },
       "fields": {
         "step": {
-          "label": "Étape"
+          "label": "Étape",
+          "values": {
+            "Revenue 2025, January to October": "CA 2025, janvier à octobre",
+            "New clients": "Nouveaux clients",
+            "Deepening": "Approfondissement",
+            "Market effect": "Effet marché",
+            "Pricing": "Prix",
+            "Outflows": "Sorties",
+            "Lost clients": "Clients perdus"
+          }
         },
         "amount": {
           "label": "Chiffre d'affaires"
@@ -76,7 +85,16 @@
       },
       "fields": {
         "step": {
-          "label": "Schritt"
+          "label": "Schritt",
+          "values": {
+            "Revenue 2025, January to October": "Umsatz 2025, Januar bis Oktober",
+            "New clients": "Neukunden",
+            "Deepening": "Vertiefung",
+            "Market effect": "Markteffekt",
+            "Pricing": "Preise",
+            "Outflows": "Abflüsse",
+            "Lost clients": "Verlorene Kunden"
+          }
         },
         "amount": {
           "label": "Umsatz"

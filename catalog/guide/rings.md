@@ -106,7 +106,8 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "product": {}
   },
   "view": {
     "type": "rings",
@@ -128,6 +129,13 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         },
         "target": {
           "label": "Objectif"
+        },
+        "product": {
+          "values": {
+            "Analytics": "Analytique",
+            "Platform": "Plateforme",
+            "Services": "Services"
+          }
         }
       }
     },
@@ -144,6 +152,13 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         },
         "target": {
           "label": "Ziel"
+        },
+        "product": {
+          "values": {
+            "Analytics": "Analytik",
+            "Platform": "Plattform",
+            "Services": "Dienstleistungen"
+          }
         }
       }
     }

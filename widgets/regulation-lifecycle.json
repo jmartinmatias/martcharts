@@ -4,39 +4,302 @@
   "subtitle": "From proposal to application, by topic",
   "description": "Every regulation in the compliance book as a lane on one date axis: proposed, adopted, in force and applies, each stage in a deeper tint, the stage still running drawn faintly, today marked, the current status at the end and thicker lanes for higher impact.",
   "note": "Fictional dates; not legal advice",
-  "source": { "name": "Regulatory watch register" },
+  "source": {
+    "name": "Regulatory watch register"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
     "rows": [
-      { "id": "dora", "name": "DORA", "fullName": "Digital Operational Resilience Act", "topic": "Operational resilience", "jurisdiction": "EU", "issuer": "European Parliament and Council", "status": "Applies", "proposed": "2020-09-24", "adopted": "2022-11-28", "inForce": "2023-01-16", "applies": "2025-01-17", "impact": 5, "pressure": 82, "provisions": 312, "mandatory": 221, "recommended": 58, "optional": 33, "pages": 79, "mustComply": 5 },
-      { "id": "crr3", "name": "CRR3", "fullName": "Capital Requirements Regulation III", "topic": "Prudential", "jurisdiction": "EU", "issuer": "European Parliament and Council", "status": "Applies", "proposed": "2021-10-27", "adopted": "2024-05-31", "inForce": "2024-07-09", "applies": "2025-01-01", "impact": 5, "pressure": 79, "provisions": 412, "mandatory": 351, "recommended": 38, "optional": 23, "pages": 420, "mustComply": 1 },
-      { "id": "amlr", "name": "AMLR", "fullName": "Anti-Money Laundering Regulation", "topic": "AML & sanctions", "jurisdiction": "EU", "issuer": "European Parliament and Council", "status": "In force", "proposed": "2021-07-20", "adopted": "2024-05-31", "inForce": "2024-07-09", "applies": "2027-07-10", "impact": 5, "pressure": 88, "provisions": 356, "mandatory": 289, "recommended": 41, "optional": 26, "pages": 180, "mustComply": 5 },
-      { "id": "ai-act", "name": "AI Act", "fullName": "Artificial Intelligence Act", "topic": "AI & digital", "jurisdiction": "EU", "issuer": "European Parliament and Council", "status": "In force", "proposed": "2021-04-21", "adopted": "2024-06-13", "inForce": "2024-08-01", "applies": "2026-08-02", "impact": 4, "pressure": 74, "provisions": 376, "mandatory": 241, "recommended": 89, "optional": 46, "pages": 144, "mustComply": 4 },
-      { "id": "mica", "name": "MiCA", "fullName": "Markets in Crypto-Assets Regulation", "topic": "Markets", "jurisdiction": "EU", "issuer": "European Parliament and Council", "status": "Applies", "proposed": "2020-09-24", "adopted": "2023-05-31", "inForce": "2023-06-29", "applies": "2024-12-30", "impact": 4, "pressure": 68, "provisions": 288, "mandatory": 196, "recommended": 60, "optional": 32, "pages": 150, "mustComply": 3 },
-      { "id": "emir3", "name": "EMIR 3", "fullName": "European Market Infrastructure Regulation review", "topic": "Markets", "jurisdiction": "EU", "issuer": "European Parliament and Council", "status": "Applies", "proposed": "2022-12-07", "adopted": "2024-11-19", "inForce": "2024-12-24", "applies": "2025-06-24", "impact": 3, "pressure": 42, "provisions": 121, "mandatory": 84, "recommended": 22, "optional": 15, "pages": 60, "mustComply": 3 },
-      { "id": "csrd", "name": "CSRD", "fullName": "Corporate Sustainability Reporting Directive", "topic": "ESG & sustainability", "jurisdiction": "EU", "issuer": "European Parliament and Council", "status": "Applies", "proposed": "2021-04-21", "adopted": "2022-12-14", "inForce": "2023-01-05", "applies": "2024-01-01", "impact": 4, "pressure": 61, "provisions": 142, "mandatory": 97, "recommended": 31, "optional": 14, "pages": 45, "mustComply": 3 },
-      { "id": "ipr", "name": "Instant Payments", "fullName": "Instant Payments Regulation", "topic": "Payments", "jurisdiction": "EU", "issuer": "European Parliament and Council", "status": "Applies", "proposed": "2022-10-26", "adopted": "2024-02-26", "inForce": "2024-04-08", "applies": "2025-01-09", "impact": 3, "pressure": 48, "provisions": 48, "mandatory": 41, "recommended": 5, "optional": 2, "pages": 23, "mustComply": 2 },
-      { "id": "psd3", "name": "PSD3", "fullName": "Third Payment Services Directive", "topic": "Payments", "jurisdiction": "EU", "issuer": "European Parliament and Council", "status": "Adopted", "proposed": "2023-06-28", "adopted": "2026-03-18", "inForce": null, "applies": null, "impact": 4, "pressure": 57, "provisions": 198, "mandatory": 130, "recommended": 44, "optional": 24, "pages": 92, "mustComply": 2 },
-      { "id": "ccd2", "name": "CCD2", "fullName": "Consumer Credit Directive II", "topic": "Consumer protection", "jurisdiction": "EU", "issuer": "European Parliament and Council", "status": "In force", "proposed": "2021-06-30", "adopted": "2023-10-18", "inForce": "2023-11-19", "applies": "2026-11-20", "impact": 3, "pressure": 46, "provisions": 97, "mandatory": 68, "recommended": 19, "optional": 10, "pages": 46, "mustComply": 2 },
-      { "id": "fida", "name": "FiDA", "fullName": "Financial Data Access Regulation", "topic": "Data & privacy", "jurisdiction": "EU", "issuer": "European Commission", "status": "Consultation", "proposed": "2023-06-28", "adopted": null, "inForce": null, "applies": null, "impact": 4, "pressure": 53, "provisions": 118, "mandatory": 76, "recommended": 30, "optional": 12, "pages": 61, "mustComply": 4 },
-      { "id": "gdpr-procedural", "name": "GDPR procedural rules", "fullName": "Regulation on procedural rules for GDPR enforcement", "topic": "Data & privacy", "jurisdiction": "EU", "issuer": "European Parliament and Council", "status": "Adopted", "proposed": "2023-07-04", "adopted": "2026-02-10", "inForce": null, "applies": null, "impact": 2, "pressure": 31, "provisions": 54, "mandatory": 39, "recommended": 10, "optional": 5, "pages": 30, "mustComply": 5 }
+      {
+        "id": "dora",
+        "name": "DORA",
+        "fullName": "Digital Operational Resilience Act",
+        "topic": "Operational resilience",
+        "jurisdiction": "EU",
+        "issuer": "European Parliament and Council",
+        "status": "Applies",
+        "proposed": "2020-09-24",
+        "adopted": "2022-11-28",
+        "inForce": "2023-01-16",
+        "applies": "2025-01-17",
+        "impact": 5,
+        "pressure": 82,
+        "provisions": 312,
+        "mandatory": 221,
+        "recommended": 58,
+        "optional": 33,
+        "pages": 79,
+        "mustComply": 5
+      },
+      {
+        "id": "crr3",
+        "name": "CRR3",
+        "fullName": "Capital Requirements Regulation III",
+        "topic": "Prudential",
+        "jurisdiction": "EU",
+        "issuer": "European Parliament and Council",
+        "status": "Applies",
+        "proposed": "2021-10-27",
+        "adopted": "2024-05-31",
+        "inForce": "2024-07-09",
+        "applies": "2025-01-01",
+        "impact": 5,
+        "pressure": 79,
+        "provisions": 412,
+        "mandatory": 351,
+        "recommended": 38,
+        "optional": 23,
+        "pages": 420,
+        "mustComply": 1
+      },
+      {
+        "id": "amlr",
+        "name": "AMLR",
+        "fullName": "Anti-Money Laundering Regulation",
+        "topic": "AML & sanctions",
+        "jurisdiction": "EU",
+        "issuer": "European Parliament and Council",
+        "status": "In force",
+        "proposed": "2021-07-20",
+        "adopted": "2024-05-31",
+        "inForce": "2024-07-09",
+        "applies": "2027-07-10",
+        "impact": 5,
+        "pressure": 88,
+        "provisions": 356,
+        "mandatory": 289,
+        "recommended": 41,
+        "optional": 26,
+        "pages": 180,
+        "mustComply": 5
+      },
+      {
+        "id": "ai-act",
+        "name": "AI Act",
+        "fullName": "Artificial Intelligence Act",
+        "topic": "AI & digital",
+        "jurisdiction": "EU",
+        "issuer": "European Parliament and Council",
+        "status": "In force",
+        "proposed": "2021-04-21",
+        "adopted": "2024-06-13",
+        "inForce": "2024-08-01",
+        "applies": "2026-08-02",
+        "impact": 4,
+        "pressure": 74,
+        "provisions": 376,
+        "mandatory": 241,
+        "recommended": 89,
+        "optional": 46,
+        "pages": 144,
+        "mustComply": 4
+      },
+      {
+        "id": "mica",
+        "name": "MiCA",
+        "fullName": "Markets in Crypto-Assets Regulation",
+        "topic": "Markets",
+        "jurisdiction": "EU",
+        "issuer": "European Parliament and Council",
+        "status": "Applies",
+        "proposed": "2020-09-24",
+        "adopted": "2023-05-31",
+        "inForce": "2023-06-29",
+        "applies": "2024-12-30",
+        "impact": 4,
+        "pressure": 68,
+        "provisions": 288,
+        "mandatory": 196,
+        "recommended": 60,
+        "optional": 32,
+        "pages": 150,
+        "mustComply": 3
+      },
+      {
+        "id": "emir3",
+        "name": "EMIR 3",
+        "fullName": "European Market Infrastructure Regulation review",
+        "topic": "Markets",
+        "jurisdiction": "EU",
+        "issuer": "European Parliament and Council",
+        "status": "Applies",
+        "proposed": "2022-12-07",
+        "adopted": "2024-11-19",
+        "inForce": "2024-12-24",
+        "applies": "2025-06-24",
+        "impact": 3,
+        "pressure": 42,
+        "provisions": 121,
+        "mandatory": 84,
+        "recommended": 22,
+        "optional": 15,
+        "pages": 60,
+        "mustComply": 3
+      },
+      {
+        "id": "csrd",
+        "name": "CSRD",
+        "fullName": "Corporate Sustainability Reporting Directive",
+        "topic": "ESG & sustainability",
+        "jurisdiction": "EU",
+        "issuer": "European Parliament and Council",
+        "status": "Applies",
+        "proposed": "2021-04-21",
+        "adopted": "2022-12-14",
+        "inForce": "2023-01-05",
+        "applies": "2024-01-01",
+        "impact": 4,
+        "pressure": 61,
+        "provisions": 142,
+        "mandatory": 97,
+        "recommended": 31,
+        "optional": 14,
+        "pages": 45,
+        "mustComply": 3
+      },
+      {
+        "id": "ipr",
+        "name": "Instant Payments",
+        "fullName": "Instant Payments Regulation",
+        "topic": "Payments",
+        "jurisdiction": "EU",
+        "issuer": "European Parliament and Council",
+        "status": "Applies",
+        "proposed": "2022-10-26",
+        "adopted": "2024-02-26",
+        "inForce": "2024-04-08",
+        "applies": "2025-01-09",
+        "impact": 3,
+        "pressure": 48,
+        "provisions": 48,
+        "mandatory": 41,
+        "recommended": 5,
+        "optional": 2,
+        "pages": 23,
+        "mustComply": 2
+      },
+      {
+        "id": "psd3",
+        "name": "PSD3",
+        "fullName": "Third Payment Services Directive",
+        "topic": "Payments",
+        "jurisdiction": "EU",
+        "issuer": "European Parliament and Council",
+        "status": "Adopted",
+        "proposed": "2023-06-28",
+        "adopted": "2026-03-18",
+        "inForce": null,
+        "applies": null,
+        "impact": 4,
+        "pressure": 57,
+        "provisions": 198,
+        "mandatory": 130,
+        "recommended": 44,
+        "optional": 24,
+        "pages": 92,
+        "mustComply": 2
+      },
+      {
+        "id": "ccd2",
+        "name": "CCD2",
+        "fullName": "Consumer Credit Directive II",
+        "topic": "Consumer protection",
+        "jurisdiction": "EU",
+        "issuer": "European Parliament and Council",
+        "status": "In force",
+        "proposed": "2021-06-30",
+        "adopted": "2023-10-18",
+        "inForce": "2023-11-19",
+        "applies": "2026-11-20",
+        "impact": 3,
+        "pressure": 46,
+        "provisions": 97,
+        "mandatory": 68,
+        "recommended": 19,
+        "optional": 10,
+        "pages": 46,
+        "mustComply": 2
+      },
+      {
+        "id": "fida",
+        "name": "FiDA",
+        "fullName": "Financial Data Access Regulation",
+        "topic": "Data & privacy",
+        "jurisdiction": "EU",
+        "issuer": "European Commission",
+        "status": "Consultation",
+        "proposed": "2023-06-28",
+        "adopted": null,
+        "inForce": null,
+        "applies": null,
+        "impact": 4,
+        "pressure": 53,
+        "provisions": 118,
+        "mandatory": 76,
+        "recommended": 30,
+        "optional": 12,
+        "pages": 61,
+        "mustComply": 4
+      },
+      {
+        "id": "gdpr-procedural",
+        "name": "GDPR procedural rules",
+        "fullName": "Regulation on procedural rules for GDPR enforcement",
+        "topic": "Data & privacy",
+        "jurisdiction": "EU",
+        "issuer": "European Parliament and Council",
+        "status": "Adopted",
+        "proposed": "2023-07-04",
+        "adopted": "2026-02-10",
+        "inForce": null,
+        "applies": null,
+        "impact": 2,
+        "pressure": 31,
+        "provisions": 54,
+        "mandatory": 39,
+        "recommended": 10,
+        "optional": 5,
+        "pages": 30,
+        "mustComply": 5
+      }
     ]
   },
   "fields": {
-    "name": { "label": "Regulation" },
-    "proposed": { "label": "Proposed" },
-    "adopted": { "label": "Adopted" },
-    "inForce": { "label": "In force" },
-    "applies": { "label": "Applies" },
-    "status": { "label": "Status" },
-    "impact": { "label": "Impact" },
-    "topic": { "label": "Topic" }
+    "name": {
+      "label": "Regulation"
+    },
+    "proposed": {
+      "label": "Proposed"
+    },
+    "adopted": {
+      "label": "Adopted"
+    },
+    "inForce": {
+      "label": "In force"
+    },
+    "applies": {
+      "label": "Applies"
+    },
+    "status": {
+      "label": "Status"
+    },
+    "impact": {
+      "label": "Impact"
+    },
+    "topic": {
+      "label": "Topic"
+    }
   },
   "view": {
     "type": "lifecycle",
     "label": "name",
-    "stages": ["proposed", "adopted", "inForce", "applies"],
+    "stages": [
+      "proposed",
+      "adopted",
+      "inForce",
+      "applies"
+    ],
     "group": "topic",
     "status": "status",
     "impact": "impact",
@@ -68,10 +331,27 @@
           "label": "Applicable"
         },
         "status": {
-          "label": "Statut"
+          "label": "Statut",
+          "values": {
+            "Applies": "S'applique",
+            "In force": "En vigueur",
+            "Adopted": "Adopté",
+            "Consultation": "Consultation"
+          }
         },
         "topic": {
-          "label": "Thème"
+          "label": "Thème",
+          "values": {
+            "Operational resilience": "Résilience opérationnelle",
+            "Prudential": "Prudentiel",
+            "AML & sanctions": "LCB-FT et sanctions",
+            "AI & digital": "IA et numérique",
+            "Markets": "Marchés",
+            "ESG & sustainability": "ESG et durabilité",
+            "Payments": "Paiements",
+            "Consumer protection": "Protection des consommateurs",
+            "Data & privacy": "Données et vie privée"
+          }
         }
       }
     },
@@ -103,7 +383,26 @@
           "label": "Wirkung"
         },
         "topic": {
-          "label": "Thema"
+          "label": "Thema",
+          "values": {
+            "Operational resilience": "Operative Resilienz",
+            "Prudential": "Aufsichtsrecht",
+            "AML & sanctions": "Geldwäsche und Sanktionen",
+            "AI & digital": "KI und Digitales",
+            "Markets": "Märkte",
+            "ESG & sustainability": "ESG und Nachhaltigkeit",
+            "Payments": "Zahlungsverkehr",
+            "Consumer protection": "Verbraucherschutz",
+            "Data & privacy": "Daten und Datenschutz"
+          }
+        },
+        "status": {
+          "values": {
+            "Applies": "Gilt",
+            "In force": "In Kraft",
+            "Adopted": "Verabschiedet",
+            "Consultation": "Konsultation"
+          }
         }
       }
     }

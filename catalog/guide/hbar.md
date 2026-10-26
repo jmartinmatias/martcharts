@@ -130,7 +130,18 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       },
       "fields": {
         "feature": {
-          "label": "Fonction"
+          "label": "Fonction",
+          "values": {
+            "Dashboards": "Tableaux de bord",
+            "Exports": "Exports",
+            "Alerts": "Alertes",
+            "Sharing": "Partage",
+            "Scheduled reports": "Rapports planifiés",
+            "API access": "Accès API",
+            "Custom fields": "Champs personnalisés",
+            "Forecasting": "Prévisions",
+            "Audit log": "Journal d'audit"
+          }
         },
         "share": {
           "label": "Comptes utilisateurs"
@@ -146,7 +157,18 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       },
       "fields": {
         "feature": {
-          "label": "Funktion"
+          "label": "Funktion",
+          "values": {
+            "Dashboards": "Dashboards",
+            "Exports": "Exporte",
+            "Alerts": "Warnungen",
+            "Sharing": "Teilen",
+            "Scheduled reports": "Geplante Berichte",
+            "API access": "API-Zugang",
+            "Custom fields": "Benutzerdefinierte Felder",
+            "Forecasting": "Prognosen",
+            "Audit log": "Prüfprotokoll"
+          }
         },
         "share": {
           "label": "Nutzende Konten"

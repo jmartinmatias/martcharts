@@ -150,7 +150,11 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       },
       "fields": {
         "product": {
-          "label": "Produit"
+          "label": "Produit",
+          "values": {
+            "Enterprise": "Grandes entreprises",
+            "Core": "Cœur"
+          }
         },
         "ease": {
           "label": "Simplicité"
@@ -170,7 +174,11 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       },
       "fields": {
         "product": {
-          "label": "Produkt"
+          "label": "Produkt",
+          "values": {
+            "Enterprise": "Großunternehmen",
+            "Core": "Kern"
+          }
         },
         "ease": {
           "label": "Bedienung"

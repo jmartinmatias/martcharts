@@ -771,7 +771,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     const body = typeof raw === "string" ? raw : raw && typeof raw === "object" ? (raw as { body?: unknown }).body : undefined;
     const head = raw && typeof raw === "object" ? (raw as { title?: unknown }).title : undefined;
     if (typeof body !== "string" && typeof head !== "string") return tooltip;
-    const format = (value: unknown, field: string) => formatValue(value, current.fields?.[field]?.format, locale());
+    const format = (value: unknown, field: string) => current.fields?.[field]?.values?.[String(value)] ?? formatValue(value, current.fields?.[field]?.format, locale());
     const fill = (text: string, row: Row) => fillRowTemplate(text, row, format, (t) => fillTemplate(t, rows, current.fields, locale()));
     const rowFor = (title: string): Row | undefined => {
       const first = rows[0];
@@ -843,7 +843,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     list.setAttribute("aria-label", words.rulesKey);
     for (const rule of used) {
       const field = rule.field ?? category ?? "";
-      const show = (value: unknown) => formatValue(value, current.fields?.[field]?.format, locale());
+      const show = (value: unknown) => current.fields?.[field]?.values?.[String(value)] ?? formatValue(value, current.fields?.[field]?.format, locale());
       const op: Record<string, string> = { ">": words.above, ">=": words.atLeast, "<": words.below, "<=": words.atMost, "==": words.is, "!=": words.isNot, in: words.isOneOf, "not in": words.isNoneOf };
       const value = Array.isArray(rule.value) ? rule.value.map(show).join(`, `).replace(/, ([^,]*)$/, ` ${words.or} $1`) : show(rule.value);
       const text = typeof rule.label === "string" && rule.label ? rule.label : `${fieldLabel(field, current.fields)} ${op[rule.op] ?? rule.op} ${value}`;
@@ -872,8 +872,11 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       width,
       height: shown.style?.height ?? goldenHeight(width),
       label: (field) => fieldLabel(field, fields),
-      format: (value, field) => formatValue(value, field ? fields?.[field]?.format : undefined, locale()),
+      // A field's word for a value (Complaints as Réclamations) wins over its format; the data keeps the value itself.
+      format: (value, field) => (field ? fields?.[field]?.values?.[String(value)] : undefined) ?? formatValue(value, field ? fields?.[field]?.format : undefined, locale()),
       cell: (value, field, extra) => {
+        const word = field ? fields?.[field]?.values?.[String(value)] : undefined;
+        if (word !== undefined) return doc.createTextNode(word);
         const format = field ? fields?.[field]?.format : undefined;
         if (!extra || format === undefined) return formatNode(value, format, locale(), doc);
         // Column context goes under the field's own options: an explicit max still wins.

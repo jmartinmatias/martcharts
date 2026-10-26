@@ -197,7 +197,8 @@
         "currency": "EUR",
         "compact": true
       }
-    }
+    },
+    "region": {}
   },
   "view": {
     "type": "table",
@@ -218,6 +219,15 @@
       "fields": {
         "trend": {
           "label": "Tendance 6 mois"
+        },
+        "region": {
+          "values": {
+            "East": "Est",
+            "North": "Nord",
+            "Central": "Centre",
+            "South": "Sud",
+            "West": "Ouest"
+          }
         }
       }
     },
@@ -234,6 +244,15 @@
         },
         "total": {
           "label": "Gesamt"
+        },
+        "region": {
+          "values": {
+            "East": "Ost",
+            "North": "Nord",
+            "Central": "Mitte",
+            "South": "Süd",
+            "West": "West"
+          }
         }
       }
     }

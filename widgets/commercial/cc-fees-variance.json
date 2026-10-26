@@ -71,6 +71,14 @@
         },
         "target": {
           "label": "Objectif"
+        },
+        "segment": {
+          "values": {
+            "Private": "Banque privée",
+            "Affluent": "Clientèle aisée",
+            "Corporate": "Entreprises",
+            "Institutional": "Institutionnels"
+          }
         }
       }
     },
@@ -87,6 +95,14 @@
         },
         "target": {
           "label": "Ziel"
+        },
+        "segment": {
+          "values": {
+            "Private": "Privatkunden",
+            "Affluent": "Vermögende Kunden",
+            "Corporate": "Firmenkunden",
+            "Institutional": "Institutionelle"
+          }
         }
       }
     }

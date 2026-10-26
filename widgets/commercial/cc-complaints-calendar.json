@@ -27,7 +27,8 @@
     },
     "value": {
       "label": "Complaints"
-    }
+    },
+    "metric": {}
   },
   "view": {
     "type": "calendar",
@@ -45,6 +46,11 @@
       "fields": {
         "value": {
           "label": "Réclamations"
+        },
+        "metric": {
+          "values": {
+            "Complaints": "Réclamations"
+          }
         }
       }
     },
@@ -61,6 +67,11 @@
         },
         "value": {
           "label": "Beschwerden"
+        },
+        "metric": {
+          "values": {
+            "Complaints": "Beschwerden"
+          }
         }
       }
     }

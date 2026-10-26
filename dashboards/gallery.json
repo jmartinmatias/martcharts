@@ -199,7 +199,19 @@
       "description": "Un tableau de bord commercial avec un filtre région : chiffres clés, CA et marge, régions et produits, clients et pipeline, opérations et satisfaction.",
       "filters": [
         {
-          "label": "Région"
+          "label": "Région",
+          "values": {
+            "West": "Ouest",
+            "South": "Sud",
+            "Midwest": "Midwest",
+            "Northeast": "Nord-Est",
+            "North": "Nord",
+            "East": "Est",
+            "Central": "Centre",
+            "Italy": "Italie",
+            "Iberia": "Péninsule ibérique",
+            "France": "France"
+          }
         }
       ],
       "widgets": [
@@ -322,7 +334,23 @@
       "subtitle": "Ein Vertriebs-Dashboard: Umsatz, Regionen, Kunden und Betrieb",
       "source": {
         "name": "Fiktive Verkaufsdaten"
-      }
+      },
+      "filters": [
+        {
+          "values": {
+            "West": "West",
+            "South": "Süd",
+            "Midwest": "Mittlerer Westen",
+            "Northeast": "Nordosten",
+            "North": "Nord",
+            "East": "Ost",
+            "Central": "Mitte",
+            "Italy": "Italien",
+            "Iberia": "Iberische Halbinsel",
+            "France": "Frankreich"
+          }
+        }
+      ]
     }
   }
 }

@@ -37,12 +37,23 @@ if (address.view && address.spec) {
   });
 } else {
   // The preview draws in the site's Look, as the dashboards do, and follows the Look menu without a reload.
-  const composer = createComposer($("#composer"), { examples, embedHref: new URL("examples/embed.html", location.href).href, previewStyle: lookStyle, previewLocale: siteLocale });
-  // The Look menu's style and language: redraw the preview, here, without reloading.
-  for (const change of ["martcharts:look", "martcharts:lang"]) {
-    window.addEventListener(change, (event) => {
-      event.preventDefault();
-      void composer.restyle();
-    });
-  }
+  const composer = createComposer($("#composer"), {
+    // The composer's own words in the site's language, from the first draw (the page's lang is set once it has loaded).
+    locale: siteLocale() ?? "en-US",
+    examples,
+    embedHref: new URL("examples/embed.html", location.href).href,
+    previewStyle: lookStyle,
+    previewLocale: siteLocale,
+  });
+  // The Look menu's style: redraw the preview, here, without reloading.
+  window.addEventListener("martcharts:look", (event) => {
+    event.preventDefault();
+    void composer.restyle();
+  });
+  // A new language: the composer's own words were written in the old one, so the page reloads; the board is kept in
+  // the address and saved, so nothing is lost.
+  window.addEventListener("martcharts:lang", (event) => {
+    event.preventDefault();
+    location.reload();
+  });
 }

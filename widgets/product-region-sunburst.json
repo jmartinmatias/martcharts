@@ -3,7 +3,9 @@
   "title": "Revenue by product, then region",
   "subtitle": "Q3 2026",
   "description": "Q3 revenue split first by product, then each product by region. Platform leads; East is the largest region for Platform and Analytics, Central for Services.",
-  "source": {"name": "Finance ledger"},
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -120,10 +122,22 @@
       },
       "fields": {
         "region": {
-          "label": "Région"
+          "label": "Région",
+          "values": {
+            "East": "Est",
+            "North": "Nord",
+            "Central": "Centre",
+            "West": "Ouest",
+            "South": "Sud"
+          }
         },
         "product": {
-          "label": "Produit"
+          "label": "Produit",
+          "values": {
+            "Platform": "Plateforme",
+            "Analytics": "Analytique",
+            "Services": "Services"
+          }
         },
         "revenue": {
           "label": "Chiffre d'affaires"
@@ -141,10 +155,24 @@
       },
       "fields": {
         "product": {
-          "label": "Produkt"
+          "label": "Produkt",
+          "values": {
+            "Platform": "Plattform",
+            "Analytics": "Analytik",
+            "Services": "Dienstleistungen"
+          }
         },
         "revenue": {
           "label": "Umsatz"
+        },
+        "region": {
+          "values": {
+            "East": "Ost",
+            "North": "Nord",
+            "Central": "Mitte",
+            "West": "West",
+            "South": "Süd"
+          }
         }
       },
       "view": {

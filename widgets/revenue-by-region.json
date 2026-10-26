@@ -51,7 +51,8 @@
         "currency": "EUR",
         "decimals": 0
       }
-    }
+    },
+    "region": {}
   },
   "headline": {
     "value": "revenue",
@@ -89,6 +90,15 @@
         },
         "cost": {
           "label": "Coût"
+        },
+        "region": {
+          "values": {
+            "East": "Est",
+            "North": "Nord",
+            "Central": "Centre",
+            "West": "Ouest",
+            "South": "Sud"
+          }
         }
       },
       "headline": {
@@ -116,6 +126,15 @@
         },
         "cost": {
           "label": "Kosten"
+        },
+        "region": {
+          "values": {
+            "East": "Ost",
+            "North": "Nord",
+            "Central": "Mitte",
+            "West": "West",
+            "South": "Süd"
+          }
         }
       },
       "headline": {

@@ -109,7 +109,8 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         "type": "number",
         "decimals": 1
       }
-    }
+    },
+    "attribute": {}
   },
   "view": {
     "type": "radar",
@@ -134,6 +135,16 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         },
         "market": {
           "label": "Moyenne du marché"
+        },
+        "attribute": {
+          "values": {
+            "Speed": "Rapidité",
+            "Reliability": "Fiabilité",
+            "Support": "Support",
+            "Price": "Prix",
+            "Integrations": "Intégrations",
+            "Ease of use": "Facilité d'usage"
+          }
         }
       }
     },
@@ -150,6 +161,16 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         },
         "market": {
           "label": "Marktdurchschnitt"
+        },
+        "attribute": {
+          "values": {
+            "Speed": "Geschwindigkeit",
+            "Reliability": "Zuverlässigkeit",
+            "Support": "Support",
+            "Price": "Preis",
+            "Integrations": "Integrationen",
+            "Ease of use": "Bedienbarkeit"
+          }
         }
       }
     }

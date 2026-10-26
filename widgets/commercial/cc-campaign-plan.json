@@ -74,7 +74,16 @@
           "label": "Campagne"
         },
         "product": {
-          "label": "Produit"
+          "label": "Produit",
+          "values": {
+            "Insurance": "Assurance",
+            "Lending": "Crédit",
+            "Discretionary": "Gestion sous mandat",
+            "Custody": "Conservation",
+            "Structured": "Produits structurés",
+            "Advisory": "Conseil",
+            "Pension": "Retraite"
+          }
         },
         "start": {
           "label": "Début"
@@ -96,7 +105,16 @@
           "label": "Kampagne"
         },
         "product": {
-          "label": "Produkt"
+          "label": "Produkt",
+          "values": {
+            "Insurance": "Versicherung",
+            "Lending": "Kredite",
+            "Discretionary": "Vermögensverwaltung",
+            "Custody": "Verwahrung",
+            "Structured": "Strukturierte Produkte",
+            "Advisory": "Beratung",
+            "Pension": "Vorsorge"
+          }
         },
         "start": {
           "label": "Beginn"
