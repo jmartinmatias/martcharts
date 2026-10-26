@@ -396,7 +396,10 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
         markGroups[rect.index]?.append(stem, dot);
         continue;
       }
-      if (marks.barTrack) {
+      // A track reads as a gauge only behind one series with nothing to compare against: beside a second series, a
+      // target or an overlay line, full-height grey columns read as extra bars, and a missed bar's light fill
+      // drowns in them.
+      if (marks.barTrack && series.length === 1 && !goalField && !goalLine && overlayFields.length === 0) {
         const track = { ...rect, y: plot.y, height: plot.h, negative: false };
         markGroups[rect.index]?.append(svg(doc, "path", { class: "fft-bar-track", d: barPath(track, radius) }));
       }

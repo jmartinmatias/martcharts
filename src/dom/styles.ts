@@ -100,6 +100,9 @@ const steps = (kind: "pal" | "pal-dark") =>
 /** The dark theme's tokens, for any root that wears the library's look (widgets, the palette picker, the editor). */
 export const DARK = `
   color-scheme: dark;
+  --fft-band-1: 30%;
+  --fft-band-2: 17%;
+  --fft-band-3: 7%;
   --fft-surface: #1a1a19;
   --fft-card: #1a1a19;
   --fft-stream-fill: 0.82;
@@ -145,6 +148,9 @@ export const DARK = `
 /** The light theme's tokens. */
 export const LIGHT = `
   color-scheme: light;
+  --fft-band-1: 18%;
+  --fft-band-2: 11%;
+  --fft-band-3: 5%;
   --fft-surface: #fcfcfb;
   --fft-card: #fcfcfb;
   --fft-stream-fill: 0.62;
@@ -279,8 +285,16 @@ export const BASE_CSS = `
 .fft-action[data-done] { color: var(--fft-positive); }
 /* The label shows only inside the More menu; in the toolbar the icon and its tooltip name the action. */
 .fft-action-text { display: none; }
-/* The title keeps the toolbar's width free (three buttons at most), so it never runs under it; the subtitle sits below the toolbar. */
-.fft-widget[data-actions] .fft-title { padding-right: 89px; }
+/* The toolbar shows only when the card is pointed at or focused, so the title takes the card's full width and wraps
+   only where its words need it (neighbour cards keep their subtitles level). The toolbar then floats over the title's
+   end on the card's own surface, fading in from the left. Where nothing hovers (touch), the toolbar is always shown,
+   so there the title keeps its width free. */
+.fft-widget[data-actions] .fft-actions {
+  padding-left: 21px; border-radius: var(--fft-radius-m); background: var(--fft-toolbar-bg, var(--fft-surface));
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 21px); mask-image: linear-gradient(to right, transparent, #000 21px);
+}
+@media (hover: none) { .fft-widget[data-actions] .fft-title { padding-right: 89px; } .fft-widget[data-actions] .fft-actions { background: none; padding-left: 0; -webkit-backdrop-filter: none; backdrop-filter: none; -webkit-mask-image: none; mask-image: none; } }
 .fft-actions:has(.fft-menu:not([hidden])) { opacity: 1; }
 /* More: a small popover card of labelled actions, one per row, each a comfortable 34px target. */
 .fft-menu {
@@ -501,12 +515,15 @@ export const BASE_CSS = `
 .fft-kpi-delta[data-sentiment="bad"] .fft-kpi-change { color: var(--fft-negative); }
 .fft-kpi-compare { font-weight: 400; color: var(--fft-text-secondary); }
 .fft-sparkline { display: block; margin-top: 8px; overflow: visible; }
-.fft-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(144px, 1fr)); }
+/* Every tile wears its divider and its padding; the row is drawn 22px to the left and that strip clipped, so the first
+   tile of every row (not only the first tile) starts flush, with no line, however the tiles wrap. */
+.fft-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(144px, 1fr)); row-gap: 21px; margin-left: -22px; clip-path: inset(-21px -21px -21px 22px); }
 .fft-stat { display: flex; flex-direction: column; gap: 3px; min-width: 0; padding: 0 21px; border-left: 1px solid var(--fft-grid); }
 /* Sparklines share one baseline across the row, even when a tile carries an extra line such as its target. */
 .fft-stat > .fft-sparkline { margin-top: auto; padding-top: 5px; }
-.fft-stat:first-child { padding-left: 0; border-left: 0; }
-.fft-stat-label { color: var(--fft-text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* A long label takes two lines rather than an ellipsis ("Assets under management" on a phone); a third is cut. */
+.fft-stat-label { color: var(--fft-text-secondary); overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
+.fft-stats[data-two-lines] .fft-stat-label { min-height: calc(2 * 1lh); }
 .fft-stat-value { font-size: var(--fft-fs-xl); line-height: 34px; font-weight: 600; letter-spacing: -0.02em; }
 .fft-widget[data-density="compact"] .fft-stat-value { font-size: var(--fft-fs-l); line-height: 21px; }
 .fft-stat .fft-kpi-delta { margin-top: 3px; font-size: var(--fft-fs-s); }
@@ -901,9 +918,11 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 }
 .fft-bullet:focus-visible { box-shadow: 0 0 0 2px var(--fft-ring, var(--fft-surface)), 0 0 0 3px var(--fft-accent); }
 .fft-bullet > svg { display: block; width: 100%; height: 21px; overflow: visible; }
-.fft-bullet-band[data-band="1"] { fill: color-mix(in srgb, var(--fft-text) 18%, transparent); }
-.fft-bullet-band[data-band="2"] { fill: color-mix(in srgb, var(--fft-text) 11%, transparent); }
-.fft-bullet-band[data-band="3"] { fill: color-mix(in srgb, var(--fft-text) 5%, transparent); }
+/* Poor, fair, good: three clear steps of the ink. Light ink on a dark card reads fainter at the same mix, so the dark
+   theme steps further apart (30, 17, 7 against 18, 11, 5). */
+.fft-bullet-band[data-band="1"] { fill: color-mix(in srgb, var(--fft-text) var(--fft-band-1, 18%), transparent); }
+.fft-bullet-band[data-band="2"] { fill: color-mix(in srgb, var(--fft-text) var(--fft-band-2, 11%), transparent); }
+.fft-bullet-band[data-band="3"] { fill: color-mix(in srgb, var(--fft-text) var(--fft-band-3, 5%), transparent); }
 .fft-bullet-value { fill: var(--fft-accent); transform-box: fill-box; transform-origin: 0 50%; }
 .fft-bullet-target { stroke: var(--fft-text); stroke-width: 2; stroke-linecap: round; }
 .fft-bullet-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--fft-text-secondary); }

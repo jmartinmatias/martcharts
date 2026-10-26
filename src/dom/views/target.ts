@@ -7,10 +7,10 @@ import type { Words } from "./words.ts";
  * Where a value stands against its target, in target words a ten-year-old can follow: "Target met", or how far
  * it has to go ("€22K to go"), in the value's own format. Empty text when either number is missing.
  */
-export function standing(ctx: ViewContext<{ type: string }>, value: number | null, target: number | null, field: string): { met: boolean; text: string } {
+export function standing(ctx: ViewContext<{ type: string }>, value: number | null, target: number | null, field: string, write?: (amount: number) => string): { met: boolean; text: string } {
   if (value === null || target === null || target === 0) return { met: false, text: "" };
   const met = value >= target;
-  return { met, text: met ? wordsFor(ctx).met : wordsFor(ctx).leftToGo(ctx.format(target - value, field)) };
+  return { met, text: met ? wordsFor(ctx).met : wordsFor(ctx).leftToGo(write ? write(target - value) : ctx.format(target - value, field)) };
 }
 
 /** A small check mark for a met target, beside its percentage. Decorative: the words say it too. */

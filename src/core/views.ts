@@ -249,6 +249,8 @@ export interface BulletView {
   value: string;
   target: string;
   ranges?: number[];
+  /** A column holding each row's unit ("%", "€", "$"), for a scorecard whose rows measure different things. A "(%)" at the end of a row's name does the same. */
+  unit?: string;
 }
 
 /** `{ type: "treemap", label, value, group? }`: part-to-whole for many categories. */
@@ -934,6 +936,7 @@ const bullet: ViewBlock = {
       default: [0.6, 0.9, 1.2],
       description: "Where the three bands end, as multiples of the target: poor up to the first, fair up to the second, good up to the third.",
     },
+    unit: { type: "field", kind: "category", description: "Field with each row's unit (%, €, $), for rows that measure different things. A name ending in \"(%)\" does the same." },
     goodWhen: GOOD_WHEN_OPTION,
   },
   validate(view) {
