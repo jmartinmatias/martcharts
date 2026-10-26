@@ -991,15 +991,27 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   const filterName = (field: string) => spec.filters?.find((filter) => filter.field === field)?.label ?? fieldLabel(field);
   /** A filtered value in words: the filter's own word for it in the board's language (Affluent reads Aisé), else the value. */
   const valueWord = (field: string, value: unknown) =>
-    spec.filters?.find((filter) => filter.field === field)?.values?.[String(value)] ?? formatValue(value, undefined, undefined);
+    spec.filters?.find((filter) => filter.field === field)?.values?.[String(value)] ??
+    // A clicked value on a field no filter covers (a product, a stage) reads in any card's words for it in this language.
+    [...originals.values()].map((original) => localizeSpec(original, boardLocale).fields?.[field]?.values?.[String(value)]).find(Boolean) ??
+    formatValue(value, undefined, undefined);
   /**
    * A click filter's field as the reader saw it: the label the clicked card gives it ("Client"), else any card's
    * label for it, else the field's own name made readable.
    */
   const clickName = (field: string, source?: string): string => {
-    const labelIn = (id: string | undefined) => (id ? originals.get(id)?.fields?.[field]?.label : undefined);
+    // A field the board also filters on reads as its filter does ("Région"), so the chip and the filter beside it agree.
+    const asFilter = spec.filters?.find((filter) => filter.field === field)?.label;
+    if (asFilter) return asFilter;
+    // Else the card's label for it, in the board's language (a card's translation names its fields too).
+    const labelIn = (id: string | undefined) => {
+      const original = id ? originals.get(id) : undefined;
+      return original ? localizeSpec(original, boardLocale).fields?.[field]?.label : undefined;
+    };
     return labelIn(source) ?? [...originals.keys()].map(labelIn).find(Boolean) ?? filterName(field);
   };
+  /** "Région : Nord" in French, with the narrow no-break space French sets before a colon; "Region: North" elsewhere. */
+  const named = (name: string, value: string) => (/^fr\b/i.test(boardLocale ?? "") ? `${name} : ${value}` : `${name}: ${value}`);
 
   /**
    * Honesty about scope: each card that a filter set right now cannot reach (its data has no such field) says so,
@@ -1163,7 +1175,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     cross = field === null ? undefined : { field, value, ...(source ? { source } : {}) };
     if (!cross) crossOrigin = undefined;
     if (cross) {
-      const text = `${clickName(cross.field, cross.source)}: ${valueWord(cross.field, cross.value)}`;
+      const text = named(clickName(cross.field, cross.source), valueWord(cross.field, cross.value));
       chip.replaceChildren(el("span", "fft-crossfilter-text", text), el("span", "fft-crossfilter-x", "\u00d7"));
       chip.setAttribute("aria-label", B.clearFilter(text));
       chip.title = B.clearThis;

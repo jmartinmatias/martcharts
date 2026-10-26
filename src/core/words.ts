@@ -31,8 +31,30 @@ import { MAKING_DE, MAKING_EN, MAKING_FR } from "./words-making.ts";
 
 const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
 
+/** The count a formatted figure says ("1", "1 284"), for a plural chosen by it. */
+const said = (figure: string) => Number(figure.replace(/[^\d.,-]/g, "").replace(/[\s,]/g, "")) || 0;
+
+/**
+ * A French name with its article, after "de" or as a subject: "du budget", "de la moyenne", "de l'objectif"; "le
+ * budget", "la moyenne", "l'objectif". A capitalized single word is a common noun (Budget) read in lower case; a
+ * proper name or a figure keeps a bare "de" ("de 1,2 M €"). Gender from common endings, masculine otherwise.
+ */
+export function frArticle(name: string, form: "de" | "le"): string {
+  const word = /^[A-ZÀ-Ý][a-zà-ÿ]+$/.test(name) ? name.charAt(0).toLowerCase() + name.slice(1) : name;
+  if (!/^[a-zà-ÿ]/.test(word)) return form === "de" ? `de ${word}` : word;
+  if (/^[aeiouyàâäéèêëîïôöûüh]/i.test(word)) return form === "de" ? `de l'${word}` : `l'${word}`;
+  const feminine = /(tion|sion|té|ence|ance|enne|elle|ette|ure|ise|ée|ie|cible|marge|limite|fourchette|tendance)$/.test(word.split(" ")[0] ?? word);
+  if (form === "de") return feminine ? `de la ${word}` : `du ${word}`;
+  return feminine ? `la ${word}` : `le ${word}`;
+}
+
 const EN = {
   ...MAKING_EN,
+  /**
+   * Common field names, for a field the author gave no label: read in the card's language on headers, legends and
+   * tooltips ("Région", not "Region"). English reads them from the field's own name, so it has none.
+   */
+  fieldNames: {} as Record<string, string>,
   // ---- Measures and states in tooltips, keys and legends ----
   share: "Share",
   total: "Total",
@@ -438,6 +460,13 @@ export type Words = typeof EN;
 
 const FR: Words = {
   ...MAKING_FR,
+  fieldNames: {
+    region: "Région", month: "Mois", year: "Année", quarter: "Trimestre", week: "Semaine", date: "Date", day: "Jour",
+    revenue: "Chiffre d'affaires", cost: "Coût", target: "Objectif", profit: "Bénéfice", margin: "Marge", amount: "Montant",
+    value: "Valeur", count: "Nombre", segment: "Segment", product: "Produit", channel: "Canal", source: "Source",
+    country: "Pays", client: "Client", customer: "Client", status: "Statut", team: "Équipe", category: "Catégorie",
+    stage: "Étape", name: "Nom", city: "Ville", orders: "Commandes", sales: "Ventes",
+  },
   share: "Part",
   total: "Total",
   change: "Variation",
@@ -552,8 +581,8 @@ const FR: Words = {
   majorityLabel: (seats) => `Majorité ${seats}`,
   changeScale: (field) => `Variation de ${field}`,
   eachShade: (step) => `Chaque teinte : ${step}`,
-  aboveRising: (base) => `Au-dessus de ${base}, vers le haut`,
-  belowHanging: (base) => `Sous ${base}, vers le bas`,
+  aboveRising: (base) => `Au-dessus ${frArticle(base, "de")}, vers le haut`,
+  belowHanging: (base) => `Sous ${frArticle(base, "le")}, vers le bas`,
   onDate: (date) => `Le ${date}`,
   nextIn: (stage, when) => `${stage} dans ${when}`,
   thickerRows: (field) => `Lignes plus épaisses : ${field} plus élevé.`,
@@ -576,7 +605,7 @@ const FR: Words = {
   rowsByStatus: (count) => `${count} ${plural(count, "ligne", "lignes")} par statut global`,
   ofAll: "de l'ensemble",
   days: (n) => `${n} ${plural(Math.abs(n), "jour", "jours")}`,
-  awayFrom: (amount, above, from) => `${amount} ${above ? "au-dessus de" : "en dessous de"} ${from}`,
+  awayFrom: (amount, above, from) => `${amount} ${above ? "au-dessus" : "en dessous"} ${frArticle(from, "de")}`,
   toWinAmount: (amount) => `${amount} à gagner`,
   movingAverage: (n, step) => `Moyenne sur ${n} ${({ day: "jours", week: "semaines", month: "mois", point: "points" } as Record<string, string>)[step] ?? step}`,
   noRowNumber: (field) => `Aucune ligne n'a de nombre dans ${field}.`,
@@ -598,13 +627,14 @@ const FR: Words = {
     next: "Suivant",
     previousPage: "Page précédente",
     nextPage: "Page suivante",
-    rowsShown: (shown, total) => `${shown} lignes sur ${total}`,
+    // French singular for 0 and 1: "1 ligne sur 1".
+    rowsShown: (shown, total) => `${shown} ${said(shown) <= 1 ? "ligne" : "lignes"} sur ${total}`,
     pageRange: (from, to, total) => `${from}–${to} sur ${total}`,
     total: "Total",
     scrollSideways: (title) => `${title} : faites défiler pour voir les autres colonnes`,
     tableWord: "Tableau",
     showMore: (n) => `Afficher ${n} de plus`,
-    showing: (shown, total) => `${shown} lignes affichées sur ${total}`,
+    showing: (shown, total) => `${shown} ${said(shown) <= 1 ? "ligne affichée" : "lignes affichées"} sur ${total}`,
   },
   aria: {
     anomalies: (count, x) => `Suivi des anomalies de ${count} ${plural(count, "indicateur", "indicateurs")} par ${x}`,
@@ -795,6 +825,13 @@ const FR: Words = {
 
 const DE: Words = {
   ...MAKING_DE,
+  fieldNames: {
+    region: "Region", month: "Monat", year: "Jahr", quarter: "Quartal", week: "Woche", date: "Datum", day: "Tag",
+    revenue: "Umsatz", cost: "Kosten", target: "Ziel", profit: "Gewinn", margin: "Marge", amount: "Betrag",
+    value: "Wert", count: "Anzahl", segment: "Segment", product: "Produkt", channel: "Kanal", source: "Quelle",
+    country: "Land", client: "Kunde", customer: "Kunde", status: "Status", team: "Team", category: "Kategorie",
+    stage: "Phase", name: "Name", city: "Stadt", orders: "Bestellungen", sales: "Umsatz",
+  },
   share: "Anteil",
   total: "Summe",
   change: "Veränderung",

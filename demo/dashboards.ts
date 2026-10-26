@@ -18,6 +18,13 @@ const boardOf = (id: string) => Object.values(files).find((spec) => spec.id === 
 
 const TABS = BOARD_TABS.filter((tab) => boardOf(tab.board));
 
+/** The card menu's "Edit in editor" in the site's language (the page reloads or redraws on a language change). */
+function editWords(locale: string | undefined): string {
+  if (/^fr\b/i.test(locale ?? "")) return "Modifier dans l'éditeur";
+  if (/^de\b/i.test(locale ?? "")) return "Im Editor bearbeiten";
+  return "Edit in editor";
+}
+
 const $ = <T extends HTMLElement>(selector: string) => document.querySelector(selector) as T;
 const tabList = $("#tabs");
 const title = $("#board-title");
@@ -46,7 +53,7 @@ const options = {
   asOfInto: asOf,
   decorate(_cell: unknown, id: string, widget: { addAction(label: string, icon: string[], run: () => void): unknown }) {
     if (!widgets[id]) return;
-    widget.addAction("Edit in editor", EDIT_ICON, () => location.assign(`./editor.html?widget=${encodeURIComponent(id)}`));
+    widget.addAction(editWords(siteLocale()), EDIT_ICON, () => location.assign(`./editor.html?widget=${encodeURIComponent(id)}`));
   },
 } as unknown as Parameters<typeof createDashboard>[2];
 
