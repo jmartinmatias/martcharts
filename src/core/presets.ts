@@ -179,8 +179,8 @@ registerPreset({
   --fft-pad: 8px 0;
   --fft-ref-inset: 0px;
 }
-& .fft-title { font-weight: 400; color: var(--fft-text-secondary); }
-& .fft-subtitle { color: var(--fft-muted); font-size: 11px; line-height: 13px; }
+& .fft-title { font-size: 21px; line-height: 34px; font-weight: 400; letter-spacing: -0.01em; }
+& .fft-subtitle { color: var(--fft-muted); font-size: 13px; line-height: 21px; }
 & .fft-footer { font-size: 13px; line-height: 21px; color: var(--fft-text-secondary); }
 & .fft-kpi-value, & .fft-headline-value { font-weight: 500; letter-spacing: -0.02em; }
 & .fft-kpi-delta { font-size: 11px; }
