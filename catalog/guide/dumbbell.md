@@ -37,8 +37,8 @@ Before and after per item on one shared axis: a muted dot for before, an accent 
 | Column | Holds | Drawn as | Values |
 | --- | --- | --- | --- |
 | `region` | category | `label` | 5 different, e.g. "East", "North", "Central" |
-| `q3_2025` (Sep 2025) | number | `from` | 188000 to 291000 |
-| `q3_2026` (Sep 2026) | number | `to` | 204000 to 338000 |
+| `q3_2025` (2025) | number | `from` | 188000 to 291000 |
+| `q3_2026` (2026) | number | `to` | 204000 to 338000 |
 
 ## The data drawing it now
 
@@ -97,7 +97,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   },
   "fields": {
     "q3_2025": {
-      "label": "Sep 2025",
+      "label": "2025",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -105,7 +105,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       }
     },
     "q3_2026": {
-      "label": "Sep 2026",
+      "label": "2026",
       "format": {
         "type": "currency",
         "currency": "EUR",

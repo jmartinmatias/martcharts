@@ -33,7 +33,7 @@ Not sure which chart? `recommendCharts(rows)` (or MCP `fft_suggest_charts`) rank
 | [`donut`](#donut) | Part-to-whole at a glance: a ring of up to 6 slices with the total in the middle and a legend of values and shares. | What share of revenue comes from each segment? | `label` category, `value` number | [donut.json](../catalog/donut.json) |
 | [`dot`](#dot) | A dot plot: one row per item and one dot per measure on one shared axis, with a hairline across each row. | How do ease of use, value for money and support compare for each product? | `label` category, `value` number (one or more) | [dot.json](../catalog/dot.json) |
 | [`dual`](#dual) | Two measures with different units, such as revenue and churn, one above the other on two panels that share one time axis, each on its own scale. | Do revenue and churn move together, month by month? | `x` date, `y` number, `y2` number | [dual.json](../catalog/dual.json) |
-| [`dumbbell`](#dumbbell) | Before and after per item on one shared axis: a muted dot for before, an accent dot for after, joined by a line (a range plot). | How did each region change from sep 2025 to sep 2026? | `label` category, `from` number, `to` number | [dumbbell.json](../catalog/dumbbell.json) |
+| [`dumbbell`](#dumbbell) | Before and after per item on one shared axis: a muted dot for before, an accent dot for after, joined by a line (a range plot). | How did each region change from 2025 to 2026? | `label` category, `from` number, `to` number | [dumbbell.json](../catalog/dumbbell.json) |
 | [`funnel`](#funnel) | Stages in order as centered bars narrowing from the first, with the conversion rate from each stage to the next and each stage's share of the first. | Where do people drop out, step by step? | `label` category, `value` number | [funnel.json](../catalog/funnel.json) |
 | [`gauge`](#gauge) | One headline number on a half-circle scale: an arc filled from min to the value, a tick at the target, the number large inside the arc and the scale's ends below; with a target, a line under the arc says where it stands (Target met, or how far to go). | Is NPS above or below goal? | `value` number | [gauge.json](../catalog/gauge.json) |
 | [`hbar`](#hbar) | Horizontal bars for rankings and long labels: label on the left, bar, value at the end. | Which feature has the most accounts using it? | `label` category, `value` number (one or more) | [hbar.json](../catalog/hbar.json) |
@@ -549,6 +549,7 @@ Actual against target, one compact row per item: a value bar and a target tick o
 | `label` | category | yes | Field naming each row. |
 | `value` | number | yes | Field with the actual amount. |
 | `target` | number | yes | Field with the target amount. |
+| `unit` | category |  | Field with each row's unit (%, €, $), for rows that measure different things. A name ending in "(%)" does the same. |
 
 **Settings**: `ranges`, `goodWhen`, `sort`, `order`, `limit`, `other`. All options with defaults are in [blocks.md](blocks.md#bullet).
 
@@ -1185,9 +1186,9 @@ Before and after per item on one shared axis: a muted dot for before, an accent 
 
 **Settings**: `mark`, `highlight`, `reference`, `sort`, `order`, `limit`, `other`. All options with defaults are in [blocks.md](blocks.md#dumbbell).
 
-**Answers**: How did each region change from sep 2025 to sep 2026?
+**Answers**: How did each region change from 2025 to 2026?
 
-**How to read it**: Each row has two dots: sep 2025 and sep 2026. The line between them is the change. Here, 4 of 5 regions went up, and East moved the most, from €291K to €338K.
+**How to read it**: Each row has two dots: 2025 and 2026. The line between them is the change. Here, 4 of 5 regions went up, and East moved the most, from €291K to €338K.
 
 **Drop it in**: `<fft-widget src="catalog/dumbbell.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "dumbbell" }` hands an agent this spec). Source widget: [widgets/region-yoy.json](../widgets/region-yoy.json).
 
@@ -1213,7 +1214,7 @@ Before and after per item on one shared axis: a muted dot for before, an accent 
   },
   "fields": {
     "q3_2025": {
-      "label": "Sep 2025",
+      "label": "2025",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -1221,7 +1222,7 @@ Before and after per item on one shared axis: a muted dot for before, an accent 
       }
     },
     "q3_2026": {
-      "label": "Sep 2026",
+      "label": "2026",
       "format": {
         "type": "currency",
         "currency": "EUR",

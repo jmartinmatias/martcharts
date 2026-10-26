@@ -200,6 +200,8 @@ describe("the published site", () => {
       expect([page, code.includes("previewStyle: lookStyle"), /addEventListener\("martcharts:look"[\s\S]*preventDefault\(\)[\s\S]*restyle\(\)/.test(code)]).toEqual([page, true, true]);
     }
     for (const page of ["editor.html", "composer.html"]) expect(readFileSync(page, "utf8")).toContain("scrollbar-gutter: stable");
+  });
+
   test("the pages with their own body (Embed, Catalog, Data guide) sit in every page's column: 1280px, border-box", () => {
     expect(readFileSync("examples/drop-in.html", "utf8")).toMatch(/body \{[^}]*box-sizing: border-box; margin: 0 auto; max-width: 1280px;/);
     for (const script of ["scripts/catalog.ts", "scripts/guide.ts"]) {

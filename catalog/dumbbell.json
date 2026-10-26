@@ -19,7 +19,7 @@
   },
   "fields": {
     "q3_2025": {
-      "label": "Sep 2025",
+      "label": "2025",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -27,7 +27,7 @@
       }
     },
     "q3_2026": {
-      "label": "Sep 2026",
+      "label": "2026",
       "format": {
         "type": "currency",
         "currency": "EUR",

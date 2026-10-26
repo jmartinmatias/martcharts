@@ -32,6 +32,7 @@ Actual against target, one compact row per item: a value bar and a target tick o
 | `label` | category | yes | Field naming each row. |
 | `value` | number | yes | Field with the actual amount. |
 | `target` | number | yes | Field with the target amount. |
+| `unit` | category |  | Field with each row's unit (%, €, $), for rows that measure different things. A name ending in "(%)" does the same. |
 
 ## This example's columns (3 columns, 5 rows)
 
