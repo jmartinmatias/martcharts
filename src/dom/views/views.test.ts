@@ -2630,7 +2630,7 @@ describe("kpis view (a row of stat tiles)", () => {
     expect(Boolean(all(".fft-stat")[0]?.querySelector(".fft-stat-target .fft-check"))).toBe(true);
   });
 
-  test("one tile per item with its label, value and change", async () => {
+  test("one tile per item with its label, value and change: a percent such as churn changes in points (5% to 4% is −1 pts)", async () => {
     await draw({
       rows: row,
       fields,
@@ -2639,7 +2639,7 @@ describe("kpis view (a row of stat tiles)", () => {
     expect([texts(".fft-stat-label"), texts(".fft-stat-value"), texts(".fft-stat .fft-kpi-change")]).toEqual([
       ["Revenue", "Churn rate"],
       ["€1,250", "4.0%"],
-      ["▲ +25.0%", "▼ −20.0%"],
+      ["▲ +25.0%", "▼ −1 pts"],
     ]);
     expect(all(".fft-stat .fft-kpi-delta").map((d) => (d as HTMLElement).dataset.sentiment)).toEqual(["good", "good"]);
   });

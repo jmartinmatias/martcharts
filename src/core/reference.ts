@@ -41,14 +41,29 @@ export function checkReference(view: Record<string, unknown>): string[] {
 /** A reference mark resolved against the rows. */
 export type ResolvedReference = { kind: "line"; value: number; label?: string } | { kind: "band"; from: number; to: number; label?: string };
 
-/** Resolves a view's reference marks against its rows, dropping any that cannot be computed. */
+/**
+ * Resolves a view's reference marks against its rows, dropping any that cannot be computed. A line computed from a
+ * field (an average, a minimum…) needs at least two values: over one bar, as when a filter leaves one, it would only
+ * repeat that bar, so it is left out. Fixed values and bands always draw.
+ */
 export function resolveReferences(view: { reference?: unknown }, rows: Row[]): ResolvedReference[] {
   const marks = Array.isArray(view.reference) ? (view.reference as ReferenceMark[]) : [];
   return marks.flatMap((mark): ResolvedReference[] => {
     if (typeof mark.from === "number" && typeof mark.to === "number") return [{ kind: "band", from: mark.from, to: mark.to, label: mark.label }];
+    if (typeof mark.value !== "number" && typeof mark.field === "string" && countNumbers(rows, mark.field) < 2) return [];
     const value = typeof mark.value === "number" ? mark.value : typeof mark.field === "string" ? summarizeField(rows, mark.field, mark.agg ?? "avg") : null;
     return value === null ? [] : [{ kind: "line", value, label: mark.label }];
   });
+}
+
+/** How many rows hold a number in a field. */
+function countNumbers(rows: Row[], field: string): number {
+  let count = 0;
+  for (const row of rows) {
+    const value = row[field];
+    if (value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value))) count++;
+  }
+  return count;
 }
 
 /** Every value the axis must cover to show the reference marks. */

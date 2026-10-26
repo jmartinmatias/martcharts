@@ -7,8 +7,19 @@
   "locale": "en-US",
   "data": {
     "type": "url",
-    "url": "/data/monthly.json"
+    "url": "/data/monthly-by-region.json"
   },
+  "transform": [
+    {
+      "type": "aggregate",
+      "groupBy": "month",
+      "measures": [
+        { "op": "sum", "field": "revenue", "as": "revenue" },
+        { "op": "sum", "field": "cost", "as": "cost" },
+        { "op": "sum", "field": "target", "as": "target" }
+      ]
+    }
+  ],
   "fields": {
     "month": {
       "label": "Month",
@@ -49,7 +60,8 @@
     ],
     "reference": [
       {
-        "value": 1200000,
+        "field": "target",
+        "agg": "last",
         "label": "Target"
       }
     ]
