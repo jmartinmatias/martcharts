@@ -2,1076 +2,1929 @@
   {
     "ref": "W-JRNT",
     "title": "At a glance",
+    "titles": {
+      "fr": "En un coup d'œil",
+      "de": "Auf einen Blick"
+    },
     "key": "q3-at-a-glance",
     "place": "",
     "where": "Dashboards › Sales › Headline numbers",
     "url": "dashboards.html?board=sales#W-JRNT",
     "board": "sales",
-    "section": "Headline numbers"
+    "section": "Headline numbers",
+    "sections": {
+      "fr": "Chiffres clés",
+      "de": "Kennzahlen"
+    }
   },
   {
     "ref": "W-FZ5V",
     "title": "Revenue and cost",
+    "titles": {
+      "fr": "CA et coûts",
+      "de": "Umsatz und Kosten"
+    },
     "key": "monthly-revenue",
     "place": "",
     "where": "Dashboards › Sales › Revenue and profit",
     "url": "dashboards.html?board=sales#W-FZ5V",
     "board": "sales",
-    "section": "Revenue and profit"
+    "section": "Revenue and profit",
+    "sections": {
+      "fr": "CA et marge",
+      "de": "Umsatz und Gewinn"
+    }
   },
   {
     "ref": "W-4SWT",
     "title": "Where revenue comes from",
+    "titles": {
+      "fr": "D'où vient le CA",
+      "de": "Woher der Umsatz kommt"
+    },
     "key": "revenue-sources",
     "place": "",
     "where": "Dashboards › Sales › Revenue and profit",
     "url": "dashboards.html?board=sales#W-4SWT",
     "board": "sales",
-    "section": "Revenue and profit"
+    "section": "Revenue and profit",
+    "sections": {
+      "fr": "CA et marge",
+      "de": "Umsatz und Gewinn"
+    }
   },
   {
     "ref": "W-SCRB",
     "title": "Revenue against target",
+    "titles": {
+      "fr": "CA face à l'objectif",
+      "de": "Umsatz gegen Ziel"
+    },
     "key": "revenue-vs-target",
     "place": "",
     "where": "Dashboards › Sales › Revenue and profit",
     "url": "dashboards.html?board=sales#W-SCRB",
     "board": "sales",
-    "section": "Revenue and profit"
+    "section": "Revenue and profit",
+    "sections": {
+      "fr": "CA et marge",
+      "de": "Umsatz und Gewinn"
+    }
   },
   {
     "ref": "W-YC9A",
     "title": "Target attainment",
+    "titles": {
+      "fr": "Atteinte des objectifs",
+      "de": "Zielerreichung"
+    },
     "key": "region-targets",
     "place": "",
     "where": "Dashboards › Sales › Revenue and profit",
     "url": "dashboards.html?board=sales#W-YC9A",
     "board": "sales",
-    "section": "Revenue and profit"
+    "section": "Revenue and profit",
+    "sections": {
+      "fr": "CA et marge",
+      "de": "Umsatz und Gewinn"
+    }
   },
   {
     "ref": "W-KPPT",
     "title": "Revenue bridge",
+    "titles": {
+      "fr": "Pont du CA",
+      "de": "Umsatzbrücke"
+    },
     "key": "revenue-bridge",
     "place": "",
     "where": "Dashboards › Sales › Revenue and profit",
     "url": "dashboards.html?board=sales#W-KPPT",
     "board": "sales",
-    "section": "Revenue and profit"
+    "section": "Revenue and profit",
+    "sections": {
+      "fr": "CA et marge",
+      "de": "Umsatz und Gewinn"
+    }
   },
   {
     "ref": "W-1D53",
     "title": "Operating costs against budget",
+    "titles": {
+      "fr": "Coûts opérationnels face au budget",
+      "de": "Betriebskosten gegen Budget"
+    },
     "key": "opex-variance",
     "place": "",
     "where": "Dashboards › Sales › Revenue and profit",
     "url": "dashboards.html?board=sales#W-1D53",
     "board": "sales",
-    "section": "Revenue and profit"
+    "section": "Revenue and profit",
+    "sections": {
+      "fr": "CA et marge",
+      "de": "Umsatz und Gewinn"
+    }
   },
   {
     "ref": "W-0CBC",
     "title": "September scorecard",
+    "titles": {
+      "fr": "Tableau de septembre",
+      "de": "September-Scorecard"
+    },
     "key": "kpi-scorecard",
     "place": "",
     "where": "Dashboards › Sales › Revenue and profit",
     "url": "dashboards.html?board=sales#W-0CBC",
     "board": "sales",
-    "section": "Revenue and profit"
+    "section": "Revenue and profit",
+    "sections": {
+      "fr": "CA et marge",
+      "de": "Umsatz und Gewinn"
+    }
   },
   {
     "ref": "W-8M9T",
     "title": "Cash on hand",
+    "titles": {
+      "fr": "Trésorerie disponible",
+      "de": "Liquide Mittel"
+    },
     "key": "cash-forecast",
     "place": "",
     "where": "Dashboards › Sales › Revenue and profit",
     "url": "dashboards.html?board=sales#W-8M9T",
     "board": "sales",
-    "section": "Revenue and profit"
+    "section": "Revenue and profit",
+    "sections": {
+      "fr": "CA et marge",
+      "de": "Umsatz und Gewinn"
+    }
   },
   {
     "ref": "W-KPHV",
     "title": "Revenue forecast",
+    "titles": {
+      "fr": "Prévision du CA",
+      "de": "Umsatzprognose"
+    },
     "key": "revenue-forecast",
     "place": "",
     "where": "Dashboards › Sales › Revenue and profit",
     "url": "dashboards.html?board=sales#W-KPHV",
     "board": "sales",
-    "section": "Revenue and profit"
+    "section": "Revenue and profit",
+    "sections": {
+      "fr": "CA et marge",
+      "de": "Umsatz und Gewinn"
+    }
   },
   {
     "ref": "W-YXA1",
     "title": "Revenue by region",
+    "titles": {
+      "fr": "CA par région",
+      "de": "Umsatz je Region"
+    },
     "key": "revenue-by-region",
     "place": "",
     "where": "Dashboards › Sales › Regions and products",
     "url": "dashboards.html?board=sales#W-YXA1",
     "board": "sales",
-    "section": "Regions and products"
+    "section": "Regions and products",
+    "sections": {
+      "fr": "Régions et produits",
+      "de": "Regionen und Produkte"
+    }
   },
   {
     "ref": "W-02JQ",
     "title": "Market size and mix",
+    "titles": {
+      "fr": "Taille et mix du marché",
+      "de": "Marktgröße und Mix"
+    },
     "key": "region-product-mix",
     "place": "",
     "where": "Dashboards › Sales › Regions and products",
     "url": "dashboards.html?board=sales#W-02JQ",
     "board": "sales",
-    "section": "Regions and products"
+    "section": "Regions and products",
+    "sections": {
+      "fr": "Régions et produits",
+      "de": "Regionen und Produkte"
+    }
   },
   {
     "ref": "W-RXGS",
     "title": "Region scorecard",
+    "titles": {
+      "fr": "Tableau par région",
+      "de": "Regionen-Scorecard"
+    },
     "key": "region-scorecard",
     "place": "",
     "where": "Dashboards › Sales › Regions and products",
     "url": "dashboards.html?board=sales#W-RXGS",
     "board": "sales",
-    "section": "Regions and products"
+    "section": "Regions and products",
+    "sections": {
+      "fr": "Régions et produits",
+      "de": "Regionen und Produkte"
+    }
   },
   {
     "ref": "W-Z4QE",
     "title": "September targets",
+    "titles": {
+      "fr": "Objectifs de septembre",
+      "de": "Septemberziele"
+    },
     "key": "product-targets",
     "place": "",
     "where": "Dashboards › Sales › Regions and products",
     "url": "dashboards.html?board=sales#W-Z4QE",
     "board": "sales",
-    "section": "Regions and products"
+    "section": "Regions and products",
+    "sections": {
+      "fr": "Régions et produits",
+      "de": "Regionen und Produkte"
+    }
   },
   {
     "ref": "W-FD2T",
     "title": "September revenue, year on year",
+    "titles": {
+      "fr": "CA de septembre, sur un an",
+      "de": "Septemberumsatz im Jahresvergleich"
+    },
     "key": "region-yoy",
     "place": "",
     "where": "Dashboards › Sales › Regions and products",
     "url": "dashboards.html?board=sales#W-FD2T",
     "board": "sales",
-    "section": "Regions and products"
+    "section": "Regions and products",
+    "sections": {
+      "fr": "Régions et produits",
+      "de": "Regionen und Produkte"
+    }
   },
   {
     "ref": "W-3118",
     "title": "Win rate, year on year",
+    "titles": {
+      "fr": "Taux de réussite, sur un an",
+      "de": "Abschlussquote im Jahresvergleich"
+    },
     "key": "win-rate-arrows",
     "place": "",
     "where": "Dashboards › Sales › Regions and products",
     "url": "dashboards.html?board=sales#W-3118",
     "board": "sales",
-    "section": "Regions and products"
+    "section": "Regions and products",
+    "sections": {
+      "fr": "Régions et produits",
+      "de": "Regionen und Produkte"
+    }
   },
   {
     "ref": "W-WVSH",
     "title": "Regional trends",
+    "titles": {
+      "fr": "Tendances régionales",
+      "de": "Regionale Trends"
+    },
     "key": "region-trends",
     "place": "",
     "where": "Dashboards › Sales › Regions and products",
     "url": "dashboards.html?board=sales#W-WVSH",
     "board": "sales",
-    "section": "Regions and products"
+    "section": "Regions and products",
+    "sections": {
+      "fr": "Régions et produits",
+      "de": "Regionen und Produkte"
+    }
   },
   {
     "ref": "W-7ZKZ",
     "title": "Product ranking",
+    "titles": {
+      "fr": "Classement des produits",
+      "de": "Produktrangfolge"
+    },
     "key": "product-ranking",
     "place": "",
     "where": "Dashboards › Sales › Regions and products",
     "url": "dashboards.html?board=sales#W-7ZKZ",
     "board": "sales",
-    "section": "Regions and products"
+    "section": "Regions and products",
+    "sections": {
+      "fr": "Régions et produits",
+      "de": "Regionen und Produkte"
+    }
   },
   {
     "ref": "W-DD1Y",
     "title": "Daily revenue against plan",
+    "titles": {
+      "fr": "CA quotidien face au plan",
+      "de": "Tagesumsatz gegen Plan"
+    },
     "key": "region-plan-horizon",
     "place": "",
     "where": "Dashboards › Sales › Regions and products",
     "url": "dashboards.html?board=sales#W-DD1Y",
     "board": "sales",
-    "section": "Regions and products"
+    "section": "Regions and products",
+    "sections": {
+      "fr": "Régions et produits",
+      "de": "Regionen und Produkte"
+    }
   },
   {
     "ref": "W-JXK7",
     "title": "Revenue by customer",
+    "titles": {
+      "fr": "CA par client",
+      "de": "Umsatz je Kunde"
+    },
     "key": "customer-treemap",
     "place": "",
     "where": "Dashboards › Sales › Customers and pipeline",
     "url": "dashboards.html?board=sales#W-JXK7",
     "board": "sales",
-    "section": "Customers and pipeline"
+    "section": "Customers and pipeline",
+    "sections": {
+      "fr": "Clients et pipeline",
+      "de": "Kunden und Pipeline"
+    }
   },
   {
     "ref": "W-4SNV",
     "title": "Leads and wins by channel",
+    "titles": {
+      "fr": "Prospects et gains par canal",
+      "de": "Leads und Abschlüsse je Kanal"
+    },
     "key": "leads-wins-by-channel",
     "place": "",
     "where": "Dashboards › Sales › Customers and pipeline",
     "url": "dashboards.html?board=sales#W-4SNV",
     "board": "sales",
-    "section": "Customers and pipeline"
+    "section": "Customers and pipeline",
+    "sections": {
+      "fr": "Clients et pipeline",
+      "de": "Kunden und Pipeline"
+    }
   },
   {
     "ref": "W-SH2W",
     "title": "Account portfolio",
+    "titles": {
+      "fr": "Portefeuille de comptes",
+      "de": "Kontenportfolio"
+    },
     "key": "account-portfolio",
     "place": "",
     "where": "Dashboards › Sales › Customers and pipeline",
     "url": "dashboards.html?board=sales#W-SH2W",
     "board": "sales",
-    "section": "Customers and pipeline"
+    "section": "Customers and pipeline",
+    "sections": {
+      "fr": "Clients et pipeline",
+      "de": "Kunden und Pipeline"
+    }
   },
   {
     "ref": "W-GRA6",
     "title": "Lead pipeline",
+    "titles": {
+      "fr": "Pipeline de prospects",
+      "de": "Lead-Pipeline"
+    },
     "key": "lead-pipeline",
     "place": "",
     "where": "Dashboards › Sales › Customers and pipeline",
     "url": "dashboards.html?board=sales#W-GRA6",
     "board": "sales",
-    "section": "Customers and pipeline"
+    "section": "Customers and pipeline",
+    "sections": {
+      "fr": "Clients et pipeline",
+      "de": "Kunden und Pipeline"
+    }
   },
   {
     "ref": "W-GF8V",
     "title": "Open deals",
+    "titles": {
+      "fr": "Affaires ouvertes",
+      "de": "Offene Deals"
+    },
     "key": "deal-pipeline",
     "place": "",
     "where": "Dashboards › Sales › Customers and pipeline",
     "url": "dashboards.html?board=sales#W-GF8V",
     "board": "sales",
-    "section": "Customers and pipeline"
+    "section": "Customers and pipeline",
+    "sections": {
+      "fr": "Clients et pipeline",
+      "de": "Kunden und Pipeline"
+    }
   },
   {
     "ref": "W-M70E",
     "title": "Deal size and speed",
+    "titles": {
+      "fr": "Taille et vitesse des affaires",
+      "de": "Dealgröße und Tempo"
+    },
     "key": "deal-scatter",
     "place": "",
     "where": "Dashboards › Sales › Customers and pipeline",
     "url": "dashboards.html?board=sales#W-M70E",
     "board": "sales",
-    "section": "Customers and pipeline"
+    "section": "Customers and pipeline",
+    "sections": {
+      "fr": "Clients et pipeline",
+      "de": "Kunden und Pipeline"
+    }
   },
   {
     "ref": "W-8BND",
     "title": "Signup funnel",
+    "titles": {
+      "fr": "Tunnel d'inscription",
+      "de": "Anmelde-Trichter"
+    },
     "key": "signup-funnel",
     "place": "",
     "where": "Dashboards › Sales › Customers and pipeline",
     "url": "dashboards.html?board=sales#W-8BND",
     "board": "sales",
-    "section": "Customers and pipeline"
+    "section": "Customers and pipeline",
+    "sections": {
+      "fr": "Clients et pipeline",
+      "de": "Kunden und Pipeline"
+    }
   },
   {
     "ref": "W-93BC",
     "title": "Visits by channel",
+    "titles": {
+      "fr": "Visites par canal",
+      "de": "Besuche je Kanal"
+    },
     "key": "traffic-stream",
     "place": "",
     "where": "Dashboards › Sales › Customers and pipeline",
     "url": "dashboards.html?board=sales#W-93BC",
     "board": "sales",
-    "section": "Customers and pipeline"
+    "section": "Customers and pipeline",
+    "sections": {
+      "fr": "Clients et pipeline",
+      "de": "Kunden und Pipeline"
+    }
   },
   {
     "ref": "W-6XYP",
     "title": "Visits by hour",
+    "titles": {
+      "fr": "Visites par heure",
+      "de": "Besuche je Stunde"
+    },
     "key": "visits-by-hour",
     "place": "",
     "where": "Dashboards › Sales › Customers and pipeline",
     "url": "dashboards.html?board=sales#W-6XYP",
     "board": "sales",
-    "section": "Customers and pipeline"
+    "section": "Customers and pipeline",
+    "sections": {
+      "fr": "Clients et pipeline",
+      "de": "Kunden und Pipeline"
+    }
   },
   {
     "ref": "W-RDG5",
     "title": "Where visitors go",
+    "titles": {
+      "fr": "Où vont les visiteurs",
+      "de": "Wohin Besucher gehen"
+    },
     "key": "traffic-sankey",
     "place": "",
     "where": "Dashboards › Sales › Customers and pipeline",
     "url": "dashboards.html?board=sales#W-RDG5",
     "board": "sales",
-    "section": "Customers and pipeline"
+    "section": "Customers and pipeline",
+    "sections": {
+      "fr": "Clients et pipeline",
+      "de": "Kunden und Pipeline"
+    }
   },
   {
     "ref": "W-X3F7",
     "title": "Plan changes",
+    "titles": {
+      "fr": "Changements d'offre",
+      "de": "Tarifwechsel"
+    },
     "key": "plan-moves",
     "place": "",
     "where": "Dashboards › Sales › Customers and pipeline",
     "url": "dashboards.html?board=sales#W-X3F7",
     "board": "sales",
-    "section": "Customers and pipeline"
+    "section": "Customers and pipeline",
+    "sections": {
+      "fr": "Clients et pipeline",
+      "de": "Kunden und Pipeline"
+    }
   },
   {
     "ref": "W-RX6Q",
     "title": "Customer directory",
+    "titles": {
+      "fr": "Annuaire clients",
+      "de": "Kundenverzeichnis"
+    },
     "key": "directory-customers",
     "place": "",
     "where": "Dashboards › Sales › Customers and pipeline",
     "url": "dashboards.html?board=sales#W-RX6Q",
     "board": "sales",
-    "section": "Customers and pipeline"
+    "section": "Customers and pipeline",
+    "sections": {
+      "fr": "Clients et pipeline",
+      "de": "Kunden und Pipeline"
+    }
   },
   {
     "ref": "W-JJZ5",
     "title": "How we compare",
+    "titles": {
+      "fr": "Notre position",
+      "de": "Unser Vergleich"
+    },
     "key": "product-compare",
     "place": "",
     "where": "Dashboards › Sales › Customers and pipeline",
     "url": "dashboards.html?board=sales#W-JJZ5",
     "board": "sales",
-    "section": "Customers and pipeline"
+    "section": "Customers and pipeline",
+    "sections": {
+      "fr": "Clients et pipeline",
+      "de": "Kunden und Pipeline"
+    }
   },
   {
     "ref": "W-GE38",
     "title": "Daily orders",
+    "titles": {
+      "fr": "Commandes quotidiennes",
+      "de": "Tägliche Bestellungen"
+    },
     "key": "order-calendar",
     "place": "",
     "where": "Dashboards › Sales › Operations and sentiment",
     "url": "dashboards.html?board=sales#W-GE38",
     "board": "sales",
-    "section": "Operations and sentiment"
+    "section": "Operations and sentiment",
+    "sections": {
+      "fr": "Opérations et satisfaction",
+      "de": "Betrieb und Stimmung"
+    }
   },
   {
     "ref": "W-GKF3",
     "title": "What drives support tickets",
+    "titles": {
+      "fr": "Ce qui génère les tickets",
+      "de": "Was Support-Tickets auslöst"
+    },
     "key": "ticket-causes",
     "place": "",
     "where": "Dashboards › Sales › Operations and sentiment",
     "url": "dashboards.html?board=sales#W-GKF3",
     "board": "sales",
-    "section": "Operations and sentiment"
+    "section": "Operations and sentiment",
+    "sections": {
+      "fr": "Opérations et satisfaction",
+      "de": "Betrieb und Stimmung"
+    }
   },
   {
     "ref": "W-4EZT",
     "title": "Support tickets",
+    "titles": {
+      "fr": "Tickets de support",
+      "de": "Support-Tickets"
+    },
     "key": "ticket-heatmap",
     "place": "",
     "where": "Dashboards › Sales › Operations and sentiment",
     "url": "dashboards.html?board=sales#W-4EZT",
     "board": "sales",
-    "section": "Operations and sentiment"
+    "section": "Operations and sentiment",
+    "sections": {
+      "fr": "Opérations et satisfaction",
+      "de": "Betrieb und Stimmung"
+    }
   },
   {
     "ref": "W-YEG6",
     "title": "Q4 launch plan",
+    "titles": {
+      "fr": "Plan de lancement T4",
+      "de": "Q4-Launchplan"
+    },
     "key": "launch-plan",
     "place": "",
     "where": "Dashboards › Sales › Operations and sentiment",
     "url": "dashboards.html?board=sales#W-YEG6",
     "board": "sales",
-    "section": "Operations and sentiment"
+    "section": "Operations and sentiment",
+    "sections": {
+      "fr": "Opérations et satisfaction",
+      "de": "Betrieb und Stimmung"
+    }
   },
   {
     "ref": "W-JS9M",
     "title": "Employee pulse survey",
+    "titles": {
+      "fr": "Baromètre des collaborateurs",
+      "de": "Mitarbeiter-Pulsumfrage"
+    },
     "key": "employee-survey",
     "place": "",
     "where": "Dashboards › Sales › Operations and sentiment",
     "url": "dashboards.html?board=sales#W-JS9M",
     "board": "sales",
-    "section": "Operations and sentiment"
+    "section": "Operations and sentiment",
+    "sections": {
+      "fr": "Opérations et satisfaction",
+      "de": "Betrieb und Stimmung"
+    }
   },
   {
     "ref": "W-EB9T",
     "title": "Net promoter score",
+    "titles": {
+      "fr": "Net Promoter Score",
+      "de": "Net Promoter Score"
+    },
     "key": "nps-gauge",
     "place": "",
     "where": "Dashboards › Sales › Operations and sentiment",
     "url": "dashboards.html?board=sales#W-EB9T",
     "board": "sales",
-    "section": "Operations and sentiment"
+    "section": "Operations and sentiment",
+    "sections": {
+      "fr": "Opérations et satisfaction",
+      "de": "Betrieb und Stimmung"
+    }
   },
   {
     "ref": "W-M466",
     "title": "First response time by team",
+    "titles": {
+      "fr": "Délai de première réponse par équipe",
+      "de": "Erste Antwortzeit je Team"
+    },
     "key": "response-time-by-team",
     "place": "",
     "where": "Dashboards › Sales › Operations and sentiment",
     "url": "dashboards.html?board=sales#W-M466",
     "board": "sales",
-    "section": "Operations and sentiment"
+    "section": "Operations and sentiment",
+    "sections": {
+      "fr": "Opérations et satisfaction",
+      "de": "Betrieb und Stimmung"
+    }
   },
   {
     "ref": "W-MV8N",
     "title": "Feature adoption",
+    "titles": {
+      "fr": "Adoption des fonctions",
+      "de": "Funktionsnutzung"
+    },
     "key": "feature-adoption",
     "place": "",
     "where": "Dashboards › Sales › Operations and sentiment",
     "url": "dashboards.html?board=sales#W-MV8N",
     "board": "sales",
-    "section": "Operations and sentiment"
+    "section": "Operations and sentiment",
+    "sections": {
+      "fr": "Opérations et satisfaction",
+      "de": "Betrieb und Stimmung"
+    }
   },
   {
     "ref": "W-EXZB",
     "title": "Workforce by age and gender",
+    "titles": {
+      "fr": "Effectifs par âge et sexe",
+      "de": "Belegschaft nach Alter und Geschlecht"
+    },
     "key": "workforce-pyramid",
     "place": "",
     "where": "Dashboards › Sales › Operations and sentiment",
     "url": "dashboards.html?board=sales#W-EXZB",
     "board": "sales",
-    "section": "Operations and sentiment"
+    "section": "Operations and sentiment",
+    "sections": {
+      "fr": "Opérations et satisfaction",
+      "de": "Betrieb und Stimmung"
+    }
   },
   {
     "ref": "W-VBB9",
     "title": "Customer ratings by product",
+    "titles": {
+      "fr": "Notes clients par produit",
+      "de": "Kundenbewertungen je Produkt"
+    },
     "key": "product-ratings",
     "place": "",
     "where": "Dashboards › Sales › Operations and sentiment",
     "url": "dashboards.html?board=sales#W-VBB9",
     "board": "sales",
-    "section": "Operations and sentiment"
+    "section": "Operations and sentiment",
+    "sections": {
+      "fr": "Opérations et satisfaction",
+      "de": "Betrieb und Stimmung"
+    }
   },
   {
     "ref": "W-YR9W",
     "title": "The book at a glance",
+    "titles": {
+      "fr": "Le portefeuille d'un coup d'œil",
+      "de": "Der Bestand auf einen Blick"
+    },
     "key": "cc-headline-kpis",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Headline numbers",
     "url": "dashboards.html?board=commercial#W-YR9W",
     "board": "commercial",
-    "section": "Headline numbers"
+    "section": "Headline numbers",
+    "sections": {
+      "fr": "Chiffres clés",
+      "de": "Kennzahlen"
+    }
   },
   {
     "ref": "W-EETR",
     "title": "Anomalies, measure by measure",
+    "titles": {
+      "fr": "Anomalies, mesure par mesure",
+      "de": "Anomalien, Kennzahl für Kennzahl"
+    },
     "key": "cc-anomaly-tracker",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Needs attention",
     "url": "dashboards.html?board=commercial#W-EETR",
     "board": "commercial",
-    "section": "Needs attention"
+    "section": "Needs attention",
+    "sections": {
+      "fr": "Points d'attention",
+      "de": "Braucht Aufmerksamkeit"
+    }
   },
   {
     "ref": "W-54X7",
     "title": "Complaints, day by day",
+    "titles": {
+      "fr": "Réclamations, jour par jour",
+      "de": "Beschwerden, Tag für Tag"
+    },
     "key": "cc-complaints-calendar",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Needs attention",
     "url": "dashboards.html?board=commercial#W-54X7",
     "board": "commercial",
-    "section": "Needs attention"
+    "section": "Needs attention",
+    "sections": {
+      "fr": "Points d'attention",
+      "de": "Braucht Aufmerksamkeit"
+    }
   },
   {
     "ref": "W-4DR7",
     "title": "Revenue by product",
+    "titles": {
+      "fr": "CA par produit",
+      "de": "Umsatz je Produkt"
+    },
     "key": "cc-product-revenue",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Where the money is",
     "url": "dashboards.html?board=commercial#W-4DR7",
     "board": "commercial",
-    "section": "Where the money is"
+    "section": "Where the money is",
+    "sections": {
+      "fr": "Où est l'argent",
+      "de": "Wo das Geld liegt"
+    }
   },
   {
     "ref": "W-8K4P",
     "title": "From last year's revenue to this year's",
+    "titles": {
+      "fr": "CA : de l'an dernier à cette année",
+      "de": "Vom Vorjahresumsatz zum diesjährigen"
+    },
     "key": "cc-revenue-bridge",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Where the money is",
     "url": "dashboards.html?board=commercial#W-8K4P",
     "board": "commercial",
-    "section": "Where the money is"
+    "section": "Where the money is",
+    "sections": {
+      "fr": "Où est l'argent",
+      "de": "Wo das Geld liegt"
+    }
   },
   {
     "ref": "W-T1CR",
     "title": "Revenue by client",
+    "titles": {
+      "fr": "CA par client",
+      "de": "Umsatz je Kunde"
+    },
     "key": "cc-revenue-pareto",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Where the money is",
     "url": "dashboards.html?board=commercial#W-T1CR",
     "board": "commercial",
-    "section": "Where the money is"
+    "section": "Where the money is",
+    "sections": {
+      "fr": "Où est l'argent",
+      "de": "Wo das Geld liegt"
+    }
   },
   {
     "ref": "W-X6SA",
     "title": "Fees against target",
+    "titles": {
+      "fr": "Commissions face à l'objectif",
+      "de": "Gebühren gegen Ziel"
+    },
     "key": "cc-fees-variance",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Where the money is",
     "url": "dashboards.html?board=commercial#W-X6SA",
     "board": "commercial",
-    "section": "Where the money is"
+    "section": "Where the money is",
+    "sections": {
+      "fr": "Où est l'argent",
+      "de": "Wo das Geld liegt"
+    }
   },
   {
     "ref": "W-YDJW",
     "title": "Pipeline against target, by banker",
+    "titles": {
+      "fr": "Pipeline face à l'objectif, par chargé",
+      "de": "Pipeline gegen Ziel, je Berater"
+    },
     "key": "cc-pipeline-target",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Sales pipeline",
     "url": "dashboards.html?board=commercial#W-YDJW",
     "board": "commercial",
-    "section": "Sales pipeline"
+    "section": "Sales pipeline",
+    "sections": {
+      "fr": "Pipeline commercial",
+      "de": "Vertriebspipeline"
+    }
   },
   {
     "ref": "W-S5SM",
     "title": "Win rate, by banker",
+    "titles": {
+      "fr": "Taux de réussite, par chargé",
+      "de": "Abschlussquote, je Berater"
+    },
     "key": "cc-win-rate",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Sales pipeline",
     "url": "dashboards.html?board=commercial#W-S5SM",
     "board": "commercial",
-    "section": "Sales pipeline"
+    "section": "Sales pipeline",
+    "sections": {
+      "fr": "Pipeline commercial",
+      "de": "Vertriebspipeline"
+    }
   },
   {
     "ref": "W-5E88",
     "title": "Net new money against target, by banker",
+    "titles": {
+      "fr": "Collecte nette face à l'objectif, par chargé",
+      "de": "Netto-Neugeld gegen Ziel, je Berater"
+    },
     "key": "cc-new-money-target",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Sales pipeline",
     "url": "dashboards.html?board=commercial#W-5E88",
     "board": "commercial",
-    "section": "Sales pipeline"
+    "section": "Sales pipeline",
+    "sections": {
+      "fr": "Pipeline commercial",
+      "de": "Vertriebspipeline"
+    }
   },
   {
     "ref": "W-FV5Z",
     "title": "From qualified to won",
+    "titles": {
+      "fr": "De qualifiée à gagnée",
+      "de": "Von qualifiziert zu gewonnen"
+    },
     "key": "cc-deal-funnel",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Sales pipeline",
     "url": "dashboards.html?board=commercial#W-FV5Z",
     "board": "commercial",
-    "section": "Sales pipeline"
+    "section": "Sales pipeline",
+    "sections": {
+      "fr": "Pipeline commercial",
+      "de": "Vertriebspipeline"
+    }
   },
   {
     "ref": "W-313J",
     "title": "The cross-sell map",
+    "titles": {
+      "fr": "La carte de vente croisée",
+      "de": "Die Cross-Selling-Karte"
+    },
     "key": "cc-whitespace",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Who could buy what",
     "url": "dashboards.html?board=commercial#W-313J",
     "board": "commercial",
-    "section": "Who could buy what"
+    "section": "Who could buy what",
+    "sections": {
+      "fr": "Qui pourrait acheter quoi",
+      "de": "Wer was kaufen könnte"
+    }
   },
   {
     "ref": "W-6QWW",
     "title": "Penetration against target",
+    "titles": {
+      "fr": "Pénétration face à l'objectif",
+      "de": "Durchdringung gegen Ziel"
+    },
     "key": "cc-penetration-gap",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Who could buy what",
     "url": "dashboards.html?board=commercial#W-6QWW",
     "board": "commercial",
-    "section": "Who could buy what"
+    "section": "Who could buy what",
+    "sections": {
+      "fr": "Qui pourrait acheter quoi",
+      "de": "Wer was kaufen könnte"
+    }
   },
   {
     "ref": "W-MP1P",
     "title": "From products held to opportunities",
+    "titles": {
+      "fr": "Des produits détenus aux opportunités",
+      "de": "Von gehaltenen Produkten zu Chancen"
+    },
     "key": "cc-cross-sell-paths",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Who could buy what",
     "url": "dashboards.html?board=commercial#W-MP1P",
     "board": "commercial",
-    "section": "Who could buy what"
+    "section": "Who could buy what",
+    "sections": {
+      "fr": "Qui pourrait acheter quoi",
+      "de": "Wer was kaufen könnte"
+    }
   },
   {
     "ref": "W-52S3",
     "title": "Who to call this week",
+    "titles": {
+      "fr": "Qui appeler cette semaine",
+      "de": "Wen diese Woche anrufen"
+    },
     "key": "cc-call-list",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Who acts",
     "url": "dashboards.html?board=commercial#W-52S3",
     "board": "commercial",
-    "section": "Who acts"
+    "section": "Who acts",
+    "sections": {
+      "fr": "Qui agit",
+      "de": "Wer handelt"
+    }
   },
   {
     "ref": "W-RR73",
     "title": "Client x-ray: Aldana Holdings",
+    "titles": {
+      "fr": "Radiographie : Aldana Holdings",
+      "de": "Kunden-Röntgenbild: Aldana Holdings"
+    },
     "key": "cc-client-xray",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Who acts",
     "url": "dashboards.html?board=commercial#W-RR73",
     "board": "commercial",
-    "section": "Who acts"
+    "section": "Who acts",
+    "sections": {
+      "fr": "Qui agit",
+      "de": "Wer handelt"
+    }
   },
   {
     "ref": "W-9TWK",
     "title": "Aldana Holdings, the story so far",
+    "titles": {
+      "fr": "Aldana Holdings, l'histoire à ce jour",
+      "de": "Aldana Holdings, die Geschichte bisher"
+    },
     "key": "cc-client-story",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Who acts",
     "url": "dashboards.html?board=commercial#W-9TWK",
     "board": "commercial",
-    "section": "Who acts"
+    "section": "Who acts",
+    "sections": {
+      "fr": "Qui agit",
+      "de": "Wer handelt"
+    }
   },
   {
     "ref": "W-TGB3",
     "title": "Clients per relationship manager",
+    "titles": {
+      "fr": "Clients par chargé de clientèle",
+      "de": "Kunden je Kundenberater"
+    },
     "key": "cc-rm-capacity",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Coverage",
     "url": "dashboards.html?board=commercial#W-TGB3",
     "board": "commercial",
-    "section": "Coverage"
+    "section": "Coverage",
+    "sections": {
+      "fr": "Couverture",
+      "de": "Betreuung"
+    }
   },
   {
     "ref": "W-0VYK",
     "title": "Client meetings this year",
+    "titles": {
+      "fr": "Rendez-vous clients de l'année",
+      "de": "Kundentermine dieses Jahres"
+    },
     "key": "cc-rm-meetings",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Coverage",
     "url": "dashboards.html?board=commercial#W-0VYK",
     "board": "commercial",
-    "section": "Coverage"
+    "section": "Coverage",
+    "sections": {
+      "fr": "Couverture",
+      "de": "Betreuung"
+    }
   },
   {
     "ref": "W-RVX1",
     "title": "Books by relationship manager",
+    "titles": {
+      "fr": "Portefeuilles par chargé de clientèle",
+      "de": "Bestände je Kundenberater"
+    },
     "key": "cc-rm-books",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Coverage",
     "url": "dashboards.html?board=commercial#W-RVX1",
     "board": "commercial",
-    "section": "Coverage"
+    "section": "Coverage",
+    "sections": {
+      "fr": "Couverture",
+      "de": "Betreuung"
+    }
   },
   {
     "ref": "W-AWA5",
     "title": "Risk, return and clusters",
+    "titles": {
+      "fr": "Risque, rendement et groupes",
+      "de": "Risiko, Rendite und Cluster"
+    },
     "key": "cc-risk-return",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Portfolio",
     "url": "dashboards.html?board=commercial#W-AWA5",
     "board": "commercial",
-    "section": "Portfolio"
+    "section": "Portfolio",
+    "sections": {
+      "fr": "Portefeuille"
+    }
   },
   {
     "ref": "W-TXNN",
     "title": "Allocation against the model",
+    "titles": {
+      "fr": "Allocation face au modèle",
+      "de": "Allokation gegen das Modell"
+    },
     "key": "cc-allocation-drift",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Portfolio",
     "url": "dashboards.html?board=commercial#W-TXNN",
     "board": "commercial",
-    "section": "Portfolio"
+    "section": "Portfolio",
+    "sections": {
+      "fr": "Portefeuille"
+    }
   },
   {
     "ref": "W-17FN",
     "title": "Allocation within its bands",
+    "titles": {
+      "fr": "Allocation dans ses bornes",
+      "de": "Allokation in ihren Bändern"
+    },
     "key": "cc-allocation-bands",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Portfolio",
     "url": "dashboards.html?board=commercial#W-17FN",
     "board": "commercial",
-    "section": "Portfolio"
+    "section": "Portfolio",
+    "sections": {
+      "fr": "Portefeuille"
+    }
   },
   {
     "ref": "W-GCPB",
     "title": "Where the assets are",
+    "titles": {
+      "fr": "Où sont les actifs",
+      "de": "Wo das Vermögen liegt"
+    },
     "key": "cc-aum-by-country",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Where clients are",
     "url": "dashboards.html?board=commercial#W-GCPB",
     "board": "commercial",
-    "section": "Where clients are"
+    "section": "Where clients are",
+    "sections": {
+      "fr": "Où sont les clients",
+      "de": "Wo die Kunden sind"
+    }
   },
   {
     "ref": "W-ZN70",
     "title": "Where clients are",
+    "titles": {
+      "fr": "Où sont les clients",
+      "de": "Wo die Kunden sind"
+    },
     "key": "cc-clients-by-country",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Where clients are",
     "url": "dashboards.html?board=commercial#W-ZN70",
     "board": "commercial",
-    "section": "Where clients are"
+    "section": "Where clients are",
+    "sections": {
+      "fr": "Où sont les clients",
+      "de": "Wo die Kunden sind"
+    }
   },
   {
     "ref": "W-8MHX",
     "title": "Campaigns this year",
+    "titles": {
+      "fr": "Campagnes de l'année",
+      "de": "Kampagnen dieses Jahres"
+    },
     "key": "cc-campaign-plan",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Campaigns",
     "url": "dashboards.html?board=commercial#W-8MHX",
     "board": "commercial",
-    "section": "Campaigns"
+    "section": "Campaigns",
+    "sections": {
+      "fr": "Campagnes",
+      "de": "Kampagnen"
+    }
   },
   {
     "ref": "W-Z09M",
     "title": "Campaigns, step by step",
+    "titles": {
+      "fr": "Campagnes, étape par étape",
+      "de": "Kampagnen, Schritt für Schritt"
+    },
     "key": "cc-campaign-funnel",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Campaigns",
     "url": "dashboards.html?board=commercial#W-Z09M",
     "board": "commercial",
-    "section": "Campaigns"
+    "section": "Campaigns",
+    "sections": {
+      "fr": "Campagnes",
+      "de": "Kampagnen"
+    }
   },
   {
     "ref": "W-DHZD",
     "title": "Revenue per euro spent",
+    "titles": {
+      "fr": "CA par euro dépensé",
+      "de": "Umsatz je ausgegebenem Euro"
+    },
     "key": "cc-campaign-return",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Campaigns",
     "url": "dashboards.html?board=commercial#W-DHZD",
     "board": "commercial",
-    "section": "Campaigns"
+    "section": "Campaigns",
+    "sections": {
+      "fr": "Campagnes",
+      "de": "Kampagnen"
+    }
   },
   {
     "ref": "W-HRQ5",
     "title": "Digital adoption by cohort",
+    "titles": {
+      "fr": "Adoption digitale par cohorte",
+      "de": "Digitale Nutzung je Kohorte"
+    },
     "key": "cc-adoption-cohorts",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Adoption",
     "url": "dashboards.html?board=commercial#W-HRQ5",
     "board": "commercial",
-    "section": "Adoption"
+    "section": "Adoption",
+    "sections": {
+      "de": "Nutzung"
+    }
   },
   {
     "ref": "W-N8Z5",
     "title": "Adoption curves",
+    "titles": {
+      "fr": "Courbes d'adoption",
+      "de": "Nutzungskurven"
+    },
     "key": "cc-adoption-curves",
     "place": "",
     "where": "Dashboards › Commercial cockpit › Adoption",
     "url": "dashboards.html?board=commercial#W-N8Z5",
     "board": "commercial",
-    "section": "Adoption"
+    "section": "Adoption",
+    "sections": {
+      "de": "Nutzung"
+    }
   },
   {
     "ref": "W-5EPW",
     "title": "Clients on track",
+    "titles": {
+      "fr": "Clients sur la bonne voie",
+      "de": "Kunden im Plan"
+    },
     "key": "health-on-track",
     "place": "",
     "where": "Dashboards › Client health › Overview",
     "url": "dashboards.html?board=health#W-5EPW",
     "board": "health",
-    "section": "Overview"
+    "section": "Overview",
+    "sections": {
+      "fr": "Vue d'ensemble",
+      "de": "Überblick"
+    }
   },
   {
     "ref": "W-PBJB",
     "title": "Where the book stands",
+    "titles": {
+      "fr": "Où en est le portefeuille",
+      "de": "Wo der Bestand steht"
+    },
     "key": "health-status-by-segment",
     "place": "",
     "where": "Dashboards › Client health › Overview",
     "url": "dashboards.html?board=health#W-PBJB",
     "board": "health",
-    "section": "Overview"
+    "section": "Overview",
+    "sections": {
+      "fr": "Vue d'ensemble",
+      "de": "Überblick"
+    }
   },
   {
     "ref": "W-2W1H",
     "title": "Client success, measure by measure",
+    "titles": {
+      "fr": "Succès client, mesure par mesure",
+      "de": "Kundenerfolg, Kennzahl für Kennzahl"
+    },
     "key": "health-client-success-board",
     "place": "",
     "where": "Dashboards › Client health › Client success",
     "url": "dashboards.html?board=health#W-2W1H",
     "board": "health",
-    "section": "Client success"
+    "section": "Client success",
+    "sections": {
+      "fr": "Succès client",
+      "de": "Kundenerfolg"
+    }
   },
   {
     "ref": "W-KTS0",
     "title": "How clients are served",
+    "titles": {
+      "fr": "Comment les clients sont servis",
+      "de": "Wie Kunden betreut werden"
+    },
     "key": "health-client-success-by-segment",
     "place": "",
     "where": "Dashboards › Client health › Client success",
     "url": "dashboards.html?board=health#W-KTS0",
     "board": "health",
-    "section": "Client success"
+    "section": "Client success",
+    "sections": {
+      "fr": "Succès client",
+      "de": "Kundenerfolg"
+    }
   },
   {
     "ref": "W-9ET9",
     "title": "Client sentiment by banker",
+    "titles": {
+      "fr": "Sentiment client par chargé",
+      "de": "Kundenstimmung je Berater"
+    },
     "key": "health-client-success-key",
     "place": "",
     "where": "Dashboards › Client health › Client success",
     "url": "dashboards.html?board=health#W-9ET9",
     "board": "health",
-    "section": "Client success"
+    "section": "Client success",
+    "sections": {
+      "fr": "Succès client",
+      "de": "Kundenerfolg"
+    }
   },
   {
     "ref": "W-0JQS",
     "title": "Business development, measure by measure",
+    "titles": {
+      "fr": "Développement commercial, mesure par mesure",
+      "de": "Geschäftsentwicklung, Kennzahl für Kennzahl"
+    },
     "key": "health-biz-dev-board",
     "place": "",
     "where": "Dashboards › Client health › Business development",
     "url": "dashboards.html?board=health#W-0JQS",
     "board": "health",
-    "section": "Business development"
+    "section": "Business development",
+    "sections": {
+      "fr": "Développement commercial",
+      "de": "Geschäftsentwicklung"
+    }
   },
   {
     "ref": "W-1231",
     "title": "Where growth is on plan",
+    "titles": {
+      "fr": "Où la croissance suit le plan",
+      "de": "Wo das Wachstum im Plan liegt"
+    },
     "key": "health-biz-dev-by-segment",
     "place": "",
     "where": "Dashboards › Client health › Business development",
     "url": "dashboards.html?board=health#W-1231",
     "board": "health",
-    "section": "Business development"
+    "section": "Business development",
+    "sections": {
+      "fr": "Développement commercial",
+      "de": "Geschäftsentwicklung"
+    }
   },
   {
     "ref": "W-Z564",
     "title": "Pipeline cover by banker",
+    "titles": {
+      "fr": "Couverture du pipeline par chargé",
+      "de": "Pipeline-Deckung je Berater"
+    },
     "key": "health-biz-dev-key",
     "place": "",
     "where": "Dashboards › Client health › Business development",
     "url": "dashboards.html?board=health#W-Z564",
     "board": "health",
-    "section": "Business development"
+    "section": "Business development",
+    "sections": {
+      "fr": "Développement commercial",
+      "de": "Geschäftsentwicklung"
+    }
   },
   {
     "ref": "W-SYA5",
     "title": "Coverage, measure by measure",
+    "titles": {
+      "fr": "Couverture, mesure par mesure",
+      "de": "Betreuung, Kennzahl für Kennzahl"
+    },
     "key": "health-coverage-board",
     "place": "",
     "where": "Dashboards › Client health › Coverage",
     "url": "dashboards.html?board=health#W-SYA5",
     "board": "health",
-    "section": "Coverage"
+    "section": "Coverage",
+    "sections": {
+      "fr": "Couverture",
+      "de": "Betreuung"
+    }
   },
   {
     "ref": "W-J5FN",
     "title": "Where coverage is slipping",
+    "titles": {
+      "fr": "Où la couverture se dégrade",
+      "de": "Wo die Betreuung nachlässt"
+    },
     "key": "health-coverage-by-segment",
     "place": "",
     "where": "Dashboards › Client health › Coverage",
     "url": "dashboards.html?board=health#W-J5FN",
     "board": "health",
-    "section": "Coverage"
+    "section": "Coverage",
+    "sections": {
+      "fr": "Couverture",
+      "de": "Betreuung"
+    }
   },
   {
     "ref": "W-TWAM",
     "title": "Days since the last meeting, by banker",
+    "titles": {
+      "fr": "Jours depuis le dernier rendez-vous, par chargé",
+      "de": "Tage seit dem letzten Termin, je Berater"
+    },
     "key": "health-coverage-key",
     "place": "",
     "where": "Dashboards › Client health › Coverage",
     "url": "dashboards.html?board=health#W-TWAM",
     "board": "health",
-    "section": "Coverage"
+    "section": "Coverage",
+    "sections": {
+      "fr": "Couverture",
+      "de": "Betreuung"
+    }
   },
   {
     "ref": "W-H05X",
     "title": "Relationship health, measure by measure",
+    "titles": {
+      "fr": "Santé de la relation, mesure par mesure",
+      "de": "Beziehungsgesundheit, Kennzahl für Kennzahl"
+    },
     "key": "health-relationship-board",
     "place": "",
     "where": "Dashboards › Client health › Relationship",
     "url": "dashboards.html?board=health#W-H05X",
     "board": "health",
-    "section": "Relationship"
+    "section": "Relationship",
+    "sections": {
+      "fr": "Relation",
+      "de": "Beziehung"
+    }
   },
   {
     "ref": "W-AJD8",
     "title": "Which relationships are at risk",
+    "titles": {
+      "fr": "Quelles relations sont à risque",
+      "de": "Welche Beziehungen gefährdet sind"
+    },
     "key": "health-relationship-by-segment",
     "place": "",
     "where": "Dashboards › Client health › Relationship",
     "url": "dashboards.html?board=health#W-AJD8",
     "board": "health",
-    "section": "Relationship"
+    "section": "Relationship",
+    "sections": {
+      "fr": "Relation",
+      "de": "Beziehung"
+    }
   },
   {
     "ref": "W-286W",
     "title": "Attrition risk by banker",
+    "titles": {
+      "fr": "Risque d'attrition par chargé",
+      "de": "Abwanderungsrisiko je Berater"
+    },
     "key": "health-relationship-key",
     "place": "",
     "where": "Dashboards › Client health › Relationship",
     "url": "dashboards.html?board=health#W-286W",
     "board": "health",
-    "section": "Relationship"
+    "section": "Relationship",
+    "sections": {
+      "fr": "Relation",
+      "de": "Beziehung"
+    }
   },
   {
     "ref": "W-1C25",
     "title": "Every client, quarter by quarter",
+    "titles": {
+      "fr": "Chaque client, trimestre par trimestre",
+      "de": "Jeder Kunde, Quartal für Quartal"
+    },
     "key": "health-trend",
     "place": "",
     "where": "Dashboards › Client health › Movement and actions",
     "url": "dashboards.html?board=health#W-1C25",
     "board": "health",
-    "section": "Movement and actions"
+    "section": "Movement and actions",
+    "sections": {
+      "fr": "Mouvements et actions",
+      "de": "Bewegung und Aktionen"
+    }
   },
   {
     "ref": "W-DHZ0",
     "title": "Who owns the next step",
+    "titles": {
+      "fr": "Qui porte l'étape suivante",
+      "de": "Wer den nächsten Schritt verantwortet"
+    },
     "key": "health-actions",
     "place": "",
     "where": "Dashboards › Client health › Movement and actions",
     "url": "dashboards.html?board=health#W-DHZ0",
     "board": "health",
-    "section": "Movement and actions"
+    "section": "Movement and actions",
+    "sections": {
+      "fr": "Mouvements et actions",
+      "de": "Bewegung und Aktionen"
+    }
   },
   {
     "ref": "W-TM52",
     "title": "Where the reds sit",
+    "titles": {
+      "fr": "Où sont les rouges",
+      "de": "Wo die Roten sitzen"
+    },
     "key": "health-reds",
     "place": "",
     "where": "Dashboards › Client health › Movement and actions",
     "url": "dashboards.html?board=health#W-TM52",
     "board": "health",
-    "section": "Movement and actions"
+    "section": "Movement and actions",
+    "sections": {
+      "fr": "Mouvements et actions",
+      "de": "Bewegung und Aktionen"
+    }
   },
   {
     "ref": "W-JRKN",
     "title": "Every client, on all four perspectives",
+    "titles": {
+      "fr": "Chaque client, sur les quatre perspectives",
+      "de": "Jeder Kunde in allen vier Perspektiven"
+    },
     "key": "health-clients",
     "place": "",
     "where": "Dashboards › Client health › Every client",
     "url": "dashboards.html?board=health#W-JRKN",
     "board": "health",
-    "section": "Every client"
+    "section": "Every client",
+    "sections": {
+      "fr": "Tous les clients",
+      "de": "Alle Kunden"
+    }
   },
   {
     "ref": "W-PVBD",
     "title": "How each status is set",
+    "titles": {
+      "fr": "Comment chaque statut est fixé",
+      "de": "Wie jeder Status gesetzt wird"
+    },
     "key": "health-thresholds",
     "place": "",
     "where": "Dashboards › Client health › Rules",
     "url": "dashboards.html?board=health#W-PVBD",
     "board": "health",
-    "section": "Rules"
+    "section": "Rules",
+    "sections": {
+      "fr": "Règles",
+      "de": "Regeln"
+    }
   },
   {
     "ref": "W-DJ04",
     "title": "How statuses roll up",
+    "titles": {
+      "fr": "Comment les statuts s'agrègent",
+      "de": "Wie Status sich verdichten"
+    },
     "key": "health-rollups",
     "place": "",
     "where": "Dashboards › Client health › Rules",
     "url": "dashboards.html?board=health#W-DJ04",
     "board": "health",
-    "section": "Rules"
+    "section": "Rules",
+    "sections": {
+      "fr": "Règles",
+      "de": "Regeln"
+    }
   },
   {
     "ref": "W-PPNT",
     "title": "Rules in force",
+    "titles": {
+      "fr": "Règles en vigueur",
+      "de": "Geltende Vorschriften"
+    },
     "key": "reg-in-force-kpi",
     "place": "",
     "where": "Dashboards › Regulatory landscape › Headline numbers",
     "url": "dashboards.html?board=regulatory#W-PPNT",
     "board": "regulatory",
-    "section": "Headline numbers"
+    "section": "Headline numbers",
+    "sections": {
+      "fr": "Chiffres clés",
+      "de": "Kennzahlen"
+    }
   },
   {
     "ref": "W-Q0KH",
     "title": "Applying within a year",
+    "titles": {
+      "fr": "Applicable d'ici un an",
+      "de": "Anwendbar binnen eines Jahres"
+    },
     "key": "reg-applying-soon-kpi",
     "place": "",
     "where": "Dashboards › Regulatory landscape › Headline numbers",
     "url": "dashboards.html?board=regulatory#W-Q0KH",
     "board": "regulatory",
-    "section": "Headline numbers"
+    "section": "Headline numbers",
+    "sections": {
+      "fr": "Chiffres clés",
+      "de": "Kennzahlen"
+    }
   },
   {
     "ref": "W-DBA7",
     "title": "Open consultations",
+    "titles": {
+      "fr": "Consultations ouvertes",
+      "de": "Offene Konsultationen"
+    },
     "key": "reg-consultations-kpi",
     "place": "",
     "where": "Dashboards › Regulatory landscape › Headline numbers",
     "url": "dashboards.html?board=regulatory#W-DBA7",
     "board": "regulatory",
-    "section": "Headline numbers"
+    "section": "Headline numbers",
+    "sections": {
+      "fr": "Chiffres clés",
+      "de": "Kennzahlen"
+    }
   },
   {
     "ref": "W-X7TG",
     "title": "Due in the next 90 days",
+    "titles": {
+      "fr": "Échéances à 90 jours",
+      "de": "Fällig in den nächsten 90 Tagen"
+    },
     "key": "reg-next-90",
     "place": "",
     "where": "Dashboards › Regulatory landscape › What applies next",
     "url": "dashboards.html?board=regulatory#W-X7TG",
     "board": "regulatory",
-    "section": "What applies next"
+    "section": "What applies next",
+    "sections": {
+      "fr": "Ce qui s'applique ensuite",
+      "de": "Was als Nächstes gilt"
+    }
   },
   {
     "ref": "W-40YP",
     "title": "Lifecycle of the biggest rules",
+    "titles": {
+      "fr": "Cycle de vie des grandes règles",
+      "de": "Lebenszyklus der größten Vorschriften"
+    },
     "key": "reg-lifecycle",
     "place": "",
     "where": "Dashboards › Regulatory landscape › What applies next",
     "url": "dashboards.html?board=regulatory#W-40YP",
     "board": "regulatory",
-    "section": "What applies next"
+    "section": "What applies next",
+    "sections": {
+      "fr": "Ce qui s'applique ensuite",
+      "de": "Was als Nächstes gilt"
+    }
   },
   {
     "ref": "W-77TY",
     "title": "Pressure by topic and quarter",
+    "titles": {
+      "fr": "Pression par thème et trimestre",
+      "de": "Druck je Thema und Quartal"
+    },
     "key": "reg-pressure-matrix",
     "place": "",
     "where": "Dashboards › Regulatory landscape › Pressure",
     "url": "dashboards.html?board=regulatory#W-77TY",
     "board": "regulatory",
-    "section": "Pressure"
+    "section": "Pressure",
+    "sections": {
+      "fr": "Pression",
+      "de": "Druck"
+    }
   },
   {
     "ref": "W-JJTB",
     "title": "New obligations and the pressure index",
+    "titles": {
+      "fr": "Nouvelles obligations et indice de pression",
+      "de": "Neue Pflichten und Druckindex"
+    },
     "key": "reg-obligations-dual",
     "place": "",
     "where": "Dashboards › Regulatory landscape › Pressure",
     "url": "dashboards.html?board=regulatory#W-JJTB",
     "board": "regulatory",
-    "section": "Pressure"
+    "section": "Pressure",
+    "sections": {
+      "fr": "Pression",
+      "de": "Druck"
+    }
   },
   {
     "ref": "W-HBE1",
     "title": "Pressure against impact",
+    "titles": {
+      "fr": "Pression face à l'impact",
+      "de": "Druck gegen Wirkung"
+    },
     "key": "reg-impact-scatter",
     "place": "",
     "where": "Dashboards › Regulatory landscape › Impact",
     "url": "dashboards.html?board=regulatory#W-HBE1",
     "board": "regulatory",
-    "section": "Impact"
+    "section": "Impact",
+    "sections": {
+      "de": "Wirkung"
+    }
   },
   {
     "ref": "W-JNZS",
     "title": "Who must comply",
+    "titles": {
+      "fr": "Qui doit se conformer",
+      "de": "Wer einhalten muss"
+    },
     "key": "reg-stakeholder-matrix",
     "place": "",
     "where": "Dashboards › Regulatory landscape › Impact",
     "url": "dashboards.html?board=regulatory#W-JNZS",
     "board": "regulatory",
-    "section": "Impact"
+    "section": "Impact",
+    "sections": {
+      "de": "Wirkung"
+    }
   },
   {
     "ref": "W-48AB",
     "title": "Rules in scope per country",
+    "titles": {
+      "fr": "Règles applicables par pays",
+      "de": "Geltende Vorschriften je Land"
+    },
     "key": "reg-rules-by-country",
     "place": "",
     "where": "Dashboards › Regulatory landscape › Where the rules bind",
     "url": "dashboards.html?board=regulatory#W-48AB",
     "board": "regulatory",
-    "section": "Where the rules bind"
+    "section": "Where the rules bind",
+    "sections": {
+      "fr": "Où les règles s'appliquent",
+      "de": "Wo die Vorschriften binden"
+    }
   },
   {
     "ref": "W-0JY9",
     "title": "Rules per topic, by status",
+    "titles": {
+      "fr": "Règles par thème, par statut",
+      "de": "Vorschriften je Thema, nach Status"
+    },
     "key": "reg-topic-status",
     "place": "",
     "where": "Dashboards › Regulatory landscape › Volume and density",
     "url": "dashboards.html?board=regulatory#W-0JY9",
     "board": "regulatory",
-    "section": "Volume and density"
+    "section": "Volume and density",
+    "sections": {
+      "fr": "Volume et densité",
+      "de": "Umfang und Dichte"
+    }
   },
   {
     "ref": "W-CJDH",
     "title": "Provision density",
+    "titles": {
+      "fr": "Densité des dispositions",
+      "de": "Bestimmungsdichte"
+    },
     "key": "reg-density-strips",
     "place": "",
     "where": "Dashboards › Regulatory landscape › Volume and density",
     "url": "dashboards.html?board=regulatory#W-CJDH",
     "board": "regulatory",
-    "section": "Volume and density"
+    "section": "Volume and density",
+    "sections": {
+      "fr": "Volume et densité",
+      "de": "Umfang und Dichte"
+    }
   },
   {
     "ref": "W-HNA9",
     "title": "Density by rule",
+    "titles": {
+      "fr": "Densité par règle",
+      "de": "Dichte je Vorschrift"
+    },
     "key": "reg-density-table",
     "place": "",
     "where": "Dashboards › Regulatory landscape › Volume and density",
     "url": "dashboards.html?board=regulatory#W-HNA9",
     "board": "regulatory",
-    "section": "Volume and density"
+    "section": "Volume and density",
+    "sections": {
+      "fr": "Volume et densité",
+      "de": "Umfang und Dichte"
+    }
   },
   {
     "ref": "W-6MK2",
     "title": "AMLD6 transposition",
+    "titles": {
+      "fr": "Transposition d'AMLD6",
+      "de": "AMLD6-Umsetzung"
+    },
     "key": "reg-transposition-map",
     "place": "",
     "where": "Dashboards › Regulatory landscape › National transposition",
     "url": "dashboards.html?board=regulatory#W-6MK2",
     "board": "regulatory",
-    "section": "National transposition"
+    "section": "National transposition",
+    "sections": {
+      "fr": "Transposition nationale",
+      "de": "Nationale Umsetzung"
+    }
   },
   {
     "ref": "W-XBRD",
     "title": "Transposition delays",
+    "titles": {
+      "fr": "Retards de transposition",
+      "de": "Umsetzungsverzug"
+    },
     "key": "reg-days-late-map",
     "place": "",
     "where": "Dashboards › Regulatory landscape › National transposition",
     "url": "dashboards.html?board=regulatory#W-XBRD",
     "board": "regulatory",
-    "section": "National transposition"
+    "section": "National transposition",
+    "sections": {
+      "fr": "Transposition nationale",
+      "de": "Nationale Umsetzung"
+    }
   },
   {
     "ref": "W-NR17",
     "title": "Anomalies, measure by measure",
+    "titles": {
+      "fr": "Anomalies, mesure par mesure",
+      "de": "Anomalien, Kennzahl für Kennzahl"
+    },
     "key": "metric-anomalies",
     "place": "catalog",
     "where": "Catalog › anomalies",
@@ -1081,6 +1934,10 @@
   {
     "ref": "W-4YR8",
     "title": "Cash on hand",
+    "titles": {
+      "fr": "Trésorerie disponible",
+      "de": "Liquide Mittel"
+    },
     "key": "cash-forecast",
     "place": "catalog",
     "where": "Catalog › area",
@@ -1089,6 +1946,10 @@
   {
     "ref": "W-Y606",
     "title": "Product share",
+    "titles": {
+      "fr": "Part des produits",
+      "de": "Produktanteil"
+    },
     "key": "product-share",
     "place": "catalog",
     "where": "Catalog › bar",
@@ -1098,6 +1959,10 @@
   {
     "ref": "W-E3T0",
     "title": "Deal sizes by region",
+    "titles": {
+      "fr": "Taille des affaires par région",
+      "de": "Dealgrößen je Region"
+    },
     "key": "deal-swarm",
     "place": "catalog",
     "where": "Catalog › beeswarm",
@@ -1107,6 +1972,10 @@
   {
     "ref": "W-AYAK",
     "title": "Deal board",
+    "titles": {
+      "fr": "Tableau des affaires",
+      "de": "Deal-Board"
+    },
     "key": "deal-board",
     "place": "catalog",
     "where": "Catalog › board",
@@ -1116,6 +1985,10 @@
   {
     "ref": "W-8DSX",
     "title": "Deal size spread",
+    "titles": {
+      "fr": "Dispersion des affaires",
+      "de": "Streuung der Dealgrößen"
+    },
     "key": "deal-boxplot",
     "place": "catalog",
     "where": "Catalog › boxplot",
@@ -1125,6 +1998,10 @@
   {
     "ref": "W-M9C7",
     "title": "September scorecard",
+    "titles": {
+      "fr": "Tableau de septembre",
+      "de": "September-Scorecard"
+    },
     "key": "kpi-scorecard",
     "place": "catalog",
     "where": "Catalog › bullet",
@@ -1133,6 +2010,10 @@
   {
     "ref": "W-V47V",
     "title": "Product ranking",
+    "titles": {
+      "fr": "Classement des produits",
+      "de": "Produktrangfolge"
+    },
     "key": "product-ranking",
     "place": "catalog",
     "where": "Catalog › bump",
@@ -1141,6 +2022,10 @@
   {
     "ref": "W-W376",
     "title": "Daily orders",
+    "titles": {
+      "fr": "Commandes quotidiennes",
+      "de": "Tägliche Bestellungen"
+    },
     "key": "order-calendar",
     "place": "catalog",
     "where": "Catalog › calendar",
@@ -1149,6 +2034,10 @@
   {
     "ref": "W-M6C7",
     "title": "Share price",
+    "titles": {
+      "fr": "Cours de l'action",
+      "de": "Aktienkurs"
+    },
     "key": "share-price",
     "place": "catalog",
     "where": "Catalog › candlestick",
@@ -1158,6 +2047,10 @@
   {
     "ref": "W-H3T4",
     "title": "Plan changes",
+    "titles": {
+      "fr": "Changements d'offre",
+      "de": "Tarifwechsel"
+    },
     "key": "plan-moves",
     "place": "catalog",
     "where": "Catalog › chord",
@@ -1166,6 +2059,10 @@
   {
     "ref": "W-MXM9",
     "title": "Revenue by country",
+    "titles": {
+      "fr": "CA par pays",
+      "de": "Umsatz je Land"
+    },
     "key": "revenue-by-country",
     "place": "catalog",
     "where": "Catalog › choropleth",
@@ -1175,6 +2072,10 @@
   {
     "ref": "W-ZHRD",
     "title": "Revenue by segment",
+    "titles": {
+      "fr": "CA par segment",
+      "de": "Umsatz je Segment"
+    },
     "key": "revenue-by-segment",
     "place": "catalog",
     "where": "Catalog › donut",
@@ -1184,6 +2085,10 @@
   {
     "ref": "W-F9NG",
     "title": "Customer ratings by product",
+    "titles": {
+      "fr": "Notes clients par produit",
+      "de": "Kundenbewertungen je Produkt"
+    },
     "key": "product-ratings",
     "place": "catalog",
     "where": "Catalog › dot",
@@ -1192,6 +2097,10 @@
   {
     "ref": "W-8KZG",
     "title": "Revenue and churn",
+    "titles": {
+      "fr": "CA et attrition",
+      "de": "Umsatz und Abwanderung"
+    },
     "key": "revenue-and-churn",
     "place": "catalog",
     "where": "Catalog › dual",
@@ -1201,6 +2110,10 @@
   {
     "ref": "W-BSVY",
     "title": "September revenue, year on year",
+    "titles": {
+      "fr": "CA de septembre, sur un an",
+      "de": "Septemberumsatz im Jahresvergleich"
+    },
     "key": "region-yoy",
     "place": "catalog",
     "where": "Catalog › dumbbell",
@@ -1209,6 +2122,10 @@
   {
     "ref": "W-C181",
     "title": "Signup funnel",
+    "titles": {
+      "fr": "Tunnel d'inscription",
+      "de": "Anmelde-Trichter"
+    },
     "key": "signup-funnel",
     "place": "catalog",
     "where": "Catalog › funnel",
@@ -1217,6 +2134,10 @@
   {
     "ref": "W-JTF3",
     "title": "Net promoter score",
+    "titles": {
+      "fr": "Net Promoter Score",
+      "de": "Net Promoter Score"
+    },
     "key": "nps-gauge",
     "place": "catalog",
     "where": "Catalog › gauge",
@@ -1225,6 +2146,10 @@
   {
     "ref": "W-8S6N",
     "title": "Feature adoption",
+    "titles": {
+      "fr": "Adoption des fonctions",
+      "de": "Funktionsnutzung"
+    },
     "key": "feature-adoption",
     "place": "catalog",
     "where": "Catalog › hbar",
@@ -1233,6 +2158,10 @@
   {
     "ref": "W-RAN4",
     "title": "Support tickets",
+    "titles": {
+      "fr": "Tickets de support",
+      "de": "Support-Tickets"
+    },
     "key": "ticket-heatmap",
     "place": "catalog",
     "where": "Catalog › heatmap",
@@ -1241,6 +2170,10 @@
   {
     "ref": "W-0ZKZ",
     "title": "Deal sizes",
+    "titles": {
+      "fr": "Taille des affaires",
+      "de": "Dealgrößen"
+    },
     "key": "deal-histogram",
     "place": "catalog",
     "where": "Catalog › histogram",
@@ -1250,6 +2183,10 @@
   {
     "ref": "W-ZHB8",
     "title": "Aldana Holdings, the story so far",
+    "titles": {
+      "fr": "Aldana Holdings, l'histoire à ce jour",
+      "de": "Aldana Holdings, die Geschichte bisher"
+    },
     "key": "client-history",
     "place": "catalog",
     "where": "Catalog › history",
@@ -1259,6 +2196,10 @@
   {
     "ref": "W-97B7",
     "title": "Daily revenue against plan",
+    "titles": {
+      "fr": "CA quotidien face au plan",
+      "de": "Tagesumsatz gegen Plan"
+    },
     "key": "region-plan-horizon",
     "place": "catalog",
     "where": "Catalog › horizon",
@@ -1267,6 +2208,10 @@
   {
     "ref": "W-92QD",
     "title": "Revenue by region, product and plan",
+    "titles": {
+      "fr": "CA par région, produit et offre",
+      "de": "Umsatz je Region, Produkt und Tarif"
+    },
     "key": "revenue-icicle",
     "place": "catalog",
     "where": "Catalog › icicle",
@@ -1276,6 +2221,10 @@
   {
     "ref": "W-2ZFX",
     "title": "Customer churn",
+    "titles": {
+      "fr": "Attrition client",
+      "de": "Kundenabwanderung"
+    },
     "key": "churn-kpi",
     "place": "catalog",
     "where": "Catalog › kpi",
@@ -1285,6 +2234,10 @@
   {
     "ref": "W-EK7M",
     "title": "At a glance",
+    "titles": {
+      "fr": "En un coup d'œil",
+      "de": "Auf einen Blick"
+    },
     "key": "q3-at-a-glance",
     "place": "catalog",
     "where": "Catalog › kpis",
@@ -1293,6 +2246,10 @@
   {
     "ref": "W-M7F9",
     "title": "Where each regulation stands",
+    "titles": {
+      "fr": "Où en est chaque réglementation",
+      "de": "Wo jede Regulierung steht"
+    },
     "key": "regulation-lifecycle",
     "place": "catalog",
     "where": "Catalog › lifecycle",
@@ -1302,6 +2259,10 @@
   {
     "ref": "W-PV3Y",
     "title": "Employee pulse survey",
+    "titles": {
+      "fr": "Baromètre des collaborateurs",
+      "de": "Mitarbeiter-Pulsumfrage"
+    },
     "key": "employee-survey",
     "place": "catalog",
     "where": "Catalog › likert",
@@ -1310,6 +2271,10 @@
   {
     "ref": "W-3Y6E",
     "title": "Revenue and cost",
+    "titles": {
+      "fr": "CA et coûts",
+      "de": "Umsatz und Kosten"
+    },
     "key": "monthly-revenue",
     "place": "catalog",
     "where": "Catalog › line",
@@ -1318,6 +2283,10 @@
   {
     "ref": "W-GT8X",
     "title": "Top customers",
+    "titles": {
+      "fr": "Meilleurs clients",
+      "de": "Top-Kunden"
+    },
     "key": "top-customers",
     "place": "catalog",
     "where": "Catalog › list",
@@ -1327,6 +2296,10 @@
   {
     "ref": "W-TPTM",
     "title": "Our offices",
+    "titles": {
+      "fr": "Nos bureaux",
+      "de": "Unsere Büros"
+    },
     "key": "offices",
     "place": "catalog",
     "where": "Catalog › locator",
@@ -1336,6 +2309,10 @@
   {
     "ref": "W-4V4H",
     "title": "Market size and mix",
+    "titles": {
+      "fr": "Taille et mix du marché",
+      "de": "Marktgröße und Mix"
+    },
     "key": "region-product-mix",
     "place": "catalog",
     "where": "Catalog › marimekko",
@@ -1344,6 +2321,10 @@
   {
     "ref": "W-148Y",
     "title": "Who must comply",
+    "titles": {
+      "fr": "Qui doit se conformer",
+      "de": "Wer einhalten muss"
+    },
     "key": "obligation-matrix",
     "place": "catalog",
     "where": "Catalog › matrix",
@@ -1353,6 +2334,10 @@
   {
     "ref": "W-24VZ",
     "title": "Target attainment",
+    "titles": {
+      "fr": "Atteinte des objectifs",
+      "de": "Zielerreichung"
+    },
     "key": "region-targets",
     "place": "catalog",
     "where": "Catalog › meter",
@@ -1361,6 +2346,10 @@
   {
     "ref": "W-4P5X",
     "title": "What drives support tickets",
+    "titles": {
+      "fr": "Ce qui génère les tickets",
+      "de": "Was Support-Tickets auslöst"
+    },
     "key": "ticket-causes",
     "place": "catalog",
     "where": "Catalog › pareto",
@@ -1369,6 +2358,10 @@
   {
     "ref": "W-WVY7",
     "title": "Where Q3 revenue came from",
+    "titles": {
+      "fr": "D'où vient le CA du T3",
+      "de": "Woher der Q3-Umsatz kam"
+    },
     "key": "revenue-pie",
     "place": "catalog",
     "where": "Catalog › pie",
@@ -1378,6 +2371,10 @@
   {
     "ref": "W-2GHT",
     "title": "Workforce by age and gender",
+    "titles": {
+      "fr": "Effectifs par âge et sexe",
+      "de": "Belegschaft nach Alter und Geschlecht"
+    },
     "key": "workforce-pyramid",
     "place": "catalog",
     "where": "Catalog › pyramid",
@@ -1386,6 +2383,10 @@
   {
     "ref": "W-P82F",
     "title": "How we compare",
+    "titles": {
+      "fr": "Notre position",
+      "de": "Unser Vergleich"
+    },
     "key": "product-compare",
     "place": "catalog",
     "where": "Catalog › radar",
@@ -1394,6 +2395,10 @@
   {
     "ref": "W-8JNN",
     "title": "Client RAG scorecard",
+    "titles": {
+      "fr": "Tableau RAG des clients",
+      "de": "RAG-Scorecard der Kunden"
+    },
     "key": "rag-scorecard",
     "place": "catalog",
     "where": "Catalog › ragboard",
@@ -1403,6 +2408,10 @@
   {
     "ref": "W-8MVW",
     "title": "Client status, month by month",
+    "titles": {
+      "fr": "Statut client, mois par mois",
+      "de": "Kundenstatus, Monat für Monat"
+    },
     "key": "rag-status-trend",
     "place": "catalog",
     "where": "Catalog › ragtrend",
@@ -1412,6 +2421,10 @@
   {
     "ref": "W-KCQG",
     "title": "How deal sizes spread",
+    "titles": {
+      "fr": "Dispersion de la taille des affaires",
+      "de": "Wie sich Dealgrößen verteilen"
+    },
     "key": "deal-ridgeline",
     "place": "catalog",
     "where": "Catalog › ridgeline",
@@ -1421,6 +2434,10 @@
   {
     "ref": "W-VN8V",
     "title": "September targets",
+    "titles": {
+      "fr": "Objectifs de septembre",
+      "de": "Septemberziele"
+    },
     "key": "product-targets",
     "place": "catalog",
     "where": "Catalog › rings",
@@ -1429,6 +2446,10 @@
   {
     "ref": "W-J466",
     "title": "Visits by hour",
+    "titles": {
+      "fr": "Visites par heure",
+      "de": "Besuche je Stunde"
+    },
     "key": "visits-by-hour",
     "place": "catalog",
     "where": "Catalog › rose",
@@ -1437,6 +2458,10 @@
   {
     "ref": "W-MRFT",
     "title": "Where visitors go",
+    "titles": {
+      "fr": "Où vont les visiteurs",
+      "de": "Wohin Besucher gehen"
+    },
     "key": "traffic-sankey",
     "place": "catalog",
     "where": "Catalog › sankey",
@@ -1445,6 +2470,10 @@
   {
     "ref": "W-NPJM",
     "title": "Account portfolio",
+    "titles": {
+      "fr": "Portefeuille de comptes",
+      "de": "Kontenportfolio"
+    },
     "key": "account-portfolio",
     "place": "catalog",
     "where": "Catalog › scatter",
@@ -1453,6 +2482,10 @@
   {
     "ref": "W-FQ5V",
     "title": "Win rate by region",
+    "titles": {
+      "fr": "Taux de réussite par région",
+      "de": "Abschlussquote je Region"
+    },
     "key": "region-win-rate",
     "place": "catalog",
     "where": "Catalog › slope",
@@ -1462,6 +2495,10 @@
   {
     "ref": "W-0FEE",
     "title": "How binding each regulation is",
+    "titles": {
+      "fr": "Le caractère contraignant de chaque texte",
+      "de": "Wie verbindlich jede Regulierung ist"
+    },
     "key": "provision-strips",
     "place": "catalog",
     "where": "Catalog › strips",
@@ -1471,6 +2508,10 @@
   {
     "ref": "W-600T",
     "title": "Revenue by product, then region",
+    "titles": {
+      "fr": "CA par produit, puis par région",
+      "de": "Umsatz je Produkt, dann je Region"
+    },
     "key": "product-region-sunburst",
     "place": "catalog",
     "where": "Catalog › sunburst",
@@ -1480,6 +2521,10 @@
   {
     "ref": "W-C7GD",
     "title": "Customers by state",
+    "titles": {
+      "fr": "Clients par État",
+      "de": "Kunden je Bundesstaat"
+    },
     "key": "customers-by-state",
     "place": "catalog",
     "where": "Catalog › symbols",
@@ -1489,6 +2534,10 @@
   {
     "ref": "W-MJ8K",
     "title": "Open deals",
+    "titles": {
+      "fr": "Affaires ouvertes",
+      "de": "Offene Deals"
+    },
     "key": "deal-pipeline",
     "place": "catalog",
     "where": "Catalog › table",
@@ -1497,6 +2546,10 @@
   {
     "ref": "W-J8P9",
     "title": "Q4 launch plan",
+    "titles": {
+      "fr": "Plan de lancement T4",
+      "de": "Q4-Launchplan"
+    },
     "key": "launch-plan",
     "place": "catalog",
     "where": "Catalog › timeline",
@@ -1505,6 +2558,10 @@
   {
     "ref": "W-YH25",
     "title": "Revenue by customer",
+    "titles": {
+      "fr": "CA par client",
+      "de": "Umsatz je Kunde"
+    },
     "key": "customer-treemap",
     "place": "catalog",
     "where": "Catalog › treemap",
@@ -1513,6 +2570,10 @@
   {
     "ref": "W-5JR6",
     "title": "Operating costs against budget",
+    "titles": {
+      "fr": "Coûts opérationnels face au budget",
+      "de": "Betriebskosten gegen Budget"
+    },
     "key": "opex-variance",
     "place": "catalog",
     "where": "Catalog › variance",
@@ -1521,6 +2582,10 @@
   {
     "ref": "W-83VE",
     "title": "Where revenue comes from",
+    "titles": {
+      "fr": "D'où vient le CA",
+      "de": "Woher der Umsatz kommt"
+    },
     "key": "revenue-sources",
     "place": "catalog",
     "where": "Catalog › waffle",
@@ -1529,6 +2594,10 @@
   {
     "ref": "W-FT6S",
     "title": "Revenue bridge",
+    "titles": {
+      "fr": "Pont du CA",
+      "de": "Umsatzbrücke"
+    },
     "key": "revenue-bridge",
     "place": "catalog",
     "where": "Catalog › waterfall",
@@ -1537,6 +2606,10 @@
   {
     "ref": "W-WPBK",
     "title": "Where to sell next",
+    "titles": {
+      "fr": "Où vendre ensuite",
+      "de": "Wo als Nächstes verkaufen"
+    },
     "key": "cross-sell-whitespace",
     "place": "catalog",
     "where": "Catalog › whitespace",
@@ -1546,6 +2619,10 @@
   {
     "ref": "W-9S74",
     "title": "Client x-ray",
+    "titles": {
+      "fr": "Radiographie client",
+      "de": "Kunden-Röntgenbild"
+    },
     "key": "client-xray",
     "place": "catalog",
     "where": "Catalog › xray",
@@ -1555,6 +2632,10 @@
   {
     "ref": "W-00JQ",
     "title": "Anomalies, measure by measure",
+    "titles": {
+      "fr": "Anomalies, mesure par mesure",
+      "de": "Anomalien, Kennzahl für Kennzahl"
+    },
     "key": "metric-anomalies",
     "place": "guide",
     "where": "Catalog › Data guide › anomalies",
@@ -1563,6 +2644,10 @@
   {
     "ref": "W-V0CX",
     "title": "Cash on hand",
+    "titles": {
+      "fr": "Trésorerie disponible",
+      "de": "Liquide Mittel"
+    },
     "key": "cash-forecast",
     "place": "guide",
     "where": "Catalog › Data guide › area",
@@ -1571,6 +2656,10 @@
   {
     "ref": "W-5YCR",
     "title": "Product share",
+    "titles": {
+      "fr": "Part des produits",
+      "de": "Produktanteil"
+    },
     "key": "product-share",
     "place": "guide",
     "where": "Catalog › Data guide › bar",
@@ -1579,6 +2668,10 @@
   {
     "ref": "W-V2DY",
     "title": "Deal sizes by region",
+    "titles": {
+      "fr": "Taille des affaires par région",
+      "de": "Dealgrößen je Region"
+    },
     "key": "deal-swarm",
     "place": "guide",
     "where": "Catalog › Data guide › beeswarm",
@@ -1587,6 +2680,10 @@
   {
     "ref": "W-QH6N",
     "title": "Deal board",
+    "titles": {
+      "fr": "Tableau des affaires",
+      "de": "Deal-Board"
+    },
     "key": "deal-board",
     "place": "guide",
     "where": "Catalog › Data guide › board",
@@ -1595,6 +2692,10 @@
   {
     "ref": "W-HZZS",
     "title": "Deal size spread",
+    "titles": {
+      "fr": "Dispersion des affaires",
+      "de": "Streuung der Dealgrößen"
+    },
     "key": "deal-boxplot",
     "place": "guide",
     "where": "Catalog › Data guide › boxplot",
@@ -1603,6 +2704,10 @@
   {
     "ref": "W-BWB7",
     "title": "September scorecard",
+    "titles": {
+      "fr": "Tableau de septembre",
+      "de": "September-Scorecard"
+    },
     "key": "kpi-scorecard",
     "place": "guide",
     "where": "Catalog › Data guide › bullet",
@@ -1611,6 +2716,10 @@
   {
     "ref": "W-G85J",
     "title": "Product ranking",
+    "titles": {
+      "fr": "Classement des produits",
+      "de": "Produktrangfolge"
+    },
     "key": "product-ranking",
     "place": "guide",
     "where": "Catalog › Data guide › bump",
@@ -1619,6 +2728,10 @@
   {
     "ref": "W-NBB7",
     "title": "Daily orders",
+    "titles": {
+      "fr": "Commandes quotidiennes",
+      "de": "Tägliche Bestellungen"
+    },
     "key": "order-calendar",
     "place": "guide",
     "where": "Catalog › Data guide › calendar",
@@ -1627,6 +2740,10 @@
   {
     "ref": "W-BPKW",
     "title": "Share price",
+    "titles": {
+      "fr": "Cours de l'action",
+      "de": "Aktienkurs"
+    },
     "key": "share-price",
     "place": "guide",
     "where": "Catalog › Data guide › candlestick",
@@ -1635,6 +2752,10 @@
   {
     "ref": "W-M5Y2",
     "title": "Plan changes",
+    "titles": {
+      "fr": "Changements d'offre",
+      "de": "Tarifwechsel"
+    },
     "key": "plan-moves",
     "place": "guide",
     "where": "Catalog › Data guide › chord",
@@ -1643,6 +2764,10 @@
   {
     "ref": "W-1KQC",
     "title": "Revenue by country",
+    "titles": {
+      "fr": "CA par pays",
+      "de": "Umsatz je Land"
+    },
     "key": "revenue-by-country",
     "place": "guide",
     "where": "Catalog › Data guide › choropleth",
@@ -1651,6 +2776,10 @@
   {
     "ref": "W-PN3M",
     "title": "Revenue by segment",
+    "titles": {
+      "fr": "CA par segment",
+      "de": "Umsatz je Segment"
+    },
     "key": "revenue-by-segment",
     "place": "guide",
     "where": "Catalog › Data guide › donut",
@@ -1659,6 +2788,10 @@
   {
     "ref": "W-MVTW",
     "title": "Customer ratings by product",
+    "titles": {
+      "fr": "Notes clients par produit",
+      "de": "Kundenbewertungen je Produkt"
+    },
     "key": "product-ratings",
     "place": "guide",
     "where": "Catalog › Data guide › dot",
@@ -1667,6 +2800,10 @@
   {
     "ref": "W-73M2",
     "title": "Revenue and churn",
+    "titles": {
+      "fr": "CA et attrition",
+      "de": "Umsatz und Abwanderung"
+    },
     "key": "revenue-and-churn",
     "place": "guide",
     "where": "Catalog › Data guide › dual",
@@ -1675,6 +2812,10 @@
   {
     "ref": "W-ENF0",
     "title": "September revenue, year on year",
+    "titles": {
+      "fr": "CA de septembre, sur un an",
+      "de": "Septemberumsatz im Jahresvergleich"
+    },
     "key": "region-yoy",
     "place": "guide",
     "where": "Catalog › Data guide › dumbbell",
@@ -1683,6 +2824,10 @@
   {
     "ref": "W-3YK8",
     "title": "Signup funnel",
+    "titles": {
+      "fr": "Tunnel d'inscription",
+      "de": "Anmelde-Trichter"
+    },
     "key": "signup-funnel",
     "place": "guide",
     "where": "Catalog › Data guide › funnel",
@@ -1691,6 +2836,10 @@
   {
     "ref": "W-XSHE",
     "title": "Net promoter score",
+    "titles": {
+      "fr": "Net Promoter Score",
+      "de": "Net Promoter Score"
+    },
     "key": "nps-gauge",
     "place": "guide",
     "where": "Catalog › Data guide › gauge",
@@ -1699,6 +2848,10 @@
   {
     "ref": "W-NQDZ",
     "title": "Feature adoption",
+    "titles": {
+      "fr": "Adoption des fonctions",
+      "de": "Funktionsnutzung"
+    },
     "key": "feature-adoption",
     "place": "guide",
     "where": "Catalog › Data guide › hbar",
@@ -1707,6 +2860,10 @@
   {
     "ref": "W-NSJQ",
     "title": "Support tickets",
+    "titles": {
+      "fr": "Tickets de support",
+      "de": "Support-Tickets"
+    },
     "key": "ticket-heatmap",
     "place": "guide",
     "where": "Catalog › Data guide › heatmap",
@@ -1715,6 +2872,10 @@
   {
     "ref": "W-DGY8",
     "title": "Deal sizes",
+    "titles": {
+      "fr": "Taille des affaires",
+      "de": "Dealgrößen"
+    },
     "key": "deal-histogram",
     "place": "guide",
     "where": "Catalog › Data guide › histogram",
@@ -1723,6 +2884,10 @@
   {
     "ref": "W-6MND",
     "title": "Aldana Holdings, the story so far",
+    "titles": {
+      "fr": "Aldana Holdings, l'histoire à ce jour",
+      "de": "Aldana Holdings, die Geschichte bisher"
+    },
     "key": "client-history",
     "place": "guide",
     "where": "Catalog › Data guide › history",
@@ -1731,6 +2896,10 @@
   {
     "ref": "W-6QD4",
     "title": "Daily revenue against plan",
+    "titles": {
+      "fr": "CA quotidien face au plan",
+      "de": "Tagesumsatz gegen Plan"
+    },
     "key": "region-plan-horizon",
     "place": "guide",
     "where": "Catalog › Data guide › horizon",
@@ -1739,6 +2908,10 @@
   {
     "ref": "W-CYJ2",
     "title": "Revenue by region, product and plan",
+    "titles": {
+      "fr": "CA par région, produit et offre",
+      "de": "Umsatz je Region, Produkt und Tarif"
+    },
     "key": "revenue-icicle",
     "place": "guide",
     "where": "Catalog › Data guide › icicle",
@@ -1747,6 +2920,10 @@
   {
     "ref": "W-DG7P",
     "title": "Customer churn",
+    "titles": {
+      "fr": "Attrition client",
+      "de": "Kundenabwanderung"
+    },
     "key": "churn-kpi",
     "place": "guide",
     "where": "Catalog › Data guide › kpi",
@@ -1755,6 +2932,10 @@
   {
     "ref": "W-V1RQ",
     "title": "At a glance",
+    "titles": {
+      "fr": "En un coup d'œil",
+      "de": "Auf einen Blick"
+    },
     "key": "q3-at-a-glance",
     "place": "guide",
     "where": "Catalog › Data guide › kpis",
@@ -1763,6 +2944,10 @@
   {
     "ref": "W-9176",
     "title": "Where each regulation stands",
+    "titles": {
+      "fr": "Où en est chaque réglementation",
+      "de": "Wo jede Regulierung steht"
+    },
     "key": "regulation-lifecycle",
     "place": "guide",
     "where": "Catalog › Data guide › lifecycle",
@@ -1771,6 +2956,10 @@
   {
     "ref": "W-NXVY",
     "title": "Employee pulse survey",
+    "titles": {
+      "fr": "Baromètre des collaborateurs",
+      "de": "Mitarbeiter-Pulsumfrage"
+    },
     "key": "employee-survey",
     "place": "guide",
     "where": "Catalog › Data guide › likert",
@@ -1779,6 +2968,10 @@
   {
     "ref": "W-RYX8",
     "title": "Revenue and cost",
+    "titles": {
+      "fr": "CA et coûts",
+      "de": "Umsatz und Kosten"
+    },
     "key": "monthly-revenue",
     "place": "guide",
     "where": "Catalog › Data guide › line",
@@ -1787,6 +2980,10 @@
   {
     "ref": "W-B8RH",
     "title": "Top customers",
+    "titles": {
+      "fr": "Meilleurs clients",
+      "de": "Top-Kunden"
+    },
     "key": "top-customers",
     "place": "guide",
     "where": "Catalog › Data guide › list",
@@ -1795,6 +2992,10 @@
   {
     "ref": "W-HF3V",
     "title": "Our offices",
+    "titles": {
+      "fr": "Nos bureaux",
+      "de": "Unsere Büros"
+    },
     "key": "offices",
     "place": "guide",
     "where": "Catalog › Data guide › locator",
@@ -1803,6 +3004,10 @@
   {
     "ref": "W-118J",
     "title": "Market size and mix",
+    "titles": {
+      "fr": "Taille et mix du marché",
+      "de": "Marktgröße und Mix"
+    },
     "key": "region-product-mix",
     "place": "guide",
     "where": "Catalog › Data guide › marimekko",
@@ -1811,6 +3016,10 @@
   {
     "ref": "W-JVH1",
     "title": "Who must comply",
+    "titles": {
+      "fr": "Qui doit se conformer",
+      "de": "Wer einhalten muss"
+    },
     "key": "obligation-matrix",
     "place": "guide",
     "where": "Catalog › Data guide › matrix",
@@ -1819,6 +3028,10 @@
   {
     "ref": "W-ZMAJ",
     "title": "Target attainment",
+    "titles": {
+      "fr": "Atteinte des objectifs",
+      "de": "Zielerreichung"
+    },
     "key": "region-targets",
     "place": "guide",
     "where": "Catalog › Data guide › meter",
@@ -1827,6 +3040,10 @@
   {
     "ref": "W-KJFX",
     "title": "What drives support tickets",
+    "titles": {
+      "fr": "Ce qui génère les tickets",
+      "de": "Was Support-Tickets auslöst"
+    },
     "key": "ticket-causes",
     "place": "guide",
     "where": "Catalog › Data guide › pareto",
@@ -1835,6 +3052,10 @@
   {
     "ref": "W-VKRB",
     "title": "Where Q3 revenue came from",
+    "titles": {
+      "fr": "D'où vient le CA du T3",
+      "de": "Woher der Q3-Umsatz kam"
+    },
     "key": "revenue-pie",
     "place": "guide",
     "where": "Catalog › Data guide › pie",
@@ -1843,6 +3064,10 @@
   {
     "ref": "W-DMZK",
     "title": "Workforce by age and gender",
+    "titles": {
+      "fr": "Effectifs par âge et sexe",
+      "de": "Belegschaft nach Alter und Geschlecht"
+    },
     "key": "workforce-pyramid",
     "place": "guide",
     "where": "Catalog › Data guide › pyramid",
@@ -1851,6 +3076,10 @@
   {
     "ref": "W-5AZR",
     "title": "How we compare",
+    "titles": {
+      "fr": "Notre position",
+      "de": "Unser Vergleich"
+    },
     "key": "product-compare",
     "place": "guide",
     "where": "Catalog › Data guide › radar",
@@ -1859,6 +3088,10 @@
   {
     "ref": "W-K3YN",
     "title": "Client RAG scorecard",
+    "titles": {
+      "fr": "Tableau RAG des clients",
+      "de": "RAG-Scorecard der Kunden"
+    },
     "key": "rag-scorecard",
     "place": "guide",
     "where": "Catalog › Data guide › ragboard",
@@ -1867,6 +3100,10 @@
   {
     "ref": "W-5KQB",
     "title": "Client status, month by month",
+    "titles": {
+      "fr": "Statut client, mois par mois",
+      "de": "Kundenstatus, Monat für Monat"
+    },
     "key": "rag-status-trend",
     "place": "guide",
     "where": "Catalog › Data guide › ragtrend",
@@ -1875,6 +3112,10 @@
   {
     "ref": "W-P97Z",
     "title": "How deal sizes spread",
+    "titles": {
+      "fr": "Dispersion de la taille des affaires",
+      "de": "Wie sich Dealgrößen verteilen"
+    },
     "key": "deal-ridgeline",
     "place": "guide",
     "where": "Catalog › Data guide › ridgeline",
@@ -1883,6 +3124,10 @@
   {
     "ref": "W-MSZY",
     "title": "September targets",
+    "titles": {
+      "fr": "Objectifs de septembre",
+      "de": "Septemberziele"
+    },
     "key": "product-targets",
     "place": "guide",
     "where": "Catalog › Data guide › rings",
@@ -1891,6 +3136,10 @@
   {
     "ref": "W-7Q55",
     "title": "Visits by hour",
+    "titles": {
+      "fr": "Visites par heure",
+      "de": "Besuche je Stunde"
+    },
     "key": "visits-by-hour",
     "place": "guide",
     "where": "Catalog › Data guide › rose",
@@ -1899,6 +3148,10 @@
   {
     "ref": "W-XTVW",
     "title": "Where visitors go",
+    "titles": {
+      "fr": "Où vont les visiteurs",
+      "de": "Wohin Besucher gehen"
+    },
     "key": "traffic-sankey",
     "place": "guide",
     "where": "Catalog › Data guide › sankey",
@@ -1907,6 +3160,10 @@
   {
     "ref": "W-E2EJ",
     "title": "Account portfolio",
+    "titles": {
+      "fr": "Portefeuille de comptes",
+      "de": "Kontenportfolio"
+    },
     "key": "account-portfolio",
     "place": "guide",
     "where": "Catalog › Data guide › scatter",
@@ -1915,6 +3172,10 @@
   {
     "ref": "W-RDYH",
     "title": "Win rate by region",
+    "titles": {
+      "fr": "Taux de réussite par région",
+      "de": "Abschlussquote je Region"
+    },
     "key": "region-win-rate",
     "place": "guide",
     "where": "Catalog › Data guide › slope",
@@ -1923,6 +3184,10 @@
   {
     "ref": "W-1C63",
     "title": "How binding each regulation is",
+    "titles": {
+      "fr": "Le caractère contraignant de chaque texte",
+      "de": "Wie verbindlich jede Regulierung ist"
+    },
     "key": "provision-strips",
     "place": "guide",
     "where": "Catalog › Data guide › strips",
@@ -1931,6 +3196,10 @@
   {
     "ref": "W-N57Y",
     "title": "Revenue by product, then region",
+    "titles": {
+      "fr": "CA par produit, puis par région",
+      "de": "Umsatz je Produkt, dann je Region"
+    },
     "key": "product-region-sunburst",
     "place": "guide",
     "where": "Catalog › Data guide › sunburst",
@@ -1939,6 +3208,10 @@
   {
     "ref": "W-1FQ6",
     "title": "Customers by state",
+    "titles": {
+      "fr": "Clients par État",
+      "de": "Kunden je Bundesstaat"
+    },
     "key": "customers-by-state",
     "place": "guide",
     "where": "Catalog › Data guide › symbols",
@@ -1947,6 +3220,10 @@
   {
     "ref": "W-Q0RE",
     "title": "Open deals",
+    "titles": {
+      "fr": "Affaires ouvertes",
+      "de": "Offene Deals"
+    },
     "key": "deal-pipeline",
     "place": "guide",
     "where": "Catalog › Data guide › table",
@@ -1955,6 +3232,10 @@
   {
     "ref": "W-9Q5K",
     "title": "Q4 launch plan",
+    "titles": {
+      "fr": "Plan de lancement T4",
+      "de": "Q4-Launchplan"
+    },
     "key": "launch-plan",
     "place": "guide",
     "where": "Catalog › Data guide › timeline",
@@ -1963,6 +3244,10 @@
   {
     "ref": "W-VPQ9",
     "title": "Revenue by customer",
+    "titles": {
+      "fr": "CA par client",
+      "de": "Umsatz je Kunde"
+    },
     "key": "customer-treemap",
     "place": "guide",
     "where": "Catalog › Data guide › treemap",
@@ -1971,6 +3256,10 @@
   {
     "ref": "W-PQDS",
     "title": "Operating costs against budget",
+    "titles": {
+      "fr": "Coûts opérationnels face au budget",
+      "de": "Betriebskosten gegen Budget"
+    },
     "key": "opex-variance",
     "place": "guide",
     "where": "Catalog › Data guide › variance",
@@ -1979,6 +3268,10 @@
   {
     "ref": "W-BJ30",
     "title": "Where revenue comes from",
+    "titles": {
+      "fr": "D'où vient le CA",
+      "de": "Woher der Umsatz kommt"
+    },
     "key": "revenue-sources",
     "place": "guide",
     "where": "Catalog › Data guide › waffle",
@@ -1987,6 +3280,10 @@
   {
     "ref": "W-E711",
     "title": "Revenue bridge",
+    "titles": {
+      "fr": "Pont du CA",
+      "de": "Umsatzbrücke"
+    },
     "key": "revenue-bridge",
     "place": "guide",
     "where": "Catalog › Data guide › waterfall",
@@ -1995,6 +3292,10 @@
   {
     "ref": "W-BXVA",
     "title": "Where to sell next",
+    "titles": {
+      "fr": "Où vendre ensuite",
+      "de": "Wo als Nächstes verkaufen"
+    },
     "key": "cross-sell-whitespace",
     "place": "guide",
     "where": "Catalog › Data guide › whitespace",
@@ -2003,6 +3304,10 @@
   {
     "ref": "W-EPAE",
     "title": "Client x-ray",
+    "titles": {
+      "fr": "Radiographie client",
+      "de": "Kunden-Röntgenbild"
+    },
     "key": "client-xray",
     "place": "guide",
     "where": "Catalog › Data guide › xray",
@@ -2011,6 +3316,10 @@
   {
     "ref": "W-140Y",
     "title": "Revenue and cost",
+    "titles": {
+      "fr": "CA et coûts",
+      "de": "Umsatz und Kosten"
+    },
     "key": "monthly-revenue",
     "place": "home",
     "where": "Home",
@@ -2019,6 +3328,10 @@
   {
     "ref": "W-A1GJ",
     "title": "Revenue by country",
+    "titles": {
+      "fr": "CA par pays",
+      "de": "Umsatz je Land"
+    },
     "key": "revenue-by-country",
     "place": "home",
     "where": "Home",
@@ -2027,6 +3340,10 @@
   {
     "ref": "W-HK31",
     "title": "Revenue by segment",
+    "titles": {
+      "fr": "CA par segment",
+      "de": "Umsatz je Segment"
+    },
     "key": "revenue-by-segment",
     "place": "home",
     "where": "Home",
@@ -2043,6 +3360,10 @@
   {
     "ref": "W-9CYX",
     "title": "Revenue by region",
+    "titles": {
+      "fr": "CA par région",
+      "de": "Umsatz je Region"
+    },
     "key": "file",
     "place": "embed",
     "where": "Embed › A spec file",
@@ -2075,6 +3396,10 @@
   {
     "ref": "W-PGY4",
     "title": "Revenue",
+    "titles": {
+      "fr": "Chiffre d'affaires",
+      "de": "Umsatz"
+    },
     "key": "revenue-kpi",
     "place": "frame",
     "where": "Embed › In an iframe, on any site (in its frame)",

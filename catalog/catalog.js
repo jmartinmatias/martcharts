@@ -27,7 +27,11 @@ function refItems(result, base, onHere) {
     const item = document.createElement("li");
     const link = document.createElement("a");
     link.href = base + entry.url;
-    link.textContent = (entry.title || entry.key) + ", " + entry.where;
+    // In the page's language: the chart's own title for it, and each step of where it sits from the site's words.
+    const lang = (document.documentElement.lang || "en").slice(0, 2);
+    const title = (entry.titles && entry.titles[lang]) || entry.title || entry.key;
+    const section = entry.section && entry.sections && entry.sections[lang];
+    link.textContent = title + ", " + entry.where.split(" › ").map((part) => (section && part === entry.section ? section : T(part))).join(" › ");
     link.addEventListener("click", (event) => {
       const target = new URL(link.href, location.href);
       if (target.pathname !== location.pathname || !target.hash) return;

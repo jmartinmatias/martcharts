@@ -63,7 +63,9 @@
       "label": "FX"
     },
     "segment": {},
-    "cluster": {}
+    "cluster": {},
+    "callReason": {},
+    "nextAction": {}
   },
   "view": {
     "type": "xray",
@@ -160,6 +162,16 @@
           "values": {
             "Core": "Cœur"
           }
+        },
+        "callReason": {
+          "values": {
+            "Unusual activity flagged": "Activité inhabituelle signalée"
+          }
+        },
+        "nextAction": {
+          "values": {
+            "Check the flagged activity, then propose Discretionary": "Vérifier l'activité signalée, puis proposer : Gestion sous mandat"
+          }
         }
       }
     },
@@ -203,6 +215,16 @@
         "cluster": {
           "values": {
             "Core": "Kern"
+          }
+        },
+        "callReason": {
+          "values": {
+            "Unusual activity flagged": "Ungewöhnliche Aktivität gemeldet"
+          }
+        },
+        "nextAction": {
+          "values": {
+            "Check the flagged activity, then propose Discretionary": "Gemeldete Aktivität prüfen, dann anbieten: Vermögensverwaltung"
           }
         }
       }

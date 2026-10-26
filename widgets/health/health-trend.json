@@ -55,7 +55,17 @@
           "label": "Global"
         },
         "note": {
-          "label": "Ce qui a changé"
+          "label": "Ce qui a changé",
+          "values": {
+            "Growth off plan: pipeline thin and new money behind": "Croissance hors plan : pipeline mince et collecte en retard",
+            "Relationship steadier: wallet share holding": "Relation plus stable : part du portefeuille maintenue",
+            "Growth back on plan: pipeline rebuilt": "Croissance de nouveau au plan : pipeline reconstitué",
+            "Coverage restored: meetings back on plan": "Couverture rétablie : rendez-vous de nouveau au plan",
+            "Relationship at risk: wallet share falling": "Relation à risque : part du portefeuille en baisse",
+            "Service improved: tickets closed and onboarding complete": "Service amélioré : tickets clos et ouverture de compte achevée",
+            "Coverage slipped: no meeting for months": "Couverture en recul : aucun rendez-vous depuis des mois",
+            "Service slipped: open tickets and a low survey score": "Service en recul : tickets ouverts et note d'enquête basse"
+          }
         },
         "segment": {
           "values": {
@@ -99,7 +109,17 @@
           "label": "Gesamt"
         },
         "note": {
-          "label": "Was sich änderte"
+          "label": "Was sich änderte",
+          "values": {
+            "Growth off plan: pipeline thin and new money behind": "Wachstum außer Plan: dünne Pipeline, Neugeld im Rückstand",
+            "Relationship steadier: wallet share holding": "Beziehung stabiler: Wallet-Anteil hält",
+            "Growth back on plan: pipeline rebuilt": "Wachstum wieder im Plan: Pipeline neu aufgebaut",
+            "Coverage restored: meetings back on plan": "Betreuung wiederhergestellt: Termine wieder im Plan",
+            "Relationship at risk: wallet share falling": "Beziehung gefährdet: Wallet-Anteil sinkt",
+            "Service improved: tickets closed and onboarding complete": "Service verbessert: Tickets geschlossen, Onboarding abgeschlossen",
+            "Coverage slipped: no meeting for months": "Betreuung abgerutscht: seit Monaten kein Termin",
+            "Service slipped: open tickets and a low survey score": "Service abgerutscht: offene Tickets und schwache Umfragenote"
+          }
         },
         "segment": {
           "values": {

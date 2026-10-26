@@ -36,7 +36,9 @@
     },
     "segment": {},
     "region": {},
-    "cluster": {}
+    "cluster": {},
+    "callReason": {},
+    "nextAction": {}
   },
   "view": {
     "type": "pareto",
@@ -76,6 +78,38 @@
             "Core": "Cœur",
             "Dormant": "Dormant"
           }
+        },
+        "callReason": {
+          "values": {
+            "Regular check-in": "Point régulier",
+            "No contact in 186 days; At risk of leaving": "Aucun contact depuis 186 jours ; Risque de départ",
+            "No contact in 296 days; At risk of leaving": "Aucun contact depuis 296 jours ; Risque de départ",
+            "No contact in 153 days; At risk of leaving": "Aucun contact depuis 153 jours ; Risque de départ",
+            "Unusual activity flagged": "Activité inhabituelle signalée",
+            "Ready for FX": "Prêt pour : FX",
+            "No contact in 378 days; At risk of leaving": "Aucun contact depuis 378 jours ; Risque de départ",
+            "No contact in 243 days; At risk of leaving": "Aucun contact depuis 243 jours ; Risque de départ",
+            "Ready for Lending": "Prêt pour : Crédit",
+            "No contact in 242 days; Ready for Custody": "Aucun contact depuis 242 jours ; Prêt pour : Conservation"
+          }
+        },
+        "nextAction": {
+          "values": {
+            "Propose Structured": "Proposer : Produits structurés",
+            "Book a review meeting, then propose Discretionary": "Fixer une revue, puis proposer : Gestion sous mandat",
+            "Book a review meeting, then propose Advisory": "Fixer une revue, puis proposer : Conseil",
+            "Book a review meeting, then propose Lending": "Fixer une revue, puis proposer : Crédit",
+            "Keep the regular check-in": "Maintenir le point régulier",
+            "Check the flagged activity, then propose Pension": "Vérifier l'activité signalée, puis proposer : Retraite",
+            "Propose FX": "Proposer : FX",
+            "Book a review meeting, then propose Structured": "Fixer une revue, puis proposer : Produits structurés",
+            "Propose Discretionary": "Proposer : Gestion sous mandat",
+            "Propose Lending": "Proposer : Crédit",
+            "Check the flagged activity, then propose Discretionary": "Vérifier l'activité signalée, puis proposer : Gestion sous mandat",
+            "Check the flagged activity, then propose Lending": "Vérifier l'activité signalée, puis proposer : Crédit",
+            "Book a review meeting, then propose Pension": "Fixer une revue, puis proposer : Retraite",
+            "Book a review meeting, then propose Custody": "Fixer une revue, puis proposer : Conservation"
+          }
         }
       }
     },
@@ -113,6 +147,38 @@
             "At risk": "Gefährdet",
             "Core": "Kern",
             "Dormant": "Ruhend"
+          }
+        },
+        "callReason": {
+          "values": {
+            "Regular check-in": "Regelmäßiger Kontakt",
+            "No contact in 186 days; At risk of leaving": "Seit 186 Tagen kein Kontakt; Abwanderungsgefahr",
+            "No contact in 296 days; At risk of leaving": "Seit 296 Tagen kein Kontakt; Abwanderungsgefahr",
+            "No contact in 153 days; At risk of leaving": "Seit 153 Tagen kein Kontakt; Abwanderungsgefahr",
+            "Unusual activity flagged": "Ungewöhnliche Aktivität gemeldet",
+            "Ready for FX": "Bereit für: FX",
+            "No contact in 378 days; At risk of leaving": "Seit 378 Tagen kein Kontakt; Abwanderungsgefahr",
+            "No contact in 243 days; At risk of leaving": "Seit 243 Tagen kein Kontakt; Abwanderungsgefahr",
+            "Ready for Lending": "Bereit für: Kredite",
+            "No contact in 242 days; Ready for Custody": "Seit 242 Tagen kein Kontakt; Bereit für: Verwahrung"
+          }
+        },
+        "nextAction": {
+          "values": {
+            "Propose Structured": "Anbieten: Strukturierte Produkte",
+            "Book a review meeting, then propose Discretionary": "Überprüfungstermin vereinbaren, dann anbieten: Vermögensverwaltung",
+            "Book a review meeting, then propose Advisory": "Überprüfungstermin vereinbaren, dann anbieten: Beratung",
+            "Book a review meeting, then propose Lending": "Überprüfungstermin vereinbaren, dann anbieten: Kredite",
+            "Keep the regular check-in": "Regelmäßigen Kontakt beibehalten",
+            "Check the flagged activity, then propose Pension": "Gemeldete Aktivität prüfen, dann anbieten: Vorsorge",
+            "Propose FX": "Anbieten: FX",
+            "Book a review meeting, then propose Structured": "Überprüfungstermin vereinbaren, dann anbieten: Strukturierte Produkte",
+            "Propose Discretionary": "Anbieten: Vermögensverwaltung",
+            "Propose Lending": "Anbieten: Kredite",
+            "Check the flagged activity, then propose Discretionary": "Gemeldete Aktivität prüfen, dann anbieten: Vermögensverwaltung",
+            "Check the flagged activity, then propose Lending": "Gemeldete Aktivität prüfen, dann anbieten: Kredite",
+            "Book a review meeting, then propose Pension": "Überprüfungstermin vereinbaren, dann anbieten: Vorsorge",
+            "Book a review meeting, then propose Custody": "Überprüfungstermin vereinbaren, dann anbieten: Verwahrung"
           }
         }
       }

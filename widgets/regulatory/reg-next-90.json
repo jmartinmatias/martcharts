@@ -108,13 +108,23 @@
             "Review response due": "Réponse à la revue attendue",
             "Implementation tested": "Mise en œuvre testée",
             "Consultation response due": "Réponse à la consultation attendue",
-            "Applies": "S'applique",
-            "Annual compliance review": "Revue de conformité annuelle",
-            "Impact assessment complete": "Analyse d'impact terminée"
+            "Applies": "Entrée en application",
+            "Annual compliance review": "Revue annuelle de conformité",
+            "Impact assessment complete": "Analyse d'impact achevée"
           }
         },
         "owner": {
-          "label": "Responsable"
+          "label": "Responsable",
+          "values": {
+            "Sustainability office": "Bureau durabilité",
+            "Data office": "Bureau des données",
+            "Finance and risk": "Finance et risques",
+            "Conduct and compliance": "Conduite et conformité",
+            "Payments operations": "Opérations de paiement",
+            "Markets compliance": "Conformité marchés",
+            "Financial crime": "Criminalité financière",
+            "IT risk": "Risque informatique"
+          }
         },
         "readiness": {
           "label": "Préparation",
@@ -165,13 +175,23 @@
             "Review response due": "Antwort zur Überprüfung fällig",
             "Implementation tested": "Umsetzung getestet",
             "Consultation response due": "Antwort zur Konsultation fällig",
-            "Applies": "Gilt",
+            "Applies": "Gilt ab",
             "Annual compliance review": "Jährliche Compliance-Prüfung",
-            "Impact assessment complete": "Folgenabschätzung abgeschlossen"
+            "Impact assessment complete": "Wirkungsanalyse abgeschlossen"
           }
         },
         "owner": {
-          "label": "Verantwortlich"
+          "label": "Verantwortlich",
+          "values": {
+            "Sustainability office": "Nachhaltigkeitsbüro",
+            "Data office": "Datenbüro",
+            "Finance and risk": "Finanzen und Risiko",
+            "Conduct and compliance": "Verhaltensregeln und Compliance",
+            "Payments operations": "Zahlungsverkehr",
+            "Markets compliance": "Markt-Compliance",
+            "Financial crime": "Finanzkriminalität",
+            "IT risk": "IT-Risiko"
+          }
         },
         "readiness": {
           "label": "Bereitschaft",

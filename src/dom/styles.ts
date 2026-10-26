@@ -524,8 +524,13 @@ export const BASE_CSS = `
 /* A long label takes two lines rather than an ellipsis ("Assets under management" on a phone); a third is cut. */
 .fft-stat-label { color: var(--fft-text-secondary); overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
 .fft-stats[data-two-lines] .fft-stat-label { min-height: calc(2 * 1lh); }
-.fft-stat-value { font-size: var(--fft-fs-xl); line-height: 34px; font-weight: 600; letter-spacing: -0.02em; }
+.fft-stat-value { font-size: var(--fft-fs-xl); line-height: 34px; font-weight: 600; letter-spacing: -0.02em; white-space: nowrap; }
 .fft-widget[data-density="compact"] .fft-stat-value { font-size: var(--fft-fs-l); line-height: 21px; }
+/* A figure never crosses into the next tile: each tile measures its own width, and the figure shrinks with it below
+   about 212px, so "10,5 Mio. €" fits a 130px tile on a phone. Tiles in a row share one width, so they shrink together. */
+.fft-stat { container-type: inline-size; }
+.fft-stat-value { font-size: min(var(--fft-fs-xl), 16cqi); }
+.fft-widget[data-density="compact"] .fft-stat-value { font-size: min(var(--fft-fs-l), 16cqi); }
 .fft-stat .fft-kpi-delta { margin-top: 3px; font-size: var(--fft-fs-s); }
 .fft-spark-line { fill: none; stroke: color-mix(in srgb, var(--fft-muted) 70%, transparent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 .fft-spark-end { fill: var(--fft-accent); stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 2; }

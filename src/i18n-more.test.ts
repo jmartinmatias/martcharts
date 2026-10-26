@@ -19,7 +19,7 @@ import { createDashboard } from "./dom/dashboard.ts";
 import { createEditor } from "./dom/editor.ts";
 import { createWidget } from "./dom/widget.ts";
 import { createLocalFetch } from "./mcp/store.ts";
-import { valueWords } from "../scripts/value-words.ts";
+import { sentenceWords, valueWords } from "../scripts/value-words.ts";
 import "./dom/views/index.ts";
 
 /** English phrases the advice and the builders write: none may show in French or German. */
@@ -177,8 +177,11 @@ describe("the data's values in the reader's language", () => {
         for (const [field, entry] of Object.entries(w.i18n?.[lang]?.fields ?? {})) {
           if (!entry.values) continue;
           fields++;
-          expect([file, field, /^(name|client|rm|owner|id)$/.test(field)]).toEqual([file, field, false]);
-          for (const [value, word] of Object.entries(entry.values)) expect([file, value, word]).toEqual([file, value, valueWords(value)?.[lang === "fr" ? 0 : 1]]);
+          expect([file, field, /^(name|client|rm|id)$/.test(field)]).toEqual([file, field, false]);
+          // Sentence fields (an action, a reason, a team that owns a deadline) take sentence words, which give a
+          // person's name none, so an owner's values are only ever teams.
+          const sentence = /^(action|callReason|nextAction|note|owner|milestone)$/.test(field);
+          for (const [value, word] of Object.entries(entry.values)) expect([file, value, word]).toEqual([file, value, (sentence ? sentenceWords(value) : valueWords(value))?.[lang === "fr" ? 0 : 1]]);
         }
       }
     }

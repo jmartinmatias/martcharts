@@ -23,6 +23,19 @@ import { createDashboard } from "./dashboard.ts";
 import type { Dashboard } from "./dashboard.ts";
 import { frameEmbed } from "./embed.ts";
 import { ensureStyles } from "./styles.ts";
+import { localizeSpec } from "../core/i18n.ts";
+
+/** The chart types the tray shows, in a word, in French and German; any other type shows its own name. */
+const KIND_WORDS: Record<"fr" | "de", Record<string, string>> = {
+  fr: { kpi: "chiffre", kpis: "chiffres", bar: "barres", hbar: "barres", line: "courbe", area: "aire", table: "tableau", list: "liste", meter: "jauge", donut: "anneau", pie: "secteurs", scatter: "nuage", map: "carte", funnel: "entonnoir", waterfall: "cascade", heatmap: "carte de chaleur", bullet: "puce", treemap: "treemap" },
+  de: { kpi: "Kennzahl", kpis: "Kennzahlen", bar: "Balken", hbar: "Balken", line: "Linie", area: "Fläche", table: "Tabelle", list: "Liste", meter: "Anzeige", donut: "Ring", pie: "Torte", scatter: "Streuung", map: "Karte", funnel: "Trichter", waterfall: "Wasserfall", heatmap: "Heatmap", bullet: "Bullet", treemap: "Treemap" },
+};
+
+/** A chart type in a word in the language of `locale`; its own name in English or when it has no word. */
+export function kindWord(type: string, locale: string | undefined): string {
+  const lang = (locale ?? "").toLowerCase().split(/[-_]/)[0];
+  return lang === "fr" || lang === "de" ? (KIND_WORDS[lang][type] ?? type) : type;
+}
 
 export interface ComposerOptions {
   /** Where saved charts and boards live. Default: this browser's localStorage, shared with the editor. */
@@ -161,7 +174,8 @@ const CSS = `
 .fft-cmp-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 5px; }
 .fft-cmp-item { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border: 1px solid var(--fft-grid); border-radius: 8px; background: var(--fft-surface); cursor: grab; min-height: 34px; }
 .fft-cmp-item[data-dragging] { opacity: 0.5; }
-.fft-cmp-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* A chart's name wraps rather than being cut: in German the Add button ("Hinzufügen") leaves the name little room. */
+.fft-cmp-name { flex: 1; min-width: 0; overflow-wrap: break-word; white-space: normal; }
 .fft-cmp-kind { color: var(--fft-muted); font-size: 11px; }
 .fft-cmp-cards { min-height: 89px; padding: 8px; border: 1px dashed var(--fft-grid); border-radius: 8px; }
 .fft-cmp-cards[data-over] { border-color: var(--fft-accent); background: color-mix(in srgb, var(--fft-accent) 6%, transparent); }
@@ -209,7 +223,8 @@ export function createComposer(target: HTMLElement, options: ComposerOptions = {
     doc.head.append(style);
     styled.add(doc);
   }
-  const w = wordsFor(options.locale ?? doc.documentElement.lang).composer;
+  const uiLocale = options.locale ?? doc.documentElement.lang;
+  const w = wordsFor(uiLocale).composer;
   const sw = wordsFor(options.locale ?? doc.documentElement.lang).surface;
   /** How many filters show before Show all: the ones with the widest reach. */
   const FILTERS_SHOWN = 5;
@@ -327,8 +342,9 @@ export function createComposer(target: HTMLElement, options: ComposerOptions = {
   const trayItem = (spec: WidgetSpec, key: string) => {
     const item = el("li", "fft-cmp-item");
     item.draggable = true;
-    const name = spec.title || spec.id || w.untitledChart;
-    item.append(el("span", "fft-cmp-name", name), el("span", "fft-cmp-kind", spec.view.type), button(w.add, () => add(spec), w.addTo(name)));
+    // Named and typed in the composer's language: the spec's own words for it, and the chart type in a word.
+    const name = localizeSpec(spec, uiLocale).title || spec.id || w.untitledChart;
+    item.append(el("span", "fft-cmp-name", name), el("span", "fft-cmp-kind", kindWord(spec.view.type, uiLocale)), button(w.add, () => add(spec), w.addTo(name)));
     item.addEventListener("dragstart", (event) => {
       dragging = { kind: "chart", spec };
       (event as DragEvent).dataTransfer?.setData("text/plain", key);

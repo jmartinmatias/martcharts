@@ -81,10 +81,32 @@
           "label": "Chargé de clientèle"
         },
         "callReason": {
-          "label": "Pourquoi maintenant"
+          "label": "Pourquoi maintenant",
+          "values": {
+            "Unusual activity flagged; No contact in 159 days; At risk of leaving": "Activité inhabituelle signalée ; Aucun contact depuis 159 jours ; Risque de départ",
+            "No contact in 296 days; At risk of leaving": "Aucun contact depuis 296 jours ; Risque de départ",
+            "No contact in 389 days; At risk of leaving": "Aucun contact depuis 389 jours ; Risque de départ",
+            "No contact in 252 days; At risk of leaving": "Aucun contact depuis 252 jours ; Risque de départ",
+            "No contact in 242 days; Ready for Custody": "Aucun contact depuis 242 jours ; Prêt pour : Conservation",
+            "No contact in 243 days; At risk of leaving": "Aucun contact depuis 243 jours ; Risque de départ",
+            "No contact in 378 days; At risk of leaving": "Aucun contact depuis 378 jours ; Risque de départ",
+            "No contact in 265 days; At risk of leaving": "Aucun contact depuis 265 jours ; Risque de départ",
+            "No contact in 186 days; At risk of leaving": "Aucun contact depuis 186 jours ; Risque de départ",
+            "No contact in 153 days; At risk of leaving": "Aucun contact depuis 153 jours ; Risque de départ"
+          }
         },
         "nextAction": {
-          "label": "Meilleure action suivante"
+          "label": "Meilleure action suivante",
+          "values": {
+            "Check the flagged activity, then propose Pension": "Vérifier l'activité signalée, puis proposer : Retraite",
+            "Book a review meeting, then propose Advisory": "Fixer une revue, puis proposer : Conseil",
+            "Book a review meeting, then propose Pension": "Fixer une revue, puis proposer : Retraite",
+            "Book a review meeting, then propose Custody": "Fixer une revue, puis proposer : Conservation",
+            "Book a review meeting, then propose Structured": "Fixer une revue, puis proposer : Produits structurés",
+            "Book a review meeting, then propose Insurance": "Fixer une revue, puis proposer : Assurance",
+            "Book a review meeting, then propose Discretionary": "Fixer une revue, puis proposer : Gestion sous mandat",
+            "Book a review meeting, then propose Lending": "Fixer une revue, puis proposer : Crédit"
+          }
         },
         "daysSinceContact": {
           "label": "Jours depuis le contact"
@@ -133,10 +155,32 @@
           "label": "Kundenberater"
         },
         "callReason": {
-          "label": "Warum jetzt"
+          "label": "Warum jetzt",
+          "values": {
+            "Unusual activity flagged; No contact in 159 days; At risk of leaving": "Ungewöhnliche Aktivität gemeldet; Seit 159 Tagen kein Kontakt; Abwanderungsgefahr",
+            "No contact in 296 days; At risk of leaving": "Seit 296 Tagen kein Kontakt; Abwanderungsgefahr",
+            "No contact in 389 days; At risk of leaving": "Seit 389 Tagen kein Kontakt; Abwanderungsgefahr",
+            "No contact in 252 days; At risk of leaving": "Seit 252 Tagen kein Kontakt; Abwanderungsgefahr",
+            "No contact in 242 days; Ready for Custody": "Seit 242 Tagen kein Kontakt; Bereit für: Verwahrung",
+            "No contact in 243 days; At risk of leaving": "Seit 243 Tagen kein Kontakt; Abwanderungsgefahr",
+            "No contact in 378 days; At risk of leaving": "Seit 378 Tagen kein Kontakt; Abwanderungsgefahr",
+            "No contact in 265 days; At risk of leaving": "Seit 265 Tagen kein Kontakt; Abwanderungsgefahr",
+            "No contact in 186 days; At risk of leaving": "Seit 186 Tagen kein Kontakt; Abwanderungsgefahr",
+            "No contact in 153 days; At risk of leaving": "Seit 153 Tagen kein Kontakt; Abwanderungsgefahr"
+          }
         },
         "nextAction": {
-          "label": "Nächste beste Aktion"
+          "label": "Nächste beste Aktion",
+          "values": {
+            "Check the flagged activity, then propose Pension": "Gemeldete Aktivität prüfen, dann anbieten: Vorsorge",
+            "Book a review meeting, then propose Advisory": "Überprüfungstermin vereinbaren, dann anbieten: Beratung",
+            "Book a review meeting, then propose Pension": "Überprüfungstermin vereinbaren, dann anbieten: Vorsorge",
+            "Book a review meeting, then propose Custody": "Überprüfungstermin vereinbaren, dann anbieten: Verwahrung",
+            "Book a review meeting, then propose Structured": "Überprüfungstermin vereinbaren, dann anbieten: Strukturierte Produkte",
+            "Book a review meeting, then propose Insurance": "Überprüfungstermin vereinbaren, dann anbieten: Versicherung",
+            "Book a review meeting, then propose Discretionary": "Überprüfungstermin vereinbaren, dann anbieten: Vermögensverwaltung",
+            "Book a review meeting, then propose Lending": "Überprüfungstermin vereinbaren, dann anbieten: Kredite"
+          }
         },
         "daysSinceContact": {
           "label": "Tage seit Kontakt"

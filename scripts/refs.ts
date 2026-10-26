@@ -31,6 +31,23 @@ export interface RefEntry {
   section?: string;
   /** The code a catalog chart carried before refs named their place (its id's own hash): still found, never reused. */
   formerly?: string;
+  /** The title in French and German, from the chart's own words (its `i18n`), so a search result reads in the page's language. */
+  titles?: { fr?: string; de?: string };
+  /** The board section's name in French and German, from the board's own words. */
+  sections?: { fr?: string; de?: string };
+}
+
+/** A spec's title in French and German, when it carries them. */
+function titlesOf(spec: { i18n?: { fr?: { title?: string }; de?: { title?: string } } } | undefined): RefEntry["titles"] | undefined {
+  const fr = spec?.i18n?.fr?.title;
+  const de = spec?.i18n?.de?.title;
+  return fr || de ? { ...(fr ? { fr } : {}), ...(de ? { de } : {}) } : undefined;
+}
+
+/** `{ titles }` for an entry, or nothing when the spec carries no French or German title. */
+function withTitles(spec: Parameters<typeof titlesOf>[0]): { titles?: RefEntry["titles"] } {
+  const titles = titlesOf(spec);
+  return titles ? { titles } : {};
 }
 
 // Paths from the repo's root, by node:path (a page-like test environment swaps in its own URL).
@@ -41,13 +58,13 @@ const json = (path: string) => JSON.parse(readFileSync(here(path), "utf8"));
 interface Cell {
   section?: string;
   widget?: string;
-  spec?: { id?: string; title?: string };
+  spec?: { id?: string; title?: string; i18n?: { fr?: { title?: string }; de?: { title?: string } } };
 }
 
 /** Every chart the site shows, in page order. */
 export function buildRefIndex(): RefEntry[] {
   const entries: RefEntry[] = [];
-  const widgets = new Map<string, { title?: string }>();
+  const widgets = new Map<string, { title?: string; i18n?: { fr?: { title?: string }; de?: { title?: string } } }>();
   for (const file of readdirSync(here("widgets"), { recursive: true }) as string[]) {
     if (!file.endsWith(".json")) continue;
     const spec = json(`widgets/${file}`);
@@ -58,33 +75,41 @@ export function buildRefIndex(): RefEntry[] {
     const board = boards.find((spec) => spec.id === tab.board);
     if (!board) continue;
     let section: string | undefined;
+    let sections: { fr?: string; de?: string } | undefined;
+    // The board's own words for its sections, item by item, as its i18n lays them.
+    const sectionIn = (lang: "fr" | "de", index: number) => (board.i18n?.[lang]?.widgets?.[index] as { section?: string } | undefined)?.section;
     (board.widgets as Cell[]).forEach((cell, index) => {
       if (cell.section) {
         section = cell.section;
+        const fr = sectionIn("fr", index);
+        const de = sectionIn("de", index);
+        sections = fr || de ? { ...(fr ? { fr } : {}), ...(de ? { de } : {}) } : undefined;
         return;
       }
       // The same key the dashboard gives the card (createDashboard: the widget id, the inline spec's id, its place).
       const key = cell.widget ?? cell.spec?.id ?? `cell-${index}`;
       const ref = placedRef(undefined, key);
-      const title = cell.spec?.title ?? (cell.widget ? widgets.get(cell.widget)?.title : undefined);
-      entries.push({ ref, ...(title ? { title } : {}), key, place: "", where: ["Dashboards", tab.title, section].filter(Boolean).join(" › "), url: `dashboards.html?board=${tab.key}#${ref}`, board: tab.key, ...(section ? { section } : {}) });
+      const spec = cell.spec ?? (cell.widget ? widgets.get(cell.widget) : undefined);
+      const title = spec?.title;
+      const titles = titlesOf(spec);
+      entries.push({ ref, ...(title ? { title } : {}), ...(titles ? { titles } : {}), key, place: "", where: ["Dashboards", tab.title, section].filter(Boolean).join(" › "), url: `dashboards.html?board=${tab.key}#${ref}`, board: tab.key, ...(section ? { section } : {}), ...(section && sections ? { sections } : {}) });
     });
   }
   const types = readdirSync(here("catalog")).filter((file) => file.endsWith(".json")).map((file) => file.replace(/\.json$/, "")).sort();
   const catalog = new Map(types.map((type) => [type, json(`catalog/${type}.json`)]));
   for (const [type, spec] of catalog) {
     const key = refKey(spec) as string;
-    entries.push({ ref: placedRef(PLACES.catalog, key), title: spec.title, key, place: PLACES.catalog, where: `Catalog › ${type}`, url: `catalog/index.html#${type}`, formerly: widgetRef(key) });
+    entries.push({ ref: placedRef(PLACES.catalog, key), title: spec.title, ...withTitles(spec), key, place: PLACES.catalog, where: `Catalog › ${type}`, url: `catalog/index.html#${type}`, formerly: widgetRef(key) });
   }
   for (const [type, spec] of catalog) {
     const key = refKey(spec) as string;
-    entries.push({ ref: placedRef(PLACES.guide, key), title: spec.title, key, place: PLACES.guide, where: `Catalog › Data guide › ${type}`, url: `catalog/guide.html#c-${type}` });
+    entries.push({ ref: placedRef(PLACES.guide, key), title: spec.title, ...withTitles(spec), key, place: PLACES.guide, where: `Catalog › Data guide › ${type}`, url: `catalog/guide.html#c-${type}` });
   }
   for (const { type } of HOME_STRIP) {
     const spec = catalog.get(type);
     if (!spec) continue;
     const key = refKey(spec) as string;
-    entries.push({ ref: placedRef(PLACES.home, key), title: spec.title, key, place: PLACES.home, where: "Home", url: "index.html" });
+    entries.push({ ref: placedRef(PLACES.home, key), title: spec.title, ...withTitles(spec), key, place: PLACES.home, where: "Home", url: "index.html" });
   }
   // The Embed page: each example section names its key (data-fft-ref-key); the iframe example draws in the frame page.
   const embed = readFileSync(here("examples/drop-in.html"), "utf8");
@@ -93,14 +118,14 @@ export function buildRefIndex(): RefEntry[] {
     const frame = /<iframe src="embed\.html\?src=\.\.\/(widgets\/[^"]+\.json)"/.exec(body as string);
     if (frame) {
       const spec = json(frame[1] as string);
-      entries.push({ ref: placedRef(PLACES.frame, spec.id), title: spec.title, key: spec.id, place: PLACES.frame, where: `Embed › ${heading} (in its frame)`, url: `examples/drop-in.html#ex-${key}` });
+      entries.push({ ref: placedRef(PLACES.frame, spec.id), title: spec.title, ...withTitles(spec), key: spec.id, place: PLACES.frame, where: `Embed › ${heading} (in its frame)`, url: `examples/drop-in.html#ex-${key}` });
       continue;
     }
     const file = /<fft-widget[^>]*\ssrc="\.\.\/([^"]+\.json)"/.exec(body as string);
     const inline = /<fft-widget[^>]*>\s*<script type="application\/json">([\s\S]*?)<\/script>/.exec(body as string);
     const spec = file ? json(file[1] as string) : inline ? JSON.parse(inline[1] as string) : undefined;
     const ref = placedRef(PLACES.embed, key as string);
-    entries.push({ ref, title: spec?.title ?? heading, key: key as string, place: PLACES.embed, where: `Embed › ${heading}`, url: `examples/drop-in.html#${ref}` });
+    entries.push({ ref, title: spec?.title ?? heading, ...withTitles(spec), key: key as string, place: PLACES.embed, where: `Embed › ${heading}`, url: `examples/drop-in.html#${ref}` });
   }
   // An old code stays findable only while no chart carries it now.
   const current = new Set(entries.map((entry) => entry.ref));

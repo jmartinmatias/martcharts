@@ -57,7 +57,8 @@
     "overallStatus": {},
     "overallPrevStatus": {},
     "movedFrom": {},
-    "movedTo": {}
+    "movedTo": {},
+    "owner": {}
   },
   "view": {
     "type": "ragboard",
@@ -119,7 +120,29 @@
           "label": "Revue en retard, jours"
         },
         "action": {
-          "label": "Étape suivante"
+          "label": "Étape suivante",
+          "values": {
+            "Close the onboarding gaps: the file is 89% complete": "Combler les lacunes d'ouverture de compte : dossier complet à 89 %",
+            "Close the onboarding gaps: the file is 93% complete": "Combler les lacunes d'ouverture de compte : dossier complet à 93 %",
+            "Review the last lost proposals with the client team": "Revoir les dernières propositions perdues avec l'équipe client",
+            "Rebuild the pipeline: 2.9× cover against 3×": "Reconstituer le pipeline : couverture de 2,9× pour 3× visés",
+            "Rebalance the book: the RM is over capacity": "Rééquilibrer le portefeuille : le chargé est au-delà de sa capacité",
+            "Refresh KYC now: 90 days overdue": "Mettre à jour le KYC maintenant : en retard de 90 jours",
+            "Agree a new-money plan for Q4: 47% of target so far": "Convenir d'un plan de collecte pour le T4 : 47 % de l'objectif à ce jour",
+            "Propose the best next product from the whitespace": "Proposer le meilleur produit suivant de l'espace blanc",
+            "Clear the 3 open service tickets and confirm with the client": "Traiter les 3 tickets ouverts et le confirmer au client",
+            "Close the onboarding gaps: the file is 85% complete": "Combler les lacunes d'ouverture de compte : dossier complet à 85 %",
+            "Hold the annual review, 31 days overdue": "Tenir la revue annuelle, en retard de 31 jours",
+            "Restore the meeting plan for the rest of the year": "Rétablir le plan de rendez-vous pour le reste de l'année",
+            "Close the complaint and follow up in writing": "Clore la réclamation et confirmer par écrit",
+            "Book a meeting: 61 days since the last one": "Fixer un rendez-vous : 61 jours depuis le dernier",
+            "Rebuild the pipeline: 1.6× cover against 3×": "Reconstituer le pipeline : couverture de 1,6× pour 3× visés",
+            "Call to understand the low score (-20) and agree one fix": "Appeler pour comprendre la note basse (-20) et convenir d'une correction",
+            "Close the onboarding gaps: the file is 94% complete": "Combler les lacunes d'ouverture de compte : dossier complet à 94 %",
+            "Clear the 9 open service tickets and confirm with the client": "Traiter les 9 tickets ouverts et le confirmer au client",
+            "Call to understand the low score (-18) and agree one fix": "Appeler pour comprendre la note basse (-18) et convenir d'une correction",
+            "Clear the 6 open service tickets and confirm with the client": "Traiter les 6 tickets ouverts et le confirmer au client"
+          }
         },
         "segment": {
           "values": {
@@ -184,6 +207,15 @@
             "Green in Q4": "Vert au T4",
             "Red in Q4": "Rouge au T4"
           }
+        },
+        "owner": {
+          "values": {
+            "Coverage lead": "Responsable de couverture",
+            "KYC team": "Équipe KYC",
+            "Product specialist": "Spécialiste produit",
+            "Service desk": "Centre de services",
+            "Client care": "Service client"
+          }
         }
       }
     },
@@ -217,7 +249,29 @@
           "label": "Review überfällig, Tage"
         },
         "action": {
-          "label": "Nächster Schritt"
+          "label": "Nächster Schritt",
+          "values": {
+            "Close the onboarding gaps: the file is 89% complete": "Onboarding-Lücken schließen: Akte zu 89 % vollständig",
+            "Close the onboarding gaps: the file is 93% complete": "Onboarding-Lücken schließen: Akte zu 93 % vollständig",
+            "Review the last lost proposals with the client team": "Letzte verlorene Angebote mit dem Kundenteam prüfen",
+            "Rebuild the pipeline: 2.9× cover against 3×": "Pipeline neu aufbauen: 2,9× Deckung statt 3×",
+            "Rebalance the book: the RM is over capacity": "Bestand neu verteilen: Betreuer über Kapazität",
+            "Refresh KYC now: 90 days overdue": "KYC jetzt aktualisieren: 90 Tage überfällig",
+            "Agree a new-money plan for Q4: 47% of target so far": "Neugeld-Plan für Q4 vereinbaren: bisher 47 % des Ziels",
+            "Propose the best next product from the whitespace": "Das beste nächste Produkt aus dem Whitespace anbieten",
+            "Clear the 3 open service tickets and confirm with the client": "Die 3 offenen Service-Tickets erledigen und mit dem Kunden bestätigen",
+            "Close the onboarding gaps: the file is 85% complete": "Onboarding-Lücken schließen: Akte zu 85 % vollständig",
+            "Hold the annual review, 31 days overdue": "Jahresgespräch führen, 31 Tage überfällig",
+            "Restore the meeting plan for the rest of the year": "Terminplan für den Rest des Jahres wiederherstellen",
+            "Close the complaint and follow up in writing": "Beschwerde abschließen und schriftlich nachfassen",
+            "Book a meeting: 61 days since the last one": "Termin vereinbaren: 61 Tage seit dem letzten",
+            "Rebuild the pipeline: 1.6× cover against 3×": "Pipeline neu aufbauen: 1,6× Deckung statt 3×",
+            "Call to understand the low score (-20) and agree one fix": "Anrufen, um die schwache Note (-20) zu verstehen, und eine Abhilfe vereinbaren",
+            "Close the onboarding gaps: the file is 94% complete": "Onboarding-Lücken schließen: Akte zu 94 % vollständig",
+            "Clear the 9 open service tickets and confirm with the client": "Die 9 offenen Service-Tickets erledigen und mit dem Kunden bestätigen",
+            "Call to understand the low score (-18) and agree one fix": "Anrufen, um die schwache Note (-18) zu verstehen, und eine Abhilfe vereinbaren",
+            "Clear the 6 open service tickets and confirm with the client": "Die 6 offenen Service-Tickets erledigen und mit dem Kunden bestätigen"
+          }
         },
         "segment": {
           "values": {
@@ -288,6 +342,15 @@
             "Amber in Q4": "Gelb im Q4",
             "Green in Q4": "Grün im Q4",
             "Red in Q4": "Rot im Q4"
+          }
+        },
+        "owner": {
+          "values": {
+            "Coverage lead": "Coverage-Leitung",
+            "KYC team": "KYC-Team",
+            "Product specialist": "Produktspezialist",
+            "Service desk": "Service-Desk",
+            "Client care": "Kundenbetreuung"
           }
         }
       }
