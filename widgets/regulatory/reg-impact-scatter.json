@@ -42,5 +42,71 @@
   },
   "source": {
     "name": "Regulatory watch (fictional)"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Pression face à l'impact",
+      "subtitle": "L'aire de la bulle est le nombre de types d'acteurs concernés",
+      "description": "Chaque règle placée selon la pression qu'elle exerce et son impact ; les coins disent quoi faire : agir sur le haut-haut, préparer le fort impact qui monte, surveiller la forte pression à faible impact, observer le reste.",
+      "fields": {
+        "name": {
+          "label": "Réglementation"
+        },
+        "pressure": {
+          "label": "Pression (0 à 100)"
+        },
+        "impact": {
+          "label": "Impact (1 à 5)"
+        },
+        "mustComply": {
+          "label": "Types d'acteurs concernés"
+        }
+      },
+      "view": {
+        "quadrants": {
+          "labels": [
+            "Préparer",
+            "Agir",
+            "Surveiller",
+            "Observer"
+          ]
+        }
+      },
+      "source": {
+        "name": "Veille réglementaire (fictive)"
+      }
+    },
+    "de": {
+      "title": "Druck gegen Wirkung",
+      "subtitle": "Die Blasenfläche zeigt, wie viele Akteurstypen einhalten müssen",
+      "description": "Jede Vorschrift nach ausgeübtem Druck und Wirkung platziert; die Ecken sagen, was zu tun ist: bei hoch-hoch handeln, auf wachsende hohe Wirkung vorbereiten, hohen Druck mit geringer Wirkung überwachen, den Rest beobachten.",
+      "fields": {
+        "name": {
+          "label": "Regulierung"
+        },
+        "pressure": {
+          "label": "Druck (0 bis 100)"
+        },
+        "impact": {
+          "label": "Wirkung (1 bis 5)"
+        },
+        "mustComply": {
+          "label": "Gebundene Akteurstypen"
+        }
+      },
+      "view": {
+        "quadrants": {
+          "labels": [
+            "Vorbereiten",
+            "Jetzt handeln",
+            "Überwachen",
+            "Beobachten"
+          ]
+        }
+      },
+      "source": {
+        "name": "Regulierungsbeobachtung (fiktiv)"
+      }
+    }
   }
 }

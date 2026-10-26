@@ -138,6 +138,48 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "value",
       "support"
     ]
+  },
+  "i18n": {
+    "fr": {
+      "title": "Notes clients par produit",
+      "subtitle": "Simplicité, rapport qualité-prix et support, notés de 1 à 10, T3 2026",
+      "description": "Un graphique à points : les trois notes de chaque produit sur une même échelle, pour lire l'écart d'un produit et le classement sur chaque note. Enterprise mène en support mais traîne en rapport qualité-prix ; Lite est l'inverse.",
+      "note": "2 140 réponses",
+      "source": {
+        "name": "Enquête clients trimestrielle"
+      },
+      "fields": {
+        "product": {
+          "label": "Produit"
+        },
+        "ease": {
+          "label": "Simplicité"
+        },
+        "value": {
+          "label": "Rapport qualité-prix"
+        }
+      }
+    },
+    "de": {
+      "title": "Kundenbewertungen je Produkt",
+      "subtitle": "Bedienung, Preis-Leistung und Support, 1 bis 10, Q3 2026",
+      "description": "Ein Punktdiagramm: die drei Bewertungen jedes Produkts auf einer Skala, sodass Streuung und Rangfolge sofort lesbar sind. Enterprise führt beim Support, liegt aber beim Preis-Leistungs-Verhältnis zurück; Lite ist das Spiegelbild.",
+      "note": "2.140 Antworten",
+      "source": {
+        "name": "Vierteljährliche Kundenumfrage"
+      },
+      "fields": {
+        "product": {
+          "label": "Produkt"
+        },
+        "ease": {
+          "label": "Bedienung"
+        },
+        "value": {
+          "label": "Preis-Leistung"
+        }
+      }
+    }
   }
 }
 ```

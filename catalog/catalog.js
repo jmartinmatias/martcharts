@@ -1,4 +1,6 @@
 
+// The page's words in the reader's language, from the site's dictionary (public/site-look.js); English without it.
+const T = (text, ...args) => (window.siteLook && window.siteLook.t ? window.siteLook.t(text, ...args) : text.replace(/\{(\d)\}/g, (_, i) => args[Number(i)]));
 // The ref alphabet leaves out I, L, O and U, so a ref never reads as a word.
 function readRef(text) {
   const typed = text.trim().toUpperCase();
@@ -20,7 +22,7 @@ async function lookUpRef(text, base) {
 // One list item per chart found, each a link to it. A link to this page goes through onHere(hash) instead, so the
 // page can clear its search and show the chart rather than land on a hidden card.
 function refItems(result, base, onHere) {
-  if (!result.found.length) return [Object.assign(document.createElement("li"), { textContent: "No chart on the site has the ref " + result.ref + "." })];
+  if (!result.found.length) return [Object.assign(document.createElement("li"), { textContent: T("No chart on the site has the ref {0}.", result.ref) })];
   return result.found.map((entry) => {
     const item = document.createElement("li");
     const link = document.createElement("a");
@@ -35,7 +37,7 @@ function refItems(result, base, onHere) {
     const code = document.createElement("code");
     code.textContent = entry.ref + " ";
     item.append(code, link);
-    if (entry.ref !== result.ref) item.prepend(result.ref + " is now ");
+    if (entry.ref !== result.ref) item.prepend(T("{0} is now ", result.ref));
     return item;
   });
 }
@@ -83,8 +85,8 @@ function filterWords(text) {
   if (!words.length) return showAll();
   const shown = new Set(matchWords(words, cards));
   for (const card of cards) card.el.hidden = !shown.has(card);
-  count.textContent = shown.size + " of " + cards.length;
-  noneWords.textContent = "No chart matches “" + text.trim() + "”.";
+  count.textContent = T("{0} of {1}", shown.size, cards.length);
+  noneWords.textContent = T("No chart matches “{0}”.", text.trim());
   none.hidden = shown.size > 0;
 }
 // The ref's charts are the result: the grid steps aside until one is chosen or the search is cleared.
@@ -124,9 +126,9 @@ document.addEventListener("click", async (event) => {
   const label = button.textContent;
   try {
     await navigator.clipboard.writeText(text);
-    button.textContent = "Copied";
+    button.textContent = T("Copied");
   } catch {
-    button.textContent = "Copy failed";
+    button.textContent = T("Copy failed");
   }
   setTimeout(() => (button.textContent = label), 1200);
 });

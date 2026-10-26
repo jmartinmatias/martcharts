@@ -168,5 +168,33 @@
     ],
     "bands": 3,
     "baselineLabel": "plan"
+  },
+  "i18n": {
+    "fr": {
+      "title": "CA quotidien face au plan",
+      "subtitle": "Par région, {first:day} au {last:day}",
+      "description": "Le CA quotidien de chaque région face au plan, bleu au-dessus et rouge en dessous. L'Est bat le plan chaque jour, d'environ 6 K€ en juillet et 16 K€ en septembre. Le Sud décroche mi-août, au pire le 15 août à 14,6 K€ sous le plan. L'Ouest manque chaque week-end, le Centre passe en positif avec la campagne de septembre, et l'en-ligne oscille.",
+      "source": {
+        "name": "Grand livre et plan quotidien"
+      },
+      "fields": {
+        "day": {
+          "label": "Jour"
+        }
+      }
+    },
+    "de": {
+      "title": "Tagesumsatz gegen Plan",
+      "subtitle": "Nach Region, {first:day} bis {last:day}",
+      "description": "Täglicher Umsatz jeder Region gegen Plan, blau darüber, rot darunter. Der Osten schlägt den Plan täglich, um etwa 6.000 € im Juli und 16.000 € im September. Der Süden fällt Mitte August zurück, am schlimmsten am 15. August mit 14.600 € darunter. Der Westen verfehlt jedes Wochenende, die Mitte dreht mit der Septemberkampagne ins Plus, und Online schwankt in beide Richtungen.",
+      "source": {
+        "name": "Hauptbuch und Tagesplan"
+      },
+      "fields": {
+        "day": {
+          "label": "Tag"
+        }
+      }
+    }
   }
 }

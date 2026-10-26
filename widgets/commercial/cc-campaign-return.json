@@ -57,5 +57,39 @@
     "type": "hbar",
     "label": "campaign",
     "value": "return"
+  },
+  "i18n": {
+    "fr": {
+      "title": "CA par euro dépensé",
+      "subtitle": "Par campagne",
+      "description": "Le CA de chaque campagne divisé par son coût.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "campaign": {
+          "label": "Campagne"
+        },
+        "return": {
+          "label": "CA par euro"
+        }
+      }
+    },
+    "de": {
+      "title": "Umsatz je ausgegebenem Euro",
+      "subtitle": "Nach Kampagne",
+      "description": "Umsatz jeder Kampagne geteilt durch ihre Kosten.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "campaign": {
+          "label": "Kampagne"
+        },
+        "return": {
+          "label": "Umsatz je Euro"
+        }
+      }
+    }
   }
 }

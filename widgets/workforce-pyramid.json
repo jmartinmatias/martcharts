@@ -29,5 +29,45 @@
     "label": "age",
     "left": "women",
     "right": "men"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Effectifs par âge et sexe",
+      "subtitle": "Effectif fin septembre 2026",
+      "description": "La pyramide de l'entreprise : plus de femmes avant 35 ans, plus d'hommes à partir de 40, et la tranche 30-34 ans est la plus large des deux côtés.",
+      "source": {
+        "name": "SIRH"
+      },
+      "fields": {
+        "age": {
+          "label": "Âge"
+        },
+        "women": {
+          "label": "Femmes"
+        },
+        "men": {
+          "label": "Hommes"
+        }
+      }
+    },
+    "de": {
+      "title": "Belegschaft nach Alter und Geschlecht",
+      "subtitle": "Belegschaft Ende September 2026",
+      "description": "Die Form des Unternehmens: unter 35 mehr Frauen, ab 40 mehr Männer, und die Gruppe 30 bis 34 ist auf beiden Seiten die breiteste.",
+      "source": {
+        "name": "Personalsystem"
+      },
+      "fields": {
+        "age": {
+          "label": "Alter"
+        },
+        "women": {
+          "label": "Frauen"
+        },
+        "men": {
+          "label": "Männer"
+        }
+      }
+    }
   }
 }

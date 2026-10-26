@@ -8,7 +8,13 @@ export interface Look {
 
 declare global {
   interface Window {
-    siteLook?: { get(): Look; set(patch: Look): Look; locale?(): string | undefined };
+    siteLook?: {
+      get(): Look;
+      set(patch: Look): Look;
+      locale?(): string | undefined;
+      t?(english: string, ...values: unknown[]): string;
+      translate?(): void;
+    };
   }
 }
 
@@ -22,6 +28,10 @@ export function withLocale<T extends { locale?: string }>(spec: T): T {
 }
 
 export const look = (): Look => window.siteLook?.get() ?? {};
+
+/** The site's own word for an English one, in the language picked (public/site-look.js); the English without it. */
+export const siteWord = (english: string, ...values: unknown[]): string =>
+  window.siteLook?.t?.(english, ...values) ?? english.replace(/\{(\d)\}/g, (_, i: string) => String(values[Number(i)] ?? ""));
 export const setLook = (patch: Look): void => void window.siteLook?.set(patch);
 /** The saved preset as a style patch for a spec, or nothing when it is the default. */
 export const lookStyle = (): { preset: string } | undefined => {

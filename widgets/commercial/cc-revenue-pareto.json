@@ -39,5 +39,36 @@
     "type": "pareto",
     "label": "name",
     "value": "revenue"
+  },
+  "i18n": {
+    "fr": {
+      "title": "CA par client",
+      "subtitle": "Le plus grand d'abord, avec la part cumulée",
+      "description": "Clients par CA, avec la part cumulée du total.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        }
+      }
+    },
+    "de": {
+      "title": "Umsatz je Kunde",
+      "subtitle": "Größte zuerst, mit kumuliertem Anteil",
+      "description": "Kunden nach Umsatz, mit dem kumulierten Anteil am Gesamt.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "name": {
+          "label": "Kunde"
+        },
+        "revenue": {
+          "label": "Umsatz"
+        }
+      }
+    }
   }
 }

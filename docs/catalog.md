@@ -167,6 +167,61 @@ An anomaly tracker: one thin lane per metric over time, the band it was expected
     "low": "low",
     "high": "high",
     "flag": "flag"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Anomalies, mesure par mesure",
+      "subtitle": "Relevés quotidiens face à leur bande attendue, octobre 2026",
+      "description": "Six mesures commerciales suivies chaque jour : la bande attendue pour chacune, et les jours où elle en est sortie.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "metric": {
+          "label": "Mesure"
+        },
+        "value": {
+          "label": "Relevé"
+        },
+        "expected": {
+          "label": "Attendu"
+        },
+        "low": {
+          "label": "Bas"
+        },
+        "high": {
+          "label": "Haut"
+        }
+      }
+    },
+    "de": {
+      "title": "Anomalien, Kennzahl für Kennzahl",
+      "subtitle": "Tägliche Werte gegen ihr erwartetes Band, Oktober 2026",
+      "description": "Sechs Vertriebskennzahlen täglich beobachtet: das erwartete Band jeder Kennzahl und die Tage, an denen sie es verließ.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "date": {
+          "label": "Datum"
+        },
+        "metric": {
+          "label": "Kennzahl"
+        },
+        "value": {
+          "label": "Messwert"
+        },
+        "expected": {
+          "label": "Erwartet"
+        },
+        "low": {
+          "label": "Tief"
+        },
+        "high": {
+          "label": "Hoch"
+        }
+      }
+    }
   }
 }
 ```
@@ -258,6 +313,68 @@ A line with a soft filled area down to zero, for a trend where the amount itself
       "high": "high",
       "label": "80% range"
     }
+  },
+  "i18n": {
+    "fr": {
+      "title": "Trésorerie disponible",
+      "subtitle": "Solde de fin de mois, avec une prévision à six mois",
+      "description": "La trésorerie finit septembre à 5,36 M€, contre 4,21 M€ un an plus tôt. Le scénario central atteint 6,21 M€ en mars 2027, dans une fourchette à 80 % de 4,50 à 8,22 M€.",
+      "source": {
+        "name": "Modèle de trésorerie et de planification"
+      },
+      "fields": {
+        "month": {
+          "label": "Mois"
+        },
+        "cash": {
+          "label": "Trésorerie"
+        },
+        "low": {
+          "label": "Bas (p10)"
+        },
+        "high": {
+          "label": "Haut (p90)"
+        },
+        "forecast": {
+          "label": "Prévision"
+        }
+      },
+      "view": {
+        "band": {
+          "label": "Fourchette à 80 %"
+        }
+      }
+    },
+    "de": {
+      "title": "Liquide Mittel",
+      "subtitle": "Monatsendstand mit Sechsmonatsprognose",
+      "description": "Der Kassenbestand endete im September bei 5,36 Mio. €, nach 4,21 Mio. € ein Jahr zuvor. Das mittlere Szenario erreicht 6,21 Mio. € bis März 2027, in einem 80-%-Band von 4,50 bis 8,22 Mio. €.",
+      "source": {
+        "name": "Treasury- und Planungsmodell"
+      },
+      "fields": {
+        "month": {
+          "label": "Monat"
+        },
+        "cash": {
+          "label": "Liquidität"
+        },
+        "low": {
+          "label": "Tief (p10)"
+        },
+        "high": {
+          "label": "Hoch (p90)"
+        },
+        "forecast": {
+          "label": "Prognose"
+        }
+      },
+      "view": {
+        "band": {
+          "label": "80-%-Band"
+        }
+      }
+    }
   }
 }
 ```
@@ -327,6 +444,24 @@ Vertical bars comparing amounts across categories. Several y fields draw grouped
       "Plus"
     ],
     "stacked": "percent"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Part des produits",
+      "subtitle": "Du CA de chaque région",
+      "description": "Core et Plus en part du CA de chaque région.",
+      "source": {
+        "name": "Journal des ventes"
+      }
+    },
+    "de": {
+      "title": "Produktanteil",
+      "subtitle": "Am Umsatz jeder Region",
+      "description": "Core und Plus als Anteil am Umsatz jeder Region.",
+      "source": {
+        "name": "Verkaufsjournal"
+      }
+    }
   }
 }
 ```
@@ -388,6 +523,31 @@ A distribution: one dot per row along a value axis, nudged apart so none overlap
     "value": "value",
     "group": "region",
     "label": "deal"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Taille des affaires par région",
+      "subtitle": "Toutes celles conclues ce semestre",
+      "description": "La dispersion des montants par région, valeurs extrêmes comprises.",
+      "fields": {
+        "value": {
+          "label": "Valeur de l'affaire"
+        },
+        "region": {
+          "label": "Région"
+        }
+      }
+    },
+    "de": {
+      "title": "Dealgrößen je Region",
+      "subtitle": "Alle in diesem Halbjahr abgeschlossen",
+      "description": "Streuung der Dealwerte je Region, inklusive Ausreißern, die ein Mittel verbirgt.",
+      "fields": {
+        "value": {
+          "label": "Dealwert"
+        }
+      }
+    }
   }
 }
 ```
@@ -472,6 +632,46 @@ A status board: one column per stage with its count in the header, and the items
   },
   "source": {
     "name": "CRM"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Tableau des affaires",
+      "subtitle": "Ouvertes et conclues ce trimestre, par étape",
+      "description": "Chaque affaire sur un tableau par étape, le point coloré par région et le montant sur chaque fiche : le trimestre d'un coup d'œil.",
+      "fields": {
+        "deal": {
+          "label": "Affaire"
+        },
+        "stage": {
+          "label": "Étape"
+        },
+        "region": {
+          "label": "Région"
+        },
+        "amount": {
+          "label": "Montant"
+        },
+        "owner": {
+          "label": "Responsable"
+        }
+      }
+    },
+    "de": {
+      "title": "Deal-Board",
+      "subtitle": "Offen und abgeschlossen in diesem Quartal, nach Phase",
+      "description": "Jeder Deal auf einem Board nach Phase, Punkt nach Region gefärbt, Betrag auf jeder Karte, damit das Quartal auf einen Blick lesbar ist.",
+      "fields": {
+        "stage": {
+          "label": "Phase"
+        },
+        "amount": {
+          "label": "Betrag"
+        },
+        "owner": {
+          "label": "Verantwortlich"
+        }
+      }
+    }
   }
 }
 ```
@@ -534,6 +734,33 @@ A box plot per group on one shared axis: a box over the middle half of the value
     "type": "boxplot",
     "value": "value",
     "group": "region"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Dispersion des affaires",
+      "subtitle": "Moitié centrale, médiane et valeurs extrêmes, par région",
+      "description": "Les montants de chaque région en boîte à moustaches. La moitié centrale de l'Est est bien au-dessus ; le Sud a un point extrême, le Nord un plus modéré.",
+      "note": "{count} affaires",
+      "fields": {
+        "value": {
+          "label": "Valeur de l'affaire"
+        },
+        "region": {
+          "label": "Région"
+        }
+      }
+    },
+    "de": {
+      "title": "Streuung der Dealgrößen",
+      "subtitle": "Mittlere Hälfte, Median und Ausreißer, je Region",
+      "description": "Dealwerte jeder Region als Boxplot. Die mittlere Hälfte im Osten liegt deutlich höher; der Süden hat einen starken Ausreißer, der Norden einen milderen.",
+      "note": "{count} Deals",
+      "fields": {
+        "value": {
+          "label": "Dealwert"
+        }
+      }
+    }
   }
 }
 ```
@@ -601,6 +828,42 @@ Actual against target, one compact row per item: a value bar and a target tick o
     "label": "kpi",
     "value": "actual",
     "target": "target"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Tableau de septembre",
+      "subtitle": "Réel face à l'objectif, avec bandes faible, moyen et bon",
+      "description": "Chaque indicateur clé de septembre face à son objectif du mois.",
+      "note": "Bandes à 60 %, 90 % et 120 % de l'objectif",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "actual": {
+          "label": "Réel"
+        },
+        "target": {
+          "label": "Objectif"
+        }
+      }
+    },
+    "de": {
+      "title": "September-Scorecard",
+      "subtitle": "Ist gegen Ziel, mit Bändern schwach, mittel und gut",
+      "description": "Jede Kennzahl im September gegen ihr Monatsziel.",
+      "note": "Bänder enden bei 60 %, 90 % und 120 % des Ziels",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "actual": {
+          "label": "Ist"
+        },
+        "target": {
+          "label": "Ziel"
+        }
+      }
+    }
   }
 }
 ```
@@ -675,6 +938,46 @@ Rank over time: in every period the series are ranked by value (highest first), 
       "Analytics",
       "Integrations"
     ]
+  },
+  "i18n": {
+    "fr": {
+      "title": "Classement des produits",
+      "subtitle": "Par CA mensuel, {first:month} à {last:month}",
+      "description": "Le rang de chaque produit par CA chaque mois. Analytics a dépassé Platform en juin, et Integrations est passé de quatrième à deuxième.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "month": {
+          "label": "Mois"
+        },
+        "product": {
+          "label": "Produit"
+        },
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        }
+      }
+    },
+    "de": {
+      "title": "Produktrangfolge",
+      "subtitle": "Nach Monatsumsatz, {first:month} bis {last:month}",
+      "description": "Rang jedes Produkts nach Umsatz in jedem Monat. Analytics überholte Platform im Juni, Integrations stieg von Platz vier auf zwei.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "month": {
+          "label": "Monat"
+        },
+        "product": {
+          "label": "Produkt"
+        },
+        "revenue": {
+          "label": "Umsatz"
+        }
+      }
+    }
   }
 }
 ```
@@ -739,6 +1042,46 @@ A calendar heatmap: one cell per day, weeks as columns from Monday, shaded on on
     "type": "calendar",
     "date": "day",
     "value": "orders"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Commandes quotidiennes",
+      "subtitle": "{first:day} au {last:day}",
+      "description": "Commandes par jour : rythme hebdomadaire, week-ends calmes et croissance.",
+      "source": {
+        "name": "Système de commandes"
+      },
+      "fields": {
+        "orders": {
+          "label": "Commandes"
+        },
+        "day": {
+          "label": "Jour"
+        }
+      },
+      "headline": {
+        "caption": "commandes en {count} jours"
+      }
+    },
+    "de": {
+      "title": "Tägliche Bestellungen",
+      "subtitle": "{first:day} bis {last:day}",
+      "description": "Bestellungen je Tag: Wochenrhythmus, ruhige Wochenenden und Wachstum.",
+      "source": {
+        "name": "Bestellsystem"
+      },
+      "fields": {
+        "orders": {
+          "label": "Bestellungen"
+        },
+        "day": {
+          "label": "Tag"
+        }
+      },
+      "headline": {
+        "caption": "Bestellungen in {count} Tagen"
+      }
+    }
   }
 }
 ```
@@ -833,6 +1176,42 @@ Prices per period as candles: a thin wick from low to high around a body from op
     "low": "low",
     "close": "close",
     "average": 5
+  },
+  "i18n": {
+    "fr": {
+      "title": "Cours de l'action",
+      "subtitle": "30 dernières séances, avec une moyenne 5 jours",
+      "description": "Ouverture, plus haut, plus bas et clôture du jour, hausses en bleu et baisses en rouge, avec la moyenne mobile 5 jours de la clôture.",
+      "note": "Clôture à {last:close}",
+      "source": {
+        "name": "Données de marché"
+      },
+      "fields": {
+        "day": {
+          "label": "Jour"
+        },
+        "close": {
+          "label": "Clôture"
+        }
+      }
+    },
+    "de": {
+      "title": "Aktienkurs",
+      "subtitle": "Letzte 30 Handelstage, mit 5-Tage-Durchschnitt",
+      "description": "Täglich Eröffnung, Hoch, Tief und Schluss, Plustage blau und Minustage rot, mit dem gleitenden 5-Tage-Durchschnitt des Schlusskurses.",
+      "note": "Schluss bei {last:close}",
+      "source": {
+        "name": "Marktdaten"
+      },
+      "fields": {
+        "day": {
+          "label": "Tag"
+        },
+        "close": {
+          "label": "Schluss"
+        }
+      }
+    }
   }
 }
 ```
@@ -892,6 +1271,36 @@ Flows between groups around a circle: each group an arc as long as everything it
     "source": "from",
     "target": "to",
     "value": "customers"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Changements d'offre",
+      "subtitle": "T3 2026, clients changeant d'offre",
+      "description": "Chaque montée et descente d'offre ce trimestre. Starter vers Growth est le plus gros mouvement ; les descentes sont les fins rubans de retour.",
+      "note": "{sum:customers} mouvements",
+      "source": {
+        "name": "Facturation"
+      },
+      "fields": {
+        "customers": {
+          "label": "Clients"
+        }
+      }
+    },
+    "de": {
+      "title": "Tarifwechsel",
+      "subtitle": "Q3 2026, Kunden zwischen Tarifen",
+      "description": "Jedes Up- und Downgrade zwischen Tarifen in diesem Quartal. Starter zu Growth ist der größte Wechsel; Downgrades sind die dünnen Bänder zurück.",
+      "note": "{sum:customers} Wechsel",
+      "source": {
+        "name": "Abrechnung"
+      },
+      "fields": {
+        "customers": {
+          "label": "Kunden"
+        }
+      }
+    }
   }
 }
 ```
@@ -956,6 +1365,40 @@ A map with each region shaded by its value, from the weakest tint to the stronge
     "geo": "europe",
     "id": "country",
     "value": "revenue"
+  },
+  "i18n": {
+    "fr": {
+      "title": "CA par pays",
+      "subtitle": "2026 depuis janvier, marchés européens",
+      "description": "CA cumulé par pays européen sur une grille, chaque pays de même taille pour que le Luxembourg se lise aussi bien que l'Allemagne ; les pays sans vente restent gris.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "country": {
+          "label": "Pays"
+        },
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        }
+      }
+    },
+    "de": {
+      "title": "Umsatz je Land",
+      "subtitle": "2026 seit Jahresbeginn, europäische Märkte",
+      "description": "Umsatz seit Jahresbeginn je europäischem Land auf einem Raster, jedes Land gleich groß, damit Luxemburg so gut lesbar ist wie Deutschland; Länder ohne Umsatz bleiben grau.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "country": {
+          "label": "Land"
+        },
+        "revenue": {
+          "label": "Umsatz"
+        }
+      }
+    }
   }
 }
 ```
@@ -1011,6 +1454,28 @@ Part-to-whole at a glance: a ring of up to 6 slices with the total in the middle
     "type": "donut",
     "label": "segment",
     "value": "revenue"
+  },
+  "i18n": {
+    "fr": {
+      "title": "CA par segment",
+      "subtitle": "Depuis janvier",
+      "description": "La répartition du CA par segment de clientèle.",
+      "fields": {
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        }
+      }
+    },
+    "de": {
+      "title": "Umsatz je Segment",
+      "subtitle": "Seit Jahresbeginn",
+      "description": "Wie sich der Umsatz auf Kundensegmente verteilt.",
+      "fields": {
+        "revenue": {
+          "label": "Umsatz"
+        }
+      }
+    }
   }
 }
 ```
@@ -1090,6 +1555,48 @@ A dot plot: one row per item and one dot per measure on one shared axis, with a 
       "value",
       "support"
     ]
+  },
+  "i18n": {
+    "fr": {
+      "title": "Notes clients par produit",
+      "subtitle": "Simplicité, rapport qualité-prix et support, notés de 1 à 10, T3 2026",
+      "description": "Un graphique à points : les trois notes de chaque produit sur une même échelle, pour lire l'écart d'un produit et le classement sur chaque note. Enterprise mène en support mais traîne en rapport qualité-prix ; Lite est l'inverse.",
+      "note": "2 140 réponses",
+      "source": {
+        "name": "Enquête clients trimestrielle"
+      },
+      "fields": {
+        "product": {
+          "label": "Produit"
+        },
+        "ease": {
+          "label": "Simplicité"
+        },
+        "value": {
+          "label": "Rapport qualité-prix"
+        }
+      }
+    },
+    "de": {
+      "title": "Kundenbewertungen je Produkt",
+      "subtitle": "Bedienung, Preis-Leistung und Support, 1 bis 10, Q3 2026",
+      "description": "Ein Punktdiagramm: die drei Bewertungen jedes Produkts auf einer Skala, sodass Streuung und Rangfolge sofort lesbar sind. Enterprise führt beim Support, liegt aber beim Preis-Leistungs-Verhältnis zurück; Lite ist das Spiegelbild.",
+      "note": "2.140 Antworten",
+      "source": {
+        "name": "Vierteljährliche Kundenumfrage"
+      },
+      "fields": {
+        "product": {
+          "label": "Produkt"
+        },
+        "ease": {
+          "label": "Bedienung"
+        },
+        "value": {
+          "label": "Preis-Leistung"
+        }
+      }
+    }
   }
 }
 ```
@@ -1168,6 +1675,46 @@ Two measures with different units, such as revenue and churn, one above the othe
       "bar",
       "line"
     ]
+  },
+  "i18n": {
+    "fr": {
+      "title": "CA et attrition",
+      "subtitle": "{first:month} à {last:month}, chacun sur son échelle",
+      "description": "CA mensuel en barres au-dessus de l'attrition mensuelle en ligne : deux unités, deux panneaux, un axe du temps.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "month": {
+          "label": "Mois"
+        },
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        },
+        "churn": {
+          "label": "Attrition"
+        }
+      }
+    },
+    "de": {
+      "title": "Umsatz und Abwanderung",
+      "subtitle": "{first:month} bis {last:month}, jede auf eigener Skala",
+      "description": "Monatsumsatz als Balken über monatlicher Abwanderung als Linie: zwei Einheiten, zwei Felder, eine Zeitachse.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "month": {
+          "label": "Monat"
+        },
+        "revenue": {
+          "label": "Umsatz"
+        },
+        "churn": {
+          "label": "Abwanderung"
+        }
+      }
+    }
   }
 }
 ```
@@ -1235,6 +1782,24 @@ Before and after per item on one shared axis: a muted dot for before, an accent 
     "label": "region",
     "from": "q3_2025",
     "to": "q3_2026"
+  },
+  "i18n": {
+    "fr": {
+      "title": "CA de septembre, sur un an",
+      "subtitle": "2025 face à 2026, par région",
+      "description": "Le CA de septembre de chaque région, l'an dernier et cette année.",
+      "source": {
+        "name": "Grand livre"
+      }
+    },
+    "de": {
+      "title": "Septemberumsatz im Jahresvergleich",
+      "subtitle": "2025 gegen 2026, nach Region",
+      "description": "Septemberumsatz jeder Region, Vorjahr gegen dieses Jahr.",
+      "source": {
+        "name": "Hauptbuch"
+      }
+    }
   }
 }
 ```
@@ -1288,6 +1853,33 @@ Stages in order as centered bars narrowing from the first, with the conversion r
     "type": "funnel",
     "label": "stage",
     "value": "people"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Tunnel d'inscription",
+      "subtitle": "Septembre 2026",
+      "description": "Comment les visiteurs passent de la première visite au client payant.",
+      "source": {
+        "name": "Analyse produit"
+      },
+      "fields": {
+        "people": {
+          "label": "Personnes"
+        }
+      }
+    },
+    "de": {
+      "title": "Anmelde-Trichter",
+      "description": "Wie Besucher vom ersten Besuch zum zahlenden Kunden werden.",
+      "source": {
+        "name": "Produktanalyse"
+      },
+      "fields": {
+        "people": {
+          "label": "Personen"
+        }
+      }
+    }
   }
 }
 ```
@@ -1343,6 +1935,36 @@ One headline number on a half-circle scale: an arc filled from min to the value,
     "min": -100,
     "max": 100,
     "label": "Net promoter score"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Net Promoter Score",
+      "subtitle": "Enquête de septembre 2026, face à un objectif de 50",
+      "description": "Part de promoteurs moins part de détracteurs, sur l'échelle complète de -100 à 100, avec l'objectif marqué.",
+      "note": "1 240 réponses",
+      "source": {
+        "name": "Enquête clients"
+      },
+      "fields": {
+        "goal": {
+          "label": "Objectif"
+        }
+      }
+    },
+    "de": {
+      "title": "Net Promoter Score",
+      "subtitle": "Umfrage September 2026, gegen ein Ziel von 50",
+      "description": "Anteil der Promotoren minus Anteil der Kritiker, auf der vollen Skala von -100 bis 100, mit markiertem Ziel.",
+      "note": "1.240 Antworten",
+      "source": {
+        "name": "Kundenumfrage"
+      },
+      "fields": {
+        "goal": {
+          "label": "Ziel"
+        }
+      }
+    }
   }
 }
 ```
@@ -1404,6 +2026,40 @@ Horizontal bars for rankings and long labels: label on the left, bar, value at t
     "label": "feature",
     "value": "share",
     "mark": "lollipop"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Adoption des fonctions",
+      "subtitle": "Part des comptes actifs utilisant chacune, septembre 2026",
+      "description": "Les fonctions réellement utilisées par les comptes actifs. Les tableaux de bord mènent à 91 % ; Prévision, SSO et journal d'audit touchent moins de deux comptes sur cinq.",
+      "source": {
+        "name": "Analyse produit"
+      },
+      "fields": {
+        "feature": {
+          "label": "Fonction"
+        },
+        "share": {
+          "label": "Comptes utilisateurs"
+        }
+      }
+    },
+    "de": {
+      "title": "Funktionsnutzung",
+      "subtitle": "Anteil aktiver Konten, die sie nutzen, September 2026",
+      "description": "Welche Funktionen aktive Konten wirklich nutzen. Dashboards führen mit 91 %; Prognose, SSO und Audit-Log erreichen weniger als zwei von fünf Konten.",
+      "source": {
+        "name": "Produktanalyse"
+      },
+      "fields": {
+        "feature": {
+          "label": "Funktion"
+        },
+        "share": {
+          "label": "Nutzende Konten"
+        }
+      }
+    }
   }
 }
 ```
@@ -1465,6 +2121,39 @@ A grid of cells shaded on one blue scale from light (low) to dark (high), for pa
     "x": "slot",
     "y": "day",
     "value": "tickets"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Tickets de support",
+      "subtitle": "Par jour de semaine et heure",
+      "description": "Quand les clients ouvrent des tickets, pour planifier les effectifs.",
+      "note": "4 dernières semaines",
+      "source": {
+        "name": "Support client"
+      },
+      "fields": {
+        "slot": {
+          "label": "Heure"
+        },
+        "day": {
+          "label": "Jour"
+        }
+      }
+    },
+    "de": {
+      "title": "Support-Tickets",
+      "subtitle": "Nach Wochentag und Tageszeit",
+      "description": "Wann Kunden Tickets eröffnen, zur Personalplanung.",
+      "note": "Letzte 4 Wochen",
+      "fields": {
+        "slot": {
+          "label": "Zeit"
+        },
+        "day": {
+          "label": "Tag"
+        }
+      }
+    }
   }
 }
 ```
@@ -1526,6 +2215,31 @@ A distribution as touching bars: the value's range is cut into bins on round edg
     "value": "value",
     "bins": 9,
     "countLabel": "Deals"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Taille des affaires",
+      "subtitle": "Conclues ce semestre, tranches de 20 K€",
+      "description": "Combien d'affaires par tranche de valeur, la médiane marquée. La moitié est sous 60 K€ ; une longue traîne va jusqu'à 180 K€.",
+      "fields": {
+        "value": {
+          "label": "Valeur de l'affaire"
+        },
+        "region": {
+          "label": "Région"
+        }
+      }
+    },
+    "de": {
+      "title": "Dealgrößen",
+      "subtitle": "In diesem Halbjahr abgeschlossen, 20.000-€-Bänder",
+      "description": "Wie viele Deals in jedes Wertband fallen, mit markiertem Median. Die Hälfte liegt unter 60.000 €; ein langer Schwanz reicht bis 180.000 €.",
+      "fields": {
+        "value": {
+          "label": "Dealwert"
+        }
+      }
+    }
   }
 }
 ```
@@ -1604,6 +2318,52 @@ A client's story as a vertical timeline: one event per row with its date, title,
     "note": "note",
     "amount": "amount",
     "limit": 12
+  },
+  "i18n": {
+    "fr": {
+      "title": "Aldana Holdings, l'histoire à ce jour",
+      "subtitle": "Chaque contact depuis l'intégration",
+      "description": "Les événements d'un client sur une chronologie verticale, le plus récent d'abord : rendez-vous, appels, opérations, campagnes et réclamations, chacun dans sa couleur, avec le montant s'il y en a un.",
+      "source": {
+        "name": "Journal d'activité CRM (fictif)"
+      },
+      "fields": {
+        "kind": {
+          "label": "Type"
+        },
+        "title": {
+          "label": "Événement"
+        },
+        "amount": {
+          "label": "Montant"
+        }
+      }
+    },
+    "de": {
+      "title": "Aldana Holdings, die Geschichte bisher",
+      "subtitle": "Jeder Kontakt seit dem Onboarding",
+      "description": "Die Ereignisse eines Kunden als senkrechte Zeitleiste, neueste zuerst: Termine, Anrufe, Trades, Kampagnen und Beschwerden, jeweils in eigener Farbe, mit Betrag, wo es einen gibt.",
+      "source": {
+        "name": "CRM-Aktivitätsprotokoll (fiktiv)"
+      },
+      "fields": {
+        "date": {
+          "label": "Datum"
+        },
+        "kind": {
+          "label": "Art"
+        },
+        "title": {
+          "label": "Ereignis"
+        },
+        "note": {
+          "label": "Notiz"
+        },
+        "amount": {
+          "label": "Betrag"
+        }
+      }
+    }
   }
 }
 ```
@@ -1712,6 +2472,34 @@ Many time series at once, each in a thin row: values are measured from a baselin
     ],
     "bands": 3,
     "baselineLabel": "plan"
+  },
+  "i18n": {
+    "fr": {
+      "title": "CA quotidien face au plan",
+      "subtitle": "Par région, {first:day} au {last:day}",
+      "description": "Le CA quotidien de chaque région face au plan, bleu au-dessus et rouge en dessous. L'Est bat le plan chaque jour, d'environ 6 K€ en juillet et 16 K€ en septembre. Le Sud décroche mi-août, au pire le 15 août à 14,6 K€ sous le plan. L'Ouest manque chaque week-end, le Centre passe en positif avec la campagne de septembre, et l'en-ligne oscille.",
+      "source": {
+        "name": "Grand livre et plan quotidien"
+      },
+      "fields": {
+        "day": {
+          "label": "Jour"
+        }
+      }
+    },
+    "de": {
+      "title": "Tagesumsatz gegen Plan",
+      "subtitle": "Nach Region, {first:day} bis {last:day}",
+      "description": "Täglicher Umsatz jeder Region gegen Plan, blau darüber, rot darunter. Der Osten schlägt den Plan täglich, um etwa 6.000 € im Juli und 16.000 € im September. Der Süden fällt Mitte August zurück, am schlimmsten am 15. August mit 14.600 € darunter. Der Westen verfehlt jedes Wochenende, die Mitte dreht mit der Septemberkampagne ins Plus, und Online schwankt in beide Richtungen.",
+      "source": {
+        "name": "Hauptbuch und Tagesplan"
+      },
+      "fields": {
+        "day": {
+          "label": "Tag"
+        }
+      }
+    }
   }
 }
 ```
@@ -1783,6 +2571,49 @@ A hierarchy laid flat: a column for the total, then one per level left to right,
       "plan"
     ],
     "value": "revenue"
+  },
+  "i18n": {
+    "fr": {
+      "title": "CA par région, produit et offre",
+      "subtitle": "T3 2026, le plus grand d'abord",
+      "description": "CA du T3 découpé en trois niveaux, une colonne par niveau. L'Est mène à 338 K€. Core fait environ deux tiers du CA dans chaque région, surtout en annuel ; Plus penche vers le mensuel partout sauf à l'Est.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "region": {
+          "label": "Région"
+        },
+        "product": {
+          "label": "Produit"
+        },
+        "plan": {
+          "label": "Offre"
+        },
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        }
+      }
+    },
+    "de": {
+      "title": "Umsatz je Region, Produkt und Tarif",
+      "subtitle": "Q3 2026, größte zuerst",
+      "description": "Umsatz Q3 dreifach aufgeteilt, eine Spalte je Ebene. Der Osten führt mit 338.000 €. Core macht in jeder Region etwa zwei Drittel aus, meist in Jahrestarifen; Plus neigt überall außer im Osten zum Monatstarif.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "product": {
+          "label": "Produkt"
+        },
+        "plan": {
+          "label": "Tarif"
+        },
+        "revenue": {
+          "label": "Umsatz"
+        }
+      }
+    }
   }
 }
 ```
@@ -1852,6 +2683,32 @@ One headline number with its change against a comparison. Reads the first row, o
     "x": "month",
     "goodWhen": "down",
     "icon": "activity"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Attrition client",
+      "description": "Part des clients perdus chaque mois. Plus bas, c'est mieux.",
+      "fields": {
+        "month": {
+          "label": "Mois"
+        },
+        "churn": {
+          "label": "Attrition mensuelle"
+        }
+      }
+    },
+    "de": {
+      "title": "Kundenabwanderung",
+      "description": "Anteil verlorener Kunden je Monat. Niedriger ist besser.",
+      "fields": {
+        "month": {
+          "label": "Monat"
+        },
+        "churn": {
+          "label": "Monatliche Abwanderung"
+        }
+      }
+    }
   }
 }
 ```
@@ -1945,6 +2802,58 @@ A row of stat tiles in one widget, each with a label, value and change: the calm
         "goodWhen": "down"
       }
     ]
+  },
+  "i18n": {
+    "fr": {
+      "title": "En un coup d'œil",
+      "subtitle": "{last:month} face au mois précédent, avec les tendances depuis {first:month}",
+      "description": "Les quatre chiffres clés sur une ligne.",
+      "source": {
+        "name": "Grand livre et CRM"
+      },
+      "fields": {
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        },
+        "profit": {
+          "label": "Marge brute"
+        },
+        "newCustomers": {
+          "label": "Nouveaux clients"
+        },
+        "churn": {
+          "label": "Attrition"
+        },
+        "month": {
+          "label": "Mois"
+        }
+      }
+    },
+    "de": {
+      "title": "Auf einen Blick",
+      "subtitle": "{last:month} gegen den Vormonat, mit Trends seit {first:month}",
+      "description": "Die vier Kennzahlen in einer Reihe.",
+      "source": {
+        "name": "Hauptbuch und CRM"
+      },
+      "fields": {
+        "revenue": {
+          "label": "Umsatz"
+        },
+        "profit": {
+          "label": "Bruttogewinn"
+        },
+        "newCustomers": {
+          "label": "Neukunden"
+        },
+        "churn": {
+          "label": "Abwanderung"
+        },
+        "month": {
+          "label": "Monat"
+        }
+      }
+    }
   }
 }
 ```
@@ -2032,6 +2941,72 @@ Stage swimlanes: one row per item on a shared date axis, each stage drawn from i
     "status": "status",
     "impact": "impact",
     "today": "2026-10-25"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Où en est chaque réglementation",
+      "subtitle": "De la proposition à l'application, par thème",
+      "description": "Chaque réglementation du registre en couloir sur un axe de dates : proposée, adoptée, en vigueur et applicable, chaque étape plus foncée, l'étape en cours en pâle, aujourd'hui marqué, le statut à la fin et des couloirs plus épais pour les plus fort impact.",
+      "note": "Dates fictives ; pas un avis juridique",
+      "source": {
+        "name": "Registre de veille réglementaire"
+      },
+      "fields": {
+        "name": {
+          "label": "Réglementation"
+        },
+        "proposed": {
+          "label": "Proposé"
+        },
+        "adopted": {
+          "label": "Adopté"
+        },
+        "inForce": {
+          "label": "En vigueur"
+        },
+        "applies": {
+          "label": "Applicable"
+        },
+        "status": {
+          "label": "Statut"
+        },
+        "topic": {
+          "label": "Thème"
+        }
+      }
+    },
+    "de": {
+      "title": "Wo jede Regulierung steht",
+      "subtitle": "Vom Vorschlag zur Anwendung, nach Thema",
+      "description": "Jede Regulierung im Compliance-Register als Bahn auf einer Datumsachse: vorgeschlagen, angenommen, in Kraft und anwendbar, jede Phase dunkler, die laufende Phase blass, heute markiert, der aktuelle Status am Ende und dickere Bahnen für höhere Wirkung.",
+      "note": "Fiktive Daten; keine Rechtsberatung",
+      "source": {
+        "name": "Register der Regulierungsbeobachtung"
+      },
+      "fields": {
+        "name": {
+          "label": "Regulierung"
+        },
+        "proposed": {
+          "label": "Vorgeschlagen"
+        },
+        "adopted": {
+          "label": "Angenommen"
+        },
+        "inForce": {
+          "label": "In Kraft"
+        },
+        "applies": {
+          "label": "Anwendbar"
+        },
+        "impact": {
+          "label": "Wirkung"
+        },
+        "topic": {
+          "label": "Thema"
+        }
+      }
+    }
   }
 }
 ```
@@ -2084,6 +3059,26 @@ Survey answers as diverging stacked bars: one bar per question, its responses in
       "agree",
       "strongly_agree"
     ]
+  },
+  "i18n": {
+    "fr": {
+      "title": "Baromètre des collaborateurs",
+      "subtitle": "T3 2026, part en désaccord et d'accord",
+      "description": "Réponses à cinq affirmations, centrées sur le neutre. Stratégie et recommandation sont bien notées ; la charge de travail divise le plus.",
+      "note": "240 réponses",
+      "source": {
+        "name": "Baromètre RH"
+      }
+    },
+    "de": {
+      "title": "Mitarbeiter-Pulsumfrage",
+      "subtitle": "Q3 2026, Anteil Ablehnung und Zustimmung",
+      "description": "Antworten auf fünf Aussagen, um neutral zentriert. Strategie und Weiterempfehlung schneiden gut ab; bei der Arbeitslast widersprechen die meisten.",
+      "note": "240 Antworten",
+      "source": {
+        "name": "HR-Pulsumfrage"
+      }
+    }
   }
 }
 ```
@@ -2174,6 +3169,66 @@ Lines showing change over an ordered axis, usually time. Several y fields draw s
         "label": "Target"
       }
     ]
+  },
+  "i18n": {
+    "fr": {
+      "title": "CA et coûts",
+      "subtitle": "{first:month} à {last:month}",
+      "description": "Tendance mensuelle du CA et des coûts, issue du grand livre.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "month": {
+          "label": "Mois"
+        },
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        },
+        "cost": {
+          "label": "Coût"
+        }
+      },
+      "headline": {
+        "caption": "CA de {last:month}"
+      },
+      "view": {
+        "reference": [
+          {
+            "label": "Objectif"
+          }
+        ]
+      }
+    },
+    "de": {
+      "title": "Umsatz und Kosten",
+      "subtitle": "{first:month} bis {last:month}",
+      "description": "Monatlicher Umsatz- und Kostentrend aus dem Hauptbuch.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "month": {
+          "label": "Monat"
+        },
+        "revenue": {
+          "label": "Umsatz"
+        },
+        "cost": {
+          "label": "Kosten"
+        }
+      },
+      "headline": {
+        "caption": "Umsatz im {last:month}"
+      },
+      "view": {
+        "reference": [
+          {
+            "label": "Ziel"
+          }
+        ]
+      }
+    }
   }
 }
 ```
@@ -2236,6 +3291,18 @@ A stacked list: one line per row with a label, optional detail underneath, and a
     "label": "name",
     "detail": "country",
     "value": "revenue"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Meilleurs clients",
+      "subtitle": "Par CA, depuis janvier",
+      "description": "Les cinq clients au plus fort chiffre d'affaires."
+    },
+    "de": {
+      "title": "Top-Kunden",
+      "subtitle": "Nach Umsatz, seit Jahresbeginn",
+      "description": "Die fünf Kunden mit dem meisten Umsatz."
+    }
   }
 }
 ```
@@ -2306,6 +3373,54 @@ A small, clean map that says where things are: a marker and an always-on name fo
     "label": "office",
     "note": "people",
     "color": "role"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Nos bureaux",
+      "subtitle": "Neuf sites en Europe",
+      "description": "Les bureaux de l'entreprise, nommés sur une grille de l'Europe avec leur effectif, colorés selon leur activité.",
+      "note": "Octobre 2026",
+      "source": {
+        "name": "Registre des sites"
+      },
+      "fields": {
+        "office": {
+          "label": "Bureau"
+        },
+        "country": {
+          "label": "Pays"
+        },
+        "people": {
+          "label": "Effectif"
+        },
+        "role": {
+          "label": "Rôle"
+        }
+      }
+    },
+    "de": {
+      "title": "Unsere Büros",
+      "subtitle": "Neun Standorte in Europa",
+      "description": "Wo die Büros des Unternehmens liegen, benannt auf einem Europaraster mit ihrer Belegschaft, nach Funktion gefärbt.",
+      "note": "Oktober 2026",
+      "source": {
+        "name": "Standortregister"
+      },
+      "fields": {
+        "office": {
+          "label": "Büro"
+        },
+        "country": {
+          "label": "Land"
+        },
+        "people": {
+          "label": "Belegschaft"
+        },
+        "role": {
+          "label": "Rolle"
+        }
+      }
+    }
   }
 }
 ```
@@ -2370,6 +3485,43 @@ A mosaic: one column per category, as wide as its total, split into segments by 
     "x": "region",
     "series": "product",
     "value": "revenue"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Taille et mix du marché",
+      "subtitle": "CA de septembre 2026, par région et produit",
+      "description": "Le CA de septembre de chaque région en colonne aussi large que sa part du total, découpée par produit. L'Est est le premier marché.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "region": {
+          "label": "Région"
+        },
+        "product": {
+          "label": "Produit"
+        },
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        }
+      }
+    },
+    "de": {
+      "title": "Marktgröße und Mix",
+      "subtitle": "Umsatz September 2026, nach Region und Produkt",
+      "description": "Septemberumsatz jeder Region als Säule so breit wie ihr Anteil, nach Produkt geteilt. Der Osten ist der größte Markt.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "product": {
+          "label": "Produkt"
+        },
+        "revenue": {
+          "label": "Umsatz"
+        }
+      }
+    }
   }
 }
 ```
@@ -2435,6 +3587,48 @@ A mark matrix (a punchcard): one mark per pair of x and y, sized by a value, sha
     "x": "stakeholder",
     "y": "regulation",
     "flag": "mustComply"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Qui doit se conformer",
+      "subtitle": "Les réglementations face aux entreprises qu'elles lient",
+      "description": "Un carré là où un type d'entreprise doit se conformer à une réglementation, un point pâle sinon : l'empreinte de conformité de chaque règle et de chaque type d'entreprise.",
+      "note": "Périmètre fictif ; pas un avis juridique",
+      "source": {
+        "name": "Registre de veille réglementaire"
+      },
+      "fields": {
+        "regulation": {
+          "label": "Réglementation"
+        },
+        "stakeholder": {
+          "label": "Doit se conformer"
+        },
+        "mustComply": {
+          "label": "Doit se conformer"
+        }
+      }
+    },
+    "de": {
+      "title": "Wer einhalten muss",
+      "subtitle": "Regulierungen gegen die Unternehmen, die sie binden",
+      "description": "Ein Quadrat, wo eine Art von Unternehmen eine Regulierung einhalten muss, ein blasser Punkt, wo nicht: der Compliance-Fußabdruck jeder Vorschrift und jeder Unternehmensart.",
+      "note": "Fiktiver Umfang; keine Rechtsberatung",
+      "source": {
+        "name": "Register der Regulierungsbeobachtung"
+      },
+      "fields": {
+        "regulation": {
+          "label": "Regulierung"
+        },
+        "stakeholder": {
+          "label": "Muss einhalten"
+        },
+        "mustComply": {
+          "label": "Muss einhalten"
+        }
+      }
+    }
   }
 }
 ```
@@ -2500,6 +3694,24 @@ Progress against a target, one meter per row: attainment as a percentage, a bar 
     "value": "revenue",
     "target": "target",
     "label": "region"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Atteinte des objectifs",
+      "subtitle": "CA de septembre 2026 face au plan",
+      "description": "À quelle distance chaque région est de son objectif de septembre.",
+      "source": {
+        "name": "Journal des ventes"
+      }
+    },
+    "de": {
+      "title": "Zielerreichung",
+      "subtitle": "Umsatz September 2026 gegen Plan",
+      "description": "Wie nah jede Region an ihrem Septemberziel ist.",
+      "source": {
+        "name": "Verkaufsjournal"
+      }
+    }
   }
 }
 ```
@@ -2557,6 +3769,22 @@ The 80/20 view: categories sorted largest first as bars of their share of the to
     "type": "pareto",
     "label": "cause",
     "value": "tickets"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Ce qui génère les tickets",
+      "subtitle": "T3 2026, par cause, avec le cumul",
+      "description": "Tickets par cause, la plus grande d'abord. Quatre causes font plus de 80 % du volume : à traiter en premier.",
+      "source": {
+        "name": "Support client"
+      }
+    },
+    "de": {
+      "title": "Was Support-Tickets auslöst",
+      "subtitle": "Q3 2026, nach Ursache, mit laufender Summe",
+      "description": "Tickets nach Ursache, größte zuerst. Vier Ursachen machen über 80 % aus: die zuerst beheben.",
+      "note": "{sum:tickets} Tickets"
+    }
   }
 }
 ```
@@ -2613,6 +3841,34 @@ Part-to-whole as a full disc: up to 6 slices from twelve o'clock clockwise, each
     "type": "pie",
     "label": "segment",
     "value": "revenue"
+  },
+  "i18n": {
+    "fr": {
+      "title": "D'où vient le CA du T3",
+      "subtitle": "Part par segment, T3 2026",
+      "description": "La part de chaque segment dans le CA du trimestre : les parts sur les tranches, les montants dans la légende.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        }
+      }
+    },
+    "de": {
+      "title": "Woher der Q3-Umsatz kam",
+      "subtitle": "Anteil nach Segment, Q3 2026",
+      "description": "Der Anteil jedes Segments am Quartalsumsatz: Anteile auf den Stücken, Beträge in der Legende.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "revenue": {
+          "label": "Umsatz"
+        }
+      }
+    }
   }
 }
 ```
@@ -2680,6 +3936,46 @@ A population pyramid: one row per band (an age group, a tenure band), with two c
     "label": "age",
     "left": "women",
     "right": "men"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Effectifs par âge et sexe",
+      "subtitle": "Effectif fin septembre 2026",
+      "description": "La pyramide de l'entreprise : plus de femmes avant 35 ans, plus d'hommes à partir de 40, et la tranche 30-34 ans est la plus large des deux côtés.",
+      "source": {
+        "name": "SIRH"
+      },
+      "fields": {
+        "age": {
+          "label": "Âge"
+        },
+        "women": {
+          "label": "Femmes"
+        },
+        "men": {
+          "label": "Hommes"
+        }
+      }
+    },
+    "de": {
+      "title": "Belegschaft nach Alter und Geschlecht",
+      "subtitle": "Belegschaft Ende September 2026",
+      "description": "Die Form des Unternehmens: unter 35 mehr Frauen, ab 40 mehr Männer, und die Gruppe 30 bis 34 ist auf beiden Seiten die breiteste.",
+      "source": {
+        "name": "Personalsystem"
+      },
+      "fields": {
+        "age": {
+          "label": "Alter"
+        },
+        "women": {
+          "label": "Frauen"
+        },
+        "men": {
+          "label": "Männer"
+        }
+      }
+    }
   }
 }
 ```
@@ -2748,6 +4044,40 @@ Profiles across several attributes: one spoke per row, rings for one shared scal
       "market"
     ],
     "max": 10
+  },
+  "i18n": {
+    "fr": {
+      "title": "Notre position",
+      "subtitle": "Notes clients sur 10, face à la moyenne du marché",
+      "description": "Note moyenne par attribut pour notre produit et pour le marché. Nous menons sur la fiabilité et la simplicité, et ne sommes derrière que sur le prix.",
+      "source": {
+        "name": "Enquête clients et panel d'analystes"
+      },
+      "fields": {
+        "us": {
+          "label": "Notre produit"
+        },
+        "market": {
+          "label": "Moyenne du marché"
+        }
+      }
+    },
+    "de": {
+      "title": "Unser Vergleich",
+      "subtitle": "Kundenbewertungen von 10, gegen den Marktdurchschnitt",
+      "description": "Durchschnittliche Kundenbewertung je Merkmal für unser Produkt und den Markt. Wir führen bei Zuverlässigkeit und Bedienung und liegen nur beim Preis zurück.",
+      "source": {
+        "name": "Kundenumfrage und Analystenpanel"
+      },
+      "fields": {
+        "us": {
+          "label": "Unser Produkt"
+        },
+        "market": {
+          "label": "Marktdurchschnitt"
+        }
+      }
+    }
   }
 }
 ```
@@ -2827,6 +4157,55 @@ A RAG scorecard: one row per entity (a client, a relationship manager, a deal) a
       "relationship": "relationshipLast"
     },
     "note": "owner"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Tableau RAG des clients",
+      "subtitle": "Revue d'octobre face à septembre, le pire d'abord",
+      "description": "Le statut rouge, orange ou vert de chaque client clé sur quatre perspectives : succès client, développement commercial, couverture et relation, le pire des quatre en global et des flèches là où un statut a bougé depuis septembre.",
+      "source": {
+        "name": "Revue client (fictive)"
+      },
+      "fields": {
+        "success": {
+          "label": "Succès client"
+        },
+        "growth": {
+          "label": "Développement commercial"
+        },
+        "coverage": {
+          "label": "Couverture"
+        },
+        "relationship": {
+          "label": "Relation"
+        }
+      }
+    },
+    "de": {
+      "title": "RAG-Scorecard der Kunden",
+      "subtitle": "Prüfung Oktober gegen September, schlechteste zuerst",
+      "description": "Rot-, Gelb- oder Grünstatus jedes Schlüsselkunden aus vier Perspektiven: Kundenerfolg, Geschäftsentwicklung, Betreuung und Beziehung, das schlechteste der vier als Gesamt, und Pfeile, wo sich ein Status seit September bewegte.",
+      "source": {
+        "name": "Kundenprüfung (fiktiv)"
+      },
+      "fields": {
+        "client": {
+          "label": "Kunde"
+        },
+        "success": {
+          "label": "Kundenerfolg"
+        },
+        "growth": {
+          "label": "Geschäftsentwicklung"
+        },
+        "coverage": {
+          "label": "Betreuung"
+        },
+        "relationship": {
+          "label": "Beziehung"
+        }
+      }
+    }
   }
 }
 ```
@@ -2897,6 +4276,46 @@ RAG status over time: one row per entity and one small mark per period, shaped a
     "period": "month",
     "status": "status",
     "note": "why"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Statut client, mois par mois",
+      "subtitle": "Statut global à chaque revue mensuelle, mai à octobre 2026",
+      "description": "Le statut rouge, orange ou vert de chaque client clé à chaque revue mensuelle, avec la raison du changement, pour commencer la revue par qui a glissé et pourquoi.",
+      "source": {
+        "name": "Revue client (fictive)"
+      },
+      "fields": {
+        "month": {
+          "label": "Mois"
+        },
+        "status": {
+          "label": "Statut"
+        },
+        "why": {
+          "label": "Pourquoi il a bougé"
+        }
+      }
+    },
+    "de": {
+      "title": "Kundenstatus, Monat für Monat",
+      "subtitle": "Gesamt-RAG bei jeder Monatsprüfung, Mai bis Oktober 2026",
+      "description": "Der Rot-, Gelb- oder Grünstatus jedes Schlüsselkunden bei jeder Monatsprüfung, mit einer Notiz zum Warum, damit die Prüfung mit den Abgerutschten beginnt.",
+      "source": {
+        "name": "Kundenprüfung (fiktiv)"
+      },
+      "fields": {
+        "client": {
+          "label": "Kunde"
+        },
+        "month": {
+          "label": "Monat"
+        },
+        "why": {
+          "label": "Warum er sich bewegte"
+        }
+      }
+    }
   }
 }
 ```
@@ -2956,6 +4375,31 @@ One smooth distribution curve per group on a shared axis, overlapping like a mou
     "type": "ridgeline",
     "value": "value",
     "group": "region"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Dispersion de la taille des affaires",
+      "subtitle": "Distribution des valeurs, par région",
+      "description": "La forme des montants par région : où tombent la plupart des affaires et quelle dispersion.",
+      "fields": {
+        "value": {
+          "label": "Valeur de l'affaire"
+        },
+        "region": {
+          "label": "Région"
+        }
+      }
+    },
+    "de": {
+      "title": "Wie sich Dealgrößen verteilen",
+      "subtitle": "Werteverteilung, je Region",
+      "description": "Die Form der Dealgrößen je Region: wo die meisten liegen und wie breit die Streuung ist.",
+      "fields": {
+        "value": {
+          "label": "Dealwert"
+        }
+      }
+    }
   }
 }
 ```
@@ -3021,6 +4465,40 @@ Concentric progress rings, one per row from the outside in, each filled to its s
     "label": "product",
     "value": "revenue",
     "target": "target"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Objectifs de septembre",
+      "subtitle": "CA face au plan, par produit",
+      "description": "Le CA de septembre de chaque produit en part de son objectif. Analytics et Services dépassent le leur ; Platform est à 96 %.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        },
+        "target": {
+          "label": "Objectif"
+        }
+      }
+    },
+    "de": {
+      "title": "Septemberziele",
+      "subtitle": "Umsatz gegen Plan, nach Produkt",
+      "description": "Septemberumsatz jedes Produkts als Anteil am Ziel. Analytics und Services übertreffen ihres; Platform liegt bei 96 %.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "revenue": {
+          "label": "Umsatz"
+        },
+        "target": {
+          "label": "Ziel"
+        }
+      }
+    }
   }
 }
 ```
@@ -3091,6 +4569,36 @@ A polar area chart (a Nightingale rose) for a cycle that wraps round, such as ho
   },
   "style": {
     "height": 300
+  },
+  "i18n": {
+    "fr": {
+      "title": "Visites par heure",
+      "subtitle": "Moyenne quotidienne, septembre 2026",
+      "description": "La journée a deux formes. Le bureau monte toute la matinée jusqu'à un pic à 11 h et retombe vers 17 h ; le mobile bondit sur le trajet de 8 h et domine la soirée, avec un pic à 21 h. L'aire de chaque part est ses visites.",
+      "note": "Heure locale",
+      "source": {
+        "name": "Analyse web"
+      },
+      "fields": {
+        "hour": {
+          "label": "Heure"
+        }
+      }
+    },
+    "de": {
+      "title": "Besuche je Stunde",
+      "subtitle": "Tagesdurchschnitt, September 2026",
+      "description": "Der Tag hat zwei Formen. Desktop steigt über den Arbeitsmorgen bis zu einer Spitze um 11 Uhr und flaut bis 17 Uhr ab; Mobil springt beim Pendeln um 8 Uhr und gehört dem Abend, mit Spitze um 21 Uhr. Die Fläche jedes Keils sind seine Besuche.",
+      "note": "Ortszeit",
+      "source": {
+        "name": "Web-Analyse"
+      },
+      "fields": {
+        "hour": {
+          "label": "Stunde"
+        }
+      }
+    }
   }
 }
 ```
@@ -3150,6 +4658,34 @@ Flows between stages as ribbons as thick as their volume, for example traffic so
     "source": "from",
     "target": "to",
     "value": "visits"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Où vont les visiteurs",
+      "subtitle": "Septembre 2026, de la source à la page au résultat",
+      "description": "Comment les visites de chaque source traversent le site jusqu'à l'inscription ou la sortie.",
+      "source": {
+        "name": "Analyse web"
+      },
+      "fields": {
+        "visits": {
+          "label": "Visites"
+        }
+      }
+    },
+    "de": {
+      "title": "Wohin Besucher gehen",
+      "subtitle": "September 2026, von der Quelle über die Seite zum Ergebnis",
+      "description": "Wie Besuche jeder Quelle durch die Website zur Anmeldung oder zum Absprung fließen.",
+      "source": {
+        "name": "Web-Analyse"
+      },
+      "fields": {
+        "visits": {
+          "label": "Besuche"
+        }
+      }
+    }
   }
 }
 ```
@@ -3233,6 +4769,48 @@ One dot per row placed by two numbers, to show how they relate. An optional grou
     "size": "revenue",
     "color": "segment",
     "label": "account"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Portefeuille de comptes",
+      "subtitle": "Croissance face à la marge, depuis janvier",
+      "description": "Chaque compte placé selon sa croissance et sa marge brute, la bulle taillée par son CA et colorée par segment. En haut à droite : où investir ; les grands comptes Enterprise croissent lentement mais rapportent bien.",
+      "note": "{count} comptes",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "growth": {
+          "label": "Croissance du CA"
+        },
+        "margin": {
+          "label": "Marge brute"
+        },
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        }
+      }
+    },
+    "de": {
+      "title": "Kontenportfolio",
+      "subtitle": "Wachstum gegen Marge, seit Jahresbeginn",
+      "description": "Jedes Konto nach Umsatzwachstum und Bruttomarge platziert, die Blase nach Umsatz bemessen und nach Segment gefärbt. Oben rechts lohnt sich Investition; die großen Enterprise-Konten wachsen langsam, verdienen aber gut.",
+      "note": "{count} Konten",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "growth": {
+          "label": "Umsatzwachstum"
+        },
+        "margin": {
+          "label": "Bruttomarge"
+        },
+        "revenue": {
+          "label": "Umsatz"
+        }
+      }
+    }
   }
 }
 ```
@@ -3298,6 +4876,26 @@ Each item's move between two points in time, as a line from a left column to a r
     "label": "region",
     "from": "h1",
     "to": "h2"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Taux de réussite par région",
+      "subtitle": "Premier face au second semestre 2026",
+      "description": "Part des affaires qualifiées gagnées par région, premier contre second semestre 2026.",
+      "fields": {
+        "h1": {
+          "label": "S1 2026"
+        },
+        "h2": {
+          "label": "S2 2026"
+        }
+      }
+    },
+    "de": {
+      "title": "Abschlussquote je Region",
+      "subtitle": "Erstes gegen zweites Halbjahr 2026",
+      "description": "Anteil gewonnener qualifizierter Deals je Region, erstes gegen zweites Halbjahr 2026."
+    }
   }
 }
 ```
@@ -3371,6 +4969,63 @@ Unit strips: one row per item with a strip of small squares, one per unit, color
     ],
     "per": "pages",
     "unit": "provision"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Le caractère contraignant de chaque texte",
+      "subtitle": "Dispositions par type, et par page",
+      "description": "Un carré par disposition, coloré obligatoire, recommandée ou facultative, pour compter la taille de chaque texte et sa part contraignante ; la densité par page dit à quel point il est dense.",
+      "note": "Chiffres fictifs",
+      "source": {
+        "name": "Registre de veille réglementaire"
+      },
+      "fields": {
+        "name": {
+          "label": "Réglementation"
+        },
+        "mandatory": {
+          "label": "Obligatoire"
+        },
+        "recommended": {
+          "label": "Recommandé"
+        },
+        "optional": {
+          "label": "Facultatif"
+        }
+      },
+      "view": {
+        "unit": "disposition"
+      }
+    },
+    "de": {
+      "title": "Wie verbindlich jede Regulierung ist",
+      "subtitle": "Bestimmungen nach Art und je Seite",
+      "description": "Ein Quadrat je Bestimmung, verpflichtend, empfohlen oder freiwillig gefärbt, damit Umfang und verbindlicher Anteil jedes Regelwerks zählbar sind; die Dichte je Seite zeigt, wie dicht der Text ist.",
+      "note": "Fiktive Zahlen",
+      "source": {
+        "name": "Register der Regulierungsbeobachtung"
+      },
+      "fields": {
+        "name": {
+          "label": "Regulierung"
+        },
+        "mandatory": {
+          "label": "Verpflichtend"
+        },
+        "recommended": {
+          "label": "Empfohlen"
+        },
+        "optional": {
+          "label": "Freiwillig"
+        },
+        "pages": {
+          "label": "Seiten"
+        }
+      },
+      "view": {
+        "unit": "Bestimmung"
+      }
+    }
   }
 }
 ```
@@ -3439,6 +5094,48 @@ A hierarchy as rings: the inner ring splits the total by the first level, each o
     ],
     "value": "revenue",
     "caption": "Q3 revenue"
+  },
+  "i18n": {
+    "fr": {
+      "title": "CA par produit, puis par région",
+      "subtitle": "T3 2026",
+      "description": "CA du T3 découpé par produit, puis chaque produit par région. Platform mène ; l'Est est la première région pour Platform et Analytics, le Centre pour Services.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "region": {
+          "label": "Région"
+        },
+        "product": {
+          "label": "Produit"
+        },
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        }
+      },
+      "view": {
+        "caption": "CA du T3"
+      }
+    },
+    "de": {
+      "title": "Umsatz je Produkt, dann je Region",
+      "description": "Umsatz Q3 zuerst nach Produkt, dann jedes Produkt nach Region. Platform führt; der Osten ist die größte Region für Platform und Analytics, die Mitte für Services.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "product": {
+          "label": "Produkt"
+        },
+        "revenue": {
+          "label": "Umsatz"
+        }
+      },
+      "view": {
+        "caption": "Umsatz Q3"
+      }
+    }
   }
 }
 ```
@@ -3505,6 +5202,42 @@ A map with a circle on each place, its area true to a value: customers by state,
     "id": "state",
     "size": "customers",
     "color": "region"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Clients par État",
+      "subtitle": "Comptes actifs, septembre 2026",
+      "description": "Comptes clients actifs par État américain, en cercles sur une grille, taillés par nombre et colorés par région commerciale : le poids des côtes et le centre clairsemé d'un coup.",
+      "note": "Comptes avec un abonnement actif",
+      "fields": {
+        "state": {
+          "label": "État"
+        },
+        "customers": {
+          "label": "Clients"
+        },
+        "region": {
+          "label": "Région commerciale"
+        }
+      }
+    },
+    "de": {
+      "title": "Kunden je Bundesstaat",
+      "subtitle": "Aktive Konten, September 2026",
+      "description": "Aktive Kundenkonten je US-Bundesstaat als Kreise auf einem Raster, nach Anzahl bemessen und nach Vertriebsregion gefärbt: das Gewicht der Küsten und die dünne Mitte auf einen Blick.",
+      "note": "Konten mit aktivem Abo",
+      "fields": {
+        "state": {
+          "label": "Bundesstaat"
+        },
+        "customers": {
+          "label": "Kunden"
+        },
+        "region": {
+          "label": "Vertriebsregion"
+        }
+      }
+    }
   }
 }
 ```
@@ -3579,6 +5312,18 @@ Rows and columns. The default view, and the one to use when people need exact va
       "amount"
     ],
     "totals": true
+  },
+  "i18n": {
+    "fr": {
+      "title": "Affaires ouvertes",
+      "subtitle": "Le plus grand d'abord",
+      "description": "Affaires en cours, avec leur étape."
+    },
+    "de": {
+      "title": "Offene Deals",
+      "subtitle": "Größte zuerst",
+      "description": "Laufende Deals mit ihrer Phase."
+    }
   }
 }
 ```
@@ -3639,6 +5384,24 @@ A Gantt-style timeline: one row per task with a bar from its start to its end da
     "group": "phase",
     "today": true,
     "progress": "done"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Plan de lancement T4",
+      "subtitle": "De la découverte à la mise en service, août à décembre 2026",
+      "description": "Les dates de chaque chantier par phase, remplies selon l'avancement, avec le jalon du lancement et une ligne à aujourd'hui.",
+      "source": {
+        "name": "Bureau de projet"
+      }
+    },
+    "de": {
+      "title": "Q4-Launchplan",
+      "subtitle": "Von der Analyse zum Go-live, August bis Dezember 2026",
+      "description": "Die Termine jedes Arbeitspakets nach Phase, nach Fortschritt gefüllt, mit dem Launch-Meilenstein und einer Linie für heute.",
+      "source": {
+        "name": "Projektbüro"
+      }
+    }
   }
 }
 ```
@@ -3702,6 +5465,28 @@ Part-to-whole for many categories: tiles sized by value, kept close to square. U
     "label": "name",
     "value": "revenue",
     "group": "segment"
+  },
+  "i18n": {
+    "fr": {
+      "title": "CA par client",
+      "subtitle": "Depuis janvier, par segment",
+      "description": "La part de CA de chaque client, groupée par segment.",
+      "fields": {
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        }
+      }
+    },
+    "de": {
+      "title": "Umsatz je Kunde",
+      "subtitle": "Seit Jahresbeginn, nach Segment",
+      "description": "Umsatzanteil jedes Kunden, nach Segment gruppiert.",
+      "fields": {
+        "revenue": {
+          "label": "Umsatz"
+        }
+      }
+    }
   }
 }
 ```
@@ -3771,6 +5556,34 @@ Variance against plan, as in financial reporting: per row a bar from a zero line
     "value": "actual",
     "target": "budget",
     "goodWhen": "down"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Coûts opérationnels face au budget",
+      "subtitle": "T3 2026, par service",
+      "description": "Dépenses du T3 de chaque service moins son budget. Ventes et R&D ont dépassé ; Marketing, Support et IT sont en dessous.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "actual": {
+          "label": "Réel"
+        }
+      }
+    },
+    "de": {
+      "title": "Betriebskosten gegen Budget",
+      "subtitle": "Q3 2026, nach Abteilung",
+      "description": "Q3-Ausgaben jeder Abteilung minus Budget. Vertrieb und F&E lagen darüber; Marketing, Support und IT darunter.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "actual": {
+          "label": "Ist"
+        }
+      }
+    }
   }
 }
 ```
@@ -3827,6 +5640,34 @@ Part to whole as a 10 by 10 grid where each square is one percent, filled catego
     "type": "waffle",
     "label": "source",
     "value": "revenue"
+  },
+  "i18n": {
+    "fr": {
+      "title": "D'où vient le CA",
+      "subtitle": "Septembre 2026, en pourcentage",
+      "description": "CA de septembre par source. Les abonnements apportent 62 euros sur 100.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        }
+      }
+    },
+    "de": {
+      "title": "Woher der Umsatz kommt",
+      "subtitle": "September 2026, in Prozent",
+      "description": "Septemberumsatz nach Quelle. Abos bringen 62 von 100 Euro.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "revenue": {
+          "label": "Umsatz"
+        }
+      }
+    }
   }
 }
 ```
@@ -3890,6 +5731,40 @@ A bridge: how a total moves to another through increases and decreases, each flo
     ],
     "endLabel": "September revenue",
     "fit": true
+  },
+  "i18n": {
+    "fr": {
+      "title": "Pont du CA",
+      "subtitle": "Août à septembre 2026",
+      "description": "Ce qui a fait bouger le CA d'août à septembre : gains des nouveaux clients, de la montée en gamme et des prix, pertes de l'attrition et des remises.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "amount": {
+          "label": "Chiffre d'affaires"
+        }
+      },
+      "view": {
+        "endLabel": "CA de septembre"
+      }
+    },
+    "de": {
+      "title": "Umsatzbrücke",
+      "subtitle": "August bis September 2026",
+      "description": "Was den Monatsumsatz von August zu September bewegte: Zuwächse durch Neukunden, Upselling und Preise, Verluste durch Abwanderung und Rabatte.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "amount": {
+          "label": "Umsatz"
+        }
+      },
+      "view": {
+        "endLabel": "Septemberumsatz"
+      }
+    }
   }
 }
 ```
@@ -3971,6 +5846,54 @@ The cross-sell map (whitespace analysis): one cell per client and product, fille
     "state": "state",
     "score": "propensity",
     "value": "value"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Où vendre ensuite",
+      "subtitle": "Produits détenus et ouverts par client, portefeuille nordique",
+      "description": "La carte de vente croisée : une case par client et produit. Pleine si détenu, contour si ouverte (teinte plus forte, probabilité plus haute), un point si non éligible. Les lignes au plus fort potentiel d'abord.",
+      "note": "Le potentiel est le CA annuel estimé de chaque produit ouvert",
+      "source": {
+        "name": "CRM et facturation (fictifs)"
+      },
+      "fields": {
+        "product": {
+          "label": "Produit"
+        },
+        "state": {
+          "label": "Statut"
+        },
+        "propensity": {
+          "label": "Propension"
+        },
+        "value": {
+          "label": "Chiffre d'affaires"
+        }
+      }
+    },
+    "de": {
+      "title": "Wo als Nächstes verkaufen",
+      "subtitle": "Gehaltene und offene Produkte je Kunde, Bestand Nordics",
+      "description": "Die Cross-Selling-Karte: eine Zelle je Kunde und Produkt. Gefüllt, wo gehalten, umrandet, wo offen (kräftiger heißt wahrscheinlicher), ein Punkt, wo nicht berechtigt. Zeilen mit dem meisten Potenzial zuerst.",
+      "note": "Potenzial ist der geschätzte Jahresumsatz jedes offenen Produkts",
+      "source": {
+        "name": "CRM und Abrechnung (fiktiv)"
+      },
+      "fields": {
+        "client": {
+          "label": "Kunde"
+        },
+        "product": {
+          "label": "Produkt"
+        },
+        "propensity": {
+          "label": "Neigung"
+        },
+        "value": {
+          "label": "Umsatz"
+        }
+      }
+    }
   }
 }
 ```
@@ -4103,6 +6026,112 @@ A client x-ray: one client on one card, from its first row. The name and a detai
     "trend": "revenueByMonth",
     "flags": "flags",
     "actions": "actions"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Radiographie client",
+      "subtitle": "Avant la revue de jeudi",
+      "description": "Un client sur une fiche : les faits clés, les produits, la part de portefeuille, la tendance du CA, les points de vigilance et la suite.",
+      "source": {
+        "name": "CRM, conservation et facturation (fictifs)"
+      },
+      "fields": {
+        "aum": {
+          "label": "Actifs"
+        },
+        "revenue": {
+          "label": "CA, 12 mois"
+        },
+        "products": {
+          "label": "Produits détenus"
+        },
+        "sinceYear": {
+          "label": "Client depuis"
+        },
+        "custody": {
+          "label": "Conservation"
+        },
+        "advisory": {
+          "label": "Conseil"
+        },
+        "discretionary": {
+          "label": "Discrétionnaire"
+        },
+        "lending": {
+          "label": "Crédit"
+        },
+        "fx": {
+          "label": "Change"
+        },
+        "structured": {
+          "label": "Structurés"
+        },
+        "insurance": {
+          "label": "Assurance"
+        },
+        "pension": {
+          "label": "Retraite"
+        },
+        "shareOfWallet": {
+          "label": "Part de portefeuille"
+        },
+        "revenueByMonth": {
+          "label": "CA par mois"
+        }
+      }
+    },
+    "de": {
+      "title": "Kunden-Röntgenbild",
+      "subtitle": "Vor der Prüfung am Donnerstag",
+      "description": "Ein Kunde auf einer Karte: Eckdaten, gehaltene Produkte, Wallet-Anteil, Umsatztrend, Warnzeichen und nächster Schritt.",
+      "source": {
+        "name": "CRM, Verwahrung und Abrechnung (fiktiv)"
+      },
+      "fields": {
+        "aum": {
+          "label": "Vermögen"
+        },
+        "revenue": {
+          "label": "Umsatz, 12 Monate"
+        },
+        "products": {
+          "label": "Gehaltene Produkte"
+        },
+        "sinceYear": {
+          "label": "Kunde seit"
+        },
+        "custody": {
+          "label": "Verwahrung"
+        },
+        "advisory": {
+          "label": "Beratung"
+        },
+        "discretionary": {
+          "label": "Vermögensverwaltung"
+        },
+        "lending": {
+          "label": "Kredit"
+        },
+        "fx": {
+          "label": "Devisen"
+        },
+        "structured": {
+          "label": "Strukturierte"
+        },
+        "insurance": {
+          "label": "Versicherung"
+        },
+        "pension": {
+          "label": "Vorsorge"
+        },
+        "shareOfWallet": {
+          "label": "Wallet-Anteil"
+        },
+        "revenueByMonth": {
+          "label": "Umsatz je Monat"
+        }
+      }
+    }
   }
 }
 ```

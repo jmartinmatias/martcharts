@@ -124,6 +124,28 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "label": "name",
     "value": "revenue",
     "group": "segment"
+  },
+  "i18n": {
+    "fr": {
+      "title": "CA par client",
+      "subtitle": "Depuis janvier, par segment",
+      "description": "La part de CA de chaque client, groupée par segment.",
+      "fields": {
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        }
+      }
+    },
+    "de": {
+      "title": "Umsatz je Kunde",
+      "subtitle": "Seit Jahresbeginn, nach Segment",
+      "description": "Umsatzanteil jedes Kunden, nach Segment gruppiert.",
+      "fields": {
+        "revenue": {
+          "label": "Umsatz"
+        }
+      }
+    }
   }
 }
 ```

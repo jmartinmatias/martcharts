@@ -37,5 +37,65 @@
       { "x": "2026-05", "text": "Two large renewals slipped to June" },
       { "x": "2026-09", "text": "New price list from September" }
     ]
+  },
+  "i18n": {
+    "fr": {
+      "title": "Le CA, et ce qui s'est passé",
+      "subtitle": "{first:month} à {last:month}",
+      "description": "Le CA mensuel en une ligne avec un symbole à chaque relevé, son plus haut et son plus bas nommés, et de courtes notes sur les moments clés.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "month": {
+          "label": "Mois"
+        },
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        }
+      },
+      "view": {
+        "annotations": [
+          {
+            "text": "Creux de janvier après les fêtes"
+          },
+          {
+            "text": "Deux gros renouvellements reportés à juin"
+          },
+          {
+            "text": "Nouvelle grille tarifaire dès septembre"
+          }
+        ]
+      }
+    },
+    "de": {
+      "title": "Umsatz, und was geschah",
+      "subtitle": "{first:month} bis {last:month}",
+      "description": "Monatsumsatz als Linie mit einem Symbol an jedem Messpunkt, Hoch und Tief benannt, und kurze Notizen zu den prägenden Momenten.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "month": {
+          "label": "Monat"
+        },
+        "revenue": {
+          "label": "Umsatz"
+        }
+      },
+      "view": {
+        "annotations": [
+          {
+            "text": "Januartief nach den Feiertagen"
+          },
+          {
+            "text": "Zwei große Verlängerungen auf Juni verschoben"
+          },
+          {
+            "text": "Neue Preisliste ab September"
+          }
+        ]
+      }
+    }
   }
 }

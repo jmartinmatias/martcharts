@@ -25,5 +25,35 @@
     "type": "hbar",
     "label": "channel",
     "value": ["leads", "won"]
+  },
+  "i18n": {
+    "fr": {
+      "title": "Prospects et gains par canal",
+      "subtitle": "T3 2026",
+      "description": "Combien de prospects chaque canal a apporté et combien sont devenus clients. Les recommandations partenaires apportent un tiers des prospects du search payant mais presque autant de gains.",
+      "fields": {
+        "channel": {
+          "label": "Canal"
+        },
+        "leads": {
+          "label": "Prospects"
+        },
+        "won": {
+          "label": "Gagnées"
+        }
+      }
+    },
+    "de": {
+      "title": "Leads und Abschlüsse je Kanal",
+      "description": "Wie viele Leads jeder Kanal brachte und wie viele Kunden wurden. Partnerempfehlungen bringen ein Drittel der Leads von bezahlter Suche, aber fast so viele Abschlüsse.",
+      "fields": {
+        "channel": {
+          "label": "Kanal"
+        },
+        "won": {
+          "label": "Gewonnen"
+        }
+      }
+    }
   }
 }

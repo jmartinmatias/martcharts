@@ -101,6 +101,28 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "type": "donut",
     "label": "segment",
     "value": "revenue"
+  },
+  "i18n": {
+    "fr": {
+      "title": "CA par segment",
+      "subtitle": "Depuis janvier",
+      "description": "La répartition du CA par segment de clientèle.",
+      "fields": {
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        }
+      }
+    },
+    "de": {
+      "title": "Umsatz je Segment",
+      "subtitle": "Seit Jahresbeginn",
+      "description": "Wie sich der Umsatz auf Kundensegmente verteilt.",
+      "fields": {
+        "revenue": {
+          "label": "Umsatz"
+        }
+      }
+    }
   }
 }
 ```

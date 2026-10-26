@@ -28,5 +28,31 @@
     "series": true,
     "x": "month",
     "icon": "users"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Nouveaux clients",
+      "description": "Clients gagnés chaque mois, avec la tendance sur 12 mois.",
+      "fields": {
+        "month": {
+          "label": "Mois"
+        },
+        "newCustomers": {
+          "label": "Clients gagnés"
+        }
+      }
+    },
+    "de": {
+      "title": "Neukunden",
+      "description": "Gewonnene Kunden je Monat mit dem 12-Monats-Trend.",
+      "fields": {
+        "month": {
+          "label": "Monat"
+        },
+        "newCustomers": {
+          "label": "Gewonnene Kunden"
+        }
+      }
+    }
   }
 }

@@ -71,5 +71,53 @@
     "y": "topic",
     "size": "obligations",
     "color": "impact"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Pression réglementaire par thème",
+      "subtitle": "Nouvelles obligations contraignantes par trimestre, et leur poids",
+      "description": "Une marque par thème et trimestre : plus le cercle est grand, plus de nouvelles obligations sont tombées ; plus la teinte est forte, plus leur impact moyen est élevé. Où la pression se concentre, et quand.",
+      "note": "Chiffres fictifs",
+      "source": {
+        "name": "Registre de veille réglementaire"
+      },
+      "fields": {
+        "quarter": {
+          "label": "Trimestre"
+        },
+        "topic": {
+          "label": "Thème"
+        },
+        "obligations": {
+          "label": "Nouvelles obligations"
+        },
+        "impact": {
+          "label": "Impact moyen"
+        }
+      }
+    },
+    "de": {
+      "title": "Regulierungsdruck je Thema",
+      "subtitle": "Neue verbindliche Pflichten je Quartal, und wie stark sie wirken",
+      "description": "Eine Markierung je Thema und Quartal: je größer der Kreis, desto mehr neue Pflichten kamen in diesem Quartal; je kräftiger der Ton, desto höher ihre mittlere Wirkung. Wo sich der Druck ballt, und wann.",
+      "note": "Fiktive Zahlen",
+      "source": {
+        "name": "Register der Regulierungsbeobachtung"
+      },
+      "fields": {
+        "quarter": {
+          "label": "Quartal"
+        },
+        "topic": {
+          "label": "Thema"
+        },
+        "obligations": {
+          "label": "Neue Pflichten"
+        },
+        "impact": {
+          "label": "Mittlere Wirkung"
+        }
+      }
+    }
   }
 }

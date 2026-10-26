@@ -75,5 +75,75 @@
       "R",
       "A"
     ]
+  },
+  "i18n": {
+    "fr": {
+      "source": {
+        "name": "Modèle de santé client (fictif)"
+      },
+      "title": "Succès client, mesure par mesure",
+      "subtitle": "Hors trajectoire ou à risque, le pire d'abord, face au trimestre précédent",
+      "description": "Le tableau du succès client : une ligne par client, un statut par mesure, le statut de la perspective et son évolution, et la prochaine étape.",
+      "fields": {
+        "rm": {
+          "label": "Chargé de clientèle"
+        },
+        "region": {
+          "label": "Région"
+        },
+        "aum": {
+          "label": "Actifs gérés"
+        },
+        "clientSuccessRag": {
+          "label": "Succès client"
+        },
+        "onboardingRag": {
+          "label": "Intégration"
+        },
+        "digitalAdoptionRag": {
+          "label": "Adoption digitale"
+        },
+        "ticketsOpenRag": {
+          "label": "Tickets ouverts"
+        },
+        "complaints90dRag": {
+          "label": "Réclamations, 90 jours"
+        },
+        "action": {
+          "label": "Étape suivante"
+        }
+      }
+    },
+    "de": {
+      "source": {
+        "name": "Kundengesundheitsmodell (fiktiv)"
+      },
+      "title": "Kundenerfolg, Kennzahl für Kennzahl",
+      "subtitle": "Nicht im Plan oder gefährdet, schlechteste zuerst, gegen das Vorquartal",
+      "description": "Die Kundenerfolgs-Scorecard: eine Zeile je Kunde, ein Status je Kennzahl, der Status der Perspektive, seine Bewegung seit dem Vorquartal und der nächste Schritt.",
+      "fields": {
+        "name": {
+          "label": "Kunde"
+        },
+        "rm": {
+          "label": "Kundenberater"
+        },
+        "clientSuccessRag": {
+          "label": "Kundenerfolg"
+        },
+        "digitalAdoptionRag": {
+          "label": "Digitale Nutzung"
+        },
+        "ticketsOpenRag": {
+          "label": "Offene Tickets"
+        },
+        "complaints90dRag": {
+          "label": "Beschwerden, 90 Tage"
+        },
+        "action": {
+          "label": "Nächster Schritt"
+        }
+      }
+    }
   }
 }

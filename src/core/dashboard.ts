@@ -4,6 +4,7 @@
  *
  * @module
  */
+import { checkI18n } from "./i18n.ts";
 import { isPlainObject } from "./fork.ts";
 import type { Issue, WidgetSpec } from "./types.ts";
 
@@ -94,6 +95,8 @@ export function rangeStart(option: string, latest: string): string | null {
 /** A dashboard: title, column count, filter row and cells. */
 export interface DashboardSpec {
   id?: string;
+  /** The board's words in other languages (title, intro, sections, filter labels), as on a widget: see `localizeSpec`. */
+  i18n?: Partial<Record<"fr" | "de" | "en", Record<string, unknown>>>;
   title?: string;
   subtitle?: string;
   description?: string;
@@ -127,6 +130,7 @@ const error = (path: string, message: string): Issue => ({ level: "error", path,
 export function validateDashboard(spec: unknown): Issue[] {
   if (!isPlainObject(spec)) return [error("dashboard", "A dashboard must be an object with a widgets list.")];
   const issues: Issue[] = [];
+  issues.push(...checkI18n(spec.i18n));
   const columns = spec.columns ?? 3;
   if (!(typeof columns === "number" && Number.isInteger(columns) && columns >= 1 && columns <= 6)) {
     issues.push(error("columns", "Must be a whole number from 1 to 6."));

@@ -219,8 +219,8 @@ ${FIND_JS}
       if (!words.length) return showAll();
       const shown = new Set(matchWords(words, cards));
       for (const card of cards) card.el.hidden = !shown.has(card);
-      count.textContent = shown.size + " of " + cards.length;
-      noneWords.textContent = "No chart matches \u201c" + text.trim() + "\u201d.";
+      count.textContent = T("{0} of {1}", shown.size, cards.length);
+      noneWords.textContent = T("No chart matches \u201c{0}\u201d.", text.trim());
       none.hidden = shown.size > 0;
     }
     // The ref's charts are the result: the grid steps aside until one is chosen or the search is cleared.
@@ -260,9 +260,9 @@ ${FIND_JS}
       const label = button.textContent;
       try {
         await navigator.clipboard.writeText(text);
-        button.textContent = "Copied";
+        button.textContent = T("Copied");
       } catch {
-        button.textContent = "Copy failed";
+        button.textContent = T("Copy failed");
       }
       setTimeout(() => (button.textContent = label), 1200);
     });

@@ -183,5 +183,181 @@
   ],
   "source": {
     "name": "Commercial data mart (fictional)"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Cockpit commercial",
+      "subtitle": "Les chiffres clés, ce qui demande attention, le pipeline, la prochaine vente, qui agit",
+      "description": "Le portefeuille commercial comme un récit, pour le chargé de clientèle et le directeur commercial : les chiffres clés d'abord, puis ce qui demande attention, où est l'argent, le pipeline face à l'objectif, qui pourrait acheter quoi, et qui agit cette semaine. En dessous, la référence : couverture, portefeuille, où sont les clients, campagnes et adoption.",
+      "filters": [
+        {},
+        {
+          "label": "Chargé de clientèle"
+        }
+      ],
+      "widgets": [
+        {
+          "section": "Chiffres clés",
+          "description": "Comment se porte le portefeuille ce mois-ci ?"
+        },
+        {},
+        {
+          "section": "Points d'attention",
+          "description": "Ce qui est sorti de la norme, et quand."
+        },
+        {},
+        {},
+        {
+          "section": "Où est l'argent",
+          "description": "Quels produits et clients apportent le CA, et est-ce dans le plan ?"
+        },
+        {},
+        {},
+        {},
+        {},
+        {
+          "section": "Pipeline commercial",
+          "description": "Chaque chargé atteindra-t-il son objectif ?"
+        },
+        {},
+        {},
+        {},
+        {},
+        {
+          "section": "Qui pourrait acheter quoi",
+          "description": "Où est la prochaine vente, et quelle probabilité ?"
+        },
+        {},
+        {},
+        {},
+        {
+          "section": "Qui agit",
+          "description": "Qui chaque chargé doit-il appeler cette semaine, et pourquoi ?"
+        },
+        {},
+        {},
+        {},
+        {
+          "section": "Couverture",
+          "description": "Chaque client est-il suivi, et quel est le remplissage des portefeuilles ?"
+        },
+        {},
+        {},
+        {},
+        {
+          "section": "Portefeuille",
+          "description": "Le portefeuille suit-il le modèle, et où les clients se regroupent-ils ?"
+        },
+        {},
+        {},
+        {},
+        {
+          "section": "Où sont les clients",
+          "description": "Où sont les actifs et les clients ?"
+        },
+        {},
+        {},
+        {
+          "section": "Campagnes",
+          "description": "Ce qui a tourné, converti et rapporté."
+        },
+        {},
+        {},
+        {},
+        {
+          "description": "À quelle vitesse les nouveaux clients adoptent-ils le canal digital ?"
+        }
+      ],
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      }
+    },
+    "de": {
+      "title": "Vertriebscockpit",
+      "subtitle": "Die Kennzahlen, was Aufmerksamkeit braucht, die Pipeline, der nächste Abschluss, wer handelt",
+      "description": "Der Vertriebsbestand als Geschichte, für Kundenberater und Vertriebsleitung: zuerst die Kennzahlen, dann was Aufmerksamkeit braucht, wo das Geld liegt, die Pipeline gegen Ziel, wer was kaufen könnte und wer diese Woche handelt. Darunter die Referenz: Betreuung, Portfolio, wo die Kunden sind, Kampagnen und Nutzung.",
+      "filters": [
+        {},
+        {
+          "label": "Kundenberater"
+        }
+      ],
+      "widgets": [
+        {
+          "section": "Kennzahlen",
+          "description": "Wie steht der Bestand diesen Monat?"
+        },
+        {},
+        {
+          "section": "Braucht Aufmerksamkeit",
+          "description": "Was aus der Reihe fiel, und wann?"
+        },
+        {},
+        {},
+        {
+          "section": "Wo das Geld liegt",
+          "description": "Welche Produkte und Kunden bringen den Umsatz, und liegt er im Plan?"
+        },
+        {},
+        {},
+        {},
+        {},
+        {
+          "section": "Vertriebspipeline",
+          "description": "Erreicht jeder Berater sein Ziel?"
+        },
+        {},
+        {},
+        {},
+        {},
+        {
+          "section": "Wer was kaufen könnte",
+          "description": "Wo liegt der nächste Abschluss, und wie wahrscheinlich?"
+        },
+        {},
+        {},
+        {},
+        {
+          "section": "Wer handelt",
+          "description": "Wen sollte jeder Berater diese Woche anrufen, und warum?"
+        },
+        {},
+        {},
+        {},
+        {
+          "section": "Betreuung",
+          "description": "Ist jeder Kunde betreut, und wie voll ist jeder Bestand?"
+        },
+        {},
+        {},
+        {},
+        {
+          "description": "Ist der Bestand nach Modell allokiert, und wo bilden Kunden Gruppen?"
+        },
+        {},
+        {},
+        {},
+        {
+          "section": "Wo die Kunden sind",
+          "description": "Wo liegen Vermögen und Kunden?"
+        },
+        {},
+        {},
+        {
+          "section": "Kampagnen",
+          "description": "Was lief, was konvertierte, was sich auszahlte?"
+        },
+        {},
+        {},
+        {},
+        {
+          "section": "Nutzung",
+          "description": "Wie schnell nutzen neue Kunden den digitalen Kanal?"
+        }
+      ],
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      }
+    }
   }
 }

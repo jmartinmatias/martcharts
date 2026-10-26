@@ -52,5 +52,45 @@
       "meetingsYtd",
       "target"
     ]
+  },
+  "i18n": {
+    "fr": {
+      "title": "Rendez-vous clients de l'année",
+      "subtitle": "Tenus à ce jour face à l'objectif annuel",
+      "description": "Rendez-vous tenus par chargé de clientèle face à l'objectif.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "rm": {
+          "label": "Chargé de clientèle"
+        },
+        "meetingsYtd": {
+          "label": "Rendez-vous tenus"
+        },
+        "target": {
+          "label": "Objectif"
+        }
+      }
+    },
+    "de": {
+      "title": "Kundentermine dieses Jahres",
+      "subtitle": "Bisher gehalten gegen das Jahresziel",
+      "description": "Gehaltene Termine je Kundenberater gegen das Ziel.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "rm": {
+          "label": "Kundenberater"
+        },
+        "meetingsYtd": {
+          "label": "Gehaltene Termine"
+        },
+        "target": {
+          "label": "Ziel"
+        }
+      }
+    }
   }
 }

@@ -80,5 +80,63 @@
     "search": true,
     "pageSize": 10,
     "stickyFirst": true
+  },
+  "i18n": {
+    "fr": {
+      "source": {
+        "name": "Modèle de santé client (fictif)"
+      },
+      "title": "Qui porte l'étape suivante",
+      "subtitle": "Hors trajectoire et à risque, le pire d'abord, avec l'action et les jours ouverts",
+      "description": "La liste d'actions : une ligne par client hors trajectoire, le rouge avant l'orange, l'action la plus ancienne d'abord.",
+      "fields": {
+        "rm": {
+          "label": "Chargé de clientèle"
+        },
+        "region": {
+          "label": "Région"
+        },
+        "aum": {
+          "label": "Actifs gérés"
+        },
+        "overallStatus": {
+          "label": "Statut"
+        },
+        "owner": {
+          "label": "Responsable"
+        },
+        "action": {
+          "label": "Étape suivante"
+        },
+        "daysOpen": {
+          "label": "Jours ouverts"
+        }
+      }
+    },
+    "de": {
+      "source": {
+        "name": "Kundengesundheitsmodell (fiktiv)"
+      },
+      "title": "Wer den nächsten Schritt verantwortet",
+      "subtitle": "Nicht im Plan und gefährdet, schlechteste zuerst, mit Aktion und offenen Tagen",
+      "description": "Die Aktionsliste: eine Zeile je Kunde außerhalb des Plans, Rot vor Gelb, die älteste offene Aktion zuerst.",
+      "fields": {
+        "name": {
+          "label": "Kunde"
+        },
+        "rm": {
+          "label": "Kundenberater"
+        },
+        "owner": {
+          "label": "Verantwortlich"
+        },
+        "action": {
+          "label": "Nächster Schritt"
+        },
+        "daysOpen": {
+          "label": "Tage offen"
+        }
+      }
+    }
   }
 }

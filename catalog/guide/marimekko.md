@@ -137,6 +137,43 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "x": "region",
     "series": "product",
     "value": "revenue"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Taille et mix du marché",
+      "subtitle": "CA de septembre 2026, par région et produit",
+      "description": "Le CA de septembre de chaque région en colonne aussi large que sa part du total, découpée par produit. L'Est est le premier marché.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "region": {
+          "label": "Région"
+        },
+        "product": {
+          "label": "Produit"
+        },
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        }
+      }
+    },
+    "de": {
+      "title": "Marktgröße und Mix",
+      "subtitle": "Umsatz September 2026, nach Region und Produkt",
+      "description": "Septemberumsatz jeder Region als Säule so breit wie ihr Anteil, nach Produkt geteilt. Der Osten ist der größte Markt.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "product": {
+          "label": "Produkt"
+        },
+        "revenue": {
+          "label": "Umsatz"
+        }
+      }
+    }
   }
 }
 ```

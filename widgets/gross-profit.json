@@ -46,5 +46,47 @@
     "type": "area",
     "x": "month",
     "y": "profit"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Marge brute",
+      "subtitle": "{first:month} à {last:month}",
+      "description": "Chiffre d'affaires moins coûts, mois par mois.",
+      "note": "Marge brute = CA - coûts",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "month": {
+          "label": "Mois"
+        },
+        "profit": {
+          "label": "Marge brute"
+        }
+      },
+      "headline": {
+        "caption": "marge brute de {last:month}"
+      }
+    },
+    "de": {
+      "title": "Bruttogewinn",
+      "subtitle": "{first:month} bis {last:month}",
+      "description": "Umsatz minus Kosten, Monat für Monat.",
+      "note": "Bruttogewinn = Umsatz - Kosten",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "month": {
+          "label": "Monat"
+        },
+        "profit": {
+          "label": "Bruttogewinn"
+        }
+      },
+      "headline": {
+        "caption": "Bruttogewinn im {last:month}"
+      }
+    }
   }
 }

@@ -47,5 +47,66 @@
     ],
     "sortable": false,
     "stickyFirst": true
+  },
+  "i18n": {
+    "fr": {
+      "source": {
+        "name": "Modèle de santé client (fictif)"
+      },
+      "title": "Comment chaque statut est fixé",
+      "subtitle": "Les deux seuils de chaque mesure, et leur raison",
+      "description": "Les règles derrière chaque statut de cette page : où finit le vert, où finit l'orange, le bon sens, et la raison.",
+      "fields": {
+        "label": {
+          "label": "Mesure"
+        },
+        "green": {
+          "label": "Vert dès"
+        },
+        "amber": {
+          "label": "Orange dès"
+        },
+        "goodWhen": {
+          "label": "Bon quand"
+        },
+        "unit": {
+          "label": "Unité"
+        },
+        "rationale": {
+          "label": "Pourquoi"
+        }
+      }
+    },
+    "de": {
+      "source": {
+        "name": "Kundengesundheitsmodell (fiktiv)"
+      },
+      "title": "Wie jeder Status gesetzt wird",
+      "subtitle": "Die zwei Schwellen jeder Kennzahl und ihr Grund",
+      "description": "Die Regeln hinter jedem Status dieser Seite: wo Grün endet, wo Gelb endet, welche Richtung gut ist, und warum.",
+      "fields": {
+        "perspectiveLabel": {
+          "label": "Perspektive"
+        },
+        "label": {
+          "label": "Kennzahl"
+        },
+        "green": {
+          "label": "Grün ab"
+        },
+        "amber": {
+          "label": "Gelb ab"
+        },
+        "goodWhen": {
+          "label": "Gut, wenn"
+        },
+        "unit": {
+          "label": "Einheit"
+        },
+        "rationale": {
+          "label": "Warum"
+        }
+      }
+    }
   }
 }

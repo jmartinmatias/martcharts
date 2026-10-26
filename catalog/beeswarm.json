@@ -54,5 +54,30 @@
     "value": "value",
     "group": "region",
     "label": "deal"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Taille des affaires par région",
+      "subtitle": "Toutes celles conclues ce semestre",
+      "description": "La dispersion des montants par région, valeurs extrêmes comprises.",
+      "fields": {
+        "value": {
+          "label": "Valeur de l'affaire"
+        },
+        "region": {
+          "label": "Région"
+        }
+      }
+    },
+    "de": {
+      "title": "Dealgrößen je Region",
+      "subtitle": "Alle in diesem Halbjahr abgeschlossen",
+      "description": "Streuung der Dealwerte je Region, inklusive Ausreißern, die ein Mittel verbirgt.",
+      "fields": {
+        "value": {
+          "label": "Dealwert"
+        }
+      }
+    }
   }
 }

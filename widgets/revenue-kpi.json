@@ -33,5 +33,37 @@
     "x": "month",
     "icon": "revenue",
     "target": "target"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Chiffre d'affaires",
+      "description": "CA mensuel avec sa tendance sur les 12 derniers mois.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "month": {
+          "label": "Mois"
+        },
+        "revenue": {
+          "label": "CA mensuel"
+        }
+      }
+    },
+    "de": {
+      "title": "Umsatz",
+      "description": "Monatsumsatz mit seinem Trend der letzten 12 Monate.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "month": {
+          "label": "Monat"
+        },
+        "revenue": {
+          "label": "Monatsumsatz"
+        }
+      }
+    }
   }
 }

@@ -54,5 +54,59 @@
         "label": "Amber up to 60"
       }
     ]
+  },
+  "i18n": {
+    "fr": {
+      "source": {
+        "name": "Modèle de santé client (fictif)"
+      },
+      "title": "Risque d'attrition par chargé",
+      "subtitle": "Score moyen du modèle par portefeuille",
+      "description": "La mesure clé de la relation, moyennée sur les clients de chaque chargé, face aux seuils qui fixent son statut.",
+      "fields": {
+        "rm": {
+          "label": "Chargé de clientèle"
+        },
+        "attritionRisk": {
+          "label": "Risque d'attrition"
+        }
+      },
+      "view": {
+        "reference": [
+          {
+            "label": "Vert jusqu'à 30"
+          },
+          {
+            "label": "Orange jusqu'à 60"
+          }
+        ]
+      }
+    },
+    "de": {
+      "source": {
+        "name": "Kundengesundheitsmodell (fiktiv)"
+      },
+      "title": "Abwanderungsrisiko je Berater",
+      "subtitle": "Mittlerer Modellwert je Bestand",
+      "description": "Die zentrale Beziehungskennzahl, gemittelt über die Kunden jedes Beraters, gegen die Schwellen ihres Status.",
+      "fields": {
+        "rm": {
+          "label": "Kundenberater"
+        },
+        "attritionRisk": {
+          "label": "Abwanderungsrisiko"
+        }
+      },
+      "view": {
+        "reference": [
+          {
+            "label": "Grün bis 30"
+          },
+          {
+            "label": "Gelb bis 60"
+          }
+        ]
+      }
+    }
   }
 }

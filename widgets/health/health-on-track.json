@@ -93,5 +93,89 @@
         "goodWhen": "down"
       }
     ]
+  },
+  "i18n": {
+    "fr": {
+      "source": {
+        "name": "Modèle de santé client (fictif)"
+      },
+      "title": "Clients sur la bonne voie",
+      "subtitle": "{last:quarter}, face au trimestre précédent",
+      "description": "Combien de clients sont verts, orange et rouges ce trimestre, et la part sur la bonne voie, face au trimestre précédent.",
+      "fields": {
+        "quarter": {
+          "label": "Trimestre"
+        },
+        "onTrack": {
+          "label": "Part sur la bonne voie"
+        },
+        "Red": {
+          "label": "Hors trajectoire (rouge)"
+        },
+        "Amber": {
+          "label": "À surveiller (orange)"
+        },
+        "Green": {
+          "label": "Sur la bonne voie (vert)"
+        }
+      },
+      "view": {
+        "items": [
+          {
+            "label": "Part des clients sur la bonne voie"
+          },
+          {
+            "label": "Sur la bonne voie"
+          },
+          {
+            "label": "À surveiller"
+          },
+          {
+            "label": "Hors trajectoire"
+          }
+        ]
+      }
+    },
+    "de": {
+      "source": {
+        "name": "Kundengesundheitsmodell (fiktiv)"
+      },
+      "title": "Kunden im Plan",
+      "subtitle": "{last:quarter} gegen das Vorquartal",
+      "description": "Wie viele Kunden dieses Quartal grün, gelb und rot sind und der Anteil im Plan, jeweils gegen das Vorquartal.",
+      "fields": {
+        "quarter": {
+          "label": "Quartal"
+        },
+        "onTrack": {
+          "label": "Anteil im Plan"
+        },
+        "Red": {
+          "label": "Nicht im Plan (rot)"
+        },
+        "Amber": {
+          "label": "Beobachten (gelb)"
+        },
+        "Green": {
+          "label": "Im Plan (grün)"
+        }
+      },
+      "view": {
+        "items": [
+          {
+            "label": "Anteil der Kunden im Plan"
+          },
+          {
+            "label": "Im Plan"
+          },
+          {
+            "label": "Beobachten"
+          },
+          {
+            "label": "Nicht im Plan"
+          }
+        ]
+      }
+    }
   }
 }

@@ -26,5 +26,28 @@
     "label": "region",
     "value": ["core", "plus", "enterprise"],
     "stacked": "percent"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Mix de revenus par région",
+      "subtitle": "Part du T3 2026, par gamme",
+      "description": "Ce que vend chaque région : Core fait plus de la moitié du CA partout sauf à l'Ouest, où Enterprise est la première ligne.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "region": {
+          "label": "Région"
+        }
+      }
+    },
+    "de": {
+      "title": "Umsatzmix je Region",
+      "subtitle": "Anteil Q3 2026, nach Produktlinie",
+      "description": "Was jede Region verkauft: Core macht überall mehr als die Hälfte aus, außer im Westen, wo Enterprise die größte Linie ist.",
+      "source": {
+        "name": "Hauptbuch"
+      }
+    }
   }
 }

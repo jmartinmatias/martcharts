@@ -51,5 +51,45 @@
       "#E0A21B",
       "#2E9D5B"
     ]
+  },
+  "i18n": {
+    "fr": {
+      "source": {
+        "name": "Modèle de santé client (fictif)"
+      },
+      "title": "Où la croissance suit le plan",
+      "subtitle": "Statut développement commercial par segment, en clients",
+      "description": "Combien de clients par segment sont verts, orange ou rouges en développement commercial.",
+      "fields": {
+        "Red": {
+          "label": "Hors trajectoire (rouge)"
+        },
+        "Amber": {
+          "label": "À surveiller (orange)"
+        },
+        "Green": {
+          "label": "Sur la bonne voie (vert)"
+        }
+      }
+    },
+    "de": {
+      "source": {
+        "name": "Kundengesundheitsmodell (fiktiv)"
+      },
+      "title": "Wo das Wachstum im Plan liegt",
+      "subtitle": "Status Geschäftsentwicklung nach Segment, in Kunden",
+      "description": "Wie viele Kunden je Segment bei der Geschäftsentwicklung grün, gelb oder rot sind.",
+      "fields": {
+        "Red": {
+          "label": "Nicht im Plan (rot)"
+        },
+        "Amber": {
+          "label": "Beobachten (gelb)"
+        },
+        "Green": {
+          "label": "Im Plan (grün)"
+        }
+      }
+    }
   }
 }

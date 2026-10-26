@@ -39,5 +39,51 @@
       "op": "<=",
       "value": 15
     }
-  ]
+  ],
+  "i18n": {
+    "fr": {
+      "title": "Qui doit se conformer",
+      "subtitle": "Les quinze règles au plus fort impact face aux types d'acteurs qu'elles lient",
+      "description": "Une marque là où une règle lie un type d'acteur : une colonne donne la charge d'un type, une ligne la portée d'une règle.",
+      "fields": {
+        "regulation": {
+          "label": "Réglementation"
+        },
+        "stakeholder": {
+          "label": "Type d'acteur"
+        },
+        "binds": {
+          "label": "Doit se conformer"
+        },
+        "impact": {
+          "label": "Impact (1 à 5)"
+        }
+      },
+      "source": {
+        "name": "Veille réglementaire (fictive)"
+      }
+    },
+    "de": {
+      "title": "Wer einhalten muss",
+      "subtitle": "Die fünfzehn wirkungsstärksten Vorschriften gegen die Akteurstypen, die sie binden",
+      "description": "Eine Markierung, wo eine Vorschrift einen Akteurstyp bindet: eine Spalte zeigt die Last eines Typs, eine Zeile die Reichweite einer Vorschrift.",
+      "fields": {
+        "regulation": {
+          "label": "Regulierung"
+        },
+        "stakeholder": {
+          "label": "Akteurstyp"
+        },
+        "binds": {
+          "label": "Muss einhalten"
+        },
+        "impact": {
+          "label": "Wirkung (1 bis 5)"
+        }
+      },
+      "source": {
+        "name": "Regulierungsbeobachtung (fiktiv)"
+      }
+    }
+  }
 }

@@ -109,5 +109,47 @@
     ],
     "value": "revenue",
     "caption": "Q3 revenue"
+  },
+  "i18n": {
+    "fr": {
+      "title": "CA par produit, puis par région",
+      "subtitle": "T3 2026",
+      "description": "CA du T3 découpé par produit, puis chaque produit par région. Platform mène ; l'Est est la première région pour Platform et Analytics, le Centre pour Services.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "region": {
+          "label": "Région"
+        },
+        "product": {
+          "label": "Produit"
+        },
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        }
+      },
+      "view": {
+        "caption": "CA du T3"
+      }
+    },
+    "de": {
+      "title": "Umsatz je Produkt, dann je Region",
+      "description": "Umsatz Q3 zuerst nach Produkt, dann jedes Produkt nach Region. Platform führt; der Osten ist die größte Region für Platform und Analytics, die Mitte für Services.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "product": {
+          "label": "Produkt"
+        },
+        "revenue": {
+          "label": "Umsatz"
+        }
+      },
+      "view": {
+        "caption": "Umsatz Q3"
+      }
+    }
   }
 }

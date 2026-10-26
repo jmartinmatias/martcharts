@@ -54,5 +54,53 @@
         "label": "Amber from 0"
       }
     ]
+  },
+  "i18n": {
+    "fr": {
+      "source": {
+        "name": "Modèle de santé client (fictif)"
+      },
+      "title": "Sentiment client par chargé",
+      "subtitle": "NPS moyen par portefeuille",
+      "description": "La mesure clé du succès client, moyennée sur les clients de chaque chargé, face aux seuils qui fixent son statut.",
+      "fields": {
+        "rm": {
+          "label": "Chargé de clientèle"
+        }
+      },
+      "view": {
+        "reference": [
+          {
+            "label": "Vert dès 30"
+          },
+          {
+            "label": "Orange dès 0"
+          }
+        ]
+      }
+    },
+    "de": {
+      "source": {
+        "name": "Kundengesundheitsmodell (fiktiv)"
+      },
+      "title": "Kundenstimmung je Berater",
+      "subtitle": "Mittlerer NPS je Bestand",
+      "description": "Die zentrale Kundenerfolgs-Kennzahl, gemittelt über die Kunden jedes Beraters, gegen die Schwellen ihres Status.",
+      "fields": {
+        "rm": {
+          "label": "Kundenberater"
+        }
+      },
+      "view": {
+        "reference": [
+          {
+            "label": "Grün ab 30"
+          },
+          {
+            "label": "Gelb ab 0"
+          }
+        ]
+      }
+    }
   }
 }

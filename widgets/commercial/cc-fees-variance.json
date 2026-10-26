@@ -56,5 +56,39 @@
         }
       ]
     }
-  ]
+  ],
+  "i18n": {
+    "fr": {
+      "title": "Commissions face à l'objectif",
+      "subtitle": "Par segment, depuis janvier 2026",
+      "description": "Commissions par segment, face à leur objectif.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "fees": {
+          "label": "Commissions"
+        },
+        "target": {
+          "label": "Objectif"
+        }
+      }
+    },
+    "de": {
+      "title": "Gebühren gegen Ziel",
+      "subtitle": "Nach Segment, 2026 seit Jahresbeginn",
+      "description": "Provisionserträge je Segment gegen ihr Ziel.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "fees": {
+          "label": "Gebühren"
+        },
+        "target": {
+          "label": "Ziel"
+        }
+      }
+    }
+  }
 }

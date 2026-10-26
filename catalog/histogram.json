@@ -54,5 +54,30 @@
     "value": "value",
     "bins": 9,
     "countLabel": "Deals"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Taille des affaires",
+      "subtitle": "Conclues ce semestre, tranches de 20 K€",
+      "description": "Combien d'affaires par tranche de valeur, la médiane marquée. La moitié est sous 60 K€ ; une longue traîne va jusqu'à 180 K€.",
+      "fields": {
+        "value": {
+          "label": "Valeur de l'affaire"
+        },
+        "region": {
+          "label": "Région"
+        }
+      }
+    },
+    "de": {
+      "title": "Dealgrößen",
+      "subtitle": "In diesem Halbjahr abgeschlossen, 20.000-€-Bänder",
+      "description": "Wie viele Deals in jedes Wertband fallen, mit markiertem Median. Die Hälfte liegt unter 60.000 €; ein langer Schwanz reicht bis 180.000 €.",
+      "fields": {
+        "value": {
+          "label": "Dealwert"
+        }
+      }
+    }
   }
 }

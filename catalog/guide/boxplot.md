@@ -150,6 +150,33 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "type": "boxplot",
     "value": "value",
     "group": "region"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Dispersion des affaires",
+      "subtitle": "Moitié centrale, médiane et valeurs extrêmes, par région",
+      "description": "Les montants de chaque région en boîte à moustaches. La moitié centrale de l'Est est bien au-dessus ; le Sud a un point extrême, le Nord un plus modéré.",
+      "note": "{count} affaires",
+      "fields": {
+        "value": {
+          "label": "Valeur de l'affaire"
+        },
+        "region": {
+          "label": "Région"
+        }
+      }
+    },
+    "de": {
+      "title": "Streuung der Dealgrößen",
+      "subtitle": "Mittlere Hälfte, Median und Ausreißer, je Region",
+      "description": "Dealwerte jeder Region als Boxplot. Die mittlere Hälfte im Osten liegt deutlich höher; der Süden hat einen starken Ausreißer, der Norden einen milderen.",
+      "note": "{count} Deals",
+      "fields": {
+        "value": {
+          "label": "Dealwert"
+        }
+      }
+    }
   }
 }
 ```

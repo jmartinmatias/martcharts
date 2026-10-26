@@ -61,5 +61,25 @@
       "agree",
       "strongly_agree"
     ]
+  },
+  "i18n": {
+    "fr": {
+      "title": "Baromètre des collaborateurs",
+      "subtitle": "T3 2026, part en désaccord et d'accord",
+      "description": "Réponses à cinq affirmations, centrées sur le neutre. Stratégie et recommandation sont bien notées ; la charge de travail divise le plus.",
+      "note": "240 réponses",
+      "source": {
+        "name": "Baromètre RH"
+      }
+    },
+    "de": {
+      "title": "Mitarbeiter-Pulsumfrage",
+      "subtitle": "Q3 2026, Anteil Ablehnung und Zustimmung",
+      "description": "Antworten auf fünf Aussagen, um neutral zentriert. Strategie und Weiterempfehlung schneiden gut ab; bei der Arbeitslast widersprechen die meisten.",
+      "note": "240 Antworten",
+      "source": {
+        "name": "HR-Pulsumfrage"
+      }
+    }
   }
 }

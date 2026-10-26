@@ -149,6 +149,40 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "geo": "europe",
     "id": "country",
     "value": "revenue"
+  },
+  "i18n": {
+    "fr": {
+      "title": "CA par pays",
+      "subtitle": "2026 depuis janvier, marchés européens",
+      "description": "CA cumulé par pays européen sur une grille, chaque pays de même taille pour que le Luxembourg se lise aussi bien que l'Allemagne ; les pays sans vente restent gris.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "country": {
+          "label": "Pays"
+        },
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        }
+      }
+    },
+    "de": {
+      "title": "Umsatz je Land",
+      "subtitle": "2026 seit Jahresbeginn, europäische Märkte",
+      "description": "Umsatz seit Jahresbeginn je europäischem Land auf einem Raster, jedes Land gleich groß, damit Luxemburg so gut lesbar ist wie Deutschland; Länder ohne Umsatz bleiben grau.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "country": {
+          "label": "Land"
+        },
+        "revenue": {
+          "label": "Umsatz"
+        }
+      }
+    }
   }
 }
 ```

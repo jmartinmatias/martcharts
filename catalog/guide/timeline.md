@@ -121,6 +121,24 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "group": "phase",
     "today": true,
     "progress": "done"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Plan de lancement T4",
+      "subtitle": "De la découverte à la mise en service, août à décembre 2026",
+      "description": "Les dates de chaque chantier par phase, remplies selon l'avancement, avec le jalon du lancement et une ligne à aujourd'hui.",
+      "source": {
+        "name": "Bureau de projet"
+      }
+    },
+    "de": {
+      "title": "Q4-Launchplan",
+      "subtitle": "Von der Analyse zum Go-live, August bis Dezember 2026",
+      "description": "Die Termine jedes Arbeitspakets nach Phase, nach Fortschritt gefüllt, mit dem Launch-Meilenstein und einer Linie für heute.",
+      "source": {
+        "name": "Projektbüro"
+      }
+    }
   }
 }
 ```

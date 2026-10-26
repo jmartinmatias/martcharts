@@ -61,5 +61,72 @@
   },
   "source": {
     "name": "Regulatory watch (fictional)"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Cycle de vie des grandes règles",
+      "subtitle": "Les douze réglementations au plus fort impact, de la proposition à l'application",
+      "description": "Le parcours de chaque règle de la proposition à l'application, face à la ligne d'aujourd'hui : ce qui s'applique déjà, ce qui vient.",
+      "fields": {
+        "name": {
+          "label": "Réglementation"
+        },
+        "topic": {
+          "label": "Thème"
+        },
+        "status": {
+          "label": "Statut"
+        },
+        "impact": {
+          "label": "Impact (1 à 5)"
+        },
+        "proposed": {
+          "label": "Proposé"
+        },
+        "adopted": {
+          "label": "Adopté"
+        },
+        "inForce": {
+          "label": "En vigueur"
+        },
+        "applies": {
+          "label": "Applicable"
+        }
+      },
+      "source": {
+        "name": "Veille réglementaire (fictive)"
+      }
+    },
+    "de": {
+      "title": "Lebenszyklus der größten Vorschriften",
+      "subtitle": "Die zwölf wirkungsstärksten Regulierungen, vom Vorschlag zur Anwendung, mit heute",
+      "description": "Der Weg jeder Vorschrift vom Vorschlag zur Anwendung gegen die Heute-Linie: was schon gilt, was noch kommt.",
+      "fields": {
+        "name": {
+          "label": "Regulierung"
+        },
+        "topic": {
+          "label": "Thema"
+        },
+        "impact": {
+          "label": "Wirkung (1 bis 5)"
+        },
+        "proposed": {
+          "label": "Vorgeschlagen"
+        },
+        "adopted": {
+          "label": "Angenommen"
+        },
+        "inForce": {
+          "label": "In Kraft"
+        },
+        "applies": {
+          "label": "Anwendbar"
+        }
+      },
+      "source": {
+        "name": "Regulierungsbeobachtung (fiktiv)"
+      }
+    }
   }
 }

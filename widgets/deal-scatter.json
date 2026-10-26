@@ -130,5 +130,41 @@
       "#c38300",
       "#6250d6"
     ]
+  },
+  "i18n": {
+    "fr": {
+      "title": "Taille et vitesse des affaires",
+      "subtitle": "Valeur face aux jours pour conclure, par étape",
+      "description": "Les grosses affaires prennent-elles plus de temps, et où sont les pertes.",
+      "note": "Deux derniers trimestres",
+      "fields": {
+        "value": {
+          "label": "Valeur de l'affaire"
+        },
+        "days": {
+          "label": "Jours pour conclure"
+        },
+        "stage": {
+          "label": "Étape"
+        }
+      }
+    },
+    "de": {
+      "title": "Dealgröße und Tempo",
+      "subtitle": "Wert gegen Tage bis Abschluss, nach Phase",
+      "description": "Ob größere Deals länger dauern, und wo verlorene Deals liegen.",
+      "note": "Letzte zwei Quartale",
+      "fields": {
+        "value": {
+          "label": "Dealwert"
+        },
+        "days": {
+          "label": "Tage bis Abschluss"
+        },
+        "stage": {
+          "label": "Phase"
+        }
+      }
+    }
   }
 }

@@ -25,8 +25,8 @@ async function copy(button, value) {
   try {
     if (window.ClipboardItem && navigator.clipboard.write) await navigator.clipboard.write([new ClipboardItem({ "text/plain": Promise.resolve(value).then((t) => new Blob([t], { type: "text/plain" })) })]);
     else await navigator.clipboard.writeText(await value);
-    button.textContent = "Copied";
-  } catch { button.textContent = "Copy failed"; }
+    button.textContent = T("Copied");
+  } catch { button.textContent = T("Copy failed"); }
   setTimeout(() => (button.textContent = label), 1200);
 }
 // A section's detail opens on demand: its live chart loads only then, so the page draws 57 charts only if asked.
@@ -48,6 +48,8 @@ const openFromHash = () => {
 window.addEventListener("hashchange", openFromHash);
 openFromHash();
 
+// The page's words in the reader's language, from the site's dictionary (public/site-look.js); English without it.
+const T = (text, ...args) => (window.siteLook && window.siteLook.t ? window.siteLook.t(text, ...args) : text.replace(/\{(\d)\}/g, (_, i) => args[Number(i)]));
 // The ref alphabet leaves out I, L, O and U, so a ref never reads as a word.
 function readRef(text) {
   const typed = text.trim().toUpperCase();
@@ -69,7 +71,7 @@ async function lookUpRef(text, base) {
 // One list item per chart found, each a link to it. A link to this page goes through onHere(hash) instead, so the
 // page can clear its search and show the chart rather than land on a hidden card.
 function refItems(result, base, onHere) {
-  if (!result.found.length) return [Object.assign(document.createElement("li"), { textContent: "No chart on the site has the ref " + result.ref + "." })];
+  if (!result.found.length) return [Object.assign(document.createElement("li"), { textContent: T("No chart on the site has the ref {0}.", result.ref) })];
   return result.found.map((entry) => {
     const item = document.createElement("li");
     const link = document.createElement("a");
@@ -84,7 +86,7 @@ function refItems(result, base, onHere) {
     const code = document.createElement("code");
     code.textContent = entry.ref + " ";
     item.append(code, link);
-    if (entry.ref !== result.ref) item.prepend(result.ref + " is now ");
+    if (entry.ref !== result.ref) item.prepend(T("{0} is now ", result.ref));
     return item;
   });
 }
@@ -132,7 +134,7 @@ function filterWords(text) {
   if (!words.length) return showAll();
   const shown = new Set(matchWords(words, charts));
   for (const chart of charts) chart.el.hidden = !shown.has(chart);
-  count.textContent = shown.size + " of " + charts.length;
+  count.textContent = T("{0} of {1}", shown.size, charts.length);
   none.hidden = shown.size > 0;
 }
 function showRef(result) {

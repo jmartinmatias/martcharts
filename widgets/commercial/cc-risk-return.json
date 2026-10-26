@@ -44,5 +44,48 @@
     "size": "aum",
     "cluster": "cluster",
     "label": "name"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Risque, rendement et groupes",
+      "subtitle": "Tous les clients, 2026 depuis janvier",
+      "description": "Clients placés par risque et rendement, regroupés selon l'analyse : où croître, protéger, revoir ou rééquilibrer.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "riskScore": {
+          "label": "Score de risque"
+        },
+        "returnYtd": {
+          "label": "Rendement YTD"
+        },
+        "aum": {
+          "label": "Actifs gérés"
+        },
+        "cluster": {
+          "label": "Groupe"
+        }
+      }
+    },
+    "de": {
+      "title": "Risiko, Rendite und Cluster",
+      "subtitle": "Jeder Kunde, 2026 seit Jahresbeginn",
+      "description": "Kunden nach Risiko und Rendite, in die gefundenen Cluster gruppiert: wo wachsen, schützen, prüfen oder umschichten.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "riskScore": {
+          "label": "Risikowert"
+        },
+        "returnYtd": {
+          "label": "Rendite lfd. Jahr"
+        },
+        "name": {
+          "label": "Kunde"
+        }
+      }
+    }
   }
 }

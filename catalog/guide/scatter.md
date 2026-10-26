@@ -155,6 +155,48 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "size": "revenue",
     "color": "segment",
     "label": "account"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Portefeuille de comptes",
+      "subtitle": "Croissance face à la marge, depuis janvier",
+      "description": "Chaque compte placé selon sa croissance et sa marge brute, la bulle taillée par son CA et colorée par segment. En haut à droite : où investir ; les grands comptes Enterprise croissent lentement mais rapportent bien.",
+      "note": "{count} comptes",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "growth": {
+          "label": "Croissance du CA"
+        },
+        "margin": {
+          "label": "Marge brute"
+        },
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        }
+      }
+    },
+    "de": {
+      "title": "Kontenportfolio",
+      "subtitle": "Wachstum gegen Marge, seit Jahresbeginn",
+      "description": "Jedes Konto nach Umsatzwachstum und Bruttomarge platziert, die Blase nach Umsatz bemessen und nach Segment gefärbt. Oben rechts lohnt sich Investition; die großen Enterprise-Konten wachsen langsam, verdienen aber gut.",
+      "note": "{count} Konten",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "growth": {
+          "label": "Umsatzwachstum"
+        },
+        "margin": {
+          "label": "Bruttomarge"
+        },
+        "revenue": {
+          "label": "Umsatz"
+        }
+      }
+    }
   }
 }
 ```

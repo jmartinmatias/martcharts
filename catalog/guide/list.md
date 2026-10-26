@@ -116,6 +116,18 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "label": "name",
     "detail": "country",
     "value": "revenue"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Meilleurs clients",
+      "subtitle": "Par CA, depuis janvier",
+      "description": "Les cinq clients au plus fort chiffre d'affaires."
+    },
+    "de": {
+      "title": "Top-Kunden",
+      "subtitle": "Nach Umsatz, seit Jahresbeginn",
+      "description": "Die fünf Kunden mit dem meisten Umsatz."
+    }
   }
 }
 ```

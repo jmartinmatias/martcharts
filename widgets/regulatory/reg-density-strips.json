@@ -49,5 +49,60 @@
   },
   "source": {
     "name": "Regulatory watch (fictional)"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Densité des dispositions",
+      "subtitle": "Contraignantes, recommandées et facultatives par page : les quinze règles les plus longues",
+      "description": "Chaque règle en bande de ses dispositions, les contraignantes d'abord, avec le nombre de dispositions par page.",
+      "fields": {
+        "name": {
+          "label": "Réglementation"
+        },
+        "mandatory": {
+          "label": "Contraignant (shall)"
+        },
+        "recommended": {
+          "label": "Recommandé (should)"
+        },
+        "optional": {
+          "label": "Facultatif (may)"
+        }
+      },
+      "view": {
+        "unit": "dispositions"
+      },
+      "source": {
+        "name": "Veille réglementaire (fictive)"
+      }
+    },
+    "de": {
+      "title": "Bestimmungsdichte",
+      "subtitle": "Verbindlich, empfohlen und freiwillig je Seite: die fünfzehn längsten Vorschriften",
+      "description": "Jede Vorschrift als Streifen ihrer Bestimmungen, verbindliche zuerst, mit den Bestimmungen je Seite.",
+      "fields": {
+        "name": {
+          "label": "Regulierung"
+        },
+        "mandatory": {
+          "label": "Verbindlich (shall)"
+        },
+        "recommended": {
+          "label": "Empfohlen (should)"
+        },
+        "optional": {
+          "label": "Freiwillig (may)"
+        },
+        "pages": {
+          "label": "Seiten"
+        }
+      },
+      "view": {
+        "unit": "Bestimmungen"
+      },
+      "source": {
+        "name": "Regulierungsbeobachtung (fiktiv)"
+      }
+    }
   }
 }

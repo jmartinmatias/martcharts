@@ -36,5 +36,36 @@
     "type": "funnel",
     "label": "stage",
     "value": "deals"
+  },
+  "i18n": {
+    "fr": {
+      "title": "De qualifiée à gagnée",
+      "subtitle": "Affaires de l'année selon l'étape la plus avancée atteinte",
+      "description": "Combien d'affaires ont atteint chaque étape, de qualifiée à gagnée, et combien se sont perdues en route.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "stage": {
+          "label": "Étape"
+        },
+        "deals": {
+          "label": "Affaires"
+        }
+      }
+    },
+    "de": {
+      "title": "Von qualifiziert zu gewonnen",
+      "subtitle": "Deals dieses Jahres nach der weitesten erreichten Phase",
+      "description": "Wie viele Deals jede Stufe von qualifiziert bis gewonnen erreichten und wie viele dazwischen wegfielen.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "stage": {
+          "label": "Phase"
+        }
+      }
+    }
   }
 }

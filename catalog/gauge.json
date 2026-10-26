@@ -29,5 +29,35 @@
     "min": -100,
     "max": 100,
     "label": "Net promoter score"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Net Promoter Score",
+      "subtitle": "Enquête de septembre 2026, face à un objectif de 50",
+      "description": "Part de promoteurs moins part de détracteurs, sur l'échelle complète de -100 à 100, avec l'objectif marqué.",
+      "note": "1 240 réponses",
+      "source": {
+        "name": "Enquête clients"
+      },
+      "fields": {
+        "goal": {
+          "label": "Objectif"
+        }
+      }
+    },
+    "de": {
+      "title": "Net Promoter Score",
+      "subtitle": "Umfrage September 2026, gegen ein Ziel von 50",
+      "description": "Anteil der Promotoren minus Anteil der Kritiker, auf der vollen Skala von -100 bis 100, mit markiertem Ziel.",
+      "note": "1.240 Antworten",
+      "source": {
+        "name": "Kundenumfrage"
+      },
+      "fields": {
+        "goal": {
+          "label": "Ziel"
+        }
+      }
+    }
   }
 }

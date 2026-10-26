@@ -42,5 +42,36 @@
     "geo": "europe",
     "id": "country",
     "value": "aum"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Où sont les actifs",
+      "subtitle": "Actifs par pays, 2026 depuis janvier",
+      "description": "Actifs clients sommés par pays, sur une carte de l'Europe.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "country": {
+          "label": "Pays"
+        },
+        "aum": {
+          "label": "Actifs gérés"
+        }
+      }
+    },
+    "de": {
+      "title": "Wo das Vermögen liegt",
+      "subtitle": "AuM nach Land, 2026 seit Jahresbeginn",
+      "description": "Kundenvermögen je Land, auf einer Europakarte schattiert.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "country": {
+          "label": "Land"
+        }
+      }
+    }
   }
 }

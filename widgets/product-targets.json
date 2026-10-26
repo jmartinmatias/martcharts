@@ -50,5 +50,39 @@
     "label": "product",
     "value": "revenue",
     "target": "target"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Objectifs de septembre",
+      "subtitle": "CA face au plan, par produit",
+      "description": "Le CA de septembre de chaque produit en part de son objectif. Analytics et Services dépassent le leur ; Platform est à 96 %.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        },
+        "target": {
+          "label": "Objectif"
+        }
+      }
+    },
+    "de": {
+      "title": "Septemberziele",
+      "subtitle": "Umsatz gegen Plan, nach Produkt",
+      "description": "Septemberumsatz jedes Produkts als Anteil am Ziel. Analytics und Services übertreffen ihres; Platform liegt bei 96 %.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "revenue": {
+          "label": "Umsatz"
+        },
+        "target": {
+          "label": "Ziel"
+        }
+      }
+    }
   }
 }

@@ -123,6 +123,34 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "source": "from",
     "target": "to",
     "value": "visits"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Où vont les visiteurs",
+      "subtitle": "Septembre 2026, de la source à la page au résultat",
+      "description": "Comment les visites de chaque source traversent le site jusqu'à l'inscription ou la sortie.",
+      "source": {
+        "name": "Analyse web"
+      },
+      "fields": {
+        "visits": {
+          "label": "Visites"
+        }
+      }
+    },
+    "de": {
+      "title": "Wohin Besucher gehen",
+      "subtitle": "September 2026, von der Quelle über die Seite zum Ergebnis",
+      "description": "Wie Besuche jeder Quelle durch die Website zur Anmeldung oder zum Absprung fließen.",
+      "source": {
+        "name": "Web-Analyse"
+      },
+      "fields": {
+        "visits": {
+          "label": "Besuche"
+        }
+      }
+    }
   }
 }
 ```

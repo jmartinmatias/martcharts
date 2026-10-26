@@ -43,5 +43,42 @@
         }
       ]
     }
-  ]
+  ],
+  "i18n": {
+    "fr": {
+      "source": {
+        "name": "Modèle de santé client (fictif)"
+      },
+      "title": "Où sont les rouges",
+      "subtitle": "Clients hors trajectoire, par chargé et perspective",
+      "description": "Combien de clients de chaque chargé sont rouges par perspective : les cases les plus fortes disent où intervenir.",
+      "fields": {
+        "rm": {
+          "label": "Chargé de clientèle"
+        },
+        "red": {
+          "label": "Clients rouges"
+        }
+      }
+    },
+    "de": {
+      "source": {
+        "name": "Kundengesundheitsmodell (fiktiv)"
+      },
+      "title": "Wo die Roten sitzen",
+      "subtitle": "Kunden außerhalb des Plans, nach Berater und Perspektive",
+      "description": "Wie viele Kunden jedes Beraters je Perspektive rot sind: die stärksten Zellen zeigen, wo einzugreifen ist.",
+      "fields": {
+        "rm": {
+          "label": "Kundenberater"
+        },
+        "perspective": {
+          "label": "Perspektive"
+        },
+        "red": {
+          "label": "Rote Kunden"
+        }
+      }
+    }
+  }
 }

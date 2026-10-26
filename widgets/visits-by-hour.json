@@ -156,5 +156,35 @@
   },
   "style": {
     "height": 300
+  },
+  "i18n": {
+    "fr": {
+      "title": "Visites par heure",
+      "subtitle": "Moyenne quotidienne, septembre 2026",
+      "description": "La journée a deux formes. Le bureau monte toute la matinée jusqu'à un pic à 11 h et retombe vers 17 h ; le mobile bondit sur le trajet de 8 h et domine la soirée, avec un pic à 21 h. L'aire de chaque part est ses visites.",
+      "note": "Heure locale",
+      "source": {
+        "name": "Analyse web"
+      },
+      "fields": {
+        "hour": {
+          "label": "Heure"
+        }
+      }
+    },
+    "de": {
+      "title": "Besuche je Stunde",
+      "subtitle": "Tagesdurchschnitt, September 2026",
+      "description": "Der Tag hat zwei Formen. Desktop steigt über den Arbeitsmorgen bis zu einer Spitze um 11 Uhr und flaut bis 17 Uhr ab; Mobil springt beim Pendeln um 8 Uhr und gehört dem Abend, mit Spitze um 21 Uhr. Die Fläche jedes Keils sind seine Besuche.",
+      "note": "Ortszeit",
+      "source": {
+        "name": "Web-Analyse"
+      },
+      "fields": {
+        "hour": {
+          "label": "Stunde"
+        }
+      }
+    }
   }
 }

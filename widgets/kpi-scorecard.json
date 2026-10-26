@@ -59,5 +59,41 @@
     "label": "kpi",
     "value": "actual",
     "target": "target"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Tableau de septembre",
+      "subtitle": "Réel face à l'objectif, avec bandes faible, moyen et bon",
+      "description": "Chaque indicateur clé de septembre face à son objectif du mois.",
+      "note": "Bandes à 60 %, 90 % et 120 % de l'objectif",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "actual": {
+          "label": "Réel"
+        },
+        "target": {
+          "label": "Objectif"
+        }
+      }
+    },
+    "de": {
+      "title": "September-Scorecard",
+      "subtitle": "Ist gegen Ziel, mit Bändern schwach, mittel und gut",
+      "description": "Jede Kennzahl im September gegen ihr Monatsziel.",
+      "note": "Bänder enden bei 60 %, 90 % und 120 % des Ziels",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "actual": {
+          "label": "Ist"
+        },
+        "target": {
+          "label": "Ziel"
+        }
+      }
+    }
   }
 }

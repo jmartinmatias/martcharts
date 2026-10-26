@@ -60,5 +60,45 @@
     "label": "rm",
     "value": "weighted",
     "target": "pipelineTarget"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Pipeline face à l'objectif, par chargé",
+      "subtitle": "Affaires ouvertes pondérées par étape : 20 % qualifiée, 45 % proposition, 70 % négociation",
+      "description": "Le pipeline ouvert de chaque chargé, pondéré par l'avancement des affaires, face au pipeline que le plan exige.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "rm": {
+          "label": "Chargé de clientèle"
+        },
+        "weighted": {
+          "label": "Pipeline pondéré"
+        },
+        "pipelineTarget": {
+          "label": "Objectif"
+        }
+      }
+    },
+    "de": {
+      "title": "Pipeline gegen Ziel, je Berater",
+      "subtitle": "Offene Deals nach Phase gewichtet: 20 % qualifiziert, 45 % Angebot, 70 % Verhandlung",
+      "description": "Die offene Pipeline jedes Kundenberaters, nach Fortschritt gewichtet, gegen die Pipeline, die der Plan braucht.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "rm": {
+          "label": "Kundenberater"
+        },
+        "weighted": {
+          "label": "Gewichtete Pipeline"
+        },
+        "pipelineTarget": {
+          "label": "Ziel"
+        }
+      }
+    }
   }
 }

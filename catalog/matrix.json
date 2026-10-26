@@ -79,5 +79,47 @@
     "x": "stakeholder",
     "y": "regulation",
     "flag": "mustComply"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Qui doit se conformer",
+      "subtitle": "Les réglementations face aux entreprises qu'elles lient",
+      "description": "Un carré là où un type d'entreprise doit se conformer à une réglementation, un point pâle sinon : l'empreinte de conformité de chaque règle et de chaque type d'entreprise.",
+      "note": "Périmètre fictif ; pas un avis juridique",
+      "source": {
+        "name": "Registre de veille réglementaire"
+      },
+      "fields": {
+        "regulation": {
+          "label": "Réglementation"
+        },
+        "stakeholder": {
+          "label": "Doit se conformer"
+        },
+        "mustComply": {
+          "label": "Doit se conformer"
+        }
+      }
+    },
+    "de": {
+      "title": "Wer einhalten muss",
+      "subtitle": "Regulierungen gegen die Unternehmen, die sie binden",
+      "description": "Ein Quadrat, wo eine Art von Unternehmen eine Regulierung einhalten muss, ein blasser Punkt, wo nicht: der Compliance-Fußabdruck jeder Vorschrift und jeder Unternehmensart.",
+      "note": "Fiktiver Umfang; keine Rechtsberatung",
+      "source": {
+        "name": "Register der Regulierungsbeobachtung"
+      },
+      "fields": {
+        "regulation": {
+          "label": "Regulierung"
+        },
+        "stakeholder": {
+          "label": "Muss einhalten"
+        },
+        "mustComply": {
+          "label": "Muss einhalten"
+        }
+      }
+    }
   }
 }

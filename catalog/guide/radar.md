@@ -119,6 +119,40 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "market"
     ],
     "max": 10
+  },
+  "i18n": {
+    "fr": {
+      "title": "Notre position",
+      "subtitle": "Notes clients sur 10, face à la moyenne du marché",
+      "description": "Note moyenne par attribut pour notre produit et pour le marché. Nous menons sur la fiabilité et la simplicité, et ne sommes derrière que sur le prix.",
+      "source": {
+        "name": "Enquête clients et panel d'analystes"
+      },
+      "fields": {
+        "us": {
+          "label": "Notre produit"
+        },
+        "market": {
+          "label": "Moyenne du marché"
+        }
+      }
+    },
+    "de": {
+      "title": "Unser Vergleich",
+      "subtitle": "Kundenbewertungen von 10, gegen den Marktdurchschnitt",
+      "description": "Durchschnittliche Kundenbewertung je Merkmal für unser Produkt und den Markt. Wir führen bei Zuverlässigkeit und Bedienung und liegen nur beim Preis zurück.",
+      "source": {
+        "name": "Kundenumfrage und Analystenpanel"
+      },
+      "fields": {
+        "us": {
+          "label": "Unser Produkt"
+        },
+        "market": {
+          "label": "Marktdurchschnitt"
+        }
+      }
+    }
   }
 }
 ```

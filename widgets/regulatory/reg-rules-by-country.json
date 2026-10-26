@@ -37,5 +37,39 @@
         }
       ]
     }
-  ]
+  ],
+  "i18n": {
+    "fr": {
+      "title": "Règles applicables par pays",
+      "subtitle": "Textes européens et nationaux suivis qui y lient les entreprises",
+      "description": "Combien de règles suivies lient les entreprises dans chaque pays : le corpus européen dans toute l'Union, moins dans l'EEE, et des régimes nationaux au Royaume-Uni et en Suisse.",
+      "fields": {
+        "country": {
+          "label": "Pays"
+        },
+        "regulations": {
+          "label": "Règles applicables"
+        }
+      },
+      "source": {
+        "name": "Veille réglementaire (fictive)"
+      }
+    },
+    "de": {
+      "title": "Geltende Vorschriften je Land",
+      "subtitle": "Beobachtete EU- und nationale Texte, die Unternehmen dort binden",
+      "description": "Wie viele beobachtete Vorschriften Unternehmen in jedem Land binden: das EU-Regelwerk in der ganzen Union, weniger im EWR, und nationale Regime im Vereinigten Königreich und der Schweiz.",
+      "fields": {
+        "country": {
+          "label": "Land"
+        },
+        "regulations": {
+          "label": "Geltende Vorschriften"
+        }
+      },
+      "source": {
+        "name": "Regulierungsbeobachtung (fiktiv)"
+      }
+    }
+  }
 }

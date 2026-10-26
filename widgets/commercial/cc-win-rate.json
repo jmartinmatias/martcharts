@@ -75,5 +75,45 @@
     "label": "rm",
     "value": "winRate",
     "target": "winRateTarget"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Taux de réussite, par chargé",
+      "subtitle": "Affaires gagnées sur les affaires tranchées cette année, face aux 35 % du plan",
+      "description": "Les affaires gagnées de chaque chargé en part des affaires gagnées ou perdues cette année, face au taux du plan.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "rm": {
+          "label": "Chargé de clientèle"
+        },
+        "winRate": {
+          "label": "Taux de réussite"
+        },
+        "winRateTarget": {
+          "label": "Objectif"
+        }
+      }
+    },
+    "de": {
+      "title": "Abschlussquote, je Berater",
+      "subtitle": "Gewonnene von den entschiedenen Deals dieses Jahres, gegen die 35 % des Plans",
+      "description": "Gewonnene Deals jedes Kundenberaters als Anteil der gewonnenen oder verlorenen Deals dieses Jahres, gegen die Planquote.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "rm": {
+          "label": "Kundenberater"
+        },
+        "winRate": {
+          "label": "Abschlussquote"
+        },
+        "winRateTarget": {
+          "label": "Ziel"
+        }
+      }
+    }
   }
 }

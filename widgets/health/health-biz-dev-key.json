@@ -54,5 +54,59 @@
         "label": "Amber from 1.5×"
       }
     ]
+  },
+  "i18n": {
+    "fr": {
+      "source": {
+        "name": "Modèle de santé client (fictif)"
+      },
+      "title": "Couverture du pipeline par chargé",
+      "subtitle": "Affaires ouvertes moyennes face à l'objectif",
+      "description": "La mesure clé du développement commercial, moyennée sur les clients de chaque chargé, face aux seuils qui fixent son statut.",
+      "fields": {
+        "rm": {
+          "label": "Chargé de clientèle"
+        },
+        "pipelineCoverage": {
+          "label": "Couverture du pipeline"
+        }
+      },
+      "view": {
+        "reference": [
+          {
+            "label": "Vert dès 3×"
+          },
+          {
+            "label": "Orange dès 1,5×"
+          }
+        ]
+      }
+    },
+    "de": {
+      "source": {
+        "name": "Kundengesundheitsmodell (fiktiv)"
+      },
+      "title": "Pipeline-Deckung je Berater",
+      "subtitle": "Mittlere offene Deals gegen das Ziel",
+      "description": "Die zentrale Kennzahl der Geschäftsentwicklung, gemittelt über die Kunden jedes Beraters, gegen die Schwellen ihres Status.",
+      "fields": {
+        "rm": {
+          "label": "Kundenberater"
+        },
+        "pipelineCoverage": {
+          "label": "Pipeline-Deckung"
+        }
+      },
+      "view": {
+        "reference": [
+          {
+            "label": "Grün ab 3×"
+          },
+          {
+            "label": "Gelb ab 1,5×"
+          }
+        ]
+      }
+    }
   }
 }

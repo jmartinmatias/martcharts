@@ -45,5 +45,28 @@
     "type": "hbar",
     "label": "stage",
     "value": "leads"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Pipeline de prospects",
+      "subtitle": "T3 2026, par étape",
+      "description": "Combien de prospects ont atteint chaque étape du pipeline.",
+      "fields": {
+        "leads": {
+          "label": "Prospects"
+        }
+      },
+      "headline": {
+        "caption": "affaires gagnées ce trimestre"
+      }
+    },
+    "de": {
+      "title": "Lead-Pipeline",
+      "subtitle": "Q3 2026, nach Phase",
+      "description": "Wie viele Leads jede Stufe der Vertriebspipeline erreichten.",
+      "headline": {
+        "caption": "gewonnene Deals in diesem Quartal"
+      }
+    }
   }
 }

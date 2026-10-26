@@ -46,5 +46,39 @@
       "field": "revenue",
       "order": "desc"
     }
-  ]
+  ],
+  "i18n": {
+    "fr": {
+      "title": "CA par produit",
+      "subtitle": "2026 depuis janvier ; les parts font tout le portefeuille",
+      "description": "Le CA de chaque produit en tuile : plus elle est grande, plus il rapporte.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "product": {
+          "label": "Produit"
+        },
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        }
+      }
+    },
+    "de": {
+      "title": "Umsatz je Produkt",
+      "subtitle": "2026 seit Jahresbeginn; die Teile ergeben den ganzen Bestand",
+      "description": "Umsatz jedes Produkts als Kachel: je größer, desto mehr bringt es.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "product": {
+          "label": "Produkt"
+        },
+        "revenue": {
+          "label": "Umsatz"
+        }
+      }
+    }
+  }
 }

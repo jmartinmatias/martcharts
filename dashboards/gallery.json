@@ -193,5 +193,136 @@
   "asOf": "Data to September 2026",
   "source": {
     "name": "Fictional sales data"
+  },
+  "i18n": {
+    "fr": {
+      "description": "Un tableau de bord commercial avec un filtre région : chiffres clés, CA et marge, régions et produits, clients et pipeline, opérations et satisfaction.",
+      "filters": [
+        {
+          "label": "Région"
+        }
+      ],
+      "widgets": [
+        {
+          "section": "Chiffres clés",
+          "description": "Comment se passe le mois ?"
+        },
+        {},
+        {
+          "section": "CA et marge",
+          "description": "Ce qui est entré, face au plan, et ce qui vient."
+        },
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {
+          "section": "Régions et produits",
+          "description": "Quelles régions et quels produits portent le trimestre ?"
+        },
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {
+          "section": "Clients et pipeline",
+          "description": "Qui achète, comment ils arrivent, et ce qui est ouvert."
+        },
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {
+          "section": "Opérations et satisfaction",
+          "description": "Commandes, support, offres et équipes : où en est-on ?"
+        }
+      ],
+      "title": "Galerie",
+      "subtitle": "Un tableau de bord commercial : CA, régions, clients et opérations",
+      "source": {
+        "name": "Données de vente fictives"
+      }
+    },
+    "de": {
+      "description": "Ein Vertriebs-Dashboard mit einem Regionsfilter: Kennzahlen, Umsatz und Gewinn, Regionen und Produkte, Kunden und Pipeline, Betrieb und Stimmung.",
+      "widgets": [
+        {
+          "section": "Kennzahlen",
+          "description": "Wie läuft der Monat?"
+        },
+        {},
+        {
+          "section": "Umsatz und Gewinn",
+          "description": "Was hereinkam, gegen Plan, und was kommt?"
+        },
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {
+          "section": "Regionen und Produkte",
+          "description": "Welche Regionen und Produkte tragen das Quartal?"
+        },
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {
+          "section": "Kunden und Pipeline",
+          "description": "Wer kauft, wie sie kommen und was offen ist."
+        },
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {
+          "section": "Betrieb und Stimmung",
+          "description": "Wie stehen Bestellungen, Support, Tarife und Personal?"
+        }
+      ],
+      "title": "Galerie",
+      "subtitle": "Ein Vertriebs-Dashboard: Umsatz, Regionen, Kunden und Betrieb",
+      "source": {
+        "name": "Fiktive Verkaufsdaten"
+      }
+    }
   }
 }

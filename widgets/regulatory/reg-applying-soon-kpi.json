@@ -43,5 +43,33 @@
   },
   "source": {
     "name": "Regulatory watch (fictional)"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Applicable d'ici un an",
+      "subtitle": "Dates d'application jusqu'au 25 octobre 2027",
+      "description": "Les réglementations applicables dans les douze prochains mois : celles à préparer.",
+      "fields": {
+        "count": {
+          "label": "Réglementations"
+        }
+      },
+      "source": {
+        "name": "Veille réglementaire (fictive)"
+      }
+    },
+    "de": {
+      "title": "Anwendbar binnen eines Jahres",
+      "subtitle": "Anwendungsdaten bis 25. Oktober 2027",
+      "description": "Regulierungen, die in den nächsten zwölf Monaten anwendbar werden: die, auf die man vorbereitet sein muss.",
+      "fields": {
+        "count": {
+          "label": "Regulierungen"
+        }
+      },
+      "source": {
+        "name": "Regulierungsbeobachtung (fiktiv)"
+      }
+    }
   }
 }

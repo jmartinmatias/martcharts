@@ -130,6 +130,24 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "Plus"
     ],
     "stacked": "percent"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Part des produits",
+      "subtitle": "Du CA de chaque région",
+      "description": "Core et Plus en part du CA de chaque région.",
+      "source": {
+        "name": "Journal des ventes"
+      }
+    },
+    "de": {
+      "title": "Produktanteil",
+      "subtitle": "Am Umsatz jeder Region",
+      "description": "Core und Plus als Anteil am Umsatz jeder Region.",
+      "source": {
+        "name": "Verkaufsjournal"
+      }
+    }
   }
 }
 ```

@@ -115,6 +115,24 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "value": "revenue",
     "target": "target",
     "label": "region"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Atteinte des objectifs",
+      "subtitle": "CA de septembre 2026 face au plan",
+      "description": "À quelle distance chaque région est de son objectif de septembre.",
+      "source": {
+        "name": "Journal des ventes"
+      }
+    },
+    "de": {
+      "title": "Zielerreichung",
+      "subtitle": "Umsatz September 2026 gegen Plan",
+      "description": "Wie nah jede Region an ihrem Septemberziel ist.",
+      "source": {
+        "name": "Verkaufsjournal"
+      }
+    }
   }
 }
 ```

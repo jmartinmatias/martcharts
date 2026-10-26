@@ -5,7 +5,7 @@
  */
 import { createWidget } from "../src/index.ts";
 import type { WidgetSpec } from "../src/index.ts";
-import { withLocale, withLook } from "./look.ts";
+import { siteWord, withLocale, withLook } from "./look.ts";
 import { fork } from "../src/index.ts";
 import { boardHref, HOME_STRIP, PLACES } from "./routes.ts";
 
@@ -34,7 +34,7 @@ const draw = () => {
     const link = document.createElement("a");
     link.className = "strip-link";
     link.href = boardHref(board);
-    link.textContent = label;
+    link.textContent = siteWord(label);
     // Quiet, under its card, in the site's link colour (site-nav.css); its place and size are the page's (index.html).
     slot.append(card, link);
     strip.append(slot);

@@ -107,5 +107,69 @@
     "search": true,
     "pageSize": 10,
     "stickyFirst": true
+  },
+  "i18n": {
+    "fr": {
+      "source": {
+        "name": "Modèle de santé client (fictif)"
+      },
+      "title": "Chaque client, sur les quatre perspectives",
+      "subtitle": "Le pire d'abord ; recherche par nom, chargé ou segment",
+      "description": "Le statut global de chaque client à côté de ses quatre perspectives : succès client, développement commercial, couverture et relation.",
+      "fields": {
+        "rm": {
+          "label": "Chargé de clientèle"
+        },
+        "region": {
+          "label": "Région"
+        },
+        "overallStatus": {
+          "label": "Global"
+        },
+        "clientSuccessStatus": {
+          "label": "Succès client"
+        },
+        "bizDevStatus": {
+          "label": "Développement commercial"
+        },
+        "coverageStatus": {
+          "label": "Couverture"
+        },
+        "relationshipStatus": {
+          "label": "Relation"
+        }
+      }
+    },
+    "de": {
+      "source": {
+        "name": "Kundengesundheitsmodell (fiktiv)"
+      },
+      "title": "Jeder Kunde in allen vier Perspektiven",
+      "subtitle": "Schlechteste zuerst; Suche nach Name, Berater oder Segment",
+      "description": "Gesamtstatus jedes Kunden neben seinen vier Perspektiven: Kundenerfolg, Geschäftsentwicklung, Betreuung und Beziehung.",
+      "fields": {
+        "name": {
+          "label": "Kunde"
+        },
+        "rm": {
+          "label": "Kundenberater"
+        },
+        "overallStatus": {
+          "label": "Gesamt"
+        },
+        "clientSuccessStatus": {
+          "label": "Kundenerfolg"
+        },
+        "bizDevStatus": {
+          "label": "Geschäftsentwicklung"
+        },
+        "coverageStatus": {
+          "label": "Betreuung"
+        },
+        "relationshipStatus": {
+          "label": "Beziehung"
+        }
+      }
+    }
   }
 }

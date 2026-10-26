@@ -27,5 +27,24 @@
     "from": "won_2025",
     "to": "won_2026",
     "mark": "arrow"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Taux de réussite, sur un an",
+      "subtitle": "Part des affaires qualifiées gagnées, 2025 face à 2026, par région",
+      "description": "Un graphique à flèches : le taux de réussite de chaque région de l'an dernier à cette année. Bleu en hausse, rouge en baisse. L'Est et le Nord gagnent le plus ; le Sud recule.",
+      "note": "Affaires conclues",
+      "fields": {
+        "region": {
+          "label": "Région"
+        }
+      }
+    },
+    "de": {
+      "title": "Abschlussquote im Jahresvergleich",
+      "subtitle": "Anteil gewonnener qualifizierter Deals, 2025 gegen 2026, je Region",
+      "description": "Ein Pfeildiagramm: die Abschlussquote jeder Region vom Vorjahr zu diesem Jahr. Blaue Pfeile stiegen, rote fielen. Osten und Norden legten am meisten zu; der Süden fiel zurück.",
+      "note": "Abgeschlossene Deals"
+    }
   }
 }

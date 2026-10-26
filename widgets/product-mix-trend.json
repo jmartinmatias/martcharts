@@ -261,5 +261,33 @@
       "Consulting"
     ],
     "stacked": "percent"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Mix de revenus par produit",
+      "subtitle": "Part mensuelle, {first:month} à {last:month}",
+      "description": "La part de chaque produit dans le CA mensuel, empilée à 100 %. Analytics et Integrations gagnent des parts, Platform recule.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "month": {
+          "label": "Mois"
+        }
+      }
+    },
+    "de": {
+      "title": "Umsatzmix je Produkt",
+      "subtitle": "Monatsanteil, {first:month} bis {last:month}",
+      "description": "Anteil jedes Produkts am Monatsumsatz, auf 100 % gestapelt. Analytics und Integrations wachsen, Platform schrumpft.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "month": {
+          "label": "Monat"
+        }
+      }
+    }
   }
 }

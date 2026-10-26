@@ -86,5 +86,75 @@
   },
   "source": {
     "name": "Regulatory watch (fictional)"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Échéances à 90 jours",
+      "subtitle": "Chaque jalon, le plus proche d'abord, avec responsable et préparation",
+      "description": "La liste du responsable conformité : chaque échéance des 90 prochains jours, sa règle, l'équipe responsable, et si le travail est fait, en cours ou pas commencé.",
+      "fields": {
+        "date": {
+          "label": "Échéance"
+        },
+        "daysLeft": {
+          "label": "Jours restants"
+        },
+        "regulation": {
+          "label": "Règle"
+        },
+        "milestone": {
+          "label": "Jalon"
+        },
+        "owner": {
+          "label": "Responsable"
+        },
+        "readiness": {
+          "label": "Préparation"
+        },
+        "readinessPct": {
+          "label": "Fait à ce jour"
+        },
+        "topic": {
+          "label": "Thème"
+        }
+      },
+      "source": {
+        "name": "Veille réglementaire (fictive)"
+      }
+    },
+    "de": {
+      "title": "Fällig in den nächsten 90 Tagen",
+      "subtitle": "Jeder Meilenstein, nächster zuerst, mit Verantwortlichen und Bereitschaft",
+      "description": "Die Liste der Compliance-Verantwortlichen: jede Frist der nächsten 90 Tage, ihre Vorschrift, das zuständige Team und ob die Arbeit erledigt, laufend oder nicht begonnen ist.",
+      "fields": {
+        "date": {
+          "label": "Fällig"
+        },
+        "daysLeft": {
+          "label": "Tage übrig"
+        },
+        "regulation": {
+          "label": "Vorschrift"
+        },
+        "milestone": {
+          "label": "Meilenstein"
+        },
+        "owner": {
+          "label": "Verantwortlich"
+        },
+        "readiness": {
+          "label": "Bereitschaft"
+        },
+        "readinessPct": {
+          "label": "Bisher erledigt"
+        },
+        "topic": {
+          "label": "Thema"
+        }
+      },
+      "source": {
+        "name": "Regulierungsbeobachtung (fiktiv)"
+      }
+    }
   }
 }

@@ -35,5 +35,48 @@
     "period": "quarter",
     "status": "overallRag",
     "note": "note"
+  },
+  "i18n": {
+    "fr": {
+      "source": {
+        "name": "Modèle de santé client (fictif)"
+      },
+      "title": "Chaque client, trimestre par trimestre",
+      "subtitle": "Statut global du T1 2025 au T4 2026, avec les changements",
+      "description": "Une ligne par client, une case par trimestre dans son statut global, et une note quand le statut a bougé.",
+      "fields": {
+        "quarter": {
+          "label": "Trimestre"
+        },
+        "overallRag": {
+          "label": "Global"
+        },
+        "note": {
+          "label": "Ce qui a changé"
+        }
+      }
+    },
+    "de": {
+      "source": {
+        "name": "Kundengesundheitsmodell (fiktiv)"
+      },
+      "title": "Jeder Kunde, Quartal für Quartal",
+      "subtitle": "Gesamtstatus von Q1 2025 bis Q4 2026, mit den Änderungen",
+      "description": "Eine Zeile je Kunde, eine Zelle je Quartal im Gesamtstatus, und eine Notiz, wo sich der Status bewegte.",
+      "fields": {
+        "client": {
+          "label": "Kunde"
+        },
+        "quarter": {
+          "label": "Quartal"
+        },
+        "overallRag": {
+          "label": "Gesamt"
+        },
+        "note": {
+          "label": "Was sich änderte"
+        }
+      }
+    }
   }
 }

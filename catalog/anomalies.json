@@ -204,5 +204,60 @@
     "low": "low",
     "high": "high",
     "flag": "flag"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Anomalies, mesure par mesure",
+      "subtitle": "Relevés quotidiens face à leur bande attendue, octobre 2026",
+      "description": "Six mesures commerciales suivies chaque jour : la bande attendue pour chacune, et les jours où elle en est sortie.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "metric": {
+          "label": "Mesure"
+        },
+        "value": {
+          "label": "Relevé"
+        },
+        "expected": {
+          "label": "Attendu"
+        },
+        "low": {
+          "label": "Bas"
+        },
+        "high": {
+          "label": "Haut"
+        }
+      }
+    },
+    "de": {
+      "title": "Anomalien, Kennzahl für Kennzahl",
+      "subtitle": "Tägliche Werte gegen ihr erwartetes Band, Oktober 2026",
+      "description": "Sechs Vertriebskennzahlen täglich beobachtet: das erwartete Band jeder Kennzahl und die Tage, an denen sie es verließ.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "date": {
+          "label": "Datum"
+        },
+        "metric": {
+          "label": "Kennzahl"
+        },
+        "value": {
+          "label": "Messwert"
+        },
+        "expected": {
+          "label": "Erwartet"
+        },
+        "low": {
+          "label": "Tief"
+        },
+        "high": {
+          "label": "Hoch"
+        }
+      }
+    }
   }
 }

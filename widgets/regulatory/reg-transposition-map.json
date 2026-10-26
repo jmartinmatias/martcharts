@@ -32,5 +32,36 @@
   },
   "source": {
     "name": "Regulatory watch (fictional)"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Transposition d'AMLD6",
+      "subtitle": "Où en est la sixième directive anti-blanchiment dans le droit national",
+      "description": "Chaque État membre coloré selon l'avancement de la transposition d'AMLD6 : faite, en cours ou non commencée.",
+      "fields": {
+        "country": {
+          "label": "État membre"
+        }
+      },
+      "source": {
+        "name": "Veille réglementaire (fictive)"
+      }
+    },
+    "de": {
+      "title": "AMLD6-Umsetzung",
+      "subtitle": "Wo die sechste Geldwäscherichtlinie im nationalen Recht steht",
+      "description": "Jeder Mitgliedstaat nach Stand der AMLD6-Umsetzung eingefärbt: erledigt, laufend oder nicht begonnen.",
+      "fields": {
+        "country": {
+          "label": "Mitgliedstaat"
+        },
+        "status": {
+          "label": "Umsetzung"
+        }
+      },
+      "source": {
+        "name": "Regulierungsbeobachtung (fiktiv)"
+      }
+    }
   }
 }

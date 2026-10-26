@@ -59,5 +59,48 @@
       "plan"
     ],
     "value": "revenue"
+  },
+  "i18n": {
+    "fr": {
+      "title": "CA par région, produit et offre",
+      "subtitle": "T3 2026, le plus grand d'abord",
+      "description": "CA du T3 découpé en trois niveaux, une colonne par niveau. L'Est mène à 338 K€. Core fait environ deux tiers du CA dans chaque région, surtout en annuel ; Plus penche vers le mensuel partout sauf à l'Est.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "region": {
+          "label": "Région"
+        },
+        "product": {
+          "label": "Produit"
+        },
+        "plan": {
+          "label": "Offre"
+        },
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        }
+      }
+    },
+    "de": {
+      "title": "Umsatz je Region, Produkt und Tarif",
+      "subtitle": "Q3 2026, größte zuerst",
+      "description": "Umsatz Q3 dreifach aufgeteilt, eine Spalte je Ebene. Der Osten führt mit 338.000 €. Core macht in jeder Region etwa zwei Drittel aus, meist in Jahrestarifen; Plus neigt überall außer im Osten zum Monatstarif.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "product": {
+          "label": "Produkt"
+        },
+        "plan": {
+          "label": "Tarif"
+        },
+        "revenue": {
+          "label": "Umsatz"
+        }
+      }
+    }
   }
 }

@@ -67,5 +67,34 @@
       "Plus"
     ],
     "stacked": true
+  },
+  "i18n": {
+    "fr": {
+      "title": "Mix de revenus",
+      "subtitle": "T3 2026, Core et Plus par région",
+      "description": "La répartition du CA de chaque région entre les deux produits, plus grande région d'abord.",
+      "source": {
+        "name": "Journal des ventes"
+      },
+      "headline": {
+        "caption": "CA du T3, les deux produits"
+      }
+    },
+    "de": {
+      "title": "Umsatzmix",
+      "subtitle": "Q3 2026, Core und Plus nach Region",
+      "description": "Wie sich der Umsatz jeder Region auf die zwei Produkte verteilt, größte Region zuerst.",
+      "source": {
+        "name": "Verkaufsjournal"
+      },
+      "fields": {
+        "total": {
+          "label": "Gesamt"
+        }
+      },
+      "headline": {
+        "caption": "Umsatz Q3, beide Produkte"
+      }
+    }
   }
 }

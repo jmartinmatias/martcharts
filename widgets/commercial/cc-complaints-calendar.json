@@ -33,5 +33,36 @@
     "type": "calendar",
     "date": "date",
     "value": "value"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Réclamations, jour par jour",
+      "subtitle": "Juillet à octobre 2026",
+      "description": "Réclamations clients enregistrées chaque jour.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "value": {
+          "label": "Réclamations"
+        }
+      }
+    },
+    "de": {
+      "title": "Beschwerden, Tag für Tag",
+      "subtitle": "Juli bis Oktober 2026",
+      "description": "Täglich erfasste Kundenbeschwerden.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "date": {
+          "label": "Datum"
+        },
+        "value": {
+          "label": "Beschwerden"
+        }
+      }
+    }
   }
 }

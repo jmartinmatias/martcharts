@@ -184,5 +184,39 @@
     "type": "area",
     "x": "month",
     "y": "revenue"
+  },
+  "i18n": {
+    "fr": {
+      "title": "CA par région, mois par mois",
+      "subtitle": "Petits multiples sur une même échelle",
+      "description": "Le CA mensuel de chaque région dans son propre panneau, à la même échelle pour une comparaison honnête.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "month": {
+          "label": "Mois"
+        },
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        }
+      }
+    },
+    "de": {
+      "title": "Umsatz je Region, Monat für Monat",
+      "subtitle": "Kleine Vielfache auf einer Skala",
+      "description": "Monatsumsatz jeder Region im eigenen Feld, alle auf derselben Skala, damit der Vergleich fair ist.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "month": {
+          "label": "Monat"
+        },
+        "revenue": {
+          "label": "Umsatz"
+        }
+      }
+    }
   }
 }

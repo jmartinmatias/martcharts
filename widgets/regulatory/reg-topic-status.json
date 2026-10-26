@@ -45,5 +45,33 @@
   },
   "source": {
     "name": "Regulatory watch (fictional)"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Règles par thème, par statut",
+      "subtitle": "Chaque réglementation suivie, empilée selon son stade",
+      "description": "Combien de règles porte chaque thème, et combien sont encore à venir ou déjà applicables.",
+      "fields": {
+        "topic": {
+          "label": "Thème"
+        }
+      },
+      "source": {
+        "name": "Veille réglementaire (fictive)"
+      }
+    },
+    "de": {
+      "title": "Vorschriften je Thema, nach Status",
+      "subtitle": "Jede beobachtete Regulierung, nach Stand gestapelt",
+      "description": "Wie viele Vorschriften jedes Thema trägt und wie viele noch kommen oder schon gelten.",
+      "fields": {
+        "topic": {
+          "label": "Thema"
+        }
+      },
+      "source": {
+        "name": "Regulierungsbeobachtung (fiktiv)"
+      }
+    }
   }
 }

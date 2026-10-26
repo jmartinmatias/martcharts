@@ -41,5 +41,54 @@
     "score": "propensity",
     "value": "potential",
     "limit": 12
+  },
+  "i18n": {
+    "fr": {
+      "title": "La carte de vente croisée",
+      "subtitle": "Douze clients au plus fort potentiel : détenu, ouvert ou non éligible",
+      "description": "Chaque client face à chaque produit : ce qu'il détient, où une opportunité est ouverte et sa probabilité.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "product": {
+          "label": "Produit"
+        },
+        "state": {
+          "label": "État"
+        },
+        "propensity": {
+          "label": "Propension"
+        },
+        "potential": {
+          "label": "Potentiel"
+        }
+      }
+    },
+    "de": {
+      "title": "Die Cross-Selling-Karte",
+      "subtitle": "Zwölf Kunden mit dem meisten Potenzial: gehalten, offen oder nicht berechtigt",
+      "description": "Jeder Kunde gegen jedes Produkt: was er hält, wo eine Chance offen ist und wie wahrscheinlich.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "client": {
+          "label": "Kunde"
+        },
+        "product": {
+          "label": "Produkt"
+        },
+        "state": {
+          "label": "Bundesstaat"
+        },
+        "propensity": {
+          "label": "Neigung"
+        },
+        "potential": {
+          "label": "Potenzial"
+        }
+      }
+    }
   }
 }

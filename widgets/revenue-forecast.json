@@ -182,5 +182,67 @@
       "high": "high",
       "label": "80% range"
     }
+  },
+  "i18n": {
+    "fr": {
+      "title": "Prévision du CA",
+      "subtitle": "Mensuel, {first:month} à {last:month}, six mois devant",
+      "description": "Le CA atteint 1,28 M€ en septembre. Le scénario central atteint 1,47 M€ en mars 2027, dans une fourchette à 80 % de 1,15 à 1,82 M€ qui s'élargit avec chaque mois.",
+      "source": {
+        "name": "Grand livre et modèle de planification"
+      },
+      "fields": {
+        "month": {
+          "label": "Mois"
+        },
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        },
+        "low": {
+          "label": "Bas (p10)"
+        },
+        "high": {
+          "label": "Haut (p90)"
+        },
+        "forecast": {
+          "label": "Prévision"
+        }
+      },
+      "view": {
+        "band": {
+          "label": "Fourchette à 80 %"
+        }
+      }
+    },
+    "de": {
+      "title": "Umsatzprognose",
+      "subtitle": "Monatlich, {first:month} bis {last:month}, sechs Monate voraus",
+      "description": "Der Umsatz erreichte im September 1,28 Mio. €. Das mittlere Szenario erreicht bis März 2027 1,47 Mio. €, in einem 80-%-Band von 1,15 bis 1,82 Mio. €, das mit jedem Monat breiter wird.",
+      "source": {
+        "name": "Hauptbuch und Planungsmodell"
+      },
+      "fields": {
+        "month": {
+          "label": "Monat"
+        },
+        "revenue": {
+          "label": "Umsatz"
+        },
+        "low": {
+          "label": "Tief (p10)"
+        },
+        "high": {
+          "label": "Hoch (p90)"
+        },
+        "forecast": {
+          "label": "Prognose"
+        }
+      },
+      "view": {
+        "band": {
+          "label": "80-%-Band"
+        }
+      }
+    }
   }
 }

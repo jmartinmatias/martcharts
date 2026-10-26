@@ -36,5 +36,36 @@
     "geo": "europe",
     "id": "country",
     "size": "clients"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Où sont les clients",
+      "subtitle": "Par pays, portefeuille actif",
+      "description": "Le nombre de clients par pays, en cercles sur la carte.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "country": {
+          "label": "Pays"
+        }
+      }
+    },
+    "de": {
+      "title": "Wo die Kunden sind",
+      "subtitle": "Nach Land, aktiver Bestand",
+      "description": "Wie viele Kunden jedes Land hat, als Kreise auf der Karte.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "country": {
+          "label": "Land"
+        },
+        "clients": {
+          "label": "Kunden"
+        }
+      }
+    }
   }
 }

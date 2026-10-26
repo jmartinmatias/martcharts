@@ -43,5 +43,53 @@
     "label": "office",
     "note": "people",
     "color": "role"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Nos bureaux",
+      "subtitle": "Neuf sites en Europe",
+      "description": "Les bureaux de l'entreprise, nommés sur une grille de l'Europe avec leur effectif, colorés selon leur activité.",
+      "note": "Octobre 2026",
+      "source": {
+        "name": "Registre des sites"
+      },
+      "fields": {
+        "office": {
+          "label": "Bureau"
+        },
+        "country": {
+          "label": "Pays"
+        },
+        "people": {
+          "label": "Effectif"
+        },
+        "role": {
+          "label": "Rôle"
+        }
+      }
+    },
+    "de": {
+      "title": "Unsere Büros",
+      "subtitle": "Neun Standorte in Europa",
+      "description": "Wo die Büros des Unternehmens liegen, benannt auf einem Europaraster mit ihrer Belegschaft, nach Funktion gefärbt.",
+      "note": "Oktober 2026",
+      "source": {
+        "name": "Standortregister"
+      },
+      "fields": {
+        "office": {
+          "label": "Büro"
+        },
+        "country": {
+          "label": "Land"
+        },
+        "people": {
+          "label": "Belegschaft"
+        },
+        "role": {
+          "label": "Rolle"
+        }
+      }
+    }
   }
 }

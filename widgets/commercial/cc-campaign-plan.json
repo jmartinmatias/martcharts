@@ -60,5 +60,51 @@
       "type": "sort",
       "field": "start"
     }
-  ]
+  ],
+  "i18n": {
+    "fr": {
+      "title": "Campagnes de l'année",
+      "subtitle": "Quand chacune a tourné, par produit",
+      "description": "Toutes les campagnes 2026 sur un calendrier, colorées par produit.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "campaign": {
+          "label": "Campagne"
+        },
+        "product": {
+          "label": "Produit"
+        },
+        "start": {
+          "label": "Début"
+        },
+        "end": {
+          "label": "Fin"
+        }
+      }
+    },
+    "de": {
+      "title": "Kampagnen dieses Jahres",
+      "subtitle": "Wann jede lief, nach Produkt",
+      "description": "Alle Kampagnen 2026 in einem Kalender, nach Produkt eingefärbt.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "campaign": {
+          "label": "Kampagne"
+        },
+        "product": {
+          "label": "Produkt"
+        },
+        "start": {
+          "label": "Beginn"
+        },
+        "end": {
+          "label": "Ende"
+        }
+      }
+    }
+  }
 }

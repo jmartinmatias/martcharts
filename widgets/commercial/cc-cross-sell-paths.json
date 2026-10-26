@@ -52,5 +52,42 @@
       "type": "limit",
       "count": 14
     }
-  ]
+  ],
+  "i18n": {
+    "fr": {
+      "title": "Des produits détenus aux opportunités",
+      "subtitle": "Nombre de clients, selon ce qu'ils détiennent et ce qui est ouvert",
+      "description": "Quels produits détenus mènent à quelles opportunités.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "from": {
+          "label": "Détient"
+        },
+        "to": {
+          "label": "Pourrait acheter"
+        }
+      }
+    },
+    "de": {
+      "title": "Von gehaltenen Produkten zu Chancen",
+      "subtitle": "Kundenzahl nach Gehaltenem und Offenem",
+      "description": "Welche gehaltenen Produkte zu welchen Chancen führen.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "from": {
+          "label": "Hält"
+        },
+        "to": {
+          "label": "Könnte kaufen"
+        },
+        "clients": {
+          "label": "Kunden"
+        }
+      }
+    }
+  }
 }

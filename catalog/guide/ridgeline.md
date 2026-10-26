@@ -148,6 +148,31 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "type": "ridgeline",
     "value": "value",
     "group": "region"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Dispersion de la taille des affaires",
+      "subtitle": "Distribution des valeurs, par région",
+      "description": "La forme des montants par région : où tombent la plupart des affaires et quelle dispersion.",
+      "fields": {
+        "value": {
+          "label": "Valeur de l'affaire"
+        },
+        "region": {
+          "label": "Région"
+        }
+      }
+    },
+    "de": {
+      "title": "Wie sich Dealgrößen verteilen",
+      "subtitle": "Werteverteilung, je Region",
+      "description": "Die Form der Dealgrößen je Region: wo die meisten liegen und wie breit die Streuung ist.",
+      "fields": {
+        "value": {
+          "label": "Dealwert"
+        }
+      }
+    }
   }
 }
 ```

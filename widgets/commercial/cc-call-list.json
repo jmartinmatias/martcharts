@@ -64,5 +64,66 @@
       "crossSellPotential"
     ],
     "stickyFirst": true
+  },
+  "i18n": {
+    "fr": {
+      "title": "Qui appeler cette semaine",
+      "subtitle": "Le plus haut d'abord, avec la raison : silence, anomalie, risque d'attrition ou vente probable",
+      "description": "Chaque client est noté sur les jours depuis le dernier contact, une anomalie ouverte, le risque de départ et la meilleure opportunité ; les scores les plus hauts d'abord, avec la raison et la meilleure action suivante.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "rm": {
+          "label": "Chargé de clientèle"
+        },
+        "callReason": {
+          "label": "Pourquoi maintenant"
+        },
+        "nextAction": {
+          "label": "Meilleure action suivante"
+        },
+        "daysSinceContact": {
+          "label": "Jours depuis le contact"
+        },
+        "crossSellPotential": {
+          "label": "Potentiel annuel"
+        },
+        "callScore": {
+          "label": "Score d'appel"
+        }
+      }
+    },
+    "de": {
+      "title": "Wen diese Woche anrufen",
+      "subtitle": "Höchste zuerst, mit dem Grund: Funkstille, Anomalie, Abwanderungsrisiko oder wahrscheinlicher Abschluss",
+      "description": "Jeder Kunde wird nach Tagen seit dem letzten Kontakt, offener Anomalie, Abwanderungsrisiko und bester offener Chance bewertet; die höchsten Werte zuerst, mit Grund und nächster bester Aktion.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "name": {
+          "label": "Kunde"
+        },
+        "rm": {
+          "label": "Kundenberater"
+        },
+        "callReason": {
+          "label": "Warum jetzt"
+        },
+        "nextAction": {
+          "label": "Nächste beste Aktion"
+        },
+        "daysSinceContact": {
+          "label": "Tage seit Kontakt"
+        },
+        "crossSellPotential": {
+          "label": "Potenzial pro Jahr"
+        },
+        "callScore": {
+          "label": "Anruf-Score"
+        }
+      }
+    }
   }
 }

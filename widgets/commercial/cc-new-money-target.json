@@ -56,5 +56,45 @@
     "value": "newMoney",
     "target": "newMoneyTarget",
     "percent": true
+  },
+  "i18n": {
+    "fr": {
+      "title": "Collecte nette face à l'objectif, par chargé",
+      "subtitle": "2026 depuis janvier, au-dessus ou en dessous du plan",
+      "description": "Collecte nette de chaque chargé de clientèle cette année, face au plan.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "rm": {
+          "label": "Chargé de clientèle"
+        },
+        "newMoney": {
+          "label": "Collecte nette"
+        },
+        "newMoneyTarget": {
+          "label": "Objectif"
+        }
+      }
+    },
+    "de": {
+      "title": "Netto-Neugeld gegen Ziel, je Berater",
+      "subtitle": "2026 seit Jahresbeginn, über oder unter jedem Plan",
+      "description": "Netto-Neugeld jedes Kundenberaters in diesem Jahr gegen den Plan.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "rm": {
+          "label": "Kundenberater"
+        },
+        "newMoney": {
+          "label": "Netto-Neugeld"
+        },
+        "newMoneyTarget": {
+          "label": "Ziel"
+        }
+      }
+    }
   }
 }

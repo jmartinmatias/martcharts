@@ -87,5 +87,69 @@
   },
   "source": {
     "name": "Regulatory watch (fictional)"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Densité par règle",
+      "subtitle": "Dispositions, part contraignante, dispositions par page, impact et portée",
+      "description": "Chaque réglementation suivie avec ses chiffres de densité, consultable, dix par page.",
+      "fields": {
+        "name": {
+          "label": "Réglementation"
+        },
+        "topic": {
+          "label": "Thème"
+        },
+        "impact": {
+          "label": "Impact (1 à 5)"
+        },
+        "mustComply": {
+          "label": "Types d'acteurs concernés"
+        },
+        "provisions": {
+          "label": "Dispositions"
+        },
+        "mandatoryShare": {
+          "label": "Part contraignante"
+        },
+        "perPage": {
+          "label": "Dispositions par page"
+        }
+      },
+      "source": {
+        "name": "Veille réglementaire (fictive)"
+      }
+    },
+    "de": {
+      "title": "Dichte je Vorschrift",
+      "subtitle": "Bestimmungen, verbindlicher Anteil, Bestimmungen je Seite, Wirkung und Reichweite",
+      "description": "Jede beobachtete Regulierung mit ihren Dichtewerten, durchsuchbar, zehn pro Seite.",
+      "fields": {
+        "name": {
+          "label": "Regulierung"
+        },
+        "topic": {
+          "label": "Thema"
+        },
+        "impact": {
+          "label": "Wirkung (1 bis 5)"
+        },
+        "mustComply": {
+          "label": "Gebundene Akteurstypen"
+        },
+        "provisions": {
+          "label": "Bestimmungen"
+        },
+        "mandatoryShare": {
+          "label": "Verbindlicher Anteil"
+        },
+        "perPage": {
+          "label": "Bestimmungen je Seite"
+        }
+      },
+      "source": {
+        "name": "Regulierungsbeobachtung (fiktiv)"
+      }
+    }
   }
 }

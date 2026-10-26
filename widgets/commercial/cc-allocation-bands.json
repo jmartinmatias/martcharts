@@ -52,5 +52,51 @@
       "min",
       "max"
     ]
+  },
+  "i18n": {
+    "fr": {
+      "title": "Allocation dans ses bornes",
+      "subtitle": "Chaque classe d'actifs avec sa fourchette",
+      "description": "Poids actuels et cibles, avec le minimum et le maximum autorisés.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "assetClass": {
+          "label": "Classe d'actifs"
+        },
+        "current": {
+          "label": "Actuel"
+        },
+        "target": {
+          "label": "Objectif"
+        }
+      }
+    },
+    "de": {
+      "title": "Allokation in ihren Bändern",
+      "subtitle": "Jede Anlageklasse mit ihrer Bandbreite",
+      "description": "Aktuelle und Zielgewichte mit dem erlaubten Minimum und Maximum.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "assetClass": {
+          "label": "Anlageklasse"
+        },
+        "current": {
+          "label": "Aktuell"
+        },
+        "target": {
+          "label": "Ziel"
+        },
+        "min": {
+          "label": "Min."
+        },
+        "max": {
+          "label": "Max."
+        }
+      }
+    }
   }
 }

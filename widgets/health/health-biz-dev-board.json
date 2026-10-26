@@ -71,5 +71,78 @@
       "R",
       "A"
     ]
+  },
+  "i18n": {
+    "fr": {
+      "source": {
+        "name": "Modèle de santé client (fictif)"
+      },
+      "title": "Développement commercial, mesure par mesure",
+      "subtitle": "Hors trajectoire ou à risque, le pire d'abord, face au trimestre précédent",
+      "description": "Le tableau du développement commercial : une ligne par client, un statut par mesure, le statut de la perspective et son évolution, et la prochaine étape.",
+      "fields": {
+        "rm": {
+          "label": "Chargé de clientèle"
+        },
+        "region": {
+          "label": "Région"
+        },
+        "aum": {
+          "label": "Actifs gérés"
+        },
+        "bizDevRag": {
+          "label": "Développement commercial"
+        },
+        "pipelineCoverageRag": {
+          "label": "Couverture du pipeline"
+        },
+        "winRateRag": {
+          "label": "Taux de réussite"
+        },
+        "newMoneyVsTargetRag": {
+          "label": "Collecte vs objectif"
+        },
+        "crossSellAddedRag": {
+          "label": "Produits ajoutés"
+        },
+        "action": {
+          "label": "Étape suivante"
+        }
+      }
+    },
+    "de": {
+      "source": {
+        "name": "Kundengesundheitsmodell (fiktiv)"
+      },
+      "title": "Geschäftsentwicklung, Kennzahl für Kennzahl",
+      "subtitle": "Nicht im Plan oder gefährdet, schlechteste zuerst, gegen das Vorquartal",
+      "description": "Die Scorecard der Geschäftsentwicklung: eine Zeile je Kunde, ein Status je Kennzahl, der Status der Perspektive, seine Bewegung seit dem Vorquartal und der nächste Schritt.",
+      "fields": {
+        "name": {
+          "label": "Kunde"
+        },
+        "rm": {
+          "label": "Kundenberater"
+        },
+        "bizDevRag": {
+          "label": "Geschäftsentwicklung"
+        },
+        "pipelineCoverageRag": {
+          "label": "Pipeline-Deckung"
+        },
+        "winRateRag": {
+          "label": "Abschlussquote"
+        },
+        "newMoneyVsTargetRag": {
+          "label": "Neugeld gg. Ziel"
+        },
+        "crossSellAddedRag": {
+          "label": "Hinzugefügte Produkte"
+        },
+        "action": {
+          "label": "Nächster Schritt"
+        }
+      }
+    }
   }
 }

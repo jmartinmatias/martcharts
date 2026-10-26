@@ -4,6 +4,7 @@
  *
  * @module
  */
+import { localizeSpec } from "../core/i18n.ts";
 import { placedRef } from "../core/ref.ts";
 import { RANGE_OPTIONS, rangeStart } from "../core/dashboard.ts";
 import { getPreset } from "../core/presets.ts";
@@ -166,6 +167,11 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   const firstSpec = spec.widgets.map((cell) => cell.spec ?? (cell.widget ? options.widgets?.[cell.widget] : undefined)).find((s) => s?.locale);
   const pageLang = target.ownerDocument.documentElement.lang || "en";
   const boardLocale = options.locale ?? firstSpec?.locale ?? pageLang;
+  // The board's own words (title, intro, sections, filter labels) in that language, from its i18n, as cards do. The
+  // written board stays at hand: its section names make the sections' ids, so an address or a ref names the same
+  // section whatever language the board is read in.
+  const written = spec;
+  spec = localizeSpec(spec, boardLocale);
   // Its words are in its own language, for screen reader pronunciation (WCAG 3.1.2), when the page speaks another.
   if (boardLocale.split("-")[0]?.toLowerCase() !== pageLang.split("-")[0]?.toLowerCase()) root.lang = boardLocale;
   // The board's own words (filter row, share and print tools, notes), in the same language.
@@ -319,7 +325,8 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     return max || (await latest());
   })());
 
-  const sections: { node: HTMLElement; title: string }[] = [];
+  /** Each section: its node, its heading as shown, and its name as written (its key, whatever the language). */
+  const sections: { node: HTMLElement; title: string; key: string }[] = [];
   const usedIds = new Set<string>();
   /** A section's id: the board id and the title in lowercase words joined by hyphens, counted up when taken on the page. */
   const sectionId = (title: string) => {
@@ -444,7 +451,8 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     if (cell.section) {
       // A section heading: a full-width row that groups the cells after it.
       const section = el("div", "fft-board-section");
-      section.id = sectionId(cell.section);
+      const key = written.widgets[index]?.section ?? cell.section;
+      section.id = sectionId(key);
       section.style.gridColumn = "1 / -1";
       // The heading takes focus from a skip link (never a tab stop of its own), so the keyboard can jump section to section.
       const heading = el("h3", "", cell.section);
@@ -452,7 +460,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       section.append(heading);
       if (cell.description) section.append(el("p", "", cell.description));
       grid.append(section);
-      sections.push({ node: section, title: cell.section });
+      sections.push({ node: section, title: cell.section, key });
       opened = new Set([section]);
       members.set(section, opened);
       if (cell.collapsed) {
@@ -476,7 +484,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     const refKeyOf = cell.widget ?? cell.spec?.id ?? id;
     slot.dataset.fftRefKey = refKeyOf;
     const cellTitle = (cell.spec ?? (cell.widget ? options.widgets?.[cell.widget] : undefined))?.title;
-    cardRefs.push({ key: refKeyOf, slot, ...(cellTitle ? { title: cellTitle } : {}), ...(sections.at(-1) ? { section: sections.at(-1)!.title } : {}) });
+    cardRefs.push({ key: refKeyOf, slot, ...(cellTitle ? { title: cellTitle } : {}), ...(sections.at(-1) ? { section: sections.at(-1)!.key } : {}) });
     slot.dataset.span = String(span);
     slot.style.gridColumn = `span ${span}`;
     const mount = el("div", "fft-board-cell");
@@ -1526,7 +1534,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     },
     setSection(section) {
       if (section === null) return choose(null);
-      const match = sections.find(({ node, title }) => title === section || node.id === section);
+      const match = sections.find(({ node, title, key }) => title === section || key === section || node.id === section);
       if (!match) throw new Error(`No section "${section}". Sections: ${sections.map(({ title }) => title).join(", ")}.`);
       choose(match.node);
     },

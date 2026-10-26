@@ -206,5 +206,36 @@
       "trend",
       "total"
     ]
+  },
+  "i18n": {
+    "fr": {
+      "title": "Tendances régionales",
+      "subtitle": "CA mensuel, avril à septembre",
+      "description": "La tendance sur six mois du CA de chaque région, et son total.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "trend": {
+          "label": "Tendance 6 mois"
+        }
+      }
+    },
+    "de": {
+      "title": "Regionale Trends",
+      "subtitle": "Monatsumsatz, April bis September",
+      "description": "Sechsmonatstrend und Summe des Umsatzes jeder Region.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "trend": {
+          "label": "6-Monats-Trend"
+        },
+        "total": {
+          "label": "Gesamt"
+        }
+      }
+    }
   }
 }

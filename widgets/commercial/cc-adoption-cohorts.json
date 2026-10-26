@@ -30,5 +30,45 @@
     "x": "monthsSince",
     "y": "cohort",
     "value": "adopted"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Adoption digitale par cohorte",
+      "subtitle": "Part de chaque trimestre d'intégration utilisant l'appli, mois par mois",
+      "description": "À quelle vitesse chaque cohorte a adopté le canal digital.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "monthsSince": {
+          "label": "Mois depuis l'intégration"
+        },
+        "cohort": {
+          "label": "Cohorte"
+        },
+        "adopted": {
+          "label": "Adopté"
+        }
+      }
+    },
+    "de": {
+      "title": "Digitale Nutzung je Kohorte",
+      "subtitle": "Anteil jedes Onboarding-Quartals mit App-Nutzung, Monat für Monat",
+      "description": "Wie schnell jede Kohorte neuer Kunden den digitalen Kanal annahm.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "monthsSince": {
+          "label": "Monate seit Onboarding"
+        },
+        "cohort": {
+          "label": "Kohorte"
+        },
+        "adopted": {
+          "label": "Angenommen"
+        }
+      }
+    }
   }
 }

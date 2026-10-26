@@ -217,6 +217,72 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "status": "status",
     "impact": "impact",
     "today": "2026-10-25"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Où en est chaque réglementation",
+      "subtitle": "De la proposition à l'application, par thème",
+      "description": "Chaque réglementation du registre en couloir sur un axe de dates : proposée, adoptée, en vigueur et applicable, chaque étape plus foncée, l'étape en cours en pâle, aujourd'hui marqué, le statut à la fin et des couloirs plus épais pour les plus fort impact.",
+      "note": "Dates fictives ; pas un avis juridique",
+      "source": {
+        "name": "Registre de veille réglementaire"
+      },
+      "fields": {
+        "name": {
+          "label": "Réglementation"
+        },
+        "proposed": {
+          "label": "Proposé"
+        },
+        "adopted": {
+          "label": "Adopté"
+        },
+        "inForce": {
+          "label": "En vigueur"
+        },
+        "applies": {
+          "label": "Applicable"
+        },
+        "status": {
+          "label": "Statut"
+        },
+        "topic": {
+          "label": "Thème"
+        }
+      }
+    },
+    "de": {
+      "title": "Wo jede Regulierung steht",
+      "subtitle": "Vom Vorschlag zur Anwendung, nach Thema",
+      "description": "Jede Regulierung im Compliance-Register als Bahn auf einer Datumsachse: vorgeschlagen, angenommen, in Kraft und anwendbar, jede Phase dunkler, die laufende Phase blass, heute markiert, der aktuelle Status am Ende und dickere Bahnen für höhere Wirkung.",
+      "note": "Fiktive Daten; keine Rechtsberatung",
+      "source": {
+        "name": "Register der Regulierungsbeobachtung"
+      },
+      "fields": {
+        "name": {
+          "label": "Regulierung"
+        },
+        "proposed": {
+          "label": "Vorgeschlagen"
+        },
+        "adopted": {
+          "label": "Angenommen"
+        },
+        "inForce": {
+          "label": "In Kraft"
+        },
+        "applies": {
+          "label": "Anwendbar"
+        },
+        "impact": {
+          "label": "Wirkung"
+        },
+        "topic": {
+          "label": "Thema"
+        }
+      }
+    }
   }
 }
 ```

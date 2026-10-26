@@ -40,5 +40,32 @@
     "type": "funnel",
     "label": "stage",
     "value": "people"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Tunnel d'inscription",
+      "subtitle": "Septembre 2026",
+      "description": "Comment les visiteurs passent de la première visite au client payant.",
+      "source": {
+        "name": "Analyse produit"
+      },
+      "fields": {
+        "people": {
+          "label": "Personnes"
+        }
+      }
+    },
+    "de": {
+      "title": "Anmelde-Trichter",
+      "description": "Wie Besucher vom ersten Besuch zum zahlenden Kunden werden.",
+      "source": {
+        "name": "Produktanalyse"
+      },
+      "fields": {
+        "people": {
+          "label": "Personen"
+        }
+      }
+    }
   }
 }

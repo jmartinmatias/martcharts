@@ -258,5 +258,66 @@
       "2026-09"
     ],
     "totals": true
+  },
+  "i18n": {
+    "fr": {
+      "title": "CA par région et par mois",
+      "subtitle": "Avril à septembre 2026, sur une échelle",
+      "description": "CA mensuel par région en tableau de chaleur : une seule échelle de couleur, pour que la ligne forte de l'Est et la hausse de fin d'été sautent aux yeux.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "region": {
+          "label": "Région"
+        },
+        "2026-04": {
+          "label": "Avr."
+        },
+        "2026-05": {
+          "label": "Mai"
+        },
+        "2026-06": {
+          "label": "Juin"
+        },
+        "2026-07": {
+          "label": "Juil."
+        },
+        "2026-08": {
+          "label": "Août"
+        },
+        "2026-09": {
+          "label": "Sept."
+        }
+      }
+    },
+    "de": {
+      "title": "Umsatz je Region und Monat",
+      "subtitle": "April bis September 2026, auf einer Skala",
+      "description": "Monatsumsatz je Region als Heat-Tabelle: alle Monate auf einer Farbskala, sodass die starke Zeile des Ostens und der Anstieg im Spätsommer sofort auffallen.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "2026-04": {
+          "label": "Apr."
+        },
+        "2026-05": {
+          "label": "Mai"
+        },
+        "2026-06": {
+          "label": "Juni"
+        },
+        "2026-07": {
+          "label": "Juli"
+        },
+        "2026-08": {
+          "label": "Aug."
+        },
+        "2026-09": {
+          "label": "Sep."
+        }
+      }
+    }
   }
 }

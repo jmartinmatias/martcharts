@@ -43,5 +43,39 @@
   },
   "source": {
     "name": "Regulatory watch (fictional)"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Retards de transposition",
+      "subtitle": "Jours de retard sur AMLD6, CRD6 et NIS2, par pays",
+      "description": "Où la transposition nationale est en retard : plus le cercle est grand, plus il y a de jours de retard sur les trois directives.",
+      "fields": {
+        "country": {
+          "label": "État membre"
+        },
+        "daysLate": {
+          "label": "Jours de retard"
+        }
+      },
+      "source": {
+        "name": "Veille réglementaire (fictive)"
+      }
+    },
+    "de": {
+      "title": "Umsetzungsverzug",
+      "subtitle": "Verzugstage bei AMLD6, CRD6 und NIS2, je Land summiert",
+      "description": "Wo die nationale Umsetzung hinterherhinkt: je größer der Kreis, desto mehr Verzugstage über die drei Richtlinien.",
+      "fields": {
+        "country": {
+          "label": "Mitgliedstaat"
+        },
+        "daysLate": {
+          "label": "Verzugstage"
+        }
+      },
+      "source": {
+        "name": "Regulierungsbeobachtung (fiktiv)"
+      }
+    }
   }
 }

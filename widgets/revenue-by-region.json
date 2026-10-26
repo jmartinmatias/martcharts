@@ -73,5 +73,61 @@
         "label": "Average"
       }
     ]
+  },
+  "i18n": {
+    "fr": {
+      "title": "CA par région",
+      "subtitle": "Septembre 2026, tous produits",
+      "description": "CA et coûts par région commerciale, plus grande d'abord, la région en tête mise en avant.",
+      "note": "Septembre 2026, CA et coûts comptabilisés",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        },
+        "cost": {
+          "label": "Coût"
+        }
+      },
+      "headline": {
+        "caption": "chiffre d'affaires total"
+      },
+      "view": {
+        "reference": [
+          {
+            "label": "Moyenne"
+          }
+        ]
+      }
+    },
+    "de": {
+      "title": "Umsatz je Region",
+      "subtitle": "September 2026, alle Produkte",
+      "description": "Umsatz und Kosten je Vertriebsregion, größte zuerst, die führende hervorgehoben.",
+      "note": "September 2026, gebuchter Umsatz und Kosten",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "revenue": {
+          "label": "Umsatz"
+        },
+        "cost": {
+          "label": "Kosten"
+        }
+      },
+      "headline": {
+        "caption": "Gesamtumsatz"
+      },
+      "view": {
+        "reference": [
+          {
+            "label": "Durchschnitt"
+          }
+        ]
+      }
+    }
   }
 }

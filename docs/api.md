@@ -25,6 +25,7 @@ A `WidgetSpec` is a plain object. Only `data` and `view` are required.
 | `description` | string | What the widget is for. Not drawn on the chart; read by people and agents, and shown on the Details side. |
 | `links` | `{ label, href }[]` | Related pages (a report, the data's owner, a runbook), listed on the Details side under **Linked**. |
 | `locale` | string | BCP 47 locale for number and date formats, for example `"en-US"`. Defaults to the runtime's. |
+| `i18n` | object | The spec's words in other languages: `{ "fr": { "title": "…", "fields": { "revenue": { "label": "…" } } }, "de": {…} }`. Drawn in a locale of that language (`fr-FR`, `de-CH`), the words are laid over the spec's own: objects key by key, arrays item by item (`{}` for an item left as is), only keys the spec already has. Words only; data, formats and settings stay as written. See below. |
 | `data` | block | Where rows come from. See [data sources](blocks.md#data-sources). |
 | `transform` | block list | Reshaping steps, applied in order. See [transforms](blocks.md#transforms). |
 | `fields` | object | Per-field `label` and `format`, keyed by field name. See [formats](blocks.md#formats). |
@@ -34,6 +35,8 @@ A `WidgetSpec` is a plain object. Only `data` and `view` are required.
 | `style` | object | Theme, palette, tokens, density, height. See [styling](#styling). |
 
 A **block** is `{ "type": "<name>", ...options }`. A **row** is one object of field values, for example `{ "region": "North", "revenue": 120 }`.
+
+**Words in other languages (`i18n`).** A widget or a dashboard carries its own words in French or German beside its English: title, subtitle, description, note, source name, field labels, a view's reference and band labels, quadrant names, annotations, a headline's caption; on a dashboard its title, sections and their questions, and filter labels. `localizeSpec(spec, locale)` gives the spec as drawn in that locale; the widget and the dashboard call it themselves, so `locale` (on the spec, on `createDashboard`, on `<fft-widget>`) picks the words as well as the numbers. `widget.spec`, Copy spec and every export keep the spec as written, with its `i18n`, and a chart's ref and a section's id come from the written words, so an address or a ref is the same in every language. Data values (a region called North) stay as the data has them. Validation reports a language other than `fr`, `de` or `en`, and anything in `i18n` that is not words (`checkI18n`).
 
 Field labels default to the field name in words: `unitPrice` becomes "Unit price". Values without a format display as locale numbers or plain text; missing values (null, undefined, NaN) display as empty text.
 

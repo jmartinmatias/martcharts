@@ -221,6 +221,112 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "trend": "revenueByMonth",
     "flags": "flags",
     "actions": "actions"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Radiographie client",
+      "subtitle": "Avant la revue de jeudi",
+      "description": "Un client sur une fiche : les faits clés, les produits, la part de portefeuille, la tendance du CA, les points de vigilance et la suite.",
+      "source": {
+        "name": "CRM, conservation et facturation (fictifs)"
+      },
+      "fields": {
+        "aum": {
+          "label": "Actifs"
+        },
+        "revenue": {
+          "label": "CA, 12 mois"
+        },
+        "products": {
+          "label": "Produits détenus"
+        },
+        "sinceYear": {
+          "label": "Client depuis"
+        },
+        "custody": {
+          "label": "Conservation"
+        },
+        "advisory": {
+          "label": "Conseil"
+        },
+        "discretionary": {
+          "label": "Discrétionnaire"
+        },
+        "lending": {
+          "label": "Crédit"
+        },
+        "fx": {
+          "label": "Change"
+        },
+        "structured": {
+          "label": "Structurés"
+        },
+        "insurance": {
+          "label": "Assurance"
+        },
+        "pension": {
+          "label": "Retraite"
+        },
+        "shareOfWallet": {
+          "label": "Part de portefeuille"
+        },
+        "revenueByMonth": {
+          "label": "CA par mois"
+        }
+      }
+    },
+    "de": {
+      "title": "Kunden-Röntgenbild",
+      "subtitle": "Vor der Prüfung am Donnerstag",
+      "description": "Ein Kunde auf einer Karte: Eckdaten, gehaltene Produkte, Wallet-Anteil, Umsatztrend, Warnzeichen und nächster Schritt.",
+      "source": {
+        "name": "CRM, Verwahrung und Abrechnung (fiktiv)"
+      },
+      "fields": {
+        "aum": {
+          "label": "Vermögen"
+        },
+        "revenue": {
+          "label": "Umsatz, 12 Monate"
+        },
+        "products": {
+          "label": "Gehaltene Produkte"
+        },
+        "sinceYear": {
+          "label": "Kunde seit"
+        },
+        "custody": {
+          "label": "Verwahrung"
+        },
+        "advisory": {
+          "label": "Beratung"
+        },
+        "discretionary": {
+          "label": "Vermögensverwaltung"
+        },
+        "lending": {
+          "label": "Kredit"
+        },
+        "fx": {
+          "label": "Devisen"
+        },
+        "structured": {
+          "label": "Strukturierte"
+        },
+        "insurance": {
+          "label": "Versicherung"
+        },
+        "pension": {
+          "label": "Vorsorge"
+        },
+        "shareOfWallet": {
+          "label": "Wallet-Anteil"
+        },
+        "revenueByMonth": {
+          "label": "Umsatz je Monat"
+        }
+      }
+    }
   }
 }
 ```

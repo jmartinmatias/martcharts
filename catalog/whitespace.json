@@ -94,5 +94,53 @@
     "state": "state",
     "score": "propensity",
     "value": "value"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Où vendre ensuite",
+      "subtitle": "Produits détenus et ouverts par client, portefeuille nordique",
+      "description": "La carte de vente croisée : une case par client et produit. Pleine si détenu, contour si ouverte (teinte plus forte, probabilité plus haute), un point si non éligible. Les lignes au plus fort potentiel d'abord.",
+      "note": "Le potentiel est le CA annuel estimé de chaque produit ouvert",
+      "source": {
+        "name": "CRM et facturation (fictifs)"
+      },
+      "fields": {
+        "product": {
+          "label": "Produit"
+        },
+        "state": {
+          "label": "Statut"
+        },
+        "propensity": {
+          "label": "Propension"
+        },
+        "value": {
+          "label": "Chiffre d'affaires"
+        }
+      }
+    },
+    "de": {
+      "title": "Wo als Nächstes verkaufen",
+      "subtitle": "Gehaltene und offene Produkte je Kunde, Bestand Nordics",
+      "description": "Die Cross-Selling-Karte: eine Zelle je Kunde und Produkt. Gefüllt, wo gehalten, umrandet, wo offen (kräftiger heißt wahrscheinlicher), ein Punkt, wo nicht berechtigt. Zeilen mit dem meisten Potenzial zuerst.",
+      "note": "Potenzial ist der geschätzte Jahresumsatz jedes offenen Produkts",
+      "source": {
+        "name": "CRM und Abrechnung (fiktiv)"
+      },
+      "fields": {
+        "client": {
+          "label": "Kunde"
+        },
+        "product": {
+          "label": "Produkt"
+        },
+        "propensity": {
+          "label": "Neigung"
+        },
+        "value": {
+          "label": "Umsatz"
+        }
+      }
+    }
   }
 }

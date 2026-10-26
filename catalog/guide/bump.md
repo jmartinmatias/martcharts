@@ -185,6 +185,46 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "Analytics",
       "Integrations"
     ]
+  },
+  "i18n": {
+    "fr": {
+      "title": "Classement des produits",
+      "subtitle": "Par CA mensuel, {first:month} à {last:month}",
+      "description": "Le rang de chaque produit par CA chaque mois. Analytics a dépassé Platform en juin, et Integrations est passé de quatrième à deuxième.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "month": {
+          "label": "Mois"
+        },
+        "product": {
+          "label": "Produit"
+        },
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        }
+      }
+    },
+    "de": {
+      "title": "Produktrangfolge",
+      "subtitle": "Nach Monatsumsatz, {first:month} bis {last:month}",
+      "description": "Rang jedes Produkts nach Umsatz in jedem Monat. Analytics überholte Platform im Juni, Integrations stieg von Platz vier auf zwei.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "month": {
+          "label": "Monat"
+        },
+        "product": {
+          "label": "Produkt"
+        },
+        "revenue": {
+          "label": "Umsatz"
+        }
+      }
+    }
   }
 }
 ```

@@ -102,6 +102,34 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "type": "pie",
     "label": "segment",
     "value": "revenue"
+  },
+  "i18n": {
+    "fr": {
+      "title": "D'où vient le CA du T3",
+      "subtitle": "Part par segment, T3 2026",
+      "description": "La part de chaque segment dans le CA du trimestre : les parts sur les tranches, les montants dans la légende.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        }
+      }
+    },
+    "de": {
+      "title": "Woher der Q3-Umsatz kam",
+      "subtitle": "Anteil nach Segment, Q3 2026",
+      "description": "Der Anteil jedes Segments am Quartalsumsatz: Anteile auf den Stücken, Beträge in der Legende.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "revenue": {
+          "label": "Umsatz"
+        }
+      }
+    }
   }
 }
 ```

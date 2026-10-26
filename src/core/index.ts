@@ -75,6 +75,7 @@ export { describeChart, describeCharts, firstSentence, needsText } from "./catal
 export type { ChartEntry, ChartNeed } from "./catalog.ts";
 export type { Question, QuestionKind } from "./question.ts";
 export { fillTemplate, hasTemplate, templateFields, templateRefs } from "./template.ts";
+export { checkI18n, i18nLanguage, localizeSpec } from "./i18n.ts";
 export { applyTransforms, runPipeline } from "./pipeline.ts";
 export { fieldLabel, formatNode, formatValue, humanize } from "./display.ts";
 export { FACET_OPTIONS, hasErrors, validateSpec } from "./validate.ts";

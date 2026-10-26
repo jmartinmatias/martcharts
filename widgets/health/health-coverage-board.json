@@ -71,5 +71,78 @@
       "R",
       "A"
     ]
+  },
+  "i18n": {
+    "fr": {
+      "source": {
+        "name": "Modèle de santé client (fictif)"
+      },
+      "title": "Couverture, mesure par mesure",
+      "subtitle": "Hors trajectoire ou à risque, le pire d'abord, face au trimestre précédent",
+      "description": "Le tableau de couverture : une ligne par client, un statut par mesure, le statut de la perspective et son évolution, et la prochaine étape.",
+      "fields": {
+        "rm": {
+          "label": "Chargé de clientèle"
+        },
+        "region": {
+          "label": "Région"
+        },
+        "aum": {
+          "label": "Actifs gérés"
+        },
+        "coverageRag": {
+          "label": "Couverture"
+        },
+        "daysSinceMeetingRag": {
+          "label": "Jours depuis le rendez-vous"
+        },
+        "cadenceRag": {
+          "label": "Rendez-vous vs plan"
+        },
+        "rmLoadRag": {
+          "label": "Charge du chargé"
+        },
+        "reviewOverdueRag": {
+          "label": "Revue en retard, jours"
+        },
+        "action": {
+          "label": "Étape suivante"
+        }
+      }
+    },
+    "de": {
+      "source": {
+        "name": "Kundengesundheitsmodell (fiktiv)"
+      },
+      "title": "Betreuung, Kennzahl für Kennzahl",
+      "subtitle": "Nicht im Plan oder gefährdet, schlechteste zuerst, gegen das Vorquartal",
+      "description": "Die Betreuungs-Scorecard: eine Zeile je Kunde, ein Status je Kennzahl, der Status der Perspektive, seine Bewegung seit dem Vorquartal und der nächste Schritt.",
+      "fields": {
+        "name": {
+          "label": "Kunde"
+        },
+        "rm": {
+          "label": "Kundenberater"
+        },
+        "coverageRag": {
+          "label": "Betreuung"
+        },
+        "daysSinceMeetingRag": {
+          "label": "Tage seit Termin"
+        },
+        "cadenceRag": {
+          "label": "Termine gg. Plan"
+        },
+        "rmLoadRag": {
+          "label": "Beraterlast"
+        },
+        "reviewOverdueRag": {
+          "label": "Review überfällig, Tage"
+        },
+        "action": {
+          "label": "Nächster Schritt"
+        }
+      }
+    }
   }
 }

@@ -46,5 +46,45 @@
         }
       ]
     }
-  ]
+  ],
+  "i18n": {
+    "fr": {
+      "title": "CA : de l'an dernier à cette année",
+      "subtitle": "Janvier à octobre, 2025 face à 2026 : ce qui a ajouté et retranché",
+      "description": "Le pont du chiffre d'affaires de 2025 à 2026.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "step": {
+          "label": "Étape"
+        },
+        "amount": {
+          "label": "Chiffre d'affaires"
+        }
+      },
+      "view": {
+        "endLabel": "CA 2026, janvier à octobre"
+      }
+    },
+    "de": {
+      "title": "Vom Vorjahresumsatz zum diesjährigen",
+      "subtitle": "Januar bis Oktober, 2025 gegen 2026: was dazukam und was wegfiel",
+      "description": "Die Umsatzbrücke von 2025 zu 2026.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "step": {
+          "label": "Schritt"
+        },
+        "amount": {
+          "label": "Umsatz"
+        }
+      },
+      "view": {
+        "endLabel": "Umsatz 2026, Januar bis Oktober"
+      }
+    }
+  }
 }

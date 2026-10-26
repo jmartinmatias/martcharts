@@ -67,5 +67,48 @@
       "left": "impactPoints",
       "right": "obligations"
     }
-  ]
+  ],
+  "i18n": {
+    "fr": {
+      "title": "Pression par thème et trimestre",
+      "subtitle": "Obligations qui tombent, et leur impact moyen",
+      "description": "Où et quand les obligations tombent : chaque cercle est un thème sur un trimestre, taillé par les obligations et coloré par l'impact.",
+      "fields": {
+        "quarter": {
+          "label": "Trimestre"
+        },
+        "topic": {
+          "label": "Thème"
+        },
+        "impact": {
+          "label": "Impact moyen"
+        }
+      },
+      "source": {
+        "name": "Veille réglementaire (fictive)"
+      }
+    },
+    "de": {
+      "title": "Druck je Thema und Quartal",
+      "subtitle": "Greifende Pflichten und ihre mittlere Wirkung",
+      "description": "Wo und wann die Pflichten greifen: jeder Kreis ist ein Thema in einem Quartal, nach Pflichten bemessen und nach Wirkung gefärbt.",
+      "fields": {
+        "quarter": {
+          "label": "Quartal"
+        },
+        "topic": {
+          "label": "Thema"
+        },
+        "obligations": {
+          "label": "Pflichten"
+        },
+        "impact": {
+          "label": "Mittlere Wirkung"
+        }
+      },
+      "source": {
+        "name": "Regulierungsbeobachtung (fiktiv)"
+      }
+    }
+  }
 }

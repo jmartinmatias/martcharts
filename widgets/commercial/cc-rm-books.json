@@ -92,5 +92,57 @@
       "revenue",
       "meetingsYtd"
     ]
+  },
+  "i18n": {
+    "fr": {
+      "title": "Portefeuilles par chargé de clientèle",
+      "subtitle": "Actifs, CA et rendez-vous",
+      "description": "Le portefeuille de chaque chargé de clientèle en chiffres.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "rm": {
+          "label": "Chargé de clientèle"
+        },
+        "office": {
+          "label": "Bureau"
+        },
+        "aum": {
+          "label": "Actifs gérés"
+        },
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        },
+        "meetingsYtd": {
+          "label": "Rendez-vous"
+        }
+      }
+    },
+    "de": {
+      "title": "Bestände je Kundenberater",
+      "subtitle": "Vermögen, Umsatz und Termine",
+      "description": "Der Bestand jedes Kundenberaters in Zahlen.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "rm": {
+          "label": "Kundenberater"
+        },
+        "office": {
+          "label": "Büro"
+        },
+        "clients": {
+          "label": "Kunden"
+        },
+        "revenue": {
+          "label": "Umsatz"
+        },
+        "meetingsYtd": {
+          "label": "Termine"
+        }
+      }
+    }
   }
 }

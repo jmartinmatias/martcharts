@@ -25,5 +25,35 @@
     "value": "seats",
     "arc": "half",
     "majority": true
+  },
+  "i18n": {
+    "fr": {
+      "title": "Sièges après l'élection",
+      "subtitle": "Partis dans l'ordre de l'hémicycle, de gauche à droite",
+      "description": "Un anneau électoral : les sièges de chaque parti en tranche du demi-anneau, avec la majorité en haut. Quelle coalition atteint 301 ?",
+      "note": "Décompte final",
+      "source": {
+        "name": "Commission électorale"
+      },
+      "fields": {
+        "seats": {
+          "label": "Sièges"
+        }
+      }
+    },
+    "de": {
+      "title": "Sitze nach der Wahl",
+      "subtitle": "Parteien in Sitzordnung, von links nach rechts",
+      "description": "Ein Wahlring: die Sitze jeder Partei als Stück des Halbrings, mit der Mehrheitslinie oben. Welche Koalition erreicht 301?",
+      "note": "Endergebnis",
+      "source": {
+        "name": "Wahlkommission"
+      },
+      "fields": {
+        "seats": {
+          "label": "Sitze"
+        }
+      }
+    }
   }
 }

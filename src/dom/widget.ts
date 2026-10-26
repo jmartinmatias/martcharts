@@ -26,6 +26,7 @@ import { renderHeadline } from "./headline.ts";
 import { goldenHeight } from "./layout.ts";
 import { buildSkeleton, skeletonShape, stateIcon } from "./states.ts";
 import { wordsFor } from "../core/words.ts";
+import { localizeSpec } from "../core/i18n.ts";
 import type { Words } from "../core/words.ts";
 import { highlightedNames, isHighlightRule, matchRule, ruleColor, ruleColors, rowRuleColor } from "../core/rules.ts";
 import type { ColorRule } from "../core/rules.ts";
@@ -131,6 +132,11 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
    * browser's: an English page must not write "1,5 M" because the reader's browser is French.
    */
   const pageLocale = (): string => doc.documentElement.lang || "en";
+  // The spec as written, with its words in every language: what the widget hands out (Copy spec, `widget.spec`) and
+  // what its ref is made from. It is drawn in its locale's language: its `i18n` words laid over its own.
+  let authored = spec;
+  const speak = (written: WidgetSpec): WidgetSpec => localizeSpec(written, written.locale ?? pageLocale());
+  spec = speak(spec);
   // The widget's own words, in the language of its locale (kept in step with the spec as it changes).
   let speaks = spec.locale ?? pageLocale();
   const W = (): Words => wordsFor(speaks);
@@ -469,7 +475,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     copy.textContent = W().widget.copySpec;
     copy.addEventListener("click", async () => {
       try {
-        await navigator.clipboard.writeText(JSON.stringify(current, null, 2));
+        await navigator.clipboard.writeText(JSON.stringify(authored, null, 2));
         copy.textContent = W().widget.copied;
       } catch {
         copy.textContent = W().widget.couldNotCopy;
@@ -659,7 +665,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
   function paintRef() {
     const host = root.parentElement;
     const place = host?.closest<HTMLElement>("[data-fft-place]")?.dataset.fftPlace || undefined;
-    const key = host?.closest<HTMLElement>("[data-fft-ref-key]")?.dataset.fftRefKey || (place ? refKey(current) : current.id);
+    const key = host?.closest<HTMLElement>("[data-fft-ref-key]")?.dataset.fftRefKey || (place ? refKey(authored) : authored.id);
     const ref = placedRef(place, key);
     if (ref && !jumped && doc.defaultView?.location.hash === `#${ref}`) {
       jumped = true;
@@ -1302,7 +1308,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
   const self: Widget = {
     root,
     get spec() {
-      return current;
+      return authored;
     },
     get rows() {
       return rows;
@@ -1312,12 +1318,14 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     },
     ready,
     update(override) {
-      current = fork(current, override as Override<WidgetSpec>);
+      authored = fork(authored, override as Override<WidgetSpec>);
+      current = speak(authored);
     speaks = current.locale ?? pageLocale();
       return load();
     },
     setSpec(next) {
-      current = next;
+      authored = next;
+      current = speak(next);
     speaks = current.locale ?? pageLocale();
       return load();
     },

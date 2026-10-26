@@ -38,5 +38,25 @@
     "label": "region",
     "from": "h1",
     "to": "h2"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Taux de réussite par région",
+      "subtitle": "Premier face au second semestre 2026",
+      "description": "Part des affaires qualifiées gagnées par région, premier contre second semestre 2026.",
+      "fields": {
+        "h1": {
+          "label": "S1 2026"
+        },
+        "h2": {
+          "label": "S2 2026"
+        }
+      }
+    },
+    "de": {
+      "title": "Abschlussquote je Region",
+      "subtitle": "Erstes gegen zweites Halbjahr 2026",
+      "description": "Anteil gewonnener qualifizierter Deals je Region, erstes gegen zweites Halbjahr 2026."
+    }
   }
 }

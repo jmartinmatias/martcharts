@@ -13,6 +13,8 @@
 
 /** Browser code: `readRef`, `lookUpRef`, `refItems`, `tokens`, `matchWords`. Plain ES2020, no imports. */
 export const FIND_JS = String.raw`
+    // The page's words in the reader's language, from the site's dictionary (public/site-look.js); English without it.
+    const T = (text, ...args) => (window.siteLook && window.siteLook.t ? window.siteLook.t(text, ...args) : text.replace(/\{(\d)\}/g, (_, i) => args[Number(i)]));
     // The ref alphabet leaves out I, L, O and U, so a ref never reads as a word.
     function readRef(text) {
       const typed = text.trim().toUpperCase();
@@ -34,7 +36,7 @@ export const FIND_JS = String.raw`
     // One list item per chart found, each a link to it. A link to this page goes through onHere(hash) instead, so the
     // page can clear its search and show the chart rather than land on a hidden card.
     function refItems(result, base, onHere) {
-      if (!result.found.length) return [Object.assign(document.createElement("li"), { textContent: "No chart on the site has the ref " + result.ref + "." })];
+      if (!result.found.length) return [Object.assign(document.createElement("li"), { textContent: T("No chart on the site has the ref {0}.", result.ref) })];
       return result.found.map((entry) => {
         const item = document.createElement("li");
         const link = document.createElement("a");
@@ -49,7 +51,7 @@ export const FIND_JS = String.raw`
         const code = document.createElement("code");
         code.textContent = entry.ref + " ";
         item.append(code, link);
-        if (entry.ref !== result.ref) item.prepend(result.ref + " is now ");
+        if (entry.ref !== result.ref) item.prepend(T("{0} is now ", result.ref));
         return item;
       });
     }

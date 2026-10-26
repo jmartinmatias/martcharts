@@ -145,6 +145,32 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "x": "month",
     "goodWhen": "down",
     "icon": "activity"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Attrition client",
+      "description": "Part des clients perdus chaque mois. Plus bas, c'est mieux.",
+      "fields": {
+        "month": {
+          "label": "Mois"
+        },
+        "churn": {
+          "label": "Attrition mensuelle"
+        }
+      }
+    },
+    "de": {
+      "title": "Kundenabwanderung",
+      "description": "Anteil verlorener Kunden je Monat. Niedriger ist besser.",
+      "fields": {
+        "month": {
+          "label": "Monat"
+        },
+        "churn": {
+          "label": "Monatliche Abwanderung"
+        }
+      }
+    }
   }
 }
 ```

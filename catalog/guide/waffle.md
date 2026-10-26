@@ -101,6 +101,34 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "type": "waffle",
     "label": "source",
     "value": "revenue"
+  },
+  "i18n": {
+    "fr": {
+      "title": "D'où vient le CA",
+      "subtitle": "Septembre 2026, en pourcentage",
+      "description": "CA de septembre par source. Les abonnements apportent 62 euros sur 100.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        }
+      }
+    },
+    "de": {
+      "title": "Woher der Umsatz kommt",
+      "subtitle": "September 2026, in Prozent",
+      "description": "Septemberumsatz nach Quelle. Abos bringen 62 von 100 Euro.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "revenue": {
+          "label": "Umsatz"
+        }
+      }
+    }
   }
 }
 ```

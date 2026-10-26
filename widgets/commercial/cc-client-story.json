@@ -41,5 +41,36 @@
     "kind": "kind",
     "note": "note",
     "amount": "amount"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Aldana Holdings, l'histoire à ce jour",
+      "subtitle": "Rendez-vous, opérations, campagnes et revues, les plus récents d'abord",
+      "description": "L'historique du client sous forme de chronologie.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "amount": {
+          "label": "Montant"
+        }
+      }
+    },
+    "de": {
+      "title": "Aldana Holdings, die Geschichte bisher",
+      "subtitle": "Termine, Trades, Kampagnen und Reviews, neueste zuerst",
+      "description": "Die Geschichte des Kunden als Zeitleiste.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "date": {
+          "label": "Datum"
+        },
+        "amount": {
+          "label": "Betrag"
+        }
+      }
+    }
   }
 }

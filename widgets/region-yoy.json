@@ -60,5 +60,23 @@
     "label": "region",
     "from": "q3_2025",
     "to": "q3_2026"
+  },
+  "i18n": {
+    "fr": {
+      "title": "CA de septembre, sur un an",
+      "subtitle": "2025 face à 2026, par région",
+      "description": "Le CA de septembre de chaque région, l'an dernier et cette année.",
+      "source": {
+        "name": "Grand livre"
+      }
+    },
+    "de": {
+      "title": "Septemberumsatz im Jahresvergleich",
+      "subtitle": "2025 gegen 2026, nach Region",
+      "description": "Septemberumsatz jeder Region, Vorjahr gegen dieses Jahr.",
+      "source": {
+        "name": "Hauptbuch"
+      }
+    }
   }
 }

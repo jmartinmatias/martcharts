@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 /**
  * The site's language: English, French or German, picked in the Look menu, kept like the look and carried in the
- * address (?lang=fr), which wins. Charts and dashboards follow it; the site's own menu and page text stay English.
+ * address (?lang=fr), which wins. Charts, dashboards and the site's own words (menu, page heads, buttons) follow it.
  */
 import { readdirSync, readFileSync } from "node:fs";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";

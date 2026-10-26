@@ -76,5 +76,51 @@
       "2025-Q4"
     ],
     "endLabels": false
+  },
+  "i18n": {
+    "fr": {
+      "title": "Courbes d'adoption",
+      "subtitle": "Part de chaque cohorte utilisant l'appli, selon les mois depuis l'intégration",
+      "description": "La courbe d'adoption de chaque cohorte d'intégration.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "monthsSince": {
+          "label": "Mois depuis l'intégration"
+        },
+        "2024-Q3": {
+          "label": "T3 2024"
+        },
+        "2024-Q4": {
+          "label": "T4 2024"
+        },
+        "2025-Q1": {
+          "label": "T1 2025"
+        },
+        "2025-Q2": {
+          "label": "T2 2025"
+        },
+        "2025-Q3": {
+          "label": "T3 2025"
+        },
+        "2025-Q4": {
+          "label": "T4 2025"
+        }
+      }
+    },
+    "de": {
+      "title": "Nutzungskurven",
+      "subtitle": "Anteil jeder Kohorte mit App-Nutzung, nach Monaten seit Onboarding",
+      "description": "Die Nutzungskurve jeder Onboarding-Kohorte.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "monthsSince": {
+          "label": "Monate seit Onboarding"
+        }
+      }
+    }
   }
 }

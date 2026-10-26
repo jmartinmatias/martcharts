@@ -269,5 +269,39 @@
     "align": {
       "plan": "center"
     }
+  },
+  "i18n": {
+    "fr": {
+      "title": "Annuaire clients",
+      "subtitle": "Chaque compte actif, avec son offre et son renouvellement",
+      "description": "Une longue table facile à exploiter : recherche par mot, huit lignes par page, le nom du client fixé pendant que les colonnes défilent.",
+      "source": {
+        "name": "Comptes OneCRM"
+      },
+      "fields": {
+        "name": {
+          "label": "Client"
+        },
+        "revenue": {
+          "label": "CA annuel"
+        }
+      }
+    },
+    "de": {
+      "title": "Kundenverzeichnis",
+      "subtitle": "Jedes aktive Konto mit Tarif und Verlängerung",
+      "description": "Eine lange Tabelle, leicht zu bearbeiten: Suche nach jedem Wort, acht Zeilen je Seite, Kundenname fixiert, während die Spalten scrollen.",
+      "source": {
+        "name": "OneCRM-Konten"
+      },
+      "fields": {
+        "name": {
+          "label": "Kunde"
+        },
+        "revenue": {
+          "label": "Jahresumsatz"
+        }
+      }
+    }
   }
 }

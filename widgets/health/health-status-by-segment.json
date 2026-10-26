@@ -51,5 +51,45 @@
       "#E0A21B",
       "#2E9D5B"
     ]
+  },
+  "i18n": {
+    "fr": {
+      "source": {
+        "name": "Modèle de santé client (fictif)"
+      },
+      "title": "Où en est le portefeuille",
+      "subtitle": "Statut global par segment, part des clients",
+      "description": "Les clients de chaque segment répartis par statut global, en parts du segment.",
+      "fields": {
+        "Red": {
+          "label": "Hors trajectoire (rouge)"
+        },
+        "Amber": {
+          "label": "À surveiller (orange)"
+        },
+        "Green": {
+          "label": "Sur la bonne voie (vert)"
+        }
+      }
+    },
+    "de": {
+      "source": {
+        "name": "Kundengesundheitsmodell (fiktiv)"
+      },
+      "title": "Wo der Bestand steht",
+      "subtitle": "Gesamtstatus nach Segment, Anteil der Kunden",
+      "description": "Kunden jedes Segments nach Gesamtstatus, als Anteile des Segments.",
+      "fields": {
+        "Red": {
+          "label": "Nicht im Plan (rot)"
+        },
+        "Amber": {
+          "label": "Beobachten (gelb)"
+        },
+        "Green": {
+          "label": "Im Plan (grün)"
+        }
+      }
+    }
   }
 }

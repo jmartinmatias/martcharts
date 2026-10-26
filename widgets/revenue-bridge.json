@@ -55,5 +55,39 @@
     ],
     "endLabel": "September revenue",
     "fit": true
+  },
+  "i18n": {
+    "fr": {
+      "title": "Pont du CA",
+      "subtitle": "Août à septembre 2026",
+      "description": "Ce qui a fait bouger le CA d'août à septembre : gains des nouveaux clients, de la montée en gamme et des prix, pertes de l'attrition et des remises.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "amount": {
+          "label": "Chiffre d'affaires"
+        }
+      },
+      "view": {
+        "endLabel": "CA de septembre"
+      }
+    },
+    "de": {
+      "title": "Umsatzbrücke",
+      "subtitle": "August bis September 2026",
+      "description": "Was den Monatsumsatz von August zu September bewegte: Zuwächse durch Neukunden, Upselling und Preise, Verluste durch Abwanderung und Rabatte.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "amount": {
+          "label": "Umsatz"
+        }
+      },
+      "view": {
+        "endLabel": "Septemberumsatz"
+      }
+    }
   }
 }

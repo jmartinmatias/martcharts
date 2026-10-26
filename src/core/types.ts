@@ -29,6 +29,11 @@ export type Row = Record<string, unknown>;
 export interface WidgetSpec {
   /** Stable identifier. Used as the file name in the widget store and by the MCP server. */
   id?: string;
+  /**
+   * The spec's words in other languages: `{ "fr": { "title": "…", "fields": { "revenue": { "label": "…" } } } }`,
+   * laid over its own when it is drawn in that language (see `localizeSpec`). Words only; the spec keeps it.
+   */
+  i18n?: Partial<Record<"fr" | "de" | "en", Record<string, unknown>>>;
   /** Heading shown at the top of the widget. */
   title?: string;
   /** Smaller line under the title, for example the period covered. */

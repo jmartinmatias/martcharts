@@ -34,5 +34,45 @@
     "from": "current",
     "to": "target",
     "mark": "arrow"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Allocation face au modèle",
+      "subtitle": "Poids actuel et cible, par classe d'actifs",
+      "description": "Où le portefeuille maison s'est écarté du modèle, et dans quel sens rééquilibrer.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "assetClass": {
+          "label": "Classe d'actifs"
+        },
+        "current": {
+          "label": "Actuel"
+        },
+        "target": {
+          "label": "Objectif"
+        }
+      }
+    },
+    "de": {
+      "title": "Allokation gegen das Modell",
+      "subtitle": "Aktuelles und Zielgewicht, nach Anlageklasse",
+      "description": "Wo das Hausportfolio vom Modell abwich, und in welche Richtung umschichten.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "assetClass": {
+          "label": "Anlageklasse"
+        },
+        "current": {
+          "label": "Aktuell"
+        },
+        "target": {
+          "label": "Ziel"
+        }
+      }
+    }
   }
 }

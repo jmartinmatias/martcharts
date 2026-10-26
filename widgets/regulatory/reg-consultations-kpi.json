@@ -51,5 +51,36 @@
   },
   "source": {
     "name": "Regulatory watch (fictional)"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Consultations ouvertes",
+      "subtitle": "{last:month}, avec la tendance depuis {first:month}",
+      "description": "Consultations ouvertes en fin de mois, face au mois précédent.",
+      "fields": {
+        "month": {
+          "label": "Mois"
+        }
+      },
+      "source": {
+        "name": "Veille réglementaire (fictive)"
+      }
+    },
+    "de": {
+      "title": "Offene Konsultationen",
+      "subtitle": "{last:month}, mit dem Trend seit {first:month}",
+      "description": "Offene Konsultationen zum Monatsende gegen den Vormonat.",
+      "fields": {
+        "month": {
+          "label": "Monat"
+        },
+        "consultationsOpen": {
+          "label": "Konsultationen"
+        }
+      },
+      "source": {
+        "name": "Regulierungsbeobachtung (fiktiv)"
+      }
+    }
   }
 }

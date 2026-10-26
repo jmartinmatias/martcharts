@@ -75,5 +75,81 @@
       "R",
       "A"
     ]
+  },
+  "i18n": {
+    "fr": {
+      "source": {
+        "name": "Modèle de santé client (fictif)"
+      },
+      "title": "Santé de la relation, mesure par mesure",
+      "subtitle": "Hors trajectoire ou à risque, le pire d'abord, face au trimestre précédent",
+      "description": "Le tableau de la relation : une ligne par client, un statut par mesure, le statut de la perspective et son évolution, et la prochaine étape.",
+      "fields": {
+        "rm": {
+          "label": "Chargé de clientèle"
+        },
+        "region": {
+          "label": "Région"
+        },
+        "aum": {
+          "label": "Actifs gérés"
+        },
+        "relationshipRag": {
+          "label": "Relation"
+        },
+        "walletTrendRag": {
+          "label": "Part de portefeuille, 12 mois"
+        },
+        "attritionRiskRag": {
+          "label": "Risque d'attrition"
+        },
+        "feeLeakageRag": {
+          "label": "Fuite de commissions"
+        },
+        "kycDaysRag": {
+          "label": "Jours avant revue KYC"
+        },
+        "action": {
+          "label": "Étape suivante"
+        }
+      }
+    },
+    "de": {
+      "source": {
+        "name": "Kundengesundheitsmodell (fiktiv)"
+      },
+      "title": "Beziehungsgesundheit, Kennzahl für Kennzahl",
+      "subtitle": "Nicht im Plan oder gefährdet, schlechteste zuerst, gegen das Vorquartal",
+      "description": "Die Beziehungs-Scorecard: eine Zeile je Kunde, ein Status je Kennzahl, der Status der Perspektive, seine Bewegung seit dem Vorquartal und der nächste Schritt.",
+      "fields": {
+        "name": {
+          "label": "Kunde"
+        },
+        "rm": {
+          "label": "Kundenberater"
+        },
+        "relationshipRag": {
+          "label": "Beziehung"
+        },
+        "walletTrendRag": {
+          "label": "Wallet-Anteil, 12 Monate"
+        },
+        "attritionRiskRag": {
+          "label": "Abwanderungsrisiko"
+        },
+        "feeLeakageRag": {
+          "label": "Gebührenverlust"
+        },
+        "kycDaysRag": {
+          "label": "Tage bis KYC-Prüfung"
+        },
+        "sentimentRag": {
+          "label": "Stimmung"
+        },
+        "action": {
+          "label": "Nächster Schritt"
+        }
+      }
+    }
   }
 }

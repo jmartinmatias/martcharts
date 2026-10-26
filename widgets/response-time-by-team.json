@@ -65,5 +65,47 @@
         "label": "1 hour target"
       }
     ]
+  },
+  "i18n": {
+    "fr": {
+      "title": "Délai de première réponse par équipe",
+      "subtitle": "Minutes médianes de réponse, septembre 2026",
+      "description": "Le délai de première réponse, par équipe support, la plus lente d'abord. Technique met 95 minutes, plus de cinq fois les 18 d'Enterprise ; toutes les équipes sauf Technique, Data et PME répondent dans l'heure.",
+      "source": {
+        "name": "Support client"
+      },
+      "fields": {
+        "team": {
+          "label": "Équipe"
+        },
+        "minutes": {
+          "label": "Minutes médianes"
+        }
+      },
+      "view": {
+        "reference": [
+          {
+            "label": "Objectif 1 heure"
+          }
+        ]
+      }
+    },
+    "de": {
+      "title": "Erste Antwortzeit je Team",
+      "subtitle": "Median Minuten bis Antwort, September 2026",
+      "description": "Wie lange Kunden auf eine erste Antwort warten, je Supportteam, langsamstes zuerst. Technik braucht 95 Minuten, über fünfmal so lang wie Enterprise mit 18; alle außer Technik, Data und KMU antworten binnen einer Stunde.",
+      "fields": {
+        "minutes": {
+          "label": "Median in Minuten"
+        }
+      },
+      "view": {
+        "reference": [
+          {
+            "label": "Ziel 1 Stunde"
+          }
+        ]
+      }
+    }
   }
 }

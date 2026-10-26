@@ -76,5 +76,42 @@
       "nps"
     ],
     "split": true
+  },
+  "i18n": {
+    "fr": {
+      "title": "Tableau par région",
+      "subtitle": "Septembre 2026 : CA, marge brute et NPS",
+      "description": "Trois mesures d'unités différentes, une colonne chacune, pour lire une région sur une ligne. L'Est mène en CA, le Centre en marge, l'Ouest en NPS.",
+      "source": {
+        "name": "Grand livre et enquête clients"
+      },
+      "fields": {
+        "region": {
+          "label": "Région"
+        },
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        },
+        "margin": {
+          "label": "Marge brute"
+        }
+      }
+    },
+    "de": {
+      "title": "Regionen-Scorecard",
+      "subtitle": "September 2026: Umsatz, Bruttomarge und NPS",
+      "description": "Drei Kennzahlen in verschiedenen Einheiten, je eine Spalte, sodass eine Region in einer Zeile lesbar ist. Der Osten führt beim Umsatz, die Mitte bei der Marge, der Westen beim NPS.",
+      "source": {
+        "name": "Hauptbuch und Kundenumfrage"
+      },
+      "fields": {
+        "revenue": {
+          "label": "Umsatz"
+        },
+        "margin": {
+          "label": "Bruttomarge"
+        }
+      }
+    }
   }
 }

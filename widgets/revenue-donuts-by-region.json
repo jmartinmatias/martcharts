@@ -33,5 +33,32 @@
     "type": "donut",
     "label": "product",
     "value": "revenue"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Mix produits par région",
+      "subtitle": "T3 2026",
+      "description": "Plusieurs anneaux : la répartition du CA de chaque région entre les trois produits, chaque produit dans la même couleur.",
+      "source": {
+        "name": "Journal des ventes"
+      },
+      "fields": {
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        }
+      }
+    },
+    "de": {
+      "title": "Produktmix je Region",
+      "description": "Mehrere Ringe: wie sich der Umsatz jeder Region auf die drei Produkte verteilt, jedes Produkt in derselben Farbe.",
+      "source": {
+        "name": "Verkaufsjournal"
+      },
+      "fields": {
+        "revenue": {
+          "label": "Umsatz"
+        }
+      }
+    }
   }
 }

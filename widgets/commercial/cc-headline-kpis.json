@@ -122,5 +122,98 @@
       "type": "sort",
       "field": "month"
     }
-  ]
+  ],
+  "i18n": {
+    "fr": {
+      "title": "Le portefeuille d'un coup d'œil",
+      "subtitle": "{last:month}, face au mois précédent",
+      "description": "Actifs, CA de l'année, collecte nette, opportunités ouvertes et potentiel de vente croisée, mois par mois, sommés depuis les lignes de chaque client pour suivre les filtres. Les anomalies ont leur propre suivi plus bas.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "month": {
+          "label": "Mois"
+        },
+        "aum": {
+          "label": "Actifs gérés"
+        },
+        "revenueYtd": {
+          "label": "CA de l'année"
+        },
+        "netNewMoney": {
+          "label": "Collecte nette"
+        },
+        "openOpportunities": {
+          "label": "Opportunités ouvertes"
+        },
+        "potential": {
+          "label": "Potentiel"
+        }
+      },
+      "view": {
+        "items": [
+          {
+            "label": "Actifs sous gestion"
+          },
+          {
+            "label": "CA depuis janvier"
+          },
+          {
+            "label": "Collecte nette"
+          },
+          {
+            "label": "Clients avec une opportunité ouverte"
+          },
+          {
+            "label": "Potentiel de vente croisée"
+          }
+        ]
+      }
+    },
+    "de": {
+      "title": "Der Bestand auf einen Blick",
+      "subtitle": "{last:month} gegen den Vormonat",
+      "description": "Vermögen, Umsatz seit Jahresbeginn, Netto-Neugeld, offene Chancen und Cross-Selling-Potenzial, Monat für Monat, aus den Zeilen jedes Kunden summiert, damit die Filter greifen. Anomalien haben unten eine eigene Beobachtung.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "month": {
+          "label": "Monat"
+        },
+        "revenueYtd": {
+          "label": "Umsatz lfd. Jahr"
+        },
+        "netNewMoney": {
+          "label": "Netto-Neugeld"
+        },
+        "openOpportunities": {
+          "label": "Offene Chancen"
+        },
+        "potential": {
+          "label": "Potenzial"
+        }
+      },
+      "view": {
+        "items": [
+          {
+            "label": "Verwaltetes Vermögen"
+          },
+          {
+            "label": "Umsatz seit Jahresbeginn"
+          },
+          {
+            "label": "Netto-Neugeld"
+          },
+          {
+            "label": "Kunden mit offener Chance"
+          },
+          {
+            "label": "Cross-Selling-Potenzial"
+          }
+        ]
+      }
+    }
+  }
 }

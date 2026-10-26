@@ -109,5 +109,124 @@
   ],
   "source": {
     "name": "Regulatory watch (fictional)"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Paysage réglementaire",
+      "subtitle": "Ce qui est dû, la pression, qui est touché et où cela s'applique",
+      "description": "La veille réglementaire comme un récit, pour le responsable conformité : les chiffres clés, ce qui s'applique ensuite et qui porte chaque échéance, la pression par thème, l'impact par type d'entreprise, où les règles s'appliquent, leur volume et leur densité, et, replié, la transposition nationale.",
+      "filters": [
+        {
+          "label": "Thème"
+        },
+        {
+          "label": "Juridiction"
+        }
+      ],
+      "widgets": [
+        {
+          "section": "Chiffres clés",
+          "description": "Quel est le poids du paysage aujourd'hui ?"
+        },
+        {},
+        {},
+        {},
+        {
+          "section": "Ce qui s'applique ensuite",
+          "description": "Ce qui doit être prêt dans 90 jours, et qui en est responsable."
+        },
+        {},
+        {},
+        {
+          "section": "Pression",
+          "description": "Quand et où les obligations tombent-elles ?"
+        },
+        {},
+        {},
+        {
+          "description": "Quelles règles comptent le plus, et pour qui ?"
+        },
+        {},
+        {},
+        {
+          "section": "Où les règles s'appliquent",
+          "description": "Où les règles s'appliquent-elles ?"
+        },
+        {},
+        {
+          "section": "Volume et densité",
+          "description": "Combien pèse chaque thème, et quel est le poids de chaque règle ?"
+        },
+        {},
+        {},
+        {},
+        {
+          "section": "Transposition nationale",
+          "description": "Où le droit national est-il en retard sur les directives ?"
+        }
+      ],
+      "source": {
+        "name": "Veille réglementaire (fictive)"
+      }
+    },
+    "de": {
+      "title": "Regulierungslandschaft",
+      "subtitle": "Was fällig ist, der Druck, wen es trifft und wo es bindet",
+      "description": "Die Regulierungsbeobachtung als Geschichte, für die Compliance-Verantwortlichen: die Kennzahlen, was als Nächstes gilt und wer jede Frist verantwortet, der Druck je Thema, die Wirkung je Unternehmensart, wo die Vorschriften binden, Umfang und Dichte, und eingeklappt die nationale Umsetzung.",
+      "filters": [
+        {
+          "label": "Thema"
+        },
+        {
+          "label": "Rechtsraum"
+        }
+      ],
+      "widgets": [
+        {
+          "section": "Kennzahlen",
+          "description": "Wie schwer wiegt die Regulierung heute?"
+        },
+        {},
+        {},
+        {},
+        {
+          "section": "Was als Nächstes gilt",
+          "description": "Was in den nächsten 90 Tagen fertig sein muss, und wer zuständig ist."
+        },
+        {},
+        {},
+        {
+          "section": "Druck",
+          "description": "Wann und wo greifen die Pflichten?"
+        },
+        {},
+        {},
+        {
+          "section": "Wirkung",
+          "description": "Welche Vorschriften zählen am meisten, und für wen?"
+        },
+        {},
+        {},
+        {
+          "section": "Wo die Vorschriften binden",
+          "description": "Wo gelten die Vorschriften?"
+        },
+        {},
+        {
+          "section": "Umfang und Dichte",
+          "description": "Wie viel trägt jedes Thema, und wie schwer wiegt jede Vorschrift?"
+        },
+        {},
+        {},
+        {},
+        {
+          "section": "Nationale Umsetzung",
+          "description": "Wo hinkt nationales Recht den EU-Richtlinien hinterher?"
+        }
+      ],
+      "source": {
+        "name": "Regulierungsbeobachtung (fiktiv)"
+      }
+    }
   }
 }

@@ -57,5 +57,51 @@
     "note": "note",
     "amount": "amount",
     "limit": 12
+  },
+  "i18n": {
+    "fr": {
+      "title": "Aldana Holdings, l'histoire à ce jour",
+      "subtitle": "Chaque contact depuis l'intégration",
+      "description": "Les événements d'un client sur une chronologie verticale, le plus récent d'abord : rendez-vous, appels, opérations, campagnes et réclamations, chacun dans sa couleur, avec le montant s'il y en a un.",
+      "source": {
+        "name": "Journal d'activité CRM (fictif)"
+      },
+      "fields": {
+        "kind": {
+          "label": "Type"
+        },
+        "title": {
+          "label": "Événement"
+        },
+        "amount": {
+          "label": "Montant"
+        }
+      }
+    },
+    "de": {
+      "title": "Aldana Holdings, die Geschichte bisher",
+      "subtitle": "Jeder Kontakt seit dem Onboarding",
+      "description": "Die Ereignisse eines Kunden als senkrechte Zeitleiste, neueste zuerst: Termine, Anrufe, Trades, Kampagnen und Beschwerden, jeweils in eigener Farbe, mit Betrag, wo es einen gibt.",
+      "source": {
+        "name": "CRM-Aktivitätsprotokoll (fiktiv)"
+      },
+      "fields": {
+        "date": {
+          "label": "Datum"
+        },
+        "kind": {
+          "label": "Art"
+        },
+        "title": {
+          "label": "Ereignis"
+        },
+        "note": {
+          "label": "Notiz"
+        },
+        "amount": {
+          "label": "Betrag"
+        }
+      }
+    }
   }
 }

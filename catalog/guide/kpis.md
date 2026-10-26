@@ -184,6 +184,58 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         "goodWhen": "down"
       }
     ]
+  },
+  "i18n": {
+    "fr": {
+      "title": "En un coup d'œil",
+      "subtitle": "{last:month} face au mois précédent, avec les tendances depuis {first:month}",
+      "description": "Les quatre chiffres clés sur une ligne.",
+      "source": {
+        "name": "Grand livre et CRM"
+      },
+      "fields": {
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        },
+        "profit": {
+          "label": "Marge brute"
+        },
+        "newCustomers": {
+          "label": "Nouveaux clients"
+        },
+        "churn": {
+          "label": "Attrition"
+        },
+        "month": {
+          "label": "Mois"
+        }
+      }
+    },
+    "de": {
+      "title": "Auf einen Blick",
+      "subtitle": "{last:month} gegen den Vormonat, mit Trends seit {first:month}",
+      "description": "Die vier Kennzahlen in einer Reihe.",
+      "source": {
+        "name": "Hauptbuch und CRM"
+      },
+      "fields": {
+        "revenue": {
+          "label": "Umsatz"
+        },
+        "profit": {
+          "label": "Bruttogewinn"
+        },
+        "newCustomers": {
+          "label": "Neukunden"
+        },
+        "churn": {
+          "label": "Abwanderung"
+        },
+        "month": {
+          "label": "Monat"
+        }
+      }
+    }
   }
 }
 ```

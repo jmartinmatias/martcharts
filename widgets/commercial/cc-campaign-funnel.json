@@ -36,5 +36,36 @@
         }
       ]
     }
-  ]
+  ],
+  "i18n": {
+    "fr": {
+      "title": "Campagnes, étape par étape",
+      "subtitle": "Cette année, des clients ciblés aux clients convertis",
+      "description": "Combien de clients les campagnes de l'année ont ciblé, touché, fait répondre et converti, toutes campagnes confondues.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "stage": {
+          "label": "Étape"
+        }
+      }
+    },
+    "de": {
+      "title": "Kampagnen, Schritt für Schritt",
+      "subtitle": "Dieses Jahr, von angesprochenen zu gewonnenen Kunden",
+      "description": "Wie viele Kunden die Kampagnen dieses Jahres ansprachen, erreichten, zur Antwort brachten und gewannen, alle zusammen.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "stage": {
+          "label": "Schritt"
+        },
+        "clients": {
+          "label": "Kunden"
+        }
+      }
+    }
+  }
 }

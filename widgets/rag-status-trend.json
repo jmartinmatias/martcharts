@@ -64,5 +64,45 @@
     "period": "month",
     "status": "status",
     "note": "why"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Statut client, mois par mois",
+      "subtitle": "Statut global à chaque revue mensuelle, mai à octobre 2026",
+      "description": "Le statut rouge, orange ou vert de chaque client clé à chaque revue mensuelle, avec la raison du changement, pour commencer la revue par qui a glissé et pourquoi.",
+      "source": {
+        "name": "Revue client (fictive)"
+      },
+      "fields": {
+        "month": {
+          "label": "Mois"
+        },
+        "status": {
+          "label": "Statut"
+        },
+        "why": {
+          "label": "Pourquoi il a bougé"
+        }
+      }
+    },
+    "de": {
+      "title": "Kundenstatus, Monat für Monat",
+      "subtitle": "Gesamt-RAG bei jeder Monatsprüfung, Mai bis Oktober 2026",
+      "description": "Der Rot-, Gelb- oder Grünstatus jedes Schlüsselkunden bei jeder Monatsprüfung, mit einer Notiz zum Warum, damit die Prüfung mit den Abgerutschten beginnt.",
+      "source": {
+        "name": "Kundenprüfung (fiktiv)"
+      },
+      "fields": {
+        "client": {
+          "label": "Kunde"
+        },
+        "month": {
+          "label": "Monat"
+        },
+        "why": {
+          "label": "Warum er sich bewegte"
+        }
+      }
+    }
   }
 }

@@ -68,5 +68,45 @@
     "from": "penetration",
     "to": "penetrationTarget",
     "mark": "arrow"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Pénétration face à l'objectif",
+      "subtitle": "Chaque produit aujourd'hui et en fin d'année, sur tout le portefeuille",
+      "description": "La pénétration de chaque produit aujourd'hui et son objectif de fin d'année ; la flèche montre le sens à suivre.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "product": {
+          "label": "Produit"
+        },
+        "penetration": {
+          "label": "Aujourd'hui"
+        },
+        "penetrationTarget": {
+          "label": "Objectif"
+        }
+      }
+    },
+    "de": {
+      "title": "Durchdringung gegen Ziel",
+      "subtitle": "Jedes Produkt heute und zum Jahresende, für den ganzen Bestand",
+      "description": "Durchdringung jedes Produkts heute und ihr Jahresendziel; der Pfeil zeigt die nötige Richtung.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "product": {
+          "label": "Produkt"
+        },
+        "penetration": {
+          "label": "Heute"
+        },
+        "penetrationTarget": {
+          "label": "Ziel"
+        }
+      }
+    }
   }
 }

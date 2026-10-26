@@ -55,5 +55,54 @@
       "relationship": "relationshipLast"
     },
     "note": "owner"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Tableau RAG des clients",
+      "subtitle": "Revue d'octobre face à septembre, le pire d'abord",
+      "description": "Le statut rouge, orange ou vert de chaque client clé sur quatre perspectives : succès client, développement commercial, couverture et relation, le pire des quatre en global et des flèches là où un statut a bougé depuis septembre.",
+      "source": {
+        "name": "Revue client (fictive)"
+      },
+      "fields": {
+        "success": {
+          "label": "Succès client"
+        },
+        "growth": {
+          "label": "Développement commercial"
+        },
+        "coverage": {
+          "label": "Couverture"
+        },
+        "relationship": {
+          "label": "Relation"
+        }
+      }
+    },
+    "de": {
+      "title": "RAG-Scorecard der Kunden",
+      "subtitle": "Prüfung Oktober gegen September, schlechteste zuerst",
+      "description": "Rot-, Gelb- oder Grünstatus jedes Schlüsselkunden aus vier Perspektiven: Kundenerfolg, Geschäftsentwicklung, Betreuung und Beziehung, das schlechteste der vier als Gesamt, und Pfeile, wo sich ein Status seit September bewegte.",
+      "source": {
+        "name": "Kundenprüfung (fiktiv)"
+      },
+      "fields": {
+        "client": {
+          "label": "Kunde"
+        },
+        "success": {
+          "label": "Kundenerfolg"
+        },
+        "growth": {
+          "label": "Geschäftsentwicklung"
+        },
+        "coverage": {
+          "label": "Betreuung"
+        },
+        "relationship": {
+          "label": "Beziehung"
+        }
+      }
+    }
   }
 }

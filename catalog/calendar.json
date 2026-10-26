@@ -217,5 +217,45 @@
     "type": "calendar",
     "date": "day",
     "value": "orders"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Commandes quotidiennes",
+      "subtitle": "{first:day} au {last:day}",
+      "description": "Commandes par jour : rythme hebdomadaire, week-ends calmes et croissance.",
+      "source": {
+        "name": "Système de commandes"
+      },
+      "fields": {
+        "orders": {
+          "label": "Commandes"
+        },
+        "day": {
+          "label": "Jour"
+        }
+      },
+      "headline": {
+        "caption": "commandes en {count} jours"
+      }
+    },
+    "de": {
+      "title": "Tägliche Bestellungen",
+      "subtitle": "{first:day} bis {last:day}",
+      "description": "Bestellungen je Tag: Wochenrhythmus, ruhige Wochenenden und Wachstum.",
+      "source": {
+        "name": "Bestellsystem"
+      },
+      "fields": {
+        "orders": {
+          "label": "Bestellungen"
+        },
+        "day": {
+          "label": "Tag"
+        }
+      },
+      "headline": {
+        "caption": "Bestellungen in {count} Tagen"
+      }
+    }
   }
 }

@@ -115,5 +115,75 @@
         }
       }
     }
+  },
+  "i18n": {
+    "fr": {
+      "title": "Radiographie : Aldana Holdings",
+      "subtitle": "Produits, part de portefeuille, tendance et suites",
+      "description": "Le portefeuille du client, ses produits, sa part de portefeuille et sa situation.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "aum": {
+          "label": "Actifs gérés"
+        },
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        },
+        "products": {
+          "label": "Produits"
+        },
+        "sinceYear": {
+          "label": "Client depuis"
+        },
+        "propensity": {
+          "label": "Propension"
+        },
+        "riskScore": {
+          "label": "Score de risque"
+        },
+        "shareOfWallet": {
+          "label": "Part de portefeuille"
+        },
+        "fx": {
+          "label": "Change"
+        }
+      }
+    },
+    "de": {
+      "title": "Kunden-Röntgenbild: Aldana Holdings",
+      "subtitle": "Produkte, Wallet-Anteil, Trend und nächste Schritte",
+      "description": "Bestand des Kunden, gehaltene Produkte, Wallet-Anteil und Lage.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "name": {
+          "label": "Kunde"
+        },
+        "revenue": {
+          "label": "Umsatz"
+        },
+        "products": {
+          "label": "Produkte"
+        },
+        "sinceYear": {
+          "label": "Kunde seit"
+        },
+        "propensity": {
+          "label": "Neigung"
+        },
+        "riskScore": {
+          "label": "Risikowert"
+        },
+        "shareOfWallet": {
+          "label": "Wallet-Anteil"
+        },
+        "fx": {
+          "label": "Devisen"
+        }
+      }
+    }
   }
 }

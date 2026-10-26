@@ -114,6 +114,36 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "source": "from",
     "target": "to",
     "value": "customers"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Changements d'offre",
+      "subtitle": "T3 2026, clients changeant d'offre",
+      "description": "Chaque montée et descente d'offre ce trimestre. Starter vers Growth est le plus gros mouvement ; les descentes sont les fins rubans de retour.",
+      "note": "{sum:customers} mouvements",
+      "source": {
+        "name": "Facturation"
+      },
+      "fields": {
+        "customers": {
+          "label": "Clients"
+        }
+      }
+    },
+    "de": {
+      "title": "Tarifwechsel",
+      "subtitle": "Q3 2026, Kunden zwischen Tarifen",
+      "description": "Jedes Up- und Downgrade zwischen Tarifen in diesem Quartal. Starter zu Growth ist der größte Wechsel; Downgrades sind die dünnen Bänder zurück.",
+      "note": "{sum:customers} Wechsel",
+      "source": {
+        "name": "Abrechnung"
+      },
+      "fields": {
+        "customers": {
+          "label": "Kunden"
+        }
+      }
+    }
   }
 }
 ```

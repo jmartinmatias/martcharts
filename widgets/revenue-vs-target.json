@@ -49,5 +49,45 @@
     "x": "month",
     "y": "revenue",
     "lines": "target"
+  },
+  "i18n": {
+    "fr": {
+      "title": "CA face à l'objectif",
+      "subtitle": "{first:month} à {last:month}",
+      "description": "CA mensuel en barres et objectif mensuel en ligne, sur un même axe.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "month": {
+          "label": "Mois"
+        },
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        },
+        "target": {
+          "label": "Objectif"
+        }
+      }
+    },
+    "de": {
+      "title": "Umsatz gegen Ziel",
+      "subtitle": "{first:month} bis {last:month}",
+      "description": "Monatsumsatz als Balken, Monatsziel als Linie, auf einer Achse.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "month": {
+          "label": "Monat"
+        },
+        "revenue": {
+          "label": "Umsatz"
+        },
+        "target": {
+          "label": "Ziel"
+        }
+      }
+    }
   }
 }

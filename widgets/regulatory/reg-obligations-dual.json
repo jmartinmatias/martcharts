@@ -67,5 +67,45 @@
   },
   "source": {
     "name": "Regulatory watch (fictional)"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Nouvelles obligations et indice de pression",
+      "subtitle": "{first:month} à {last:month}",
+      "description": "Nouvelles obligations mensuelles en barres au-dessus de l'indice de pression en ligne : deux unités, deux panneaux, un axe du temps. L'indice couvre tout le paysage ; les obligations suivent les filtres.",
+      "fields": {
+        "month": {
+          "label": "Mois"
+        },
+        "newObligations": {
+          "label": "Nouvelles obligations"
+        },
+        "pressureIndex": {
+          "label": "Indice de pression"
+        }
+      },
+      "source": {
+        "name": "Veille réglementaire (fictive)"
+      }
+    },
+    "de": {
+      "title": "Neue Pflichten und Druckindex",
+      "subtitle": "{first:month} bis {last:month}",
+      "description": "Neue Pflichten je Monat als Balken über dem Druckindex als Linie: zwei Einheiten, zwei Felder, eine Zeitachse. Der Index deckt die ganze Landschaft ab; die Pflichten folgen den Filtern.",
+      "fields": {
+        "month": {
+          "label": "Monat"
+        },
+        "newObligations": {
+          "label": "Neue Pflichten"
+        },
+        "pressureIndex": {
+          "label": "Druckindex"
+        }
+      },
+      "source": {
+        "name": "Regulierungsbeobachtung (fiktiv)"
+      }
+    }
   }
 }

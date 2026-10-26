@@ -42,5 +42,33 @@
     "value": "actual",
     "target": "budget",
     "goodWhen": "down"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Coûts opérationnels face au budget",
+      "subtitle": "T3 2026, par service",
+      "description": "Dépenses du T3 de chaque service moins son budget. Ventes et R&D ont dépassé ; Marketing, Support et IT sont en dessous.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "actual": {
+          "label": "Réel"
+        }
+      }
+    },
+    "de": {
+      "title": "Betriebskosten gegen Budget",
+      "subtitle": "Q3 2026, nach Abteilung",
+      "description": "Q3-Ausgaben jeder Abteilung minus Budget. Vertrieb und F&E lagen darüber; Marketing, Support und IT darunter.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "actual": {
+          "label": "Ist"
+        }
+      }
+    }
   }
 }

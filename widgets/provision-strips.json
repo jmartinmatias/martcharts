@@ -36,5 +36,62 @@
     "value": ["mandatory", "recommended", "optional"],
     "per": "pages",
     "unit": "provision"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Le caractère contraignant de chaque texte",
+      "subtitle": "Dispositions par type, et par page",
+      "description": "Un carré par disposition, coloré obligatoire, recommandée ou facultative, pour compter la taille de chaque texte et sa part contraignante ; la densité par page dit à quel point il est dense.",
+      "note": "Chiffres fictifs",
+      "source": {
+        "name": "Registre de veille réglementaire"
+      },
+      "fields": {
+        "name": {
+          "label": "Réglementation"
+        },
+        "mandatory": {
+          "label": "Obligatoire"
+        },
+        "recommended": {
+          "label": "Recommandé"
+        },
+        "optional": {
+          "label": "Facultatif"
+        }
+      },
+      "view": {
+        "unit": "disposition"
+      }
+    },
+    "de": {
+      "title": "Wie verbindlich jede Regulierung ist",
+      "subtitle": "Bestimmungen nach Art und je Seite",
+      "description": "Ein Quadrat je Bestimmung, verpflichtend, empfohlen oder freiwillig gefärbt, damit Umfang und verbindlicher Anteil jedes Regelwerks zählbar sind; die Dichte je Seite zeigt, wie dicht der Text ist.",
+      "note": "Fiktive Zahlen",
+      "source": {
+        "name": "Register der Regulierungsbeobachtung"
+      },
+      "fields": {
+        "name": {
+          "label": "Regulierung"
+        },
+        "mandatory": {
+          "label": "Verpflichtend"
+        },
+        "recommended": {
+          "label": "Empfohlen"
+        },
+        "optional": {
+          "label": "Freiwillig"
+        },
+        "pages": {
+          "label": "Seiten"
+        }
+      },
+      "view": {
+        "unit": "Bestimmung"
+      }
+    }
   }
 }

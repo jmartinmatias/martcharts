@@ -10,6 +10,7 @@ import { HEADLINE_OPTIONS } from "./headline.ts";
 import { getPalette, paletteNames, resolvePalette } from "./palettes.ts";
 import { getPreset, presetNames } from "./presets.ts";
 import { getBlock, UnknownBlockError } from "./registry.ts";
+import { checkI18n } from "./i18n.ts";
 import { templateRefs } from "./template.ts";
 import { colorRuleProblems, highlightRuleProblems, isHighlightRule } from "./rules.ts";
 import { responsiveProblems } from "./responsive.ts";
@@ -87,6 +88,7 @@ export function validateSpec(spec: unknown, rows?: Row[]): Issue[] {
   // The small print is a note, a source and a byline; "footer" was the older name for the note.
   if (spec.footer !== undefined) issues.push({ level: "warning", path: "footer", message: '"footer" is now called "note". "footer" still works.' });
 
+  if (spec.i18n !== undefined) issues.push(...checkI18n(spec.i18n));
   if (spec.colors !== undefined) issues.push(...checkColors(spec.colors));
   if (spec.tooltip !== undefined) issues.push(...checkTooltip(spec.tooltip));
   if (spec.colorRules !== undefined) for (const message of colorRuleProblems(spec.colorRules)) issues.push(error(message.match(/^colorRules(\[\d+\])?(\.\w+)?/)?.[0] ?? "colorRules", message));

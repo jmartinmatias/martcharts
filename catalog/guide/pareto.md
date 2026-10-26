@@ -110,6 +110,22 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "type": "pareto",
     "label": "cause",
     "value": "tickets"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Ce qui génère les tickets",
+      "subtitle": "T3 2026, par cause, avec le cumul",
+      "description": "Tickets par cause, la plus grande d'abord. Quatre causes font plus de 80 % du volume : à traiter en premier.",
+      "source": {
+        "name": "Support client"
+      }
+    },
+    "de": {
+      "title": "Was Support-Tickets auslöst",
+      "subtitle": "Q3 2026, nach Ursache, mit laufender Summe",
+      "description": "Tickets nach Ursache, größte zuerst. Vier Ursachen machen über 80 % aus: die zuerst beheben.",
+      "note": "{sum:tickets} Tickets"
+    }
   }
 }
 ```

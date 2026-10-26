@@ -182,5 +182,67 @@
       "high": "high",
       "label": "80% range"
     }
+  },
+  "i18n": {
+    "fr": {
+      "title": "Trésorerie disponible",
+      "subtitle": "Solde de fin de mois, avec une prévision à six mois",
+      "description": "La trésorerie finit septembre à 5,36 M€, contre 4,21 M€ un an plus tôt. Le scénario central atteint 6,21 M€ en mars 2027, dans une fourchette à 80 % de 4,50 à 8,22 M€.",
+      "source": {
+        "name": "Modèle de trésorerie et de planification"
+      },
+      "fields": {
+        "month": {
+          "label": "Mois"
+        },
+        "cash": {
+          "label": "Trésorerie"
+        },
+        "low": {
+          "label": "Bas (p10)"
+        },
+        "high": {
+          "label": "Haut (p90)"
+        },
+        "forecast": {
+          "label": "Prévision"
+        }
+      },
+      "view": {
+        "band": {
+          "label": "Fourchette à 80 %"
+        }
+      }
+    },
+    "de": {
+      "title": "Liquide Mittel",
+      "subtitle": "Monatsendstand mit Sechsmonatsprognose",
+      "description": "Der Kassenbestand endete im September bei 5,36 Mio. €, nach 4,21 Mio. € ein Jahr zuvor. Das mittlere Szenario erreicht 6,21 Mio. € bis März 2027, in einem 80-%-Band von 4,50 bis 8,22 Mio. €.",
+      "source": {
+        "name": "Treasury- und Planungsmodell"
+      },
+      "fields": {
+        "month": {
+          "label": "Monat"
+        },
+        "cash": {
+          "label": "Liquidität"
+        },
+        "low": {
+          "label": "Tief (p10)"
+        },
+        "high": {
+          "label": "Hoch (p90)"
+        },
+        "forecast": {
+          "label": "Prognose"
+        }
+      },
+      "view": {
+        "band": {
+          "label": "80-%-Band"
+        }
+      }
+    }
   }
 }

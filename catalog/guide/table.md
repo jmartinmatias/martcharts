@@ -127,6 +127,18 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "amount"
     ],
     "totals": true
+  },
+  "i18n": {
+    "fr": {
+      "title": "Affaires ouvertes",
+      "subtitle": "Le plus grand d'abord",
+      "description": "Affaires en cours, avec leur étape."
+    },
+    "de": {
+      "title": "Offene Deals",
+      "subtitle": "Größte zuerst",
+      "description": "Laufende Deals mit ihrer Phase."
+    }
   }
 }
 ```

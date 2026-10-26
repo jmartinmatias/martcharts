@@ -54,5 +54,59 @@
         "label": "Amber up to 90 days"
       }
     ]
+  },
+  "i18n": {
+    "fr": {
+      "source": {
+        "name": "Modèle de santé client (fictif)"
+      },
+      "title": "Jours depuis le dernier rendez-vous, par chargé",
+      "subtitle": "Moyenne par portefeuille",
+      "description": "La mesure clé de couverture, moyennée sur les clients de chaque chargé, face aux seuils qui fixent son statut.",
+      "fields": {
+        "rm": {
+          "label": "Chargé de clientèle"
+        },
+        "daysSinceMeeting": {
+          "label": "Jours depuis le rendez-vous"
+        }
+      },
+      "view": {
+        "reference": [
+          {
+            "label": "Vert jusqu'à 45 jours"
+          },
+          {
+            "label": "Orange jusqu'à 90 jours"
+          }
+        ]
+      }
+    },
+    "de": {
+      "source": {
+        "name": "Kundengesundheitsmodell (fiktiv)"
+      },
+      "title": "Tage seit dem letzten Termin, je Berater",
+      "subtitle": "Mittel je Bestand",
+      "description": "Die zentrale Betreuungskennzahl, gemittelt über die Kunden jedes Beraters, gegen die Schwellen ihres Status.",
+      "fields": {
+        "rm": {
+          "label": "Kundenberater"
+        },
+        "daysSinceMeeting": {
+          "label": "Tage seit Termin"
+        }
+      },
+      "view": {
+        "reference": [
+          {
+            "label": "Grün bis 45 Tage"
+          },
+          {
+            "label": "Gelb bis 90 Tage"
+          }
+        ]
+      }
+    }
   }
 }

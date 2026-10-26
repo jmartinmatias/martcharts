@@ -172,6 +172,39 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "x": "slot",
     "y": "day",
     "value": "tickets"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Tickets de support",
+      "subtitle": "Par jour de semaine et heure",
+      "description": "Quand les clients ouvrent des tickets, pour planifier les effectifs.",
+      "note": "4 dernières semaines",
+      "source": {
+        "name": "Support client"
+      },
+      "fields": {
+        "slot": {
+          "label": "Heure"
+        },
+        "day": {
+          "label": "Jour"
+        }
+      }
+    },
+    "de": {
+      "title": "Support-Tickets",
+      "subtitle": "Nach Wochentag und Tageszeit",
+      "description": "Wann Kunden Tickets eröffnen, zur Personalplanung.",
+      "note": "Letzte 4 Wochen",
+      "fields": {
+        "slot": {
+          "label": "Zeit"
+        },
+        "day": {
+          "label": "Tag"
+        }
+      }
+    }
   }
 }
 ```

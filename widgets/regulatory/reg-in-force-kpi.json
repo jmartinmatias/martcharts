@@ -40,5 +40,33 @@
   },
   "source": {
     "name": "Regulatory watch (fictional)"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Règles en vigueur",
+      "subtitle": "Statut actuel : en vigueur ou applicable",
+      "description": "Combien des réglementations suivies sont en vigueur ou applicables.",
+      "fields": {
+        "count": {
+          "label": "Réglementations"
+        }
+      },
+      "source": {
+        "name": "Veille réglementaire (fictive)"
+      }
+    },
+    "de": {
+      "title": "Geltende Vorschriften",
+      "subtitle": "Status heute: in Kraft oder anwendbar",
+      "description": "Wie viele der beobachteten Regulierungen heute gelten oder anwendbar sind.",
+      "fields": {
+        "count": {
+          "label": "Regulierungen"
+        }
+      },
+      "source": {
+        "name": "Regulierungsbeobachtung (fiktiv)"
+      }
+    }
   }
 }

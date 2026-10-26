@@ -44,5 +44,42 @@
         }
       ]
     }
-  ]
+  ],
+  "i18n": {
+    "fr": {
+      "title": "Clients par chargé de clientèle",
+      "subtitle": "Face à la capacité de chaque portefeuille",
+      "description": "Le taux de remplissage du portefeuille de chaque chargé.",
+      "source": {
+        "name": "Datamart commercial (fictif)"
+      },
+      "fields": {
+        "rm": {
+          "label": "Chargé de clientèle"
+        },
+        "capacity": {
+          "label": "Capacité"
+        }
+      }
+    },
+    "de": {
+      "title": "Kunden je Kundenberater",
+      "subtitle": "Gegen die Kapazität jedes Bestands",
+      "description": "Wie voll der Bestand jedes Kundenberaters ist.",
+      "source": {
+        "name": "Vertriebs-Data-Mart (fiktiv)"
+      },
+      "fields": {
+        "rm": {
+          "label": "Kundenberater"
+        },
+        "clients": {
+          "label": "Kunden"
+        },
+        "capacity": {
+          "label": "Kapazität"
+        }
+      }
+    }
+  }
 }

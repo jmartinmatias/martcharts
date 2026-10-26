@@ -166,6 +166,46 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   },
   "source": {
     "name": "CRM"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Tableau des affaires",
+      "subtitle": "Ouvertes et conclues ce trimestre, par étape",
+      "description": "Chaque affaire sur un tableau par étape, le point coloré par région et le montant sur chaque fiche : le trimestre d'un coup d'œil.",
+      "fields": {
+        "deal": {
+          "label": "Affaire"
+        },
+        "stage": {
+          "label": "Étape"
+        },
+        "region": {
+          "label": "Région"
+        },
+        "amount": {
+          "label": "Montant"
+        },
+        "owner": {
+          "label": "Responsable"
+        }
+      }
+    },
+    "de": {
+      "title": "Deal-Board",
+      "subtitle": "Offen und abgeschlossen in diesem Quartal, nach Phase",
+      "description": "Jeder Deal auf einem Board nach Phase, Punkt nach Region gefärbt, Betrag auf jeder Karte, damit das Quartal auf einen Blick lesbar ist.",
+      "fields": {
+        "stage": {
+          "label": "Phase"
+        },
+        "amount": {
+          "label": "Betrag"
+        },
+        "owner": {
+          "label": "Verantwortlich"
+        }
+      }
+    }
   }
 }
 ```

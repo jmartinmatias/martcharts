@@ -352,8 +352,8 @@ ${sections}
       try {
         if (window.ClipboardItem && navigator.clipboard.write) await navigator.clipboard.write([new ClipboardItem({ "text/plain": Promise.resolve(value).then((t) => new Blob([t], { type: "text/plain" })) })]);
         else await navigator.clipboard.writeText(await value);
-        button.textContent = "Copied";
-      } catch { button.textContent = "Copy failed"; }
+        button.textContent = T("Copied");
+      } catch { button.textContent = T("Copy failed"); }
       setTimeout(() => (button.textContent = label), 1200);
     }
     // A section's detail opens on demand: its live chart loads only then, so the page draws 57 charts only if asked.
@@ -407,7 +407,7 @@ ${FIND_JS}
       if (!words.length) return showAll();
       const shown = new Set(matchWords(words, charts));
       for (const chart of charts) chart.el.hidden = !shown.has(chart);
-      count.textContent = shown.size + " of " + charts.length;
+      count.textContent = T("{0} of {1}", shown.size, charts.length);
       none.hidden = shown.size > 0;
     }
     function showRef(result) {

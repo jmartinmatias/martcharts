@@ -100,5 +100,34 @@
       "margin",
       "vsTarget"
     ]
+  },
+  "i18n": {
+    "fr": {
+      "title": "Marge par région",
+      "subtitle": "T3 2026",
+      "description": "CA, marge et taux de marge par région, meilleure marge d'abord.",
+      "note": "Taux de marge = marge / CA",
+      "source": {
+        "name": "Journal des ventes"
+      },
+      "fields": {
+        "vsTarget": {
+          "label": "vs objectif"
+        }
+      }
+    },
+    "de": {
+      "title": "Marge je Region",
+      "description": "Umsatz, Gewinn und Marge je Region, beste Marge zuerst.",
+      "note": "Marge = Gewinn / Umsatz",
+      "source": {
+        "name": "Verkaufsjournal"
+      },
+      "fields": {
+        "vsTarget": {
+          "label": "gg. Ziel"
+        }
+      }
+    }
   }
 }

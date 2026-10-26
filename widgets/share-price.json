@@ -267,5 +267,41 @@
     "low": "low",
     "close": "close",
     "average": 5
+  },
+  "i18n": {
+    "fr": {
+      "title": "Cours de l'action",
+      "subtitle": "30 dernières séances, avec une moyenne 5 jours",
+      "description": "Ouverture, plus haut, plus bas et clôture du jour, hausses en bleu et baisses en rouge, avec la moyenne mobile 5 jours de la clôture.",
+      "note": "Clôture à {last:close}",
+      "source": {
+        "name": "Données de marché"
+      },
+      "fields": {
+        "day": {
+          "label": "Jour"
+        },
+        "close": {
+          "label": "Clôture"
+        }
+      }
+    },
+    "de": {
+      "title": "Aktienkurs",
+      "subtitle": "Letzte 30 Handelstage, mit 5-Tage-Durchschnitt",
+      "description": "Täglich Eröffnung, Hoch, Tief und Schluss, Plustage blau und Minustage rot, mit dem gleitenden 5-Tage-Durchschnitt des Schlusskurses.",
+      "note": "Schluss bei {last:close}",
+      "source": {
+        "name": "Marktdaten"
+      },
+      "fields": {
+        "day": {
+          "label": "Tag"
+        },
+        "close": {
+          "label": "Schluss"
+        }
+      }
+    }
   }
 }

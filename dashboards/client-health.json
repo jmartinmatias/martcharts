@@ -137,5 +137,142 @@
   ],
   "source": {
     "name": "Client health model (fictional)"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Santé client",
+      "subtitle": "Chaque client sur quatre perspectives, ce qui a changé, et qui agit",
+      "description": "La santé de chaque client comme un récit : la vue d'ensemble, puis chaque perspective (succès client, développement commercial, couverture et relation), puis mouvements et actions, chaque client sur les quatre perspectives, et les règles derrière chaque statut.",
+      "filters": [
+        {},
+        {
+          "label": "Chargé de clientèle"
+        },
+        {
+          "label": "Région"
+        }
+      ],
+      "widgets": [
+        {
+          "section": "Vue d'ensemble",
+          "description": "Quelle est la santé du portefeuille ce trimestre, et son évolution ?"
+        },
+        {},
+        {},
+        {
+          "section": "Succès client",
+          "description": "Les clients sont-ils bien servis : intégration, adoption, service, satisfaction, réclamations ?"
+        },
+        {},
+        {},
+        {},
+        {
+          "section": "Développement commercial",
+          "description": "La croissance est-elle dans le plan : pipeline, réussite, collecte, produits ?"
+        },
+        {},
+        {},
+        {},
+        {
+          "section": "Couverture",
+          "description": "Chaque client est-il vu assez souvent : rendez-vous, rythme, charge et revues ?"
+        },
+        {},
+        {},
+        {},
+        {
+          "section": "Relation",
+          "description": "Quelles relations sont à risque : part de portefeuille, attrition, frais, KYC, sentiment ?"
+        },
+        {},
+        {},
+        {},
+        {
+          "section": "Mouvements et actions",
+          "description": "Ce qui a changé, où sont les rouges, et qui agit ensuite ?"
+        },
+        {},
+        {},
+        {},
+        {
+          "section": "Tous les clients",
+          "description": "Où en est chaque client sur les quatre perspectives ?"
+        },
+        {},
+        {
+          "section": "Règles",
+          "description": "Quelles règles écrites fixent chaque statut ?"
+        }
+      ],
+      "source": {
+        "name": "Modèle de santé client (fictif)"
+      }
+    },
+    "de": {
+      "title": "Kundengesundheit",
+      "subtitle": "Jeder Kunde in vier Perspektiven, was sich änderte und wer handelt",
+      "description": "Die Gesundheit jedes Kunden als Geschichte: der Überblick, dann jede Perspektive (Kundenerfolg, Geschäftsentwicklung, Betreuung und Beziehung), dann Bewegung und Aktionen, jeder Kunde in allen vier Perspektiven und die Regeln hinter jedem Status.",
+      "filters": [
+        {},
+        {
+          "label": "Kundenberater"
+        }
+      ],
+      "widgets": [
+        {
+          "section": "Überblick",
+          "description": "Wie gesund ist der Bestand dieses Quartal, und wie hat er sich bewegt?"
+        },
+        {},
+        {},
+        {
+          "section": "Kundenerfolg",
+          "description": "Sind Kunden gut betreut: Onboarding, Nutzung, Service, Zufriedenheit, Beschwerden?"
+        },
+        {},
+        {},
+        {},
+        {
+          "section": "Geschäftsentwicklung",
+          "description": "Liegt das Wachstum im Plan: Pipeline, Abschlussquote, Neugeld, Produkte?"
+        },
+        {},
+        {},
+        {},
+        {
+          "section": "Betreuung",
+          "description": "Wird jeder Kunde oft genug gesehen: Termine, Takt, Beraterlast, Reviews?"
+        },
+        {},
+        {},
+        {},
+        {
+          "section": "Beziehung",
+          "description": "Welche Beziehungen sind gefährdet: Wallet-Anteil, Abwanderung, Gebühren, KYC, Stimmung?"
+        },
+        {},
+        {},
+        {},
+        {
+          "section": "Bewegung und Aktionen",
+          "description": "Was sich änderte, wo die Roten sind und wer als Nächstes handelt?"
+        },
+        {},
+        {},
+        {},
+        {
+          "section": "Alle Kunden",
+          "description": "Wie steht jeder Kunde in allen vier Perspektiven?"
+        },
+        {},
+        {
+          "section": "Regeln",
+          "description": "Welche schriftlichen Regeln setzen jeden Status?"
+        }
+      ],
+      "source": {
+        "name": "Kundengesundheitsmodell (fiktiv)"
+      }
+    }
   }
 }

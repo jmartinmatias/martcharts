@@ -26,5 +26,39 @@
       "rule"
     ],
     "sortable": false
+  },
+  "i18n": {
+    "fr": {
+      "source": {
+        "name": "Modèle de santé client (fictif)"
+      },
+      "title": "Comment les statuts s'agrègent",
+      "subtitle": "Des mesures à une perspective, des perspectives au client, et par chargé",
+      "description": "Les règles d'agrégation : les mesures en une perspective, les perspectives en statut global du client, et les clients en portefeuille.",
+      "fields": {
+        "level": {
+          "label": "Niveau"
+        },
+        "rule": {
+          "label": "Règle"
+        }
+      }
+    },
+    "de": {
+      "source": {
+        "name": "Kundengesundheitsmodell (fiktiv)"
+      },
+      "title": "Wie Status sich verdichten",
+      "subtitle": "Von Kennzahlen zur Perspektive, von Perspektiven zum Kunden, und je Berater",
+      "description": "Die Verdichtungsregeln: Kennzahlen zur Perspektive, Perspektiven zum Gesamtstatus des Kunden, Kunden zum Bestand eines Beraters.",
+      "fields": {
+        "level": {
+          "label": "Ebene"
+        },
+        "rule": {
+          "label": "Vorschrift"
+        }
+      }
+    }
   }
 }

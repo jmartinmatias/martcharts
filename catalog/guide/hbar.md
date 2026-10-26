@@ -119,6 +119,40 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "label": "feature",
     "value": "share",
     "mark": "lollipop"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Adoption des fonctions",
+      "subtitle": "Part des comptes actifs utilisant chacune, septembre 2026",
+      "description": "Les fonctions réellement utilisées par les comptes actifs. Les tableaux de bord mènent à 91 % ; Prévision, SSO et journal d'audit touchent moins de deux comptes sur cinq.",
+      "source": {
+        "name": "Analyse produit"
+      },
+      "fields": {
+        "feature": {
+          "label": "Fonction"
+        },
+        "share": {
+          "label": "Comptes utilisateurs"
+        }
+      }
+    },
+    "de": {
+      "title": "Funktionsnutzung",
+      "subtitle": "Anteil aktiver Konten, die sie nutzen, September 2026",
+      "description": "Welche Funktionen aktive Konten wirklich nutzen. Dashboards führen mit 91 %; Prognose, SSO und Audit-Log erreichen weniger als zwei von fünf Konten.",
+      "source": {
+        "name": "Produktanalyse"
+      },
+      "fields": {
+        "feature": {
+          "label": "Funktion"
+        },
+        "share": {
+          "label": "Nutzende Konten"
+        }
+      }
+    }
   }
 }
 ```

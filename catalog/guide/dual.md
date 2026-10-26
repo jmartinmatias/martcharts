@@ -155,6 +155,46 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       "bar",
       "line"
     ]
+  },
+  "i18n": {
+    "fr": {
+      "title": "CA et attrition",
+      "subtitle": "{first:month} à {last:month}, chacun sur son échelle",
+      "description": "CA mensuel en barres au-dessus de l'attrition mensuelle en ligne : deux unités, deux panneaux, un axe du temps.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "month": {
+          "label": "Mois"
+        },
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        },
+        "churn": {
+          "label": "Attrition"
+        }
+      }
+    },
+    "de": {
+      "title": "Umsatz und Abwanderung",
+      "subtitle": "{first:month} bis {last:month}, jede auf eigener Skala",
+      "description": "Monatsumsatz als Balken über monatlicher Abwanderung als Linie: zwei Einheiten, zwei Felder, eine Zeitachse.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "month": {
+          "label": "Monat"
+        },
+        "revenue": {
+          "label": "Umsatz"
+        },
+        "churn": {
+          "label": "Abwanderung"
+        }
+      }
+    }
   }
 }
 ```

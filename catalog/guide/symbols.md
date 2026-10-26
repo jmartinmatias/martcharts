@@ -153,6 +153,42 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "id": "state",
     "size": "customers",
     "color": "region"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Clients par État",
+      "subtitle": "Comptes actifs, septembre 2026",
+      "description": "Comptes clients actifs par État américain, en cercles sur une grille, taillés par nombre et colorés par région commerciale : le poids des côtes et le centre clairsemé d'un coup.",
+      "note": "Comptes avec un abonnement actif",
+      "fields": {
+        "state": {
+          "label": "État"
+        },
+        "customers": {
+          "label": "Clients"
+        },
+        "region": {
+          "label": "Région commerciale"
+        }
+      }
+    },
+    "de": {
+      "title": "Kunden je Bundesstaat",
+      "subtitle": "Aktive Konten, September 2026",
+      "description": "Aktive Kundenkonten je US-Bundesstaat als Kreise auf einem Raster, nach Anzahl bemessen und nach Vertriebsregion gefärbt: das Gewicht der Küsten und die dünne Mitte auf einen Blick.",
+      "note": "Konten mit aktivem Abo",
+      "fields": {
+        "state": {
+          "label": "Bundesstaat"
+        },
+        "customers": {
+          "label": "Kunden"
+        },
+        "region": {
+          "label": "Vertriebsregion"
+        }
+      }
+    }
   }
 }
 ```

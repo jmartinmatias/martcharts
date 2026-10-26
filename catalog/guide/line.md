@@ -160,6 +160,66 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         "label": "Target"
       }
     ]
+  },
+  "i18n": {
+    "fr": {
+      "title": "CA et coûts",
+      "subtitle": "{first:month} à {last:month}",
+      "description": "Tendance mensuelle du CA et des coûts, issue du grand livre.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "month": {
+          "label": "Mois"
+        },
+        "revenue": {
+          "label": "Chiffre d'affaires"
+        },
+        "cost": {
+          "label": "Coût"
+        }
+      },
+      "headline": {
+        "caption": "CA de {last:month}"
+      },
+      "view": {
+        "reference": [
+          {
+            "label": "Objectif"
+          }
+        ]
+      }
+    },
+    "de": {
+      "title": "Umsatz und Kosten",
+      "subtitle": "{first:month} bis {last:month}",
+      "description": "Monatlicher Umsatz- und Kostentrend aus dem Hauptbuch.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "month": {
+          "label": "Monat"
+        },
+        "revenue": {
+          "label": "Umsatz"
+        },
+        "cost": {
+          "label": "Kosten"
+        }
+      },
+      "headline": {
+        "caption": "Umsatz im {last:month}"
+      },
+      "view": {
+        "reference": [
+          {
+            "label": "Ziel"
+          }
+        ]
+      }
+    }
   }
 }
 ```

@@ -301,5 +301,33 @@
       "Social"
     ],
     "stacked": "stream"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Visites par canal",
+      "subtitle": "Par semaine, {first:week} à {last:week}",
+      "description": "Comment le mix de trafic évolue semaine après semaine. Le social culmine la semaine du 13 juillet à quatre fois son niveau, le payant quintuple dès fin juillet, les recommandations doublent de mai à juillet, et l'e-mail pulse une semaine sur deux avec la newsletter.",
+      "source": {
+        "name": "Analyse web"
+      },
+      "fields": {
+        "week": {
+          "label": "Semaine"
+        }
+      }
+    },
+    "de": {
+      "title": "Besuche je Kanal",
+      "subtitle": "Wöchentlich, {first:week} bis {last:week}",
+      "description": "Wie sich der Traffic-Mix Woche für Woche bewegt. Social erreicht in der Woche des 13. Juli das Vierfache des Üblichen, bezahlter Traffic verfünffacht sich ab Ende Juli, Empfehlungen verdoppeln sich von Mai bis Juli, und E-Mail pulsiert jede zweite Woche mit dem Newsletter.",
+      "source": {
+        "name": "Web-Analyse"
+      },
+      "fields": {
+        "week": {
+          "label": "Woche"
+        }
+      }
+    }
   }
 }

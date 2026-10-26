@@ -7,7 +7,7 @@
  */
 import { createDashboard, widgetRef } from "../src/index.ts";
 import type { Dashboard, DashboardSpec, WidgetSpec } from "../src/index.ts";
-import { lookStyle, siteLocale } from "./look.ts";
+import { lookStyle, siteLocale, siteWord } from "./look.ts";
 import { BOARD_TABS, cleanHash } from "./routes.ts";
 
 const files = import.meta.glob<DashboardSpec>("../dashboards/*.json", { eager: true, import: "default" });
@@ -61,9 +61,10 @@ function show(key: string, keepHash: boolean) {
     b.setAttribute("aria-selected", String(on));
     b.tabIndex = on ? 0 : -1;
   }
-  title.textContent = tab.title;
-  intro.textContent = tab.intro;
-  document.title = `${tab.title} · martcharts`;
+  title.textContent = siteWord(tab.title);
+  intro.textContent = siteWord(tab.intro);
+  document.title = `${siteWord(tab.title)} · martcharts`;
+  for (const b of buttons) b.textContent = siteWord(TABS.find((t) => t.key === b.dataset.key)?.title.replace(/ (cockpit|landscape)$/, "") ?? "");
   const url = new URL(location.href);
   url.searchParams.set("board", tab.key);
   if (!keepHash) url.hash = "";
