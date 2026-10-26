@@ -1,4 +1,5 @@
 import { readNumber } from "../../core/formats.ts";
+import { rowUnit, withUnit } from "../../core/row-unit.ts";
 import { fitLabel } from "./label-fit.ts";
 import type { ViewRenderer } from "../../core/view-context.ts";
 import type { BulletView } from "../../core/views.ts";
@@ -28,7 +29,9 @@ export const renderBullet: ViewRenderer<BulletView> = (ctx) => {
   ctx.rows.forEach((row, i) => {
     const actual = readNumber(row[value]);
     const goal = readNumber(row[target]);
-    const name = ctx.format(row[label], label);
+    // A row may carry its own unit (a unit column, or "(%)" at the end of its name): its figures then wear it.
+    const { name, unit } = rowUnit(ctx.format(row[label], label), ctx.view.unit ? row[ctx.view.unit] : undefined);
+    const fmt = (v: unknown, field: string) => withUnit(ctx.format(v, field), unit, ctx.spec.locale);
     const domain = Math.max(actual ?? 0, (goal ?? 0) * (ranges[2] ?? 1.2), goal ?? 0) || 1;
 
     const item = html(doc, "div", "fft-bullet");
@@ -50,8 +53,8 @@ export const renderBullet: ViewRenderer<BulletView> = (ctx) => {
       const x = pct(goal / domain);
       chart.append(svg(doc, "line", { class: "fft-bullet-target", x1: x, x2: x, y1: 2, y2: 19 }));
     }
-    const valueText = ctx.format(row[value], value);
-    const { met, text: stand } = standing(ctx, actual, goal, value);
+    const valueText = fmt(row[value], value);
+    const { met, text: stand } = standing(ctx, actual, goal, value, (n) => fmt(n, value));
     const number = html(doc, "span", "fft-bullet-number", valueText);
     if (met) {
       item.dataset.met = "true";
@@ -65,9 +68,9 @@ export const renderBullet: ViewRenderer<BulletView> = (ctx) => {
     const attainment = actual !== null && goal ? share.format(actual / goal) : "";
     const items = [
       { label: ctx.label(value), value: valueText },
-      { label: ctx.label(target), value: ctx.format(row[target], target) },
+      { label: ctx.label(target), value: fmt(row[target], target) },
       ...(attainment ? [{ label: wordsFor(ctx).ofTarget, value: attainment }] : []),
-      ...(stand && !met && actual !== null && goal !== null ? [{ label: wordsFor(ctx).toGoTitle, value: ctx.format(goal - actual, value) }] : []),
+      ...(stand && !met && actual !== null && goal !== null ? [{ label: wordsFor(ctx).toGoTitle, value: fmt(goal - actual, value) }] : []),
     ];
     hits.push(rowHit(ctx, { node: item, row, name, items, anchor: chart, group: active }));
     // Read aloud: the figures, then where it stands in words ("€22K to go" is said by the standing, not twice).

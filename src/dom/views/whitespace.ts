@@ -107,12 +107,17 @@ export const renderWhitespace: ViewRenderer<WhitespaceView> = (ctx) => {
   grid.setAttribute("aria-label", wordsFor(ctx).aria.whitespace(ctx.label(columnField), ctx.label(rowField)));
   // The name column is as wide as the longest name, measured, up to a third of the card; longer names end in an ellipsis.
   const nameWidth = labelColumn(lines.map((line) => line.name), ctx.width, { min: 55, size: 13 });
-  grid.style.gridTemplateColumns = `minmax(55px, ${nameWidth}px) repeat(${columns.length}, minmax(21px, 1fr)) max-content`;
   // The narrowest the grid can be: the names' floor, a tappable 21px per product and the row ends' figures. On a
-  // card narrower than that, the cells keep their size and the grid scrolls sideways, never squeezing a cell.
+  // card narrower than that (a phone), the row ends keep only the amount to win (the count stays in each row's label
+  // and tooltip) and the cells go down to 18px; only if that still does not fit does the grid scroll sideways.
   const endTexts = lines.flatMap((line) => [wordsFor(ctx).outOf(String(line.holds), String(eligible(line))), ...(hasValue && line.potential > 0 ? [money(line.potential)] : []), hasValue ? wordsFor(ctx).heldToWin : wordsFor(ctx).held]);
   const floor = 55 + columns.length * 23 + Math.max(...endTexts.map((text) => textWidth(text, 11, 600))) + 13;
-  if (floor > ctx.width) wrap.dataset.scrolls = "";
+  const shortEnds = lines.flatMap((line) => (hasValue ? [line.potential > 0 ? money(line.potential) : "–"] : [wordsFor(ctx).outOf(String(line.holds), String(eligible(line)))]));
+  const compactFloor = 55 + columns.length * 20 + Math.max(...shortEnds.map((text) => textWidth(text, 11, 600))) + 13;
+  const compact = floor > ctx.width && hasValue;
+  if (compact) wrap.dataset.compact = "";
+  if ((compact ? compactFloor : floor) > ctx.width) wrap.dataset.scrolls = "";
+  grid.style.gridTemplateColumns = `minmax(55px, ${nameWidth}px) repeat(${columns.length}, minmax(${compact ? 18 : 21}px, 1fr)) max-content`;
   // Narrow columns turn their names on their side, so every product keeps its full name.
   const perColumn = (ctx.width - 89 - (hasValue ? 89 : 55)) / Math.max(1, columns.length);
   if (perColumn < TIGHT) grid.dataset.tight = "";
@@ -122,7 +127,8 @@ export const renderWhitespace: ViewRenderer<WhitespaceView> = (ctx) => {
     head.append(html(doc, "span", "fft-ws-col-name", column.name));
     grid.append(head);
   }
-  grid.append(html(doc, "div", "fft-ws-head-sum", hasValue ? wordsFor(ctx).heldToWin : wordsFor(ctx).held));
+  // On a phone the head names only what the row ends show: the amount to win (the words after "Held · ").
+  grid.append(html(doc, "div", "fft-ws-head-sum", hasValue ? (compact ? (wordsFor(ctx).heldToWin.split(" · ").pop() ?? "") : wordsFor(ctx).heldToWin) : wordsFor(ctx).held));
 
   const cells: Element[] = [];
   const active = activeGroup(grid, ctx.tooltip);
@@ -161,7 +167,7 @@ export const renderWhitespace: ViewRenderer<WhitespaceView> = (ctx) => {
     }
     const sum = html(doc, "div", "fft-ws-sum");
     const count = html(doc, "span", "fft-ws-count", wordsFor(ctx).outOf(String(line.holds), String(eligible(line))));
-    sum.append(count);
+    if (!compact) sum.append(count);
     if (hasValue) sum.append(html(doc, "span", "fft-ws-potential", line.potential > 0 ? money(line.potential) : "–"));
     sum.setAttribute("role", "img");
     sum.setAttribute("aria-label", `${line.name}: ${wordsFor(ctx).holdsOf(String(line.holds), String(eligible(line)))}${hasValue && line.potential > 0 ? `, ${wordsFor(ctx).toWinAmount(money(line.potential))}` : ""}`);

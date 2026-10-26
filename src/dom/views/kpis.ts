@@ -4,7 +4,7 @@ import type { ViewRenderer } from "../../core/view-context.ts";
 import type { KpisView } from "../../core/views.ts";
 import { deltaElement } from "./delta.ts";
 import { figure, noChange, quietZero, sparkline, trendColor } from "./kpi.ts";
-import { hiddenTableOf, html } from "./shared.ts";
+import { hiddenTableOf, html, textWidth } from "./shared.ts";
 import { targetLine } from "./target.ts";
 import { ragFromValue } from "../../core/rag.ts";
 import { ragPill } from "./rag-shared.ts";
@@ -29,6 +29,11 @@ export const renderKpis: ViewRenderer<KpisView> = (ctx) => {
     return;
   }
   const tileWidth = Math.max(89, Math.floor(ctx.width / Math.max(1, items.length)) - 21);
+  // The tiles' columns as the grid lays them (144px at least, over the row's width plus the clipped 22px), less each
+  // tile's 42px of padding: when any label needs two lines there, every label takes two, so the figures stay level.
+  const perRow = Math.max(1, Math.min(items.length, Math.floor((ctx.width + 22) / 144)));
+  const labelRoom = (ctx.width + 22) / perRow - 43;
+  if (items.some((item) => textWidth(item.label ?? ctx.label(item.value), 13) > labelRoom)) strip.dataset.twoLines = "";
   for (const item of items) {
     const field = item.value;
     const tile = html(doc, "div", "fft-stat");

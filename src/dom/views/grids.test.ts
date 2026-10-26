@@ -76,9 +76,19 @@ describe("whitespace", () => {
     const grid = card.querySelector(".fft-ws-grid") as HTMLElement;
     const template = grid.style.gridTemplateColumns;
     const columns = card.querySelectorAll(".fft-ws-col").length;
-    expect(template).toContain(`repeat(${columns}, minmax(21px, 1fr))`);
-    // When the narrowest grid (21px per product) is wider than the card, it scrolls sideways instead of squeezing.
+    const compact = card.querySelector(".fft-ws")?.hasAttribute("data-compact");
+    expect(template).toContain(`repeat(${columns}, minmax(${compact ? 18 : 21}px, 1fr))`);
+    // On a phone the row ends keep only the amount to win and cells go to 18px, so the grid fits a 359px card without
+    // scrolling sideways; only far narrower cards scroll.
     const scrolls = card.querySelector(".fft-ws")?.hasAttribute("data-scrolls");
-    expect(scrolls).toBe(width < 330);
+    if (width >= 320) expect(scrolls).toBe(false);
+  });
+
+  test("the cockpit's 'Where to sell next' fits a phone card: no sideways scroll in the 315px a 390px phone gives it, the amounts kept", async () => {
+    const spec = JSON.parse(readFileSync("widgets/commercial/cc-whitespace.json", "utf8")) as WidgetSpec;
+    const rows = JSON.parse(readFileSync("public/data/holdings.json", "utf8"));
+    const card = await drawAt({ ...spec, data: { type: "inline", rows } }, 315);
+    expect([card.querySelector(".fft-ws")?.hasAttribute("data-scrolls"), card.querySelector(".fft-ws")?.hasAttribute("data-compact")]).toEqual([false, true]);
+    expect(card.querySelectorAll(".fft-ws-potential").length).toBeGreaterThan(0);
   });
 });

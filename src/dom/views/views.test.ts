@@ -2769,6 +2769,16 @@ describe("bar view", () => {
     expect([all("path.fft-bar").length, all("path.fft-bar-track").length]).toEqual([3, 3]);
   });
 
+  test("tracks stand only behind a lone series: beside a second series or a target, grey columns would read as bars", async () => {
+    await draw({ rows: sales, view: { type: "bar", x: "region", y: ["revenue", "cost"] }, style: { preset: "glass" } });
+    const grouped = all("path.fft-bar-track").length;
+    document.body.innerHTML = "";
+    target = document.createElement("div");
+    document.body.append(target);
+    await draw({ rows: sales.map((row) => ({ ...row, target: 1000 })), view: { type: "bar", x: "region", y: "revenue", lines: "target" }, style: { preset: "glass" } });
+    expect([grouped, all("path.fft-bar-track").length]).toEqual([0, 0]);
+  });
+
   test("the default look has no tracks", async () => {
     await draw({ rows: sales, view: { type: "bar", x: "region", y: "revenue" } });
     expect(all("path.fft-bar-track").length).toBe(0);

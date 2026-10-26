@@ -79,6 +79,7 @@ registerPreset({
   --fft-surface: rgba(255, 255, 255, 0.55);
   --fft-ring: #eef3f1;
   --fft-popover: rgba(255, 255, 255, 0.9);
+  --fft-toolbar-bg: var(--fft-popover);
   --fft-text: #10201d;
   --fft-text-secondary: rgba(16, 32, 29, 0.7);
   --fft-muted: rgba(16, 32, 29, 0.64);
@@ -97,7 +98,7 @@ registerPreset({
 }
 & .fft-title { font-size: 21px; line-height: 34px; font-weight: 500; letter-spacing: -0.01em; }
 & .fft-tooltip { backdrop-filter: blur(13px); -webkit-backdrop-filter: blur(13px); border-color: rgba(16, 32, 29, 0.1); }
-& .fft-bar-track { fill: rgba(16, 32, 29, 0.06); }
+& .fft-bar-track { fill: rgba(16, 32, 29, 0.035); }
 & .fft-hbar-track { border-radius: 13px; background: rgba(16, 32, 29, 0.06); }
 & .fft-hbar-fill { border-radius: 13px; }
 & .fft-meter-track { background: rgba(16, 32, 29, 0.07); }
@@ -114,6 +115,7 @@ registerPreset({
   --fft-surface: rgba(255, 255, 255, 0.06);
   --fft-ring: #1d2827;
   --fft-popover: rgba(24, 33, 32, 0.92);
+  --fft-toolbar-bg: var(--fft-popover);
   --fft-text: #f4f7f6;
   --fft-text-secondary: rgba(244, 247, 246, 0.66);
   --fft-muted: rgba(244, 247, 246, 0.58);
@@ -142,7 +144,7 @@ registerPreset({
   --fft-seq-text-7: #0b0b0b;
 }
 & .fft-tooltip { border-color: rgba(255, 255, 255, 0.14); }
-& .fft-bar-track { fill: rgba(255, 255, 255, 0.07); }
+& .fft-bar-track { fill: rgba(255, 255, 255, 0.04); }
 & .fft-hbar-track { background: rgba(255, 255, 255, 0.07); }
 & .fft-meter-track { background: rgba(255, 255, 255, 0.08); }
 & .fft-table th { border-bottom-color: rgba(255, 255, 255, 0.1); }
@@ -154,9 +156,9 @@ registerPreset({
 
 registerPreset({
   name: "airy",
-  description: "Editorial and chrome-free, on a light or a dark page: no card, generous whitespace, small grey labels over large numbers, warm orange leading the palette, solid value pills.",
+  description: "Editorial and chrome-free, on a light or a dark page: no card, generous whitespace, small grey labels over large numbers, blue leading the palette as in every look (a series keeps its color when the look changes), solid value pills.",
   // Orange, teal, gold, blue, green, magenta, violet, red: passes adjacent CVD and the normal-vision floor on both the light and the dark page.
-  palette: ["#e5632e", "#009f6d", "#bd7f00", "#2a78d6", "#008300", "#d36992", "#6250d6", "#e34948"],
+  palette: ["#2a78d6", "#bd7f00", "#009f6d", "#e5632e", "#6250d6", "#e34948", "#008300", "#d36992"],
   marks: { areaGradient: true },
   css: `
 & {
@@ -191,7 +193,7 @@ registerPreset({
 & .fft-tooltip-key { background: #ffffff !important; }
 `,
   dark: {
-    palette: ["#d95926", "#199e70", "#c98500", "#3987e5", "#20921d", "#d55181", "#9085e9", "#e66767"],
+    palette: ["#3987e5", "#c98500", "#199e70", "#d95926", "#9085e9", "#e66767", "#20921d", "#d55181"],
     css: `
 & {
   color-scheme: dark;
