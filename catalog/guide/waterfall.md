@@ -33,30 +33,30 @@ A bridge: how a total moves to another through increases and decreases, each flo
 
 | Column | Holds | Drawn as | Values |
 | --- | --- | --- | --- |
-| `step` | category | `label` | 6 different, e.g. "Q2 revenue", "New customers", "Upsell" |
-| `amount` (Revenue) | number | `value` | -84000 to 1180000 |
+| `step` | category | `label` | 6 different, e.g. "August revenue", "New customers", "Upsell" |
+| `amount` (Revenue) | number | `value` | -66000 to 1142000 |
 
 ## The data drawing it now
 
 | step | amount |
 | --- | --- |
-| Q2 revenue | 1180000 |
-| New customers | 142000 |
-| Upsell | 58000 |
+| August revenue | 1142000 |
+| New customers | 150000 |
+| Upsell | 62000 |
 | Pricing | 21000 |
-| Churn | -84000 |
-| Discounts | -33000 |
+| Churn | -66000 |
+| Discounts | -25000 |
 
 As CSV:
 
 ```csv
 step,amount
-Q2 revenue,1180000
-New customers,142000
-Upsell,58000
+August revenue,1142000
+New customers,150000
+Upsell,62000
 Pricing,21000
-Churn,-84000
-Discounts,-33000
+Churn,-66000
+Discounts,-25000
 ```
 
 ## The spec
@@ -67,8 +67,8 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
 {
   "id": "revenue-bridge",
   "title": "Revenue bridge",
-  "subtitle": "Q2 to Q3 2026",
-  "description": "What moved quarterly revenue from Q2 to Q3: gains from new customers, upsell and pricing, losses from churn and discounts.",
+  "subtitle": "August to September 2026",
+  "description": "What moved monthly revenue from August to September: gains from new customers, upsell and pricing, losses from churn and discounts.",
   "source": {
     "name": "Finance ledger"
   },
@@ -77,16 +77,16 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "type": "inline",
     "rows": [
       {
-        "step": "Q2 revenue",
-        "amount": 1180000
+        "step": "August revenue",
+        "amount": 1142000
       },
       {
         "step": "New customers",
-        "amount": 142000
+        "amount": 150000
       },
       {
         "step": "Upsell",
-        "amount": 58000
+        "amount": 62000
       }
     ]
   },
@@ -105,9 +105,9 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "label": "step",
     "value": "amount",
     "totals": [
-      "Q2 revenue"
+      "August revenue"
     ],
-    "endLabel": "Q3 revenue",
+    "endLabel": "September revenue",
     "fit": true
   }
 }

@@ -1,9 +1,11 @@
 {
   "id": "region-product-mix",
   "title": "Market size and mix",
-  "subtitle": "Q3 2026 revenue, by region and product",
-  "description": "Each region's Q3 revenue as a column as wide as its share of the total, split by product share. East is the biggest market; West leans on Analytics, Central on Services.",
-  "source": {"name": "Finance ledger"},
+  "subtitle": "September 2026 revenue, by region and product",
+  "description": "Each region's September revenue as a column as wide as its share of the total, split by product share. East is the biggest market.",
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
@@ -21,7 +23,7 @@
       {
         "region": "East",
         "product": "Services",
-        "revenue": 68000
+        "revenue": 58000
       },
       {
         "region": "North",
@@ -36,7 +38,7 @@
       {
         "region": "North",
         "product": "Services",
-        "revenue": 74000
+        "revenue": 70000
       },
       {
         "region": "Central",
@@ -66,7 +68,7 @@
       {
         "region": "West",
         "product": "Services",
-        "revenue": 49000
+        "revenue": 50000
       },
       {
         "region": "South",

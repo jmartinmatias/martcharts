@@ -139,11 +139,11 @@ const GOLDEN: Record<string, { fr: [string, string]; de: [string, string] }> = {
   waterfall: {
     fr: [
       "Qu'est-ce qui explique le passage du total de départ au total final ?",
-      "Partez de la première barre. Chaque barre suivante monte pour ce qui s'ajoute et descend pour ce qui se retire, jusqu'au total final. Ici, on passe de 1,2 M € à 1,3 M € : New customers a le plus ajouté (142 k €) et Churn a le plus retiré (84 k €).",
+      "Partez de la première barre. Chaque barre suivante monte pour ce qui s'ajoute et descend pour ce qui se retire, jusqu'au total final. Ici, on passe de 1,1 M € à 1,3 M € : New customers a le plus ajouté (150 k €) et Churn a le plus retiré (66 k €).",
     ],
     de: [
       "Was erklärt den Weg von der Anfangs- zur Endsumme?",
-      "Beginnen Sie beim ersten Balken. Jeder weitere Balken steigt für Zuwächse und fällt für Abgänge, bis zur Endsumme. Hier geht es von 1,2 Mio. € auf 1,3 Mio. €: New customers hat am meisten beigetragen (142.000 €), Churn hat am meisten gekostet (84.000 €).",
+      "Beginnen Sie beim ersten Balken. Jeder weitere Balken steigt für Zuwächse und fällt für Abgänge, bis zur Endsumme. Hier geht es von 1,1 Mio. € auf 1,3 Mio. €: New customers hat am meisten beigetragen (150.000 €), Churn hat am meisten gekostet (66.000 €).",
     ],
   },
   choropleth: {

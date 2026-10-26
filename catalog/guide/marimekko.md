@@ -47,16 +47,16 @@ A mosaic: one column per category, as wide as its total, split into segments by 
 | --- | --- | --- |
 | East | Platform | 160000 |
 | East | Analytics | 120000 |
-| East | Services | 68000 |
+| East | Services | 58000 |
 | North | Platform | 110000 |
 | North | Analytics | 98000 |
-| North | Services | 74000 |
+| North | Services | 70000 |
 | Central | Platform | 90000 |
 | Central | Analytics | 70000 |
 | Central | Services | 99000 |
 | West | Platform | 60000 |
 | West | Analytics | 95000 |
-| West | Services | 49000 |
+| West | Services | 50000 |
 | South | Platform | 100000 |
 | South | Analytics | 40000 |
 | South | Services | 64000 |
@@ -67,16 +67,16 @@ As CSV:
 region,product,revenue
 East,Platform,160000
 East,Analytics,120000
-East,Services,68000
+East,Services,58000
 North,Platform,110000
 North,Analytics,98000
-North,Services,74000
+North,Services,70000
 Central,Platform,90000
 Central,Analytics,70000
 Central,Services,99000
 West,Platform,60000
 West,Analytics,95000
-West,Services,49000
+West,Services,50000
 South,Platform,100000
 South,Analytics,40000
 South,Services,64000
@@ -90,8 +90,8 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
 {
   "id": "region-product-mix",
   "title": "Market size and mix",
-  "subtitle": "Q3 2026 revenue, by region and product",
-  "description": "Each region's Q3 revenue as a column as wide as its share of the total, split by product share. East is the biggest market; West leans on Analytics, Central on Services.",
+  "subtitle": "September 2026 revenue, by region and product",
+  "description": "Each region's September revenue as a column as wide as its share of the total, split by product share. East is the biggest market.",
   "source": {
     "name": "Finance ledger"
   },
@@ -112,7 +112,7 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       {
         "region": "East",
         "product": "Services",
-        "revenue": 68000
+        "revenue": 58000
       }
     ]
   },

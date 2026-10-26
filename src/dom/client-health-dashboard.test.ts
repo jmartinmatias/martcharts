@@ -128,7 +128,8 @@ describe("the client health dashboard", () => {
       });
       const target = document.createElement("div");
       document.body.append(target);
-      const drawn = { ...board, widgets: board.widgets.filter((cell) => !cell.widget || drawable(cell.widget)) };
+      // Every section open: a folded section draws its cards only once opened, and this checks every card draws.
+      const drawn = { ...board, widgets: board.widgets.filter((cell) => !cell.widget || drawable(cell.widget)).map(({ collapsed: _folded, ...cell }) => cell) };
       const dash = createDashboard(target, drawn, { widgets, fetch: createLocalFetch("public") });
       await dash.ready;
       await vi.waitFor(() => expect(target.querySelectorAll('.fft-widget[data-state="ready"]').length).toBe(drawn.widgets.filter((cell) => cell.widget).length), { timeout: 15_000 });

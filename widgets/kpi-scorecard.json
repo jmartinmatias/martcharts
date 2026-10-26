@@ -1,18 +1,20 @@
 {
   "id": "kpi-scorecard",
-  "title": "Q3 scorecard",
+  "title": "September scorecard",
   "subtitle": "Actual against target, with poor, fair and good bands",
-  "description": "Each headline KPI against its quarterly target.",
+  "description": "Each headline KPI in September against its target for the month.",
   "note": "Bands end at 60%, 90% and 120% of target",
-  "source": {"name": "Finance ledger"},
+  "source": {
+    "name": "Finance ledger"
+  },
   "locale": "en-US",
   "data": {
     "type": "inline",
     "rows": [
       {
-        "kpi": "Revenue",
+        "kpi": "Revenue (€)",
         "actual": 1284000,
-        "target": 1300000
+        "target": 1200000
       },
       {
         "kpi": "New customers",

@@ -120,12 +120,13 @@ body .fft-dashboard[data-sticky] .fft-filters { background: none; -webkit-backdr
 .site-look-group button {
   appearance: none;
   border: 1px solid transparent;
-  border-radius: 6px;
+  /* A pill, 30px tall: the same button as the dashboard's Share and chips and the catalog's Copy buttons. */
+  border-radius: 999px;
   background: none;
   color: var(--ink-2, color-mix(in srgb, CanvasText 70%, transparent));
   font: inherit;
   min-height: 30px;
-  padding: 0 10px;
+  padding: 0 11px;
   cursor: pointer;
 }
 .site-look-group button[aria-pressed="true"] { color: var(--ink, CanvasText); font-weight: 600; border-color: var(--line, color-mix(in srgb, CanvasText 20%, transparent)); }
@@ -167,3 +168,22 @@ body .fft-dashboard[data-sticky] .fft-filters { background: none; -webkit-backdr
    same distance under the menu. (html body raises this above each page's own head styles.) */
 html body h1 { margin: 8px 0 0; font-size: 28px; font-weight: 650; line-height: 1.2; letter-spacing: -0.01em; }
 html body h1 + p { margin: 5px 0 0; max-width: 68ch; font-size: 16px; line-height: 1.5; color: var(--ink-2, color-mix(in srgb, CanvasText 66%, transparent)); }
+
+/* One link colour for the site's own text links (Home's "See it on…", the catalog's "Data and switches", the Embed
+   page's bundles): never the browser's default blue or purple. 5:1 or better on every look's backdrop. */
+:root { --site-link: #1d63b8; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --site-link: #6aa8f0; } }
+:root[data-theme="dark"] { --site-link: #6aa8f0; }
+html body :is(p, li, dd, .tools) a:not(.fft-widget *), html body a.strip-link {
+  color: var(--site-link); text-decoration-thickness: 1px; text-underline-offset: 2px;
+}
+html body :is(p, li, dd, .tools) a:not(.fft-widget *):hover, html body a.strip-link:hover { text-decoration-thickness: 2px; }
+
+/* The catalog's Copy spec and Copy tag: pills of the dashboard filter row's height, like Share and the Embed page's
+   Copy (which keeps its solid fill, as it floats over code). */
+html body .tools > button {
+  box-sizing: border-box; min-height: 30px; padding: 0 13px; border: 1px solid var(--line, color-mix(in srgb, CanvasText 18%, transparent));
+  border-radius: 999px; background: color-mix(in srgb, var(--ink, CanvasText) 5%, transparent); color: inherit; font: inherit; font-size: 13px; cursor: pointer;
+}
+html body .tools > button:hover { background: color-mix(in srgb, var(--ink, CanvasText) 10%, transparent); }
+html body .tools > button:focus-visible { outline: 2px solid var(--site-link); outline-offset: 2px; }

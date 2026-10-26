@@ -15,7 +15,7 @@
     @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --better: #4cc382; --same: #5aa2f0; --trade: #e0a040; --different: #a48dff; } }
     :root[data-theme="dark"] { --better: #4cc382; --same: #5aa2f0; --trade: #e0a040; --different: #a48dff; }
     * { box-sizing: border-box; }
-    body { font: 15px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif; margin: 0 auto; max-width: 1280px; padding: 24px 16px 89px; background: Canvas; color: CanvasText; }
+    body { font: 15px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif; box-sizing: border-box; margin: 0 auto; max-width: 1280px; padding: 24px 16px 89px; background: Canvas; color: CanvasText; }
     h1 { font-size: 34px; letter-spacing: -.02em; margin: 13px 0 8px; line-height: 1.15; }
     .lede { max-width: 68ch; color: var(--muted); font-size: 16px; margin: 0 0 34px; }
     h2 { font-size: 21px; margin: 0; }
@@ -762,14 +762,14 @@
     <h3>This example's columns</h3>
     <div class="scroll"><table>
       <thead><tr><th scope="col">Column</th><th scope="col">Holds</th><th scope="col">Drawn as</th><th scope="col">Values</th></tr></thead>
-      <tbody><tr><td><code>kpi</code></td><td>category</td><td><code>label</code></td><td>5 different: Revenue, New customers, Gross margin (%)</td></tr><tr><td><code>actual</code> <span class="muted">Actual</span></td><td>number</td><td><code>value</code></td><td>33 to 1284000</td></tr><tr><td><code>target</code> <span class="muted">Target</span></td><td>number</td><td><code>target</code></td><td>30 to 1300000</td></tr></tbody>
+      <tbody><tr><td><code>kpi</code></td><td>category</td><td><code>label</code></td><td>5 different: Revenue (€), New customers, Gross margin (%)</td></tr><tr><td><code>actual</code> <span class="muted">Actual</span></td><td>number</td><td><code>value</code></td><td>33 to 1284000</td></tr><tr><td><code>target</code> <span class="muted">Target</span></td><td>number</td><td><code>target</code></td><td>30 to 1200000</td></tr></tbody>
     </table></div>
     
 
     <h3>The data drawing it now <span class="muted">5 rows</span></h3>
     <div class="scroll"><table class="data" id="d-bullet">
       <thead><tr><th scope="col">kpi</th><th scope="col">actual</th><th scope="col">target</th></tr></thead>
-      <tbody><tr><td>Revenue</td><td>1284000</td><td>1300000</td></tr><tr><td>New customers</td><td>66</td><td>60</td></tr><tr><td>Gross margin (%)</td><td>33</td><td>30</td></tr><tr><td>Net promoter score</td><td>42</td><td>50</td></tr><tr><td>Tickets resolved</td><td>912</td><td>1000</td></tr></tbody>
+      <tbody><tr><td>Revenue (€)</td><td>1284000</td><td>1200000</td></tr><tr><td>New customers</td><td>66</td><td>60</td></tr><tr><td>Gross margin (%)</td><td>33</td><td>30</td></tr><tr><td>Net promoter score</td><td>42</td><td>50</td></tr><tr><td>Tickets resolved</td><td>912</td><td>1000</td></tr></tbody>
     </table></div>
     <p class="tools"><button type="button" data-csv="bullet">Copy as CSV</button><button type="button" data-md="bullet">Copy for an LLM</button><a href="guide/bullet.md">Open as Markdown</a><a href="bullet.json">Spec (JSON)</a></p>
 
@@ -1496,7 +1496,7 @@
     <h3>This example's columns</h3>
     <div class="scroll"><table>
       <thead><tr><th scope="col">Column</th><th scope="col">Holds</th><th scope="col">Drawn as</th><th scope="col">Values</th></tr></thead>
-      <tbody><tr><td><code>region</code></td><td>category</td><td><code>label</code></td><td>5 different: East, North, Central</td></tr><tr><td><code>q3_2025</code> <span class="muted">Q3 2025</span></td><td>number</td><td><code>from</code></td><td>188000 to 291000</td></tr><tr><td><code>q3_2026</code> <span class="muted">Q3 2026</span></td><td>number</td><td><code>to</code></td><td>204000 to 338000</td></tr></tbody>
+      <tbody><tr><td><code>region</code></td><td>category</td><td><code>label</code></td><td>5 different: East, North, Central</td></tr><tr><td><code>q3_2025</code> <span class="muted">Sep 2025</span></td><td>number</td><td><code>from</code></td><td>188000 to 291000</td></tr><tr><td><code>q3_2026</code> <span class="muted">Sep 2026</span></td><td>number</td><td><code>to</code></td><td>204000 to 338000</td></tr></tbody>
     </table></div>
     
 
@@ -2755,7 +2755,7 @@
     <h3>The data drawing it now <span class="muted">15 rows</span></h3>
     <div class="scroll"><table class="data" id="d-marimekko">
       <thead><tr><th scope="col">region</th><th scope="col">product</th><th scope="col">revenue</th></tr></thead>
-      <tbody><tr><td>East</td><td>Platform</td><td>160000</td></tr><tr><td>East</td><td>Analytics</td><td>120000</td></tr><tr><td>East</td><td>Services</td><td>68000</td></tr><tr><td>North</td><td>Platform</td><td>110000</td></tr><tr><td>North</td><td>Analytics</td><td>98000</td></tr><tr><td>North</td><td>Services</td><td>74000</td></tr><tr><td>Central</td><td>Platform</td><td>90000</td></tr><tr><td>Central</td><td>Analytics</td><td>70000</td></tr></tbody>
+      <tbody><tr><td>East</td><td>Platform</td><td>160000</td></tr><tr><td>East</td><td>Analytics</td><td>120000</td></tr><tr><td>East</td><td>Services</td><td>58000</td></tr><tr><td>North</td><td>Platform</td><td>110000</td></tr><tr><td>North</td><td>Analytics</td><td>98000</td></tr><tr><td>North</td><td>Services</td><td>70000</td></tr><tr><td>Central</td><td>Platform</td><td>90000</td></tr><tr><td>Central</td><td>Analytics</td><td>70000</td></tr></tbody>
     </table></div>
     <p class="tools"><button type="button" data-all="marimekko">Show all 15 rows</button><button type="button" data-csv="marimekko">Copy as CSV</button><button type="button" data-md="marimekko">Copy for an LLM</button><a href="guide/marimekko.md">Open as Markdown</a><a href="marimekko.json">Spec (JSON)</a></p>
 
@@ -3498,14 +3498,14 @@
     <h3>This example's columns</h3>
     <div class="scroll"><table>
       <thead><tr><th scope="col">Column</th><th scope="col">Holds</th><th scope="col">Drawn as</th><th scope="col">Values</th></tr></thead>
-      <tbody><tr><td><code>product</code></td><td>category</td><td><code>label</code></td><td>3 different: Analytics, Platform, Services</td></tr><tr><td><code>revenue</code> <span class="muted">Revenue</span></td><td>number</td><td><code>value</code></td><td>231000 to 412000</td></tr><tr><td><code>target</code> <span class="muted">Target</span></td><td>number</td><td><code>target</code></td><td>300000 to 450000</td></tr></tbody>
+      <tbody><tr><td><code>product</code></td><td>category</td><td><code>label</code></td><td>3 different: Analytics, Platform, Services</td></tr><tr><td><code>revenue</code> <span class="muted">Revenue</span></td><td>number</td><td><code>value</code></td><td>341000 to 520000</td></tr><tr><td><code>target</code> <span class="muted">Target</span></td><td>number</td><td><code>target</code></td><td>330000 to 540000</td></tr></tbody>
     </table></div>
     
 
     <h3>The data drawing it now <span class="muted">3 rows</span></h3>
     <div class="scroll"><table class="data" id="d-rings">
       <thead><tr><th scope="col">product</th><th scope="col">revenue</th><th scope="col">target</th></tr></thead>
-      <tbody><tr><td>Analytics</td><td>386000</td><td>360000</td></tr><tr><td>Platform</td><td>412000</td><td>450000</td></tr><tr><td>Services</td><td>231000</td><td>300000</td></tr></tbody>
+      <tbody><tr><td>Analytics</td><td>423000</td><td>400000</td></tr><tr><td>Platform</td><td>520000</td><td>540000</td></tr><tr><td>Services</td><td>341000</td><td>330000</td></tr></tbody>
     </table></div>
     <p class="tools"><button type="button" data-csv="rings">Copy as CSV</button><button type="button" data-md="rings">Copy for an LLM</button><a href="guide/rings.md">Open as Markdown</a><a href="rings.json">Spec (JSON)</a></p>
 
@@ -4501,14 +4501,14 @@
     <h3>This example's columns</h3>
     <div class="scroll"><table>
       <thead><tr><th scope="col">Column</th><th scope="col">Holds</th><th scope="col">Drawn as</th><th scope="col">Values</th></tr></thead>
-      <tbody><tr><td><code>source</code></td><td>category</td><td><code>label</code></td><td>4 different: Subscriptions, Services, Licenses</td></tr><tr><td><code>revenue</code> <span class="muted">Revenue</span></td><td>number</td><td><code>value</code></td><td>52000 to 802000</td></tr></tbody>
+      <tbody><tr><td><code>source</code></td><td>category</td><td><code>label</code></td><td>4 different: Subscriptions, Services, Licenses</td></tr><tr><td><code>revenue</code> <span class="muted">Revenue</span></td><td>number</td><td><code>value</code></td><td>42000 to 802000</td></tr></tbody>
     </table></div>
     
 
     <h3>The data drawing it now <span class="muted">4 rows</span></h3>
     <div class="scroll"><table class="data" id="d-waffle">
       <thead><tr><th scope="col">source</th><th scope="col">revenue</th></tr></thead>
-      <tbody><tr><td>Subscriptions</td><td>802000</td></tr><tr><td>Services</td><td>298000</td></tr><tr><td>Licenses</td><td>142000</td></tr><tr><td>Other</td><td>52000</td></tr></tbody>
+      <tbody><tr><td>Subscriptions</td><td>802000</td></tr><tr><td>Services</td><td>298000</td></tr><tr><td>Licenses</td><td>142000</td></tr><tr><td>Other</td><td>42000</td></tr></tbody>
     </table></div>
     <p class="tools"><button type="button" data-csv="waffle">Copy as CSV</button><button type="button" data-md="waffle">Copy for an LLM</button><a href="guide/waffle.md">Open as Markdown</a><a href="waffle.json">Spec (JSON)</a></p>
 
@@ -4581,14 +4581,14 @@
     <h3>This example's columns</h3>
     <div class="scroll"><table>
       <thead><tr><th scope="col">Column</th><th scope="col">Holds</th><th scope="col">Drawn as</th><th scope="col">Values</th></tr></thead>
-      <tbody><tr><td><code>step</code></td><td>category</td><td><code>label</code></td><td>6 different: Q2 revenue, New customers, Upsell</td></tr><tr><td><code>amount</code> <span class="muted">Revenue</span></td><td>number</td><td><code>value</code></td><td>-84000 to 1180000</td></tr></tbody>
+      <tbody><tr><td><code>step</code></td><td>category</td><td><code>label</code></td><td>6 different: August revenue, New customers, Upsell</td></tr><tr><td><code>amount</code> <span class="muted">Revenue</span></td><td>number</td><td><code>value</code></td><td>-66000 to 1142000</td></tr></tbody>
     </table></div>
     
 
     <h3>The data drawing it now <span class="muted">6 rows</span></h3>
     <div class="scroll"><table class="data" id="d-waterfall">
       <thead><tr><th scope="col">step</th><th scope="col">amount</th></tr></thead>
-      <tbody><tr><td>Q2 revenue</td><td>1180000</td></tr><tr><td>New customers</td><td>142000</td></tr><tr><td>Upsell</td><td>58000</td></tr><tr><td>Pricing</td><td>21000</td></tr><tr><td>Churn</td><td>-84000</td></tr><tr><td>Discounts</td><td>-33000</td></tr></tbody>
+      <tbody><tr><td>August revenue</td><td>1142000</td></tr><tr><td>New customers</td><td>150000</td></tr><tr><td>Upsell</td><td>62000</td></tr><tr><td>Pricing</td><td>21000</td></tr><tr><td>Churn</td><td>-66000</td></tr><tr><td>Discounts</td><td>-25000</td></tr></tbody>
     </table></div>
     <p class="tools"><button type="button" data-csv="waterfall">Copy as CSV</button><button type="button" data-md="waterfall">Copy for an LLM</button><a href="guide/waterfall.md">Open as Markdown</a><a href="waterfall.json">Spec (JSON)</a></p>
 

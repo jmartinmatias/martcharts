@@ -1,8 +1,8 @@
 {
   "id": "region-yoy",
-  "title": "Q3 revenue, year on year",
+  "title": "September revenue, year on year",
   "subtitle": "2025 against 2026, by region",
-  "description": "Each region's Q3 revenue last year against this year.",
+  "description": "Each region's September revenue last year against this year.",
   "source": {
     "name": "Finance ledger"
   },
@@ -19,7 +19,7 @@
   },
   "fields": {
     "q3_2025": {
-      "label": "Q3 2025",
+      "label": "Sep 2025",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -27,7 +27,7 @@
       }
     },
     "q3_2026": {
-      "label": "Q3 2026",
+      "label": "Sep 2026",
       "format": {
         "type": "currency",
         "currency": "EUR",

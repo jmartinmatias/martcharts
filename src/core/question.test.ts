@@ -57,14 +57,14 @@ describe("questionOf", () => {
   });
 
   test("two values per row ask how they changed, or how big the gap is", () => {
-    expect(ask("region-yoy")).toEqual({ kind: "change", text: "How did each region change from Q3 2025 to Q3 2026?" });
+    expect(ask("region-yoy")).toEqual({ kind: "change", text: "How did each region change from 2025 to 2026?" });
     expect(ask("region-win-rate").text).toBe("How did each region change from H1 2026 to H2 2026?");
     expect(questionOf({ data: { type: "inline", rows: [] }, view: { type: "dumbbell", label: "region", from: "revenue", to: "cost" } })).toEqual({
       kind: "compare",
       text: "How big is the gap between revenue and cost for each region?",
     });
     expect(ask("revenue-by-region").text).toBe("How do revenue and cost compare for each region?");
-    expect(ask("revenue-bridge").text).toBe("What took Q2 revenue to Q3 revenue?");
+    expect(ask("revenue-bridge").text).toBe("What took August revenue to September revenue?");
   });
 
   test("spread, relation, flow and rhythm each get their own question", () => {

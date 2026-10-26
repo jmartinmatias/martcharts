@@ -35,7 +35,7 @@ Part to whole as a 10 by 10 grid where each square is one percent, filled catego
 | Column | Holds | Drawn as | Values |
 | --- | --- | --- | --- |
 | `source` | category | `label` | 4 different, e.g. "Subscriptions", "Services", "Licenses" |
-| `revenue` (Revenue) | number | `value` | 52000 to 802000 |
+| `revenue` (Revenue) | number | `value` | 42000 to 802000 |
 
 ## The data drawing it now
 
@@ -44,7 +44,7 @@ Part to whole as a 10 by 10 grid where each square is one percent, filled catego
 | Subscriptions | 802000 |
 | Services | 298000 |
 | Licenses | 142000 |
-| Other | 52000 |
+| Other | 42000 |
 
 As CSV:
 
@@ -53,7 +53,7 @@ source,revenue
 Subscriptions,802000
 Services,298000
 Licenses,142000
-Other,52000
+Other,42000
 ```
 
 ## The spec
@@ -64,8 +64,8 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
 {
   "id": "revenue-sources",
   "title": "Where revenue comes from",
-  "subtitle": "Q3 2026, in percent",
-  "description": "Q3 revenue by source. Subscriptions bring in 62 of every 100 euros.",
+  "subtitle": "September 2026, in percent",
+  "description": "September revenue by source. Subscriptions bring in 62 of every 100 euros.",
   "source": {
     "name": "Finance ledger"
   },

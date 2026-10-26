@@ -37,15 +37,15 @@ Actual against target, one compact row per item: a value bar and a target tick o
 
 | Column | Holds | Drawn as | Values |
 | --- | --- | --- | --- |
-| `kpi` | category | `label` | 5 different, e.g. "Revenue", "New customers", "Gross margin (%)" |
+| `kpi` | category | `label` | 5 different, e.g. "Revenue (€)", "New customers", "Gross margin (%)" |
 | `actual` (Actual) | number | `value` | 33 to 1284000 |
-| `target` (Target) | number | `target` | 30 to 1300000 |
+| `target` (Target) | number | `target` | 30 to 1200000 |
 
 ## The data drawing it now
 
 | kpi | actual | target |
 | --- | --- | --- |
-| Revenue | 1284000 | 1300000 |
+| Revenue (€) | 1284000 | 1200000 |
 | New customers | 66 | 60 |
 | Gross margin (%) | 33 | 30 |
 | Net promoter score | 42 | 50 |
@@ -55,7 +55,7 @@ As CSV:
 
 ```csv
 kpi,actual,target
-Revenue,1284000,1300000
+Revenue (€),1284000,1200000
 New customers,66,60
 Gross margin (%),33,30
 Net promoter score,42,50
@@ -69,9 +69,9 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
 ```json
 {
   "id": "kpi-scorecard",
-  "title": "Q3 scorecard",
+  "title": "September scorecard",
   "subtitle": "Actual against target, with poor, fair and good bands",
-  "description": "Each headline KPI against its quarterly target.",
+  "description": "Each headline KPI in September against its target for the month.",
   "note": "Bands end at 60%, 90% and 120% of target",
   "source": {
     "name": "Finance ledger"
@@ -81,9 +81,9 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "type": "inline",
     "rows": [
       {
-        "kpi": "Revenue",
+        "kpi": "Revenue (€)",
         "actual": 1284000,
-        "target": 1300000
+        "target": 1200000
       },
       {
         "kpi": "New customers",

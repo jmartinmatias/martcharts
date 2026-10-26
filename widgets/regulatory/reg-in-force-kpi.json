@@ -30,7 +30,7 @@
   ],
   "fields": {
     "count": {
-      "label": "Regulations in force"
+      "label": "Regulations"
     }
   },
   "view": {
@@ -40,6 +40,5 @@
   },
   "source": {
     "name": "Regulatory watch (fictional)"
-  },
-  "byline": "Compliance office"
+  }
 }

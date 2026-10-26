@@ -3,7 +3,9 @@
   "title": "At a glance",
   "subtitle": "{last:month} against the month before, with trends from {first:month}",
   "description": "The four headline numbers in one row.",
-  "source": {"name": "Finance ledger and CRM"},
+  "source": {
+    "name": "Finance ledger and CRM"
+  },
   "locale": "en-US",
   "data": {
     "type": "url",
@@ -24,7 +26,8 @@
       "format": {
         "type": "currency",
         "currency": "EUR",
-        "compact": true
+        "compact": true,
+        "decimals": 2
       }
     },
     "profit": {

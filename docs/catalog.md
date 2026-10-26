@@ -33,7 +33,7 @@ Not sure which chart? `recommendCharts(rows)` (or MCP `fft_suggest_charts`) rank
 | [`donut`](#donut) | Part-to-whole at a glance: a ring of up to 6 slices with the total in the middle and a legend of values and shares. | What share of revenue comes from each segment? | `label` category, `value` number | [donut.json](../catalog/donut.json) |
 | [`dot`](#dot) | A dot plot: one row per item and one dot per measure on one shared axis, with a hairline across each row. | How do ease of use, value for money and support compare for each product? | `label` category, `value` number (one or more) | [dot.json](../catalog/dot.json) |
 | [`dual`](#dual) | Two measures with different units, such as revenue and churn, one above the other on two panels that share one time axis, each on its own scale. | Do revenue and churn move together, month by month? | `x` date, `y` number, `y2` number | [dual.json](../catalog/dual.json) |
-| [`dumbbell`](#dumbbell) | Before and after per item on one shared axis: a muted dot for before, an accent dot for after, joined by a line (a range plot). | How did each region change from Q3 2025 to Q3 2026? | `label` category, `from` number, `to` number | [dumbbell.json](../catalog/dumbbell.json) |
+| [`dumbbell`](#dumbbell) | Before and after per item on one shared axis: a muted dot for before, an accent dot for after, joined by a line (a range plot). | How did each region change from sep 2025 to sep 2026? | `label` category, `from` number, `to` number | [dumbbell.json](../catalog/dumbbell.json) |
 | [`funnel`](#funnel) | Stages in order as centered bars narrowing from the first, with the conversion rate from each stage to the next and each stage's share of the first. | Where do people drop out, step by step? | `label` category, `value` number | [funnel.json](../catalog/funnel.json) |
 | [`gauge`](#gauge) | One headline number on a half-circle scale: an arc filled from min to the value, a tick at the target, the number large inside the arc and the scale's ends below; with a target, a line under the arc says where it stands (Target met, or how far to go). | Is NPS above or below goal? | `value` number | [gauge.json](../catalog/gauge.json) |
 | [`hbar`](#hbar) | Horizontal bars for rankings and long labels: label on the left, bar, value at the end. | Which feature has the most accounts using it? | `label` category, `value` number (one or more) | [hbar.json](../catalog/hbar.json) |
@@ -72,7 +72,7 @@ Not sure which chart? `recommendCharts(rows)` (or MCP `fft_suggest_charts`) rank
 | [`treemap`](#treemap) | Part-to-whole for many categories: tiles sized by value, kept close to square. | What share of revenue comes from each customer? | `label` category, `value` number | [treemap.json](../catalog/treemap.json) |
 | [`variance`](#variance) | Variance against plan, as in financial reporting: per row a bar from a zero line to actual minus plan, right when over and left when under, colored good or bad and labelled with its sign. | Which departments stayed within budget? | `label` category, `value` number, `target` number | [variance.json](../catalog/variance.json) |
 | [`waffle`](#waffle) | Part to whole as a 10 by 10 grid where each square is one percent, filled category by category in reading order, with a legend of values and shares. | What share of revenue comes from each source? | `label` category, `value` number | [waffle.json](../catalog/waffle.json) |
-| [`waterfall`](#waterfall) | A bridge: how a total moves to another through increases and decreases, each floating from the running total, with totals standing on zero. | What took Q2 revenue to Q3 revenue? | `label` category, `value` number | [waterfall.json](../catalog/waterfall.json) |
+| [`waterfall`](#waterfall) | A bridge: how a total moves to another through increases and decreases, each floating from the running total, with totals standing on zero. | What took August revenue to September revenue? | `label` category, `value` number | [waterfall.json](../catalog/waterfall.json) |
 | [`whitespace`](#whitespace) | The cross-sell map (whitespace analysis): one cell per client and product, filled where the client holds the product, outlined where it is an opportunity (tinted by how likely), blank where the client is not eligible. | Which clients could take more products, and which ones first? | `row` category, `column` category, `state` category | [whitespace.json](../catalog/whitespace.json) |
 | [`xray`](#xray) | A client x-ray: one client on one card, from its first row. | How does this client stand right now, and what should we do next? | `label` category | [xray.json](../catalog/xray.json) |
 
@@ -554,16 +554,16 @@ Actual against target, one compact row per item: a value bar and a target tick o
 
 **Answers**: Which KPI is above or below target?
 
-**How to read it**: The solid bar is the real number and the thin line is the goal. The shaded bands behind show poor, fair and good. Here, 2 of 5 KPIs have passed their goal: New customers and Gross margin (%).
+**How to read it**: The solid bar is the real number and the thin line is the goal. The shaded bands behind show poor, fair and good. Here, 3 of 5 KPIs have passed their goal: Revenue (€), New customers and Gross margin (%).
 
 **Drop it in**: `<fft-widget src="catalog/bullet.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "bullet" }` hands an agent this spec). Source widget: [widgets/kpi-scorecard.json](../widgets/kpi-scorecard.json).
 
 ```json
 {
   "id": "kpi-scorecard",
-  "title": "Q3 scorecard",
+  "title": "September scorecard",
   "subtitle": "Actual against target, with poor, fair and good bands",
-  "description": "Each headline KPI against its quarterly target.",
+  "description": "Each headline KPI in September against its target for the month.",
   "note": "Bands end at 60%, 90% and 120% of target",
   "source": {
     "name": "Finance ledger"
@@ -572,7 +572,7 @@ Actual against target, one compact row per item: a value bar and a target tick o
   "data": {
     "type": "inline",
     "rows": [
-      {"kpi":"Revenue","actual":1284000,"target":1300000},
+      {"kpi":"Revenue (€)","actual":1284000,"target":1200000},
       {"kpi":"New customers","actual":66,"target":60},
       {"kpi":"Gross margin (%)","actual":33,"target":30},
       {"kpi":"Net promoter score","actual":42,"target":50},
@@ -1185,18 +1185,18 @@ Before and after per item on one shared axis: a muted dot for before, an accent 
 
 **Settings**: `mark`, `highlight`, `reference`, `sort`, `order`, `limit`, `other`. All options with defaults are in [blocks.md](blocks.md#dumbbell).
 
-**Answers**: How did each region change from Q3 2025 to Q3 2026?
+**Answers**: How did each region change from sep 2025 to sep 2026?
 
-**How to read it**: Each row has two dots: Q3 2025 and Q3 2026. The line between them is the change. Here, 4 of 5 regions went up, and East moved the most, from €291K to €338K.
+**How to read it**: Each row has two dots: sep 2025 and sep 2026. The line between them is the change. Here, 4 of 5 regions went up, and East moved the most, from €291K to €338K.
 
 **Drop it in**: `<fft-widget src="catalog/dumbbell.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "dumbbell" }` hands an agent this spec). Source widget: [widgets/region-yoy.json](../widgets/region-yoy.json).
 
 ```json
 {
   "id": "region-yoy",
-  "title": "Q3 revenue, year on year",
+  "title": "September revenue, year on year",
   "subtitle": "2025 against 2026, by region",
-  "description": "Each region's Q3 revenue last year against this year.",
+  "description": "Each region's September revenue last year against this year.",
   "source": {
     "name": "Finance ledger"
   },
@@ -1213,7 +1213,7 @@ Before and after per item on one shared axis: a muted dot for before, an accent 
   },
   "fields": {
     "q3_2025": {
-      "label": "Q3 2025",
+      "label": "Sep 2025",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -1221,7 +1221,7 @@ Before and after per item on one shared axis: a muted dot for before, an accent 
       }
     },
     "q3_2026": {
-      "label": "Q3 2026",
+      "label": "Sep 2026",
       "format": {
         "type": "currency",
         "currency": "EUR",
@@ -1863,7 +1863,7 @@ A row of stat tiles in one widget, each with a label, value and change: the calm
 
 **Answers**: Where do the key numbers stand right now?
 
-**How to read it**: Each tile is one key number; its arrow says whether it went up or down since last time, and a line under it whether it reached its target. Here, every number moved the right way since last time: revenue, gross profit and new customers went up, and churn went down. Revenue is past its target of €1.2M.
+**How to read it**: Each tile is one key number; its arrow says whether it went up or down since last time, and a line under it whether it reached its target. Here, every number moved the right way since last time: revenue, gross profit and new customers went up, and churn went down. Revenue is past its target of €1.20M.
 
 **Drop it in**: `<fft-widget src="catalog/kpis.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "kpis" }` hands an agent this spec). The spec below shows 6 of its 12 rows; the [full file](../catalog/kpis.json) has them all. Source widget: [widgets/q3-at-a-glance.json](../widgets/q3-at-a-glance.json).
 
@@ -1894,7 +1894,8 @@ A row of stat tiles in one widget, each with a label, value and change: the calm
       "format": {
         "type": "currency",
         "currency": "EUR",
-        "compact": true
+        "compact": true,
+        "decimals": 2
       }
     },
     "profit": {
@@ -2321,7 +2322,7 @@ A mosaic: one column per category, as wide as its total, split into segments by 
 
 **Answers**: How big is each region, and how is it split by product?
 
-**How to read it**: Each column is one region: the wider the column, the bigger its total, and its colored parts show how it splits by product. Here, East is the widest column, with €348K; Platform is its biggest part, 46%.
+**How to read it**: Each column is one region: the wider the column, the bigger its total, and its colored parts show how it splits by product. Here, East is the widest column, with €338K; Platform is its biggest part, 47%.
 
 **Drop it in**: `<fft-widget src="catalog/marimekko.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "marimekko" }` hands an agent this spec). The spec below shows 6 of its 15 rows; the [full file](../catalog/marimekko.json) has them all. Source widget: [widgets/region-product-mix.json](../widgets/region-product-mix.json).
 
@@ -2329,8 +2330,8 @@ A mosaic: one column per category, as wide as its total, split into segments by 
 {
   "id": "region-product-mix",
   "title": "Market size and mix",
-  "subtitle": "Q3 2026 revenue, by region and product",
-  "description": "Each region's Q3 revenue as a column as wide as its share of the total, split by product share. East is the biggest market; West leans on Analytics, Central on Services.",
+  "subtitle": "September 2026 revenue, by region and product",
+  "description": "Each region's September revenue as a column as wide as its share of the total, split by product share. East is the biggest market.",
   "source": {
     "name": "Finance ledger"
   },
@@ -2340,10 +2341,10 @@ A mosaic: one column per category, as wide as its total, split into segments by 
     "rows": [
       {"region":"East","product":"Platform","revenue":160000},
       {"region":"East","product":"Analytics","revenue":120000},
-      {"region":"East","product":"Services","revenue":68000},
+      {"region":"East","product":"Services","revenue":58000},
       {"region":"North","product":"Platform","revenue":110000},
       {"region":"North","product":"Analytics","revenue":98000},
-      {"region":"North","product":"Services","revenue":74000}
+      {"region":"North","product":"Services","revenue":70000}
     ]
   },
   "fields": {
@@ -2460,8 +2461,8 @@ Progress against a target, one meter per row: attainment as a percentage, a bar 
 {
   "id": "region-targets",
   "title": "Target attainment",
-  "subtitle": "Q3 2026 revenue against plan",
-  "description": "How close each region is to its quarterly revenue target.",
+  "subtitle": "September 2026 revenue against plan",
+  "description": "How close each region is to its September revenue target.",
   "source": {
     "name": "Sales ledger"
   },
@@ -2779,7 +2780,6 @@ A RAG scorecard: one row per entity (a client, a relationship manager, a deal) a
   "source": {
     "name": "Client review (fictional)"
   },
-  "byline": "Client success office",
   "locale": "en-GB",
   "data": {
     "type": "inline",
@@ -2974,16 +2974,16 @@ Concentric progress rings, one per row from the outside in, each filled to its s
 
 **Answers**: Which product is above or below target?
 
-**How to read it**: Each ring fills up toward its goal. A full circle means the goal is met. Here, 1 of 3 products has reached its goal: Analytics.
+**How to read it**: Each ring fills up toward its goal. A full circle means the goal is met. Here, 2 of 3 products have reached their goal: Analytics and Services.
 
 **Drop it in**: `<fft-widget src="catalog/rings.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "rings" }` hands an agent this spec). Source widget: [widgets/product-targets.json](../widgets/product-targets.json).
 
 ```json
 {
   "id": "product-targets",
-  "title": "Q3 targets",
+  "title": "September targets",
   "subtitle": "Revenue against plan, by product",
-  "description": "Each product's Q3 revenue as a share of its target. Analytics beat its target; Services trails at 77%.",
+  "description": "Each product's September revenue as a share of its target. Analytics and Services beat theirs; Platform trails at 96%.",
   "source": {
     "name": "Finance ledger"
   },
@@ -2991,9 +2991,9 @@ Concentric progress rings, one per row from the outside in, each filled to its s
   "data": {
     "type": "inline",
     "rows": [
-      {"product":"Analytics","revenue":386000,"target":360000},
-      {"product":"Platform","revenue":412000,"target":450000},
-      {"product":"Services","revenue":231000,"target":300000}
+      {"product":"Analytics","revenue":423000,"target":400000},
+      {"product":"Platform","revenue":520000,"target":540000},
+      {"product":"Services","revenue":341000,"target":330000}
     ]
   },
   "fields": {
@@ -3796,8 +3796,8 @@ Part to whole as a 10 by 10 grid where each square is one percent, filled catego
 {
   "id": "revenue-sources",
   "title": "Where revenue comes from",
-  "subtitle": "Q3 2026, in percent",
-  "description": "Q3 revenue by source. Subscriptions bring in 62 of every 100 euros.",
+  "subtitle": "September 2026, in percent",
+  "description": "September revenue by source. Subscriptions bring in 62 of every 100 euros.",
   "source": {
     "name": "Finance ledger"
   },
@@ -3808,7 +3808,7 @@ Part to whole as a 10 by 10 grid where each square is one percent, filled catego
       {"source":"Subscriptions","revenue":802000},
       {"source":"Services","revenue":298000},
       {"source":"Licenses","revenue":142000},
-      {"source":"Other","revenue":52000}
+      {"source":"Other","revenue":42000}
     ]
   },
   "fields": {
@@ -3842,9 +3842,9 @@ A bridge: how a total moves to another through increases and decreases, each flo
 
 **Settings**: `totals`, `endLabel`, `fit`, `highlight`. All options with defaults are in [blocks.md](blocks.md#waterfall).
 
-**Answers**: What took Q2 revenue to Q3 revenue?
+**Answers**: What took August revenue to September revenue?
 
-**How to read it**: Start at the first bar. Each bar after it goes up for something that added and down for something that took away, and you land on the final total. Here, it went from €1.2M (Q2 revenue) to €1.3M (Q3 revenue): New customers added the most, €142K, and Churn took the most away, €84K.
+**How to read it**: Start at the first bar. Each bar after it goes up for something that added and down for something that took away, and you land on the final total. Here, it went from €1.1M (August revenue) to €1.3M (September revenue): New customers added the most, €150K, and Churn took the most away, €66K.
 
 **Drop it in**: `<fft-widget src="catalog/waterfall.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "waterfall" }` hands an agent this spec). Source widget: [widgets/revenue-bridge.json](../widgets/revenue-bridge.json).
 
@@ -3852,8 +3852,8 @@ A bridge: how a total moves to another through increases and decreases, each flo
 {
   "id": "revenue-bridge",
   "title": "Revenue bridge",
-  "subtitle": "Q2 to Q3 2026",
-  "description": "What moved quarterly revenue from Q2 to Q3: gains from new customers, upsell and pricing, losses from churn and discounts.",
+  "subtitle": "August to September 2026",
+  "description": "What moved monthly revenue from August to September: gains from new customers, upsell and pricing, losses from churn and discounts.",
   "source": {
     "name": "Finance ledger"
   },
@@ -3861,12 +3861,12 @@ A bridge: how a total moves to another through increases and decreases, each flo
   "data": {
     "type": "inline",
     "rows": [
-      {"step":"Q2 revenue","amount":1180000},
-      {"step":"New customers","amount":142000},
-      {"step":"Upsell","amount":58000},
+      {"step":"August revenue","amount":1142000},
+      {"step":"New customers","amount":150000},
+      {"step":"Upsell","amount":62000},
       {"step":"Pricing","amount":21000},
-      {"step":"Churn","amount":-84000},
-      {"step":"Discounts","amount":-33000}
+      {"step":"Churn","amount":-66000},
+      {"step":"Discounts","amount":-25000}
     ]
   },
   "fields": {
@@ -3884,9 +3884,9 @@ A bridge: how a total moves to another through increases and decreases, each flo
     "label": "step",
     "value": "amount",
     "totals": [
-      "Q2 revenue"
+      "August revenue"
     ],
-    "endLabel": "Q3 revenue",
+    "endLabel": "September revenue",
     "fit": true
   }
 }

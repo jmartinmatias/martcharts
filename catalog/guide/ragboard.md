@@ -95,7 +95,6 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
   "source": {
     "name": "Client review (fictional)"
   },
-  "byline": "Client success office",
   "locale": "en-GB",
   "data": {
     "type": "inline",

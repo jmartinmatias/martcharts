@@ -51,10 +51,10 @@ describe("the regulatory landscape dashboard", () => {
     for (const id of ["reg-density-strips", "reg-lifecycle", "reg-pressure-matrix", "reg-stakeholder-matrix"]) expect(named).toContain(id);
   });
 
-  test("every regulatory widget carries a source and a byline, and the ones drawn here validate against their own data", async () => {
+  test("every regulatory widget carries its source and no byline (the board credits it once, as Source), and the ones drawn here validate against their own data", async () => {
     for (const id of named.filter((id) => widgets[id])) {
       const spec = widgets[id] as WidgetSpec;
-      expect([id, spec.source?.name, typeof spec.byline]).toEqual([id, "Regulatory watch (fictional)", "string"]);
+      expect([id, spec.source?.name, spec.byline]).toEqual([id, "Regulatory watch (fictional)", undefined]);
     }
     // Fifteen cards after the noise plan's cuts (from 21), every one drawable.
     expect(present.length).toBe(15);

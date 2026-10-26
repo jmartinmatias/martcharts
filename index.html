@@ -23,6 +23,8 @@
       .strip-item { display: flex; flex-direction: column; }
       .strip-item > div:first-child { flex: 1; display: flex; flex-direction: column; }
       .strip-item > div:first-child > .fft-widget { flex: 1; }
+      /* Each card's link starts where the card's own text does, not at its edge. */
+      .strip-link { display: inline-block; margin: 8px 0 0 16px; font-size: 13px; }
     </style>
   </head>
   <body>
