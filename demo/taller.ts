@@ -7,7 +7,7 @@ import { createWidget, explainChart, fork, questionOf, runPipeline } from "../sr
 import type { Row, Widget, WidgetAction, WidgetSpec } from "../src/index.ts";
 import { AUDIENCES, balanceOf, createVariants, fillsOf, MOVES, plainTags, PRINCIPLES, qualitiesOf, QUALITIES } from "../src/taller.ts";
 import type { Audience, Move, Qualities, Variant } from "../src/taller.ts";
-import { withLook } from "./look.ts";
+import { withLocale, withLook } from "./look.ts";
 import { PLACES } from "./routes.ts";
 
 // Lab charts carry the Lab's refs, apart from the same charts elsewhere on the site.
@@ -100,7 +100,7 @@ const rowsOf = (spec: WidgetSpec) => {
 function mount(target: HTMLElement, spec: WidgetSpec, actions: WidgetAction[] = []) {
   // Versions of one chart share its id: each takes its order on the page as its key, so each has a ref of its own.
   target.dataset.fftRefKey ||= `${spec.id ?? spec.title ?? spec.view.type}-${live.length + 1}`;
-  const widget = createWidget(target, withLook(spec, fork), { actions });
+  const widget = createWidget(target, withLocale(withLook(spec, fork)), { actions });
   live.push(widget);
   return widget;
 }

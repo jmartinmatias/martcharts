@@ -75,6 +75,20 @@ for (const example of document.querySelectorAll(".example")) {
   snippet(code, text, label);
 }
 
+// The iframe example draws in the site's language too: the embed page takes it from its own address (&lang=fr).
+// The code shown to copy keeps the address as written.
+function frameInLanguage() {
+  const lang = window.siteLook?.get?.().lang ?? "en";
+  for (const frame of document.querySelectorAll('.live iframe[src*="embed.html"]')) {
+    const url = new URL(frame.getAttribute("src"), location.href);
+    if (lang === "en") url.searchParams.delete("lang");
+    else url.searchParams.set("lang", lang);
+    if (url.href !== frame.src) frame.src = url.href;
+  }
+}
+frameInLanguage();
+window.addEventListener("martcharts:lang", frameInLanguage);
+
 // The bundles: their addresses as any other page would write them, and their sizes as served.
 const bundleLinks = [...document.querySelectorAll("a[data-bundle]")];
 const lite = bundleLinks[0];

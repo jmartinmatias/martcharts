@@ -5,7 +5,7 @@
  */
 import { createWidget, explainChart, fork, questionOf } from "../src/index.ts";
 import type { WidgetSpec } from "../src/index.ts";
-import { withLook } from "./look.ts";
+import { withLocale, withLook } from "./look.ts";
 import { PLACES } from "./routes.ts";
 
 // Lab charts carry the Lab's refs, apart from the same charts elsewhere on the site.
@@ -91,7 +91,7 @@ function render(selections: Selection[], made?: { variants?: number; charts?: nu
     const slot = el("div", "slot");
     slot.dataset.fftRefKey = `selection-${i + 1}`;
     chart.append(number, title, slot);
-    const widget = createWidget(slot, withLook(pick.spec, fork), { actions: ["info", "expand"] });
+    const widget = createWidget(slot, withLocale(withLook(pick.spec, fork)), { actions: ["info", "expand"] });
 
     const notes = el("div", "notes");
     const asks = note("The question it answers", questionOf(pick.spec).text);

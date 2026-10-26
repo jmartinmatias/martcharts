@@ -144,6 +144,8 @@ const EN = {
   leftToGo: (amount: string) => `${amount} to go`,
   /** "vs plan". */
   versus: (what: string) => `vs ${what}`,
+  /** The comparison when nothing names the period before. */
+  versusPrevious: "vs previous period",
   shareOf: (what: string) => `Share of ${what}`,
   partShare: (part: string) => `${part} share`,
   perUnit: (density: string, per: string) => `${density} per ${per}`,
@@ -354,6 +356,8 @@ const EN = {
     clearOne: "Clear filter",
     clearMany: "Clear these filters",
     asOf: (date: string) => `As of ${date}`,
+    /** The site's standard as-of line ("Data to October 2026"), said in the board's language. */
+    dataTo: (date: string) => `Data to ${date}`,
   },
 
   // ---- Dashboard a11y: skip links, one stop per card, and each change said aloud ----
@@ -536,6 +540,7 @@ const FR: Words = {
   outOf: (part, whole) => `${part} sur ${whole}`,
   leftToGo: (amount) => `${amount} restants`,
   versus: (what) => `vs ${what}`,
+  versusPrevious: "vs période précédente",
   shareOf: (what) => `Part de ${what}`,
   partShare: (part) => `Part ${part}`,
   perUnit: (density, per) => `${density} par ${per}`,
@@ -727,6 +732,7 @@ const FR: Words = {
     clearOne: "Retirer le filtre",
     clearMany: "Retirer ces filtres",
     asOf: (date) => `Au ${date}`,
+    dataTo: (date) => `Données à fin ${date}`,
   },
   boardA11y: {
     skipLinks: "Liens d'accès rapide",
@@ -891,6 +897,7 @@ const DE: Words = {
   outOf: (part, whole) => `${part} von ${whole}`,
   leftToGo: (amount) => `${amount} offen`,
   versus: (what) => `ggü. ${what}`,
+  versusPrevious: "ggü. Vorperiode",
   shareOf: (what) => `Anteil an ${what}`,
   partShare: (part) => `Anteil ${part}`,
   perUnit: (density, per) => `${density} je ${per}`,
@@ -1082,6 +1089,7 @@ const DE: Words = {
     clearOne: "Filter entfernen",
     clearMany: "Diese Filter entfernen",
     asOf: (date) => `Stand ${date}`,
+    dataTo: (date) => `Daten bis ${date}`,
   },
   boardA11y: {
     skipLinks: "Sprunglinks",

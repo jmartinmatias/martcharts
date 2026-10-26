@@ -25,6 +25,11 @@ import { wordsFor } from "../core/words.ts";
 
 /** Options for `createDashboard`. */
 export interface DashboardOptions {
+  /**
+   * The board's language, as a locale ("fr-FR", "de-DE"): every card's numbers, dates and words, and the board's own
+   * (filters, notes, Share, the as-of line). Default: the cards' own locale, else the page's.
+   */
+  locale?: string;
   /** Stored widgets by id, for cells that name a widget. */
   widgets?: Record<string, WidgetSpec>;
   /** Or a lookup function, called for ids not in `widgets`. */
@@ -159,7 +164,10 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   // Dates in the as-of line read in the board's language, the same as its words ("As of", "Data to"): the widgets'
   // locale, else the page's, never the browser's own (which wrote "Data to octobre 2026" on an English page).
   const firstSpec = spec.widgets.map((cell) => cell.spec ?? (cell.widget ? options.widgets?.[cell.widget] : undefined)).find((s) => s?.locale);
-  const boardLocale = firstSpec?.locale ?? (target.ownerDocument.documentElement.lang || "en");
+  const pageLang = target.ownerDocument.documentElement.lang || "en";
+  const boardLocale = options.locale ?? firstSpec?.locale ?? pageLang;
+  // Its words are in its own language, for screen reader pronunciation (WCAG 3.1.2), when the page speaks another.
+  if (boardLocale.split("-")[0]?.toLowerCase() !== pageLang.split("-")[0]?.toLowerCase()) root.lang = boardLocale;
   // The board's own words (filter row, share and print tools, notes), in the same language.
   const B = wordsFor(boardLocale).board;
   // The words a keyboard and screen-reader user meets: skip links, card stops, and what each change did.
@@ -256,7 +264,8 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   const knownFields = new Map<string, Set<string>>();
   const rawRows = new Map<string, Promise<Row[]>>();
   const active = new Map<string, unknown>();
-  let override: Record<string, unknown> = {};
+  // A board in a chosen language draws every card in it, over the card's own locale.
+  let override: Record<string, unknown> = options.locale ? { locale: options.locale } : {};
   /** The click filter, when one is set. */
   let cross: CrossFilter | undefined;
   const crossOn = options.crossFilter ?? spec.crossFilter ?? true;
@@ -498,7 +507,9 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     // Said once under the board: a card from the same source stops repeating it on its own credit line.
     if (spec.source?.name && found.source?.name === spec.source.name) slot.dataset.boardSource = "";
     const draw = () => {
-      const widget = createWidget(mount, found, { actions: options.actions, fetch: options.fetch, neighbors, guide: options.guides, emptyNote: () => emptyNote(id) });
+      // In the board's override from the first draw (a chosen language, a look), not only after the first change.
+      const first = Object.keys(override).length ? fork(found, override) : found;
+      const widget = createWidget(mount, first, { actions: options.actions, fetch: options.fetch, neighbors, guide: options.guides, emptyNote: () => emptyNote(id) });
       widgets.set(id, widget);
       slotOf.set(widget, slot);
       options.decorate?.(mount, id, widget);
@@ -1564,6 +1575,14 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   };
 }
 
+const MONTHS = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
+/** "October 2026" as 2026-10, so it can be said in another language; undefined for anything else. */
+function englishMonth(text: string): string | undefined {
+  const match = /^([A-Za-z]+) (\d{4})$/.exec(text);
+  const index = match ? MONTHS.indexOf((match[1] as string).toLowerCase()) : -1;
+  return match && index >= 0 ? `${match[2]}-${String(index + 1).padStart(2, "0")}` : undefined;
+}
+
 /** A date written for people: "25 Oct 2026" for a day, "October 2026" for a month, the text unchanged otherwise. */
 function dateWords(text: string, locale?: string): string {
   const day = /^(\d{4})-(\d{2})-(\d{2})/.exec(text);
@@ -1581,6 +1600,14 @@ function dateWords(text: string, locale?: string): string {
 export function asOfText(asOf: string, latest: string, locale?: string): string {
   const text = asOf.trim();
   if (/^\d{4}-\d{2}(-\d{2})?$/.test(text)) return wordsFor(locale).board.asOf(dateWords(text, locale));
+  // The site's standard line, "Data to {latest}" or "Data to October 2026", reads in the board's language.
+  const dataTo = /^Data to (.+)$/.exec(text);
+  if (dataTo && !/^en\b/i.test(locale ?? "en")) {
+    const said = (dataTo[1] as string).trim();
+    const month = englishMonth(said);
+    const date = said === "{latest}" ? (latest ? dateWords(latest, locale) : "") : month ? dateWords(month, locale) : said;
+    return date ? wordsFor(locale).board.dataTo(date) : "";
+  }
   if (!text.includes("{latest}")) return text;
   return latest ? text.split("{latest}").join(dateWords(latest, locale)) : "";
 }

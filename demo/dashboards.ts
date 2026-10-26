@@ -7,7 +7,7 @@
  */
 import { createDashboard, widgetRef } from "../src/index.ts";
 import type { Dashboard, DashboardSpec, WidgetSpec } from "../src/index.ts";
-import { lookStyle } from "./look.ts";
+import { lookStyle, siteLocale } from "./look.ts";
 import { BOARD_TABS, cleanHash } from "./routes.ts";
 
 const files = import.meta.glob<DashboardSpec>("../dashboards/*.json", { eager: true, import: "default" });
@@ -70,7 +70,9 @@ function show(key: string, keepHash: boolean) {
   history.replaceState(null, "", url);
   board?.destroy();
   for (const old of document.querySelectorAll("body > .fft-skip")) old.remove();
-  board = createDashboard(mount, boardOf(tab.board) as DashboardSpec, options);
+  // In the site's language when one is picked: every card and the board's own words (filters, notes, Share, the date).
+  const locale = siteLocale();
+  board = createDashboard(mount, boardOf(tab.board) as DashboardSpec, locale ? { ...options, locale } : options);
   // The board's skip links come first in the page's tab order, before the site menu, the Look menu and the tabs:
   // a keyboard reader reaches "Skip to filters" with the first Tab, as skip links promise.
   const skipLinks = mount.querySelector(".fft-skip");
@@ -115,4 +117,9 @@ show((wanted ? tabWithRef(wanted)?.key : undefined) ?? new URLSearchParams(locat
 window.addEventListener("martcharts:look", (event) => {
   event.preventDefault();
   void board?.setOverride({ style: lookStyle() ?? { preset: "default" } });
+});
+// The language: draw the board again in it, keeping its state (filters, section, click) from the address.
+window.addEventListener("martcharts:lang", (event) => {
+  event.preventDefault();
+  show(new URLSearchParams(location.search).get("board") ?? "sales", true);
 });

@@ -34,7 +34,7 @@ describe("one menu on every page", () => {
     expect(links.filter((a) => a.getAttribute("aria-current") === "page").map((a) => a.textContent)).toEqual([current]);
     // One Look menu, theme and style together, the same on every page.
     expect(doc.querySelectorAll(".site-look-menu").length).toBe(1);
-    expect([...doc.querySelectorAll(".site-look-menu [data-look-key]")].map((g) => g.getAttribute("data-look-key"))).toEqual(["theme", "preset"]);
+    expect([...doc.querySelectorAll(".site-look-menu [data-look-key]")].map((g) => g.getAttribute("data-look-key"))).toEqual(["theme", "preset", "lang"]);
     // No page keeps a theme or style switch of its own.
     expect(doc.querySelectorAll("#theme, #preset").length).toBe(0);
     // The pinned bar's styles and the look, on every page.

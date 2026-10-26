@@ -7,7 +7,7 @@ import { createComposer, createDashboard } from "../src/index.ts";
 import { boardFromHash } from "../src/kit.ts";
 import type { WidgetSpec } from "../src/index.ts";
 import { PLACES } from "./routes.ts";
-import { lookStyle } from "./look.ts";
+import { lookStyle, siteLocale } from "./look.ts";
 
 const stored = import.meta.glob<WidgetSpec>("../widgets/*.json", { eager: true, import: "default" });
 const byId: Record<string, WidgetSpec> = {};
@@ -26,7 +26,8 @@ const address = boardFromHash(location.hash);
 if (address.view && address.spec) {
   document.body.dataset.view = "";
   document.title = `${address.spec.title || "Dashboard"} · martcharts`;
-  const page = createDashboard($("#page-view"), address.spec, { actions: ["info", "expand", "explain", "csv", "image"] });
+  const locale = siteLocale();
+  const page = createDashboard($("#page-view"), address.spec, { actions: ["info", "expand", "explain", "csv", "image"], ...(locale ? { locale } : {}) });
   const style = lookStyle();
   if (style) void page.setOverride({ style });
   // The Look menu's style: restyle the page in place.
@@ -36,9 +37,12 @@ if (address.view && address.spec) {
   });
 } else {
   // The preview draws in the site's Look, as the dashboards do, and follows the Look menu without a reload.
-  const composer = createComposer($("#composer"), { examples, embedHref: new URL("examples/embed.html", location.href).href, previewStyle: lookStyle });
-  window.addEventListener("martcharts:look", (event) => {
-    event.preventDefault();
-    void composer.restyle();
-  });
+  const composer = createComposer($("#composer"), { examples, embedHref: new URL("examples/embed.html", location.href).href, previewStyle: lookStyle, previewLocale: siteLocale });
+  // The Look menu's style and language: redraw the preview, here, without reloading.
+  for (const change of ["martcharts:look", "martcharts:lang"]) {
+    window.addEventListener(change, (event) => {
+      event.preventDefault();
+      void composer.restyle();
+    });
+  }
 }

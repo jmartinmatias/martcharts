@@ -11,7 +11,7 @@
 import { createEditor, runPipeline } from "../src/index.ts";
 import type { WidgetSpec } from "../src/index.ts";
 import { PLACES } from "./routes.ts";
-import { lookStyle } from "./look.ts";
+import { lookStyle, siteLocale } from "./look.ts";
 
 /** One self-contained spec per view, written by `npm run catalog`. */
 const catalog = import.meta.glob<WidgetSpec>("../catalog/*.json", { eager: true, import: "default" });
@@ -42,9 +42,15 @@ const editor = createEditor($("#editor"), {
   embedHref: new URL("examples/embed.html", location.href).href,
   // The live chart draws in the site's Look, as the dashboards do; the spec you copy stays free of it.
   previewStyle: lookStyle,
+  // And in the site's language: numbers, dates and words; never written into the spec.
+  previewLocale: siteLocale,
 });
 // The Look menu's style: redraw the live chart in it, here, without reloading.
 window.addEventListener("martcharts:look", (event) => {
+  event.preventDefault();
+  void editor.restyle();
+});
+window.addEventListener("martcharts:lang", (event) => {
   event.preventDefault();
   void editor.restyle();
 });

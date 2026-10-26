@@ -186,6 +186,7 @@ Call `defineWidgetElement()` once (optionally with your own tag name), or load t
 | `heading` attribute | With `data`: the widget's title. (Not `title`, which would put a browser tooltip over the whole chart.) |
 | `actions` attribute | Space-separated buttons to show: `info`, `csv`, `image`, `copy`, `explain`, `expand`. |
 | `preset` attribute | A style preset (`glass`, `airy`, `paper`, `default`...) that wins over the spec's own, so a page can give every tag one look. Removing it restores the spec's. |
+| `locale` attribute | A locale (`fr-FR`, `de-DE`) that wins over the spec's own, so a page can draw every tag in one language: numbers, dates and the chart's words. Removing it restores the spec's. |
 | `spec` property | The spec as an object. Setting it redraws the same widget. |
 | `widget` property | The live `Widget`, once connected. |
 
@@ -391,7 +392,7 @@ A `tooltip` template with markup reads as rich lines: `**bold**`, a new line per
 
 ### Embeds that size themselves: `examples/embed.html`, `mountEmbed`, `listenForEmbedHeights`, `frameEmbed`
 
-`examples/embed.html` draws one chart or dashboard with no page chrome, for an iframe: `?spec=<widget spec in base64url>`, `?src=<address of a spec>` or `?board=<dashboard spec in base64url>`, plus `&actions=csv,image`. It posts `{ type: "martcharts:height", height }` to its parent on load and on every resize. In the host page, the drop-in bundle runs `listenForEmbedHeights(window)` by itself, and a page that only holds iframes can load `examples/embed-host.js` instead; either sets each iframe's height to its chart's. `frameEmbed(kind, spec, embedHref, title)` writes the iframe code; the editor and the composer show it beside their other embed codes (`embedHref` option).
+`examples/embed.html` draws one chart or dashboard with no page chrome, for an iframe: `?spec=<widget spec in base64url>`, `?src=<address of a spec>` or `?board=<dashboard spec in base64url>`, plus `&actions=csv,image` and `&lang=fr` (or `de`, or `&locale=fr-LU`) to draw it in another language. It posts `{ type: "martcharts:height", height }` to its parent on load and on every resize. In the host page, the drop-in bundle runs `listenForEmbedHeights(window)` by itself, and a page that only holds iframes can load `examples/embed-host.js` instead; either sets each iframe's height to its chart's. `frameEmbed(kind, spec, embedHref, title)` writes the iframe code; the editor and the composer show it beside their other embed codes (`embedHref` option).
 
 ### Breakpoints: `spec.responsive`
 

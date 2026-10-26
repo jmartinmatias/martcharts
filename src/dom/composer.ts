@@ -45,6 +45,8 @@ export interface ComposerOptions {
   bundleHref?: string;
   /** The style the live preview draws in (a host's look, `{ preset: "glass" }`), read at each draw. Default: the board's own. */
   previewStyle?(): Record<string, unknown> | undefined;
+  /** The locale the preview draws in (a host's language, "fr-FR"): its cards and the board's own words. Read at each draw. */
+  previewLocale?(): string | undefined;
 }
 
 /** A live composer on the page. */
@@ -73,7 +75,7 @@ export interface Composer {
   undo(): boolean;
   /** Saves the board in the store and returns it. */
   save(): Promise<SavedBoard>;
-  /** Redraws the preview in `previewStyle` as it stands now (after the host's look changed). */
+  /** Redraws the preview in `previewStyle` and `previewLocale` as they stand now (after the host's look or language changed). */
   restyle(): Promise<void>;
   destroy(): void;
 }
@@ -665,6 +667,8 @@ export function createComposer(target: HTMLElement, options: ComposerOptions = {
   }
 
   // ---- The live preview ----
+  /** The language the preview was last built in, so restyle() knows to rebuild it. */
+  let drawnLocale = "";
   function paintPreview() {
     preview?.destroy();
     previewEl.replaceChildren();
@@ -676,7 +680,9 @@ export function createComposer(target: HTMLElement, options: ComposerOptions = {
       ready = Promise.resolve();
       return;
     }
-    preview = createDashboard(previewEl, board, { fetch: options.fetch });
+    const locale = options.previewLocale?.();
+    drawnLocale = locale ?? "";
+    preview = createDashboard(previewEl, board, { fetch: options.fetch, ...(locale ? { locale } : {}) });
     const style = options.previewStyle?.();
     ready = style ? preview.ready.then(() => preview?.setOverride({ style })) : preview.ready;
   }
@@ -848,6 +854,12 @@ export function createComposer(target: HTMLElement, options: ComposerOptions = {
     save,
     async restyle() {
       if (!preview) return;
+      // A new language redraws the preview whole: the board's own words are chosen when it is built.
+      if ((options.previewLocale?.() ?? "") !== drawnLocale) {
+        paintPreview();
+        await ready;
+        return;
+      }
       ready = preview.setOverride({ style: options.previewStyle?.() ?? { preset: "default" } });
       await ready;
     },

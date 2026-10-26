@@ -2,12 +2,23 @@
 export interface Look {
   theme?: string;
   preset?: string;
+  /** The language charts read in: en, fr or de. */
+  lang?: string;
 }
 
 declare global {
   interface Window {
-    siteLook?: { get(): Look; set(patch: Look): Look };
+    siteLook?: { get(): Look; set(patch: Look): Look; locale?(): string | undefined };
   }
+}
+
+/** The locale the site's charts draw in ("fr-FR", "de-DE"), or undefined for English (the specs' own). */
+export const siteLocale = (): string | undefined => window.siteLook?.locale?.();
+
+/** A spec in the site's language, when one other than English is picked. */
+export function withLocale<T extends { locale?: string }>(spec: T): T {
+  const locale = siteLocale();
+  return locale ? { ...spec, locale } : spec;
 }
 
 export const look = (): Look => window.siteLook?.get() ?? {};

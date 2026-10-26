@@ -68,10 +68,17 @@ export interface Embedded {
   stop(): void;
 }
 
+/** The locale an embed address asks for: `&locale=fr-FR`, or `&lang=fr` / `de` / `en` (English keeps the spec's own). */
+export function embedLocale(params: URLSearchParams): string | undefined {
+  const locale = params.get("locale");
+  if (locale && /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/.test(locale)) return locale;
+  return ({ fr: "fr-FR", de: "de-DE" } as Record<string, string>)[(params.get("lang") ?? "").toLowerCase()];
+}
+
 /**
  * Draws the widget or dashboard an embed address names into `doc.body`, with no page chrome, and posts its height to
  * the parent. `search` is the address's query: `?spec=<base64url>`, `?src=<address of a spec>` or `?board=<base64url>`,
- * with `&actions=csv,image` to offer actions.
+ * with `&actions=csv,image` to offer actions and `&lang=fr` (or `&locale=fr-FR`) to draw in another language.
  */
 export function mountEmbed(doc: Document, search: string, options: { fetch?: typeof fetch } = {}): Embedded {
   const win = doc.defaultView as Window;
@@ -80,6 +87,8 @@ export function mountEmbed(doc: Document, search: string, options: { fetch?: typ
   holder.className = "fft-embed";
   doc.body.append(holder);
   const actions = (params.get("actions") ?? "").split(",").filter(Boolean) as WidgetAction[];
+  const locale = embedLocale(params);
+  const localized = (spec: WidgetSpec): WidgetSpec => (locale ? { ...spec, locale } : spec);
   const stopHeights = postHeights(win, holder);
   const out: Embedded = { ready: Promise.resolve(), stop: () => {} };
   const fail = (message: string) => {
@@ -90,16 +99,16 @@ export function mountEmbed(doc: Document, search: string, options: { fetch?: typ
     const spec = params.get("spec");
     const src = params.get("src");
     if (board) {
-      out.dashboard = createDashboard(holder, JSON.parse(fromBase64Url(board)) as DashboardSpec, { fetch: options.fetch, ...(actions.length ? { actions } : {}) });
+      out.dashboard = createDashboard(holder, JSON.parse(fromBase64Url(board)) as DashboardSpec, { fetch: options.fetch, ...(actions.length ? { actions } : {}), ...(locale ? { locale } : {}) });
       out.ready = out.dashboard.ready;
     } else if (spec) {
-      out.widget = createWidget(holder, JSON.parse(fromBase64Url(spec)) as WidgetSpec, { fetch: options.fetch, actions });
+      out.widget = createWidget(holder, localized(JSON.parse(fromBase64Url(spec)) as WidgetSpec), { fetch: options.fetch, actions });
       out.ready = out.widget.ready;
     } else if (src) {
       out.ready = (async () => {
         const response = await (options.fetch ?? fetch)(src);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        out.widget = createWidget(holder, (await response.json()) as WidgetSpec, { fetch: options.fetch, actions });
+        out.widget = createWidget(holder, localized((await response.json()) as WidgetSpec), { fetch: options.fetch, actions });
         await out.widget.ready;
       })().catch((caught) => fail(`Could not load ${src}: ${caught instanceof Error ? caught.message : String(caught)}`));
     } else fail("Nothing to show: give ?spec=, ?src= or ?board=.");

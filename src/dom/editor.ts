@@ -82,6 +82,9 @@ export interface EditorOptions {
   /** The style the live chart draws in (a host's look, `{ preset: "glass" }`), read at each draw. It styles what is
    *  drawn only, never the spec you export; a spec that picks its own preset keeps it. */
   previewStyle?(): { preset?: string } | undefined;
+  /** The locale the live chart draws in (a host's language, "fr-FR"), read at each draw. Like previewStyle, it never
+   *  reaches the spec you export. */
+  previewLocale?(): string | undefined;
   /** Words to replace, on top of the language's own. */
   strings?: Partial<typeof STRINGS>;
 }
@@ -102,7 +105,7 @@ export interface Editor {
   setData(text: string, name?: string): void;
   /** Replaces the spec (and the data, when inline). */
   setSpec(spec: WidgetSpec): void;
-  /** Redraws the live and published charts in `previewStyle` as it stands now (after the host's look changed). */
+  /** Redraws the live and published charts in `previewStyle` and `previewLocale` as they stand now (after the host's look or language changed). */
   restyle(): Promise<void>;
   /** Undoes the last change. Returns false when there is nothing to undo. */
   undo(): boolean;
@@ -418,7 +421,9 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
   /** The spec as drawn: in the host's look (previewStyle) unless the spec picks its own preset. Never exported. */
   const drawn = (shown: WidgetSpec): WidgetSpec => {
     const look = options.previewStyle?.();
-    return look?.preset && !shown.style?.preset ? { ...shown, style: { ...shown.style, ...look } } : shown;
+    const styled = look?.preset && !shown.style?.preset ? { ...shown, style: { ...shown.style, ...look } } : shown;
+    const locale = options.previewLocale?.();
+    return locale ? { ...styled, locale } : styled;
   };
   let paletteCleanup: (() => void) | undefined;
   const cleanups: (() => void)[] = [];

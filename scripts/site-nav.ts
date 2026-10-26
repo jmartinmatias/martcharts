@@ -47,6 +47,12 @@ const STYLES = [
   ["airy", "Airy"],
   ["paper", "Paper"],
 ] as const;
+/** The languages charts and dashboards read in, each named in its own language. */
+const LANGUAGES = [
+  ["en", "English"],
+  ["fr", "Français"],
+  ["de", "Deutsch"],
+] as const;
 const THEMES = [
   ["auto", "Auto"],
   ["light", "Light"],
@@ -71,7 +77,7 @@ export function navBar(current: NavLabel, up: "./" | "../", indent = "    "): st
     `${indent}  </nav>`,
     `${indent}  <details class="site-look-menu">`,
     `${indent}    <summary>Look</summary>`,
-    `${indent}    <div class="site-look-panel">${group("theme", "Theme", THEMES)}${group("preset", "Style", STYLES)}</div>`,
+    `${indent}    <div class="site-look-panel">${group("theme", "Theme", THEMES)}${group("preset", "Style", STYLES)}${group("lang", "Language", LANGUAGES)}</div>`,
     `${indent}  </details>`,
     `${indent}</div>`,
   ].join("\n");

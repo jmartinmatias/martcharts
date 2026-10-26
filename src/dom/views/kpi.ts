@@ -102,7 +102,7 @@ export const renderKpi: ViewRenderer<KpiView> = (ctx) => {
       ? wordsFor(ctx).versus(ctx.label(compare))
       : x && previous
         ? wordsFor(ctx).versus(ctx.format(previous[x], x))
-        : "vs previous period";
+        : wordsFor(ctx).versusPrevious;
     box.append(deltaElement(doc, (now - before) / Math.abs(before), goodWhen, ctx.view.compareLabel ?? fallbackLabel, ctx.spec.locale));
   }
   // With a target, one plain line says where the latest stands: met, or how far it has to go (or, when lower is better, how far above).

@@ -13,6 +13,9 @@
   } catch (error) {
     locale = "";
   }
+  // A language asked in the address (&lang=fr) wins, as the embed page draws it (mountEmbed).
+  var asked = (params.get("locale") || params.get("lang") || "").toLowerCase();
+  if (/^(fr|de)\b/.test(asked)) locale = asked;
   // Charts drawn in a frame on another site: their refs are their own here, apart from the same chart on the site.
   document.body.setAttribute("data-fft-place", "frame");
   var mount = function () {
