@@ -75,19 +75,34 @@ const DATE_STYLES: Record<string, Intl.DateTimeFormatOptions> = {
   day: { month: "short", day: "numeric" },
   month: { month: "short", year: "numeric" },
   year: { year: "numeric" },
+  quarter: { year: "numeric" },
 };
+
+/** A quarter in the reader's words: Q4 2026, T4 2026 in French. */
+function quarterText(year: number, quarter: number, locale: string | undefined): string {
+  const prefix = /^fr\b/i.test(locale ?? "") ? "T" : "Q";
+  return `${prefix}${quarter} ${year}`;
+}
 
 const date: FormatBlock = {
   type: "date",
   description: "A date from an ISO string (2026-03-05), a timestamp in milliseconds, or a Date.",
   options: {
-    style: { type: "enum", values: Object.keys(DATE_STYLES), default: "medium", description: "short 3/5/26, medium Mar 5, 2026, long March 5, 2026, day Mar 5, month Mar 2026, year 2026." },
+    style: { type: "enum", values: Object.keys(DATE_STYLES), default: "medium", description: "short 3/5/26, medium Mar 5, 2026, long March 5, 2026, day Mar 5, month Mar 2026, year 2026, quarter Q1 2026. A quarter key such as 2026-Q1 always reads Q1 2026." },
   },
   format(value, o, locale) {
+    // A quarter key (2026-Q4, 2026Q4) names a quarter, not a day.
+    const key = typeof value === "string" ? /^(\d{4})-?Q([1-4])$/i.exec(value.trim()) : null;
+    if (key) return quarterText(Number(key[1]), Number(key[2]), locale);
     const parsed = value instanceof Date ? value : typeof value === "number" || typeof value === "string" ? new Date(value) : null;
     if (!parsed || Number.isNaN(parsed.getTime())) return String(value);
     // A bare date such as 2026-03-05 means that calendar day everywhere, so show it in UTC.
     const dateOnly = typeof value === "string" && /^\d{4}-\d{2}(-\d{2})?$/.test(value);
+    if (o.style === "quarter") {
+      const utc = dateOnly || typeof value === "string";
+      const month = utc ? parsed.getUTCMonth() : parsed.getMonth();
+      return quarterText(utc ? parsed.getUTCFullYear() : parsed.getFullYear(), Math.floor(month / 3) + 1, locale);
+    }
     const style = DATE_STYLES[String(o.style ?? "medium")] ?? DATE_STYLES.medium;
     return new Intl.DateTimeFormat(locale, { ...style, ...(dateOnly ? { timeZone: "UTC" } : {}) }).format(parsed);
   },

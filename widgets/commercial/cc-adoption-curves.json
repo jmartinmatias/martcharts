@@ -28,37 +28,37 @@
       "label": "Months since onboarding"
     },
     "2024-Q3": {
-      "label": "2024-Q3",
+      "label": "Q3 2024",
       "format": {
         "type": "percent"
       }
     },
     "2024-Q4": {
-      "label": "2024-Q4",
+      "label": "Q4 2024",
       "format": {
         "type": "percent"
       }
     },
     "2025-Q1": {
-      "label": "2025-Q1",
+      "label": "Q1 2025",
       "format": {
         "type": "percent"
       }
     },
     "2025-Q2": {
-      "label": "2025-Q2",
+      "label": "Q2 2025",
       "format": {
         "type": "percent"
       }
     },
     "2025-Q3": {
-      "label": "2025-Q3",
+      "label": "Q3 2025",
       "format": {
         "type": "percent"
       }
     },
     "2025-Q4": {
-      "label": "2025-Q4",
+      "label": "Q4 2025",
       "format": {
         "type": "percent"
       }

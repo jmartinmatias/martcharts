@@ -178,3 +178,14 @@ describe("humanize", () => {
     expect(humanize(input)).toBe(expected);
   });
 });
+
+test("a quarter reads as the reader says it: a key such as 2026-Q4 in any date style, and any date in the quarter style", async () => {
+  const { formatValue } = await import("./display.ts");
+  expect([
+    formatValue("2026-Q4", { type: "date" }, "en-US"),
+    formatValue("2026Q1", { type: "date", style: "month" }, "en-US"),
+    formatValue("2026-Q4", { type: "date" }, "fr-FR"),
+    formatValue("2026-10-05", { type: "date", style: "quarter" }, "en-US"),
+    formatValue("2026-03-31", { type: "date", style: "quarter" }, "de-DE"),
+  ]).toEqual(["Q4 2026", "Q1 2026", "T4 2026", "Q4 2026", "Q1 2026"]);
+});

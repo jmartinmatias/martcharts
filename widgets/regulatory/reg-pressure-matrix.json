@@ -10,7 +10,11 @@
   },
   "fields": {
     "quarter": {
-      "label": "Quarter"
+      "label": "Quarter",
+      "format": {
+        "type": "date",
+        "style": "quarter"
+      }
     },
     "topic": {
       "label": "Topic"

@@ -60,7 +60,7 @@
     ]
   },
   "fields": {
-    "quarter": { "label": "Quarter" },
+    "quarter": { "label": "Quarter", "format": { "type": "date", "style": "quarter" } },
     "topic": { "label": "Topic" },
     "obligations": { "label": "New obligations" },
     "impact": { "label": "Mean impact", "format": { "type": "number", "decimals": 1 } }

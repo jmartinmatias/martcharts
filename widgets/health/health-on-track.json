@@ -44,7 +44,11 @@
   ],
   "fields": {
     "quarter": {
-      "label": "Quarter"
+      "label": "Quarter",
+      "format": {
+        "type": "date",
+        "style": "quarter"
+      }
     },
     "onTrack": {
       "label": "Share on track",

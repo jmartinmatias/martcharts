@@ -5,7 +5,7 @@
     "name": "Client health model (fictional)"
   },
   "title": "Every client, quarter by quarter",
-  "subtitle": "Overall status from 2025-Q1 to 2026-Q4, with what changed",
+  "subtitle": "Overall status from Q1 2025 to Q4 2026, with what changed",
   "description": "One row per client, one cell per quarter in its overall status, and a note where the status moved.",
   "data": {
     "type": "url",
@@ -16,7 +16,11 @@
       "label": "Client"
     },
     "quarter": {
-      "label": "Quarter"
+      "label": "Quarter",
+      "format": {
+        "type": "date",
+        "style": "quarter"
+      }
     },
     "overallRag": {
       "label": "Overall"
