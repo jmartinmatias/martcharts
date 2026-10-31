@@ -67,9 +67,9 @@ export const renderLifecycle: ViewRenderer<LifecycleView> = (ctx) => {
   const pillWidth = (text: string) => textWidth(text, 10, 600) + 12;
   const pillsW = status ? Math.max(0, ...statusTexts.map(pillWidth)) : 0;
   // The names' measured column (group headings in bold too), cut with an ellipsis past a third of the card.
-  const boldest = Math.max(0, ...items.filter((it) => it.kind === "group").map((it) => Math.ceil(textWidth(it.name, 11, 600)) + 9));
+  const boldest = Math.max(0, ...items.filter((it) => it.kind === "group").map((it) => Math.ceil(textWidth(it.name, 11 * 1.06, 600)) + 9));
   const column = nameColumn(items.filter((it) => it.kind === "row").map((it) => it.name), ctx.width, { min: Math.max(55, Math.min(boldest, ctx.width * 0.34)) });
-  const headings = items.map((it) => (it.kind === "group" ? fitLabel(it.name, column.width - 8, 11, 600) : ""));
+  const headings = items.map((it) => (it.kind === "group" ? fitLabel(it.name, column.end - 2, 11 * 1.06, 600) : ""));
   const left = column.width + 8;
   // On a narrow card the names, the status pills and a 144px plot do not all fit: the status shrinks to a dot (its
   // words stay in the tooltip and the row's label) and the plot may narrow to 89px, so the chart never outgrows the card.

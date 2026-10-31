@@ -44,6 +44,11 @@ export interface ViewContext<V extends { type: string } = ViewSpec> {
   width: number;
   /** Chart height in pixels: `style.height`, or the width divided by the golden ratio (180 to 320). */
   height: number;
+  /**
+   * Height the card leaves for the chart when a dashboard row stretches it past its content, in pixels; 0 when the
+   * card is as tall as its content. A view that sets `data-fill` on its outer element is drawn again when it changes.
+   */
+  room?: number;
   /** Human label for a field (`fields[name].label`, or the name turned into words). */
   label(field: string): string;
   /** Formats a value with the field's format, or a sensible default. */

@@ -45,16 +45,22 @@ export const renderVariance: ViewRenderer<VarianceView> = (ctx) => {
   const labelRoom = endRoom(items.map((it) => text(it)));
   // The names' measured column, cut with an ellipsis past a third of the card.
   const column = nameColumn(items.map((it) => it.name), ctx.width, { min: 55 });
-  const left = column.width + 13;
+  // A clear gap between the names and a shortfall's label, which sits left of the zero line.
+  const left = column.width + 21;
   const width = Math.max(ctx.width, left + 144);
-  const height = items.length * LANE + 8;
+  // Rows spread out to fill a card a dashboard row has stretched, up to 55px each; otherwise they sit at LANE.
+  const lane = Math.max(LANE, Math.min(55, Math.floor(((ctx.room ?? 0) - 8) / Math.max(1, items.length))));
+  const height = items.length * lane + 8;
   // Room for a value label beyond each end that has bars.
   const plotLeft = left + (low < 0 ? labelRoom : 0);
   const plotRight = width - 13 - (high > 0 ? labelRoom : 0);
   const x = (v: number) => (high === low ? (plotLeft + plotRight) / 2 : plotLeft + ((v - low) / (high - low)) * (plotRight - plotLeft));
   const zero = x(0);
 
-  const wrap = html(doc, "div", "fft-chart");
+  const wrap = html(doc, "div", "fft-chart fft-var-chart");
+  // Fills the card: the chart floats in the room it was given, so it never holds a row taller than its natural height.
+  wrap.dataset.fill = "";
+  wrap.style.minHeight = `${items.length * LANE + 8}px`;
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
   chart.setAttribute("aria-label", wordsFor(ctx).aria.variance(ctx.label(value), ctx.label(target), ctx.label(label)));
@@ -62,8 +68,8 @@ export const renderVariance: ViewRenderer<VarianceView> = (ctx) => {
   const hits: Element[] = [];
   const active = activeGroup(wrap, ctx.tooltip);
   items.forEach((it, i) => {
-    const top = 4 + i * LANE;
-    const cy = top + LANE / 2;
+    const top = 4 + i * lane;
+    const cy = top + lane / 2;
     const tone = it.delta === 0 ? "even" : (it.delta > 0) === (goodWhen === "up") ? "good" : "bad";
     const g = svg(doc, "g", { class: "fft-var", "data-tone": tone, style: `--fft-i: ${i}` });
     const name = svg(doc, "text", { class: "fft-var-label", x: column.end, y: cy, "text-anchor": "end", "dominant-baseline": "middle" });
@@ -86,7 +92,7 @@ export const renderVariance: ViewRenderer<VarianceView> = (ctx) => {
       { label: wordsFor(ctx).variance, value: it.signed },
       ...(it.rel ? [{ label: wordsFor(ctx).versus(ctx.label(target).toLowerCase()), value: it.rel }] : []),
     ];
-    const hit = svg(doc, "rect", { class: "fft-var-hit", x: 0, y: top, width, height: LANE });
+    const hit = svg(doc, "rect", { class: "fft-var-hit", x: 0, y: top, width, height: lane });
     const row: Row = it.row;
     hits.push(rowHit(ctx, { node: hit, row, name: it.name, items: tips, anchor, active: g, group: active }));
     g.append(hit);

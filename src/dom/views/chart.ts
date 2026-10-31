@@ -15,7 +15,7 @@ import { isForecast } from "../../core/views.ts";
 import type { Annotation, AreaView, BarView, LineView } from "../../core/views.ts";
 import { bandPath, bands, barPath, CHAR_WIDTH, curveArea, curveLine, evenLabels, layoutBars, layoutStacked, LINE_HEIGHT, linearScale, linePath, logScale, smoothBands, spread, wrapLabels } from "../layout.ts";
 import type { LabelBox } from "../layout.ts";
-import { categoryLabel, fieldList, hiddenTableOf, html, legendList, selectable, svg } from "./shared.ts";
+import { categoryLabel, fieldList, hiddenTableOf, html, legendList, selectable, svg, fillHeight } from "./shared.ts";
 import type { LegendEntry as KitLegendEntry } from "./shared.ts";
 import { roving } from "./focus.ts";
 import { wordsFor } from "./words.ts";
@@ -286,6 +286,7 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
   const endRoom = Math.max(0, ...[...endLabels.map((label) => label?.text), ...bandEndText].map((text) => (text ? text.length * CHAR_WIDTH + 13 : 0)));
 
   const wrap = html(doc, "div", "fft-chart");
+  if (!ctx.inFacet && !ctx.spec.style?.height) wrap.dataset.fill = "";
   const markShape: LegendEntry["shape"] = kind !== "bar" ? "line" : (view as BarView).mark === "lollipop" ? "dot" : "rect";
   const legendEntries: LegendEntry[] = [
     ...series.map((field, s) => ({ field, color: seriesColor(s), shape: markShape })),
@@ -318,7 +319,9 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
     if (fits) wrapped = split;
   }
   if (wrapped) margin.bottom += (Math.max(...wrapped.map((lines) => lines.length)) - 1) * LINE_HEIGHT;
-  const height = ctx.height;
+  // Grows into a card a dashboard row has stretched (not a set height, not a small multiple), so the plot takes the
+  // card instead of leaving an empty floor under it.
+  const height = ctx.inFacet || ctx.spec.style?.height ? ctx.height : fillHeight(ctx, ctx.height, key ? 34 : 8, Math.max(ctx.height, Math.round(width * 0.75)));
   const plot = { x: margin.left, y: margin.top, w: width - margin.left - margin.right, h: height - margin.top - margin.bottom };
   const y = log ? logScale(present, [plot.y + plot.h, plot.y]) : linearScale(present, [plot.y + plot.h, plot.y], { includeZero: fromZero, nice: !stream });
   // Bars sit in bands; lines and areas run edge to edge, one point per row, as time series do.

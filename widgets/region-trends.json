@@ -1,8 +1,8 @@
 {
   "id": "region-trends",
   "title": "Regional trends",
-  "subtitle": "Monthly revenue, April to September",
-  "description": "Each region's six-month revenue trend and its total.",
+  "subtitle": "Monthly revenue in the period shown, by region",
+  "description": "Each region's monthly revenue trend over the period shown, and its total.",
   "source": {
     "name": "Finance ledger"
   },
@@ -187,7 +187,7 @@
   ],
   "fields": {
     "trend": {
-      "label": "6-month trend",
+      "label": "Trend",
       "format": "spark"
     },
     "total": {
@@ -211,14 +211,14 @@
   "i18n": {
     "fr": {
       "title": "Tendances régionales",
-      "subtitle": "CA mensuel, avril à septembre",
-      "description": "La tendance sur six mois du CA de chaque région, et son total.",
+      "subtitle": "CA mensuel sur la période affichée, par région",
+      "description": "La tendance mensuelle du CA de chaque région sur la période affichée, et son total.",
       "source": {
         "name": "Grand livre"
       },
       "fields": {
         "trend": {
-          "label": "Tendance 6 mois"
+          "label": "Tendance"
         },
         "region": {
           "values": {
@@ -233,14 +233,14 @@
     },
     "de": {
       "title": "Regionale Trends",
-      "subtitle": "Monatsumsatz, April bis September",
-      "description": "Sechsmonatstrend und Summe des Umsatzes jeder Region.",
+      "subtitle": "Monatsumsatz im gezeigten Zeitraum, nach Region",
+      "description": "Monatstrend und Summe des Umsatzes jeder Region im gezeigten Zeitraum.",
       "source": {
         "name": "Hauptbuch"
       },
       "fields": {
         "trend": {
-          "label": "6-Monats-Trend"
+          "label": "Trend"
         },
         "total": {
           "label": "Gesamt"

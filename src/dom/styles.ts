@@ -401,6 +401,12 @@ export const BASE_CSS = `
 .fft-headline-caption { font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-text-secondary); }
 .fft-area[data-gradient] { fill-opacity: 1; }
 .fft-body { position: relative; min-width: 0; transition: opacity 377ms var(--fft-ease); }
+/* The body takes the height a dashboard row gives the card, so views that fill (data-fill) can measure it (ctx.room). */
+.fft-widget > .fft-body { flex: 1 1 auto; }
+.fft-widget > .fft-body:has(> [data-fill]) { display: flex; flex-direction: column; justify-content: center; }
+/* Variance: the chart floats centred in its room and never holds the row taller than its natural height. */
+.fft-var-chart { position: relative; flex: 1 1 auto; }
+.fft-var-chart > svg { position: absolute; left: 0; top: 50%; transform: translateY(-50%); }
 .fft-widget[aria-busy="true"] .fft-body { opacity: 0.55; }
 .fft-message { margin: 0; padding: 21px 0; text-align: center; color: var(--fft-text-secondary); }
 .fft-message ul { margin: 8px 0 0; padding: 0; list-style: none; text-align: left; font-size: var(--fft-fs-s); line-height: 21px; }
@@ -774,6 +780,21 @@ export const BASE_CSS = `
   .fft-table :is(th, td):first-child { padding-left: 0; }
   .fft-table :is(th, td):last-child { padding-right: 0; }
 }
+/* A table of four columns or more on a phone-narrow card: one small card per row, the first column as its heading and
+   each other column as a label and its value, instead of a squeezed grid that wraps a word per line and scrolls sideways. */
+@container (max-width: 480px) {
+  .fft-table[data-stack], .fft-table[data-stack] :is(tbody, tfoot, tr, td) { display: block; width: auto; }
+  .fft-table[data-stack] thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .fft-table[data-stack] tr { padding: 13px 0; border-bottom: 1px solid var(--fft-grid); }
+  .fft-table[data-stack] tbody tr:first-child { padding-top: 0; }
+  .fft-table[data-stack] td { padding: 2px 0; border: 0; text-align: left; }
+  .fft-table[data-stack] td:first-child { padding: 0 0 5px; font-weight: 600; color: var(--fft-text); }
+  .fft-table[data-stack] td:not(:first-child) { display: grid; grid-template-columns: minmax(89px, 38%) minmax(0, 1fr); gap: 8px; align-items: baseline; }
+  .fft-table[data-stack] td:not(:first-child)::before { content: attr(data-label); font-size: var(--fft-fs-s); color: var(--fft-muted); }
+  /* Values keep their own width (a status pill is a pill, not a bar across the row). */
+  .fft-table[data-stack] td:not(:first-child) { justify-items: start; }
+  .fft-table-wrap .fft-table[data-stack] tbody td:first-child { position: static; background: none; box-shadow: none; }
+}
 .fft-sort { all: unset; display: inline-flex; align-items: center; gap: 3px; cursor: pointer; border-radius: var(--fft-radius-m); }
 .fft-sort::after { content: ""; width: 8px; font-size: var(--fft-fs-xs); line-height: 1; opacity: 0.38; }
 th[aria-sort="ascending"] .fft-sort::after { content: "▲"; opacity: 1; }
@@ -852,6 +873,7 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-day:hover, .fft-day:focus-visible { stroke: var(--fft-accent); stroke-width: 2; }
 .fft-cal-month, .fft-cal-weekday { fill: var(--fft-muted); font-size: var(--fft-fs-s); }
 .fft-heat-legend { display: flex; align-items: center; gap: 8px; font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-muted); font-variant-numeric: tabular-nums; }
+.fft-heat-legend-name { color: var(--fft-text-secondary); margin-right: 5px; }
 .fft-heat-ramp { display: flex; gap: 2px; }
 .fft-heat-ramp div { width: 21px; height: 8px; border-radius: var(--fft-radius-s); }
 
@@ -914,13 +936,16 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-ref-band { fill: color-mix(in srgb, var(--fft-text) 5%, transparent); pointer-events: none; }
 .fft-ref-label { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); font-weight: 600; font-variant-numeric: tabular-nums; pointer-events: none; }
 /* Every row shares one set of columns (subgrid), so a check by one number never shortens that row's track: bars on one scale. */
-.fft-bullets { display: grid; grid-template-columns: minmax(55px, 30%) 1fr minmax(34px, auto); gap: 13px 8px; }
+.fft-bullets { display: grid; grid-template-columns: minmax(55px, min(30%, 177px)) 1fr minmax(34px, auto); gap: 13px 8px; }
+/* In a card a dashboard row has stretched, the rows open up (to 55px apart) and centre instead of leaving an empty floor. */
+.fft-widget > .fft-body:has(> .fft-bullets) { display: flex; flex-direction: column; }
+.fft-body > .fft-bullets { flex: 1 1 auto; grid-auto-rows: minmax(auto, 42px); align-content: center; }
 .fft-bullet {
   display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: center;
   border-radius: var(--fft-radius-m); outline: none; cursor: pointer;
 }
 @supports not (grid-template-columns: subgrid) {
-  .fft-bullet { grid-template-columns: minmax(55px, 30%) 1fr 89px; column-gap: 8px; }
+  .fft-bullet { grid-template-columns: minmax(55px, min(30%, 177px)) 1fr 89px; column-gap: 8px; }
 }
 .fft-bullet:focus-visible { box-shadow: 0 0 0 2px var(--fft-ring, var(--fft-surface)), 0 0 0 3px var(--fft-accent); }
 .fft-bullet > svg { display: block; width: 100%; height: 21px; overflow: visible; }
@@ -1375,7 +1400,12 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-hbar-seg:last-child { border-radius: var(--fft-radius-s) var(--fft-radius-m) var(--fft-radius-m) var(--fft-radius-s); }
 .fft-hbars[data-active] .fft-hbar:not([data-active]) .fft-hbar-seg { opacity: var(--fft-dim); }
 .fft-hbars[data-mode="split"] { gap: 5px; }
-.fft-hbars[data-mode="split"] .fft-hbar { grid-template-columns: minmax(55px, 26%) repeat(var(--fft-splits, 2), minmax(0, 1fr)); gap: 13px; }
+/* Bars in a card a dashboard row has stretched: the rows open up (to 55px each) instead of leaving an empty floor. */
+.fft-widget > .fft-body:has(> .fft-hbar-wrap, > .fft-hbars) { display: flex; flex-direction: column; }
+.fft-body > .fft-hbar-wrap { flex: 1 1 auto; }
+.fft-hbar-wrap > .fft-hbars, .fft-body > .fft-hbars { flex: 1 1 auto; justify-content: center; }
+.fft-hbar-wrap > .fft-hbars > .fft-hbar:not(.fft-hbar-head), .fft-body > .fft-hbars > .fft-hbar { flex: 1 1 auto; max-height: 55px; }
+.fft-hbars[data-mode="split"] .fft-hbar { grid-template-columns: minmax(55px, min(26%, 144px)) repeat(var(--fft-splits, 2), minmax(0, 1fr)); gap: 13px; }
 .fft-hbars[data-mode="split"] .fft-hbar-bar { padding-right: 3px; }
 .fft-map-code { fill: var(--fft-text-secondary); opacity: 0.5; font-size: 9px; font-weight: 600; letter-spacing: 0.02em; pointer-events: none; }
 .fft-hbar-head { cursor: default; margin-bottom: 3px; }
@@ -1426,8 +1456,8 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-pager-button:hover, .fft-pager-button:focus-visible { color: var(--fft-text); background: var(--fft-grid); }
 .fft-pager-button:focus-visible { box-shadow: 0 0 0 2px var(--fft-accent); }
 .fft-pager-button:disabled { opacity: var(--fft-dim); cursor: default; background: none; }
-.fft-table-wrap[data-sticky] .fft-table :is(th, td):first-child { position: sticky; left: 0; z-index: 1; background: var(--fft-surface); box-shadow: 1px 0 0 var(--fft-grid); }
-.fft-table-wrap[data-sticky] .fft-table tbody tr:is(:hover, :focus-visible) td:first-child { background: color-mix(in srgb, var(--fft-accent) 7%, var(--fft-surface)); }
+.fft-table-wrap[data-sticky][data-overflows] .fft-table :is(th, td):first-child { position: sticky; left: 0; z-index: 1; background: var(--fft-surface); box-shadow: 1px 0 0 var(--fft-grid); }
+.fft-table-wrap[data-sticky][data-overflows] .fft-table tbody tr:is(:hover, :focus-visible) td:first-child { background: color-mix(in srgb, var(--fft-accent) 7%, var(--fft-surface)); }
 /* Maps: choropleth, symbols and locator. Land is muted, borders are the card's own surface, so regions separate quietly. */
 .fft-map-wrap { display: flex; flex-direction: column; gap: 13px; }
 .fft-map { display: block; max-width: 100%; height: auto; }
@@ -1563,7 +1593,10 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-ws-cell:not([data-state="empty"]) { cursor: pointer; }
 .fft-ws-cell:hover, .fft-ws-cell:focus-visible { box-shadow: 0 0 0 2px var(--fft-ring, var(--fft-surface)), 0 0 0 3px var(--fft-accent); }
 .fft-ws-cell[data-state="empty"] { box-shadow: inset 0 0 0 1px var(--fft-grid); }
-.fft-ws-mark { display: block; width: 62%; height: 62%; border-radius: var(--fft-radius-s); }
+.fft-ws-mark { display: block; width: auto; height: 62%; aspect-ratio: 1; max-width: 62%; border-radius: var(--fft-radius-s); }
+/* On a wide card the cells stop at 44px tall (the mark stays square inside), so twelve clients read as a compact map
+   instead of a page of 120px squares. */
+.fft-ws-cell { max-height: 44px; justify-self: center; width: 100%; max-width: 44px; }
 .fft-ws-cell[data-state="holds"] .fft-ws-mark { border-radius: var(--fft-radius-s); }
 .fft-ws-cell[data-state="opportunity"] .fft-ws-mark { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--fft-ws-color, var(--fft-accent)) 70%, var(--fft-text)); background: color-mix(in srgb, var(--fft-ws-color, var(--fft-accent)) 10%, transparent); }
 .fft-ws-cell[data-state="opportunity"] .fft-ws-mark[data-step="2"] { background: color-mix(in srgb, var(--fft-ws-color, var(--fft-accent)) 18%, transparent); }
@@ -1584,6 +1617,9 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-widget[data-animate] .fft-ws-mark { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 21ms), 610ms); }
 /* X-ray: one client on one card, part under part. */
 .fft-xray { display: flex; flex-direction: column; gap: 13px; }
+/* Beside a long neighbour (a client's story), the x-ray pins under the dashboard's filter row as the page scrolls, so the
+   client's numbers stay in view next to the events instead of leaving an empty card. */
+.fft-dashboard[data-sticky] .fft-widget > .fft-body > .fft-xray { position: sticky; top: calc(var(--fft-sticky-top, 0px) + var(--fft-filters-height, 89px) + 13px); }
 .fft-xray-head { display: flex; flex-direction: column; gap: 2px; }
 .fft-xray-name { margin: 0; font-size: var(--fft-fs-l); line-height: 26px; font-weight: 600; letter-spacing: -0.01em; }
 .fft-xray-detail { margin: 0; color: var(--fft-text-secondary); }
@@ -1624,6 +1660,9 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-history-amount { flex: none; font-weight: 600; font-variant-numeric: tabular-nums; }
 .fft-history-note { margin: 0 0 0 50px; font-size: var(--fft-fs-s); line-height: 15px; color: var(--fft-text-secondary); }
 .fft-history-more { font-size: var(--fft-fs-s); line-height: 13px; color: var(--fft-muted); }
+.fft-history-more-button { font: inherit; margin: 0 -8px; padding: 5px 8px; min-height: 30px; border: 0; border-radius: var(--fft-radius-m); background: none; color: var(--fft-accent); cursor: pointer; }
+.fft-history-more-button:hover { background: color-mix(in srgb, var(--fft-accent) 8%, transparent); }
+.fft-history-more-button:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 1px; }
 .fft-widget[data-animate] .fft-history-event { animation: fft-fade 610ms var(--fft-ease) both; animation-delay: min(calc(var(--fft-i, 0) * 34ms), 610ms); }
 @container (max-width: 380px) {
   .fft-xray-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -1656,6 +1695,8 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 /* Scatter quadrants and always-on names: two hairlines, four faint words in the corners, names clear of the dots. */
 .fft-quadrant-line { stroke: var(--fft-axis); stroke-width: 1; stroke-dasharray: 2 3; pointer-events: none; }
 .fft-quadrant-label { fill: var(--fft-muted); font-size: var(--fft-fs-s); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; pointer-events: none; }
+/* A corner word a dot or a point's name lands on steps aside: the data first. */
+.fft-quadrant-label[data-covered] { opacity: 0; }
 .fft-point-label { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); pointer-events: none; paint-order: stroke; stroke: var(--fft-ring, var(--fft-surface)); stroke-width: 3; stroke-linejoin: round; }
 .fft-chart[data-active] .fft-point-label { fill: var(--fft-muted); }
 
@@ -1731,6 +1772,7 @@ ul.fft-map-legend { margin-top: 0; }
 .fft-rag-sum-count { font-size: var(--fft-fs-l); line-height: 21px; font-weight: 600; color: var(--fft-text); font-variant-numeric: tabular-nums; }
 .fft-rag-sum-share { color: var(--fft-muted); font-variant-numeric: tabular-nums; }
 .fft-rag-scroll { overflow-x: auto; }
+.fft-rag-scroll[data-split] { display: flex; align-items: flex-start; justify-content: space-between; gap: 34px; }
 .fft-rag-table, .fft-ragtrend-table { border-collapse: separate; border-spacing: 3px; width: 100%; font-size: var(--fft-fs-s); line-height: 13px; }
 .fft-rag-table th, .fft-ragtrend-table th { font-weight: 500; color: var(--fft-text-secondary); text-align: center; vertical-align: bottom; }
 .fft-rag-corner { text-align: left !important; font-size: var(--fft-fs-s); color: var(--fft-muted) !important; }

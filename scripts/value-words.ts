@@ -222,7 +222,6 @@ export const VALUE_WORDS: Record<string, [string, string]> = {
   "Market effect": ["Effet marché", "Markteffekt"],
   Outflows: ["Sorties", "Abflüsse"],
   "Lost clients": ["Clients perdus", "Verlorene Kunden"],
-  "Revenue 2025, January to October": ["CA 2025, janvier à octobre", "Umsatz 2025, Januar bis Oktober"],
   // Regulatory topics, stakeholders and milestones.
   "Operational resilience": ["Résilience opérationnelle", "Operative Resilienz"],
   "AML & sanctions": ["LCB-FT et sanctions", "Geldwäsche und Sanktionen"],

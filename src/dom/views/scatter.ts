@@ -6,7 +6,7 @@ import { referenceValues, resolveReferences } from "../../core/reference.ts";
 import { CHAR_WIDTH, hullPath, linearScale } from "../layout.ts";
 import { drawReferences } from "./reference.ts";
 import { DEEMPHASIS, drawNotes, highlights, pinNotes, tickFormatter } from "./chart.ts";
-import { hiddenTableOf, html, legendList, selectable, svg } from "./shared.ts";
+import { hiddenTableOf, html, legendList, selectable, svg, fillHeight } from "./shared.ts";
 import { roving } from "./focus.ts";
 import { wordsFor } from "./words.ts";
 
@@ -85,7 +85,8 @@ export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) =>
   const left = Math.max(28, Math.max(...yTicks.map((t) => yText(t).length)) * CHAR_WIDTH + 12);
   const margin = { top: 21, right: 13, bottom: 39, left };
   const width = Math.max(ctx.width, left + 89);
-  const height = ctx.height;
+  // Grows into a stretched card (up to square), so the points spread out instead of piling up in a strip.
+  const height = fillHeight(ctx, ctx.height, ((colorField && groups.length > 1) || size) ? 55 : 13, Math.min(610, width));
   const plot = { x: margin.left, y: margin.top, w: width - margin.left - margin.right, h: height - margin.top - margin.bottom };
   const xs = linearScale(xValues, [plot.x, plot.x + plot.w], { includeZero: false });
   /** Which quadrant a point falls in, top-left first then clockwise, as the labels are given. */
@@ -95,8 +96,38 @@ export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) =>
     return i < 0 ? "" : quadrants?.labels?.[i] ?? wordsFor(ctx).quadrants[i]!;
   };
   const ys = linearScale(yValues, [plot.y + plot.h, plot.y], { includeZero: false });
+  // Points that share a whole-number y (a score of 1 to 5) swarm apart inside their band instead of piling onto one
+  // line: each keeps its x and takes the nearest free height, biggest first, never past 40% of the gap to the next level.
+  const lift = new Map<object, number>();
+  const levels = [...new Set(points.map((p) => p.y))].sort((a, b) => a - b);
+  if (points.length > levels.length && levels.length <= 12 && levels.every((v) => Number.isInteger(v))) {
+    const gaps = levels.slice(1).map((v, i) => Math.abs(ys(v) - ys(levels[i]!)));
+    const reach = (gaps.length ? Math.min(...gaps) : plot.h / 2) * 0.4;
+    for (const level of levels) {
+      const placed: { x: number; y: number; r: number }[] = [];
+      for (const p of points.filter((q) => q.y === level).sort((a, b) => b.r - a.r)) {
+        const x = xs(p.x);
+        const clash = (y: number) => placed.reduce((worst, o) => Math.max(worst, o.r + p.r + 1 - Math.hypot(o.x - x, o.y - y)), 0);
+        let best = 0;
+        let least = clash(0);
+        for (let step = 2; least > 0 && step <= reach; step += 2) {
+          for (const y of [-step, step]) {
+            // Never out of the plot: a top or bottom level swarms inward only.
+            if (ys(level) + y - p.r < plot.y || ys(level) + y + p.r > plot.y + plot.h) continue;
+            const c = clash(y);
+            if (c < least) [best, least] = [y, c];
+            if (c <= 0) break;
+          }
+        }
+        placed.push({ x, y: best, r: p.r });
+        if (best) lift.set(p, best);
+      }
+    }
+  }
+  const yOf = (p: (typeof points)[number]): number => ys(p.y) + (lift.get(p) ?? 0);
 
   const wrap = html(doc, "div", "fft-chart");
+  wrap.dataset.fill = "";
   if ((colorField && groups.length > 1) || size) {
     // One legend per chart (none in a small-multiples panel: the widget draws a shared one).
     const keys = colorField && groups.length > 1 ? groups.map((group, i) => ({ label: ctx.format(group, colorField), color: groupColor(i), shape: "dot" as const })) : [];
@@ -132,7 +163,11 @@ export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) =>
   chart.append(xTitle, yTitle);
   const refsBelow = svg(doc, "g");
   const refsAbove = svg(doc, "g");
-  const dotBoxes = points.map((p) => ({ x: xs(p.x) - p.r, y: ys(p.y) - p.r, width: p.r * 2, height: p.r * 2 }));
+  const dotBoxes = points.map((p) => ({ x: xs(p.x) - p.r, y: yOf(p) - p.r, width: p.r * 2, height: p.r * 2 }));
+  type Box = { x: number; y: number; width: number; height: number };
+  const overlaps = (a: Box, b: Box) => a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
+  const cornerWords: { node: SVGElement; box: Box }[] = [];
+  const labelBoxes: Box[] = [];
   if (quadrants) {
     // Two hairlines split the plot; a faint word sits in each corner, clear of the axes.
     const splits = svg(doc, "g", { class: "fft-quadrants" });
@@ -152,6 +187,9 @@ export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) =>
       const text = svg(doc, "text", { class: "fft-quadrant-label", x: corner[0], y: corner[1], "text-anchor": corner[2] });
       text.textContent = word;
       splits.append(text);
+      // Uppercase and spaced: about 1.25 characters wide each. A dot or a point's name that lands on it wins (below).
+      const w = word.length * CHAR_WIDTH * 1.25;
+      cornerWords.push({ node: text, box: { x: corner[2] === "end" ? corner[0] - w : corner[0], y: corner[1] - 10, width: w, height: 13 } });
     });
     chart.append(refsBelow, splits);
   } else chart.append(refsBelow);
@@ -162,7 +200,7 @@ export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) =>
     clusters.forEach((name, c) => {
       const members = points.filter((p) => p.cluster === c);
       if (!members.length) return;
-      const placed = members.map((p) => ({ x: xs(p.x), y: ys(p.y) }));
+      const placed = members.map((p) => ({ x: xs(p.x), y: yOf(p) }));
       const pad = Math.max(13, ...members.map((p) => p.r + 8));
       const color = series ? "var(--fft-text-secondary)" : clusterColor(c);
       const hull = svg(doc, "path", { class: "fft-cluster-hull", d: hullPath(placed, pad), "data-cluster": name });
@@ -192,7 +230,7 @@ export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) =>
     (note: Annotation) => points.findIndex((p) => (label !== undefined && String(p.row[label]) === String(note.x)) || String(p.x) === String(note.x)),
     (note: Annotation, i) => {
       const point = points[i] as (typeof points)[number];
-      return { x: xs(point.x), y: typeof note.y === "number" ? ys(note.y) : ys(point.y) };
+      return { x: xs(point.x), y: typeof note.y === "number" ? ys(note.y) : yOf(point) };
     },
   );
   const dense = points.length > DENSE_POINTS;
@@ -213,7 +251,7 @@ export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) =>
   if (dense) drawDense();
   else points.forEach((point, i) => {
     const cx = xs(point.x);
-    const cy = ys(point.y);
+    const cy = yOf(point);
     const on = isOn(point);
     const color = on ? groupColor(point.group) : DEEMPHASIS;
     const dot = svg(doc, "circle", { class: size ? "fft-point fft-point-bubble" : "fft-point", cx, cy, r: Math.round(point.r * 100) / 100, style: `--fft-i: ${i}` });
@@ -249,7 +287,7 @@ export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) =>
     points.forEach((point) => {
       const color = isOn(point) ? groupColor(point.group) : DEEMPHASIS;
       const r = Math.round(point.r * 100) / 100;
-      const [cx, cy] = [Math.round(xs(point.x) * 100) / 100, Math.round(ys(point.y) * 100) / 100];
+      const [cx, cy] = [Math.round(xs(point.x) * 100) / 100, Math.round(yOf(point) * 100) / 100];
       const list = paths.get(color) ?? [];
       list.push(`M${cx - r},${cy}a${r},${r} 0 1,0 ${r * 2},0a${r},${r} 0 1,0 ${-r * 2},0`);
       paths.set(color, list);
@@ -264,7 +302,7 @@ export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) =>
     const CELL = 21;
     const buckets = new Map<string, number[]>();
     points.forEach((point, i) => {
-      const key = `${Math.floor(xs(point.x) / CELL)},${Math.floor(ys(point.y) / CELL)}`;
+      const key = `${Math.floor(xs(point.x) / CELL)},${Math.floor(yOf(point) / CELL)}`;
       const list = buckets.get(key) ?? [];
       list.push(i);
       buckets.set(key, list);
@@ -277,7 +315,7 @@ export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) =>
         for (let dy = -1; dy <= 1; dy++) {
           for (const i of buckets.get(`${bx + dx},${by + dy}`) ?? []) {
             const point = points[i] as (typeof points)[number];
-            const distance = Math.hypot(xs(point.x) - px, ys(point.y) - py) - point.r;
+            const distance = Math.hypot(xs(point.x) - px, yOf(point) - py) - point.r;
             if (distance < bestDistance) [best, bestDistance] = [i, distance];
           }
         }
@@ -298,7 +336,7 @@ export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) =>
       const point = points[i] as (typeof points)[number];
       const color = isOn(point) ? groupColor(point.group) : DEEMPHASIS;
       probe.setAttribute("cx", String(xs(point.x)));
-      probe.setAttribute("cy", String(ys(point.y)));
+      probe.setAttribute("cy", String(yOf(point)));
       probe.setAttribute("r", String(Math.max(5, point.r + 1)));
       probe.style.setProperty("fill", color);
       wrap.setAttribute("data-active", "");
@@ -357,13 +395,13 @@ export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) =>
     // Always-on names beside the dots, biggest dots first, each skipped when it would land on an earlier name or a dot.
     const names = svg(doc, "g", { class: "fft-point-labels" });
     names.setAttribute("aria-hidden", "true");
-    const taken: { x: number; y: number; width: number; height: number }[] = points.map((p) => ({ x: xs(p.x) - p.r, y: ys(p.y) - p.r, width: p.r * 2, height: p.r * 2 }));
+    const taken: { x: number; y: number; width: number; height: number }[] = points.map((p) => ({ x: xs(p.x) - p.r, y: yOf(p) - p.r, width: p.r * 2, height: p.r * 2 }));
     const clash = (a: { x: number; y: number; width: number; height: number }) => taken.some((b) => a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y);
     for (const point of points) {
       const text = ctx.format(point.row[label], label);
       if (!text) continue;
       const width = text.length * CHAR_WIDTH;
-      const [cx, cy] = [xs(point.x), ys(point.y)];
+      const [cx, cy] = [xs(point.x), yOf(point)];
       // Right of the dot first, then left, then above, then below: the first spot that is free and inside the plot.
       // A dot on the plot's top edge may lend its name a few pixels of the top margin.
       const spots: [number, number, string][] = [
@@ -379,10 +417,16 @@ export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) =>
         node.textContent = text;
         names.append(node);
         taken.push(box);
+        labelBoxes.push(box);
         break;
       }
     }
     chart.append(names);
+  }
+  // A corner word under a dot or a point's name steps aside: the data speaks first, the quadrant's name second.
+  for (const { node, box } of cornerWords) {
+    const covered = points.some((p) => overlaps(box, { x: xs(p.x) - p.r, y: yOf(p) - p.r, width: p.r * 2, height: p.r * 2 })) || labelBoxes.some((b) => overlaps(box, b));
+    if (covered) node.setAttribute("data-covered", "");
   }
   chart.append(overlay);
   if (!dense) roving([...overlay.children]);

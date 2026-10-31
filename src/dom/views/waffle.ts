@@ -35,9 +35,17 @@ export const renderWaffle: ViewRenderer<WaffleView> = (ctx) => {
   const amountText = (part: { row: Row; amount: number }) => even(part.amount);
 
   // Never wider than the card, so the browser never squeezes the squares out of shape; every square is the same size.
-  const size = Math.min(figureSize(ctx.width), Math.max(89, Math.floor(ctx.width)));
+  // In a card a dashboard row has stretched, the grid grows into the spare height (up to the next figure size), so
+  // the card is not a small grid over an empty floor. Under 440px the legend sits under the grid and shares the room.
+  const base = figureSize(ctx.width);
+  const stacked = ctx.width < 440;
+  const legendRoom = stacked ? 13 + parts.length * 26 + 8 : 0;
+  const fit = Math.floor((ctx.room ?? 0) - legendRoom);
+  const grown = Math.min(base >= 233 ? 377 : 233, stacked ? ctx.width : ctx.width - 233, Math.max(base, fit));
+  const size = Math.min(Math.max(base, grown), Math.max(89, Math.floor(ctx.width)));
   const cell = (size - GAP * (SIDE - 1)) / SIDE;
   const wrap = html(doc, "div", "fft-waffle");
+  wrap.dataset.fill = "";
   const chart = svg(doc, "svg", { width: size, height: size, viewBox: `0 0 ${size} ${size}` });
   chart.setAttribute("role", "group");
   chart.setAttribute("aria-label", wordsFor(ctx).aria.waffle(ctx.label(value), ctx.label(label)));

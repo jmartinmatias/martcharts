@@ -26,7 +26,8 @@ interface Event {
 export const renderHistory: ViewRenderer<HistoryView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
   const { date, title, kind, note, amount, group } = ctx.view;
-  const limit = typeof ctx.view.limit === "number" && ctx.view.limit >= 1 ? Math.floor(ctx.view.limit) : DEFAULT_LIMIT;
+  // On a phone-narrow card a story opens on its latest 8 events (the rest a tap away), not a 30-event scroll.
+  const limit = typeof ctx.view.limit === "number" && ctx.view.limit >= 1 ? Math.floor(ctx.view.limit) : ctx.width < 480 ? 8 : DEFAULT_LIMIT;
   const newestFirst = ctx.view.order !== "asc";
   const locale = ctx.spec.locale;
   const monthYear = new Intl.DateTimeFormat(locale, { month: "long", year: "numeric", timeZone: "UTC" });
@@ -62,10 +63,10 @@ export const renderHistory: ViewRenderer<HistoryView> = (ctx) => {
 
   const stops: Element[] = [];
   const active = activeGroup(wrap, ctx.tooltip);
-  const drawList = (list: Event[]) => {
+  const drawList = (list: Event[], cap = limit): HTMLElement => {
     const rail = html(doc, "ol", "fft-history");
     let lastMonth = "";
-    list.slice(0, limit).forEach((event, i) => {
+    list.slice(0, cap).forEach((event, i) => {
       if (event.month !== lastMonth) {
         // The month heads its events as an item of its own, so a screen reader hears it where it changes too.
         rail.append(html(doc, "li", "fft-history-month", monthYear.format(new Date(event.day * DAY))));
@@ -103,9 +104,21 @@ export const renderHistory: ViewRenderer<HistoryView> = (ctx) => {
       item.setAttribute("aria-label", `${when}: ${titleText}${kind ? `, ${kindText(String(row[kind]))}` : ""}${sum !== null && amount ? `, ${ctx.format(row[amount], amount)}` : ""}${noteText ? `. ${noteText}` : ""}`);
       rail.append(item);
     });
-    if (list.length > limit) {
-      // An ordinary list item: a list may only hold items, so the count of the rest is one too.
-      rail.append(html(doc, "li", "fft-history-more", wordsFor(ctx).nMore(list.length - limit)));
+    if (list.length > cap) {
+      // An ordinary list item (a list may only hold items) holding a button: the rest of the story opens in place, and
+      // focus goes to the first event it reveals.
+      const more = html(doc, "li", "fft-history-more");
+      const button = html(doc, "button", "fft-history-more-button", wordsFor(ctx).nMore(list.length - cap));
+      (button as HTMLButtonElement).type = "button";
+      button.addEventListener("click", () => {
+        const shown = rail.querySelectorAll(".fft-history-event").length;
+        const full = drawList(list, list.length);
+        rail.replaceWith(full);
+        roving(stops.filter((stop) => stop.isConnected));
+        (full.querySelectorAll<HTMLElement>(".fft-history-event")[shown])?.focus();
+      });
+      more.append(button);
+      rail.append(more);
     }
     return rail;
   };

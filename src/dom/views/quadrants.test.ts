@@ -105,4 +105,20 @@ describe("scatter quadrants", () => {
     const plain: WidgetSpec = { data: { type: "inline", rows: rules }, view: { type: "scatter", x: "pressure", y: "impact", label: "name", labels: true } };
     expect(explainChart(plain, rules)).toMatch(/The standouts carry their names on the chart\./);
   });
+  test("a corner word a dot lands on fades (data-covered), and stays in the chart", async () => {
+    // AI Act sits at the top-right corner, on "Act now"; the bottom-left word has nothing on it.
+    await draw({ rows: [...rules, { name: "Corner", pressure: 100, impact: 5 }], view: { ...view, x: "pressure", y: "impact" } });
+    const words = all(".fft-quadrant-label");
+    expect(words.map((w) => w.textContent)).toEqual(["Prepare", "Act now", "Monitor", "Watch"]);
+    expect(words[1]?.hasAttribute("data-covered")).toBe(true);
+    expect(words[3]?.hasAttribute("data-covered")).toBe(false);
+  });
+
+  test("points that share a whole-number y swarm apart inside their band, each keeping its x", async () => {
+    const crowd = [60, 61, 62, 63, 64].map((pressure, i) => ({ name: `R${i}`, pressure, impact: 3 }));
+    await draw({ rows: [...crowd, { name: "Low", pressure: 10, impact: 1 }, { name: "High", pressure: 90, impact: 5 }], view: { type: "scatter", x: "pressure", y: "impact" } });
+    const dots = all("circle.fft-point").filter((d) => !d.classList.contains("fft-point-probe"));
+    const ys = new Set(dots.map((d) => Math.round(num(d, "cy"))));
+    expect(ys.size).toBeGreaterThan(3);
+  });
 });

@@ -307,6 +307,38 @@ describe("validateSpec", () => {
   });
 });
 
+describe("format options the format does not know", () => {
+  const spec = (format: unknown) =>
+    ({ id: "t", title: "T", data: { type: "inline", rows: [{ a: "x", v: 1 }] }, fields: { v: { format } }, view: { type: "table", columns: ["a", "v"] } }) as unknown as WidgetSpec;
+
+  test("are a warning that names the nearest option, not a silent no-op", () => {
+    const issues = validateSpec(spec({ type: "number", decmals: 2 }));
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toMatchObject({ level: "warning", path: "fields.v.format.decmals" });
+    expect(issues[0]?.message).toContain('Did you mean "decimals"?');
+    expect(hasErrors(issues)).toBe(false);
+  });
+
+  test("inside a wrapping format too", () => {
+    const issues = validateSpec(spec({ type: "bar", format: { type: "percent", digit: 1 } }));
+    expect(issues.map((issue) => issue.path)).toEqual(["fields.v.format.format.digit"]);
+  });
+
+  test("a view option or a spec field nobody reads is a warning too, with the nearest name", () => {
+    const base = { id: "t", title: "T", data: { type: "inline", rows: [{ a: "x", v: 1 }] } };
+    const view = validateSpec({ ...base, view: { type: "table", columns: ["a", "v"], stickyFrist: true } } as unknown as WidgetSpec);
+    expect(view).toMatchObject([{ level: "warning", path: "view.stickyFrist" }]);
+    expect(view[0]?.message).toContain('Did you mean "stickyFirst"?');
+    const top = validateSpec({ ...base, subtitel: "x", view: { type: "table", columns: ["a", "v"] } } as unknown as WidgetSpec);
+    expect(top).toMatchObject([{ level: "warning", path: "subtitel" }]);
+    expect(top[0]?.message).toContain('Did you mean "subtitle"?');
+  });
+
+  test("known options pass quietly", () => {
+    expect(validateSpec(spec({ type: "heat", min: 0, max: 2, decimals: 1 }))).toEqual([]);
+  });
+});
+
 describe("area extent for small multiples", () => {
   test("a stream spans half of each column's total either side of the center line", async () => {
     const { getBlock } = await import("./registry.ts");

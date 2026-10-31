@@ -4,8 +4,8 @@ import type { TooltipItem, ViewRenderer } from "../../core/view-context.ts";
 import type { WaterfallView } from "../../core/views.ts";
 import { bands, CHAR_WIDTH, layoutWaterfall, linearScale, textWidth } from "../layout.ts";
 import { highlights } from "./chart.ts";
-import { hiddenTableOf, html, selectable, svg } from "./shared.ts";
-import { edgeAnchor, edgeX } from "./label-fit.ts";
+import { hiddenTableOf, html, selectable, svg, fillHeight } from "./shared.ts";
+import { edgeAnchor, edgeX, fitLabel } from "./label-fit.ts";
 import { roving } from "./focus.ts";
 import { wordsFor } from "./words.ts";
 
@@ -48,7 +48,35 @@ export const renderWaterfall: ViewRenderer<WaterfallView & { highlight?: string 
   // gridlines, a quiet baseline only, and the room an axis would take goes to the bars.
   const margin = { top: 21, right: 5, bottom: 26, left: 5 };
   const width = Math.max(ctx.width, margin.left + 89);
-  const height = ctx.height;
+  // Step names wrap onto up to three lines under their bar, so every step keeps its name; only when a name still does
+  // not fit its slot do the names thin out to every nth.
+  const slotRoom = (width - margin.left - margin.right) / Math.max(1, steps.length) - 6;
+  const wrapName = (name: string): string[] => {
+    const lines: string[] = [];
+    for (const word of name.split(/\s+/)) {
+      const last = lines[lines.length - 1];
+      if (last !== undefined && textWidth(`${last} ${word}`, 11 * 1.06) <= slotRoom) lines[lines.length - 1] = `${last} ${word}`;
+      else lines.push(word);
+    }
+    return lines;
+  };
+  const wrapped = names.map(wrapName);
+  const wraps = wrapped.every((lines) => lines.length <= 3 && lines.every((line) => textWidth(line, 11 * 1.06) <= slotRoom));
+  const nameLines = wraps ? Math.max(1, ...wrapped.map((lines) => lines.length)) : 1;
+  margin.bottom += (nameLines - 1) * 13;
+  // Names too long to wrap lean at 40 degrees instead, every one still named, as long as a slot is a line tall.
+  const leans = !wraps && slotRoom + 6 >= 13 && !ctx.inFacet;
+  const longestName = Math.max(0, ...names.map((name) => textWidth(name, 11 * 1.06)));
+  if (leans) margin.bottom += Math.ceil(longestName * Math.sin(Math.PI * 40 / 180)) - 8;
+  // The first name leans down and left past its bar: the plot moves right to make room for it (up to a quarter of
+  // the card), so it is read whole rather than cut.
+  if (leans) {
+    const firstRun = textWidth(names[0] ?? "", 11 * 1.06) * Math.cos((Math.PI * 40) / 180);
+    const firstCenter = margin.left + (width - margin.left - margin.right) / Math.max(1, steps.length) / 2;
+    const need = Math.ceil(firstRun - (firstCenter + 4) + 12);
+    if (need > 0) margin.left += Math.min(need, Math.round(width * 0.25));
+  }
+  const height = ctx.inFacet || ctx.spec.style?.height ? ctx.height : fillHeight(ctx, ctx.height, 8, Math.max(ctx.height, Math.round(width * 0.75)));
   const plot = { x: margin.left, y: margin.top, w: width - margin.left - margin.right, h: height - margin.top - margin.bottom };
   const y = linearScale(levels, [plot.y + plot.h, plot.y], { includeZero: !fit });
   const floor = y.domain[0];
@@ -56,6 +84,7 @@ export const renderWaterfall: ViewRenderer<WaterfallView & { highlight?: string 
   const barWidth = Math.max(1, Math.min(34, (slots[0]?.width ?? 0) * 0.618));
 
   const wrap = html(doc, "div", "fft-chart");
+  if (!ctx.inFacet && !ctx.spec.style?.height) wrap.dataset.fill = "";
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
   chart.setAttribute("aria-label", wordsFor(ctx).aria.waterfall(ctx.label(value), ctx.label(label)));
@@ -64,7 +93,7 @@ export const renderWaterfall: ViewRenderer<WaterfallView & { highlight?: string 
   chart.append(svg(doc, "line", { class: "fft-baseline", x1: plot.x, x2: plot.x + plot.w, y1: base, y2: base }));
 
   const widest = Math.max(...names.map((name) => name.length)) * CHAR_WIDTH + 8;
-  const every = Math.max(1, Math.ceil((steps.length * widest) / plot.w));
+  const every = wraps || leans ? 1 : Math.max(1, Math.ceil((steps.length * widest) / plot.w));
   const marks = svg(doc, "g");
   const overlay = svg(doc, "g");
   const captions: { node: SVGTextElement; x: number; half: number; up: boolean }[] = [];
@@ -97,8 +126,24 @@ export const renderWaterfall: ViewRenderer<WaterfallView & { highlight?: string 
     if (i % every === 0) {
       const word = names[i] ?? "";
       const anchor = edgeAnchor(slot.center, word, width);
-      const text = svg(doc, "text", { class: "fft-tick fft-tick-x", x: edgeX(slot.center, anchor, width), y: plot.y + plot.h + 18, "text-anchor": anchor });
-      text.textContent = word;
+      const lines = wraps ? (wrapped[i] ?? [word]) : [word];
+      const ty = plot.y + plot.h + (leans ? 13 : 18);
+      // The first and last names keep inside the card: anchored by their widest line, as a single line is.
+      const widestLine = lines.reduce((a, b) => (textWidth(b) > textWidth(a) ? b : a), "");
+      const lineAnchor = edgeAnchor(slot.center, widestLine, width);
+      const lineX = edgeX(slot.center, lineAnchor, width);
+      const text = leans
+        ? svg(doc, "text", { class: "fft-tick fft-tick-x", x: slot.center + 4, y: ty, "text-anchor": "end", transform: `rotate(-40 ${slot.center + 4} ${ty})` })
+        : svg(doc, "text", { class: "fft-tick fft-tick-x", x: wraps ? lineX : edgeX(slot.center, anchor, width), y: ty, "text-anchor": wraps ? lineAnchor : anchor });
+      // A leaning name runs down and to the left of its bar; near the card's left edge it is cut to the room there.
+      if (leans) text.textContent = fitLabel(word, (slot.center + 4) / Math.cos((Math.PI * 40) / 180) - 4, 11 * 1.06);
+      else if (lines.length === 1) text.textContent = word;
+      else
+        lines.forEach((line, k) => {
+          const span = svg(doc, "tspan", { x: lineX, dy: k === 0 ? 0 : 13 });
+          span.textContent = line;
+          text.append(span);
+        });
       chart.append(text);
     }
 

@@ -70,6 +70,14 @@ describe("history view (a client's story)", () => {
     expect(texts(".fft-history-more")).toEqual(["2 more"]);
   });
 
+  test("the more line is a button that opens the rest of the story in place, focus on the first event it reveals", async () => {
+    await draw({ rows: events, fields, view: { ...view, limit: 3 } });
+    (target.querySelector(".fft-history-more-button") as HTMLButtonElement).click();
+    expect(all(".fft-history-event").length).toBe(5);
+    expect(all(".fft-history-more").length).toBe(0);
+    expect(document.activeElement).toBe(all(".fft-history-event")[3]);
+  });
+
   test("a group field makes one list per client under its own heading", async () => {
     const rows = events.map((event, i) => ({ ...event, client: i % 2 ? "Keller" : "Aldana" }));
     await draw({ rows, fields, view: { ...view, group: "client" } });

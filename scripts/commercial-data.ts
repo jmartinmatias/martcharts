@@ -515,7 +515,7 @@ for (const row of commercialSummary) {
 
 // The revenue bridge per client: each step is the same share of the client's revenue as of the book's, and a
 // client's steps add up to its revenue, so the bridge ends on the book's revenue under any filter.
-const BRIDGE: [string, number][] = [["Revenue 2025, January to October", 0.91], ["New clients", 0.07], ["Deepening", 0.06], ["Market effect", 0.03], ["Pricing", -0.02], ["Outflows", -0.03], ["Lost clients", -0.02]];
+const BRIDGE: [string, number][] = [["2025", 0.91], ["New clients", 0.07], ["Deepening", 0.06], ["Market effect", 0.03], ["Pricing", -0.02], ["Outflows", -0.03], ["Lost clients", -0.02]];
 const bridgeRows = BRIDGE.flatMap(([step]) => clients.map((c) => ({ step, client: c.name, segment: c.segment, rm: c.rm, amount: 0 })));
 for (const c of clients) {
   let left = c.revenue;

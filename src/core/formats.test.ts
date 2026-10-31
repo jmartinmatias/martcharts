@@ -131,6 +131,9 @@ describe("delta format", () => {
 });
 
 describe("heat format", () => {
+  test("a decimals beside min and max sets the places when no format is given", () => {
+    expect(formatValue(0.948, { type: "heat", min: 0.4, max: 1.8, decimals: 1 }, en)).toBe("0.9");
+  });
   test("as plain text it is the number in its inner format", () => {
     expect(formatValue(1200, { type: "heat", format: { type: "currency", currency: "EUR", decimals: 0 } }, en)).toBe("€1,200");
   });

@@ -17,6 +17,14 @@ export const SVG_NS = "http://www.w3.org/2000/svg";
  * Fibonacci steps of 144px, 233px from 480px wide, and 377px from 900px wide
  * (an expanded widget, for example).
  */
+/**
+ * Chart height for a view that fills a card a dashboard row has stretched (ctx.room): the room left after `reserve`
+ * (legends, notes), never under the view's natural height nor over `max`. The view marks its outer element data-fill.
+ */
+export function fillHeight(ctx: { room?: number }, natural: number, reserve = 0, max = 610): number {
+  return Math.round(Math.max(natural, Math.min((ctx.room ?? 0) - reserve, max)));
+}
+
 export function figureSize(width: number): 144 | 233 | 377 {
   return width >= 900 ? 377 : width >= 480 ? 233 : 144;
 }
@@ -208,11 +216,17 @@ export function hiddenTable(doc: Document, headers: string[], rows: string[][]):
 export function buildTable(ctx: ViewContext<{ type: string }>, rows: Row[], columns: string[], interactive: boolean): HTMLTableElement {
   const doc = ctx.el.ownerDocument;
   const table = html(doc, "table", "fft-table");
+  // Four columns or more stack into one small card per row on a phone-narrow card (CSS); the roles keep it a table
+  // for assistive technology once its parts are laid out as blocks.
+  if (columns.length >= 4) table.dataset.stack = "";
+  table.setAttribute("role", "table");
   const numeric = new Set(columns.filter((field) => isNumericColumn(rows, field)));
   const headRow = html(doc, "tr");
+  headRow.setAttribute("role", "row");
   for (const field of columns) {
     const th = html(doc, "th", numeric.has(field) ? "fft-num" : undefined, ctx.label(field));
     th.scope = "col";
+    th.setAttribute("role", "columnheader");
     headRow.append(th);
   }
   const head = html(doc, "thead");
@@ -221,8 +235,11 @@ export function buildTable(ctx: ViewContext<{ type: string }>, rows: Row[], colu
   const extras = columnContext(ctx, rows, columns);
   for (const row of rows) {
     const tr = html(doc, "tr");
+    tr.setAttribute("role", "row");
     for (const field of columns) {
       const td = html(doc, "td", numeric.has(field) ? "fft-num" : undefined);
+      td.setAttribute("role", "cell");
+      td.dataset.label = ctx.label(field);
       td.append(ctx.cell(row[field], field, extras.get(field)));
       tr.append(td);
     }

@@ -81,10 +81,19 @@ export const renderRagtrend: ViewRenderer<RagtrendView> = (ctx) => {
   const SPACING = 3;
   const narrow = ctx.width < 480;
   const longestName = Math.max(0, ...ordered.map((run) => textWidth(run.name, 11, 500)));
-  const nameW = Math.round(Math.min(Math.max(72, longestName + 13), ctx.width * (narrow ? 0.3 : 0.34)));
-  const nowW = narrow ? 30 : Math.round(Math.max(...[...seen, "N" as Rag].map((s) => textWidth(word(s), 11, 600))) + 34);
-  const free = ctx.width - nameW - nowW - SPACING * (keys.length + 3);
+  // A long list on a wide card reads in two tables side by side, each sized to half the card (see below).
+  const halfRoom = Math.floor((ctx.width - 34) / 2) - 4;
+  const split = !narrow && !ctx.inFacet && ordered.length > 16 && halfRoom >= Math.min(longestName + 13, halfRoom * 0.34) + 89 + (21 + SPACING) * keys.length;
+  const room = split ? halfRoom : ctx.width;
+  let nameW = Math.round(Math.min(Math.max(72, longestName + 13), room * (narrow ? 0.3 : 0.34)));
+  // On a narrow card the Now column is as wide as its heading needs (a shape alone sits under it).
+  const nowW = narrow ? Math.max(30, Math.ceil(textWidth(wordsFor(ctx).now, 11 * 1.06, 600)) + 8) : Math.round(Math.max(...[...seen, "N" as Rag].map((s) => textWidth(word(s), 11 * 1.06, 600))) + 40);
+  const free = room - nameW - nowW - SPACING * (keys.length + 3);
   const cell = Math.max(21, Math.min(44, Math.floor(free / Math.max(1, keys.length))));
+  // Cells at their tappable 21px would push the table past the card: the names give up that room first (down to 55px),
+  // so the Now column stays in view instead of hiding behind a sideways scroll.
+  const over = nameW + nowW + cell * keys.length + SPACING * (keys.length + 3) - room;
+  if (over > 0) nameW = Math.max(55, nameW - over);
   const glyph = cell < 26 ? 10 : 12;
 
   const scroller = html(doc, "div", "fft-rag-scroll");
@@ -131,7 +140,7 @@ export const renderRagtrend: ViewRenderer<RagtrendView> = (ctx) => {
     for (const tr of rowsOut) tr.removeAttribute("data-active");
     ctx.tooltip.hide();
   };
-  ordered.forEach((run, i) => {
+  const fill = (list: Run[]) => list.forEach((run, i) => {
     const tr = html(doc, "tr", "fft-ragtrend-row");
     tr.style.setProperty("--fft-i", String(i));
     // One line per name, so every row, and every cell in it, is the same height; the whole name stays in the title.
@@ -183,9 +192,39 @@ export const renderRagtrend: ViewRenderer<RagtrendView> = (ctx) => {
     rowsOut.push(tr);
     body.append(tr);
   });
+  // On a phone-narrow card the worst 10 show (the order is worst first) and one button opens the rest in place.
+  const cap = narrow && !ctx.inFacet && ordered.length > 12 ? 10 : ordered.length;
+  fill(ordered.slice(0, cap));
   table.append(body);
   roving(cells, { down: keys.length });
   scroller.append(table);
+  // A long list on a card wide enough for two tables side by side reads in two columns (worst first, down the left
+  // then the right): half the height, and the card's width used instead of an empty right half.
+  if (split && rowsOut.length > 16) {
+    const half = Math.ceil(rowsOut.length / 2);
+    const second = html(doc, "table", table.className);
+    second.style.cssText = table.style.cssText;
+    second.append(cols.cloneNode(true), head.cloneNode(true));
+    const rest = html(doc, "tbody");
+    for (const tr of rowsOut.slice(half)) rest.append(tr);
+    second.append(rest);
+    scroller.dataset.split = "";
+    scroller.append(second);
+  }
   wrap.append(scroller);
+  if (cap < ordered.length) {
+    const button = html(doc, "button", "fft-history-more-button fft-rag-more", wordsFor(ctx).nMore(ordered.length - cap));
+    (button as HTMLButtonElement).type = "button";
+    button.addEventListener("click", () => {
+      body.replaceChildren();
+      cells.length = 0;
+      rowsOut.length = 0;
+      fill(ordered);
+      roving(cells, { down: keys.length });
+      button.remove();
+      cells[cap * keys.length]?.focus();
+    });
+    wrap.append(button);
+  }
   ctx.el.append(wrap);
 };

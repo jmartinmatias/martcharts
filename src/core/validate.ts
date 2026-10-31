@@ -57,7 +57,18 @@ export function validateSpec(spec: unknown, rows?: Row[]): Issue[] {
     for (const [legacy, canonical] of use.deprecated) {
       issues.push({ level: "warning", path: `view.${legacy}`, message: `"${legacy}" is now called "${canonical}". "${legacy}" still works.` });
     }
+    // An option the view does not know is ignored without a word: say so, with the nearest option it does know.
+    if (isPlainObject(view) && typeof view.type === "string") {
+      let block: Block | undefined;
+      try {
+        block = getBlock("view", view.type);
+      } catch {
+        block = undefined;
+      }
+      if (block) issues.push(...unknownKeys(Object.keys(view).filter((key) => key !== "type"), Object.keys(block.options), "view", `The ${view.type} view`, "option"));
+    }
   }
+  issues.push(...unknownKeys(Object.keys(spec), SPEC_KEYS, "", "A widget spec", "field"));
 
   if (spec.style !== undefined) issues.push(...checkStyle(spec.style));
 
@@ -280,9 +291,65 @@ function checkFields(fields: unknown): Issue[] {
     if (field.format !== undefined) {
       const format = typeof field.format === "string" ? { type: field.format } : field.format;
       issues.push(...checkBlock("format", format, `${path}.format`).map((issue) => ({ ...issue, path: issue.path.replace(/\.format\.type$/, ".format") })));
+      issues.push(...unknownFormatOptions(format, `${path}.format`));
     }
   }
   return issues;
+}
+
+/**
+ * A format option the format does not know is ignored without a word ({ "type": "heat", "decimals": 2 } once drew three
+ * decimals), so each one is a warning that names the options the format does take, the nearest first. Nested formats
+ * (bar, heat and delta wrap one) are checked too.
+ */
+function unknownFormatOptions(format: unknown, path: string): Issue[] {
+  if (!isPlainObject(format) || typeof format.type !== "string") return [];
+  let block: Block;
+  try {
+    block = getBlock("format", format.type);
+  } catch {
+    return [];
+  }
+  const known = Object.keys(block.options);
+  const issues: Issue[] = [];
+  for (const key of Object.keys(format)) {
+    if (key === "type" || known.includes(key)) continue;
+    const near = [...known].sort((a, b) => distance(a, key) - distance(b, key));
+    const hint = near.length && distance(near[0]!, key) <= 2 ? ` Did you mean "${near[0]}"?` : "";
+    issues.push({ level: "warning", path: `${path}.${key}`, message: `The ${format.type} format has no "${key}" option, so it is ignored.${hint} Options: ${known.join(", ") || "none"}.` });
+  }
+  const inner = format.format;
+  if (inner !== undefined) issues.push(...unknownFormatOptions(typeof inner === "string" ? { type: inner } : inner, `${path}.format`));
+  return issues;
+}
+
+/** The keys a widget spec reads; any other is ignored. */
+const SPEC_KEYS = ["id", "title", "subtitle", "note", "footer", "source", "byline", "description", "links", "locale", "data", "transform", "fields", "colors", "tooltip", "colorRules", "responsive", "headline", "facet", "view", "style", "i18n"];
+
+/** A warning per key not in `known`, naming the nearest known key when one is close. */
+function unknownKeys(keys: string[], known: string[], base: string, owner: string, noun: string): Issue[] {
+  return keys
+    .filter((key) => !known.includes(key))
+    .map((key) => {
+      const near = [...known].sort((a, b) => distance(a, key) - distance(b, key))[0];
+      const hint = near && distance(near, key) <= 2 ? ` Did you mean "${near}"?` : "";
+      return { level: "warning" as const, path: base ? `${base}.${key}` : key, message: `${owner} has no "${key}" ${noun}, so it is ignored.${hint}` };
+    });
+}
+
+/** Edit distance between two short words, for "did you mean". */
+function distance(a: string, b: string): number {
+  const row = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    let previous = row[0]!;
+    row[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const kept = row[j]!;
+      row[j] = Math.min(row[j]! + 1, row[j - 1]! + 1, previous + (a[i - 1] === b[j - 1] ? 0 : 1));
+      previous = kept;
+    }
+  }
+  return row[b.length]!;
 }
 
 function checkStyle(style: unknown): Issue[] {

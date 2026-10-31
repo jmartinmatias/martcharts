@@ -22,10 +22,12 @@ export const renderTable: ViewRenderer<TableView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
   const columns = ctx.view.columns ? fieldList(ctx.view.columns) : allFields(ctx.rows);
   const sortable = ctx.view.sortable !== false;
-  const pageSize = typeof ctx.view.pageSize === "number" && ctx.view.pageSize >= 1 ? Math.floor(ctx.view.pageSize) : 0;
+  // Pages hold at most 5 stacked rows on a phone-narrow card.
+  const pageSize = typeof ctx.view.pageSize === "number" && ctx.view.pageSize >= 1 ? Math.min(Math.floor(ctx.view.pageSize), ctx.width < 480 ? 5 : Infinity) : 0;
   // Without pages, a long table shows its first 100 rows and a Show more button for the next 100, as Datawrapper does:
   // 5,000 rows drawn at once took seconds and 45,000 nodes. showAll: true draws every row.
-  const step = pageSize || ctx.view.showAll === true ? 0 : SHOW_STEP;
+  // On a phone-narrow card, where rows stack into cards, the first 5 show and the button brings 5 more at a time.
+  const step = pageSize || ctx.view.showAll === true ? 0 : ctx.width < 480 ? 5 : SHOW_STEP;
   let limit = step;
   const align = ctx.view.align && typeof ctx.view.align === "object" ? ctx.view.align : {};
   let sort: { field: string; direction: 1 | -1 } | undefined;
@@ -185,6 +187,8 @@ export const renderTable: ViewRenderer<TableView> = (ctx) => {
   // Without sort buttons nothing inside takes focus, so the scrolling box itself becomes a labelled stop (WCAG 2.1.1).
   const edge = () => {
     const overflows = wrap.scrollWidth - wrap.clientWidth > 1;
+    // The pinned first column only paints its own background (and hairline) while there is something to scroll under it.
+    wrap.toggleAttribute("data-overflows", overflows);
     wrap.toggleAttribute("data-more", overflows && wrap.scrollLeft < wrap.scrollWidth - wrap.clientWidth - 1);
     if (overflows && !sortable) {
       wrap.tabIndex = 0;

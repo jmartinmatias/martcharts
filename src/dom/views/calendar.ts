@@ -55,6 +55,8 @@ export const renderCalendar: ViewRenderer<CalendarView> = (ctx) => {
   const weekdayName = new Intl.DateTimeFormat(locale, { weekday: "short", timeZone: "UTC" });
 
   const wrap = html(doc, "div", "fft-heat");
+  // Square days, so a stretched card centres the calendar and its key instead of growing the cells out of shape.
+  wrap.dataset.fill = "";
   const chart = svg(doc, "svg", { class: "fft-calendar", width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
   chart.setAttribute("aria-label", wordsFor(ctx).aria.calendar(ctx.label(value)));
@@ -109,7 +111,8 @@ export const renderCalendar: ViewRenderer<CalendarView> = (ctx) => {
     swatch.dataset.step = String(step);
     ramp.append(swatch);
   }
-  legend.append(html(doc, "span", undefined, ctx.format(min, value)), ramp, html(doc, "span", undefined, ctx.format(max, value)));
+  // The key names what it counts (Complaints 1 to 11), in the field's own case, so a German noun keeps its capital.
+  legend.append(html(doc, "span", "fft-heat-legend-name", ctx.label(value)), html(doc, "span", undefined, ctx.format(min, value)), ramp, html(doc, "span", undefined, ctx.format(max, value)));
   // Weeks run across, days down: left and right move a week, up and down a day.
   roving([...chart.querySelectorAll(".fft-day[data-step]")], { across: 7, down: 1 });
   // Every day with a value as a table for screen readers.

@@ -301,9 +301,11 @@ const heat: FormatBlock = {
     min: { type: "number", description: "Value of the lightest step. Defaults to the lowest value across the table's heat columns." },
     max: { type: "number", description: "Value of the darkest step. Defaults to the highest value across the table's heat columns." },
     format: { type: "any", description: "Built-in format for the number (number, currency or percent). Defaults to number." },
+    decimals: { type: "number", description: "Decimal places, when no format is given: the same as format: { type: \"number\", decimals }." },
   },
   format(value, options, locale) {
-    const spec = (options.format as FormatSpec | undefined) ?? "number";
+    // A decimals given beside min and max (not inside format) still counts: { type: "heat", decimals: 1 }.
+    const spec = (options.format as FormatSpec | undefined) ?? (typeof options.decimals === "number" ? { type: "number", decimals: options.decimals } : "number");
     const { type, ...inner } = typeof spec === "string" ? { type: spec } : spec;
     const block = [number, currency, percent].find((b) => b.type === type) ?? number;
     return block.format(value, inner, locale);

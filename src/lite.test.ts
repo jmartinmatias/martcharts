@@ -24,7 +24,10 @@ describe("bundle sizes (after npm run build:lib)", () => {
     // 11% after French and German throughout: authored words laid over in each language, every chart type's summary,
     // jobs and switching advice in French and German for the Editor (type-words.ts), and words for data values took it
     // to 110.2%. The full bundle carries every language by design; pages that only show charts use the lite one.
-    expect(full).toBeLessThanOrEqual(Math.round(FULL_BEFORE * 1.11));
+    // 12% after the dashboard-fit work of 31 October 2026 took it to 111.1%: cards that fill a stretched row (ctx.room),
+    // the scatter swarm on whole-number scores, phone tables as row cards, fold-out buttons on stories and status
+    // grids, two-column status grids, wrapped or leaning waterfall names, and warnings for unknown options.
+    expect(full).toBeLessThanOrEqual(Math.round(FULL_BEFORE * 1.12));
   });
   test.skipIf(lite === undefined || full === undefined)("the lite bundle stays under 78% of the full bundle's starting size, and under three quarters of today's", () => {
     // 206,759 bytes gzipped when made: 69% of 298,224. What remains is what showing charts uses: the English reading
@@ -39,7 +42,9 @@ describe("bundle sizes (after npm run build:lib)", () => {
     // about 2 KB gzipped of display code.
     // 78% after words for data values (a field's values shown as words on axes, legends, tooltips and tables) and
     // authored words laid over in the page's language, which every chart draws with.
-    expect(lite).toBeLessThanOrEqual(Math.round(FULL_BEFORE * 0.78));
+    // 79% after the dashboard-fit display code of 31 October 2026 (cards that fill a stretched row, the scatter swarm,
+    // phone row cards, fold-out buttons, two-column status grids, waterfall names that wrap or lean) took it to 78.1%.
+    expect(lite).toBeLessThanOrEqual(Math.round(FULL_BEFORE * 0.79));
     expect(lite as number).toBeLessThan((full as number) * 0.75);
   });
   test.skipIf(!existsSync("dist/martcharts-lite.iife.js"))("the lite bundle carries no editor, composer, Taller, palette picker or French and German reading", () => {

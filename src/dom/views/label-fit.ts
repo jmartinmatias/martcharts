@@ -61,7 +61,9 @@ export interface NameColumn {
  * of the card (or `max`), each name cut to the room that leaves.
  */
 export function nameColumn(names: string[], cardWidth: number, opts: { min?: number; max?: number; size?: number; weight?: number } = {}): NameColumn {
-  const size = opts.size ?? 11;
+  // Measured 6% large: the estimate runs up to about 6% short of San Francisco's real lowercase widths, and a name
+  // drawn right-aligned would then start left of the card ("perational resilience").
+  const size = (opts.size ?? 11) * 1.06;
   const width = labelColumn(names, cardWidth, { min: opts.min, max: opts.max, size });
   // Half a pixel of slack: the column is rounded, the measure is not.
   const room = Math.max(8, width - GAP.l + 0.5);

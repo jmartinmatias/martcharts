@@ -383,6 +383,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
   let drawn = false;
   let destroyed = false;
   let drawnWidth = 0;
+  let drawnRoom = 0;
   let entered = false;
 
   const tooltip = createTooltip(root, tip);
@@ -626,7 +627,10 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     typeof ResizeObserver === "undefined"
       ? undefined
       : new ResizeObserver(() => {
-          if (back.hidden && root.dataset.state === "ready" && Math.abs(body.clientWidth - drawnWidth) > 1) draw();
+          if (!back.hidden || root.dataset.state !== "ready") return;
+          // Views that fill a stretched card (data-fill) are drawn again when the room changes, not only the width.
+          const fills = body.querySelector(":scope > [data-fill]") !== null;
+          if (Math.abs(body.clientWidth - drawnWidth) > 1 || (fills && Math.abs(body.clientHeight - drawnRoom) > 1)) draw();
         });
   resize?.observe(body);
 
@@ -897,6 +901,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       spec: drawView() === current.view ? localized() : { ...localized(), view: drawView() },
       width,
       height: shown.style?.height ?? goldenHeight(width),
+      room: body.clientHeight,
       label: (field) => nameOf(field, fields),
       // A field's word for a value (Complaints as Réclamations) wins over its format; the data keeps the value itself.
       format: (value, field) => (field ? fields?.[field]?.values?.[String(value)] : undefined) ?? formatValue(value, field ? fields?.[field]?.format : undefined, locale()),
@@ -951,6 +956,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     try {
       const ctx = context();
       drawnWidth = ctx.width;
+      drawnRoom = ctx.room ?? 0;
       if (current.facet?.field) {
         cleanup = drawFacets(ctx, render, block.extent, block.categories?.(drawView()));
       } else {
