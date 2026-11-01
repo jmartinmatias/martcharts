@@ -203,7 +203,7 @@
   ],
   "title": "Gallery",
   "subtitle": "One sales dashboard: revenue, regions, customers and operations",
-  "asOf": "Data to September 2026",
+  "asOf": "Data to {latest}",
   "source": {
     "name": "Fictional sales data"
   },

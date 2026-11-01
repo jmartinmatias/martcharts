@@ -58,6 +58,11 @@ export interface WidgetSpec {
   source?: SourceSpec;
   /** Who made the chart, a name or a team: "Chart: Marta" in the same small print. Takes the text templates titles do. */
   byline?: string;
+  /**
+   * How fresh the data is, said on the credit line: a date is where the rows end ("2026-08-31" reads "Data to 31 Aug
+   * 2026"), other words stay as written. A dashboard fills it in for a card whose rows end before the board's month.
+   */
+  asOf?: string;
   /** What this widget is for, in plain words. Not rendered; read by people and agents. */
   description?: string;
   /** Related pages, listed on the widget's Details side (the `info` action): a report, the data's owner, a runbook. */

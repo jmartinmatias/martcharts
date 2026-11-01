@@ -23,6 +23,7 @@ import { roving } from "./views/focus.ts";
 import { createWidget } from "./widget.ts";
 import type { Widget } from "./widget.ts";
 import { wordsFor } from "../core/words.ts";
+import { asOfMonth, asOfText, latestIn } from "../core/as-of.ts";
 
 /** Options for `createDashboard`. */
 export interface DashboardOptions {
@@ -308,24 +309,45 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
    * a card itself names, unlike `latest`, which reads the raw files to count periods back from.
    */
   let drawnDate: Promise<string> | undefined;
+  /** Where each card's drawn rows end, by its range field, else its x field when that holds dates: for its own as-of words. */
+  const cardDates = new Map<string, string>();
   const drawnLatest = () => (drawnDate ??= (async () => {
     let max = "";
     await Promise.all(
       [...originals.entries()].map(async ([id, original]) => {
         const fields = await rawFields.get(id);
         const field = rangeFields.find((f) => fields?.has(f));
-        if (!field) return;
+        const x = (original.view as { x?: unknown } | undefined)?.x;
+        const dateField = field ?? (typeof x === "string" && fields?.has(x) ? x : undefined);
+        if (!dateField) return;
         const forecast = original.view?.forecast;
         const rows = await runPipeline(original, { fetch: options.fetch }).catch(() => [] as Row[]);
-        for (const row of rows) {
-          if (typeof forecast === "string" && isForecast(row[forecast])) continue;
-          const value = row[field];
-          if (typeof value === "string" && /^\d{4}-\d{2}/.test(value) && value > max) max = value;
-        }
+        const end = latestIn(rows, dateField, typeof forecast === "string" ? (row) => isForecast(row[forecast]) : undefined);
+        if (end) cardDates.set(id, end);
+        if (field && end > max) max = end;
       }),
     );
     return max || (await latest());
   })());
+
+  /**
+   * A card whose rows end in an earlier month than the board's says so on its credit line, quietly: "Data to Aug 2026"
+   * under a board that reads "Data to September 2026". A card that names its own `asOf` keeps it.
+   */
+  async function markCardDates() {
+    const drawn = await drawnLatest();
+    const ends = [...cardDates.values()].sort();
+    const board = asOfMonth(spec.asOf, drawn) || (ends.at(-1) ?? "").slice(0, 7);
+    if (!board) return;
+    await Promise.all(
+      [...cardDates.entries()].map(async ([id, end]) => {
+        const original = originals.get(id);
+        if (!original || original.asOf !== undefined || end.slice(0, 7) >= board) return;
+        originals.set(id, { ...original, asOf: end });
+        await widgets.get(id)?.setSpec(await specFor(id));
+      }),
+    );
+  }
 
   /** Each section: its node, its heading as shown, and its name as written (its key, whatever the language). */
   const sections: { node: HTMLElement; title: string; key: string }[] = [];
@@ -518,7 +540,8 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     if (spec.source?.name && found.source?.name === spec.source.name) slot.dataset.boardSource = "";
     const draw = () => {
       // In the board's override from the first draw (a chosen language, a look), not only after the first change.
-      const first = Object.keys(override).length ? fork(found, override) : found;
+      const own = originals.get(id) ?? found;
+      const first = Object.keys(override).length ? fork(own, override) : own;
       const widget = createWidget(mount, first, { actions: options.actions, fetch: options.fetch, neighbors, guide: options.guides, takeaway: options.takeaways, emptyNote: () => emptyNote(id) });
       widgets.set(id, widget);
       slotOf.set(widget, slot);
@@ -1534,6 +1557,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     if (pendingCross) await setCrossFilter(pendingCross.field, pendingCross.value, pendingCross.source);
     else if (period !== "All" || Object.keys(pendingFilters ?? {}).length || follows.size) await redraw();
     else await writeState();
+    await markCardDates();
     // From here on, a change is news to say aloud.
     settled = true;
   })();
@@ -1600,42 +1624,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
   };
 }
 
-const MONTHS = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
-/** "October 2026" as 2026-10, so it can be said in another language; undefined for anything else. */
-function englishMonth(text: string): string | undefined {
-  const match = /^([A-Za-z]+) (\d{4})$/.exec(text);
-  const index = match ? MONTHS.indexOf((match[1] as string).toLowerCase()) : -1;
-  return match && index >= 0 ? `${match[2]}-${String(index + 1).padStart(2, "0")}` : undefined;
-}
-
-/** A date written for people: "25 Oct 2026" for a day, "October 2026" for a month, the text unchanged otherwise. */
-function dateWords(text: string, locale?: string): string {
-  const day = /^(\d{4})-(\d{2})-(\d{2})/.exec(text);
-  const month = /^(\d{4})-(\d{2})$/.exec(text);
-  const options: Intl.DateTimeFormatOptions = day ? { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" } : { month: "long", year: "numeric", timeZone: "UTC" };
-  if (!day && !month) return text;
-  const [, y, m, d] = (day ?? month) as RegExpExecArray;
-  return new Intl.DateTimeFormat(locale, options).format(new Date(Date.UTC(Number(y), Number(m) - 1, Number(d ?? 1))));
-}
-
-/**
- * The as-of line: "As of 25 Oct 2026" for a date, or the words given with {latest} filled by the latest date across
- * the widgets that have the range field. Empty while {latest} is not known yet.
- */
-export function asOfText(asOf: string, latest: string, locale?: string): string {
-  const text = asOf.trim();
-  if (/^\d{4}-\d{2}(-\d{2})?$/.test(text)) return wordsFor(locale).board.asOf(dateWords(text, locale));
-  // The site's standard line, "Data to {latest}" or "Data to October 2026", reads in the board's language.
-  const dataTo = /^Data to (.+)$/.exec(text);
-  if (dataTo && !/^en\b/i.test(locale ?? "en")) {
-    const said = (dataTo[1] as string).trim();
-    const month = englishMonth(said);
-    const date = said === "{latest}" ? (latest ? dateWords(latest, locale) : "") : month ? dateWords(month, locale) : said;
-    return date ? wordsFor(locale).board.dataTo(date) : "";
-  }
-  if (!text.includes("{latest}")) return text;
-  return latest ? text.split("{latest}").join(dateWords(latest, locale)) : "";
-}
+export { asOfText };
 
 /** The click filter's chip, the share tools, the "Not filtered by" note and the printed page; injected once per document. */
 const BOARD_CSS = `

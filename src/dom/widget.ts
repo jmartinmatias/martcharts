@@ -27,6 +27,7 @@ import { renderHeadline } from "./headline.ts";
 import { goldenHeight } from "./layout.ts";
 import { buildSkeleton, skeletonShape, stateIcon } from "./states.ts";
 import { wordsFor } from "../core/words.ts";
+import { cardAsOfText } from "../core/as-of.ts";
 import { localizeSpec } from "../core/i18n.ts";
 import type { Words } from "../core/words.ts";
 import { highlightedNames, isHighlightRule, matchRule, ruleColor, ruleColors, rowRuleColor } from "../core/rules.ts";
@@ -716,6 +717,15 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       const by = make("span", "fft-credit-byline");
       by.textContent = credit.childNodes.length ? W().widget.chartBy(byline) : W().widget.chartBy(byline).trimStart();
       credit.append(by);
+    }
+    // How fresh the rows are, last and quietest: "Data to 31 Aug 2026". The dot goes inside the span before it, so a
+    // board hiding the card's repeated source hides that dot with it.
+    const asOf = typeof current.asOf === "string" && current.asOf.trim() ? cardAsOfText(current.asOf, locale()) : "";
+    if (asOf) {
+      credit.lastElementChild?.append(" ·");
+      const when = make("span", "fft-credit-asof");
+      when.textContent = credit.childNodes.length ? ` ${asOf}` : asOf;
+      credit.append(when);
     }
     credit.hidden = credit.childNodes.length === 0;
     credit.style.visibility = !loaded && current.byline && hasTemplate(current.byline) ? "hidden" : "";

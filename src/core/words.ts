@@ -389,7 +389,7 @@ const EN = {
     clearMany: "Clear these filters",
     asOf: (date: string) => `As of ${date}`,
     /** The site's standard as-of line ("Data to October 2026"), said in the board's language. */
-    dataTo: (date: string) => `Data to ${date}`,
+    dataTo: (date: string, _day?: boolean) => `Data to ${date}`,
   },
 
   // ---- Dashboard a11y: skip links, one stop per card, and each change said aloud ----
@@ -784,7 +784,7 @@ const FR: Words = {
     clearOne: "Retirer le filtre",
     clearMany: "Retirer ces filtres",
     asOf: (date) => `Au ${date}`,
-    dataTo: (date) => `Données à fin ${date}`,
+    dataTo: (date, day) => (day ? `Données au ${date}` : `Données à fin ${date}`),
   },
   boardA11y: {
     skipLinks: "Liens d'accès rapide",
