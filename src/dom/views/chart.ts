@@ -12,7 +12,7 @@ import { drawReferences, type LabelObstacles } from "./reference.ts";
 import type { FormatSpec } from "../../core/types.ts";
 import type { TooltipItem, ViewContext, ViewRenderer } from "../../core/view-context.ts";
 import { isForecast } from "../../core/views.ts";
-import type { Annotation, AreaView, BarView, LineView } from "../../core/views.ts";
+import type { Annotation, AreaView, BarView, LineView, XRange } from "../../core/views.ts";
 import { bandPath, bands, barPath, CHAR_WIDTH, curveArea, curveLine, evenLabels, layoutBars, layoutStacked, LINE_HEIGHT, linearScale, linePath, logScale, smoothBands, spread, wrapLabels } from "../layout.ts";
 import type { LabelBox } from "../layout.ts";
 import { categoryLabel, fieldList, hiddenTableOf, html, legendList, selectable, svg, fillHeight } from "./shared.ts";
@@ -355,6 +355,23 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
   chart.append(refsBelow);
   // What the reference labels keep clear of, collected as the marks are laid out.
   const obstacles: Required<LabelObstacles> = { lines: [], boxes: [] };
+  // Shaded ranges: a span of the axis washed and named at its top ("Campaign", "Price freeze"), behind every mark.
+  const ranges = Array.isArray(view.ranges) ? (view.ranges as XRange[]) : [];
+  const slotOf = (x: unknown) => rows.findIndex((row, i) => String(row[view.x]) === String(x) || xLabels[i] === String(x));
+  for (const range of ranges) {
+    const [a, b] = [slotOf(range.from), slotOf(range.to ?? range.from)];
+    const [first, last] = [slots[Math.min(a, b)], slots[Math.max(a, b)]];
+    if (a < 0 || b < 0 || !first || !last) continue;
+    const width = last.start + last.width - first.start;
+    const shade = svg(doc, "rect", { class: "fft-range", x: first.start, y: plot.y, width, height: plot.h });
+    chart.insertBefore(shade, refsBelow);
+    if (range.label && range.label.length * 7.5 <= width - 8) {
+      const label = svg(doc, "text", { class: "fft-range-label", x: first.start + 6, y: plot.y + 13 });
+      label.textContent = range.label;
+      chart.insertBefore(label, refsBelow);
+      obstacles.boxes.push({ x: first.start + 6, y: plot.y + 3, width: range.label.length * 7.5, height: 12 });
+    }
+  }
 
   // Marks.
   const markGroups: SVGGElement[] = slots.map((_, i) => svg(doc, "g", { class: "fft-marks", "data-index": i, style: `--fft-i: ${i}` }));
@@ -465,6 +482,51 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
       const shade = svg(doc, "path", { class: "fft-band", d: bandPath(at(bandHigh), at(bandLow)) });
       shade.style.setProperty("fill", seriesColor(0));
       washes.append(shade);
+    }
+    // The gap between two lines filled, in the colour of whichever is on top there (surplus and deficit), split where
+    // they cross. Straight between readings, as the lines are unless curved.
+    const between = kind === "line" ? (view as LineView).between : undefined;
+    const pair = Array.isArray(between) && between.length === 2 ? between.map((field) => series.indexOf(field)) : [];
+    if (pair.length === 2 && pair.every((s) => s >= 0)) {
+      const [sa, sb] = pair as [number, number];
+      const [A, B] = [values[sa] ?? [], values[sb] ?? []];
+      const px = (i: number) => slots[i]?.center ?? 0;
+      let run: { top: { x: number; y: number }[]; low: { x: number; y: number }[]; sign: number } | undefined;
+      const close = () => {
+        if (run && run.top.length > 1) {
+          const gap = svg(doc, "path", { class: "fft-between", d: bandPath(run.top, run.low), "data-above": run.sign > 0 ? between?.[0] ?? "" : between?.[1] ?? "" });
+          gap.style.setProperty("fill", seriesColor(run.sign > 0 ? sa : sb));
+          washes.append(gap);
+        }
+        run = undefined;
+      };
+      const add = (x: number, a: number, b: number, sign: number) => {
+        if (!run || run.sign !== sign) {
+          close();
+          run = { top: [], low: [], sign };
+        }
+        run.top.push({ x, y: y(a) });
+        run.low.push({ x, y: y(b) });
+      };
+      for (let i = 0; i < rows.length; i++) {
+        const [a, b] = [A[i], B[i]];
+        if (a === null || a === undefined || b === null || b === undefined) {
+          close();
+          continue;
+        }
+        const sign = Math.sign(a - b) || run?.sign || 1;
+        const [a0, b0] = [A[i - 1], B[i - 1]];
+        // Where the lines cross between two readings, the run ends at the crossing and the next starts there.
+        if (run && a0 != null && b0 != null && sign !== run.sign) {
+          const t = (a0 - b0) / (a0 - b0 - (a - b));
+          const v = a0 + t * (a - a0);
+          const x = px(i - 1) + t * (px(i) - px(i - 1));
+          add(x, v, v, run.sign);
+          add(x, v, v, sign);
+        }
+        add(px(i), a, b, sign);
+      }
+      close();
     }
     const order = series.map((_, s) => s).sort((a, b) => Number(seriesOn(a)) - Number(seriesOn(b)));
     const edge = (s: number) => rows.map((_, i) => ({ x: slots[i]?.center ?? 0, y: y(tops?.[s]?.[i] ?? 0) }));

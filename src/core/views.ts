@@ -126,6 +126,7 @@ export interface AreaView {
   curve?: "linear" | "smooth" | "step";
   /** Short notes pinned to points of the chart. */
   annotations?: Annotation[];
+  ranges?: XRange[];
 }
 
 /**
@@ -136,6 +137,13 @@ export interface Annotation {
   x: unknown;
   y?: number;
   text: string;
+}
+
+/** A shaded span of the x axis: `{ from, to?, label? }`, on bar, line and area. */
+export interface XRange {
+  from: unknown;
+  to?: unknown;
+  label?: string;
 }
 
 /** `{ type: "meter", value, target, label? }`: one meter per row. */
@@ -507,6 +515,7 @@ export interface BarView {
   compare?: string;
   /** Short notes pinned to bars. */
   annotations?: Annotation[];
+  ranges?: XRange[];
 }
 
 /**
@@ -565,6 +574,9 @@ export interface LineView {
   scale?: "linear" | "log";
   /** Short notes pinned to points of the lines. */
   annotations?: Annotation[];
+  ranges?: XRange[];
+  /** Two of the y fields whose gap is filled, in the colour of whichever is on top there. */
+  between?: [string, string];
 }
 
 /** `{ type: "dual", x, y, y2, panels? }`: two measures on two panels sharing one x axis, each on its own scale. */
@@ -793,6 +805,26 @@ const ANNOTATIONS_OPTION: OptionSchema = {
     'Short notes pinned to points of the chart, each { "x": <category or period>, "y"?: <value>, "text": "…" }. Without y the note sits on the value there. Each note is a few words beside a small dot, with a thin leader to it; on a narrow card the notes become numbered markers with the texts listed under the chart. Example: [{ "x": "2026-03", "text": "Price rise" }].',
 };
 
+const RANGES_OPTION: OptionSchema = {
+  type: "array",
+  description:
+    'Spans of the x axis washed in a faint shade and named at their top, such as a campaign, a price freeze or a recession: [{ "from": "2026-03", "to": "2026-05", "label": "Campaign" }]. from and to are categories or periods on the axis (to defaults to from); the shade sits behind every mark.',
+};
+
+/** Each range needs a from on the axis; to and label, when given, are text or a value. */
+function checkRanges(view: Record<string, unknown>): string[] {
+  const ranges = view.ranges;
+  if (ranges === undefined) return [];
+  if (!Array.isArray(ranges)) return ['ranges must be a list, for example [{ "from": "2026-03", "to": "2026-05", "label": "Campaign" }].'];
+  return ranges.flatMap((range, i) => {
+    const r = (range ?? {}) as Partial<XRange>;
+    const problems: string[] = [];
+    if (r.from === undefined || r.from === null || r.from === "") problems.push(`ranges[${i}] needs a from: the category or period the shade starts at.`);
+    if (r.label !== undefined && typeof r.label !== "string") problems.push(`ranges[${i}].label must be text.`);
+    return problems;
+  });
+}
+
 /** Each note needs an x and a text; y, when given, is a number. */
 function checkAnnotations(view: Record<string, unknown>): string[] {
   const notes = view.annotations;
@@ -836,13 +868,14 @@ const area: ViewBlock = {
     forecast: { ...FORECAST_OPTION, description: `${FORECAST_OPTION.description} On an area the forecast's wash is fainter too. Unstacked areas only.` },
     band: BAND_OPTION,
     curve: CURVE_OPTION,
+    ranges: RANGES_OPTION,
     annotations: ANNOTATIONS_OPTION,
   },
   validate(view) {
     const stacked = view.stacked;
     const problems = stacked === undefined || stacked === true || stacked === false || stacked === "percent" || stacked === "stream" ? [] : ['stacked must be true, false, "percent" or "stream".'];
     if (stacked && (view.forecast !== undefined || view.band !== undefined)) problems.push("forecast and band draw on an unstacked area: drop stacked, or use a line.");
-    return [...problems, ...checkBand(view), ...checkReference(view), ...checkAnnotations(view)];
+    return [...problems, ...checkBand(view), ...checkReference(view), ...checkAnnotations(view), ...checkRanges(view)];
   },
 };
 
@@ -1451,6 +1484,7 @@ const bar: ViewBlock = {
       kind: "number",
       description: "Field drawn as a wider, quieter column behind each bar, on the same axis, for a comparison such as last year or the plan. The key names it by its label and the tooltip gives its value. One y series, unstacked.",
     },
+    ranges: RANGES_OPTION,
     annotations: ANNOTATIONS_OPTION,
   },
   validate(view) {
@@ -1458,7 +1492,7 @@ const bar: ViewBlock = {
     const problems = stacked === undefined || stacked === true || stacked === false || stacked === "percent" ? [] : ['stacked must be true, false or "percent".'];
     if (view.mark === "lollipop" && stacked) problems.push("A lollipop shows one dot per value, so it cannot stack: drop stacked, or use bars.");
     if (view.compare !== undefined && (stacked || (Array.isArray(view.y) && view.y.length > 1))) problems.push("compare draws behind one series of plain bars: drop stacked, or keep one y field.");
-    return [...problems, ...checkReference(view), ...checkAnnotations(view)];
+    return [...problems, ...checkReference(view), ...checkAnnotations(view), ...checkRanges(view)];
   },
 };
 
@@ -1547,10 +1581,20 @@ const line: ViewBlock = {
       default: "linear",
       description: '"log" draws the value axis logarithmically, ticks at powers of ten (with 2 and 5 steps when it spans little), so steady growth reads as a straight line and small and large series share one chart. Positive values only: others are left out.',
     },
+    between: {
+      type: "fields",
+      kind: "number",
+      description:
+        'Two of the y fields, such as ["revenue", "cost"]: the gap between their lines is filled in the colour of whichever is on top there, split where they cross, so surplus and deficit read at a glance.',
+    },
+    ranges: RANGES_OPTION,
     annotations: ANNOTATIONS_OPTION,
   },
   validate(view) {
-    return [...checkBand(view), ...checkReference(view), ...checkAnnotations(view)];
+    const ys = Array.isArray(view.y) ? view.y.map(String) : [String(view.y)];
+    const between = view.between;
+    const gap = between === undefined || (Array.isArray(between) && between.length === 2 && between.every((f) => ys.includes(String(f)))) ? [] : [`between needs two of the y fields (${ys.join(", ")}), for example ["${ys[0] ?? "revenue"}", "${ys[1] ?? "cost"}"].`];
+    return [...checkBand(view), ...checkReference(view), ...checkAnnotations(view), ...checkRanges(view), ...gap];
   },
   checkData(view, rows) {
     if (view.scale !== "log") return [];

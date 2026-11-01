@@ -33,14 +33,15 @@ Lines showing change over an ordered axis, usually time. Several y fields draw s
 | `x` | date | yes | Field for the ordered axis, usually a date or period. |
 | `y` | number (one or more) | yes | Field or fields for line values. Each field is one series. |
 | `forecast` | category |  | Field that is true on forecast rows. From the last actual on, lines draw dashed in a softly shaded zone labelled Forecast, and the tooltip marks those rows. |
+| `between` | number (one or more) |  | Two of the y fields, such as ["revenue", "cost"]: the gap between their lines is filled in the colour of whichever is on top there, split where they cross, so surplus and deficit read at a glance. |
 
 ## This example's columns (4 columns, 12 rows)
 
 | Column | Holds | Drawn as | Values |
 | --- | --- | --- | --- |
 | `month` (Month) | date | `x` | 12 different, e.g. "2025-10", "2025-11", "2025-12" |
-| `revenue` (Revenue) | number | `y` | 820000 to 1284000 |
-| `cost` (Cost) | number | `y` | 610000 to 860000 |
+| `revenue` (Revenue) | number | `y`, `between` | 820000 to 1284000 |
+| `cost` (Cost) | number | `y`, `between` | 610000 to 860000 |
 | `target` | number | not drawn | 850000 to 1200000 |
 
 ## The data drawing it now
@@ -150,6 +151,10 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
     "type": "line",
     "x": "month",
     "y": [
+      "revenue",
+      "cost"
+    ],
+    "between": [
       "revenue",
       "cost"
     ],

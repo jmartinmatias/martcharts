@@ -379,4 +379,84 @@ const ragFormat: FormatBlock = {
   },
 };
 
-export const builtinFormats: FormatBlock[] = [number, currency, percent, date, badge, spark, text, bar, delta, heat, ragFormat];
+/** A two-letter country code as its flag: "DE" is 🇩🇪, from the two regional-indicator letters. Empty for anything else. */
+export function flagOf(code: unknown): string {
+  const two = typeof code === "string" ? code.trim().toUpperCase() : "";
+  // Greece is EL in EU statistics and GR as a flag; the United Kingdom is UK there and GB as a flag.
+  const iso = two === "EL" ? "GR" : two === "UK" ? "GB" : two;
+  return /^[A-Z]{2}$/.test(iso) ? String.fromCodePoint(...[...iso].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65)) : "";
+}
+
+/** A country's name in the reader's language, from its two-letter code ("DE" is "Germany", "Allemagne", "Deutschland"). */
+function countryName(code: string, locale?: string): string {
+  const iso = code.toUpperCase() === "EL" ? "GR" : code.toUpperCase() === "UK" ? "GB" : code.toUpperCase();
+  try {
+    return new Intl.DisplayNames(locale ? [locale] : undefined, { type: "region" }).of(iso) ?? code;
+  } catch {
+    return code;
+  }
+}
+
+const flag: FormatBlock = {
+  type: "flag",
+  description: 'A two-letter country code (ISO 3166, EU "EL" and "UK" too) shown as its flag, with the country\'s name in the reader\'s language beside it. Plain text: the name.',
+  options: {
+    name: { type: "boolean", default: true, description: "Write the country's name after the flag; false shows the flag alone, the code still read aloud." },
+  },
+  format(value, _options, locale) {
+    return typeof value === "string" && flagOf(value) ? countryName(value, locale) : value === null || value === undefined ? "" : String(value);
+  },
+  element(value, options, locale, doc) {
+    const span = doc.createElement("span");
+    span.className = "fft-flag";
+    const mark = typeof value === "string" ? flagOf(value) : "";
+    if (!mark) {
+      span.textContent = value === null || value === undefined ? "" : String(value);
+      return span;
+    }
+    const name = countryName(value as string, locale);
+    const icon = doc.createElement("span");
+    icon.className = "fft-flag-mark";
+    icon.textContent = mark;
+    icon.setAttribute("aria-hidden", "true");
+    span.append(icon);
+    if (options.name === false) {
+      span.setAttribute("role", "img");
+      span.setAttribute("aria-label", name);
+    } else span.append(` ${name}`);
+    return span;
+  },
+};
+
+/** Addresses an image may come from: the web, or a path on the same site. Never script or data addresses. */
+const SAFE_IMAGE = /^(https?:\/\/|\/|\.{0,2}\/)[^\s"'<>]*$/i;
+
+const image: FormatBlock = {
+  type: "image",
+  description: "An image address (https, or a path on the same site) shown as a small picture in a table or list cell, such as a logo or a portrait, beside the name that says what it shows. Plain text: empty.",
+  options: {
+    height: { type: "number", default: 21, description: "The picture's height in pixels; the width follows its shape." },
+    round: { type: "boolean", default: false, description: "Crops the picture to a circle, for portraits." },
+  },
+  format: () => "",
+  element(value, options, _locale, doc) {
+    const url = typeof value === "string" ? value.trim() : "";
+    if (!SAFE_IMAGE.test(url)) return doc.createElement("span");
+    const img = doc.createElement("img");
+    img.className = "fft-cell-image";
+    img.src = url;
+    // Decoration: the row's name beside it says who or what it is.
+    img.alt = "";
+    img.loading = "lazy";
+    img.decoding = "async";
+    const height = typeof options.height === "number" && options.height > 0 ? Math.min(options.height, 89) : 21;
+    img.style.height = `${height}px`;
+    if (options.round === true) {
+      img.style.width = `${height}px`;
+      img.dataset.round = "";
+    }
+    return img;
+  },
+};
+
+export const builtinFormats: FormatBlock[] = [number, currency, percent, date, badge, spark, text, bar, delta, heat, ragFormat, flag, image];

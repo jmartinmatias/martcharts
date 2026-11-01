@@ -62,6 +62,10 @@
       "revenue",
       "cost"
     ],
+    "between": [
+      "revenue",
+      "cost"
+    ],
     "reference": [
       {
         "field": "target",

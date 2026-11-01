@@ -254,7 +254,7 @@ A line with a soft filled area down to zero, for a trend where the amount itself
 | `y` | number (one or more) | yes | Field or fields for the values. Each field is one series. |
 | `forecast` | category |  | Field that is true on forecast rows. From the last actual on, lines draw dashed in a softly shaded zone labelled Forecast, and the tooltip marks those rows. On an area the forecast's wash is fainter too. Unstacked areas only. |
 
-**Settings**: `stacked`, `highlight`, `endLabels`, `reference`, `band`, `curve`, `annotations`. All options with defaults are in [blocks.md](blocks.md#area).
+**Settings**: `stacked`, `highlight`, `endLabels`, `reference`, `band`, `curve`, `ranges`, `annotations`. All options with defaults are in [blocks.md](blocks.md#area).
 
 **Answers**: Where is cash heading next?
 
@@ -408,7 +408,7 @@ Vertical bars comparing amounts across categories. Several y fields draw grouped
 | `lines` | number (one or more) |  | Field or fields drawn as lines over the bars, on the same axis, for example a target. Never a second axis. Under one target line (a field named target, plan, goal, budget or quota), bars on the wrong side of it (see goodWhen) are drawn outlined and keyed Below target. |
 | `compare` | number |  | Field drawn as a wider, quieter column behind each bar, on the same axis, for a comparison such as last year or the plan. The key names it by its label and the tooltip gives its value. One y series, unstacked. |
 
-**Settings**: `stacked`, `highlight`, `reference`, `mark`, `goodWhen`, `annotations`, `sort`, `order`, `limit`, `other`. All options with defaults are in [blocks.md](blocks.md#bar).
+**Settings**: `stacked`, `highlight`, `reference`, `mark`, `goodWhen`, `ranges`, `annotations`, `sort`, `order`, `limit`, `other`. All options with defaults are in [blocks.md](blocks.md#bar).
 
 **Answers**: How is each region split between Core and Plus?
 
@@ -519,7 +519,7 @@ A distribution: one dot per row along a value axis, nudged apart so none overlap
 
 **Answers**: How spread out is deal value in each region?
 
-**How to read it**: Each dot is one deal, placed by its deal value. Dots pile up where many values are close together. Here, East's dots sit furthest right, with a middle value of €115K, and the dot furthest right of all is South deal 16, at €180K.
+**How to read it**: Each dot is one deal, placed by its deal value. Dots pile up where many values are close together. Here, East's dots sit furthest right, with a middle value of €115.0K, and the dot furthest right of all is South deal 16, at €180.0K.
 
 **Drop it in**: `<fft-widget src="catalog/beeswarm.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "beeswarm" }` hands an agent this spec). The spec below shows 6 of its 24 rows; the [full file](../catalog/beeswarm.json) has them all. Source widget: [widgets/deal-swarm.json](../widgets/deal-swarm.json).
 
@@ -621,7 +621,7 @@ A status board: one column per stage with its count in the header, and the items
 
 **Answers**: Where is each deal right now, and how many are at each stage?
 
-**How to read it**: Each column is one stage, read left to right; each card is one deal, with its amount. Here, 4 of 16 deals sit in Proposal, and Nordic Bank core upgrade has the highest amount, €240K.
+**How to read it**: Each column is one stage, read left to right; each card is one deal, with its amount. Here, 4 of 16 deals sit in Proposal, and Nordic Bank core upgrade has the highest amount, €240.0K.
 
 **Drop it in**: `<fft-widget src="catalog/board.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "board" }` hands an agent this spec). The spec below shows 6 of its 16 rows; the [full file](../catalog/board.json) has them all. Source widget: [widgets/deal-board.json](../widgets/deal-board.json).
 
@@ -772,7 +772,7 @@ A box plot per group on one shared axis: a box over the middle half of the value
 
 **Answers**: How spread out is deal value in each region?
 
-**How to read it**: The box holds the middle half of the values and the line inside is the middle value. The whiskers reach the normal range; dots beyond are unusual values. Here, East has the highest middle value, €115K, and varies the most: its middle half runs from €102.8K to €136.3K.
+**How to read it**: The box holds the middle half of the values and the line inside is the middle value. The whiskers reach the normal range; dots beyond are unusual values. Here, East has the highest middle value, €115.0K, and varies the most: its middle half runs from €102.8K to €136.3K.
 
 **Drop it in**: `<fft-widget src="catalog/boxplot.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "boxplot" }` hands an agent this spec). The spec below shows 6 of its 24 rows; the [full file](../catalog/boxplot.json) has them all. Source widget: [widgets/deal-boxplot.json](../widgets/deal-boxplot.json).
 
@@ -1476,7 +1476,7 @@ A map with each region shaded by its value, from the weakest tint to the stronge
 
 **Answers**: Which countries have the most revenue, on the map?
 
-**How to read it**: Each region on the map is one country: the stronger its shade, the more revenue; a faded region has no data. Here, Germany is the strongest, with €4.1M, and Slovenia the weakest, with €80K.
+**How to read it**: Each region on the map is one country: the stronger its shade, the more revenue; a faded region has no data. Here, Germany is the strongest, with €4.1M, and Slovenia the weakest, with €80.0K.
 
 **Drop it in**: `<fft-widget src="catalog/choropleth.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "choropleth" }` hands an agent this spec). The spec below shows 6 of its 24 rows; the [full file](../catalog/choropleth.json) has them all. Source widget: [widgets/revenue-by-country.json](../widgets/revenue-by-country.json).
 
@@ -1794,7 +1794,7 @@ Two measures with different units, such as revenue and churn, one above the othe
 
 **Answers**: Do revenue and churn move together, month by month?
 
-**How to read it**: Two small charts share the same month line: revenue on top and churn below, each with its own scale, so look at the shapes, not at whether they cross. Higher means more on both. Here, revenue went from €820K in Oct 2025 to €1.3M in Sep 2026, and churn from 4.2% to 3.1%, moving in opposite directions.
+**How to read it**: Two small charts share the same month line: revenue on top and churn below, each with its own scale, so look at the shapes, not at whether they cross. Higher means more on both. Here, revenue went from €820.0K in Oct 2025 to €1.3M in Sep 2026, and churn from 4.2% to 3.1%, moving in opposite directions.
 
 **Drop it in**: `<fft-widget src="catalog/dual.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "dual" }` hands an agent this spec). The spec below shows 6 of its 12 rows; the [full file](../catalog/dual.json) has them all. Source widget: [widgets/revenue-and-churn.json](../widgets/revenue-and-churn.json).
 
@@ -1912,7 +1912,7 @@ Before and after per item on one shared axis: a muted dot for before, an accent 
 
 **Answers**: How did each region change from 2025 to 2026?
 
-**How to read it**: Each row has two dots: 2025 and 2026. The line between them is the change. Here, 4 of 5 regions went up, and East moved the most, from €291K to €338K.
+**How to read it**: Each row has two dots: 2025 and 2026. The line between them is the change. Here, 4 of 5 regions went up, and East moved the most, from €291.0K to €338.0K.
 
 **Drop it in**: `<fft-widget src="catalog/dumbbell.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "dumbbell" }` hands an agent this spec). Source widget: [widgets/region-yoy.json](../widgets/region-yoy.json).
 
@@ -2431,7 +2431,7 @@ A distribution as touching bars: the value's range is cut into bins on round edg
 
 **Answers**: How spread out is deal value?
 
-**How to read it**: Each bar is one range of deal value: the taller the bar, the more often a value in that range happened; the dashed line is the middle value. Here, the most common range is €20K to €40K, which happened 7 times.
+**How to read it**: Each bar is one range of deal value: the taller the bar, the more often a value in that range happened; the dashed line is the middle value. Here, the most common range is €20.0K to €40.0K, which happened 7 times.
 
 **Drop it in**: `<fft-widget src="catalog/histogram.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "histogram" }` hands an agent this spec). The spec below shows 6 of its 24 rows; the [full file](../catalog/histogram.json) has them all. Source widget: [widgets/deal-histogram.json](../widgets/deal-histogram.json).
 
@@ -2674,7 +2674,7 @@ Many time series at once, each in a thin row: values are measured from a baselin
 
 **Answers**: How is each of the 6 rows doing against plan, day by day?
 
-**How to read it**: Each row is one of North, South, East, West, Central or Online, day by day. Above plan rises from the bottom and below it hangs from the top; the stronger the shade, the further from plan. Here, East was above plan on all 92 days, the most, and the furthest below was South on Aug 15, €14.6K under.
+**How to read it**: Each row is one of North, South, East, West, Central or Online, day by day. Above plan rises from the bottom and below it hangs from the top; the stronger the shade, the further from plan. Here, East was above plan on all 92 days, and the furthest below was South on Aug 15, €14.6K under.
 
 **Drop it in**: `<fft-widget src="catalog/horizon.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "horizon" }` hands an agent this spec). The spec below shows 6 of its 92 rows; the [full file](../catalog/horizon.json) has them all. Source widget: [widgets/region-plan-horizon.json](../widgets/region-plan-horizon.json).
 
@@ -3518,8 +3518,9 @@ Lines showing change over an ordered axis, usually time. Several y fields draw s
 | `x` | date | yes | Field for the ordered axis, usually a date or period. |
 | `y` | number (one or more) | yes | Field or fields for line values. Each field is one series. |
 | `forecast` | category |  | Field that is true on forecast rows. From the last actual on, lines draw dashed in a softly shaded zone labelled Forecast, and the tooltip marks those rows. |
+| `between` | number (one or more) |  | Two of the y fields, such as ["revenue", "cost"]: the gap between their lines is filled in the colour of whichever is on top there, split where they cross, so surplus and deficit read at a glance. |
 
-**Settings**: `highlight`, `endLabels`, `reference`, `band`, `curve`, `points`, `peaks`, `scale`, `annotations`. All options with defaults are in [blocks.md](blocks.md#line).
+**Settings**: `highlight`, `endLabels`, `reference`, `band`, `curve`, `points`, `peaks`, `scale`, `ranges`, `annotations`. All options with defaults are in [blocks.md](blocks.md#line).
 
 **Answers**: Is revenue on track to hit target?
 
@@ -3583,6 +3584,10 @@ Lines showing change over an ordered axis, usually time. Several y fields draw s
     "type": "line",
     "x": "month",
     "y": [
+      "revenue",
+      "cost"
+    ],
+    "between": [
       "revenue",
       "cost"
     ],
@@ -3894,7 +3899,7 @@ A mosaic: one column per category, as wide as its total, split into segments by 
 
 **Answers**: How big is each region, and how is it split by product?
 
-**How to read it**: Each column is one region: the wider the column, the bigger its total, and its colored parts show how it splits by product. Here, East is the widest column, with €338K; Platform is its biggest part, 47%.
+**How to read it**: Each column is one region: the wider the column, the bigger its total, and its colored parts show how it splits by product. Here, East is the widest column, with €338.0K; Platform is its biggest part, 47%.
 
 **Drop it in**: `<fft-widget src="catalog/marimekko.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "marimekko" }` hands an agent this spec). The spec below shows 6 of its 15 rows; the [full file](../catalog/marimekko.json) has them all. Source widget: [widgets/region-product-mix.json](../widgets/region-product-mix.json).
 
@@ -4933,7 +4938,7 @@ One smooth distribution curve per group on a shared axis, overlapping like a mou
 
 **Answers**: How spread out is deal value in each region?
 
-**How to read it**: Each hill shows how deal value spreads in one group. Where the hill is tallest is where most values are; a hill further right has bigger values. Here, East sits furthest right, with a middle value of €115K, and varies the most: its middle half runs from €102.8K to €136.3K.
+**How to read it**: Each hill shows how deal value spreads in one group. Where the hill is tallest is where most values are; a hill further right has bigger values. Here, East sits furthest right, with a middle value of €115.0K, and varies the most: its middle half runs from €102.8K to €136.3K.
 
 **Drop it in**: `<fft-widget src="catalog/ridgeline.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "ridgeline" }` hands an agent this spec). The spec below shows 6 of its 24 rows; the [full file](../catalog/ridgeline.json) has them all. Source widget: [widgets/deal-ridgeline.json](../widgets/deal-ridgeline.json).
 
@@ -6240,7 +6245,7 @@ Part-to-whole for many categories: tiles sized by value, kept close to square. U
 
 **Answers**: What share of revenue comes from each customer?
 
-**How to read it**: Each box is one customer: the bigger the box, the more revenue. Here, Aurora Logistics is the biggest box, with €214K.
+**How to read it**: Each box is one customer: the bigger the box, the more revenue. Here, Aurora Logistics is the biggest box, with €214.0K.
 
 **Drop it in**: `<fft-widget src="catalog/treemap.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "treemap" }` hands an agent this spec). The spec below shows 6 of its 8 rows; the [full file](../catalog/treemap.json) has them all. Source widget: [widgets/customer-treemap.json](../widgets/customer-treemap.json).
 
@@ -6339,7 +6344,7 @@ Variance against plan, as in financial reporting: per row a bar from a zero line
 
 **Answers**: Which departments stayed within budget?
 
-**How to read it**: Each bar shows how far one department is from its budget: right when above, left when below, the longer the further. Below the budget is better. Here, 3 of 6 departments are over their budget, and Sales is furthest from it: €412K against €380K.
+**How to read it**: Each bar shows how far one department is from its budget: right when above, left when below, the longer the further. Below the budget is better. Here, 3 of 6 departments are over their budget, and Sales is furthest from it: €412.0K against €380.0K.
 
 **Drop it in**: `<fft-widget src="catalog/variance.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "variance" }` hands an agent this spec). Source widget: [widgets/opex-variance.json](../widgets/opex-variance.json).
 
@@ -6557,7 +6562,7 @@ A bridge: how a total moves to another through increases and decreases, each flo
 
 **Answers**: What took August revenue to September revenue?
 
-**How to read it**: Start at the first bar. Each bar after it goes up for something that added and down for something that took away, and you land on the final total. Here, it went from €1.1M (August revenue) to €1.3M (September revenue): New customers added the most, €150K, and Churn took the most away, €66K.
+**How to read it**: Start at the first bar. Each bar after it goes up for something that added and down for something that took away, and you land on the final total. Here, it went from €1.1M (August revenue) to €1.3M (September revenue): New customers added the most, €150.0K, and Churn took the most away, €66.0K.
 
 **Drop it in**: `<fft-widget src="catalog/waterfall.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "waterfall" }` hands an agent this spec). Source widget: [widgets/revenue-bridge.json](../widgets/revenue-bridge.json).
 
@@ -6678,7 +6683,7 @@ The cross-sell map (whitespace analysis): one cell per client and product, fille
 
 **Answers**: Which clients could take more products, and which ones first?
 
-**How to read it**: Each row is one client and each column one product: filled means they have it, outlined means they could (the stronger, the likelier), a dot means not for them. Each row ends with what they hold and what is left to win. Here, 20 cells are held and 17 are open; Aldana Holdings has the most to win, €253K.
+**How to read it**: Each row is one client and each column one product: filled means they have it, outlined means they could (the stronger, the likelier), a dot means not for them. Each row ends with what they hold and what is left to win. Here, 20 cells are held and 17 are open; Aldana Holdings has the most to win, €253.0K.
 
 **Drop it in**: `<fft-widget src="catalog/whitespace.json"></fft-widget>`, or paste the spec into `createWidget(el, spec)`, a `<script type="application/json">` inside `<fft-widget>`, or MCP `fft_create_widget` (`fft_describe_chart { "type": "whitespace" }` hands an agent this spec). The spec below shows 6 of its 48 rows; the [full file](../catalog/whitespace.json) has them all. Source widget: [widgets/cross-sell-whitespace.json](../widgets/cross-sell-whitespace.json).
 

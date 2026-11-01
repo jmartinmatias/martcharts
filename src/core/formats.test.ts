@@ -197,3 +197,21 @@ test("significant digits keep one look across sizes: €1.28M, €278K and €97
   const f = { type: "currency", currency: "EUR", compact: true, digits: 3 } as const;
   expect([1_284_000, 278_000, 97_400].map((n) => formatValue(n, f, "en-US"))).toEqual(["€1.28M", "€278K", "€97.4K"]);
 });
+
+describe("flag and image cells", () => {
+  test("a country code becomes its flag and its name in the reader's language", async () => {
+    const { flagOf } = await import("./formats.ts");
+    expect(flagOf("DE")).toBe("🇩🇪");
+    expect(flagOf("EL")).toBe("🇬🇷");
+    expect(flagOf("Germany")).toBe("");
+    expect(formatValue("FR", { type: "flag" }, "de-DE")).toBe("Frankreich");
+  });
+
+  test("an image takes only web or same-site addresses", () => {
+    const doc = document;
+    const img = formatNode("https://example.com/logo.png", { type: "image", round: true }, "en", doc) as HTMLImageElement;
+    expect(img.tagName).toBe("IMG");
+    expect(img.dataset.round).toBe("");
+    expect((formatNode("javascript:alert(1)", { type: "image" }, "en", doc) as Element).tagName).toBe("SPAN");
+  });
+});

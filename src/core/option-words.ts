@@ -17,6 +17,14 @@ type Pair = [fr: string, de: string];
 
 /** Each option's hint, by its English description. */
 export const OPTION_HINTS: Record<string, Pair> = {
+ "Spans of the x axis washed in a faint shade and named at their top, such as a campaign, a price freeze or a recession: [{ \"from\": \"2026-03\", \"to\": \"2026-05\", \"label\": \"Campaign\" }]. from and to are categories or periods on the axis (to defaults to from); the shade sits behind every mark.": [
+  "Plages de l'axe x teintées d'une ombre légère et nommées en haut, comme une campagne, un gel des prix ou une récession : [{ \"from\": \"2026-03\", \"to\": \"2026-05\", \"label\": \"Campaign\" }]. from et to sont des catégories ou des périodes de l'axe (to vaut from par défaut) ; l'ombre passe derrière toutes les marques.",
+  "Abschnitte der x-Achse, leicht schattiert und oben benannt, etwa eine Kampagne, ein Preisstopp oder eine Rezession: [{ \"from\": \"2026-03\", \"to\": \"2026-05\", \"label\": \"Campaign\" }]. from und to sind Kategorien oder Perioden auf der Achse (to ist standardmäßig from); der Schatten liegt hinter allen Markierungen."
+ ],
+ "Two of the y fields, such as [\"revenue\", \"cost\"]: the gap between their lines is filled in the colour of whichever is on top there, split where they cross, so surplus and deficit read at a glance.": [
+  "Deux des champs y, par exemple [\"revenue\", \"cost\"] : l'écart entre leurs lignes est rempli de la couleur de celle qui passe au-dessus, coupé là où elles se croisent, pour lire d'un coup d'œil excédent et déficit.",
+  "Zwei der y-Felder, etwa [\"revenue\", \"cost\"]: die Lücke zwischen ihren Linien wird in der Farbe der oben liegenden gefüllt und dort geteilt, wo sie sich kreuzen, sodass Überschuss und Defizit auf einen Blick lesbar sind."
+ ],
  "Field with the date or period of each reading.": [
   "Champ avec la date ou la période de chaque relevé.",
   "Feld mit dem Datum oder der Periode jedes Messwerts."
@@ -1073,6 +1081,10 @@ export const OPTION_HINTS: Record<string, Pair> = {
 
 /** Each option's label, by its name. */
 export const OPTION_NAMES: Record<string, Pair> = {
+ "between": [
+  "Entre deux lignes",
+  "Zwischen zwei Linien"
+ ],
  "actions": [
   "Actions",
   "Aktionen"

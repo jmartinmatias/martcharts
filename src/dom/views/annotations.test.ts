@@ -108,3 +108,42 @@ describe("annotations", () => {
     expect(explainChart(spec)).toContain("The short notes with a small dot point out moments worth knowing.");
   });
 });
+
+describe("shaded ranges", () => {
+  const months = ["2026-01", "2026-02", "2026-03", "2026-04", "2026-05"].map((month, i) => ({ month, revenue: 10 + i }));
+  for (const type of ["line", "area", "bar"] as const) {
+    test(`a ${type} washes the span and names it`, async () => {
+      document.body.replaceChildren();
+      Object.defineProperty(HTMLElement.prototype, "clientWidth", { configurable: true, get: () => 610 });
+      await createWidget(document.body, { data: { type: "inline", rows: months }, view: { type, x: "month", y: "revenue", ranges: [{ from: "2026-02", to: "2026-04", label: "Campaign" }] } } as WidgetSpec).ready;
+      const shade = document.querySelector(".fft-range");
+      expect(shade).not.toBeNull();
+      expect(Number(shade?.getAttribute("width"))).toBeGreaterThan(0);
+      expect(document.querySelector(".fft-range-label")?.textContent).toBe("Campaign");
+      Reflect.deleteProperty(HTMLElement.prototype, "clientWidth");
+    });
+  }
+
+  test("a range without from is an error", () => {
+    expect(validateSpec({ data: { type: "inline", rows: months }, view: { type: "line", x: "month", y: "revenue", ranges: [{ to: "2026-02" }] } }).some((issue) => issue.level === "error" && /ranges\[0\] needs a from/.test(issue.message))).toBe(true);
+  });
+});
+
+describe("fill between two lines", () => {
+  const rows = [
+    { month: "Jan", revenue: 10, cost: 8 },
+    { month: "Feb", revenue: 9, cost: 11 },
+    { month: "Mar", revenue: 12, cost: 7 },
+  ];
+  test("fills each run in the colour of the line on top, split where they cross", async () => {
+    document.body.replaceChildren();
+    await createWidget(document.body, { data: { type: "inline", rows }, view: { type: "line", x: "month", y: ["revenue", "cost"], between: ["revenue", "cost"] } } as WidgetSpec).ready;
+    const gaps = [...document.querySelectorAll(".fft-between")].map((node) => node.getAttribute("data-above"));
+    expect(gaps).toEqual(["revenue", "cost", "revenue"]);
+  });
+
+  test("needs two of the y fields", () => {
+    const spec = { data: { type: "inline", rows }, view: { type: "line", x: "month", y: ["revenue", "cost"], between: ["revenue", "margin"] } } as WidgetSpec;
+    expect(validateSpec(spec).some((issue) => /between needs two of the y fields/.test(issue.message))).toBe(true);
+  });
+});

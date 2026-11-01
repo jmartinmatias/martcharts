@@ -482,6 +482,10 @@ export const BASE_CSS = `
   border-bottom: 1px solid var(--fft-axis);
 }
 .fft-table td { padding: 8px; border-bottom: 1px solid var(--fft-grid); }
+.fft-cell-image { display: inline-block; vertical-align: middle; width: auto; max-width: 144px; object-fit: contain; }
+.fft-cell-image[data-round] { border-radius: 50%; object-fit: cover; }
+.fft-flag { white-space: nowrap; }
+.fft-flag-mark { font-size: 1.15em; line-height: 1; vertical-align: -0.08em; }
 .fft-table tbody tr:last-child td { border-bottom: 0; }
 .fft-widget[data-density="compact"] .fft-table td { padding: 5px 8px; }
 .fft-table .fft-num { text-align: right; }
@@ -912,10 +916,13 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-chart[data-active] .fft-area[data-stream] { fill-opacity: calc(var(--fft-stream-fill, 0.62) - 0.12); }
 /* Forecast fans: a faint zone after the last actual, a soft band, dashed forecasts ending on a hollow dot. */
 .fft-forecast-zone { fill: var(--fft-text); fill-opacity: 0.035; pointer-events: none; }
+.fft-range { fill: var(--fft-accent); fill-opacity: 0.07; pointer-events: none; }
+.fft-range-label { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; pointer-events: none; }
 .fft-forecast-divider { stroke: var(--fft-text-secondary); stroke-opacity: 0.55; stroke-width: 1; stroke-dasharray: 2 3; pointer-events: none; }
 .fft-forecast-label { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; pointer-events: none; }
 .fft-forecast-note { font-weight: 400; letter-spacing: 0; text-transform: none; }
 .fft-band { fill-opacity: 0.16; stroke: none; pointer-events: none; }
+.fft-between { fill-opacity: 0.18; stroke: none; pointer-events: none; }
 .fft-area[data-forecast] { opacity: 0.5; }
 .fft-line[data-forecast] { stroke-dasharray: 5 5; }
 .fft-band-label { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); font-variant-numeric: tabular-nums; pointer-events: none; }
