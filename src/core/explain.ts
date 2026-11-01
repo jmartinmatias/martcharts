@@ -72,7 +72,11 @@ export function takeawayOf(written: WidgetSpec, rows: Row[] = []): string {
   const example = facet ? facetExample(spec, rows, facet) : exampleOf(spec, rows);
   // "X is the top row by days left" names a sort order, not a finding: a table's own first row says as much.
   if (/ is the top row (by|in) /.test(example)) return "";
-  const plain = example.replace(/^Here,\s*/, "");
+  // The guide says "it" after naming the chart; alone under a title, the line names its measure ("Revenue went from…").
+  const view = (spec.view ?? { type: "table" }) as View;
+  const measure = one(view.y) ?? one(view.value);
+  const named = measure && !/^(value|amount|change|delta|total|count|n)$/i.test(measure) ? nameOf(measure, spec) : "";
+  const plain = example.replace(/^Here,\s*/, "").replace(/^it (?=went|is )/, named ? `${named} ` : "it ").replace(/^it went from /, "From ");
   return plain ? `${plain.charAt(0).toUpperCase()}${plain.slice(1)}` : "";
 }
 
@@ -174,6 +178,8 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
     if (!total) return "";
     // The unit, when the rows' field has a real name: "7 of 12 months", "2 of 5 regions"; a generic name field says nothing.
     const unit = label && !/^(name|title|label|id|item)$/i.test(label) ? ` ${plural(nameOf(label, spec))}` : "";
+    // One row filtered down to: it is named, not counted ("East has reached its goal", never "all 1 regions").
+    if (total === 1 && label && met[0]) return `Here, ${text(met[0], label)} has ${verb} its goal.`;
     if (met.length === total) return `Here, all ${total}${unit} have ${verb} their goal.`;
     if (met.length === 0) return `Here, none of the ${total}${unit} has ${verb} its goal yet.`;
     const names = label ? met.map((r) => text(r, label)) : [];
@@ -730,7 +736,7 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
         most === 0
           ? `every row stayed at or under ${line}`
           : tied.length === 1
-            ? `${name(tied[0] as string)} was above ${line} on ${span}${series.length > 1 ? ", the most" : ""}`
+            ? `${name(tied[0] as string)} was above ${line} on ${span}${series.length > 1 && !span.startsWith("all ") ? ", the most" : ""}`
             : `${tied.length <= 3 ? `${tied.slice(0, -1).map(name).join(", ")} and ${name(tied.at(-1) as string)}` : `${tied.length} rows`} were above ${line} on ${span}`;
       // The deepest miss: which row, when, and how far under.
       let low: { field: string; row: Row; gap: number } | undefined;

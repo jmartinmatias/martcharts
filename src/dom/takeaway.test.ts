@@ -66,3 +66,15 @@ describe("the card's line", () => {
     expect(validateSpec(bars({ takeaway: true })).filter((issue) => /takeaway/.test(String(issue.message ?? issue)))).toEqual([]);
   });
 });
+
+describe("wording alone under a title", () => {
+  test("a line names its measure instead of 'it'", () => {
+    const spec = { data: { type: "inline", rows: [] }, view: { type: "line", x: "month", y: "revenue" } } as unknown as WidgetSpec;
+    expect(takeawayOf(spec, [{ month: "2026-01", revenue: 1 }, { month: "2026-02", revenue: 2 }])).toMatch(/^Revenue went from/);
+  });
+
+  test("one row left after a filter is named, not counted", () => {
+    const spec = { data: { type: "inline", rows: [] }, view: { type: "meter", label: "region", value: "revenue", target: "goal" } } as unknown as WidgetSpec;
+    expect(takeawayOf(spec, [{ region: "East", revenue: 5, goal: 4 }])).toBe("East has reached its goal.");
+  });
+});

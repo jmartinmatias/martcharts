@@ -22,12 +22,12 @@ describe("a horizon against a named baseline", () => {
   test("the guide reads in its words: above plan, below it, and how far", () => {
     // Shorter wording, same three readings: above plan, below it and how far.
     expect(explainChart(horizon({ baselineLabel: "plan" }), rows)).toBe(
-      "Each row is one of A or B, day by day. Above plan rises from the bottom and below it hangs from the top; the stronger the shade, the further from plan. Here, A was above plan on all 4 days, the most, and the furthest below was B on Jul 1, 30 under.",
+      "Each row is one of A or B, day by day. Above plan rises from the bottom and below it hangs from the top; the stronger the shade, the further from plan. Here, A was above plan on all 4 days, and the furthest below was B on Jul 1, 30 under.",
     );
   });
 
   test("without a name it says the baseline, with the same example", () => {
-    expect(explainChart(horizon(), rows)).toContain("Here, A was above the baseline on all 4 days, the most, and the furthest below was B on Jul 1, 30 under it.");
+    expect(explainChart(horizon(), rows)).toContain("Here, A was above the baseline on all 4 days, and the furthest below was B on Jul 1, 30 under it.");
   });
 
   test("when no row ever falls below, it says so, and a tie for the most days claims no winner", () => {
