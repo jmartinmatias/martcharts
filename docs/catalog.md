@@ -5363,7 +5363,7 @@ One dot per row placed by two numbers, to show how they relate. An optional grou
 | `label` | category |  | Field naming each dot in its tooltip. |
 | `cluster` | category |  | Field naming each dot's cluster, such as a segment found by analysis. A soft, rounded hull gathers each cluster's dots and carries its name at the middle, so the areas read as regions of the plot; the dots take the cluster's color unless color is set. Up to 6 clusters. |
 
-**Settings**: `reference`, `labels`, `quadrants`, `highlight`, `annotations`. All options with defaults are in [blocks.md](blocks.md#scatter).
+**Settings**: `reference`, `labels`, `connect`, `quadrants`, `highlight`, `annotations`. All options with defaults are in [blocks.md](blocks.md#scatter).
 
 **Answers**: Does gross margin go up as revenue growth goes up?
 

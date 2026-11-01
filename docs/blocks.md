@@ -142,6 +142,19 @@ Orders rows by one field. Missing values always go last.
 | `field` | field name | yes |  | Field to sort by. |
 | `order` | `asc`, `desc` |  | `"asc"` | `asc` for smallest first, `desc` for largest first. |
 
+### `window`
+
+Adds a field computed along the rows in their order (sort first): "rolling" is the average of the last size readings (a moving average; with band, also <as>Low and <as>High at that many standard deviations, Bollinger bands for a line's band); "index" rebases to 100 at the first reading, so series of different sizes compare by growth; "change" is the share up or down from the reading before (format it as percent); "cumulative" is the running total. With by, each group (a region, a product) runs on its own.
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `field` | field name | yes |  | Numeric field to run along. |
+| `op` | `rolling`, `index`, `change`, `cumulative` | yes |  | rolling (moving average), index (100 at the first reading), change (share from the reading before) or cumulative (running total). |
+| `size` | number |  | `3` | For rolling: how many readings each average covers, the current one included. The first size − 1 rows have none. |
+| `band` | number |  |  | For rolling: also adds <as>Low and <as>High this many standard deviations either side of the average, for a line's band (Bollinger bands at 2). |
+| `by` | field name |  |  | Field naming groups that each run on their own, such as region in long data. |
+| `as` | string |  |  | Name of the new field. Defaults to <field> followed by the op: revenueRolling, revenueIndex, revenueChange, revenueCumulative. |
+
 ## Formats
 
 Slot: `fields.<name>.format: "type"` or `{ type, ...options }`.
@@ -172,6 +185,7 @@ Money with a currency symbol, for example €1,234.50.
 | --- | --- | --- | --- | --- |
 | `currency` | string |  | `"USD"` | ISO 4217 code, for example EUR, USD, GBP. |
 | `decimals` | number |  |  | Exact number of decimal places. Defaults to the currency's usual places. |
+| `digits` | number |  |  | Significant digits instead of decimals: 3 gives €1.28M, €278K and €97.4K. |
 | `compact` | boolean |  | `false` | Shorten large amounts: $4.2M. |
 
 ### `date`
@@ -180,7 +194,7 @@ A date from an ISO string (2026-03-05), a timestamp in milliseconds, or a Date.
 
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `style` | `short`, `medium`, `long`, `day`, `month`, `year` |  | `"medium"` | short 3/5/26, medium Mar 5, 2026, long March 5, 2026, day Mar 5, month Mar 2026, year 2026. |
+| `style` | `short`, `medium`, `long`, `day`, `month`, `year`, `quarter` |  | `"medium"` | short 3/5/26, medium Mar 5, 2026, long March 5, 2026, day Mar 5, month Mar 2026, year 2026, quarter Q1 2026. A quarter key such as 2026-Q1 always reads Q1 2026. |
 
 ### `delta`
 
@@ -191,6 +205,14 @@ A signed change for a table or list cell: an arrow and a sign, colored good or b
 | `format` | any |  |  | Built-in format for the number (number, currency or percent), for example { "type": "currency", "currency": "EUR" }. Defaults to a percent with one decimal. |
 | `goodWhen` | `up`, `down` |  | `"up"` | Whether a rise is good ("up", as for revenue) or bad ("down", as for costs). |
 
+### `flag`
+
+A two-letter country code (ISO 3166, EU "EL" and "UK" too) shown as its flag, with the country's name in the reader's language beside it. Plain text: the name.
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `name` | boolean |  | `true` | Write the country's name after the flag; false shows the flag alone, the code still read aloud. |
+
 ### `heat`
 
 A number tinted on the seven-step sequential scale by its place between the lowest and highest value, for heat tables. Every heat column in a table shares one range, unless min and max fix it. Plain number elsewhere.
@@ -200,6 +222,16 @@ A number tinted on the seven-step sequential scale by its place between the lowe
 | `min` | number |  |  | Value of the lightest step. Defaults to the lowest value across the table's heat columns. |
 | `max` | number |  |  | Value of the darkest step. Defaults to the highest value across the table's heat columns. |
 | `format` | any |  |  | Built-in format for the number (number, currency or percent). Defaults to number. |
+| `decimals` | number |  |  | Decimal places, when no format is given: the same as format: { type: "number", decimals }. |
+
+### `image`
+
+An image address (https, or a path on the same site) shown as a small picture in a table or list cell, such as a logo or a portrait, beside the name that says what it shows. Plain text: empty.
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `height` | number |  | `21` | The picture's height in pixels; the width follows its shape. |
+| `round` | boolean |  | `false` | Crops the picture to a circle, for portraits. |
 
 ### `number`
 
@@ -208,6 +240,7 @@ Plain number with locale grouping, for example 1,234.5.
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
 | `decimals` | number |  |  | Exact number of decimal places. |
+| `digits` | number |  |  | Significant digits instead of decimals: 3 gives 1.28M, 278K and 97.4K. |
 | `compact` | boolean |  | `false` | Shorten large numbers: 1.2K, 3.4M. |
 
 ### `percent`
@@ -275,6 +308,7 @@ A line with a soft filled area down to zero, for a trend where the amount itself
 | `forecast` | field name (category) |  |  | Field that is true on forecast rows. From the last actual on, lines draw dashed in a softly shaded zone labelled Forecast, and the tooltip marks those rows. On an area the forecast's wash is fainter too. Unstacked areas only. |
 | `band` | any |  |  | A shaded range behind the first line, for a forecast fan or any low to high spread: { "low": "p10", "high": "p90", "label": "80% range" }. Give the last actual row low and high equal to its value, so the fan opens from it. The ends are labelled and the tooltip gives the range. |
 | `curve` | `linear`, `smooth`, `step` |  | `"linear"` | "smooth" curves through every point without ever swinging past one (a monotone curve), for a soft, calm trend; "step" holds each value until halfway to the next, for amounts that change in jumps such as prices or headcount. Stacked and stream areas keep their own shapes. |
+| `ranges` | array |  |  | Spans of the x axis washed in a faint shade and named at their top, such as a campaign, a price freeze or a recession: [{ "from": "2026-03", "to": "2026-05", "label": "Campaign" }]. from and to are categories or periods on the axis (to defaults to from); the shade sits behind every mark. |
 | `annotations` | array |  |  | Short notes pinned to points of the chart, each { "x": <category or period>, "y"?: <value>, "text": "…" }. Without y the note sits on the value there. Each note is a few words beside a small dot, with a thin leader to it; on a narrow card the notes become numbered markers with the texts listed under the chart. Example: [{ "x": "2026-03", "text": "Price rise" }]. |
 
 ### `bar`
@@ -292,6 +326,7 @@ Vertical bars comparing amounts across categories. Several y fields draw grouped
 | `mark` | `bar`, `lollipop` |  | `"bar"` | "lollipop" draws a thin stem from the baseline and a dot at the value in place of each bar: the same reading with far less ink, for rankings of many similar values. |
 | `goodWhen` | `up`, `down` |  | `"up"` | Which side of a target is good news: "up" for revenue, "down" for wait times and costs. Under one target (a lines field or a reference line labeled target, plan, goal, budget or quota), a bar on the wrong side is drawn outlined and keyed Below or Over the target. |
 | `compare` | field name (number) |  |  | Field drawn as a wider, quieter column behind each bar, on the same axis, for a comparison such as last year or the plan. The key names it by its label and the tooltip gives its value. One y series, unstacked. |
+| `ranges` | array |  |  | Spans of the x axis washed in a faint shade and named at their top, such as a campaign, a price freeze or a recession: [{ "from": "2026-03", "to": "2026-05", "label": "Campaign" }]. from and to are categories or periods on the axis (to defaults to from); the shade sits behind every mark. |
 | `annotations` | array |  |  | Short notes pinned to points of the chart, each { "x": <category or period>, "y"?: <value>, "text": "…" }. Without y the note sits on the value there. Each note is a few words beside a small dot, with a thin leader to it; on a narrow card the notes become numbered markers with the texts listed under the chart. Example: [{ "x": "2026-03", "text": "Price rise" }]. |
 | `sort` | `value`, `label`, `none` |  | `"none"` | Orders the rows before drawing: "value" ranks them by their number (largest first), "label" by name (A to Z), "none" keeps the data's order. Stacked bars and strips rank by their total. |
 | `order` | `desc`, `asc` |  |  | Turns the sort around: "asc" puts the smallest first, "desc" names Z to A. Defaults to largest first for value, A to Z for label. |
@@ -342,6 +377,7 @@ Actual against target, one compact row per item: a value bar and a target tick o
 | `value` | field name (number) | yes |  | Field with the actual amount. |
 | `target` | field name (number) | yes |  | Field with the target amount. |
 | `ranges` | array |  | `[0.6,0.9,1.2]` | Where the three bands end, as multiples of the target: poor up to the first, fair up to the second, good up to the third. |
+| `unit` | field name (category) |  |  | Field with each row's unit (%, €, $), for rows that measure different things. A name ending in "(%)" does the same. |
 | `goodWhen` | `up`, `down` |  | `"up"` | Whether more is better ("up", as for revenue) or less is better ("down", as for wait times and costs). It decides which side of the target reads as met. |
 | `sort` | `value`, `label`, `none` |  | `"none"` | Orders the rows before drawing: "value" ranks them by their number (largest first), "label" by name (A to Z), "none" keeps the data's order. Stacked bars and strips rank by their total. |
 | `order` | `desc`, `asc` |  |  | Turns the sort around: "asc" puts the smallest first, "desc" names Z to A. Defaults to largest first for value, A to Z for label. |
@@ -597,7 +633,7 @@ A row of stat tiles in one widget, each with a label, value and change: the calm
 
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `items` | array | yes |  | Tiles, each { value, label?, compare?, compareLabel?, goodWhen?, target?, rag? }. compare is a field or "previous" (the row before); target is a field, and the tile then says where it stands (Target met, or how far to go); rag is { green, amber, goodWhen? } and adds a Red, Amber or Green status pill. Example: [{ "value": "revenue", "compare": "previous", "target": "target" }]. |
+| `items` | array | yes |  | Tiles, each { value, label?, compare?, compareLabel?, goodWhen?, target?, rag?, delta? }. compare is a field or "previous" (the row before); target is a field, and the tile then says where it stands (Target met, or how far to go); rag is { green, amber, goodWhen? } and adds a Red, Amber or Green status pill; delta is "points" or "relative": a percent field changes in percentage points (48% to 55% reads +7 pts), any other relative to before (+13.8%). Example: [{ "value": "revenue", "compare": "previous", "target": "target" }]. |
 | `series` | boolean |  | `false` | Read the rows as a time series: values from the last row, compared with the row before, plus a sparkline per tile. |
 
 ### `lifecycle`
@@ -640,6 +676,8 @@ Lines showing change over an ordered axis, usually time. Several y fields draw s
 | `points` | boolean |  | `false` | A small symbol at every data point, in the line's color, so each reading is a mark of its own. Left out where points would sit closer than 8px. |
 | `peaks` | boolean |  | `false` | Marks the first series' highest and lowest points with a dot and writes their values beside them, clear of the end label. Also accepts `labels`, the older name. |
 | `scale` | `linear`, `log` |  | `"linear"` | "log" draws the value axis logarithmically, ticks at powers of ten (with 2 and 5 steps when it spans little), so steady growth reads as a straight line and small and large series share one chart. Positive values only: others are left out. |
+| `between` | field name or list (number) |  |  | Two of the y fields, such as ["revenue", "cost"]: the gap between their lines is filled in the colour of whichever is on top there, split where they cross, so surplus and deficit read at a glance. |
+| `ranges` | array |  |  | Spans of the x axis washed in a faint shade and named at their top, such as a campaign, a price freeze or a recession: [{ "from": "2026-03", "to": "2026-05", "label": "Campaign" }]. from and to are categories or periods on the axis (to defaults to from); the shade sits behind every mark. |
 | `annotations` | array |  |  | Short notes pinned to points of the chart, each { "x": <category or period>, "y"?: <value>, "text": "…" }. Without y the note sits on the value there. Each note is a few words beside a small dot, with a thin leader to it; on a narrow card the notes become numbered markers with the texts listed under the chart. Example: [{ "x": "2026-03", "text": "Price rise" }]. |
 
 ### `list`
@@ -846,6 +884,7 @@ One dot per row placed by two numbers, to show how they relate. An optional grou
 | `reference` | array |  |  | Target lines and bands across the value axis. Each item is { value, label }, { field, agg, label } (agg: last, first, sum, avg, min, max; default avg), or { from, to, label } for a band. Example: [{ "value": 1200000, "label": "Target" }]. |
 | `cluster` | field name (category) |  |  | Field naming each dot's cluster, such as a segment found by analysis. A soft, rounded hull gathers each cluster's dots and carries its name at the middle, so the areas read as regions of the plot; the dots take the cluster's color unless color is set. Up to 6 clusters. |
 | `labels` | boolean |  | `false` | Write each dot's label beside it, skipping names that would land on another, so the standouts are named on the chart itself. |
+| `connect` | boolean |  | `false` | Draws a thin path through the dots in row order, one per color series, with an arrowhead at the last: a connected scatterplot, for two measures over time (sort the rows by date first). Pair with label to name the years. |
 | `quadrants` | object |  |  | Splits the plot into four at a value of x and of y, with a faint word in each corner: { "x": 50, "y": 3, "labels": ["Monitor", "Act now", "Prepare", "Watch"] } (top-left first, then clockwise). For priority grids such as pressure against impact. |
 | `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |
 | `annotations` | array |  |  | Short notes pinned to points of the chart, each { "x": <category or period>, "y"?: <value>, "text": "…" }. Without y the note sits on the value there. Each note is a few words beside a small dot, with a thin leader to it; on a narrow card the notes become numbered markers with the texts listed under the chart. Example: [{ "x": "2026-03", "text": "Price rise" }]. |
@@ -1056,7 +1095,7 @@ Slot: `style.preset`. A spec's own `style.tokens` and `style.palette` still win 
 
 | Preset | Look |
 | --- | --- |
-| `airy` | Editorial and chrome-free, on a light or a dark page: no card, generous whitespace, small grey labels over large numbers, warm orange leading the palette, solid value pills. |
+| `airy` | Editorial and chrome-free, on a light or a dark page: no card, generous whitespace, small grey labels over large numbers, blue leading the palette as in every look (a series keeps its color when the look changes), solid value pills. |
 | `default` | The house look: quiet cards with hairline borders, following the light or dark theme. Choosing it resets any other preset. |
 | `glass` | Frosted translucent cards for image or gradient backdrops: light frost or dark smoke with the theme, soft blur, large radius, pill bars on tracks, blue and gold leading the palette. |
 | `paper` | Editorial print for reports and briefings: a warm paper card under a black rule (a night edition on dark: warm dark paper, cream rule), serif titles and headline numbers, nearly square bars, deep ink blue leading the palette. |

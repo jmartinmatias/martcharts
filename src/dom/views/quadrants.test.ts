@@ -122,3 +122,14 @@ describe("scatter quadrants", () => {
     expect(ys.size).toBeGreaterThan(3);
   });
 });
+
+describe("connected scatterplot", () => {
+  test("draws one path through the dots in row order, with an arrowhead", async () => {
+    document.body.replaceChildren();
+    const rows = [2022, 2023, 2024, 2025].map((year, i) => ({ year: String(year), price: 10 + i, volume: [5, 8, 6, 9][i] }));
+    await createWidget(document.body, { data: { type: "inline", rows }, view: { type: "scatter", x: "price", y: "volume", label: "year", connect: true } } as WidgetSpec).ready;
+    const line = document.querySelector(".fft-connect-line");
+    expect(line?.getAttribute("d")?.match(/M/g)).toHaveLength(3);
+    expect(document.querySelector(".fft-connect-head")).not.toBeNull();
+  });
+});

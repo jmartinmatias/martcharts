@@ -127,7 +127,7 @@ export interface DataSpec {
   [option: string]: unknown;
 }
 
-/** Picks a transform block. Built in: `filter`, `sort`, `limit`, `aggregate`, `calc`. */
+/** Picks a transform block. Built in: `filter`, `sort`, `limit`, `aggregate`, `pivot`, `calc`, `bin`, `rag`, `window`. */
 export interface TransformSpec {
   type: string;
   [option: string]: unknown;

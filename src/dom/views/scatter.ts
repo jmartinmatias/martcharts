@@ -216,6 +216,42 @@ export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) =>
     chart.append(hulls);
   }
 
+  // Connected: a thin path through each series' dots in row order (sort by time first), an arrowhead at the latest,
+  // so two measures read as one journey over time.
+  // The connected path's steps, sampled, so the dots' names keep off it.
+  const trailPoints: { x: number; y: number }[] = [];
+  if (ctx.view.connect === true) {
+    const trails = svg(doc, "g", { class: "fft-connect" });
+    const groupsDrawn = series ? [...new Set(points.map((p) => p.group))] : [0];
+    for (const g of groupsDrawn) {
+      const run = points.filter((p) => !series || p.group === g).map((p) => ({ x: xs(p.x), y: yOf(p), r: p.r }));
+      if (run.length < 2) continue;
+      const color = series ? ctx.color(g) : "var(--fft-text-secondary)";
+      // Each step stops just short of its dots, so the path never runs into a dot's name beside it.
+      const r2 = (n: number) => Math.round(n * 100) / 100;
+      const steps = run.slice(1).map((to, i) => {
+        const from = run[i] as (typeof run)[number];
+        const length = Math.hypot(to.x - from.x, to.y - from.y);
+        const [cut0, cut1] = [from.r + 3, to.r + 3];
+        if (length <= cut0 + cut1 + 2) return "";
+        const [ux, uy] = [(to.x - from.x) / length, (to.y - from.y) / length];
+        for (let d = cut0; d <= length - cut1; d += 3) trailPoints.push({ x: from.x + ux * d, y: from.y + uy * d });
+        return `M${r2(from.x + ux * cut0)},${r2(from.y + uy * cut0)}L${r2(to.x - ux * cut1)},${r2(to.y - uy * cut1)}`;
+      });
+      const trail = svg(doc, "path", { class: "fft-connect-line", d: steps.join("") });
+      trail.style.setProperty("stroke", color);
+      // The arrowhead stops short of the last dot, pointing along the last step.
+      const [from, to] = [run[run.length - 2] as (typeof run)[number], run[run.length - 1] as (typeof run)[number]];
+      const angle = Math.atan2(to.y - from.y, to.x - from.x);
+      const tip = { x: to.x - Math.cos(angle) * (to.r + 3), y: to.y - Math.sin(angle) * (to.r + 3) };
+      const wing = (side: 1 | -1) => `${Math.round((tip.x - Math.cos(angle - side * 0.45) * 7) * 100) / 100},${Math.round((tip.y - Math.sin(angle - side * 0.45) * 7) * 100) / 100}`;
+      const head = svg(doc, "path", { class: "fft-connect-head", d: `M${wing(1)}L${Math.round(tip.x * 100) / 100},${Math.round(tip.y * 100) / 100}L${wing(-1)}` });
+      head.style.setProperty("stroke", color);
+      trails.append(trail, head);
+    }
+    chart.append(trails);
+  }
+
   const dots = svg(doc, "g");
   const overlay = svg(doc, "g");
   const marks: SVGCircleElement[] = [];
@@ -396,7 +432,10 @@ export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) =>
     const names = svg(doc, "g", { class: "fft-point-labels" });
     names.setAttribute("aria-hidden", "true");
     const taken: { x: number; y: number; width: number; height: number }[] = points.map((p) => ({ x: xs(p.x) - p.r, y: yOf(p) - p.r, width: p.r * 2, height: p.r * 2 }));
-    const clash = (a: { x: number; y: number; width: number; height: number }) => taken.some((b) => a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y);
+    // Off the connected path where a spot allows; where none does, a name may cross it rather than go missing.
+    const clash = (a: { x: number; y: number; width: number; height: number }, avoidTrail: boolean) =>
+      taken.some((b) => a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y) ||
+      (avoidTrail && trailPoints.some((t) => t.x > a.x - 2 && t.x < a.x + a.width + 2 && t.y > a.y - 1 && t.y < a.y + a.height + 1));
     for (const point of points) {
       const text = ctx.format(point.row[label], label);
       if (!text) continue;
@@ -410,9 +449,10 @@ export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) =>
         [cx, cy - point.r - 4, "middle"],
         [cx, cy + point.r + 13, "middle"],
       ];
-      for (const [x, y, anchor] of spots) {
+      const tries = (trailPoints.length ? [true, false] : [false]).flatMap((avoidTrail) => spots.map((spot) => [...spot, avoidTrail] as const));
+      for (const [x, y, anchor, avoidTrail] of tries) {
         const box = { x: anchor === "start" ? x : anchor === "end" ? x - width : x - width / 2, y: y - 11, width, height: 13 };
-        if (box.x < plot.x || box.x + box.width > plot.x + plot.w || box.y < plot.y - 8 || box.y + box.height > plot.y + plot.h || clash(box)) continue;
+        if (box.x < plot.x || box.x + box.width > plot.x + plot.w || box.y < plot.y - 8 || box.y + box.height > plot.y + plot.h || clash(box, avoidTrail)) continue;
         const node = svg(doc, "text", { class: "fft-point-label", x, y, "text-anchor": anchor });
         node.textContent = text;
         names.append(node);

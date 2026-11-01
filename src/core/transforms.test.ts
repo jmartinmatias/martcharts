@@ -265,3 +265,35 @@ describe("bin", () => {
     expect(applyTransforms([], [{ type: "bin", field: "v" }])).toEqual([]);
   });
 });
+
+describe("window", () => {
+  const rows = [5, 7, 6, 9, 12].map((revenue, i) => ({ month: i + 1, revenue }));
+  const run = (step: Record<string, unknown>) => applyTransforms(rows, [{ type: "window", field: "revenue", ...step } as never]);
+
+  test("rolling averages the last size readings, none before there are enough", () => {
+    expect(run({ op: "rolling", size: 3 }).map((r) => r.revenueRolling)).toEqual([null, null, 6, 22 / 3, 9]);
+  });
+
+  test("rolling with band adds low and high a number of standard deviations out", () => {
+    const [, , third] = run({ op: "rolling", size: 3, band: 2, as: "avg" });
+    const sd = Math.sqrt(((5 - 6) ** 2 + (7 - 6) ** 2 + 0) / 3);
+    expect(third?.avgLow).toBeCloseTo(6 - 2 * sd);
+    expect(third?.avgHigh).toBeCloseTo(6 + 2 * sd);
+  });
+
+  test("index, change and cumulative", () => {
+    expect(run({ op: "index" }).map((r) => r.revenueIndex)).toEqual([100, 140, 120, 180, 240]);
+    expect(run({ op: "change" }).map((r) => r.revenueChange)).toEqual([null, 0.4, -1 / 7, 0.5, 1 / 3]);
+    expect(run({ op: "cumulative" }).map((r) => r.revenueCumulative)).toEqual([5, 12, 18, 27, 39]);
+  });
+
+  test("by runs each group on its own", () => {
+    const long = [
+      { region: "N", v: 10 },
+      { region: "S", v: 4 },
+      { region: "N", v: 15 },
+      { region: "S", v: 2 },
+    ];
+    expect(applyTransforms(long, [{ type: "window", field: "v", op: "index", by: "region" } as never]).map((r) => r.vIndex)).toEqual([100, 100, 150, 50]);
+  });
+});

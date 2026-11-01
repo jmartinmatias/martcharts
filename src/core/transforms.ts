@@ -334,4 +334,72 @@ const rag: TransformBlock = {
   apply: (rows, step) => applyRag(rows, step as unknown as RagStep) as Row[],
 };
 
-export const builtinTransforms: TransformBlock[] = [filter, sort, limit, aggregate, pivot, calc, bin, rag];
+/** `{ type: "window", field, op, size?, band?, by?, as? }`: a field computed along the rows in their order. */
+export interface WindowStep {
+  type: "window";
+  field: string;
+  op: "rolling" | "index" | "change" | "cumulative";
+  size?: number;
+  band?: number;
+  by?: string;
+  as?: string;
+}
+
+const WINDOW_OPS = ["rolling", "index", "change", "cumulative"] as const;
+
+const windowStep: TransformBlock = {
+  type: "window",
+  description:
+    'Adds a field computed along the rows in their order (sort first): "rolling" is the average of the last size readings (a moving average; with band, also <as>Low and <as>High at that many standard deviations, Bollinger bands for a line\'s band); "index" rebases to 100 at the first reading, so series of different sizes compare by growth; "change" is the share up or down from the reading before (format it as percent); "cumulative" is the running total. With by, each group (a region, a product) runs on its own.',
+  options: {
+    field: { type: "field", required: true, description: "Numeric field to run along." },
+    op: { type: "enum", values: WINDOW_OPS, required: true, description: "rolling (moving average), index (100 at the first reading), change (share from the reading before) or cumulative (running total)." },
+    size: { type: "number", default: 3, description: "For rolling: how many readings each average covers, the current one included. The first size − 1 rows have none." },
+    band: { type: "number", description: "For rolling: also adds <as>Low and <as>High this many standard deviations either side of the average, for a line's band (Bollinger bands at 2)." },
+    by: { type: "field", description: "Field naming groups that each run on their own, such as region in long data." },
+    as: { type: "string", description: "Name of the new field. Defaults to <field> followed by the op: revenueRolling, revenueIndex, revenueChange, revenueCumulative." },
+  },
+  validate(step) {
+    const problems: string[] = [];
+    if (step.size !== undefined && !(typeof step.size === "number" && Number.isInteger(step.size) && step.size >= 1)) problems.push("size must be a whole number of at least 1.");
+    if (step.band !== undefined && !(typeof step.band === "number" && step.band > 0)) problems.push("band must be a positive number of standard deviations, such as 2.");
+    return problems;
+  },
+  apply(rows, step) {
+    const { field, op, size = 3, band, by } = step as unknown as WindowStep;
+    const as = (step as unknown as WindowStep).as ?? `${field}${op.charAt(0).toUpperCase()}${op.slice(1)}`;
+    // Each group's history so far, in row order.
+    const seen = new Map<unknown, (number | null)[]>();
+    return rows.map((row) => {
+      const key = by ? row[by] : undefined;
+      const history = seen.get(key) ?? [];
+      seen.set(key, history);
+      const value = toNumber(row[field]);
+      history.push(value);
+      const out: Row = { ...row };
+      if (op === "rolling") {
+        const last = history.slice(-size);
+        const known = last.filter((v): v is number => v !== null);
+        const mean = last.length === size && known.length === size ? known.reduce((a, b) => a + b, 0) / size : null;
+        out[as] = mean;
+        if (band !== undefined) {
+          const sd = mean === null ? null : Math.sqrt(known.reduce((sum, v) => sum + (v - mean) ** 2, 0) / size);
+          out[`${as}Low`] = mean === null || sd === null ? null : mean - band * sd;
+          out[`${as}High`] = mean === null || sd === null ? null : mean + band * sd;
+        }
+      } else if (op === "index") {
+        const base = history.find((v): v is number => v !== null && v !== 0);
+        out[as] = value === null || base === undefined ? null : (value / base) * 100;
+      } else if (op === "change") {
+        const before = history.length > 1 ? history[history.length - 2] : null;
+        out[as] = value === null || before === null || before === undefined || before === 0 ? null : (value - before) / Math.abs(before);
+      } else {
+        const total = history.reduce<number>((sum, v) => sum + (v ?? 0), 0);
+        out[as] = value === null ? null : total;
+      }
+      return out;
+    });
+  },
+};
+
+export const builtinTransforms: TransformBlock[] = [filter, sort, limit, aggregate, pivot, calc, bin, rag, windowStep];

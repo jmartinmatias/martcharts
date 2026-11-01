@@ -201,6 +201,8 @@ export interface ScatterView {
   x: string;
   y: string;
   size?: string;
+  /** Draws a path through the dots in row order, an arrowhead at the last. */
+  connect?: boolean;
   /** Field that colors the dots by group. */
   color?: string;
   label?: string;
@@ -938,6 +940,11 @@ const scatter: ViewBlock = {
         "Field naming each dot's cluster, such as a segment found by analysis. A soft, rounded hull gathers each cluster's dots and carries its name at the middle, so the areas read as regions of the plot; the dots take the cluster's color unless color is set. Up to 6 clusters.",
     },
     labels: { type: "boolean", default: false, description: "Write each dot's label beside it, skipping names that would land on another, so the standouts are named on the chart itself." },
+    connect: {
+      type: "boolean",
+      default: false,
+      description: "Draws a thin path through the dots in row order, one per color series, with an arrowhead at the last: a connected scatterplot, for two measures over time (sort the rows by date first). Pair with label to name the years.",
+    },
     quadrants: {
       type: "object",
       description:

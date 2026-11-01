@@ -923,6 +923,7 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-forecast-note { font-weight: 400; letter-spacing: 0; text-transform: none; }
 .fft-band { fill-opacity: 0.16; stroke: none; pointer-events: none; }
 .fft-between { fill-opacity: 0.18; stroke: none; pointer-events: none; }
+.fft-connect-line, .fft-connect-head { fill: none; stroke-width: 1.5; stroke-opacity: 0.6; stroke-linejoin: round; stroke-linecap: round; pointer-events: none; }
 .fft-area[data-forecast] { opacity: 0.5; }
 .fft-line[data-forecast] { stroke-dasharray: 5 5; }
 .fft-band-label { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); font-variant-numeric: tabular-nums; pointer-events: none; }
