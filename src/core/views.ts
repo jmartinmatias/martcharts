@@ -5,6 +5,8 @@
  *
  * @module
  */
+import { cyclePanels } from "./cycle.ts";
+import type { CycleBy } from "./cycle.ts";
 import { readNumber } from "./formats.ts";
 import { binValues, sturges } from "./scale.ts";
 import { basemapNames, featureId, geoProblem, normalizeId, resolveGeo } from "./geo.ts";
@@ -473,6 +475,15 @@ export interface RadarView {
   label: string;
   y: string | string[];
   max?: number;
+}
+
+/** `{ type: "cycle", x, value, by? }`: a cycle plot, one panel per day of the week or month, each its own line and average. */
+export interface CycleView {
+  type: "cycle";
+  x: string;
+  value: string;
+  /** The cycle to fold time into: "weekday" (Monday to Sunday) or "month" (January to December). Picked from the dates when unset. */
+  by?: "weekday" | "month";
 }
 
 /** `{ type: "horizon", x, y, bands?, baseline?, baselineLabel? }`: many time series in thin rows, values folded into bands of deepening color. */
@@ -1688,6 +1699,28 @@ const horizon: ViewBlock = {
   },
 };
 
+const cycle: ViewBlock = {
+  type: "cycle",
+  extent: (view, rows) => numbersOf(rows, [view.value]),
+  description:
+    "A cycle plot for a rhythm under a trend: one small panel per day of the week (or month of the year), side by side on one axis. In each, a thin line runs through that day's readings week after week, and a dark bar marks the day's average. The bars read the rhythm (Tuesdays are busiest, Sundays quietest); the lines read the trend within each day, which one long line mixes together.",
+  options: {
+    x: { type: "field", kind: "date", required: true, description: "Field with each reading's date: days for a weekly rhythm, months for a yearly one." },
+    value: { type: "field", kind: "number", required: true, description: "Field with the reading, such as orders or visits." },
+    by: {
+      type: "enum",
+      values: ["weekday", "month"],
+      description: '"weekday" folds the dates into Monday to Sunday, "month" into January to December. Unset, daily dates fold by weekday and monthly ones by month.',
+    },
+  },
+  checkData(view, rows) {
+    const { panels } = cyclePanels(rows, String(view.x), String(view.value), view.by as CycleBy | undefined);
+    const thin = panels.filter((p) => p.readings.length < 2).length;
+    if (panels.length < 2) return ["A cycle plot needs readings on at least 2 different days of the week or months; use a line instead."];
+    return thin ? [`${thin} of ${panels.length} panels have a single reading, so they show a dot and no trend: a few cycles of data read best (3 weeks or more).`] : [];
+  },
+};
+
 const rose: ViewBlock = {
   type: "rose",
   extent: (view, rows) => [...numbersOf(rows, Array.isArray(view.y) ? view.y : [view.y]), ...(typeof view.max === "number" ? [view.max] : [])],
@@ -2530,4 +2563,4 @@ for (const type of SHAPE_VIEWS) {
   withChecks(block, shapeProblems);
 }
 
-export const builtinViews: ViewBlock[] = [table, list, kpi, kpis, bar, hbar, line, area, meter, bullet, donut, treemap, funnel, waterfall, heatmap, calendar, scatter, beeswarm, ridgeline, sankey, dumbbell, slope, bump, marimekko, histogram, rings, timeline, waffle, variance, gauge, pareto, boxplot, likert, candlestick, sunburst, chord, radar, rose, horizon, icicle, dot, pyramid, dual, choropleth, symbols, locator, pie, matrix, strips, lifecycle, whitespace, xray, history, anomalies, board, ragboard, ragtrend];
+export const builtinViews: ViewBlock[] = [table, list, kpi, kpis, bar, hbar, line, area, meter, bullet, donut, treemap, funnel, waterfall, heatmap, calendar, scatter, beeswarm, ridgeline, sankey, dumbbell, slope, bump, marimekko, histogram, rings, timeline, waffle, variance, gauge, pareto, boxplot, likert, candlestick, sunburst, chord, radar, rose, horizon, cycle, icicle, dot, pyramid, dual, choropleth, symbols, locator, pie, matrix, strips, lifecycle, whitespace, xray, history, anomalies, board, ragboard, ragtrend];

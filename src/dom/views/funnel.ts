@@ -26,6 +26,8 @@ export const renderFunnel: ViewRenderer<FunnelView> = (ctx) => {
   const picked = highlights((ctx.view as { highlight?: unknown }).highlight);
   const muted = (row: Row) => picked.length > 0 && !picked.includes(String(row[label]));
   const funnel = html(doc, "div", "fft-funnel");
+  // In a row stretched by a taller neighbour, the steps sit in the middle of their card, not at the top of empty floor.
+  if (!ctx.inFacet) funnel.dataset.fill = "";
   funnel.setAttribute("role", "list");
   const group = activeGroup(funnel, ctx.tooltip);
   const hits: Element[] = [];

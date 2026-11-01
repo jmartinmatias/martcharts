@@ -176,7 +176,7 @@ describe("skeletons", () => {
   test("every built-in view has its own silhouette, never the generic fallback by accident", () => {
     const generic = blockTypes("view").filter((type) => skeletonShape(type) === "plot");
     // These are drawn on two axes, so the soft area is their own shape, not a fallback.
-    expect(generic.sort()).toEqual(["area", "bump", "dual", "line", "sankey", "scatter", "slope"].filter((type) => blockTypes("view").includes(type)).sort());
+    expect(generic.sort()).toEqual(["area", "bump", "cycle", "dual", "line", "sankey", "scatter", "slope"].filter((type) => blockTypes("view").includes(type)).sort());
     expect(skeletonShape("some-plugin-view")).toBe("plot");
     for (const type of ["matrix", "strips", "lifecycle", "whitespace", "xray", "history", "board", "anomalies"]) expect([type, skeletonShape(type)]).not.toEqual([type, "plot"]);
   });

@@ -196,6 +196,11 @@ export function explainVariant(written: WidgetSpec, chartTitle: string, rowName?
       mark = `each wedge is one ${name(view.label)}`;
       read = "A bigger wedge means more; going round the dial is going round the cycle.";
       break;
+    case "cycle":
+      form = "panels by day or month";
+      mark = `each panel is one day of the week or month, its line the ${name(view.value)} in date order`;
+      read = "The bar across a panel is its average: a higher bar is a stronger day; a line climbing inside its panel is a day that grows.";
+      break;
     case "horizon":
       form = "thin folded rows";
       mark = "each row is one series";

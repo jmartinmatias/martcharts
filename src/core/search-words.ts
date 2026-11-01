@@ -46,6 +46,7 @@ export const SEARCH_WORDS: Record<string, string> = {
   radar: "profile spider attributes",
   rose: "cycle hours months polar seasonal",
   horizon: "many time series compact",
+  cycle: "weekday day of week weekly rhythm seasonality seasonal monthly pattern",
   icicle: "hierarchy nested breakdown",
   dot: "ratings scores compare measures",
   pyramid: "age population two groups back to back",

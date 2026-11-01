@@ -17,6 +17,18 @@ type Pair = [fr: string, de: string];
 
 /** Each option's hint, by its English description. */
 export const OPTION_HINTS: Record<string, Pair> = {
+ "Field with each reading's date: days for a weekly rhythm, months for a yearly one.": [
+  "Champ avec la date de chaque relevé : des jours pour un rythme hebdomadaire, des mois pour un rythme annuel.",
+  "Feld mit dem Datum jedes Werts: Tage für einen Wochenrhythmus, Monate für einen Jahresrhythmus."
+ ],
+ "Field with the reading, such as orders or visits.": [
+  "Champ avec le relevé, comme les commandes ou les visites.",
+  "Feld mit dem Wert, etwa Bestellungen oder Besuche."
+ ],
+ "\"weekday\" folds the dates into Monday to Sunday, \"month\" into January to December. Unset, daily dates fold by weekday and monthly ones by month.": [
+  "\"weekday\" range les dates du lundi au dimanche, \"month\" de janvier à décembre. Sans réglage, des dates quotidiennes se rangent par jour de la semaine et des dates mensuelles par mois.",
+  "\"weekday\" ordnet die Daten von Montag bis Sonntag, \"month\" von Januar bis Dezember. Ohne Angabe werden tägliche Daten nach Wochentag und monatliche nach Monat geordnet."
+ ],
  "Draws a thin path through the dots in row order, one per color series, with an arrowhead at the last: a connected scatterplot, for two measures over time (sort the rows by date first). Pair with label to name the years.": [
   "Trace un fin chemin à travers les points dans l'ordre des lignes, un par série de couleur, avec une pointe de flèche au dernier : un nuage de points relié, pour deux mesures dans le temps (triez d'abord les lignes par date). À associer à label pour nommer les années.",
   "Zieht einen feinen Pfad durch die Punkte in Zeilenreihenfolge, einen je Farbreihe, mit einer Pfeilspitze am letzten: ein verbundenes Streudiagramm für zwei Kennzahlen über die Zeit (Zeilen zuerst nach Datum sortieren). Mit label kombinieren, um die Jahre zu benennen."
@@ -1097,6 +1109,10 @@ export const OPTION_HINTS: Record<string, Pair> = {
 
 /** Each option's label, by its name. */
 export const OPTION_NAMES: Record<string, Pair> = {
+ "by": [
+  "Cycle",
+  "Zyklus"
+ ],
  "connect": [
   "Relier les points",
   "Punkte verbinden"
@@ -1601,6 +1617,30 @@ export const OPTION_NAMES: Record<string, Pair> = {
 
 /** The guide's "best for" and "least useful for" lines, by their English. */
 export const GUIDE_USES: Record<string, Pair> = {
+ "A weekly rhythm under a trend: orders, visits or tickets by day of the week": [
+  "Un rythme hebdomadaire sous une tendance : commandes, visites ou tickets par jour de la semaine",
+  "Ein Wochenrhythmus unter einem Trend: Bestellungen, Besuche oder Tickets nach Wochentag"
+ ],
+ "Seasonality across years: which months are strong, and whether each is growing": [
+  "La saisonnalité sur plusieurs années : quels mois sont forts, et si chacun progresse",
+  "Saisonalität über Jahre: welche Monate stark sind und ob jeder wächst"
+ ],
+ "Telling a busy Monday apart from a growing business": [
+  "Distinguer un lundi chargé d'une activité qui grandit",
+  "Einen vollen Montag von einem wachsenden Geschäft unterscheiden"
+ ],
+ "Fewer than about three cycles of data (use line)": [
+  "Moins de trois cycles de données environ (utilisez line)",
+  "Weniger als etwa drei Zyklen an Daten (line verwenden)"
+ ],
+ "Several measures at once (use line or small multiples)": [
+  "Plusieurs mesures à la fois (utilisez line ou de petits multiples)",
+  "Mehrere Kennzahlen zugleich (line oder kleine Vielfache verwenden)"
+ ],
+ "Readings with no date (use bar)": [
+  "Des relevés sans date (utilisez bar)",
+  "Werte ohne Datum (bar verwenden)"
+ ],
  "Watching a dozen daily measures at once and seeing which stepped out of line: net new money, fees, trades, complaints": [
   "Suivre une douzaine de mesures quotidiennes à la fois et voir laquelle déraille : collecte nette, commissions, transactions, réclamations",
   "Ein Dutzend täglicher Kennzahlen gleichzeitig beobachten und sehen, welche ausschert: Netto-Neugeld, Gebühren, Transaktionen, Beschwerden"
@@ -2569,6 +2609,10 @@ export const GUIDE_USES: Record<string, Pair> = {
 
 /** How each chart is built, by its English. */
 export const GUIDE_BUILDS: Record<string, Pair> = {
+ "One panel per day of the week (or month of the year), side by side on one axis: a thin line through that day's readings in date order, and a bar across it at the day's average.": [
+  "Un panneau par jour de la semaine (ou par mois), côte à côte sur un même axe : une fine ligne à travers les relevés de ce jour dans l'ordre des dates, et une barre en travers à sa moyenne.",
+  "Ein Feld je Wochentag (oder Monat), nebeneinander auf einer Achse: eine dünne Linie durch die Werte dieses Tages in Datumsfolge und ein Balken quer darüber auf seinem Durchschnitt."
+ ],
  "One lane per metric over the shared time axis, each on its own scale: the expected band as a faint fill, the expected value as a hairline, the actual as a line, flagged readings as alert dots; lanes sorted by how many were flagged.": [
   "Un couloir par mesure sur l'axe du temps commun, chacun à sa propre échelle : la bande attendue en aplat pâle, la valeur attendue en trait fin, le réel en ligne, les relevés signalés en points d'alerte ; les couloirs sont classés par nombre de signalements.",
   "Eine Bahn je Kennzahl auf der gemeinsamen Zeitachse, jede auf eigener Skala: das erwartete Band als blasse Fläche, der erwartete Wert als feine Linie, der Istwert als Linie, markierte Werte als Warnpunkte; die Bahnen nach Zahl der Markierungen sortiert."

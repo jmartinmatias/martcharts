@@ -1,4 +1,6 @@
 import { resolveReferences } from "./reference.ts";
+import { cyclePanels, cycleStandout } from "./cycle.ts";
+import type { CycleBy } from "./cycle.ts";
 /**
  * Plain reading guides for charts: one to three short sentences that say what
  * each mark is and what bigger, longer, stronger or further right means, in the
@@ -719,6 +721,19 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const bin = bins.reduce<(typeof bins)[number] | undefined>((best, b) => (best && best.count >= b.count ? best : b), undefined);
       const edge = (n: number) => formatValue(n, spec.fields?.[field]?.format, spec.locale);
       return bin && bin.count > 0 ? `Here, the most common range is ${edge(bin.start)} to ${edge(bin.end)}, which happened ${bin.count} times.` : "";
+    }
+    case "cycle": {
+      const [x, amount] = [one(view.x), one(view.value)];
+      if (!x || !amount) return "";
+      const { by, panels } = cyclePanels(rows, x, amount, view.by as CycleBy | undefined, "en-US");
+      const out = cycleStandout(panels);
+      if (!out || out.high === out.low) return "";
+      const show = (n: number) => formatValue(Math.round(n), spec.fields?.[amount]?.format, spec.locale);
+      // "Tuesdays are highest" for days, "December is highest" for months: a day recurs each week, a month each year.
+      const [hi, lo] = by === "weekday" ? [`${out.high.long}s are`, `${out.low.long}s`] : [`${out.high.long} is`, out.low.long];
+      const unit = by === "weekday" ? "day" : "month";
+      const grew = out.grew === panels.length ? `every ${unit} grew over the period` : out.grew === 0 ? `no ${unit} grew over the period` : `${out.grew} of ${panels.length} ${unit}s grew over the period`;
+      return `Here, ${hi} highest, averaging ${show(out.high.mean)} ${nameOf(amount, spec)}, and ${lo} lowest, at ${show(out.low.mean)}; ${grew}.`;
     }
     case "horizon": {
       const x = one(view.x);
@@ -1528,6 +1543,11 @@ function guide(spec: WidgetSpec): string {
       return `Each spoke is one ${name(one(view.label))}. The further a point sits from the center, the higher the score; a bigger shape is better overall.`;
     case "rose":
       return `Each slice is one ${name(one(view.label))}, going round like a clock. The bigger a slice's area, the more ${series.length > 1 ? `in that ${name(one(view.label))}, the parts stacked from the center out` : name(series[0])}.`;
+    case "cycle": {
+      const unit = view.by === "month" || (view.by === undefined && /month/i.test(one(view.x) ?? "")) ? "month" : "day of the week";
+      const short = unit === "month" ? "month" : "day";
+      return `Each panel is one ${unit}: its line runs through that ${short}'s ${name(one(view.value))} in date order, and the bar across it is the ${short}'s average. The bars compare the ${short}s; each line shows whether its ${short} is growing.`;
+    }
     case "horizon":
     {
       // A named baseline ("plan") reads in its own words.

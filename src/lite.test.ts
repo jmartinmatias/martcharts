@@ -17,7 +17,7 @@ const FULL_BEFORE = 298_224;
 describe("bundle sizes (after npm run build:lib)", () => {
   const full = gz("dist/martcharts.iife.js");
   const lite = gz("dist/martcharts-lite.iife.js");
-  test.skipIf(full === undefined)("the full bundle stays within 14% of its size when the lite build began", () => {
+  test.skipIf(full === undefined)("the full bundle stays within 15% of its size when the lite build began", () => {
     // 5% until the builder and reading features of late October 2026: the Composer's saved dashboards with undo, refs
     // unique to each chart's place, quarters in words, per-row units and the phone layout of the whitespace grid took
     // it to 105.6%. Raise it again only for a feature, never for creep.
@@ -31,9 +31,11 @@ describe("bundle sizes (after npm run build:lib)", () => {
     // fill between two lines, and flag and image cells (1 November 2026) took it to 112.3%.
     // 14% after ghosts (compare on horizontal bars, meters and lines, with the change since in tooltips and keys) took
     // it to 113.2% (1 November 2026).
-    expect(full).toBeLessThanOrEqual(Math.round(FULL_BEFORE * 1.14));
+    // 15% after the cycle view (a cycle plot: one panel per weekday or month) and the outcomes view (a quantile dot
+    // plot of a forecast's likely results), with their guides in three languages (1 November 2026).
+    expect(full).toBeLessThanOrEqual(Math.round(FULL_BEFORE * 1.15));
   });
-  test.skipIf(lite === undefined || full === undefined)("the lite bundle stays under 80% of the full bundle's starting size, and under three quarters of today's", () => {
+  test.skipIf(lite === undefined || full === undefined)("the lite bundle stays under 82% of the full bundle's starting size, and under three quarters of today's", () => {
     // 206,759 bytes gzipped when made: 69% of 298,224. What remains is what showing charts uses: the English reading
     // guides, the stylesheet, the views' option schemas (validation messages read them) and the chart picker behind
     // <fft-widget data="…">.
@@ -50,7 +52,9 @@ describe("bundle sizes (after npm run build:lib)", () => {
     // phone row cards, fold-out buttons, two-column status grids, waterfall names that wrap or lean) took it to 78.1%.
     // 80% after the takeaway line every card can lead with (and screen readers hear), shaded ranges, the fill between
     // two lines, and flag and image cells (1 November 2026) took it to 79.1%.
-    expect(lite).toBeLessThanOrEqual(Math.round(FULL_BEFORE * 0.8));
+    // 82% after ghosts on bars, meters and lines, and two new views every page can draw, cycle and outcomes, with their
+    // English guides (1 November 2026).
+    expect(lite).toBeLessThanOrEqual(Math.round(FULL_BEFORE * 0.82));
     expect(lite as number).toBeLessThan((full as number) * 0.75);
   });
   test.skipIf(!existsSync("dist/martcharts-lite.iife.js"))("the lite bundle carries no editor, composer, Taller, palette picker or French and German reading", () => {

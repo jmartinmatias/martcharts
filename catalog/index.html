@@ -52,7 +52,7 @@
   <nav class="site-tabs" aria-label="Catalog"><a href="index.html" aria-current="page">Charts</a><a href="guide.html">Data guide</a></nav>
   <header class="page">
     <h1>Catalog</h1>
-    <p>57 chart types. Each is one tag, <code>&lt;fft-widget src="&lt;type&gt;.json"&gt;</code>, with its data built in and a spec to copy.</p>
+    <p>58 chart types. Each is one tag, <code>&lt;fft-widget src="&lt;type&gt;.json"&gt;</code>, with its data built in and a spec to copy.</p>
   </header>
   <p><label for="find">Find a chart by name, question, data or ref (W-…)</label><br><input id="find" type="search" placeholder="trend, share, date, W-Y606…" autocomplete="off"><span class="count" id="count" aria-live="polite"></span></p>
   <ul class="ref-hits" id="ref-hits" aria-live="polite" hidden></ul>
@@ -141,6 +141,13 @@
       <p class="needs" data-fr="il faut id : catégorie" data-de="braucht id: Kategorie">needs id: category</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="choropleth">Copy spec</button><button type="button" data-copy="tag" data-type="choropleth">Copy tag</button><a href="guide.html#c-choropleth">Data and switches</a></div>
       <fft-widget src="choropleth.json" actions="info csv image explain expand"></fft-widget>
+    </section>
+    <section class="card" id="cycle" data-search="cycle a cycle plot for a rhythm under a trend: one small panel per day of the week (or month of the year), side by side on one axis. un graphique cyclique : un petit panneau par jour de la semaine (ou par mois), côte à côte sur un même axe, avec la ligne des relevés de ce jour et une barre à sa moyenne. ein zyklusdiagramm: ein kleines feld je wochentag (oder monat), nebeneinander auf einer achse, mit der linie der werte dieses tages und einem balken auf seinem durchschnitt. x: date, value: number weekday day of week weekly rhythm seasonality seasonal monthly pattern" data-more="which day of the week has the most orders, and is each one growing?">
+      <h2>cycle</h2>
+      <p data-fr="Un graphique cyclique : un petit panneau par jour de la semaine (ou par mois), côte à côte sur un même axe, avec la ligne des relevés de ce jour et une barre à sa moyenne." data-de="Ein Zyklusdiagramm: ein kleines Feld je Wochentag (oder Monat), nebeneinander auf einer Achse, mit der Linie der Werte dieses Tages und einem Balken auf seinem Durchschnitt.">A cycle plot for a rhythm under a trend: one small panel per day of the week (or month of the year), side by side on one axis.</p>
+      <p class="needs" data-fr="il faut x : date, value : nombre" data-de="braucht x: Datum, value: Zahl">needs x: date, value: number</p>
+      <div class="tools"><button type="button" data-copy="spec" data-type="cycle">Copy spec</button><button type="button" data-copy="tag" data-type="cycle">Copy tag</button><a href="guide.html#c-cycle">Data and switches</a></div>
+      <fft-widget src="cycle.json" actions="info csv image explain expand"></fft-widget>
     </section>
     <section class="card" id="donut" data-search="donut part-to-whole at a glance: a ring of up to 6 slices with the total in the middle and a legend of values and shares. la part d'un tout d'un coup d'œil : un anneau de 6 parts au plus, le total au centre et une légende des valeurs et des parts. anteil am ganzen auf einen blick: ein ring mit höchstens 6 stücken, die summe in der mitte und eine legende der werte und anteile. label: category, value: number share split breakdown part of whole ring" data-more="what share of revenue comes from each segment?">
       <h2>donut</h2>

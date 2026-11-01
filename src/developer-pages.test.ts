@@ -83,12 +83,12 @@ describe("the Data guide", () => {
     expect(inline(doc)).toEqual([]);
     expect(doc.querySelector('input#find[type="search"]')).not.toBeNull();
     const charts = [...doc.querySelectorAll("section.chart")];
-    expect(charts.length).toBe(57);
+    expect(charts.length).toBe(58);
     for (const chart of charts) expect([chart.id, chart.querySelector(":scope > details.more:not([open])") !== null, Boolean(chart.getAttribute("data-search"))]).toEqual([chart.id, true, true]);
     expect(doc.querySelector("details.matrix-box:not([open]) .matrix")).not.toBeNull();
     // No chart loads until its detail opens.
     expect(doc.querySelectorAll("fft-widget[src]").length).toBe(0);
-    expect(doc.querySelectorAll("fft-widget[data-src]").length).toBe(57);
+    expect(doc.querySelectorAll("fft-widget[data-src]").length).toBe(58);
   });
 
   test("folded, the page stays small: headings and summaries first, not 174,030px of detail", () => {
@@ -108,7 +108,7 @@ describe("the Data guide", () => {
     find.dispatchEvent(new Event("input"));
     const shown = [...document.querySelectorAll("section.chart")].filter((s) => !(s as HTMLElement).hidden).map((s) => s.id);
     expect(shown).toEqual(expect.arrayContaining(["c-choropleth", "c-symbols", "c-locator"]));
-    expect(document.getElementById("count")?.textContent).toBe(`${shown.length} of 57`);
+    expect(document.getElementById("count")?.textContent).toBe(`${shown.length} of 58`);
     find.value = "zzzz";
     find.dispatchEvent(new Event("input"));
     expect((document.getElementById("none") as HTMLElement).hidden).toBe(false);

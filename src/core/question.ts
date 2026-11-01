@@ -302,6 +302,12 @@ function questionEn(written: WidgetSpec, rows: Row[]): Question {
       if (x && y && value) return ask("rhythm", `which ${name(x).toLowerCase()} and ${name(y).toLowerCase()} have the most ${name(value)}?`);
       break;
     }
+    case "cycle": {
+      const amount = one(view.value);
+      const unit = view.by === "month" || (view.by === undefined && /month/i.test(one(view.x) ?? "")) ? "month of the year" : "day of the week";
+      if (amount) return ask("rhythm", `which ${unit} has the most ${name(amount)}, and is each one growing?`);
+      break;
+    }
     case "horizon": {
       const x = one(view.x);
       const against = typeof view.baselineLabel === "string" && view.baselineLabel.trim() ? ` against ${view.baselineLabel.trim()}` : "";

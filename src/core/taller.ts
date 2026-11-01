@@ -808,7 +808,7 @@ const BY_CATEGORY = new Set(["donut", "pie", "waffle", "treemap", "sunburst", "i
 /** Families of views: a version in another family than the original brings surprise. */
 export const FAMILY: Record<string, string> = {
   bar: "rank", hbar: "rank", list: "rank", pareto: "rank", bullet: "target", variance: "target", meter: "target", gauge: "target", rings: "target",
-  line: "time", area: "time", kpi: "number", kpis: "number", calendar: "time", horizon: "time", bump: "time", timeline: "time", candlestick: "time",
+  line: "time", area: "time", kpi: "number", kpis: "number", calendar: "time", horizon: "time", cycle: "time", bump: "time", timeline: "time", candlestick: "time",
   donut: "whole", pie: "whole", anomalies: "time", waffle: "whole", treemap: "whole", sunburst: "hierarchy", icicle: "hierarchy", marimekko: "whole",
   histogram: "spread", beeswarm: "spread", boxplot: "spread", ridgeline: "spread",
   scatter: "relation", dumbbell: "relation", slope: "relation", radar: "profile", rose: "cycle", likert: "survey",
@@ -916,7 +916,7 @@ export const BASE_QUALITIES: Record<string, [number, number, number, number, num
     histogram: [0.15, 0.25, 0.25, 0.4, 0.35], beeswarm: [0.15, 0.35, 0.25, 0.3, 0.35], boxplot: [0.15, 0.3, 0.4, 0.2, 0.4],
     scatter: [0.15, 0.3, 0.2, 0.25, 0.45], dumbbell: [0.25, 0.3, 0.3, 0.2, 0.45], slope: [0.25, 0.35, 0.3, 0.15, 0.45],
     variance: [0.35, 0.25, 0.6, 0.3, 0.45], bullet: [0.3, 0.2, 0.4, 0.3, 0.45], sunburst: [0.25, 0.35, 0.05, 0.5, 0.3], icicle: [0.25, 0.35, 0.05, 0.5, 0.35],
-    heatmap: [0.2, 0.3, 0.2, 0.55, 0.35], marimekko: [0.2, 0.4, 0.1, 0.55, 0.35], horizon: [0.2, 0.45, 0.35, 0.45, 0.4], calendar: [0.2, 0.4, 0.15, 0.5, 0.3],
+    heatmap: [0.2, 0.3, 0.2, 0.55, 0.35], marimekko: [0.2, 0.4, 0.1, 0.55, 0.35], horizon: [0.2, 0.45, 0.35, 0.45, 0.4], cycle: [0.25, 0.45, 0.35, 0.4, 0.4], calendar: [0.2, 0.4, 0.15, 0.5, 0.3],
     rose: [0.25, 0.5, 0.05, 0.45, 0.25], radar: [0.2, 0.4, 0.1, 0.35, 0.35], bump: [0.25, 0.35, 0.2, 0.2, 0.4],
     dot: [0.3, 0.25, 0.2, 0.35, 0.35], pyramid: [0.3, 0.35, 0.15, 0.4, 0.35], dual: [0.2, 0.3, 0.35, 0.3, 0.45],
     choropleth: [0.3, 0.35, 0.15, 0.45, 0.35], symbols: [0.3, 0.4, 0.15, 0.4, 0.35], locator: [0.2, 0.3, 0.1, 0.3, 0.2], pie: [0.3, 0.1, 0.05, 0.4, 0.2],

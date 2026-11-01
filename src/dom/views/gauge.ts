@@ -37,6 +37,8 @@ export const renderGauge: ViewRenderer<GaugeView> = (ctx) => {
   const angle = (share: number) => -HALF + share * Math.PI;
 
   const wrap = html(doc, "div", "fft-gauge");
+  // In a row stretched by a taller neighbour, the dial sits in the middle of its card, not at the top of empty floor.
+  if (!ctx.inFacet) wrap.dataset.fill = "";
   const chart = svg(doc, "svg", { width, height, viewBox: `0 0 ${width} ${height}` });
   chart.setAttribute("role", "group");
   chart.setAttribute("aria-label", wordsFor(ctx).aria.gauge(ctx.label(field), show(min), show(max)));

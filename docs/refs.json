@@ -630,6 +630,24 @@
     }
   },
   {
+    "ref": "W-AJVJ",
+    "title": "Order rhythm",
+    "titles": {
+      "fr": "Rythme des commandes",
+      "de": "Bestellrhythmus"
+    },
+    "key": "order-rhythm",
+    "place": "",
+    "where": "Dashboards › Sales › Operations and sentiment",
+    "url": "dashboards.html?board=sales#W-AJVJ",
+    "board": "sales",
+    "section": "Operations and sentiment",
+    "sections": {
+      "fr": "Opérations et satisfaction",
+      "de": "Betrieb und Stimmung"
+    }
+  },
+  {
     "ref": "W-GKF3",
     "title": "What drives support tickets",
     "titles": {
@@ -2106,6 +2124,18 @@
     "formerly": "W-89RF"
   },
   {
+    "ref": "W-P75P",
+    "title": "Order rhythm",
+    "titles": {
+      "fr": "Rythme des commandes",
+      "de": "Bestellrhythmus"
+    },
+    "key": "order-rhythm",
+    "place": "catalog",
+    "where": "Catalog › cycle",
+    "url": "catalog/index.html#cycle"
+  },
+  {
     "ref": "W-ZHRD",
     "title": "Revenue by segment",
     "titles": {
@@ -2808,6 +2838,18 @@
     "place": "guide",
     "where": "Catalog › Data guide › choropleth",
     "url": "catalog/guide.html#c-choropleth"
+  },
+  {
+    "ref": "W-FF1H",
+    "title": "Order rhythm",
+    "titles": {
+      "fr": "Rythme des commandes",
+      "de": "Bestellrhythmus"
+    },
+    "key": "order-rhythm",
+    "place": "guide",
+    "where": "Catalog › Data guide › cycle",
+    "url": "catalog/guide.html#c-cycle"
   },
   {
     "ref": "W-PN3M",

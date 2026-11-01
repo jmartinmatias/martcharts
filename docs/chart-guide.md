@@ -12,7 +12,7 @@ In code: `dataContract(spec, rows)`, `switchChart(spec, to, rows)`, `switchOptio
 | --- | --- | --- |
 | Comparing amounts across categories | [`bar`](#bar), [`hbar`](#hbar), [`dot`](#dot), [`choropleth`](#choropleth), [`symbols`](#symbols) | [`boxplot`](#boxplot), [`bullet`](#bullet), [`dumbbell`](#dumbbell), [`horizon`](#horizon), [`likert`](#likert), [`line`](#line), [`marimekko`](#marimekko), [`radar`](#radar), [`ridgeline`](#ridgeline), [`variance`](#variance), [`pyramid`](#pyramid), [`matrix`](#matrix), [`strips`](#strips) |
 | Ranking, top to bottom | [`bump`](#bump), [`hbar`](#hbar), [`pareto`](#pareto) | [`bar`](#bar), [`list`](#list), [`slope`](#slope), [`dot`](#dot) |
-| Trend over time | [`area`](#area), [`candlestick`](#candlestick), [`horizon`](#horizon), [`line`](#line), [`dual`](#dual) | [`bar`](#bar), [`bump`](#bump), [`calendar`](#calendar), [`anomalies`](#anomalies), [`ragtrend`](#ragtrend) |
+| Trend over time | [`area`](#area), [`candlestick`](#candlestick), [`horizon`](#horizon), [`line`](#line), [`dual`](#dual) | [`bar`](#bar), [`bump`](#bump), [`calendar`](#calendar), [`cycle`](#cycle), [`anomalies`](#anomalies), [`ragtrend`](#ragtrend) |
 | Share of one whole | [`donut`](#donut), [`pie`](#pie), [`treemap`](#treemap), [`waffle`](#waffle) | [`icicle`](#icicle), [`likert`](#likert), [`marimekko`](#marimekko), [`pareto`](#pareto), [`sunburst`](#sunburst) |
 | How each group or period splits | [`marimekko`](#marimekko), [`strips`](#strips), [`whitespace`](#whitespace) | [`area`](#area), [`bar`](#bar) |
 | How values spread | [`beeswarm`](#beeswarm), [`boxplot`](#boxplot), [`histogram`](#histogram), [`ridgeline`](#ridgeline), [`pyramid`](#pyramid) |  |
@@ -23,7 +23,7 @@ In code: `dataContract(spec, rows)`, `switchChart(spec, to, rows)`, `switchOptio
 | Actual against target or plan | [`bullet`](#bullet), [`gauge`](#gauge), [`meter`](#meter), [`rings`](#rings), [`variance`](#variance), [`ragboard`](#ragboard) | [`line`](#line) |
 | Change between two points | [`dumbbell`](#dumbbell), [`slope`](#slope), [`ragtrend`](#ragtrend) | [`waterfall`](#waterfall), [`lifecycle`](#lifecycle) |
 | What drives or moves a total | [`pareto`](#pareto), [`waterfall`](#waterfall) | [`variance`](#variance) |
-| Patterns across two dimensions or a cycle | [`calendar`](#calendar), [`heatmap`](#heatmap), [`rose`](#rose), [`matrix`](#matrix), [`anomalies`](#anomalies) | [`choropleth`](#choropleth), [`symbols`](#symbols) |
+| Patterns across two dimensions or a cycle | [`calendar`](#calendar), [`heatmap`](#heatmap), [`cycle`](#cycle), [`rose`](#rose), [`matrix`](#matrix), [`anomalies`](#anomalies) | [`choropleth`](#choropleth), [`symbols`](#symbols) |
 | Profiles across several attributes | [`radar`](#radar) |  |
 | Survey and rating answers | [`likert`](#likert) |  |
 | Schedules and plans | [`timeline`](#timeline), [`lifecycle`](#lifecycle), [`history`](#history) |  |
@@ -376,6 +376,32 @@ A map with each region shaded by its value, from the weakest tint to the stronge
 | `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up comparing amounts across categories. |
 | `bar` | stretch | same | Keeps the job (comparing amounts across categories) with a different look. *24 rows: this chart crowds past about 16.* |
 | `list` | stretch | different | Answers a different question: better for ranking, top to bottom and exact values and lookup, but gives up comparing amounts across categories. *24 rows: this chart crowds past about 20.* |
+
+## cycle
+
+A cycle plot for a rhythm under a trend: one small panel per day of the week (or month of the year), side by side on one axis.
+
+**Jobs**: patterns across two dimensions or a cycle (best), trend over time (good).
+
+**Best for**: A weekly rhythm under a trend: orders, visits or tickets by day of the week; Seasonality across years: which months are strong, and whether each is growing; Telling a busy Monday apart from a growing business.
+
+**Least useful for**: Fewer than about three cycles of data (use line); Several measures at once (use line or small multiples); Readings with no date (use bar).
+
+**One row is**: One row per point in time, in order. **Built**: One panel per day of the week (or month of the year), side by side on one axis: a thin line through that day's readings in date order, and a bar across it at the day's average.
+
+**Needs**: `x` (date), `value` (number). Example: 183 rows of `day`, `orders`. [Full entry with the data](../catalog/guide/cycle.md).
+
+| Switch to | Fit | Verdict | Assessment |
+| --- | --- | --- | --- |
+| `calendar` | fits | same | Keeps the job (patterns across two dimensions or a cycle) with a different look. |
+| `area` | fits | different | Answers a different question: better for how each group or period splits and trend over time, but gives up patterns across two dimensions or a cycle. |
+| `line` | fits | different | Answers a different question: better for comparing amounts across categories and actual against target or plan, but gives up patterns across two dimensions or a cycle. Shows the whole run in order, every day after the last; the rhythm and the trend mix together again. |
+| `beeswarm` | fits | different | Answers a different question: better for how values spread, but gives up patterns across two dimensions or a cycle. |
+| `histogram` | fits | different | Answers a different question: better for how values spread, but gives up patterns across two dimensions or a cycle. |
+| `kpi` | fits | different | Answers a different question: better for a headline number, but gives up patterns across two dimensions or a cycle. |
+| `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up patterns across two dimensions or a cycle. |
+| `rose` | stretch | same | Keeps the job (patterns across two dimensions or a cycle) with a different look. *183 rows: this chart crowds past about 36.* |
+| `list` | stretch | different | Answers a different question: better for exact values and lookup and ranking, top to bottom, but gives up patterns across two dimensions or a cycle. *183 rows: this chart crowds past about 20.* |
 
 ## donut
 

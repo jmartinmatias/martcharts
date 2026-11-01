@@ -52,7 +52,7 @@ The demo has <!-- pages -->7<!-- /pages --> pages in its menu, with one Look men
 <fft-widget src="catalog/funnel.json"></fft-widget>          <!-- a spec file -->
 ```
 
-The [chart catalog](docs/catalog.md) has all <!-- views -->57<!-- /views --> views with a spec to start from. [docs/frameworks.md](docs/frameworks.md) has recipes for React, Vue, Svelte and server-rendered apps.
+The [chart catalog](docs/catalog.md) has all <!-- views -->58<!-- /views --> views with a spec to start from. [docs/frameworks.md](docs/frameworks.md) has recipes for React, Vue, Svelte and server-rendered apps.
 
 ## A widget in one object
 
@@ -78,7 +78,7 @@ The [chart catalog](docs/catalog.md) has all <!-- views -->57<!-- /views --> vie
 | Data sources | `inline`, `url`, `fn`, `csv`, `sheet`; `refresh` reloads live data |
 | Transforms | `filter`, `sort`, `limit`, `aggregate`, `pivot`, `calc`, `bin`, `rag` |
 | Formats | `number`, `currency`, `percent`, `date`, `badge`, `spark`, `bar`, `delta`, `heat`, `rag`, `text` |
-| Views | <!-- views -->57<!-- /views --> of them, grouped by question in [Which view?](#which-view) |
+| Views | <!-- views -->58<!-- /views --> of them, grouped by question in [Which view?](#which-view) |
 | Dashboards | Filters, a period control, sections, cross-filtering, links, print and an as-of line |
 | Emphasis | `highlight`, `colors` and `colorRules` |
 | Reading | A plain guide for every chart, in English, French or German |
@@ -94,7 +94,7 @@ Each row is described in full in [docs/features.md](docs/features.md); every opt
 | --- | --- |
 | A number, and progress to a goal | `kpi`, `kpis`, `gauge`, `meter`, `bullet`, `rings` |
 | A ranking or a comparison | `hbar`, `dot`, `dumbbell`, `slope`, `pyramid`, `radar` |
-| Change over time | `line`, `area`, `bar`, `calendar`, `candlestick`, `dual`, `horizon`, `bump`, `rose` |
+| Change over time | `line`, `area`, `bar`, `calendar`, `candlestick`, `dual`, `horizon`, `cycle`, `bump`, `rose` |
 | Patterns across two dimensions | `heatmap`, `matrix` |
 | Parts of a whole | `pie`, `donut`, `waffle`, `treemap`, `sunburst`, `icicle`, `marimekko`, `strips` |
 | What makes up a change | `waterfall`, `variance`, `pareto` |

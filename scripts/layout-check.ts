@@ -152,7 +152,13 @@ for (const width of WIDTHS) {
     const tabCount = await page.locator('.fft-board-nav [role="tab"]').count();
     for (let t = 0; t < Math.max(1, tabCount); t++) {
       if (tabCount) await page.locator('.fft-board-nav [role="tab"]').nth(t).click();
-      for (const toggle of await page.locator('.fft-dashboard .fft-section-toggle[aria-expanded="false"]').all()) if (await toggle.isVisible()) await toggle.click();
+      // Every folded section opened, those below the first screen too: scrolled to, then clicked, until none is left.
+      for (let left = 30; left > 0; left--) {
+        const toggle = page.locator('.fft-dashboard .fft-section-toggle[aria-expanded="false"]').filter({ visible: true }).first();
+        if (!(await toggle.count())) break;
+        await toggle.scrollIntoViewIfNeeded();
+        await toggle.click();
+      }
       await page.waitForFunction(() => !document.querySelector('.fft-dashboard .fft-widget[data-state="loading"]'), undefined, { timeout: 15000 });
       await page.waitForTimeout(400);
       const { cards, scroll } = await page.evaluate(measure);

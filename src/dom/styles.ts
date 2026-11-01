@@ -1075,6 +1075,17 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-ridge-label { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); }
 .fft-ridge-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-ridge-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 6%, transparent); }
+/* Cycle plot: a quiet panel per day or month, the readings as a thin line, the average as a dark bar across. */
+.fft-cycle-bg { fill: color-mix(in srgb, var(--fft-text) 3%, transparent); }
+.fft-cycle-line { fill: none; stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; opacity: 0.8; pointer-events: none; }
+.fft-cycle-mean { stroke: var(--fft-text); stroke-width: 2.5; stroke-linecap: round; pointer-events: none; }
+.fft-cycle-name { fill: var(--fft-text-secondary); font-size: var(--fft-fs-s); font-weight: 500; }
+.fft-cycle-name[data-high] { fill: var(--fft-text); font-weight: 600; }
+.fft-cycle-value { fill: var(--fft-muted); font-size: var(--fft-fs-xs); font-variant-numeric: tabular-nums; }
+.fft-cycle-hit { fill: transparent; cursor: pointer; outline: none; }
+.fft-cycle-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 6%, transparent); }
+.fft-cycle[data-active] .fft-cycle-panel:not([data-active]) { opacity: var(--fft-dim); }
+.fft-cycle-panel { transition: opacity 377ms var(--fft-ease); }
 .fft-crosshair { stroke: var(--fft-axis); stroke-width: 1; shape-rendering: crispEdges; pointer-events: none; }
 .fft-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 8%, transparent); }

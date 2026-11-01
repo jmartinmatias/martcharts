@@ -153,6 +153,10 @@ export const TYPE_WORDS: Record<string, Record<TypeLang, TypeWords>> = {
     fr: { summary: "L'histoire d'un client en frise verticale : un événement par ligne avec sa date, son titre et un montant éventuel, du plus récent au plus ancien, un point coloré par type.", needs: "il faut des événements datés avec un court titre chacun" },
     de: { summary: "Die Geschichte eines Kunden als senkrechte Zeitleiste: ein Ereignis je Zeile mit Datum, Titel und gegebenenfalls Betrag, neueste zuerst, ein Punkt je Art eingefärbt.", needs: "braucht datierte Ereignisse mit je einem kurzen Titel" },
   },
+  cycle: {
+    fr: { summary: "Un graphique cyclique : un petit panneau par jour de la semaine (ou par mois), côte à côte sur un même axe, avec la ligne des relevés de ce jour et une barre à sa moyenne.", needs: "il faut une colonne de dates avec des relevés sur au moins trois semaines" },
+    de: { summary: "Ein Zyklusdiagramm: ein kleines Feld je Wochentag (oder Monat), nebeneinander auf einer Achse, mit der Linie der Werte dieses Tages und einem Balken auf seinem Durchschnitt.", needs: "braucht eine Datumsspalte mit Werten über mindestens drei Wochen" },
+  },
   horizon: {
     fr: { summary: "Beaucoup de séries temporelles à la fois, chacune sur une fine rangée : les valeurs sont repliées en bandes de couleur de plus en plus soutenue, bleu au-dessus et rouge en dessous." },
     de: { summary: "Viele Zeitreihen auf einmal, jede in einer schmalen Zeile: Die Werte werden in Bänder zunehmend kräftiger Farbe gefaltet, blau darüber und rot darunter." },

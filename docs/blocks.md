@@ -447,6 +447,16 @@ A map with each region shaded by its value, from the weakest tint to the stronge
 | `change` | `percent`, `difference` |  | `"percent"` | How a change is told: as a percent of the previous value, or as the difference in the value's own unit. |
 | `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |
 
+### `cycle`
+
+A cycle plot for a rhythm under a trend: one small panel per day of the week (or month of the year), side by side on one axis. In each, a thin line runs through that day's readings week after week, and a dark bar marks the day's average. The bars read the rhythm (Tuesdays are busiest, Sundays quietest); the lines read the trend within each day, which one long line mixes together.
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `x` | field name (date) | yes |  | Field with each reading's date: days for a weekly rhythm, months for a yearly one. |
+| `value` | field name (number) | yes |  | Field with the reading, such as orders or visits. |
+| `by` | `weekday`, `month` |  |  | "weekday" folds the dates into Monday to Sunday, "month" into January to December. Unset, daily dates fold by weekday and monthly ones by month. |
+
 ### `donut`
 
 Part-to-whole at a glance: a ring of up to 6 slices with the total in the middle and a legend of values and shares. Compare close values with a bar chart instead.
@@ -546,6 +556,7 @@ Horizontal bars for rankings and long labels: label on the left, bar, value at t
 | `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |
 | `mark` | `bar`, `lollipop` |  | `"bar"` | "lollipop" draws a thin stem from the baseline and a dot at the value in place of each bar: the same reading with far less ink, for rankings of many similar values. |
 | `reference` | array |  |  | Target lines and bands across the value axis. Each item is { value, label }, { field, agg, label } (agg: last, first, sum, avg, min, max; default avg), or { from, to, label } for a band. Example: [{ "value": 1200000, "label": "Target" }]. |
+| `compare` | field name (number) |  |  | Field drawn as a taller, quieter bar behind each bar, on the same scale, such as last period or last year: a bar past its ghost grew, one short of it shrank. A key names it, and the tooltip gives its value and the change since. One value field only. |
 | `sort` | `value`, `label`, `none` |  | `"none"` | Orders the rows before drawing: "value" ranks them by their number (largest first), "label" by name (A to Z), "none" keeps the data's order. Stacked bars and strips rank by their total. |
 | `order` | `desc`, `asc` |  |  | Turns the sort around: "asc" puts the smallest first, "desc" names Z to A. Defaults to largest first for value, A to Z for label. |
 | `limit` | number |  |  | Keeps the first N rows after sorting: the top 10, say. The rest are left out, or folded into one row with other. |
@@ -679,6 +690,7 @@ Lines showing change over an ordered axis, usually time. Several y fields draw s
 | `between` | field name or list (number) |  |  | Two of the y fields, such as ["revenue", "cost"]: the gap between their lines is filled in the colour of whichever is on top there, split where they cross, so surplus and deficit read at a glance. |
 | `ranges` | array |  |  | Spans of the x axis washed in a faint shade and named at their top, such as a campaign, a price freeze or a recession: [{ "from": "2026-03", "to": "2026-05", "label": "Campaign" }]. from and to are categories or periods on the axis (to defaults to from); the shade sits behind every mark. |
 | `annotations` | array |  |  | Short notes pinned to points of the chart, each { "x": <category or period>, "y"?: <value>, "text": "…" }. Without y the note sits on the value there. Each note is a few words beside a small dot, with a thin leader to it; on a narrow card the notes become numbered markers with the texts listed under the chart. Example: [{ "x": "2026-03", "text": "Price rise" }]. |
+| `compare` | field name (number) |  |  | Field drawn as a quiet grey line behind the first series, on the same axis, such as last year: where the line runs above it, it is ahead. A key names it, and the tooltip gives its value and the change since. |
 
 ### `list`
 
@@ -743,6 +755,7 @@ Progress against a target, one meter per row: attainment as a percentage, a bar 
 | `target` | field name (number) | yes |  | Field holding the target amount. |
 | `label` | field name (category) |  |  | Field naming each meter, for example a region. Defaults to the value field's label. |
 | `goodWhen` | `up`, `down` |  | `"up"` | Whether more is better ("up", as for revenue) or less is better ("down", as for wait times and costs). It decides which side of the target reads as met. |
+| `compare` | field name (number) |  |  | Field with where each meter stood before, such as last month: a thin tick across the track marks it, so the move toward the target reads at a glance. A key names it, and the tooltip gives its value and the change since. |
 | `sort` | `value`, `label`, `none` |  | `"none"` | Orders the rows before drawing: "value" ranks them by their number (largest first), "label" by name (A to Z), "none" keeps the data's order. Stacked bars and strips rank by their total. |
 | `order` | `desc`, `asc` |  |  | Turns the sort around: "asc" puts the smallest first, "desc" names Z to A. Defaults to largest first for value, A to Z for label. |
 | `limit` | number |  |  | Keeps the first N rows after sorting: the top 10, say. The rest are left out, or folded into one row with other. |
@@ -883,7 +896,7 @@ One dot per row placed by two numbers, to show how they relate. An optional grou
 | `label` | field name (category) |  |  | Field naming each dot in its tooltip. |
 | `reference` | array |  |  | Target lines and bands across the value axis. Each item is { value, label }, { field, agg, label } (agg: last, first, sum, avg, min, max; default avg), or { from, to, label } for a band. Example: [{ "value": 1200000, "label": "Target" }]. |
 | `cluster` | field name (category) |  |  | Field naming each dot's cluster, such as a segment found by analysis. A soft, rounded hull gathers each cluster's dots and carries its name at the middle, so the areas read as regions of the plot; the dots take the cluster's color unless color is set. Up to 6 clusters. |
-| `labels` | boolean |  | `false` | Write each dot's label beside it, skipping names that would land on another, so the standouts are named on the chart itself. |
+| `labels` | boolean |  |  | Write each dot's label beside it, skipping names that would land on another, so the standouts are named on the chart itself. Off by default, on by default with connect, where a path with no names cannot be read; false turns it off. |
 | `connect` | boolean |  | `false` | Draws a thin path through the dots in row order, one per color series, with an arrowhead at the last: a connected scatterplot, for two measures over time (sort the rows by date first). Pair with label to name the years. |
 | `quadrants` | object |  |  | Splits the plot into four at a value of x and of y, with a faint word in each corner: { "x": 50, "y": 3, "labels": ["Monitor", "Act now", "Prepare", "Watch"] } (top-left first, then clockwise). For priority grids such as pressure against impact. |
 | `highlight` | any |  |  | Category value or values to keep in color; every other category turns grey. Example: "East" or ["East", "North"]. Or a rule on the rows: { "field": "revenue", "op": ">", "value": 1000000 } keeps the categories above 1M in color, and { "top": 3 } the three largest. |

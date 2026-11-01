@@ -160,7 +160,10 @@
     },
     {
       "widget": "orders-trend",
-      "span": 3
+      "span": 2
+    },
+    {
+      "widget": "order-rhythm"
     },
     {
       "widget": "ticket-causes",

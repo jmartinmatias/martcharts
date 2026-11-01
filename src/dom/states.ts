@@ -15,7 +15,7 @@ const SHAPES: Record<string, SkeletonShape> = {
   table: "rows", list: "rows", ragboard: "grid", ragtrend: "grid", hbar: "rows", meter: "rows", bullet: "rows", funnel: "rows", dumbbell: "rows", dot: "rows",
   variance: "rows", likert: "rows", pyramid: "rows", strips: "rows", history: "rows", board: "rows",
   // Rows along a time or value axis.
-  timeline: "lanes", lifecycle: "lanes", horizon: "lanes", ridgeline: "lanes", boxplot: "lanes", anomalies: "lanes", beeswarm: "lanes",
+  timeline: "lanes", lifecycle: "lanes", horizon: "lanes", cycle: "plot", ridgeline: "lanes", boxplot: "lanes", anomalies: "lanes", beeswarm: "lanes",
   // Cells.
   heatmap: "grid", calendar: "grid", waffle: "grid", matrix: "grid", whitespace: "grid", treemap: "grid", icicle: "grid",
   // Numbers.

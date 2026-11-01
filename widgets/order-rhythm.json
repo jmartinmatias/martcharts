@@ -1,0 +1,66 @@
+{
+  "id": "order-rhythm",
+  "title": "Order rhythm",
+  "subtitle": "By day of the week, April to September 2026",
+  "description": "Each day of the week on its own: the bar is that day's average, the line its orders week after week. Weekdays carry the business and every one of them is growing.",
+  "source": {
+    "name": "Order system"
+  },
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/daily-orders.json"
+  },
+  "fields": {
+    "day": {
+      "label": "Day",
+      "format": {
+        "type": "date",
+        "style": "medium"
+      }
+    },
+    "orders": {
+      "label": "Orders",
+      "format": "number"
+    }
+  },
+  "view": {
+    "type": "cycle",
+    "x": "day",
+    "value": "orders"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Rythme des commandes",
+      "subtitle": "Par jour de la semaine, d'avril à septembre 2026",
+      "description": "Chaque jour de la semaine à part : la barre est la moyenne du jour, la ligne ses commandes semaine après semaine. Les jours ouvrés portent l'activité, et tous progressent.",
+      "source": {
+        "name": "Système de commandes"
+      },
+      "fields": {
+        "day": {
+          "label": "Jour"
+        },
+        "orders": {
+          "label": "Commandes"
+        }
+      }
+    },
+    "de": {
+      "title": "Bestellrhythmus",
+      "subtitle": "Nach Wochentag, April bis September 2026",
+      "description": "Jeder Wochentag für sich: Der Balken ist der Schnitt des Tages, die Linie seine Bestellungen Woche für Woche. Die Werktage tragen das Geschäft, und jeder wächst.",
+      "source": {
+        "name": "Bestellsystem"
+      },
+      "fields": {
+        "day": {
+          "label": "Tag"
+        },
+        "orders": {
+          "label": "Bestellungen"
+        }
+      }
+    }
+  }
+}

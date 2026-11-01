@@ -13,6 +13,8 @@
  *
  * @module
  */
+import { cyclePanels, cycleStandout } from "./cycle.ts";
+import type { CycleBy } from "./cycle.ts";
 import { fieldLabel, formatValue, humanize, timeStep } from "./display.ts";
 import { readNumber } from "./formats.ts";
 import { countryName, featureId, featureName, isCountryMap, normalizeId, resolveGeo } from "./geo.ts";
@@ -497,6 +499,11 @@ function guideFr(c: Ctx): string {
       ].filter(Boolean);
       return `Une ligne par ${axis(y)} et une colonne par ${axis(x)} ; une marque se trouve à leur croisement. ${marks.length ? `${marks.join(" ; ")}. ` : ""}Une case vide signifie qu'il n'y a rien pour cette paire.`;
     }
+    case "cycle": {
+      const month = view.by === "month" || (view.by === undefined && /month/i.test(one(view.x) ?? ""));
+      const unit = month ? "mois" : "jour de la semaine";
+      return `Un panneau par ${unit} : sa ligne suit ${name(one(view.value))} de ce ${month ? "mois" : "jour"} dans l'ordre des dates, et la barre en travers marque sa moyenne. Les barres comparent les ${month ? "mois" : "jours"} ; chaque ligne montre si son ${month ? "mois" : "jour"} progresse.`;
+    }
     case "strips": {
       const fields = many(view.value);
       const unit = unitIn(c);
@@ -727,6 +734,10 @@ function guideDe(c: Ctx): string {
       ].filter(Boolean);
       return `Eine Zeile je ${axis(y)} und eine Spalte je ${axis(x)}; eine Markierung sitzt an ihrem Schnittpunkt. ${marks.length ? `${marks.join("; ")}. ` : ""}Ein leeres Feld heißt, dass es für dieses Paar nichts gibt.`;
     }
+    case "cycle": {
+      const month = view.by === "month" || (view.by === undefined && /month/i.test(one(view.x) ?? ""));
+      return `Ein Feld je ${month ? "Monat" : "Wochentag"}: Seine Linie folgt ${name(one(view.value))} dieses ${month ? "Monats" : "Tages"} in Datumsfolge, und der Balken quer darüber ist sein Durchschnitt. Die Balken vergleichen die ${month ? "Monate" : "Tage"}; jede Linie zeigt, ob ihr ${month ? "Monat" : "Tag"} wächst.`;
+    }
     case "strips": {
       const fields = many(view.value);
       const unit = unitIn(c);
@@ -826,6 +837,7 @@ type Fact =
   | { k: "matrixYes"; who: string; n: number; of: number }
   | { k: "matrixTop"; at: string; value: string }
   | { k: "strips"; who: string; total: string; share?: number; first?: string }
+  | { k: "cycle"; month: boolean; high: string; low: string; highV: string; lowV: string; measure: string; grew: number; of: number }
   | { k: "xray"; who: string; held?: number; of?: number; wallet?: string; walletShare?: number }
   | { k: "board"; n: number; of: number; stage: string; best?: string; bestV?: string };
 
@@ -1166,6 +1178,14 @@ function factOf(c: Ctx): Fact {
       const row = top(field);
       return row && field ? { k: "matrixTop", at: `${text(row, y)} · ${text(row, x)}`, value: text(row, field) } : { k: "none" };
     }
+    case "cycle": {
+      const [x, field] = [one(view.x), one(view.value)];
+      if (!x || !field) return { k: "none" };
+      const { by, panels } = cyclePanels(rows, x, field, view.by as CycleBy | undefined, c.lang === "fr" ? "fr-FR" : "de-DE");
+      const out = cycleStandout(panels);
+      if (!out || out.high === out.low) return { k: "none" };
+      return { k: "cycle", month: by === "month", high: out.high.long, low: out.low.long, highV: fmt(Math.round(out.high.mean), field), lowV: fmt(Math.round(out.low.mean), field), measure: name(field), grew: out.grew, of: panels.length };
+    }
     case "strips": {
       const [label, fields] = [one(view.label), many(view.value)];
       if (!label || !fields.length) return { k: "none" };
@@ -1349,6 +1369,13 @@ function renderFr(c: Ctx, f: Fact): string {
       return `Ici, ${f.who} s'applique à ${f.n} colonnes sur ${f.of}, plus que toute autre ligne.`;
     case "matrixTop":
       return `Ici, la marque la plus forte se trouve en ${f.at}, avec ${f.value}.`;
+    case "cycle": {
+      // "le mardi" for a day that recurs each week, "en décembre" for a month.
+      const [hi, lo] = f.month ? [`en ${f.high}`, `en ${f.low}`] : [`le ${f.high}`, `le ${f.low}`];
+      const unit = f.month ? "mois" : "jour";
+      const grew = f.grew === f.of ? `chaque ${unit} progresse sur la période` : f.grew === 0 ? `aucun ${unit} ne progresse sur la période` : `${f.grew} ${unit}${f.month ? "" : "s"} sur ${f.of} progressent sur la période`;
+      return `Ici, la moyenne est la plus haute ${hi}, avec ${f.highV} ${f.measure}, et la plus basse ${lo}, avec ${f.lowV} ; ${grew}.`;
+    }
     case "strips":
       return `Ici, ${f.who} compte le plus d'unités : ${f.total}${f.share !== undefined ? `, dont ${pct(f.share)} ${de(String(f.first))}` : ""}.`;
     case "xray": {
@@ -1439,6 +1466,12 @@ function renderDe(c: Ctx, f: Fact): string {
       return `Hier gilt ${f.who} für ${f.n} von ${f.of} Spalten, mehr als jede andere Zeile.`;
     case "matrixTop":
       return `Hier ist die stärkste Markierung bei ${f.at}, mit ${f.value}.`;
+    case "cycle": {
+      const [hi, lo] = f.month ? [`im ${f.high}`, `im ${f.low}`] : [`am ${f.high}`, `am ${f.low}`];
+      const unit = f.month ? "Monat" : "Tag";
+      const grew = f.grew === f.of ? `jeder ${unit} wächst über den Zeitraum` : f.grew === 0 ? `kein ${unit} wächst über den Zeitraum` : `${f.grew} von ${f.of} ${f.month ? "Monaten" : "Tagen"} wachsen über den Zeitraum`;
+      return `Hier ist der Schnitt ${hi} am höchsten, mit ${f.highV} ${f.measure}, und ${lo} am niedrigsten, mit ${f.lowV}; ${grew}.`;
+    }
     case "strips":
       return `Hier hat ${f.who} die meisten Einheiten: ${f.total}${f.share !== undefined ? `, davon ${pct(f.share)} ${f.first}` : ""}.`;
     case "xray": {
@@ -1501,6 +1534,10 @@ export function questionIn(lang: Other, spec: WidgetSpec, rows: Row[], kind: str
     case "lifecycle": {
       const stages = many(view.stages);
       return ask(fr ? `Où en est chaque ${entity}, de ${name(stages[0])} à ${name(stages.at(-1))}` : `Wo steht es je ${entity}, von ${name(stages[0])} bis ${name(stages.at(-1))}`);
+    }
+    case "cycle": {
+      const month = view.by === "month" || (view.by === undefined && /month/i.test(one(view.x) ?? ""));
+      return ask(fr ? `Quel ${month ? "mois" : "jour de la semaine"} compte le plus de ${measure}, et chacun progresse-t-il` : `Welcher ${month ? "Monat" : "Wochentag"} hat am meisten ${measure}, und wächst jeder davon`);
     }
     case "strips": {
       const first = name(many(view.value)[0]);
