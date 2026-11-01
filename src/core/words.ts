@@ -461,6 +461,22 @@ const EN = {
     printedAll: "Printed: every section",
   },
 
+  // ---- The board's lede: what is going well, what needs attention, and how many figures are on course ----
+  lede: {
+    label: "Board summary",
+    course: (on: number, of: number) => `${on} of ${of} figures with a target or a past value ${on === 1 ? "is" : "are"} on course.`,
+    good: "Going well",
+    bad: "Needs attention",
+    inCard: "in",
+    aboveTarget: (pct: string, line = "target") => `${pct} above ${line}`,
+    belowTarget: (pct: string, line = "target") => `${pct} below ${line}`,
+    onTarget: "on target",
+    target: "target",
+    onPrevious: "on the period before",
+    since: (when: string) => `since ${when}`,
+    odds: (reach: number, of: number, plan: string) => `${reach} of ${of} outcomes reach ${plan}`,
+  },
+
   // ---- RAG statuses: words that read without the color ----
   rag: { G: "On track", A: "At risk", R: "Off track", N: "No data" } as Readonly<Record<"R" | "A" | "G" | "N", string>>,
 
@@ -881,6 +897,20 @@ const FR: Words = {
     nothingInView: (said) => `Aucune carte n'a de données pour ${said.join(" et ")}`,
     printedAll: "Imprimé : toutes les sections",
   },
+  lede: {
+    label: "Résumé du tableau",
+    course: (on, of) => `${on} ${on === 1 ? "chiffre" : "chiffres"} sur ${of} ayant un objectif ou une valeur passée ${on === 1 ? "est" : "sont"} sur la bonne voie.`,
+    good: "Ce qui va bien",
+    bad: "À regarder de près",
+    inCard: "dans",
+    aboveTarget: (pct) => `${pct} au-dessus de l'objectif`,
+    belowTarget: (pct) => `${pct} sous l'objectif`,
+    onTarget: "à l'objectif",
+    target: "l'objectif",
+    onPrevious: "par rapport à la période précédente",
+    since: (when) => `depuis ${when}`,
+    odds: (reach, of, plan) => `${reach} scénarios sur ${of} atteignent ${plan}`,
+  },
   rag: { G: "Conforme", A: "À surveiller", R: "Hors trajectoire", N: "Aucune donnée" },
   dw2: {
     rulesKey: "Ce que disent les couleurs",
@@ -1289,6 +1319,20 @@ const DE: Words = {
     clickReach: (value, n, total) => `${value} erscheint auf ${n} von ${total} ${total === 1 ? "Karte" : "Karten"}`,
     nothingInView: (said) => `Keine Karte hat Daten für ${said.join(" und ")}`,
     printedAll: "Gedruckt: alle Abschnitte",
+  },
+  lede: {
+    label: "Zusammenfassung des Dashboards",
+    course: (on, of) => `${on} von ${of} Kennzahlen mit Ziel oder Vorwert ${on === 1 ? "liegt" : "liegen"} auf Kurs.`,
+    good: "Läuft gut",
+    bad: "Braucht Aufmerksamkeit",
+    inCard: "in",
+    aboveTarget: (pct) => `${pct} über dem Ziel`,
+    belowTarget: (pct) => `${pct} unter dem Ziel`,
+    onTarget: "im Ziel",
+    target: "das Ziel",
+    onPrevious: "gegenüber der Vorperiode",
+    since: (when) => `seit ${when}`,
+    odds: (reach, of, plan) => `${reach} von ${of} Szenarien erreichen ${plan}`,
   },
   rag: { G: "Im Plan", A: "Gefährdet", R: "Nicht im Plan", N: "Keine Daten" },
   dw2: {

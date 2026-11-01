@@ -22,8 +22,10 @@ import { ensureStyles } from "./styles.ts";
 import { roving } from "./views/focus.ts";
 import { createWidget } from "./widget.ts";
 import type { Widget } from "./widget.ts";
-import { wordsFor } from "../core/words.ts";
+import { langOf, wordsFor } from "../core/words.ts";
 import { asOfMonth, asOfText, latestIn } from "../core/as-of.ts";
+import { ledeOf } from "../core/lede.ts";
+import type { Reading } from "../core/lede.ts";
 
 /** Options for `createDashboard`. */
 export interface DashboardOptions {
@@ -58,6 +60,11 @@ export interface DashboardOptions {
   takeaways?: boolean;
   /** Opens every widget's "How to read it" guide from the start. */
   guides?: boolean;
+  /**
+   * The board's lede above its cards (default: the board's own `lede`, which defaults to true): how many figures with
+   * a target or a past value are on course, the best of them and the worst, each linked to its card. See `ledeOf`.
+   */
+  lede?: boolean;
   /**
    * Clicking a mark filters every other widget whose data has the mark's field to its value, with a chip in the
    * filter row (and Escape) to clear it. Default: the board's own `crossFilter`, which defaults to true.
@@ -196,6 +203,15 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     if (spec.subtitle) header.append(el("p", "fft-dashboard-subtitle", spec.subtitle));
     if (asOf) header.append(asOf);
     root.append(header);
+  }
+  // The lede: is this good or bad, and where to look, from the cards' own targets and comparisons. Filled once the
+  // cards' rows are in, and again after every change of filter or period.
+  const L = wordsFor(boardLocale).lede;
+  const lede = (options.lede ?? spec.lede ?? true) ? el("section", "fft-lede") : undefined;
+  if (lede) {
+    lede.setAttribute("aria-label", L.label);
+    lede.hidden = true;
+    root.append(lede);
   }
   // On paper the filter row is gone, so one line says what the page shows: the section, filters, period and click filter.
   const printState = el("p", "fft-print-state");
@@ -1173,7 +1189,54 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     // A printout of a board that folds or tabs sections away holds every one of them, and says so.
     const all = printing && (foldable.size > 0 || tabs) ? C.printedAll : "";
     printState.textContent = [spec.title, parts.length ? parts.join(" · ") : B.unfiltered, all, asOfLine].filter(Boolean).join(" · ");
-    await markUnreached();
+    await Promise.all([markUnreached(), paintLede()]);
+  }
+
+  // ---- The lede ----
+  /** Counts the lede's runs: a slower run that a newer change overtook paints nothing. */
+  let ledeRun = 0;
+  /** Writes the lede from every card's rows as the filters leave them, folded cards included. */
+  async function paintLede() {
+    if (!lede) return;
+    const run = ++ledeRun;
+    const cards = await Promise.all(
+      [...originals.keys()].map(async (id) => {
+        const scoped = await specFor(id);
+        const rows = await runPipeline(scoped, { fetch: options.fetch }).catch(() => [] as Row[]);
+        // In the words the card shows: its title and field labels in the board's language.
+        const shown = localizeSpec({ ...scoped, locale: scoped.locale ?? boardLocale }, scoped.locale ?? boardLocale);
+        return { key: slots.get(id)?.dataset.fftRefKey ?? id, spec: shown, rows };
+      }),
+    );
+    if (run !== ledeRun) return;
+    const said = ledeOf(cards);
+    if (!said || (!said.good && !said.bad)) {
+      lede.replaceChildren();
+      lede.hidden = true;
+      return;
+    }
+    const colon = langOf(boardLocale) === "fr" ? "\u00a0: " : ": ";
+    const line = (label: string, reading: Reading) => {
+      const p = el("p", "fft-lede-line");
+      const ref = placedRef(placeOf(), reading.key);
+      const link = el("a", "fft-lede-link", reading.card);
+      link.href = `#${ref}`;
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        void revealRef(ref);
+      });
+      p.append(el("span", "fft-lede-label", `${label}${colon}`));
+      // A figure that is the card itself ("Q4 revenue outcomes, 5 of 20 outcomes reach plan.") links its own name.
+      if (reading.subject === reading.card) p.append(link, `, ${reading.said}.`);
+      else p.append(`${reading.subject}, ${reading.said}, ${L.inCard} `, link, ".");
+      return p;
+    };
+    lede.replaceChildren(
+      el("p", "fft-lede-course", L.course(said.onCourse, said.of)),
+      ...(said.good ? [line(L.good, said.good)] : []),
+      ...(said.bad ? [line(L.bad, said.bad)] : []),
+    );
+    lede.hidden = false;
   }
 
   /** Whether a view lights up categories with `highlight` (bars and the like), and draws this field as its categories. */
@@ -1544,6 +1607,24 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     else if (!none(value) && JSON.stringify(value) !== JSON.stringify(before)) await sayChange(A.set(filterName(field), valueWord(field, value)));
   }
 
+  /**
+   * Brings the card with this ref into view: shows its section or tab, opens it if folded, then scrolls to the card and
+   * focuses it. False when no card on the board has the ref.
+   */
+  async function revealRef(ref: string): Promise<boolean> {
+    const place = placeOf();
+    const found = cardRefs.find((entry) => placedRef(place, entry.key) === ref);
+    if (!found) return false;
+    const section = sectionOf.get(found.slot);
+    if (section) {
+      if (tabs || (shownSection && shownSection !== section.id)) choose(tabs ? section : null);
+      if (folded.has(section)) await setFolded(section, false);
+    }
+    found.slot.scrollIntoView?.({ block: "center" });
+    found.slot.focus?.({ preventScroll: true });
+    return true;
+  }
+
   const ready = (async () => {
     await buildFilters();
     // Filters a link named: set before anything redraws, each shown in its control.
@@ -1589,19 +1670,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
       await redraw();
     },
     refs: () => cardRefs.map(({ slot: _slot, ...entry }) => ({ ref: placedRef(placeOf(), entry.key), ...entry })),
-    async reveal(ref) {
-      const place = placeOf();
-      const found = cardRefs.find((entry) => placedRef(place, entry.key) === ref);
-      if (!found) return false;
-      const section = sectionOf.get(found.slot);
-      if (section) {
-        if (tabs || (shownSection && shownSection !== section.id)) choose(tabs ? section : null);
-        if (folded.has(section)) await setFolded(section, false);
-      }
-      found.slot.scrollIntoView?.({ block: "center" });
-      found.slot.focus?.({ preventScroll: true });
-      return true;
-    },
+    reveal: revealRef,
     destroy() {
       doc.defaultView?.removeEventListener("hashchange", onHash);
       printView?.removeEventListener("beforeprint", onBeforePrint);
@@ -1630,6 +1699,16 @@ export { asOfText };
 const BOARD_CSS = `
 .fft-dashboard-asof { margin: 2px 0 0; font-size: 12px; color: var(--fft-muted, #6e6e73); font-variant-numeric: tabular-nums; }
 .fft-print-state { display: none; }
+/* The lede: plain lines in the page's own type, a label in weight only, the card named as a quiet link. */
+.fft-lede { margin: 8px 0 13px; max-width: 72ch; font-size: 14px; line-height: 21px; color: var(--fft-text, #1d1d1f); }
+.fft-lede[hidden] { display: none; }
+.fft-lede p { margin: 0; }
+.fft-lede-course { color: var(--fft-muted, #6e6e73); font-variant-numeric: tabular-nums; }
+.fft-lede-line { font-variant-numeric: tabular-nums; }
+.fft-lede-label { font-weight: 600; }
+.fft-lede-link { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, currentColor 40%, transparent); }
+.fft-lede-link:hover { text-decoration-color: currentColor; }
+.fft-lede-link:focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 2px; border-radius: 2px; }
 .fft-board-tools { display: inline-flex; align-items: center; gap: 5px; margin-left: auto; }
 .fft-board-tool { min-height: 34px; padding: 0 13px; border: 1px solid color-mix(in srgb, var(--fft-text, #1d1d1f) 14%, transparent); border-radius: 999px; background: transparent; color: inherit; font: inherit; font-size: 13px; cursor: pointer; white-space: nowrap; }
 .fft-board-tool:hover { background: color-mix(in srgb, var(--fft-text, #1d1d1f) 6%, transparent); }

@@ -112,6 +112,11 @@ export interface DashboardSpec {
    */
   crossFilter?: boolean;
   /**
+   * The lede above the cards: how many figures with a target or a past value are on course, the best of them and the
+   * worst, each linked to its card, written from the cards' own data. Default true; `false` leaves it out.
+   */
+  lede?: boolean;
+  /**
    * When the data was last true, shown in the header and on paper: an ISO date ("2026-10-25"), or words with
    * `{latest}`, the latest date across the widgets that have the range field ("Data to {latest}").
    */
@@ -167,6 +172,7 @@ export function validateDashboard(spec: unknown): Issue[] {
     }
   }
   if (spec.crossFilter !== undefined && typeof spec.crossFilter !== "boolean") issues.push(error("crossFilter", "Must be true or false."));
+  if (spec.lede !== undefined && typeof spec.lede !== "boolean") issues.push(error("lede", "Must be true or false."));
   if (spec.asOf !== undefined && !(typeof spec.asOf === "string" && spec.asOf.trim() !== "")) issues.push(error("asOf", 'Must be a date such as "2026-10-25", or words with {latest}.'));
   if (spec.source !== undefined) {
     const source = spec.source;
