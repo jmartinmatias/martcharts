@@ -338,7 +338,7 @@ function unknownView(issue: Issue, type: string): Issue {
 }
 
 /** The keys a widget spec reads; any other is ignored. */
-const SPEC_KEYS = ["id", "title", "subtitle", "note", "footer", "source", "byline", "description", "links", "locale", "data", "transform", "fields", "colors", "tooltip", "colorRules", "responsive", "headline", "takeaway", "display", "facet", "view", "style", "i18n"];
+const SPEC_KEYS = ["id", "title", "subtitle", "note", "footer", "source", "byline", "description", "links", "locale", "data", "transform", "fields", "colors", "tooltip", "colorRules", "responsive", "headline", "takeaway", "hint", "display", "facet", "view", "style", "i18n"];
 
 /** A warning per key not in `known`, naming the nearest known key when one is close. */
 function unknownKeys(keys: string[], known: string[], base: string, owner: string, noun: string): Issue[] {

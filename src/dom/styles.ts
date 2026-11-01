@@ -348,6 +348,10 @@ export const BASE_CSS = `
 .fft-subtitle { margin: 0; font-size: var(--fft-fs-m); line-height: 21px; color: var(--fft-text-secondary); }
 .fft-takeaway { margin: 5px 0 0; font-size: var(--fft-fs-m); line-height: 21px; font-weight: 400; color: var(--fft-text); text-wrap: pretty; }
 /* A data sentence: the figures carry the weight, the words around them read quietly. */
+/* The reading key: a quiet line on a form a reader may not know; the small caps label says what kind of line it is. */
+.fft-hint { margin: 3px 0 0; font-size: var(--fft-fs-s); line-height: 16px; color: var(--fft-text-secondary); text-wrap: pretty; }
+.fft-hint[hidden] { display: none; }
+.fft-hint-label { font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fft-muted); }
 .fft-takeaway .fft-fig { font-weight: 600; font-variant-numeric: tabular-nums; }
 /* Sentence mode: the card is one line of text, the takeaway with a word-sized trend at its end. */
 .fft-widget[data-display="sentence"] { display: inline; background: none; border: 0; box-shadow: none; padding: 0; font: inherit; color: inherit; backdrop-filter: none; -webkit-backdrop-filter: none; }

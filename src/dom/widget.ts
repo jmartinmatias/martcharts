@@ -10,6 +10,7 @@ import type { Override } from "../core/fork.ts";
 import { runPipeline } from "../core/pipeline.ts";
 import { describeChart } from "../core/catalog.ts";
 import { explainChart, takeawayOf } from "../core/explain.ts";
+import { hintOf } from "../core/hint.ts";
 import { figureRuns } from "../core/figures.ts";
 import { questionOf } from "../core/question.ts";
 import { placedRef, refKey, widgetRef } from "../core/ref.ts";
@@ -183,7 +184,10 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
   headlineEl.hidden = true;
   takeawayEl.id = `${id}-takeaway`;
   takeawayEl.hidden = true;
-  header.append(title, subtitle, takeawayEl);
+  // The reading key: one quiet line on a form a reader may not know (a cycle plot, a box plot), how to read it.
+  const hintEl = make("p", "fft-hint");
+  hintEl.hidden = true;
+  header.append(title, subtitle, takeawayEl, hintEl);
   // How to read it: a plain guide under the chart, in the chart's own field names, with one example from its rows.
   const guide = make("p", "fft-guide");
   guide.id = `${id}-guide`;
@@ -1045,6 +1049,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       drawn = true;
       paintGuide();
       paintTakeaway();
+      paintHint();
       // Pictures of the card are offered whenever the view drew something to see: an SVG chart, or HTML marks (bars,
       // bullets, strips, tables, maps), not a view that wrote plain text only.
       const pictured = Boolean(chartSvg() || [...body.querySelectorAll("*")].some((node) => !node.closest(".fft-sr-only")));
@@ -1250,6 +1255,16 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     guide.hidden = !open;
     actionButtons.get("explain")?.setAttribute("aria-expanded", String(open));
     paintGuide();
+    paintHint();
+  }
+
+  /** The reading key under the header, for a form that needs one; the open guide says more, so the key steps aside. */
+  function paintHint() {
+    const text = hintOf(localized(), rows);
+    const label = make("span", "fft-hint-label");
+    label.textContent = W().hint.label;
+    hintEl.replaceChildren(label, " ", text);
+    hintEl.hidden = !text || !guide.hidden;
   }
 
   /** Writes the guide for what is drawn now, when it is open: the sales question the chart answers, then how to read it. */

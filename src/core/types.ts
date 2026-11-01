@@ -45,6 +45,12 @@ export interface WidgetSpec {
    */
   takeaway?: boolean | string;
   /**
+   * The reading key: one quiet line under the header on a chart form a reader may not know (a cycle plot, a box plot,
+   * a chord), saying how to read it. Written by the library for those forms; a string is your own line, `false` keeps
+   * it off. Familiar forms (bars, lines, pies, numbers) carry none.
+   */
+  hint?: boolean | string;
+  /**
    * "sentence" draws the card as one data sentence: the takeaway alone, its figures set apart, and for a chart over
    * time a trend line the size of a word at its end, for a sidebar, an email or a paragraph. "card" (the default) is
    * the full card.
