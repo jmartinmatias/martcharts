@@ -29,8 +29,7 @@ describe("hintOf", () => {
 
   test("outcomes count against the named target, or say only what a dot is", () => {
     expect(hintOf(spec({ type: "outcomes", value: "v" }))).toBe("Each dot is one equally likely outcome.");
-    expect(hintOf(spec({ type: "outcomes", value: "v", target: 4.2e6, targetLabel: "plan" }))).toBe("Each dot is one equally likely outcome; filled dots reach the plan.");
-    expect(hintOf(spec({ type: "outcomes", value: "v", target: 9, goodWhen: "down" }))).toMatch(/stay within the target\.$/);
+    expect(hintOf(spec({ type: "outcomes", value: "v", target: 4.2e6, targetLabel: "plan" }))).toBe("Each dot is one equally likely outcome; the key counts each side of the line.");
   });
 
   test("variants read their own way: an arrow is a change, a cycle of months runs year by year", () => {
@@ -52,7 +51,7 @@ describe("hintOf", () => {
       expect(Object.keys(wordsFor(lang).hint.types).sort()).toEqual(Object.keys(WORDS_EN.hint.types).sort());
     }
     expect(hintOf(spec({ type: "boxplot" }, { locale: "fr-FR" }))).toMatch(/^La boîte/);
-    expect(hintOf(spec({ type: "outcomes", target: 1, targetLabel: "Plan" }, { locale: "de-DE" }))).toMatch(/erreichen die gestrichelte Linie \(Plan\)\.$/);
+    expect(hintOf(spec({ type: "outcomes", target: 1, targetLabel: "Plan" }, { locale: "de-DE" }))).toMatch(/zählt jede Seite der Linie\.$/);
   });
 });
 

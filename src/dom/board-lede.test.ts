@@ -42,7 +42,7 @@ describe("the board's lede", () => {
     expect(lede?.hidden).toBe(false);
     expect(lede?.getAttribute("aria-label")).toBe("Board summary");
     expect(lines()).toEqual([
-      "3 of 5 figures with a target or a past value are on course.",
+      "3 of 5 tracked figures are on course.",
       "Going well: IT, 10% below budget, in Costs against budget.",
       "Needs attention: West, 30% below target, in Target attainment.",
     ]);
@@ -63,7 +63,7 @@ describe("the board's lede", () => {
     const drawn = createDashboard(target, board, { widgets });
     await drawn.ready;
     await drawn.setFilter("team", "B");
-    expect(lines()[0]).toBe("2 of 2 figures with a target or a past value are on course.");
+    expect(lines()[0]).toBe("2 of 2 tracked figures are on course.");
     expect(lines().some((line) => /Needs attention/.test(String(line)))).toBe(false);
     drawn.destroy();
   });

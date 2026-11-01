@@ -22,7 +22,7 @@ const costs = card("opex", { title: "Costs against budget", view: { type: "varia
 describe("readingsOf", () => {
   test("a meter reads each row against its target and its ghost, in the card's words", () => {
     const said = readingsOf(meter).map((r) => `${r.subject}: ${r.said}`);
-    expect(said).toEqual(["East: 10% above target", "East: +10% since August", "West: 20% below target", "West: −11.1% since August"]);
+    expect(said).toEqual(["East: 10% above target", "East: up 10% since August", "West: 20% below target", "West: down 11.1% since August"]);
   });
 
   test("goodWhen down turns over budget into the bad side, and names the line the card draws", () => {
@@ -38,7 +38,7 @@ describe("readingsOf", () => {
       { month: "2026-09", churn: 40 },
     ]);
     const [churn] = readingsOf(kpis);
-    expect(churn?.said).toMatch(/^−20% since Aug/);
+    expect(churn?.said).toMatch(/^down 20% since Aug/);
     expect(churn?.score).toBeCloseTo(0.2);
   });
 

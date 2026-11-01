@@ -118,7 +118,8 @@ export function readingsOf(card: LedeCard): Reading[] {
   const since = (subject: string, value: number | null, before: number | null, goodWhen: unknown, when: string, points = false) => {
     if (value === null || before === null || (!points && before === 0)) return;
     const moved = points ? value - before : value / before - 1;
-    add(subject, `${change(moved, locale, points)} ${when}`, sign(goodWhen) * moved, "past");
+    const by = change(Math.abs(moved), locale, points).replace(/^\+/, "");
+    add(subject, `${moved < 0 ? L.down(by) : L.up(by)} ${when}`, sign(goodWhen) * moved, "past");
   };
   /** Each row's label, or the card's title for a single row. */
   const rowName = (row: Row, field: string | undefined) => (field && row[field] !== undefined && row[field] !== null ? String(row[field]) : title);

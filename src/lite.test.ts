@@ -17,7 +17,7 @@ const FULL_BEFORE = 298_224;
 describe("bundle sizes (after npm run build:lib)", () => {
   const full = gz("dist/martcharts.iife.js");
   const lite = gz("dist/martcharts-lite.iife.js");
-  test.skipIf(full === undefined)("the full bundle stays within 18% of its size when the lite build began", () => {
+  test.skipIf(full === undefined)("the full bundle stays within 19% of its size when the lite build began", () => {
     // 5% until the builder and reading features of late October 2026: the Composer's saved dashboards with undo, refs
     // unique to each chart's place, quarters in words, per-row units and the phone layout of the whitespace grid took
     // it to 105.6%. Raise it again only for a feature, never for creep.
@@ -38,9 +38,11 @@ describe("bundle sizes (after npm run build:lib)", () => {
     // took it to 116.2% (1 November 2026).
     // 18% after the board's lede (figures on course against their targets and past values, the best and the worst
     // linked to their cards, in three languages) took it to 117.1% (1 November 2026).
-    expect(full).toBeLessThanOrEqual(Math.round(FULL_BEFORE * 1.18));
+    // 19% after the reader pass merged on top: the how-to-read line on 21 views, copy link and copy sentence on every
+    // card, and data dates, three languages each, took it to 118.4% (1 November 2026).
+    expect(full).toBeLessThanOrEqual(Math.round(FULL_BEFORE * 1.19));
   });
-  test.skipIf(lite === undefined || full === undefined)("the lite bundle stays under 83% of the full bundle's starting size, and under three quarters of today's", () => {
+  test.skipIf(lite === undefined || full === undefined)("the lite bundle stays under 85% of the full bundle's starting size, and under three quarters of today's", () => {
     // 206,759 bytes gzipped when made: 69% of 298,224. What remains is what showing charts uses: the English reading
     // guides, the stylesheet, the views' option schemas (validation messages read them) and the chart picker behind
     // <fft-widget data="…">.
@@ -61,7 +63,9 @@ describe("bundle sizes (after npm run build:lib)", () => {
     // English guides (1 November 2026).
     // 83% after data sentences, which every page draws (figures set apart in takeaways, the sentence display), took it
     // to 82.0% (1 November 2026).
-    expect(lite).toBeLessThanOrEqual(Math.round(FULL_BEFORE * 0.83));
+    // 85% after the reader pass, which every page draws (how-to-read lines, copy link and sentence, data dates), took
+    // it to 84.3% (1 November 2026).
+    expect(lite).toBeLessThanOrEqual(Math.round(FULL_BEFORE * 0.85));
     expect(lite as number).toBeLessThan((full as number) * 0.75);
   });
   test.skipIf(!existsSync("dist/martcharts-lite.iife.js"))("the lite bundle carries no editor, composer, Taller, palette picker or French and German reading", () => {

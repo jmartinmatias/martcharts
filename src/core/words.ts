@@ -399,7 +399,7 @@ const EN = {
     } as Record<string, string>,
     /** What the outcomes view's dashed line is called when the spec does not name it. */
     target: "target",
-    outcomes: (target: string | undefined, down: boolean) => `Each dot is one equally likely outcome${target ? `; filled dots ${down ? "stay within" : "reach"} the ${target}` : ""}.`,
+    outcomes: (target?: string, _down?: boolean) => `Each dot is one equally likely outcome${target ? "; the key counts each side of the line" : ""}.`,
   },
 
   // ---- A dashboard's filter row, share and print tools ----
@@ -464,7 +464,9 @@ const EN = {
   // ---- The board's lede: what is going well, what needs attention, and how many figures are on course ----
   lede: {
     label: "Board summary",
-    course: (on: number, of: number) => `${on} of ${of} figures with a target or a past value ${on === 1 ? "is" : "are"} on course.`,
+    course: (on: number, of: number) => `${on} of ${of} tracked figures ${on === 1 ? "is" : "are"} on course.`,
+    up: (by: string) => `up ${by}`,
+    down: (by: string) => `down ${by}`,
     good: "Going well",
     bad: "Needs attention",
     inCard: "in",
@@ -846,7 +848,7 @@ const FR: Words = {
       pareto: "Les barres vont de la plus grande à la plus petite ; la ligne les cumule et montre les quelques causes qui pèsent le plus.",
     } as Record<string, string>,
     target: "objectif",
-    outcomes: (target, down) => `Chaque point est un résultat également probable${target ? ` ; les points pleins ${down ? "restent en deçà de" : "atteignent"} la ligne pointillée (${target})` : ""}.`,
+    outcomes: (target) => `Chaque point est un résultat également probable${target ? " ; la légende compte chaque côté de la ligne" : ""}.`,
   },
   board: {
     all: "Tous",
@@ -899,7 +901,9 @@ const FR: Words = {
   },
   lede: {
     label: "Résumé du tableau",
-    course: (on, of) => `${on} ${on === 1 ? "chiffre" : "chiffres"} sur ${of} ayant un objectif ou une valeur passée ${on === 1 ? "est" : "sont"} sur la bonne voie.`,
+    course: (on, of) => `${on} ${on === 1 ? "chiffre suivi" : "chiffres suivis"} sur ${of} ${on === 1 ? "est" : "sont"} sur la bonne voie.`,
+    up: (by) => `en hausse de ${by}`,
+    down: (by) => `en baisse de ${by}`,
     good: "Ce qui va bien",
     bad: "À regarder de près",
     inCard: "dans",
@@ -1269,7 +1273,7 @@ const DE: Words = {
       pareto: "Die Balken laufen vom größten zum kleinsten; die Linie summiert sie und zeigt die wenigen Ursachen, die am meisten zählen.",
     } as Record<string, string>,
     target: "Ziel",
-    outcomes: (target, down) => `Jeder Punkt ist ein gleich wahrscheinliches Ergebnis${target ? `; gefüllte Punkte ${down ? "bleiben unter der gestrichelten Linie" : "erreichen die gestrichelte Linie"} (${target})` : ""}.`,
+    outcomes: (target) => `Jeder Punkt ist ein gleich wahrscheinliches Ergebnis${target ? "; die Legende zählt jede Seite der Linie" : ""}.`,
   },
   board: {
     all: "Alle",
@@ -1322,7 +1326,9 @@ const DE: Words = {
   },
   lede: {
     label: "Zusammenfassung des Dashboards",
-    course: (on, of) => `${on} von ${of} Kennzahlen mit Ziel oder Vorwert ${on === 1 ? "liegt" : "liegen"} auf Kurs.`,
+    course: (on, of) => `${on} von ${of} beobachteten Kennzahlen ${on === 1 ? "liegt" : "liegen"} auf Kurs.`,
+    up: (by) => `${by} höher`,
+    down: (by) => `${by} niedriger`,
     good: "Läuft gut",
     bad: "Braucht Aufmerksamkeit",
     inCard: "in",
