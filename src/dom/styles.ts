@@ -1087,6 +1087,13 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-swatch[data-shape="line"] { width: 13px; height: 2px; border-radius: var(--fft-radius-s); }
 .fft-swatch[data-shape="dot"] { border-radius: 50%; }
 .fft-swatch[data-shape="ring"] { border-radius: 50%; background: transparent; }
+.fft-swatch[data-shape="tick"] { width: 2px; height: 11px; border-radius: var(--fft-radius-s); }
+/* The ghost (compare): where a bar or a meter stood before, behind or across today's mark, quieter than it. */
+.fft-hbar-track:has(.fft-hbar-ghost) { position: relative; }
+.fft-hbar-ghost { position: absolute; left: 0; top: -3px; bottom: -3px; border-radius: var(--fft-radius-s) var(--fft-radius-m) var(--fft-radius-m) var(--fft-radius-s); box-shadow: inset 0 0 0 1.5px var(--fft-text-secondary); opacity: 0.618; pointer-events: none; }
+.fft-meter-track[data-ghost] { position: relative; overflow: visible; }
+.fft-meter-ghost { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; border-radius: var(--fft-radius-s); background: var(--fft-text); box-shadow: 0 0 0 1.5px var(--fft-surface); }
+.fft-line-ghost { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .fft-swatch[data-tone="muted"] { opacity: var(--fft-dim); }
 .fft-legend[data-place="below"] { order: 1; }
 

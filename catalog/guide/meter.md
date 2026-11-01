@@ -30,34 +30,36 @@ Progress against a target, one meter per row: attainment as a percentage, a bar 
 | `value` | number | yes | Field holding the current amount. |
 | `target` | number | yes | Field holding the target amount. |
 | `label` | category |  | Field naming each meter, for example a region. Defaults to the value field's label. |
+| `compare` | number |  | Field with where each meter stood before, such as last month: a thin tick across the track marks it, so the move toward the target reads at a glance. A key names it, and the tooltip gives its value and the change since. |
 
-## This example's columns (3 columns, 5 rows)
+## This example's columns (4 columns, 5 rows)
 
 | Column | Holds | Drawn as | Values |
 | --- | --- | --- | --- |
 | `revenue` | number | `value` | 204000 to 338000 |
 | `target` | number | `target` | 198000 to 327000 |
 | `region` | category | `label` | 5 different, e.g. "East", "North", "Central" |
+| `august` (August) | number | `compare` | 176000 to 301000 |
 
 ## The data drawing it now
 
-| revenue | target | region |
-| --- | --- | --- |
-| 338000 | 327000 | East |
-| 278000 | 243000 | North |
-| 259000 | 225000 | Central |
-| 205000 | 198000 | West |
-| 204000 | 207000 | South |
+| revenue | target | region | august |
+| --- | --- | --- | --- |
+| 338000 | 327000 | East | 301000 |
+| 278000 | 243000 | North | 262000 |
+| 259000 | 225000 | Central | 248000 |
+| 205000 | 198000 | West | 211000 |
+| 204000 | 207000 | South | 176000 |
 
 As CSV:
 
 ```csv
-revenue,target,region
-338000,327000,East
-278000,243000,North
-259000,225000,Central
-205000,198000,West
-204000,207000,South
+revenue,target,region,august
+338000,327000,East,301000
+278000,243000,North,262000
+259000,225000,Central,248000
+205000,198000,West,211000
+204000,207000,South,176000
 ```
 
 ## The spec
@@ -80,17 +82,20 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
       {
         "region": "East",
         "revenue": 338000,
-        "target": 327000
+        "target": 327000,
+        "august": 301000
       },
       {
         "region": "North",
         "revenue": 278000,
-        "target": 243000
+        "target": 243000,
+        "august": 262000
       },
       {
         "region": "Central",
         "revenue": 259000,
-        "target": 225000
+        "target": 225000,
+        "august": 248000
       }
     ]
   },
@@ -109,13 +114,22 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
         "compact": true
       }
     },
-    "region": {}
+    "region": {},
+    "august": {
+      "label": "August",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
   },
   "view": {
     "type": "meter",
     "value": "revenue",
     "target": "target",
-    "label": "region"
+    "label": "region",
+    "compare": "august"
   },
   "i18n": {
     "fr": {
@@ -134,6 +148,9 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
             "West": "Ouest",
             "South": "Sud"
           }
+        },
+        "august": {
+          "label": "Août"
         }
       }
     },
@@ -153,6 +170,9 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
             "West": "West",
             "South": "Süd"
           }
+        },
+        "august": {
+          "label": "August"
         }
       }
     }
@@ -166,17 +186,15 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
 | --- | --- | --- | --- | --- |
 | `variance` | fits | better | Better for what drives or moves a total and comparing amounts across categories, and still good for actual against target or plan. Shows the gap itself, over or under, instead of progress toward the target. | `{"type":"variance","label":"region","value":"revenue","target":"target"}` |
 | `bullet` | fits | better | Better for comparing amounts across categories, and still good for actual against target or plan. Denser, with qualitative bands; less plain-language than the meter's 'to go' line. | `{"type":"bullet","label":"region","value":"revenue","target":"target"}` |
-| `bar` | fits | different | Answers a different question: better for comparing amounts across categories and ranking, top to bottom, but gives up actual against target or plan. | `{"type":"bar","x":"region","y":["revenue","target"]}` |
-| `hbar` | fits | different | Answers a different question: better for ranking, top to bottom and comparing amounts across categories, but gives up actual against target or plan. | `{"type":"hbar","label":"region","value":["revenue","target"]}` |
+| `dot` | fits | different | Answers a different question: better for comparing amounts across categories and ranking, top to bottom, but gives up actual against target or plan. | `{"type":"dot","label":"region","value":["revenue","target"]}` |
 | `list` | fits | different | Answers a different question: better for exact values and lookup and ranking, top to bottom, but gives up actual against target or plan. | `{"type":"list","label":"region","value":"revenue"}` |
 | `radar` | fits | different | Answers a different question: better for profiles across several attributes and comparing amounts across categories, but gives up actual against target or plan. | `{"type":"radar","label":"region","y":["revenue","target"]}` |
 | `donut` | fits | different | Answers a different question: better for share of one whole, but gives up actual against target or plan. | `{"type":"donut","label":"region","value":"revenue"}` |
 | `pie` | fits | different | Answers a different question: better for share of one whole, but gives up actual against target or plan. | `{"type":"pie","label":"region","value":"revenue"}` |
 | `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up actual against target or plan. | `{"type":"table"}` |
-| `dot` | fits | worse | Gives up actual against target or plan, and this data gives it nothing better to do. | `{"type":"dot","label":"region","value":["revenue","target"]}` |
 | `icicle` | fits | worse | Gives up actual against target or plan, and this data gives it nothing better to do. | `{"type":"icicle","levels":"region","value":"revenue"}` |
-| `kpi` | fits | worse | Gives up actual against target or plan, and this data gives it nothing better to do. | `{"type":"kpi","value":"revenue","target":"target"}` |
-| `kpis` | fits | worse | Gives up actual against target or plan, and this data gives it nothing better to do. | `{"type":"kpis","items":[{"value":"revenue"},{"value":"target"}]}` |
+| `kpi` | fits | worse | Gives up actual against target or plan, and this data gives it nothing better to do. | `{"type":"kpi","value":"revenue","compare":"august","target":"target"}` |
+| `kpis` | fits | worse | Gives up actual against target or plan, and this data gives it nothing better to do. | `{"type":"kpis","items":[{"value":"revenue"},{"value":"target"},{"value":"august"}]}` |
 | `pareto` | fits | worse | Gives up actual against target or plan, and this data gives it nothing better to do. | `{"type":"pareto","label":"region","value":"revenue"}` |
 | `rose` | fits | worse | Gives up actual against target or plan, and this data gives it nothing better to do. | `{"type":"rose","label":"region","y":["revenue","target"]}` |
 | `sunburst` | fits | worse | Gives up actual against target or plan, and this data gives it nothing better to do. | `{"type":"sunburst","levels":"region","value":"revenue"}` |
@@ -189,8 +207,8 @@ Replace `data.rows` with your rows, keeping the column names the view names (or 
 | `boxplot` | stretch: 5 rows: this chart says little with fewer than 15. | worse | Gives up actual against target or plan, and this data gives it nothing better to do. | `{"type":"boxplot","value":"revenue"}` |
 | `histogram` | stretch: 5 rows: this chart says little with fewer than 20. | worse | Gives up actual against target or plan, and this data gives it nothing better to do. | `{"type":"histogram","value":"revenue"}` |
 | `horizon` | stretch: x expects dates; "region" is text, so its rows are drawn in the order given. 5 rows: this chart says little with fewer than 10. | worse | Gives up actual against target or plan, and this data gives it nothing better to do. | `{"type":"horizon","x":"region","y":["revenue","target"]}` |
-| `line` | stretch: x expects dates; "region" is text, so its rows are drawn in the order given. | worse | Weaker for actual against target or plan, with nothing gained for this data. | `{"type":"line","x":"region","y":["revenue","target"]}` |
+| `line` | stretch: x expects dates; "region" is text, so its rows are drawn in the order given. | worse | Weaker for actual against target or plan, with nothing gained for this data. | `{"type":"line","x":"region","y":["revenue","target"],"compare":"august"}` |
 | `ridgeline` | stretch: 5 rows: this chart says little with fewer than 20. | worse | Gives up actual against target or plan, and this data gives it nothing better to do. | `{"type":"ridgeline","value":"revenue","group":"region"}` |
 | `scatter` | stretch: 5 rows: this chart says little with fewer than 6. | worse | Gives up actual against target or plan, and this data gives it nothing better to do. | `{"type":"scatter","x":"revenue","y":"target","label":"region"}` |
 
-Not possible with this data: `anomalies` (needs a separate column for metric (it would reuse "region", already the x)); `board` (needs a separate column for stage (it would reuse "region", already the label)); `bump` (needs a separate column for series (it would reuse "region", already the x)); `calendar` (needs a date column for date); `candlestick` (needs a separate column for low (it would reuse "revenue", already the open)); `chord` (needs a separate column for target (it would reuse "region", already the source)); `choropleth` (needs a column of country or state codes that sit on a basemap); `dual` (It needs two measures over the same periods, in two columns.); `dumbbell` (It needs the same measure at two points in time, in two columns.); `funnel` (It needs ordered stages that narrow, such as visits to sign-ups to sales.); `heatmap` (needs a separate column for y (it would reuse "region", already the x)); `history` (needs a separate column for title (it would reuse "region", already the date)); `lifecycle` (view: stages needs at least two date fields in order, such as ["proposed", "adopted"].); `likert` (It needs answer counts on one ordered scale, such as disagree to agree.); `locator` (needs named places with region codes on a basemap, or coordinates); `marimekko` (needs a separate column for series (it would reuse "region", already the x)); `matrix` (needs a separate column for y (it would reuse "region", already the x)); `pyramid` (It needs two counts per ordered band, such as women and men per age group.); `ragboard` (It needs status columns holding R, A, G (or red, amber, green), one row per client or deal; the rag transform makes them from numbers.); `ragtrend` (needs a separate column for period (it would reuse "region", already the label)); `sankey` (needs a separate column for target (it would reuse "region", already the source)); `slope` (It needs the same measure at two points in time, in two columns.); `strips` (It needs whole counts per row, in one or more part columns.); `symbols` (needs a column of country or state codes that sit on a basemap, or coordinates); `timeline` (needs a date column for start); `waterfall` (It needs changes that add up from one total to another.); `whitespace` (needs a separate column for column (it would reuse "region", already the row)); `xray` (It needs one row: one client with its facts, holdings and share of wallet.).
+Not possible with this data: `anomalies` (needs a separate column for metric (it would reuse "region", already the x)); `bar` (view: compare draws behind one series of plain bars: drop stacked, or keep one y field.); `board` (needs a separate column for stage (it would reuse "region", already the label)); `bump` (needs a separate column for series (it would reuse "region", already the x)); `calendar` (needs a date column for date); `candlestick` (needs a separate column for close (it would reuse "revenue", already the open)); `chord` (needs a separate column for target (it would reuse "region", already the source)); `choropleth` (needs a column of country or state codes that sit on a basemap); `dual` (It needs two measures over the same periods, in two columns.); `dumbbell` (It needs the same measure at two points in time, in two columns.); `funnel` (It needs ordered stages that narrow, such as visits to sign-ups to sales.); `hbar` (view: compare draws behind one bar per row: give value one field.); `heatmap` (needs a separate column for y (it would reuse "region", already the x)); `history` (needs a separate column for title (it would reuse "region", already the date)); `lifecycle` (view: stages needs at least two date fields in order, such as ["proposed", "adopted"].); `likert` (It needs answer counts on one ordered scale, such as disagree to agree.); `locator` (needs named places with region codes on a basemap, or coordinates); `marimekko` (needs a separate column for series (it would reuse "region", already the x)); `matrix` (needs a separate column for y (it would reuse "region", already the x)); `pyramid` (It needs two counts per ordered band, such as women and men per age group.); `ragboard` (It needs status columns holding R, A, G (or red, amber, green), one row per client or deal; the rag transform makes them from numbers.); `ragtrend` (needs a separate column for period (it would reuse "region", already the label)); `sankey` (needs a separate column for target (it would reuse "region", already the source)); `slope` (It needs the same measure at two points in time, in two columns.); `strips` (It needs whole counts per row, in one or more part columns.); `symbols` (needs a column of country or state codes that sit on a basemap, or coordinates); `timeline` (needs a date column for start); `waterfall` (It needs changes that add up from one total to another.); `whitespace` (needs a separate column for column (it would reuse "region", already the row)); `xray` (It needs one row: one client with its facts, holdings and share of wallet.).

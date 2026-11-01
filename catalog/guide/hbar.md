@@ -32,6 +32,7 @@ Horizontal bars for rankings and long labels: label on the left, bar, value at t
 | --- | --- | --- | --- |
 | `label` | category | yes | Field naming each bar. |
 | `value` | number (one or more) | yes | Field or fields with each bar's amount. Bars start at zero. Several fields draw one bar per field in each row (grouped), stacked into one bar with stacked, or in separate columns with split. |
+| `compare` | number |  | Field drawn as a taller, quieter bar behind each bar, on the same scale, such as last period or last year: a bar past its ghost grew, one short of it shrank. A key names it, and the tooltip gives its value and the change since. One value field only. |
 
 ## This example's columns (2 columns, 10 rows)
 

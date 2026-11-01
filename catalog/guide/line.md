@@ -34,6 +34,7 @@ Lines showing change over an ordered axis, usually time. Several y fields draw s
 | `y` | number (one or more) | yes | Field or fields for line values. Each field is one series. |
 | `forecast` | category |  | Field that is true on forecast rows. From the last actual on, lines draw dashed in a softly shaded zone labelled Forecast, and the tooltip marks those rows. |
 | `between` | number (one or more) |  | Two of the y fields, such as ["revenue", "cost"]: the gap between their lines is filled in the colour of whichever is on top there, split where they cross, so surplus and deficit read at a glance. |
+| `compare` | number |  | Field drawn as a quiet grey line behind the first series, on the same axis, such as last year: where the line runs above it, it is ahead. A key names it, and the tooltip gives its value and the change since. |
 
 ## This example's columns (4 columns, 12 rows)
 

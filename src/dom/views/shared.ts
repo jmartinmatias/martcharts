@@ -259,7 +259,7 @@ export function buildTable(ctx: ViewContext<{ type: string }>, rows: Row[], colu
 export { CHAR_WIDTH, DIM, endRoom, GAP, LABEL_COLUMN, labelColumn, ROW, rowHeight, textWidth } from "../layout.ts";
 
 /** A swatch's shape, mirroring its marks: a square for bars and cells, a dot for points, a short line for lines, a ring for outlined marks. */
-export type SwatchShape = "rect" | "dot" | "line" | "ring";
+export type SwatchShape = "rect" | "dot" | "line" | "ring" | "tick";
 
 /** One legend key. */
 export interface LegendEntry {
@@ -269,7 +269,7 @@ export interface LegendEntry {
   color: string;
   shape?: SwatchShape;
   /** A mark state the swatch mirrors: `miss` is a light fill outlined in the color (a bar below its target), `muted` a greyed key. */
-  tone?: "miss" | "muted";
+  tone?: "miss" | "muted" | "ghost";
 }
 
 /**
@@ -290,6 +290,10 @@ export function legendList(ctx: ViewContext<{ type: string }>, entries: LegendEn
       swatch.dataset.tone = "miss";
       swatch.style.background = `color-mix(in srgb, ${entry.color} 34%, var(--fft-surface))`;
       swatch.style.boxShadow = `inset 0 0 0 1px color-mix(in srgb, ${entry.color} 85%, var(--fft-text))`;
+    } else if (entry.tone === "ghost") {
+      // A ghost is an outline where the mark stood before: the key draws it the same way.
+      swatch.dataset.tone = "ghost";
+      swatch.style.boxShadow = `inset 0 0 0 1.5px ${entry.color}`;
     } else if (entry.shape === "ring") {
       swatch.style.boxShadow = `inset 0 0 0 1.5px ${entry.color}`;
     } else swatch.style.background = entry.color;
@@ -409,3 +413,4 @@ function speakShortFigures(hidden: HTMLElement): void {
 export function trimZeros(text: string): string {
   return text.replace(/(\d)([.,])(\d*?)0+(?=\D|$)/g, (_all, lead: string, mark: string, kept: string) => (kept ? `${lead}${mark}${kept}` : lead));
 }
+

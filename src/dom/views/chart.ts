@@ -18,6 +18,7 @@ import type { LabelBox } from "../layout.ts";
 import { categoryLabel, fieldList, hiddenTableOf, html, legendList, selectable, svg, fillHeight } from "./shared.ts";
 import type { LegendEntry as KitLegendEntry } from "./shared.ts";
 import { roving } from "./focus.ts";
+import { ghostLines } from "./ghost.ts";
 import { wordsFor } from "./words.ts";
 
 type Kind = "bar" | "line" | "area";
@@ -32,6 +33,8 @@ let gradients = 0;
 export { CHAR_WIDTH } from "../layout.ts";
 /** The quiet fill of a comparison column behind a bar: a grey that stays a grey on light and dark cards. */
 export const COMPARE_FILL = "color-mix(in srgb, var(--fft-deemphasis) 55%, var(--fft-surface))";
+/** A ghost line's stroke: the grey that steps back, strong enough to read as a line beside the colored ones. */
+export const GHOST_LINE = "var(--fft-deemphasis)";
 /** Under this width a chart's notes become numbered markers, their texts listed below (a phone, or a narrow card). */
 const NOTE_LIST_WIDTH = 480;
 
@@ -203,8 +206,14 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
   // A log axis places only positive values; the rest are left out (checkData says so).
   const log = kind === "line" && (view as LineView).scale === "log";
   const raw = series.map((field) => rows.map((row) => readNumber(row[field])).map((v) => (log && v !== null && v <= 0 ? null : v)));
-  // A comparison column behind each bar (last year, the plan): one series of plain bars only.
-  const compareField = kind === "bar" && series.length === 1 && !(view as BarView).stacked && typeof (view as BarView).compare === "string" ? ((view as BarView).compare as string) : undefined;
+  // A comparison behind the marks (last year, the plan): a column behind each bar of one plain series, or a quiet grey
+  // line behind a line chart's first series.
+  const compareField =
+    kind === "bar" && series.length === 1 && !(view as BarView).stacked && typeof (view as BarView).compare === "string"
+      ? ((view as BarView).compare as string)
+      : kind === "line" && typeof (view as LineView).compare === "string"
+        ? ((view as LineView).compare as string)
+        : undefined;
   const compareValues = compareField ? rows.map((row) => readNumber(row[compareField])) : [];
   // Combo: extra series drawn as lines over the bars, on the same axis (never a second one).
   const overlayFields = kind === "bar" ? fieldList((view as BarView).lines) : [];
@@ -290,7 +299,7 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
   const markShape: LegendEntry["shape"] = kind !== "bar" ? "line" : (view as BarView).mark === "lollipop" ? "dot" : "rect";
   const legendEntries: LegendEntry[] = [
     ...series.map((field, s) => ({ field, color: seriesColor(s), shape: markShape })),
-    ...(compareField ? [{ field: compareField, color: COMPARE_FILL, shape: "rect" as const }] : []),
+    ...(compareField ? [kind === "line" ? { field: compareField, color: GHOST_LINE, shape: "line" as const } : { field: compareField, color: COMPARE_FILL, shape: "rect" as const }] : []),
     ...overlayFields.map((field, k) => ({ field, color: overlayColor(k), shape: "line" as const })),
     ...(rows.some((_, i) => missed(i)) ? [{ field: series[0] as string, color: seriesColor(0), shape: markShape, label: `${lowerIsBetter ? "Over" : "Below"} ${goalName}`, tone: "miss" as const }] : []),
   ];
@@ -528,6 +537,16 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
       }
       close();
     }
+    // The ghost line (compare): last year's run, quiet and grey behind the lines, on the same axis.
+    if (kind === "line" && compareField) {
+      const ghost = compareValues.map((v, i) => (v === null ? null : { x: slots[i]?.center ?? 0, y: y(v) }));
+      if (ghost.some(Boolean)) {
+        const path = svg(doc, "path", { class: "fft-line-ghost", d: curveLine(ghost, curve) });
+        path.style.setProperty("stroke", GHOST_LINE);
+        obstacles.lines.push(ghost);
+        washes.append(path);
+      }
+    }
     const order = series.map((_, s) => s).sort((a, b) => Number(seriesOn(a)) - Number(seriesOn(b)));
     const edge = (s: number) => rows.map((_, i) => ({ x: slots[i]?.center ?? 0, y: y(tops?.[s]?.[i] ?? 0) }));
     // Symbols: a small dot at every reading, where readings sit at least 8px apart; the end dot already marks the last.
@@ -717,7 +736,7 @@ function renderCartesian(ctx: ViewContext<BarView | LineView | AreaView>, kind: 
     const high = bandHigh[i];
     if (band && low != null && high != null && low !== high) items.push({ label: band.label ?? wordsFor(ctx).range, value: wordsFor(ctx).between(ctx.format(low, series[0]), ctx.format(high, series[0])) });
     const title = forecastField && isForecast(row[forecastField]) ? wordsFor(ctx).forecastOf(xLabels[i] ?? "") : (xLabels[i] ?? "");
-    if (compareField) items.push({ label: ctx.label(compareField), value: ctx.format(row[compareField], compareField), color: COMPARE_FILL });
+    if (compareField) items.push(...ghostLines(ctx, row, series[0] as string, compareField).map((item, k) => (k === 0 ? { ...item, color: kind === "line" ? GHOST_LINE : COMPARE_FILL } : item)));
     overlayFields.forEach((field, k) => items.push({ label: ctx.label(field), value: ctx.format(row[field], field), color: overlayColor(k) }));
     for (const pin of pinned) if (pin.i === i) items.push({ label: wordsFor(ctx).note, value: pin.text });
     const hit = svg(doc, "rect", { class: "fft-hit", x: slot.start, y: plot.y, width: slot.width, height: plot.h, tabindex: 0, role: "img" });

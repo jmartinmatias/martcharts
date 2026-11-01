@@ -1,8 +1,9 @@
 import { readNumber } from "../../core/formats.ts";
 import type { ViewRenderer } from "../../core/view-context.ts";
 import type { MeterView } from "../../core/views.ts";
-import { activeGroup, hiddenTableOf, html, roving, rowHit, shareFormat } from "./shared.ts";
+import { activeGroup, hiddenTableOf, html, legendList, roving, rowHit, shareFormat } from "./shared.ts";
 import { checkMark, standing } from "./target.ts";
+import { ghostChange, ghostLines } from "./ghost.ts";
 import { wordsFor } from "./words.ts";
 
 /**
@@ -51,6 +52,16 @@ export const renderMeter: ViewRenderer<MeterView> = (ctx) => {
     if (fixed) fill.style.background = fixed;
     fill.style.width = `${ratio === null ? 0 : Math.round(Math.min(1, Math.max(0, ratio)) * 1000) / 10}%`;
     track.append(fill);
+    // The ghost: a tick where the meter stood before (last month, last year), so the move reads against the target.
+    const compare = typeof ctx.view.compare === "string" ? ctx.view.compare : undefined;
+    const before = compare ? readNumber(row[compare]) : null;
+    // Only short of the target: the track ends at 100%, so a past value over it has no place on it (the tooltip says it).
+    if (compare && before !== null && target !== null && target !== 0 && before / target < 1) {
+      const tick = html(doc, "div", "fft-meter-ghost");
+      tick.style.left = `${Math.round(Math.min(1, Math.max(0, before / target)) * 1000) / 10}%`;
+      track.dataset.ghost = "";
+      track.append(tick);
+    }
     const foot = html(doc, "div", "fft-meter-foot");
     foot.append(html(doc, "span", "fft-meter-value", wordsFor(ctx).outOf(ctx.format(row[valueField], valueField), ctx.format(row[targetField], targetField))));
     // A met target says so once, with its check (the track's aria-label keeps the words). A miss says what is left.
@@ -62,10 +73,16 @@ export const renderMeter: ViewRenderer<MeterView> = (ctx) => {
       { label: ctx.label(targetField), value: ctx.format(row[targetField], targetField) },
       ...(percentText ? [{ label: wordsFor(ctx).ofTarget, value: percentText }] : []),
       ...(stand && !met ? [{ label: wordsFor(ctx).whereItStands, value: stand }] : []),
+      ...ghostLines(ctx, row, valueField, compare),
     ];
+    const change = compare ? ghostChange(ctx, value, before, valueField) : "";
+    if (change) track.setAttribute("aria-label", `${track.getAttribute("aria-label")}, ${change} ${wordsFor(ctx).since(ctx.label(compare as string))}`);
     hits.push(rowHit(ctx, { node: meter, row, name, items, anchor: track, group }));
     list.append(meter);
   });
   roving(hits);
-  ctx.el.append(list, hiddenTableOf(ctx, ctx.rows, [labelField ?? "", valueField, targetField]));
+  // With a ghost, a key says what the tick is.
+  const key = typeof ctx.view.compare === "string" && ctx.rows.some((row) => readNumber(row[ctx.view.compare as string]) !== null) ? legendList(ctx, [{ label: ctx.label(ctx.view.compare), color: "var(--fft-text)", shape: "tick" }]) : undefined;
+  if (key) ctx.el.append(key);
+  ctx.el.append(list, hiddenTableOf(ctx, ctx.rows, [labelField ?? "", valueField, targetField, ...(typeof ctx.view.compare === "string" ? [ctx.view.compare] : [])]));
 };

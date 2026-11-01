@@ -7,70 +7,80 @@
         "product": "Core",
         "revenue": 182000,
         "cost": 114000,
-        "target": 153000
+        "target": 153000,
+        "august": 171500
       },
       {
         "region": "North",
         "product": "Plus",
         "revenue": 96000,
         "cost": 67000,
-        "target": 90000
+        "target": 90000,
+        "august": 90500
       },
       {
         "region": "South",
         "product": "Core",
         "revenue": 143000,
         "cost": 93000,
-        "target": 144000
+        "target": 144000,
+        "august": 123400
       },
       {
         "region": "South",
         "product": "Plus",
         "revenue": 61000,
         "cost": 47000,
-        "target": 63000
+        "target": 63000,
+        "august": 52600
       },
       {
         "region": "East",
         "product": "Core",
         "revenue": 220000,
         "cost": 145000,
-        "target": 210000
+        "target": 210000,
+        "august": 195900
       },
       {
         "region": "East",
         "product": "Plus",
         "revenue": 118000,
         "cost": 88000,
-        "target": 117000
+        "target": 117000,
+        "august": 105100
       },
       {
         "region": "West",
         "product": "Core",
         "revenue": 131000,
         "cost": 81000,
-        "target": 126000
+        "target": 126000,
+        "august": 134800
       },
       {
         "region": "West",
         "product": "Plus",
         "revenue": 74000,
         "cost": 59000,
-        "target": 72000
+        "target": 72000,
+        "august": 76200
       },
       {
         "region": "Central",
         "product": "Core",
         "revenue": 165000,
         "cost": 106000,
-        "target": 144000
+        "target": 144000,
+        "august": 158000
       },
       {
         "region": "Central",
         "product": "Plus",
         "revenue": 94000,
         "cost": 60000,
-        "target": 81000
+        "target": 81000,
+        "august": 90000
       }
     ]
   }

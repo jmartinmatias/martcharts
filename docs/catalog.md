@@ -2198,6 +2198,7 @@ Horizontal bars for rankings and long labels: label on the left, bar, value at t
 | --- | --- | --- | --- |
 | `label` | category | yes | Field naming each bar. |
 | `value` | number (one or more) | yes | Field or fields with each bar's amount. Bars start at zero. Several fields draw one bar per field in each row (grouped), stacked into one bar with stacked, or in separate columns with split. |
+| `compare` | number |  | Field drawn as a taller, quieter bar behind each bar, on the same scale, such as last period or last year: a bar past its ghost grew, one short of it shrank. A key names it, and the tooltip gives its value and the change since. One value field only. |
 
 **Settings**: `stacked`, `split`, `shared`, `highlight`, `mark`, `reference`, `sort`, `order`, `limit`, `other`. All options with defaults are in [blocks.md](blocks.md#hbar).
 
@@ -3519,6 +3520,7 @@ Lines showing change over an ordered axis, usually time. Several y fields draw s
 | `y` | number (one or more) | yes | Field or fields for line values. Each field is one series. |
 | `forecast` | category |  | Field that is true on forecast rows. From the last actual on, lines draw dashed in a softly shaded zone labelled Forecast, and the tooltip marks those rows. |
 | `between` | number (one or more) |  | Two of the y fields, such as ["revenue", "cost"]: the gap between their lines is filled in the colour of whichever is on top there, split where they cross, so surplus and deficit read at a glance. |
+| `compare` | number |  | Field drawn as a quiet grey line behind the first series, on the same axis, such as last year: where the line runs above it, it is ahead. A key names it, and the tooltip gives its value and the change since. |
 
 **Settings**: `highlight`, `endLabels`, `reference`, `band`, `curve`, `points`, `peaks`, `scale`, `ranges`, `annotations`. All options with defaults are in [blocks.md](blocks.md#line).
 
@@ -4144,6 +4146,7 @@ Progress against a target, one meter per row: attainment as a percentage, a bar 
 | `value` | number | yes | Field holding the current amount. |
 | `target` | number | yes | Field holding the target amount. |
 | `label` | category |  | Field naming each meter, for example a region. Defaults to the value field's label. |
+| `compare` | number |  | Field with where each meter stood before, such as last month: a thin tick across the track marks it, so the move toward the target reads at a glance. A key names it, and the tooltip gives its value and the change since. |
 
 **Settings**: `goodWhen`, `sort`, `order`, `limit`, `other`. All options with defaults are in [blocks.md](blocks.md#meter).
 
@@ -4166,11 +4169,11 @@ Progress against a target, one meter per row: attainment as a percentage, a bar 
   "data": {
     "type": "inline",
     "rows": [
-      {"region":"East","revenue":338000,"target":327000},
-      {"region":"North","revenue":278000,"target":243000},
-      {"region":"Central","revenue":259000,"target":225000},
-      {"region":"West","revenue":205000,"target":198000},
-      {"region":"South","revenue":204000,"target":207000}
+      {"region":"East","revenue":338000,"target":327000,"august":301000},
+      {"region":"North","revenue":278000,"target":243000,"august":262000},
+      {"region":"Central","revenue":259000,"target":225000,"august":248000},
+      {"region":"West","revenue":205000,"target":198000,"august":211000},
+      {"region":"South","revenue":204000,"target":207000,"august":176000}
     ]
   },
   "fields": {
@@ -4188,13 +4191,22 @@ Progress against a target, one meter per row: attainment as a percentage, a bar 
         "compact": true
       }
     },
-    "region": {}
+    "region": {},
+    "august": {
+      "label": "August",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
   },
   "view": {
     "type": "meter",
     "value": "revenue",
     "target": "target",
-    "label": "region"
+    "label": "region",
+    "compare": "august"
   },
   "i18n": {
     "fr": {
@@ -4213,6 +4225,9 @@ Progress against a target, one meter per row: attainment as a percentage, a bar 
             "West": "Ouest",
             "South": "Sud"
           }
+        },
+        "august": {
+          "label": "Août"
         }
       }
     },
@@ -4232,6 +4247,9 @@ Progress against a target, one meter per row: attainment as a percentage, a bar 
             "West": "West",
             "South": "Süd"
           }
+        },
+        "august": {
+          "label": "August"
         }
       }
     }

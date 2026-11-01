@@ -12,23 +12,28 @@
     "rows": [
       {
         "stage": "New leads",
-        "leads": 1240
+        "leads": 1240,
+        "q2": 1150
       },
       {
         "stage": "Contacted",
-        "leads": 870
+        "leads": 870,
+        "q2": 820
       },
       {
         "stage": "Qualified",
-        "leads": 410
+        "leads": 410,
+        "q2": 430
       },
       {
         "stage": "Proposal sent",
-        "leads": 190
+        "leads": 190,
+        "q2": 160
       },
       {
         "stage": "Won",
-        "leads": 96
+        "leads": 96,
+        "q2": 81
       }
     ]
   },
@@ -37,7 +42,11 @@
       "label": "Leads",
       "format": "number"
     },
-    "stage": {}
+    "stage": {},
+    "q2": {
+      "label": "Q2",
+      "format": "number"
+    }
   },
   "headline": {
     "value": "leads",
@@ -47,7 +56,8 @@
   "view": {
     "type": "hbar",
     "label": "stage",
-    "value": "leads"
+    "value": "leads",
+    "compare": "q2"
   },
   "i18n": {
     "fr": {
@@ -66,6 +76,9 @@
             "Proposal sent": "Proposition envoyée",
             "Won": "Gagné"
           }
+        },
+        "q2": {
+          "label": "T2"
         }
       },
       "headline": {
@@ -88,6 +101,9 @@
             "Proposal sent": "Angebot gesendet",
             "Won": "Gewonnen"
           }
+        },
+        "q2": {
+          "label": "Q2"
         }
       }
     }

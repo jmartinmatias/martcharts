@@ -10,11 +10,11 @@
   "data": {
     "type": "inline",
     "rows": [
-      {"region":"East","revenue":338000,"target":327000},
-      {"region":"North","revenue":278000,"target":243000},
-      {"region":"Central","revenue":259000,"target":225000},
-      {"region":"West","revenue":205000,"target":198000},
-      {"region":"South","revenue":204000,"target":207000}
+      {"region":"East","revenue":338000,"target":327000,"august":301000},
+      {"region":"North","revenue":278000,"target":243000,"august":262000},
+      {"region":"Central","revenue":259000,"target":225000,"august":248000},
+      {"region":"West","revenue":205000,"target":198000,"august":211000},
+      {"region":"South","revenue":204000,"target":207000,"august":176000}
     ]
   },
   "fields": {
@@ -32,13 +32,22 @@
         "compact": true
       }
     },
-    "region": {}
+    "region": {},
+    "august": {
+      "label": "August",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
   },
   "view": {
     "type": "meter",
     "value": "revenue",
     "target": "target",
-    "label": "region"
+    "label": "region",
+    "compare": "august"
   },
   "i18n": {
     "fr": {
@@ -57,6 +66,9 @@
             "West": "Ouest",
             "South": "Sud"
           }
+        },
+        "august": {
+          "label": "Août"
         }
       }
     },
@@ -76,6 +88,9 @@
             "West": "West",
             "South": "Süd"
           }
+        },
+        "august": {
+          "label": "August"
         }
       }
     }

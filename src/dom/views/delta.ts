@@ -5,7 +5,7 @@ import { html } from "./shared.ts";
 export type DeltaUnit = "relative" | "points";
 
 /** The short word for percentage points: pts in English and French, Pp. in German. */
-function pointsWord(locale: string | undefined): string {
+export function pointsWord(locale: string | undefined): string {
   return /^de\b/i.test(locale ?? "") ? "Pp." : "pts";
 }
 

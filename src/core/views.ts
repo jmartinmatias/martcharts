@@ -152,6 +152,8 @@ export interface MeterView {
   value: string;
   target: string;
   label?: string;
+  /** Field with where each meter stood before (last month, last year): a tick across the track. */
+  compare?: string;
 }
 
 /** `{ type: "donut", label, value, caption?, arc?, majority? }`: part-to-whole for up to 6 slices. */
@@ -536,6 +538,8 @@ export interface HbarView {
   shared?: boolean;
   highlight?: string | string[];
   mark?: "bar" | "lollipop";
+  /** Field drawn as a taller, quieter bar behind each bar, such as last period. One value field only. */
+  compare?: string;
 }
 
 /** `{ type: "pyramid", label, left, right }`: two counts per band, as bars growing out from a center axis. */
@@ -579,6 +583,8 @@ export interface LineView {
   ranges?: XRange[];
   /** Two of the y fields whose gap is filled, in the colour of whichever is on top there. */
   between?: [string, string];
+  /** Field drawn as a quiet grey line behind the first series, such as last year. */
+  compare?: string;
 }
 
 /** `{ type: "dual", x, y, y2, panels? }`: two measures on two panels sharing one x axis, each on its own scale. */
@@ -890,6 +896,11 @@ const meter: ViewBlock = {
     target: { type: "field", kind: "number", required: true, description: "Field holding the target amount." },
     label: { type: "field", kind: "category", description: "Field naming each meter, for example a region. Defaults to the value field's label." },
     goodWhen: GOOD_WHEN_OPTION,
+    compare: {
+      type: "field",
+      kind: "number",
+      description: "Field with where each meter stood before, such as last month: a thin tick across the track marks it, so the move toward the target reads at a glance. A key names it, and the tooltip gives its value and the change since.",
+    },
   },
 };
 
@@ -1508,7 +1519,8 @@ function hbarExtent(view: Record<string, unknown>, rows: Row[]): number[] {
   const fields = Array.isArray(view.value) ? view.value.map(String) : [String(view.value)];
   if (view.stacked === "percent") return [0, 1];
   if (view.stacked === true) return rows.map((row) => fields.reduce((sum, f) => sum + Math.max(0, readNumber(row[f]) ?? 0), 0));
-  return rows.flatMap((row) => fields.map((f) => readNumber(row[f]))).filter((n): n is number => n !== null);
+  const compared = typeof view.compare === "string" ? [view.compare] : [];
+  return rows.flatMap((row) => [...fields, ...compared].map((f) => readNumber(row[f]))).filter((n): n is number => n !== null);
 }
 
 const hbar: ViewBlock = {
@@ -1533,10 +1545,16 @@ const hbar: ViewBlock = {
     highlight: highlightCategories,
     mark: MARK_OPTION,
     reference: REFERENCE_OPTION,
+    compare: {
+      type: "field",
+      kind: "number",
+      description: "Field drawn as a taller, quieter bar behind each bar, on the same scale, such as last period or last year: a bar past its ghost grew, one short of it shrank. A key names it, and the tooltip gives its value and the change since. One value field only.",
+    },
   },
   validate(view) {
     const stacked = view.stacked;
     const problems = stacked === undefined || stacked === true || stacked === false || stacked === "percent" ? [] : ['stacked must be true, false or "percent".'];
+    if (view.compare !== undefined && Array.isArray(view.value) && view.value.length > 1) problems.push("compare draws behind one bar per row: give value one field.");
     if (view.split && stacked) problems.push("Split bars give each field its own column, so they cannot stack: drop split, or drop stacked.");
     if (view.mark === "lollipop" && Array.isArray(view.value) && view.value.length > 1) problems.push("A lollipop draws one dot per row: give value one field, or use bars for several.");
     return problems;
@@ -1596,6 +1614,11 @@ const line: ViewBlock = {
     },
     ranges: RANGES_OPTION,
     annotations: ANNOTATIONS_OPTION,
+    compare: {
+      type: "field",
+      kind: "number",
+      description: "Field drawn as a quiet grey line behind the first series, on the same axis, such as last year: where the line runs above it, it is ahead. A key names it, and the tooltip gives its value and the change since.",
+    },
   },
   validate(view) {
     const ys = Array.isArray(view.y) ? view.y.map(String) : [String(view.y)];

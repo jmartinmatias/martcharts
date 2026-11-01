@@ -24,6 +24,10 @@
         {
           "op": "sum",
           "field": "target"
+        },
+        {
+          "op": "sum",
+          "field": "august"
         }
       ]
     },
@@ -48,13 +52,22 @@
         "compact": true
       }
     },
-    "region": {}
+    "region": {},
+    "august": {
+      "label": "August",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    }
   },
   "view": {
     "type": "meter",
     "value": "revenue",
     "target": "target",
-    "label": "region"
+    "label": "region",
+    "compare": "august"
   },
   "i18n": {
     "fr": {
@@ -73,6 +86,9 @@
             "West": "Ouest",
             "South": "Sud"
           }
+        },
+        "august": {
+          "label": "Août"
         }
       }
     },
@@ -92,6 +108,9 @@
             "West": "West",
             "South": "Süd"
           }
+        },
+        "august": {
+          "label": "August"
         }
       }
     }

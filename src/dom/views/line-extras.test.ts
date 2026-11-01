@@ -105,12 +105,12 @@ describe("bar compare columns", () => {
     expect(span(ghosts[0]?.getAttribute("d") ?? "")).toBeGreaterThan(span(group?.querySelector(".fft-bar")?.getAttribute("d") ?? ""));
   });
 
-  test("the axis covers the comparison, and the tooltip gives it", async () => {
+  test("the axis covers the comparison, and the tooltip gives it and the change since", async () => {
     await draw({ rows: years, fields, view: { type: "bar", x: "region", y: "revenue", compare: "lastYear" } });
     const ticks = texts(".fft-tick-y").map(Number);
     expect(Math.max(...ticks)).toBeGreaterThanOrEqual(150);
     all(".fft-hit")[1]?.dispatchEvent(new Event("focus"));
-    expect(texts(".fft-tooltip-row")).toEqual(["80Revenue", "140Last year"]);
+    expect(texts(".fft-tooltip-row")).toEqual(["80Revenue", "140Last year", "−43%Change"]);
     expect(texts(".fft-sr-only th")).toEqual(["Region", "Revenue", "Last year"]);
   });
 

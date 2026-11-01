@@ -3,6 +3,7 @@ import type { Row } from "../../core/types.ts";
 import type { TooltipItem, ViewContext, ViewRenderer } from "../../core/view-context.ts";
 import type { HbarView } from "../../core/views.ts";
 import { DEEMPHASIS, highlights } from "./chart.ts";
+import { GHOST_EDGE, ghostChange, ghostLines } from "./ghost.ts";
 import { activeGroup, endRoom, fieldList, hiddenTableOf, html, legendList, rowHit, shareFormat, textWidth } from "./shared.ts";
 import { roving } from "./focus.ts";
 import { wordsFor } from "./words.ts";
@@ -39,7 +40,12 @@ function renderSingle(ctx: ViewContext<HbarView>, value: string): void {
   const { label } = ctx.view;
   const picked = highlights(ctx.view.highlight);
   const amounts = ctx.rows.map((row) => readNumber(row[value]));
-  const max = Math.max(0, ...amounts.filter((n): n is number => n !== null), ...(ctx.extent ?? []));
+  // The ghost: where each bar stood before (last period, last year, the plan), an outline over the bar, a little
+  // taller than it, so its end reads both past a bar that shrank and across one that grew.
+  const compare = typeof ctx.view.compare === "string" ? ctx.view.compare : undefined;
+  const before = compare ? ctx.rows.map((row) => readNumber(row[compare])) : [];
+  const max = Math.max(0, ...amounts.filter((n): n is number => n !== null), ...before.filter((n): n is number => n !== null), ...(ctx.extent ?? []));
+  const ghosts: HTMLElement[] = [];
 
   const lollipop = ctx.view.mark === "lollipop";
   const list = html(doc, "ol", "fft-hbars");
@@ -55,13 +61,20 @@ function renderSingle(ctx: ViewContext<HbarView>, value: string): void {
     const item = html(doc, "li", "fft-hbar");
     item.style.setProperty("--fft-i", String(i));
     const track = html(doc, "div", "fft-hbar-track");
+    const was = before[i] ?? null;
+    if (compare && was !== null) {
+      const ghost = html(doc, "div", "fft-hbar-ghost");
+      ghost.style.width = widthOf(was, max);
+      ghost.setAttribute("aria-hidden", "true");
+      ghosts.push(ghost);
+    }
     const fill = html(doc, "div", "fft-hbar-fill");
     const share = widthOf(amount, max);
     fill.style.width = share;
     const hue = ctx.colorOf?.(row[label]) ?? ctx.color(0);
     fill.style.background = on ? hue : DEEMPHASIS;
     fill.style.setProperty("--fft-bar-color", on ? hue : DEEMPHASIS);
-    track.append(fill);
+    track.append(fill, ...ghosts.splice(0));
     if (lollipop) {
       const dot = html(doc, "span", "fft-hbar-dot");
       dot.style.left = share;
@@ -69,14 +82,18 @@ function renderSingle(ctx: ViewContext<HbarView>, value: string): void {
       track.append(dot);
     }
     item.append(nameLabel(doc, name), track, html(doc, "span", "fft-hbar-value", valueText));
-    rows.push(rowHit(ctx, { node: item, row, name, items: [{ label: ctx.label(value), value: valueText, color: on ? hue : DEEMPHASIS }], anchor: track, group: active }));
-    // One measure is read as the name and its figure alone: "North: €1,200".
-    item.setAttribute("aria-label", `${name}: ${valueText || "no value"}`);
+    rows.push(rowHit(ctx, { node: item, row, name, items: [{ label: ctx.label(value), value: valueText, color: on ? hue : DEEMPHASIS }, ...ghostLines(ctx, row, value, compare)], anchor: track, group: active }));
+    // One measure is read as the name and its figure alone: "North: €1,200"; with a ghost, the change since too.
+    const change = compare ? ghostChange(ctx, amount, was, value) : "";
+    item.setAttribute("aria-label", `${name}: ${valueText || "no value"}${change ? `, ${change} ${wordsFor(ctx).since(ctx.label(compare as string))}` : ""}`);
     list.append(item);
   });
   roving(rows);
+  // With a ghost, a key names both: the bar, and the quieter shape behind it.
+  const key = compare ? legendList(ctx, [{ label: ctx.label(value), color: ctx.color(0) }, { label: ctx.label(compare), color: GHOST_EDGE, tone: "ghost" }]) : undefined;
+  if (key) ctx.el.append(key);
   // Screen readers get the figures as a table too, as for every other row view.
-  ctx.el.append(list, hiddenTableOf(ctx, ctx.rows, [label, value]));
+  ctx.el.append(list, hiddenTableOf(ctx, ctx.rows, [label, value, ...(compare ? [compare] : [])]));
 }
 
 /**

@@ -924,14 +924,13 @@ Progress against a target, one meter per row: attainment as a percentage, a bar 
 
 **One row is**: One row per category, each named once. **Built**: One meter per row: value as a percentage of target, a bar filling to the target and the gap in words.
 
-**Needs**: `value` (number), `target` (number). Example: 5 rows of `revenue`, `target`, `region`. [Full entry with the data](../catalog/guide/meter.md).
+**Needs**: `value` (number), `target` (number). Example: 5 rows of `revenue`, `target`, `region`, `august`. [Full entry with the data](../catalog/guide/meter.md).
 
 | Switch to | Fit | Verdict | Assessment |
 | --- | --- | --- | --- |
 | `variance` | fits | better | Better for what drives or moves a total and comparing amounts across categories, and still good for actual against target or plan. Shows the gap itself, over or under, instead of progress toward the target. |
 | `bullet` | fits | better | Better for comparing amounts across categories, and still good for actual against target or plan. Denser, with qualitative bands; less plain-language than the meter's 'to go' line. |
-| `bar` | fits | different | Answers a different question: better for comparing amounts across categories and ranking, top to bottom, but gives up actual against target or plan. |
-| `hbar` | fits | different | Answers a different question: better for ranking, top to bottom and comparing amounts across categories, but gives up actual against target or plan. |
+| `dot` | fits | different | Answers a different question: better for comparing amounts across categories and ranking, top to bottom, but gives up actual against target or plan. |
 | `list` | fits | different | Answers a different question: better for exact values and lookup and ranking, top to bottom, but gives up actual against target or plan. |
 | `radar` | fits | different | Answers a different question: better for profiles across several attributes and comparing amounts across categories, but gives up actual against target or plan. |
 | `donut` | fits | different | Answers a different question: better for share of one whole, but gives up actual against target or plan. |

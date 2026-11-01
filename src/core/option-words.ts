@@ -125,6 +125,18 @@ export const OPTION_HINTS: Record<string, Pair> = {
   "Le côté de la cible qui est une bonne nouvelle : \"up\" pour le chiffre d'affaires, \"down\" pour les délais et les coûts. Sous une seule cible (un champ de lines ou une ligne de référence nommée target, plan, goal, budget ou quota), une barre du mauvais côté est détourée et légendée Sous ou Au-dessus de la cible.",
   "Welche Seite eines Ziels gut ist: \"up\" für Umsatz, \"down\" für Wartezeiten und Kosten. Unter einem einzigen Ziel (ein lines-Feld oder eine Bezugslinie namens target, plan, goal, budget oder quota) wird ein Balken auf der falschen Seite umrandet und als Unter oder Über Ziel ausgewiesen."
  ],
+ "Field drawn as a taller, quieter bar behind each bar, on the same scale, such as last period or last year: a bar past its ghost grew, one short of it shrank. A key names it, and the tooltip gives its value and the change since. One value field only.": [
+  "Champ tracé en barre plus haute et plus discrète derrière chaque barre, sur la même échelle, comme la période précédente ou l'an dernier : une barre qui dépasse son fantôme a progressé, une barre en deçà a reculé. Une légende le nomme, et l'info-bulle donne sa valeur et l'évolution depuis. Un seul champ de valeur.",
+  "Feld, das als höherer, ruhigerer Balken hinter jedem Balken gezeichnet wird, auf derselben Skala, etwa Vorperiode oder Vorjahr: Ein Balken über seinem Schatten ist gewachsen, einer darunter geschrumpft. Eine Legende nennt es, der Tooltip seinen Wert und die Veränderung seither. Nur ein Wertfeld."
+ ],
+ "Field drawn as a quiet grey line behind the first series, on the same axis, such as last year: where the line runs above it, it is ahead. A key names it, and the tooltip gives its value and the change since.": [
+  "Champ tracé en ligne grise discrète derrière la première série, sur le même axe, comme l'an dernier : là où la ligne passe au-dessus, elle est en avance. Une légende le nomme, et l'info-bulle donne sa valeur et l'évolution depuis.",
+  "Feld, das als ruhige graue Linie hinter der ersten Reihe gezeichnet wird, auf derselben Achse, etwa Vorjahr: Wo die Linie darüber verläuft, liegt sie vorn. Eine Legende nennt es, der Tooltip seinen Wert und die Veränderung seither."
+ ],
+ "Field with where each meter stood before, such as last month: a thin tick across the track marks it, so the move toward the target reads at a glance. A key names it, and the tooltip gives its value and the change since.": [
+  "Champ indiquant où chaque jauge se trouvait avant, comme le mois dernier : un trait fin en travers de la piste le marque, pour lire d'un coup d'œil le chemin vers l'objectif. Une légende le nomme, et l'info-bulle donne sa valeur et l'évolution depuis.",
+  "Feld mit dem früheren Stand jedes Messbalkens, etwa Vormonat: Ein feiner Strich quer über der Spur markiert ihn, sodass die Bewegung zum Ziel auf einen Blick lesbar ist. Eine Legende nennt es, der Tooltip seinen Wert und die Veränderung seither."
+ ],
  "Field drawn as a wider, quieter column behind each bar, on the same axis, for a comparison such as last year or the plan. The key names it by its label and the tooltip gives its value. One y series, unstacked.": [
   "Champ tracé en colonne plus large et plus discrète derrière chaque barre, sur le même axe, pour comparer à l'an dernier ou au plan. La légende la nomme par son libellé et l'info-bulle donne sa valeur. Une seule série y, non empilée.",
   "Feld, das als breitere, ruhigere Säule hinter jedem Balken gezeichnet wird, auf derselben Achse, für einen Vergleich wie Vorjahr oder Plan. Die Legende nennt es mit seiner Bezeichnung, der Tooltip seinen Wert. Eine y-Reihe, ungestapelt."
