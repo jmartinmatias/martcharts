@@ -51,7 +51,9 @@ export interface WidgetOptions {
   /**
    * Buttons offered in the widget's corner: `csv` downloads the rows, `image`
    * downloads the chart as a PNG (shown only when the view draws a chart),
-   * `copy` copies the rows as tab-separated text for spreadsheets, `explain`
+   * `copy` copies the rows as tab-separated text for spreadsheets, `link` copies
+   * an address that opens the page at this card (its ref, #W-XXXX), `sentence` copies the
+   * card's takeaway as plain text with its title, source and link, for an email or a slide, `explain`
    * shows a plain "How to read it" guide under the chart. `info` turns the card round to
    * its Details side (and lets a click on the card do the same). None by default:
    * whether people may take the data out is the host's decision.
@@ -189,7 +191,17 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
   guide.id = `${id}-guide`;
   guide.setAttribute("aria-live", "polite");
   guide.hidden = !options.guide;
-  root.append(header, headlineEl, body, guide, message, base, tip);
+  // What a copy from the toolbar did, said once beside it and to screen readers: "Link copied".
+  const said = make("p", "fft-said");
+  said.setAttribute("role", "status");
+  said.setAttribute("aria-live", "polite");
+  let saidTimer: ReturnType<typeof setTimeout> | undefined;
+  const say = (text: string) => {
+    said.textContent = text;
+    clearTimeout(saidTimer);
+    saidTimer = setTimeout(() => (said.textContent = ""), 1597);
+  };
+  root.append(header, headlineEl, body, guide, message, base, tip, said);
   const actionButtons = new Map<WidgetAction, HTMLButtonElement>();
   let bar: HTMLElement | undefined;
   /** Every action in order. Past three, the first two stay in the toolbar and the rest go into a More menu. */
@@ -1282,6 +1294,13 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
         download(doc, `${name}.csv`, new Blob([toDelimited(rows, label, ",")], { type: "text/csv;charset=utf-8" }));
       } else if (action === "copy") {
         await navigator.clipboard.writeText(toDelimited(rows, label, "\t"));
+        say(W().widget.copied);
+      } else if (action === "link") {
+        await navigator.clipboard.writeText(cardLink());
+        say(W().widget.linkCopied);
+      } else if (action === "sentence") {
+        await navigator.clipboard.writeText(cardSentence());
+        say(W().widget.sentenceCopied);
       } else {
         // The whole card (title, chart or HTML marks, legends, footer, credit), on the card's own surface; translucent
         // surfaces (glass) sit on the page's color, or white.
@@ -1307,9 +1326,30 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       button.dataset.done = "";
       setTimeout(() => button.removeAttribute("data-done"), 1597);
     } catch {
+      if (action === "copy" || action === "link" || action === "sentence") say(W().widget.couldNotCopy);
       button.dataset.failed = "";
       setTimeout(() => button.removeAttribute("data-failed"), 1597);
     }
+  }
+
+  /** The page's address ending in this card's ref, which brings the card into view (its tab and section opened). */
+  function cardLink(): string {
+    const at = doc.defaultView?.location;
+    if (!at) return "";
+    return root.dataset.fftRef ? `${at.href.split("#")[0]}#${root.dataset.fftRef}` : at.href;
+  }
+
+  /**
+   * The card as a sentence to paste: its takeaway (else its title and subtitle), then a line naming the card, its
+   * source and the link back. "East leads with 340, 61% of the total.\n— Revenue by region · Source: Ledger · https://…"
+   */
+  function cardSentence(): string {
+    const words = (node: Element) => (node.textContent ?? "").replace(/\s+/g, " ").trim();
+    const heading = words(title);
+    const line = words(takeawayEl) || [heading, words(subtitle)].filter(Boolean).join(": ");
+    const from = credit.hidden ? "" : words(credit.querySelector(".fft-credit-source") ?? credit);
+    const named = [line.startsWith(heading) ? "" : heading, from, cardLink()].filter(Boolean).join(" · ");
+    return named ? `${line}\n— ${named}` : line;
   }
 
   /** Loads and draws; `fresh` skips cached data (refresh). */

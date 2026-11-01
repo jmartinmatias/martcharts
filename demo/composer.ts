@@ -27,7 +27,7 @@ if (address.view && address.spec) {
   document.body.dataset.view = "";
   document.title = `${address.spec.title || "Dashboard"} · martcharts`;
   const locale = siteLocale();
-  const page = createDashboard($("#page-view"), address.spec, { actions: ["info", "expand", "explain", "csv", "image"], ...(locale ? { locale } : {}) });
+  const page = createDashboard($("#page-view"), address.spec, { actions: ["info", "expand", "explain", "link", "sentence", "csv", "image"], ...(locale ? { locale } : {}) });
   const style = lookStyle();
   if (style) void page.setOverride({ style });
   // The Look menu's style: restyle the page in place.
