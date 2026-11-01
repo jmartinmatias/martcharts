@@ -1,0 +1,97 @@
+{
+  "id": "orders-trend",
+  "title": "Order trend",
+  "subtitle": "{first:day} to {last:day}, with the seven-day average",
+  "description": "Daily orders swing with the week; the seven-day average takes the weekends out and shows the growth underneath.",
+  "source": {
+    "name": "Order system"
+  },
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/daily-orders.json"
+  },
+  "transform": [
+    {
+      "type": "sort",
+      "field": "day"
+    },
+    {
+      "type": "window",
+      "field": "orders",
+      "op": "rolling",
+      "size": 7,
+      "as": "week"
+    }
+  ],
+  "fields": {
+    "day": {
+      "label": "Day",
+      "format": {
+        "type": "date",
+        "style": "medium"
+      }
+    },
+    "orders": {
+      "label": "Orders",
+      "format": "number"
+    },
+    "week": {
+      "label": "7-day average",
+      "format": {
+        "type": "number",
+        "decimals": 0
+      }
+    }
+  },
+  "view": {
+    "type": "line",
+    "x": "day",
+    "y": [
+      "orders",
+      "week"
+    ],
+    "highlight": "week",
+    "endLabels": true
+  },
+  "i18n": {
+    "fr": {
+      "title": "Tendance des commandes",
+      "subtitle": "{first:day} au {last:day}, avec la moyenne sur sept jours",
+      "description": "Les commandes quotidiennes suivent la semaine ; la moyenne sur sept jours efface les week-ends et montre la croissance en dessous.",
+      "source": {
+        "name": "Système de commandes"
+      },
+      "fields": {
+        "day": {
+          "label": "Jour"
+        },
+        "orders": {
+          "label": "Commandes"
+        },
+        "week": {
+          "label": "Moyenne sur 7 jours"
+        }
+      }
+    },
+    "de": {
+      "title": "Bestelltrend",
+      "subtitle": "{first:day} bis {last:day}, mit dem Sieben-Tage-Schnitt",
+      "description": "Tägliche Bestellungen schwanken mit der Woche; der 7-Tage-Schnitt nimmt die Wochenenden heraus und zeigt das Wachstum darunter.",
+      "source": {
+        "name": "Bestellsystem"
+      },
+      "fields": {
+        "day": {
+          "label": "Tag"
+        },
+        "orders": {
+          "label": "Bestellungen"
+        },
+        "week": {
+          "label": "7-Tage-Schnitt"
+        }
+      }
+    }
+  }
+}

@@ -73,6 +73,12 @@ describe("wording alone under a title", () => {
     expect(takeawayOf(spec, [{ month: "2026-01", revenue: 1 }, { month: "2026-02", revenue: 2 }])).toMatch(/^Revenue went from/);
   });
 
+  test("of several lines, the highlighted one speaks: the average, not the noisy days it smooths", () => {
+    const spec = { data: { type: "inline", rows: [] }, fields: { week: { label: "7-day average" } }, view: { type: "line", x: "day", y: ["orders", "week"], highlight: "week" } } as unknown as WidgetSpec;
+    const rows = [{ day: "2026-04-01", orders: 144, week: null }, { day: "2026-04-02", orders: 40, week: 100 }, { day: "2026-04-03", orders: 222, week: 158 }];
+    expect(takeawayOf(spec, rows)).toMatch(/^7-day average went from 100 .* to 158 /);
+  });
+
   test("one row left after a filter is named, not counted", () => {
     const spec = { data: { type: "inline", rows: [] }, view: { type: "meter", label: "region", value: "revenue", target: "goal" } } as unknown as WidgetSpec;
     expect(takeawayOf(spec, [{ region: "East", revenue: 5, goal: 4 }])).toBe("East has reached its goal.");

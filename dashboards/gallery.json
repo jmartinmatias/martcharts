@@ -58,7 +58,10 @@
     },
     {
       "widget": "revenue-forecast",
-      "span": 3
+      "span": 2
+    },
+    {
+      "widget": "growth-margin-path"
     },
     {
       "section": "Regions and products",
@@ -156,6 +159,10 @@
       "span": 3
     },
     {
+      "widget": "orders-trend",
+      "span": 3
+    },
+    {
       "widget": "ticket-causes",
       "span": 2
     },
@@ -233,6 +240,7 @@
         {},
         {},
         {},
+        {},
         {
           "section": "Régions et produits",
           "description": "Quelles régions et quels produits portent le trimestre ?"
@@ -286,6 +294,7 @@
           "section": "Umsatz und Gewinn",
           "description": "Was hereinkam, gegen Plan, und was kommt?"
         },
+        {},
         {},
         {},
         {},

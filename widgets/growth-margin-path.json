@@ -1,0 +1,121 @@
+{
+  "id": "growth-margin-path",
+  "title": "Growth against margin",
+  "subtitle": "Quarter by quarter, Q4 2024 to Q3 2026",
+  "description": "Each quarter's revenue growth against its gross margin, joined in order. Growth was traded for margin through 2025; since spring both rise together.",
+  "source": {
+    "name": "Finance ledger"
+  },
+  "locale": "en-US",
+  "data": {
+    "type": "inline",
+    "rows": [
+      {
+        "quarter": "Q4 2024",
+        "growth": 0.21,
+        "margin": 0.31
+      },
+      {
+        "quarter": "Q1 2025",
+        "growth": 0.24,
+        "margin": 0.3
+      },
+      {
+        "quarter": "Q2 2025",
+        "growth": 0.22,
+        "margin": 0.32
+      },
+      {
+        "quarter": "Q3 2025",
+        "growth": 0.18,
+        "margin": 0.33
+      },
+      {
+        "quarter": "Q4 2025",
+        "growth": 0.15,
+        "margin": 0.35
+      },
+      {
+        "quarter": "Q1 2026",
+        "growth": 0.12,
+        "margin": 0.36
+      },
+      {
+        "quarter": "Q2 2026",
+        "growth": 0.14,
+        "margin": 0.37
+      },
+      {
+        "quarter": "Q3 2026",
+        "growth": 0.19,
+        "margin": 0.39
+      }
+    ]
+  },
+  "fields": {
+    "quarter": {
+      "label": "Quarter"
+    },
+    "growth": {
+      "label": "Revenue growth",
+      "format": {
+        "type": "percent",
+        "decimals": 0
+      }
+    },
+    "margin": {
+      "label": "Gross margin",
+      "format": {
+        "type": "percent",
+        "decimals": 0
+      }
+    }
+  },
+  "view": {
+    "type": "scatter",
+    "x": "growth",
+    "y": "margin",
+    "label": "quarter",
+    "connect": true
+  },
+  "i18n": {
+    "fr": {
+      "title": "Croissance et marge",
+      "subtitle": "Trimestre par trimestre, T4 2024 à T3 2026",
+      "description": "La croissance du CA de chaque trimestre face à sa marge brute, reliées dans l'ordre. La croissance a été échangée contre la marge en 2025 ; depuis le printemps, les deux montent ensemble.",
+      "source": {
+        "name": "Grand livre"
+      },
+      "fields": {
+        "quarter": {
+          "label": "Trimestre"
+        },
+        "growth": {
+          "label": "Croissance du CA"
+        },
+        "margin": {
+          "label": "Marge brute"
+        }
+      }
+    },
+    "de": {
+      "title": "Wachstum und Marge",
+      "subtitle": "Quartal für Quartal, Q4 2024 bis Q3 2026",
+      "description": "Das Umsatzwachstum jedes Quartals gegen seine Bruttomarge, der Reihe nach verbunden. 2025 wurde Wachstum gegen Marge getauscht; seit dem Frühjahr steigen beide zusammen.",
+      "source": {
+        "name": "Hauptbuch"
+      },
+      "fields": {
+        "quarter": {
+          "label": "Quartal"
+        },
+        "growth": {
+          "label": "Umsatzwachstum"
+        },
+        "margin": {
+          "label": "Bruttomarge"
+        }
+      }
+    }
+  }
+}

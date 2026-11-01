@@ -939,7 +939,7 @@ const scatter: ViewBlock = {
       description:
         "Field naming each dot's cluster, such as a segment found by analysis. A soft, rounded hull gathers each cluster's dots and carries its name at the middle, so the areas read as regions of the plot; the dots take the cluster's color unless color is set. Up to 6 clusters.",
     },
-    labels: { type: "boolean", default: false, description: "Write each dot's label beside it, skipping names that would land on another, so the standouts are named on the chart itself." },
+    labels: { type: "boolean", description: "Write each dot's label beside it, skipping names that would land on another, so the standouts are named on the chart itself. Off by default, on by default with connect, where a path with no names cannot be read; false turns it off." },
     connect: {
       type: "boolean",
       default: false,

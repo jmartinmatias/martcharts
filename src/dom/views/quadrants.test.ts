@@ -132,4 +132,15 @@ describe("connected scatterplot", () => {
     expect(line?.getAttribute("d")?.match(/M/g)).toHaveLength(3);
     expect(document.querySelector(".fft-connect-head")).not.toBeNull();
   });
+
+  test("names its steps by default, since a path without names cannot be read; labels: false keeps it bare", async () => {
+    const rows = [2022, 2023, 2024, 2025].map((year, i) => ({ year: String(year), price: 10 + i, volume: [5, 8, 6, 9][i] }));
+    const spec = (extra = {}) => ({ data: { type: "inline", rows }, view: { type: "scatter", x: "price", y: "volume", label: "year", connect: true, ...extra } }) as WidgetSpec;
+    document.body.replaceChildren();
+    await createWidget(document.body, spec()).ready;
+    expect(document.querySelectorAll(".fft-point-label").length).toBeGreaterThan(0);
+    document.body.replaceChildren();
+    await createWidget(document.body, spec({ labels: false })).ready;
+    expect(document.querySelectorAll(".fft-point-label")).toHaveLength(0);
+  });
 });

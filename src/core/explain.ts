@@ -368,8 +368,10 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
         const grew = `${nameOf(grower, spec)} grew the most, from ${text(start, grower)} ${when(start, x)} to ${text(last, grower)} ${when(last, x)}`;
         return grower === thickest ? `Here, ${grew}, and is the ${band} overall.` : `Here, ${grew}; ${nameOf(thickest, spec)} is still the ${band} overall.`;
       }
-      // One line traces itself; with several, the first line speaks for the chart, by name.
-      const traced = single ?? (view.stacked ? undefined : series[0]);
+      // One line traces itself; with several, the highlighted line speaks for the chart (a 7-day average over the
+      // noisy days it smooths), else the first, by name.
+      const lit = (Array.isArray(view.highlight) ? view.highlight : [view.highlight]).map(String).find((name) => series.includes(name));
+      const traced = single ?? (view.stacked ? undefined : (lit ?? series[0]));
       if (!traced || !x) return "";
       // From the first value to the last actual one: a forecast is not something that happened.
       const known = rows.filter((row) => value(row, traced) !== null && !(forecast && (row[forecast] === true || row[forecast] === "true" || row[forecast] === 1)));

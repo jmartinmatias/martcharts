@@ -180,6 +180,24 @@
     }
   },
   {
+    "ref": "W-XRFK",
+    "title": "Growth against margin",
+    "titles": {
+      "fr": "Croissance et marge",
+      "de": "Wachstum und Marge"
+    },
+    "key": "growth-margin-path",
+    "place": "",
+    "where": "Dashboards › Sales › Revenue and profit",
+    "url": "dashboards.html?board=sales#W-XRFK",
+    "board": "sales",
+    "section": "Revenue and profit",
+    "sections": {
+      "fr": "CA et marge",
+      "de": "Umsatz und Gewinn"
+    }
+  },
+  {
     "ref": "W-YXA1",
     "title": "Revenue by region",
     "titles": {
@@ -586,6 +604,24 @@
     "place": "",
     "where": "Dashboards › Sales › Operations and sentiment",
     "url": "dashboards.html?board=sales#W-GE38",
+    "board": "sales",
+    "section": "Operations and sentiment",
+    "sections": {
+      "fr": "Opérations et satisfaction",
+      "de": "Betrieb und Stimmung"
+    }
+  },
+  {
+    "ref": "W-TZDG",
+    "title": "Order trend",
+    "titles": {
+      "fr": "Tendance des commandes",
+      "de": "Bestelltrend"
+    },
+    "key": "orders-trend",
+    "place": "",
+    "where": "Dashboards › Sales › Operations and sentiment",
+    "url": "dashboards.html?board=sales#W-TZDG",
     "board": "sales",
     "section": "Operations and sentiment",
     "sections": {

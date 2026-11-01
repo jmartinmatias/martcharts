@@ -13,7 +13,7 @@
     "rows": [
       {
         "name": "Aurora Logistics",
-        "country": "Luxembourg",
+        "country": "LU",
         "segment": "Enterprise",
         "plan": "Scale",
         "seats": 420,
@@ -22,7 +22,7 @@
       },
       {
         "name": "Beacon Health",
-        "country": "Germany",
+        "country": "DE",
         "segment": "Enterprise",
         "plan": "Scale",
         "seats": 380,
@@ -31,7 +31,7 @@
       },
       {
         "name": "Cobalt Foods",
-        "country": "France",
+        "country": "FR",
         "segment": "Mid-market",
         "plan": "Team",
         "seats": 96,
@@ -40,7 +40,7 @@
       },
       {
         "name": "Delta Retail",
-        "country": "Belgium",
+        "country": "BE",
         "segment": "Mid-market",
         "plan": "Team",
         "seats": 120,
@@ -49,7 +49,7 @@
       },
       {
         "name": "Everly Studios",
-        "country": "Netherlands",
+        "country": "NL",
         "segment": "SMB",
         "plan": "Starter",
         "seats": 18,
@@ -58,7 +58,7 @@
       },
       {
         "name": "Fjord Marine",
-        "country": "Norway",
+        "country": "NO",
         "segment": "Mid-market",
         "plan": "Team",
         "seats": 74,
@@ -67,7 +67,7 @@
       },
       {
         "name": "Granite Build",
-        "country": "Austria",
+        "country": "AT",
         "segment": "SMB",
         "plan": "Starter",
         "seats": 25,
@@ -76,7 +76,7 @@
       },
       {
         "name": "Harbor Insurance",
-        "country": "Luxembourg",
+        "country": "LU",
         "segment": "Enterprise",
         "plan": "Scale",
         "seats": 510,
@@ -85,7 +85,7 @@
       },
       {
         "name": "Iris Pharma",
-        "country": "Switzerland",
+        "country": "CH",
         "segment": "Enterprise",
         "plan": "Scale",
         "seats": 290,
@@ -94,7 +94,7 @@
       },
       {
         "name": "Juniper Energy",
-        "country": "Spain",
+        "country": "ES",
         "segment": "Mid-market",
         "plan": "Team",
         "seats": 88,
@@ -103,7 +103,7 @@
       },
       {
         "name": "Kestrel Air",
-        "country": "Ireland",
+        "country": "IE",
         "segment": "Mid-market",
         "plan": "Team",
         "seats": 140,
@@ -112,7 +112,7 @@
       },
       {
         "name": "Lumen Media",
-        "country": "Portugal",
+        "country": "PT",
         "segment": "SMB",
         "plan": "Starter",
         "seats": 12,
@@ -121,7 +121,7 @@
       },
       {
         "name": "Meridian Bank",
-        "country": "Luxembourg",
+        "country": "LU",
         "segment": "Enterprise",
         "plan": "Scale",
         "seats": 640,
@@ -130,7 +130,7 @@
       },
       {
         "name": "Nordic Paper",
-        "country": "Sweden",
+        "country": "SE",
         "segment": "Mid-market",
         "plan": "Team",
         "seats": 66,
@@ -139,7 +139,7 @@
       },
       {
         "name": "Orchard Schools",
-        "country": "Denmark",
+        "country": "DK",
         "segment": "SMB",
         "plan": "Starter",
         "seats": 30,
@@ -148,7 +148,7 @@
       },
       {
         "name": "Pioneer Mobility",
-        "country": "Germany",
+        "country": "DE",
         "segment": "Enterprise",
         "plan": "Scale",
         "seats": 355,
@@ -157,7 +157,7 @@
       },
       {
         "name": "Quill Publishing",
-        "country": "France",
+        "country": "FR",
         "segment": "SMB",
         "plan": "Starter",
         "seats": 22,
@@ -166,7 +166,7 @@
       },
       {
         "name": "Riverstone Hotels",
-        "country": "Italy",
+        "country": "IT",
         "segment": "Mid-market",
         "plan": "Team",
         "seats": 102,
@@ -175,7 +175,7 @@
       },
       {
         "name": "Summit Legal",
-        "country": "Belgium",
+        "country": "BE",
         "segment": "SMB",
         "plan": "Starter",
         "seats": 16,
@@ -184,7 +184,7 @@
       },
       {
         "name": "Tidal Telecom",
-        "country": "Netherlands",
+        "country": "NL",
         "segment": "Enterprise",
         "plan": "Scale",
         "seats": 470,
@@ -193,7 +193,7 @@
       },
       {
         "name": "Umbra Security",
-        "country": "Finland",
+        "country": "FI",
         "segment": "Mid-market",
         "plan": "Team",
         "seats": 58,
@@ -202,7 +202,7 @@
       },
       {
         "name": "Vega Analytics",
-        "country": "Spain",
+        "country": "ES",
         "segment": "SMB",
         "plan": "Starter",
         "seats": 28,
@@ -211,7 +211,7 @@
       },
       {
         "name": "Willow Care",
-        "country": "Ireland",
+        "country": "IE",
         "segment": "Mid-market",
         "plan": "Team",
         "seats": 84,
@@ -220,7 +220,7 @@
       },
       {
         "name": "Zenith Motors",
-        "country": "Germany",
+        "country": "DE",
         "segment": "Enterprise",
         "plan": "Scale",
         "seats": 600,
@@ -251,7 +251,13 @@
         "type": "date"
       }
     },
-    "segment": {}
+    "segment": {},
+    "country": {
+      "label": "Country",
+      "format": {
+        "type": "flag"
+      }
+    }
   },
   "view": {
     "type": "table",
@@ -292,6 +298,9 @@
             "Mid-market": "ETI",
             "SMB": "PME"
           }
+        },
+        "country": {
+          "label": "Pays"
         }
       }
     },
@@ -315,6 +324,9 @@
             "Mid-market": "Mittelstand",
             "SMB": "KMU"
           }
+        },
+        "country": {
+          "label": "Land"
         }
       }
     }

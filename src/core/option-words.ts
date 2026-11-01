@@ -845,9 +845,9 @@ export const OPTION_HINTS: Record<string, Pair> = {
   "Champ nommant le groupe de chaque point, comme un segment issu d'une analyse. Une enveloppe douce et arrondie réunit les points de chaque groupe et porte son nom au centre, pour que les zones se lisent comme des régions du graphique ; les points prennent la couleur du groupe sauf si color est donné. Jusqu'à 6 groupes.",
   "Feld, das den Cluster jedes Punkts nennt, etwa ein per Analyse gefundenes Segment. Eine weiche, abgerundete Hülle fasst die Punkte jedes Clusters zusammen und trägt seinen Namen in der Mitte, sodass die Flächen als Regionen des Diagramms lesbar sind; die Punkte nehmen die Farbe des Clusters an, sofern color nicht gesetzt ist. Bis zu 6 Cluster."
  ],
- "Write each dot's label beside it, skipping names that would land on another, so the standouts are named on the chart itself.": [
-  "Écrit le libellé de chaque point à côté de lui, en sautant ceux qui tomberaient sur un autre, pour nommer les points saillants sur le graphique même.",
-  "Schreibt die Bezeichnung jedes Punkts daneben und überspringt Namen, die auf einem anderen landen würden, sodass die Auffälligen im Diagramm selbst benannt sind."
+ "Write each dot's label beside it, skipping names that would land on another, so the standouts are named on the chart itself. Off by default, on by default with connect, where a path with no names cannot be read; false turns it off.": [
+  "Écrit le libellé de chaque point à côté de lui, en sautant ceux qui tomberaient sur un autre, pour nommer les points saillants sur le graphique même. Désactivé par défaut, activé par défaut avec connect, car un chemin sans noms ne se lit pas ; false le désactive.",
+  "Schreibt die Bezeichnung jedes Punkts daneben und überspringt Namen, die auf einem anderen landen würden, sodass die Auffälligen im Diagramm selbst benannt sind. Standardmäßig aus, mit connect standardmäßig an, weil ein Pfad ohne Namen nicht lesbar ist; false schaltet es aus."
  ],
  "Splits the plot into four at a value of x and of y, with a faint word in each corner: { \"x\": 50, \"y\": 3, \"labels\": [\"Monitor\", \"Act now\", \"Prepare\", \"Watch\"] } (top-left first, then clockwise). For priority grids such as pressure against impact.": [
   "Divise le graphique en quatre à une valeur de x et de y, avec un mot discret dans chaque coin : { \"x\": 50, \"y\": 3, \"labels\": [\"Monitor\", \"Act now\", \"Prepare\", \"Watch\"] } (en haut à gauche d'abord, puis dans le sens horaire). Pour les grilles de priorité, comme la pression face à l'impact.",

@@ -427,7 +427,8 @@ export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) =>
   const noteList = drawNotes(doc, chart, pinned, plot, ctx.width, dotBoxes);
   drawReferences(doc, references, ys, plot, yText, refsBelow, refsAbove, { boxes: dotBoxes });
   chart.append(refsAbove);
-  if (label && ctx.view.labels) {
+  // A connected path names its steps unless told not to: without them its start and end cannot be told apart.
+  if (label && (ctx.view.labels ?? ctx.view.connect === true)) {
     // Always-on names beside the dots, biggest dots first, each skipped when it would land on an earlier name or a dot.
     const names = svg(doc, "g", { class: "fft-point-labels" });
     names.setAttribute("aria-hidden", "true");
@@ -442,7 +443,7 @@ export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) =>
       const width = text.length * CHAR_WIDTH;
       const [cx, cy] = [xs(point.x), yOf(point)];
       // Right of the dot first, then left, then above, then below: the first spot that is free and inside the plot.
-      // A dot on the plot's top edge may lend its name a few pixels of the top margin.
+      // A dot on the plot's top or bottom edge may lend its name a few pixels of the margin there.
       const spots: [number, number, string][] = [
         [cx + point.r + 4, cy + 4, "start"],
         [cx - point.r - 4, cy + 4, "end"],
@@ -452,7 +453,7 @@ export const renderScatter: ViewRenderer<ScatterView & ScatterExtras> = (ctx) =>
       const tries = (trailPoints.length ? [true, false] : [false]).flatMap((avoidTrail) => spots.map((spot) => [...spot, avoidTrail] as const));
       for (const [x, y, anchor, avoidTrail] of tries) {
         const box = { x: anchor === "start" ? x : anchor === "end" ? x - width : x - width / 2, y: y - 11, width, height: 13 };
-        if (box.x < plot.x || box.x + box.width > plot.x + plot.w || box.y < plot.y - 8 || box.y + box.height > plot.y + plot.h || clash(box, avoidTrail)) continue;
+        if (box.x < plot.x || box.x + box.width > plot.x + plot.w || box.y < plot.y - 8 || box.y + box.height > plot.y + plot.h + 8 || clash(box, avoidTrail)) continue;
         const node = svg(doc, "text", { class: "fft-point-label", x, y, "text-anchor": anchor });
         node.textContent = text;
         names.append(node);
