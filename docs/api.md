@@ -22,6 +22,7 @@ A `WidgetSpec` is a plain object. Only `data` and `view` are required.
 | `note` | string | A note in the small print at the bottom, on the data or how to read it. `footer`, its older name, still works. |
 | `source` | `{ name, url? }` | Where the data came from, as a credit under the note: "Source: Eurostat", the name a link opening in a new tab when `url` is set. |
 | `byline` | string | Who made the chart, in the same credit line: "Chart: Marta". Takes the text templates titles do. |
+| `asOf` | string | How fresh the data is, last on the credit line: a date is where the rows end (`"2026-08-31"` reads "Data to 31 Aug 2026"), other words stay as written. On a dashboard, a card whose rows end in an earlier month than the board's as-of line gets its own date this way, unless it names one. |
 | `description` | string | What the widget is for. Not drawn on the chart; read by people and agents, and shown on the Details side. |
 | `links` | `{ label, href }[]` | Related pages (a report, the data's owner, a runbook), listed on the Details side under **Linked**. |
 | `locale` | string | BCP 47 locale for number and date formats, for example `"en-US"`. Defaults to the runtime's. |

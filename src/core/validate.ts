@@ -94,6 +94,7 @@ export function validateSpec(spec: unknown, rows?: Row[]): Issue[] {
 
   if (spec.source !== undefined) issues.push(...checkSource(spec.source));
   if (spec.byline !== undefined && typeof spec.byline !== "string") issues.push(error("byline", 'Must be text naming who made the chart, for example "Marta".'));
+  if (spec.asOf !== undefined && !(typeof spec.asOf === "string" && spec.asOf.trim() !== "")) issues.push(error("asOf", 'Must be the date the data runs to, such as "2026-08-31", or words such as "Data to August 2026".'));
   for (const key of ["note", "footer"] as const) {
     if (spec[key] !== undefined && typeof spec[key] !== "string") issues.push(error(key, "Must be text: a short note on the data."));
   }
@@ -338,7 +339,7 @@ function unknownView(issue: Issue, type: string): Issue {
 }
 
 /** The keys a widget spec reads; any other is ignored. */
-const SPEC_KEYS = ["id", "title", "subtitle", "note", "footer", "source", "byline", "description", "links", "locale", "data", "transform", "fields", "colors", "tooltip", "colorRules", "responsive", "headline", "takeaway", "hint", "display", "facet", "view", "style", "i18n"];
+const SPEC_KEYS = ["id", "title", "subtitle", "note", "footer", "source", "byline", "asOf", "description", "links", "locale", "data", "transform", "fields", "colors", "tooltip", "colorRules", "responsive", "headline", "takeaway", "hint", "display", "facet", "view", "style", "i18n"];
 
 /** A warning per key not in `known`, naming the nearest known key when one is close. */
 function unknownKeys(keys: string[], known: string[], base: string, owner: string, noun: string): Issue[] {
