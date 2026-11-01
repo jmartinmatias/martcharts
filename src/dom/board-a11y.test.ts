@@ -150,8 +150,11 @@ describe("focus after a click filter", () => {
     expect(board?.crossFilter()).not.toBeNull();
     press(active() as HTMLElement, "Escape");
     await vi.waitFor(() => expect(board?.crossFilter()).toBeNull());
-    await vi.waitFor(() => expect(active()?.getAttribute("aria-label")).toMatch(/^West/));
-    expect(slot("byRegion").contains(active())).toBe(true);
+    // Until the redraw lands, the old West mark still holds focus: wait for the redrawn card's own.
+    await vi.waitFor(() => {
+      expect(slot("byRegion").contains(active())).toBe(true);
+      expect(active()?.getAttribute("aria-label")).toMatch(/^West/);
+    });
   });
 
   test("clearing with the chip brings focus back to that mark, not to the page", async () => {
