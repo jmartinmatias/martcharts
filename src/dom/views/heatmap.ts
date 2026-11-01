@@ -52,11 +52,11 @@ export const renderHeatmap: ViewRenderer<HeatmapView> = (ctx) => {
   const sample = (key: string, field: string) => (field === x ? columnText.get(key) : lineText.get(key)) ?? key;
   if (columns.length * lines.length > DENSE_CELLS && numbers.length) return drawDense();
   // Every cell the same size, from the card and never from its content: the row names take what the longest needs
-  // (up to a third of the card), the columns share the rest equally, between a tappable 21px and 89px. Narrower than
-  // that, the grid keeps 21px cells and scrolls sideways inside its card.
+  // (up to a third of the card) and the columns share all the rest equally, so the grid fills its card edge to edge
+  // however wide the card is. Narrower than a tappable 21px a column, the grid keeps 21px and scrolls sideways.
   const GAP = 2;
-  const nameW = Math.round(Math.min(Math.max(34, ...lines.map((line) => textWidth(sample(line, y)) + 9)), ctx.width * 0.34));
-  const cell = Math.max(21, Math.min(89, Math.floor((ctx.width - nameW - GAP * columns.length) / Math.max(1, columns.length))));
+  const nameW = Math.round(Math.min(Math.max(34, ...lines.map((line) => textWidth(sample(line, y)) + 13)), ctx.width * 0.34));
+  const cell = Math.max(21, Math.floor((ctx.width - nameW - GAP * columns.length) / Math.max(1, columns.length)));
   grid.style.gridTemplateColumns = `${nameW}px repeat(${columns.length}, ${cell}px)`;
   grid.style.setProperty("--fft-heat-cell", `${cell}px`);
   const scrolls = nameW + (cell + GAP) * columns.length > ctx.width + 1;
@@ -151,7 +151,7 @@ export const renderHeatmap: ViewRenderer<HeatmapView> = (ctx) => {
       strip.append(html(doc, "span", undefined, ctx.format(min, value)), ramp, html(doc, "span", undefined, ctx.format(max, value)));
       return strip;
     };
-    const nameW = Math.round(Math.min(Math.max(34, ...lines.slice(0, 200).map((line) => textWidth(sample(line, y)) + 9)), ctx.width * 0.3));
+    const nameW = Math.round(Math.min(Math.max(34, ...lines.slice(0, 200).map((line) => textWidth(sample(line, y)) + 13)), ctx.width * 0.3));
     const cellW = Math.max(3, Math.min(21, (ctx.width - nameW) / Math.max(1, columns.length)));
     const cellH = Math.max(3, Math.min(21, cellW));
     const top = 21;

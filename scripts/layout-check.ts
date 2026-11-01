@@ -6,6 +6,7 @@
  * - `spill`     text or a mark reaches past the card's edge (more than 2px)
  * - `scroll`    the page scrolls sideways
  * - `empty`     a card leaves more than 89px of empty floor around its view, and more than the baseline accepted
+ * - `side`      the view leaves more than a third of the card's width empty beside it, and more than the baseline accepted
  * - `grew`      the card is more than 15% taller than in the baseline (a fold or a cap stopped working)
  *
  * It serves dist-demo itself, so run `npm run build:site` first. Usage:
@@ -30,6 +31,7 @@ const BASELINE = new URL("./layout-baseline.json", import.meta.url).pathname;
 const WIDTHS = [1400, 390] as const;
 const EMPTY_LIMIT = 89;
 const GROWTH_LIMIT = 1.15;
+const SIDE_LIMIT = 144;
 const update = process.argv.includes("--update");
 const shots = process.argv.includes("--shots");
 
@@ -39,8 +41,11 @@ const TYPES: Record<string, string> = { ".html": "text/html", ".js": "text/javas
 interface Card {
   key: string;
   height: number;
+  width: number;
   /** Empty floor under the view, in px. */
   empty: number;
+  /** Empty width beside the view, in px. */
+  side: number;
   faults: string[];
 }
 
@@ -48,6 +53,7 @@ interface Card {
 interface Kept {
   h: number;
   empty: number;
+  side?: number;
 }
 
 if (!existsSync(join(ROOT, "dashboards.html"))) {
@@ -100,6 +106,7 @@ function measure(): { cards: Card[]; scroll: boolean } {
     if (spill > 2) faults.push(`spill ${Math.round(spill)}px`);
     // Empty floor: the body's room under its last visible child.
     let empty = 0;
+    let side = 0;
     const body = card.querySelector<HTMLElement>(":scope > .fft-body");
     if (body && body.children.length) {
       const b = body.getBoundingClientRect();
@@ -111,8 +118,20 @@ function measure(): { cards: Card[]; scroll: boolean } {
         bottom = Math.max(bottom, r.bottom);
       }
       empty = isFinite(bottom) ? Math.max(0, Math.round(b.height - (bottom - top))) : 0;
+      // Empty width: how far the drawn marks and words reach across the body, wherever a wrapper box stretches.
+      let left = Infinity, right = -Infinity;
+      for (const node of body.querySelectorAll<Element>("*")) {
+        // Leaves only (a bar, a word, a cell): a wrapper box stretches across the card whatever it holds.
+        if (node.childElementCount && !(node instanceof SVGGraphicsElement && !(node instanceof SVGGElement) && !(node instanceof SVGSVGElement))) continue;
+        if (node instanceof SVGSVGElement || node.closest(".fft-sr-only, [hidden], .fft-tooltip")) continue;
+        const r = node.getBoundingClientRect();
+        if (!r.width || !r.height) continue;
+        left = Math.min(left, r.left);
+        right = Math.max(right, r.right);
+      }
+      side = isFinite(right) ? Math.max(0, Math.round(b.width - (right - left))) : 0;
     }
-    cards.push({ key: ref, height: Math.round(box.height), empty, faults });
+    cards.push({ key: ref, height: Math.round(box.height), width: Math.round(box.width), empty, side, faults });
   }
   return { cards, scroll: document.documentElement.scrollWidth > innerWidth + 1 };
 }
@@ -156,6 +175,8 @@ for (const card of results) {
   const kept = baseline[card.key];
   // Empty floor fails past the limit, unless the baseline accepted about as much there.
   if (card.empty > EMPTY_LIMIT && (update || !kept || card.empty > kept.empty + 34)) card.faults.push(`empty ${card.empty}px${kept ? ` (was ${kept.empty})` : ""}`);
+  // Empty width fails past a third of the card, unless the baseline accepted about as much (a centred donut).
+  if (card.side > SIDE_LIMIT && card.side > card.width / 3 && (update || !kept || kept.side === undefined || card.side > kept.side + 34)) card.faults.push(`side ${card.side}px of ${card.width}${kept?.side !== undefined ? ` (was ${kept.side})` : ""}`);
   if (!update && kept && card.height > kept.h * GROWTH_LIMIT && card.height - kept.h > 34) card.faults.push(`grew ${kept.h}→${card.height}px`);
 }
 const failing = results.filter((card) => card.faults.length);
@@ -163,7 +184,7 @@ for (const card of failing) console.log(`${card.key}: ${card.faults.join(", ")}`
 for (const fault of pageFaults) console.log(fault);
 console.log(`${results.length} cards measured at ${WIDTHS.join(" and ")}px: ${failing.length} with faults, ${pageFaults.length} page faults.`);
 if (update) {
-  const next = Object.fromEntries(results.map((card): [string, Kept] => [card.key, { h: card.height, empty: card.empty }]).sort(([a], [b]) => a.localeCompare(b)));
+  const next = Object.fromEntries(results.map((card): [string, Kept] => [card.key, { h: card.height, empty: card.empty, side: card.side }]).sort(([a], [b]) => a.localeCompare(b)));
   await writeFile(BASELINE, `${JSON.stringify(next, null, 1)}\n`);
   console.log(`Baseline written: ${BASELINE}`);
 }

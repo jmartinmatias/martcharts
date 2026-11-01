@@ -30,7 +30,7 @@ async function drawAt(spec: WidgetSpec, width: number) {
 const sizes = (nodes: Iterable<Element>, attrs: string[]) => new Set([...nodes].map((node) => attrs.map((a) => node.getAttribute(a)).join("x")));
 
 describe("heatmap", () => {
-  test.each(WIDTHS)("at %ipx every column is the same width, at least 21px, and the grid fits or scrolls", async (width) => {
+  test.each(WIDTHS)("at %ipx every column is the same width, at least 21px, and the grid fills its card or scrolls", async (width) => {
     const card = await drawAt(catalog("heatmap"), width);
     const grid = card.querySelector(".fft-heatmap") as HTMLElement;
     // jsdom keeps the template as written: the names' width, then repeat(n, one width for every column).
@@ -41,6 +41,8 @@ describe("heatmap", () => {
     expect(cell).toBeGreaterThanOrEqual(21);
     const total = name + count * (cell + 2);
     expect(total <= width + 1 || card.querySelector(".fft-heat")?.hasAttribute("data-scrolls")).toBe(true);
+    // And it fills the card: no column width left over beside the grid, however wide the card.
+    if (cell > 21) expect(width - total).toBeLessThan(count + 2);
     // A number that would spill is left to the tooltip; the rest are written in their cells.
     for (const cell of card.querySelectorAll<HTMLElement>(".fft-heatmap .fft-cell[data-quiet]")) expect(cell.textContent).toBe("");
     for (const cell of card.querySelectorAll<HTMLElement>(".fft-heatmap .fft-cell[data-step]:not([data-quiet])")) expect(cell.textContent).not.toBe("");
