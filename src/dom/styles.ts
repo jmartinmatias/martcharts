@@ -346,6 +346,7 @@ export const BASE_CSS = `
 .fft-action[data-failed] { color: var(--fft-negative); }
 .fft-title { margin: 0; font-size: var(--fft-fs-m); line-height: 21px; font-weight: 600; letter-spacing: -0.005em; }
 .fft-subtitle { margin: 0; font-size: var(--fft-fs-m); line-height: 21px; color: var(--fft-text-secondary); }
+.fft-takeaway { margin: 5px 0 0; font-size: var(--fft-fs-m); line-height: 21px; font-weight: 500; color: var(--fft-text); text-wrap: pretty; }
 /* How to read it: a quiet note under the chart, a thin accent rule, a small label over plain sentences. */
 .fft-guide { margin: 0; max-width: 68ch; padding: 2px 0 2px 13px; border-left: 2px solid var(--fft-accent); font-size: var(--fft-fs-m); line-height: 21px; color: var(--fft-text-secondary); }
 .fft-guide[hidden] { display: none; }

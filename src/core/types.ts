@@ -38,6 +38,12 @@ export interface WidgetSpec {
   title?: string;
   /** Smaller line under the title, for example the period covered. */
   subtitle?: string;
+  /**
+   * One line under the subtitle saying what the chart shows. `true` writes it from the rows, the chart's standout
+   * ("East is the tallest, with €2,000."); a string is your own words and takes the text templates titles do; `false`
+   * keeps it off even when the host turns takeaways on. Screen readers hear the written line either way.
+   */
+  takeaway?: boolean | string;
   /** A note in the small print at the bottom, on the data or how to read it. Takes the text templates titles do. */
   note?: string;
   /** @deprecated The older name for `note`; it still works and draws the same line. */

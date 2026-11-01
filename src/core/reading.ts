@@ -15,6 +15,8 @@ import type { Lang } from "./words.ts";
 export interface ReadingLanguages {
   explainIn(lang: Exclude<Lang, "en">, spec: WidgetSpec, rows?: Row[]): string;
   questionIn(lang: Exclude<Lang, "en">, spec: WidgetSpec, rows: Row[], kind: string): string;
+  /** The chart's standout in one sentence, for a card's takeaway line. Optional: an older reading bundle has none. */
+  takeawayIn?(lang: Exclude<Lang, "en">, spec: WidgetSpec, rows: Row[]): string;
 }
 
 const KEY = Symbol.for("martcharts.reading-languages");

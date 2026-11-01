@@ -433,6 +433,8 @@ const EN = {
     updated: (time: string) => `Updated ${time}`,
     stale: (time: string) => `Could not update; showing data from ${time}`,
     embedFrame: "In a page, sized to fit (iframe)",
+    embedWidth: "Width",
+    embedWidths: { full: "Full width", article: "Article, 640px", sidebar: "Sidebar, 360px" },
   },
   // ---- The editor and composer surface: the common first, the rest a click away ----
   // ---- The wallet audit on the x-ray card ----
@@ -803,6 +805,8 @@ const FR: Words = {
     updated: (time: string) => `Mis à jour à ${time}`,
     stale: (time: string) => `Mise à jour impossible ; données de ${time}`,
     embedFrame: "Dans une page, à la bonne hauteur (iframe)",
+    embedWidth: "Largeur",
+    embedWidths: { full: "Pleine largeur", article: "Article, 640 px", sidebar: "Colonne, 360 px" },
   },
   wallet: {
     audit: "Auditer le portefeuille",
@@ -1167,6 +1171,8 @@ const DE: Words = {
     updated: (time: string) => `Aktualisiert ${time}`,
     stale: (time: string) => `Aktualisierung fehlgeschlagen; Daten von ${time}`,
     embedFrame: "In einer Seite, passende Höhe (iframe)",
+    embedWidth: "Breite",
+    embedWidths: { full: "Volle Breite", article: "Artikel, 640 px", sidebar: "Seitenleiste, 360 px" },
   },
   wallet: {
     audit: "Portfolio prüfen",

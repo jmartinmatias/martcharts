@@ -142,11 +142,12 @@ export function listenForEmbedHeights(win: Window): () => void {
 
 /**
  * The iframe embed code for a widget or a dashboard: the frame (full width, no border, its height set by the host
- * script) and the host script that sizes it. `href` is the address of `embed.html`.
+ * script) and the host script that sizes it. `href` is the address of `embed.html`. `width` caps the frame for a
+ * column of known size (an article at 640px, a sidebar at 360px); it still shrinks on a narrower screen.
  */
-export function frameEmbed(kind: "widget" | "board", spec: WidgetSpec | DashboardSpec, href: string, title: string): string {
+export function frameEmbed(kind: "widget" | "board", spec: WidgetSpec | DashboardSpec, href: string, title: string, width?: number): string {
   const address = `${href}?${kind === "board" ? "board" : "spec"}=${toBase64Url(JSON.stringify(spec))}`;
   const safeTitle = title.replace(/[&"<>]/g, (c) => ({ "&": "&amp;", '"': "&quot;", "<": "&lt;", ">": "&gt;" })[c] as string);
   const host = href.replace(/[^/]*$/, "embed-host.js");
-  return `<iframe src="${address}" title="${safeTitle}" style="width: 100%; border: 0" loading="lazy"></iframe>\n<script src="${host}"></script>`;
+  return `<iframe src="${address}" title="${safeTitle}" style="width: 100%;${width ? ` max-width: ${width}px;` : ""} border: 0" loading="lazy"></iframe>\n<script src="${host}"></script>`;
 }

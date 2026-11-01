@@ -9,9 +9,10 @@ import { isPlainObject } from "./fork.ts";
 import { HEADLINE_OPTIONS } from "./headline.ts";
 import { getPalette, paletteNames, resolvePalette } from "./palettes.ts";
 import { getPreset, presetNames } from "./presets.ts";
-import { getBlock, UnknownBlockError } from "./registry.ts";
+import { blockTypes, getBlock, UnknownBlockError } from "./registry.ts";
 import { checkI18n } from "./i18n.ts";
 import { templateRefs } from "./template.ts";
+import { starterView, viewForName } from "./view-names.ts";
 import { colorRuleProblems, highlightRuleProblems, isHighlightRule } from "./rules.ts";
 import { responsiveProblems } from "./responsive.ts";
 import type { Block, BlockKind, OptionSchema, ViewBlock } from "./registry.ts";
@@ -53,7 +54,7 @@ export function validateSpec(spec: unknown, rows?: Row[]): Issue[] {
   else {
     const use = isPlainObject(spec.view) ? aliasUse(spec.view) : { canonical: [], deprecated: [] };
     const written = new Map(use.deprecated.map(([legacy, canonical]) => [`view.${canonical}`, `view.${legacy}`]));
-    issues.push(...checkBlock("view", view, "view").map((issue) => (written.has(issue.path) ? { ...issue, path: written.get(issue.path) as string } : issue)));
+    issues.push(...checkBlock("view", view, "view").map((issue) => (written.has(issue.path) ? { ...issue, path: written.get(issue.path) as string } : isPlainObject(view) && issue.path === "view.type" && typeof view.type === "string" && /^Unknown view/.test(issue.message) ? unknownView(issue, view.type) : issue)));
     for (const [legacy, canonical] of use.deprecated) {
       issues.push({ level: "warning", path: `view.${legacy}`, message: `"${legacy}" is now called "${canonical}". "${legacy}" still works.` });
     }
@@ -323,8 +324,21 @@ function unknownFormatOptions(format: unknown, path: string): Issue[] {
   return issues;
 }
 
+/**
+ * An unknown view, answered with the view that draws it: another tool's name ("column chart", "d3-range-plot") maps to
+ * its martcharts view and a starter to paste; a near miss ("scater") gets its nearest name; else the list stays.
+ */
+function unknownView(issue: Issue, type: string): Issue {
+  const match = viewForName(type);
+  if (match) return { ...issue, message: `Unknown view "${type}". In martcharts that chart is "${match.type}"; start from "view": ${JSON.stringify(starterView(match))}.` };
+  const names = blockTypes("view");
+  const near = [...names].sort((a, b) => distance(a, type) - distance(b, type))[0];
+  if (near && distance(near, type.toLowerCase()) <= 2) return { ...issue, message: `Unknown view "${type}". Did you mean "${near}"? Start from "view": ${JSON.stringify(starterView({ type: near }))}.` };
+  return issue;
+}
+
 /** The keys a widget spec reads; any other is ignored. */
-const SPEC_KEYS = ["id", "title", "subtitle", "note", "footer", "source", "byline", "description", "links", "locale", "data", "transform", "fields", "colors", "tooltip", "colorRules", "responsive", "headline", "facet", "view", "style", "i18n"];
+const SPEC_KEYS = ["id", "title", "subtitle", "note", "footer", "source", "byline", "description", "links", "locale", "data", "transform", "fields", "colors", "tooltip", "colorRules", "responsive", "headline", "takeaway", "facet", "view", "style", "i18n"];
 
 /** A warning per key not in `known`, naming the nearest known key when one is close. */
 function unknownKeys(keys: string[], known: string[], base: string, owner: string, noun: string): Issue[] {

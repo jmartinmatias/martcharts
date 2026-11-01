@@ -45,7 +45,9 @@ const EDIT_ICON = ["M4 20h4L18.5 9.5a2.1 2.1 0 0 0-4-4L4 16z", "M13.5 6.5l4 4"];
 /** The board's options. `header: false` keeps the page's header the only one; a library without it draws its own. */
 const options = {
   widgets,
-  actions: ["info", "expand", "explain", "csv", "image"],
+  actions: ["info", "expand", "explain", "copy", "csv", "image"],
+  // Each card leads with its standout, written from its rows ("Revenue beat the target in 7 of 12 months.").
+  takeaways: true,
   // The filter row stays pinned while the long page scrolls, and the board's state lives in the address.
   sticky: true,
   hash: true,

@@ -263,6 +263,18 @@ export function explainIn(lang: Other, spec: WidgetSpec, rows: Row[] = []): stri
   return [...parts, example].filter(Boolean).join(" ");
 }
 
+/** The standout alone, for a card's takeaway line: French drops its "Ici,", German keeps "Hier", which carries the verb. */
+export function takeawayIn(lang: Other, spec: WidgetSpec, rows: Row[] = []): string {
+  if (!rows.length || (spec.facet as { field?: string } | undefined)?.field) return "";
+  const c = contextOf(lang, spec, rows);
+  const fact = factOf(c);
+  // A table's top row is its sort order, not a finding (see takeawayOf).
+  if (fact.k === "top" && c.view.type === "table") return "";
+  const said = render(c, fact);
+  const plain = lang === "fr" ? said.replace(/^Ici,\s*/, "") : said;
+  return plain ? `${plain.charAt(0).toUpperCase()}${plain.slice(1)}` : "";
+}
+
 /** A dashed target line, and on bars how a miss looks. */
 function targetSentence(c: Ctx): string {
   const { view, lang } = c;
@@ -1564,7 +1576,7 @@ export function questionIn(lang: Other, spec: WidgetSpec, rows: Row[], kind: str
 }
 
 // French and German join the reading layer the moment this module loads: explain.ts and question.ts look them up.
-registerReadingLanguages({ explainIn, questionIn });
+registerReadingLanguages({ explainIn, questionIn, takeawayIn });
 // A chart type's one-line summary in French and German, for the card's Details: shared on the page under its own key,
 // so a lite page gets it with this add-on and an English page carries none of it.
 (globalThis as Record<symbol, unknown>)[TYPE_SUMMARY] = typeSummary;

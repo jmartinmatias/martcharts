@@ -53,6 +53,8 @@ export interface DashboardOptions {
    * left alone.
    */
   hash?: boolean;
+  /** Shows every card's takeaway line, written from its rows. See `WidgetOptions.takeaway`. */
+  takeaways?: boolean;
   /** Opens every widget's "How to read it" guide from the start. */
   guides?: boolean;
   /**
@@ -517,7 +519,7 @@ export function createDashboard(target: HTMLElement, spec: DashboardSpec, option
     const draw = () => {
       // In the board's override from the first draw (a chosen language, a look), not only after the first change.
       const first = Object.keys(override).length ? fork(found, override) : found;
-      const widget = createWidget(mount, first, { actions: options.actions, fetch: options.fetch, neighbors, guide: options.guides, emptyNote: () => emptyNote(id) });
+      const widget = createWidget(mount, first, { actions: options.actions, fetch: options.fetch, neighbors, guide: options.guides, takeaway: options.takeaways, emptyNote: () => emptyNote(id) });
       widgets.set(id, widget);
       slotOf.set(widget, slot);
       options.decorate?.(mount, id, widget);

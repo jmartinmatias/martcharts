@@ -354,3 +354,20 @@ describe("area extent for small multiples", () => {
     expect([Math.min(...extent), Math.max(...extent)]).toEqual([4, 25]);
   });
 });
+
+describe("an unknown view named the way other tools name charts", () => {
+  const typeIssue = (type: string) => validateSpec({ data: { type: "inline", rows: [] }, view: { type } }).find((issue) => issue.path === "view.type")?.message ?? "";
+
+  test("maps to the martcharts view with a starter to paste", () => {
+    expect(typeIssue("column chart")).toContain('In martcharts that chart is "bar"');
+    expect(typeIssue("column chart")).toContain('"x":"<category field>"');
+    expect(typeIssue("d3-bars-stacked")).toContain('"stacked":true');
+    expect(typeIssue("d3-arrow-plot")).toContain('"mark":"arrow"');
+    expect(typeIssue("Election donut")).toContain('"arc":"half"');
+  });
+
+  test("a near miss gets its nearest name; anything else keeps the list", () => {
+    expect(typeIssue("scater")).toContain('Did you mean "scatter"?');
+    expect(typeIssue("zzz")).toContain("Available:");
+  });
+});

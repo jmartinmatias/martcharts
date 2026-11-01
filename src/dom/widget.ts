@@ -9,7 +9,7 @@ import { fork } from "../core/fork.ts";
 import type { Override } from "../core/fork.ts";
 import { runPipeline } from "../core/pipeline.ts";
 import { describeChart } from "../core/catalog.ts";
-import { explainChart } from "../core/explain.ts";
+import { explainChart, takeawayOf } from "../core/explain.ts";
 import { questionOf } from "../core/question.ts";
 import { placedRef, refKey, widgetRef } from "../core/ref.ts";
 import { getBlock } from "../core/registry.ts";
@@ -58,6 +58,8 @@ export interface WidgetOptions {
   actions?: WidgetAction[];
   /** Shows the "How to read it" guide from the start, as the expanded view does. */
   guide?: boolean;
+  /** Shows each chart's takeaway line under its subtitle, written from the rows, unless the spec says `takeaway: false`. */
+  takeaway?: boolean;
   /**
    * The widgets on either side of a given one, for stepping through them in
    * the expanded view (a dashboard passes its own order). Without it, the
@@ -155,6 +157,8 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
   const title = make("h3", "fft-title");
   const subtitle = make("p", "fft-subtitle");
   const headlineEl = make("div", "fft-headline");
+  // The takeaway: the chart's standout in one line under the subtitle. Shown when asked for; else kept for screen readers.
+  const takeawayEl = make("p", "fft-takeaway");
   const body = make("div", "fft-body");
   const message = make("div", "fft-message");
   const footer = make("p", "fft-footer");
@@ -176,7 +180,9 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
   tip.setAttribute("role", "tooltip");
   tip.hidden = true;
   headlineEl.hidden = true;
-  header.append(title, subtitle);
+  takeawayEl.id = `${id}-takeaway`;
+  takeawayEl.hidden = true;
+  header.append(title, subtitle, takeawayEl);
   // How to read it: a plain guide under the chart, in the chart's own field names, with one example from its rows.
   const guide = make("p", "fft-guide");
   guide.id = `${id}-guide`;
@@ -654,6 +660,22 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     paintRef();
   }
 
+  /**
+   * The takeaway line: the spec's own words, or the standout written from the rows. Shown when the spec or the host
+   * asks; otherwise the same sentence stays in the card for screen readers only, so a chart is never just a picture.
+   */
+  function paintTakeaway() {
+    const asked = current.takeaway;
+    const own = typeof asked === "string" && asked ? fillTemplate(asked, rows, current.fields, locale()) : "";
+    const text = own || takeawayOf(localized(), rows);
+    const shown = Boolean(text) && (Boolean(own) || asked === true || (asked !== false && Boolean(options.takeaway)));
+    takeawayEl.textContent = text;
+    takeawayEl.hidden = !text;
+    takeawayEl.classList.toggle("fft-sr-only", !shown);
+    if (text) root.setAttribute("aria-describedby", takeawayEl.id);
+    else root.removeAttribute("aria-describedby");
+  }
+
   /** The credit line: the source (linked when it has an address) and the byline, as text nodes, a middle dot between them. */
   function paintCredit() {
     credit.replaceChildren();
@@ -968,6 +990,7 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
       if (key) body.prepend(key);
       drawn = true;
       paintGuide();
+      paintTakeaway();
       // Pictures of the card are offered whenever the view drew something to see: an SVG chart, or HTML marks (bars,
       // bullets, strips, tables, maps), not a view that wrote plain text only.
       const pictured = Boolean(chartSvg() || [...body.querySelectorAll("*")].some((node) => !node.closest(".fft-sr-only")));

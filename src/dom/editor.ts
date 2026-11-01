@@ -1918,8 +1918,10 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
     const codes = embedCodes(spec, src, liteBundleUrl(doc, options.bundleHref));
     const block = (title: string, text: string, download?: string) => {
       const section = el("section", "fft-ed-code");
+      // The code as shown; Copy reads it when pressed, so a block whose code changes (the frame's width) copies what is seen.
+      const code = el("code", undefined, text);
       const head = el("div", "fft-ed-row");
-      head.append(el("h3", "fft-ed-subtitle", title), button(t("copy"), (b) => void copyText(text, b), "fft-ed-chip"));
+      head.append(el("h3", "fft-ed-subtitle", title), button(t("copy"), (b) => void copyText(code.textContent ?? text, b), "fft-ed-chip"));
       if (download && win) {
         head.append(
           button(t("download"), () => {
@@ -1936,7 +1938,6 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
         );
       }
       const pre = el("pre", "fft-ed-pre");
-      const code = el("code", undefined, text);
       pre.append(code);
       pre.tabIndex = 0;
       pre.setAttribute("aria-label", title);
@@ -1946,7 +1947,29 @@ export function createEditor(target: HTMLElement, options: EditorOptions = {}): 
     // One embed in view: the frame, which works in any page and sizes itself. The script, file and JavaScript embeds
     // wait behind Other ways to embed; the spec behind its own fold.
     panel.append(el("h3", "fft-ed-subtitle", t("embed")));
-    panel.append(block(wordsFor(options.locale ?? doc.documentElement.lang).dw2.embedFrame, frameEmbed("widget", spec, options.embedHref ?? "embed.html", spec.title ?? spec.id ?? cw.untitledChart)));
+    // The frame's width: full, an article column or a sidebar. Choosing one rewrites the code and shows the preview at
+    // that width, so the chart is seen the size readers will see it before it is pasted.
+    const dw = wordsFor(options.locale ?? doc.documentElement.lang).dw2;
+    const frameCode = (width?: number) => frameEmbed("widget", spec, options.embedHref ?? "embed.html", spec.title ?? spec.id ?? cw.untitledChart, width);
+    const frameBlock = block(dw.embedFrame, frameCode());
+    const widths = el("div", "fft-ed-widths");
+    widths.setAttribute("role", "radiogroup");
+    widths.setAttribute("aria-label", dw.embedWidth);
+    const sizes: [keyof typeof dw.embedWidths, number | undefined][] = [["full", undefined], ["article", 640], ["sidebar", 360]];
+    const sizeButtons = sizes.map(([key, width], i) => {
+      const choice = button(dw.embedWidths[key], () => {
+        for (const other of sizeButtons) other.setAttribute("aria-checked", String(other === choice));
+        const shown = frameBlock.querySelector("code");
+        if (shown) shown.textContent = frameCode(width);
+        previewSlot.style.maxWidth = width ? `${width}px` : "";
+      }, "fft-ed-chip");
+      choice.setAttribute("role", "radio");
+      choice.setAttribute("aria-checked", String(i === 0));
+      return choice;
+    });
+    widths.append(...sizeButtons);
+    frameBlock.querySelector(".fft-ed-row")?.after(widths);
+    panel.append(frameBlock);
     const others = disclosure("embeds", sw.otherEmbeds, "fft-ed-more", false);
     others.append(block(t("embedInline"), codes.inline), block(t("embedSrc"), codes.src), block(t("embedJs"), codes.js));
     const specBox = disclosure("spec", sw.spec, "fft-ed-more", false);
@@ -2160,6 +2183,8 @@ export const EDITOR_CSS = `
 .fft-ed-button:disabled, .fft-ed-icon:disabled { opacity: 0.45; cursor: default; }
 .fft-ed-button[data-failed] { color: var(--fft-negative); border-color: var(--fft-negative); }
 .fft-ed-chip { border-radius: 21px; padding: 4px 12px; min-height: 32px; color: var(--fft-text-secondary); }
+.fft-ed-widths { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 8px; }
+.fft-ed-widths [aria-checked="true"] { color: var(--fft-text); border-color: var(--fft-text); font-weight: 600; }
 .fft-ed-chip[aria-pressed="true"] { color: var(--fft-text); background: color-mix(in srgb, var(--fft-text) 8%, transparent); border-color: color-mix(in srgb, var(--fft-text) 30%, transparent); }
 .fft-ed-icon { padding: 0; width: 34px; }
 .fft-editor :is(button, select, input, textarea, a, [tabindex]):focus-visible { outline: 2px solid var(--fft-accent); outline-offset: 2px; }

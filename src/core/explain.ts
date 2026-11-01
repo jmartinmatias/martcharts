@@ -57,6 +57,26 @@ export function explainChart(written: WidgetSpec, rows: Row[] = []): string {
 }
 
 /**
+ * The chart's takeaway: its one standout from the rows as a short sentence a card can show under its subtitle
+ * ("East is the tallest, with €2,000."). The reading guide's example without its "Here,". Empty when the rows give
+ * nothing to single out, or when the card's language is not loaded (the lite build without French and German).
+ */
+export function takeawayOf(written: WidgetSpec, rows: Row[] = []): string {
+  if (!rows.length) return "";
+  const spec = readable(written);
+  const lang = langOf(spec.locale);
+  const facet = (spec.facet as { field?: string } | undefined)?.field;
+  // A single number already says its one thing in large type; a line under it would only repeat it.
+  if ((spec.view as View | undefined)?.type === "kpi") return "";
+  if (lang !== "en") return readingLanguages()?.takeawayIn?.(lang, spec, rows) ?? "";
+  const example = facet ? facetExample(spec, rows, facet) : exampleOf(spec, rows);
+  // "X is the top row by days left" names a sort order, not a finding: a table's own first row says as much.
+  if (/ is the top row (by|in) /.test(example)) return "";
+  const plain = example.replace(/^Here,\s*/, "");
+  return plain ? `${plain.charAt(0).toUpperCase()}${plain.slice(1)}` : "";
+}
+
+/**
  * Small multiples of a line or area over time compare their panels: how many grew from their first point to their
  * last, and which grew most. Empty when a panel has fewer than two points or the view is another kind.
  */
@@ -1316,7 +1336,7 @@ function correlation(pairs: [number, number][]): number {
 }
 
 /** The plural of a one-word noun: "region" to "regions", "category" to "categories". */
-const plural = (noun: string) => (/[^aeiou]y$/.test(noun) ? `${noun.slice(0, -1)}ies` : /(s|x|ch|sh)$/.test(noun) ? `${noun}es` : `${noun}s`);
+const plural = (noun: string) => (/[^su]s$/.test(noun) ? noun : /[^aeiou]y$/.test(noun) ? `${noun.slice(0, -1)}ies` : /(s|x|ch|sh)$/.test(noun) ? `${noun}es` : `${noun}s`);
 
 /** A share as a whole percentage: 0.8 is "80%". */
 const percent = (share: number) => `${Math.round(share * 100)}%`;
