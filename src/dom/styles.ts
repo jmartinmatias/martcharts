@@ -346,7 +346,17 @@ export const BASE_CSS = `
 .fft-action[data-failed] { color: var(--fft-negative); }
 .fft-title { margin: 0; font-size: var(--fft-fs-m); line-height: 21px; font-weight: 600; letter-spacing: -0.005em; }
 .fft-subtitle { margin: 0; font-size: var(--fft-fs-m); line-height: 21px; color: var(--fft-text-secondary); }
-.fft-takeaway { margin: 5px 0 0; font-size: var(--fft-fs-m); line-height: 21px; font-weight: 500; color: var(--fft-text); text-wrap: pretty; }
+.fft-takeaway { margin: 5px 0 0; font-size: var(--fft-fs-m); line-height: 21px; font-weight: 400; color: var(--fft-text); text-wrap: pretty; }
+/* A data sentence: the figures carry the weight, the words around them read quietly. */
+.fft-takeaway .fft-fig { font-weight: 600; font-variant-numeric: tabular-nums; }
+/* Sentence mode: the card is one line of text, the takeaway with a word-sized trend at its end. */
+.fft-widget[data-display="sentence"] { display: inline; background: none; border: 0; box-shadow: none; padding: 0; font: inherit; color: inherit; backdrop-filter: none; -webkit-backdrop-filter: none; }
+.fft-widget[data-display="sentence"] > :not(.fft-header):not(.fft-tooltip), .fft-widget[data-display="sentence"] .fft-header > :not(.fft-takeaway) { display: none; }
+.fft-widget[data-display="sentence"] .fft-header { display: inline; padding: 0; margin: 0; }
+.fft-widget[data-display="sentence"] .fft-takeaway { display: inline; margin: 0; font-size: inherit; line-height: inherit; color: inherit; }
+.fft-word-line { display: inline-block; vertical-align: -1px; overflow: visible; }
+.fft-word-line polyline { fill: none; stroke: var(--fft-accent); stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
+.fft-word-line circle { fill: var(--fft-accent); }
 /* How to read it: a quiet note under the chart, a thin accent rule, a small label over plain sentences. */
 .fft-guide { margin: 0; max-width: 68ch; padding: 2px 0 2px 13px; border-left: 2px solid var(--fft-accent); font-size: var(--fft-fs-m); line-height: 21px; color: var(--fft-text-secondary); }
 .fft-guide[hidden] { display: none; }

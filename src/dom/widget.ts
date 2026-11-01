@@ -10,6 +10,7 @@ import type { Override } from "../core/fork.ts";
 import { runPipeline } from "../core/pipeline.ts";
 import { describeChart } from "../core/catalog.ts";
 import { explainChart, takeawayOf } from "../core/explain.ts";
+import { figureRuns } from "../core/figures.ts";
 import { questionOf } from "../core/question.ts";
 import { placedRef, refKey, widgetRef } from "../core/ref.ts";
 import { getBlock } from "../core/registry.ts";
@@ -668,8 +669,22 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     const asked = current.takeaway;
     const own = typeof asked === "string" && asked ? fillTemplate(asked, rows, current.fields, locale()) : "";
     const text = own || takeawayOf(localized(), rows);
-    const shown = Boolean(text) && (Boolean(own) || asked === true || (asked !== false && Boolean(options.takeaway)));
-    takeawayEl.textContent = text;
+    const sentence = current.display === "sentence";
+    const shown = Boolean(text) && (sentence || Boolean(own) || asked === true || (asked !== false && Boolean(options.takeaway)));
+    // A data sentence: the figures stand out from the words ("from €820K to €1.3M"), the dates stay words.
+    takeawayEl.replaceChildren(
+      ...figureRuns(text).map((run) => {
+        if (!run.figure) return doc.createTextNode(run.text);
+        const figure = make("b", "fft-fig");
+        figure.textContent = run.text;
+        return figure;
+      }),
+    );
+    // In sentence mode, a time series ends its sentence with its trend, the size of a word.
+    if (sentence && text) {
+      const trend = trendOf();
+      if (trend) takeawayEl.append(" ", wordLine(trend));
+    }
     takeawayEl.hidden = !text;
     takeawayEl.classList.toggle("fft-sr-only", !shown);
     if (text) root.setAttribute("aria-describedby", takeawayEl.id);
@@ -755,6 +770,45 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     if (current.locale) root.lang = current.locale;
     else root.removeAttribute("lang");
     root.dataset.view = typeof drawView()?.type === "string" ? drawView().type : "";
+    if (current.display === "sentence") root.dataset.display = "sentence";
+    else delete root.dataset.display;
+  }
+
+  /** The first series of a chart over time, in row order: what a sentence's word-sized line draws. */
+  function trendOf(): number[] | undefined {
+    const view = drawView() as { type?: string; x?: unknown; y?: unknown; value?: unknown } | undefined;
+    if (!view || !["line", "area", "bar", "dual", "cycle"].includes(String(view.type))) return undefined;
+    // The highlighted series when there is one (a 7-day average over the days it smooths), as the takeaway reads it.
+    const ys = Array.isArray(view.y) ? view.y.map(String) : [];
+    const lit = ([] as unknown[]).concat((view as { highlight?: unknown }).highlight ?? []).map(String).find((name) => ys.includes(name));
+    const field = lit ?? (Array.isArray(view.y) ? view.y[0] : (view.y ?? view.value));
+    if (typeof field !== "string") return undefined;
+    const values = rows.map((row) => readNumber(row[field])).filter((n): n is number => n !== null);
+    return values.length >= 3 ? values : undefined;
+  }
+
+  /** A sparkline the height of a line of text: the trend inside the sentence, its last reading a dot. */
+  function wordLine(values: number[]): SVGSVGElement {
+    const ns = "http://www.w3.org/2000/svg";
+    const [w, h, pad] = [55, 13, 2];
+    const low = Math.min(...values);
+    const span = Math.max(...values) - low || 1;
+    const pts = values.map((v, i) => [Math.round((pad + (i * (w - pad * 2)) / (values.length - 1)) * 10) / 10, Math.round((h - pad - ((v - low) / span) * (h - pad * 2)) * 10) / 10] as const);
+    const svgEl = doc.createElementNS(ns, "svg");
+    svgEl.setAttribute("class", "fft-word-line");
+    svgEl.setAttribute("width", String(w));
+    svgEl.setAttribute("height", String(h));
+    svgEl.setAttribute("viewBox", `0 0 ${w} ${h}`);
+    svgEl.setAttribute("aria-hidden", "true");
+    const line = doc.createElementNS(ns, "polyline");
+    line.setAttribute("points", pts.map((p) => p.join(",")).join(" "));
+    const end = doc.createElementNS(ns, "circle");
+    const last = pts.at(-1) ?? [0, 0];
+    end.setAttribute("cx", String(last[0]));
+    end.setAttribute("cy", String(last[1]));
+    end.setAttribute("r", "2");
+    svgEl.append(line, end);
+    return svgEl;
   }
 
   function clearBody() {

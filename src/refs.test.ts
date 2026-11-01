@@ -39,7 +39,7 @@ describe("chart refs: one per chart per place, all of them in the index", () => 
     expect(index.filter((entry) => entry.place === PLACES.catalog).length).toBe(catalog);
     expect(index.filter((entry) => entry.place === PLACES.guide).length).toBe(catalog);
     expect(index.filter((entry) => entry.place === PLACES.home).length).toBe(3);
-    expect(index.filter((entry) => entry.place === PLACES.embed || entry.place === PLACES.frame).length).toBe(6);
+    expect(index.filter((entry) => entry.place === PLACES.embed || entry.place === PLACES.frame).length).toBe(7);
   });
 
   test("each ref resolves to which chart and where: a title or key, the place in words, and an address that ends at it", () => {

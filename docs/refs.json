@@ -3494,6 +3494,18 @@
     "url": "examples/drop-in.html#W-9CYX"
   },
   {
+    "ref": "W-YDMG",
+    "title": "Order trend",
+    "titles": {
+      "fr": "Tendance des commandes",
+      "de": "Bestelltrend"
+    },
+    "key": "sentence",
+    "place": "embed",
+    "where": "Embed › In a sentence",
+    "url": "examples/drop-in.html#W-YDMG"
+  },
+  {
     "ref": "W-H4J7",
     "title": "Tickets this week",
     "titles": {

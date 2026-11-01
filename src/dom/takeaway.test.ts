@@ -84,3 +84,22 @@ describe("wording alone under a title", () => {
     expect(takeawayOf(spec, [{ region: "East", revenue: 5, goal: 4 }])).toBe("East has reached its goal.");
   });
 });
+
+describe("data sentences", () => {
+  test("the figures in a takeaway stand apart from its words; dates stay words", async () => {
+    await createWidget(document.body, bars({ takeaway: "East reached 340 on Sep 30, 2026, 61% of the total." })).ready;
+    expect([...document.querySelectorAll(".fft-takeaway .fft-fig")].map((b) => b.textContent)).toEqual(["340", "61%"]);
+    expect(line()?.textContent).toBe("East reached 340 on Sep 30, 2026, 61% of the total.");
+  });
+
+  test("display: sentence draws the card as its takeaway alone, with a word-sized trend for a chart over time", async () => {
+    const months = [{ m: "2026-01", v: 10 }, { m: "2026-02", v: 14 }, { m: "2026-03", v: 19 }];
+    await createWidget(document.body, { title: "Revenue", display: "sentence", data: { type: "inline", rows: months }, fields: { v: { label: "Revenue" } }, view: { type: "line", x: "m", y: "v" } } as WidgetSpec).ready;
+    expect(document.querySelector(".fft-widget")?.getAttribute("data-display")).toBe("sentence");
+    expect(line()?.classList.contains("fft-sr-only")).toBe(false);
+    expect(line()?.textContent).toMatch(/^Revenue went from 10/);
+    expect(line()?.querySelector("svg.fft-word-line polyline")?.getAttribute("points")?.split(" ")).toHaveLength(3);
+    expect(validateSpec({ display: "sentence", data: { type: "inline", rows: months }, view: { type: "line", x: "m", y: "v" } } as WidgetSpec).filter((i) => /display/.test(String(i.message)))).toEqual([]);
+  });
+});
+

@@ -44,6 +44,12 @@ export interface WidgetSpec {
    * keeps it off even when the host turns takeaways on. Screen readers hear the written line either way.
    */
   takeaway?: boolean | string;
+  /**
+   * "sentence" draws the card as one data sentence: the takeaway alone, its figures set apart, and for a chart over
+   * time a trend line the size of a word at its end, for a sidebar, an email or a paragraph. "card" (the default) is
+   * the full card.
+   */
+  display?: "card" | "sentence";
   /** A note in the small print at the bottom, on the data or how to read it. Takes the text templates titles do. */
   note?: string;
   /** @deprecated The older name for `note`; it still works and draws the same line. */

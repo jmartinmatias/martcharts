@@ -44,7 +44,7 @@ export function defineWidgetElement(tag = "fft-widget"): void {
   if (customElements.get(tag)) return;
 
   class Element extends HTMLElement implements FftWidgetElement {
-    static observedAttributes = ["spec", "src", "data", "chart", "preset", "locale"];
+    static observedAttributes = ["spec", "src", "data", "chart", "preset", "locale", "display"];
     #spec: WidgetSpec | undefined;
     #widget: Widget | undefined;
     #srcRequest = 0;
@@ -141,7 +141,10 @@ export function defineWidgetElement(tag = "fft-widget"): void {
       const preset = this.getAttribute("preset");
       const locale = this.getAttribute("locale");
       const styled = preset ? fork(this.#spec, { style: { preset: preset === "default" ? null : preset } }) : this.#spec;
-      const spec = locale ? { ...styled, locale } : styled;
+      // display="sentence" draws the card as one data sentence, for text around it.
+      const shown = this.getAttribute("display");
+      const display = shown === "sentence" || shown === "card" ? shown : undefined;
+      const spec: WidgetSpec = { ...styled, ...(locale ? { locale } : {}), ...(display ? { display } : {}) };
       if (this.#widget) void this.#widget.setSpec(spec);
       else {
         const actions = (this.getAttribute("actions") ?? "").split(/\s+/).filter((a): a is WidgetAction => Object.hasOwn(ACTION_LABELS, a));
