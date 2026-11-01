@@ -8,7 +8,7 @@ import type { Row } from "../core/types.ts";
 import { WORDS_EN } from "../core/words.ts";
 
 /** Actions a host can offer on a widget. */
-export type WidgetAction = "csv" | "image" | "svg" | "copy" | "expand" | "explain" | "info";
+export type WidgetAction = "csv" | "image" | "svg" | "copy" | "link" | "sentence" | "expand" | "explain" | "info";
 
 function isMissing(value: unknown): boolean {
   return value === null || value === undefined || (typeof value === "number" && Number.isNaN(value));
@@ -191,6 +191,8 @@ export const ACTION_ICONS: Record<WidgetAction, string[]> = {
   image: ["M5 5h14a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z", "M4 16l5-5 4 4 2-2 5 5", "M15.5 9.5h.01"],
   svg: ["M7 3h7l5 5v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z", "M14 3v5h5", "M9 14l2 3 2-3", "M15 13.5v3.5"],
   copy: ["M9 9h10v11H9z", "M5 15V5a1 1 0 0 1 1-1h9"],
+  link: ["M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1", "M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1"],
+  sentence: ["M5 7h14", "M5 12h14", "M5 17h8"],
   expand: ["M14 4h6v6", "M10 20H4v-6", "M20 4l-7 7", "M4 20l7-7"],
   explain: ["M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z", "M9.5 9.5a2.5 2.5 0 0 1 4.9.6c0 1.6-2.4 2.2-2.4 3.7", "M12 17h.01"],
   info: ["M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z", "M12 11v6", "M12 7.5h.01"],

@@ -283,6 +283,13 @@ export const BASE_CSS = `
 .fft-action svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .fft-action:hover, .fft-action:focus-visible { color: var(--fft-text); background: var(--fft-grid); outline: none; }
 .fft-action[data-done] { color: var(--fft-positive); }
+/* A copy's quiet receipt under the toolbar: "Link copied", for a moment. Empty, it takes no room. */
+.fft-said {
+  position: absolute; top: 44px; right: 13px; z-index: 6; margin: 0; padding: 3px 8px; pointer-events: none;
+  border-radius: var(--fft-radius-m); background: var(--fft-surface); box-shadow: 0 0 0 1px var(--fft-grid);
+  color: var(--fft-text); font-size: var(--fft-fs-xs); white-space: nowrap;
+}
+.fft-said:empty { display: none; }
 /* The label shows only inside the More menu; in the toolbar the icon and its tooltip name the action. */
 .fft-action-text { display: none; }
 /* The toolbar shows only when the card is pointed at or focused, so the title takes the card's full width and wraps
@@ -295,7 +302,8 @@ export const BASE_CSS = `
   -webkit-mask-image: linear-gradient(to right, transparent, #000 21px); mask-image: linear-gradient(to right, transparent, #000 21px);
 }
 @media (hover: none) { .fft-widget[data-actions] .fft-title { padding-right: 89px; } .fft-widget[data-actions] .fft-actions { background: none; padding-left: 0; -webkit-backdrop-filter: none; backdrop-filter: none; -webkit-mask-image: none; mask-image: none; } }
-.fft-actions:has(.fft-menu:not([hidden])) { opacity: 1; }
+/* Open, the menu hangs below the toolbar: the toolbar's fade-in mask would clip it away (and its clicks with it). */
+.fft-actions:has(.fft-menu:not([hidden])) { opacity: 1; -webkit-mask-image: none !important; mask-image: none !important; }
 /* More: a small popover card of labelled actions, one per row, each a comfortable 34px target. */
 .fft-menu {
   position: absolute; top: calc(100% + 5px); right: 0; z-index: 6; min-width: 200px;
