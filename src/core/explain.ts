@@ -1,5 +1,6 @@
 import { resolveReferences } from "./reference.ts";
 import { cyclePanels, cycleStandout } from "./cycle.ts";
+import { OUTCOME_DOTS, outcomeOdds, outcomeValues, quantileDots } from "./outcomes.ts";
 import type { CycleBy } from "./cycle.ts";
 /**
  * Plain reading guides for charts: one to three short sentences that say what
@@ -721,6 +722,21 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
       const bin = bins.reduce<(typeof bins)[number] | undefined>((best, b) => (best && best.count >= b.count ? best : b), undefined);
       const edge = (n: number) => formatValue(n, spec.fields?.[field]?.format, spec.locale);
       return bin && bin.count > 0 ? `Here, the most common range is ${edge(bin.start)} to ${edge(bin.end)}, which happened ${bin.count} times.` : "";
+    }
+    case "outcomes": {
+      const amount = one(view.value);
+      if (!amount) return "";
+      const sorted = outcomeValues(rows, amount);
+      if (!sorted.length) return "";
+      const n = typeof view.dots === "number" ? view.dots : OUTCOME_DOTS;
+      const target = typeof view.target === "number" ? view.target : undefined;
+      const down = view.goodWhen === "down";
+      const odds = outcomeOdds(sorted, quantileDots(sorted, n), target, down ? "down" : "up");
+      const show = (v: number) => formatValue(v, spec.fields?.[amount]?.format, spec.locale);
+      const middle = `the middle half lies between ${show(odds.low)} and ${show(odds.high)}`;
+      if (target === undefined || odds.reach === undefined) return `Here, ${middle}.`;
+      const named = typeof view.targetLabel === "string" && view.targetLabel.trim() ? view.targetLabel.trim() : "target";
+      return `Here, ${odds.reach} of ${n} equally likely outcomes ${down ? "stay within" : "reach"} the ${named} of ${show(target)}, about a ${Math.round((odds.reach / n) * 100)}% chance; ${middle}.`;
     }
     case "cycle": {
       const [x, amount] = [one(view.x), one(view.value)];
@@ -1543,6 +1559,12 @@ function guide(spec: WidgetSpec): string {
       return `Each spoke is one ${name(one(view.label))}. The further a point sits from the center, the higher the score; a bigger shape is better overall.`;
     case "rose":
       return `Each slice is one ${name(one(view.label))}, going round like a clock. The bigger a slice's area, the more ${series.length > 1 ? `in that ${name(one(view.label))}, the parts stacked from the center out` : name(series[0])}.`;
+    case "outcomes": {
+      const n = typeof view.dots === "number" ? view.dots : OUTCOME_DOTS;
+      const named = typeof view.targetLabel === "string" && view.targetLabel.trim() ? view.targetLabel.trim() : "target";
+      const goal = typeof view.target === "number" ? ` Filled dots ${view.goodWhen === "down" ? "stay within" : "reach"} the ${named} at the dashed line and rings fall short: count the filled ones for the chance.` : "";
+      return `Each dot is one of ${n} equally likely outcomes, placed by its ${name(one(view.value))}; where dots stack high, results are most likely.${goal}`;
+    }
     case "cycle": {
       const unit = view.by === "month" || (view.by === undefined && /month/i.test(one(view.x) ?? "")) ? "month" : "day of the week";
       const short = unit === "month" ? "month" : "day";

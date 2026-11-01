@@ -153,6 +153,10 @@ export const TYPE_WORDS: Record<string, Record<TypeLang, TypeWords>> = {
     fr: { summary: "L'histoire d'un client en frise verticale : un événement par ligne avec sa date, son titre et un montant éventuel, du plus récent au plus ancien, un point coloré par type.", needs: "il faut des événements datés avec un court titre chacun" },
     de: { summary: "Die Geschichte eines Kunden als senkrechte Zeitleiste: ein Ereignis je Zeile mit Datum, Titel und gegebenenfalls Betrag, neueste zuerst, ein Punkt je Art eingefärbt.", needs: "braucht datierte Ereignisse mit je einem kurzen Titel" },
   },
+  outcomes: {
+    fr: { summary: "Un diagramme en points des quantiles : les simulations d'une prévision ramenées à vingt issues également probables, un point chacune, avec le nombre d'issues qui atteignent l'objectif.", needs: "il faut une ligne par simulation ou scénario, avec le résultat dans une colonne de nombres" },
+    de: { summary: "Ein Quantil-Punktdiagramm: die Simulationen einer Prognose auf zwanzig gleich wahrscheinliche Ausgänge verdichtet, ein Punkt je Ausgang, mit der Zahl der Ausgänge, die das Ziel erreichen.", needs: "braucht eine Zeile je Simulation oder Szenario, mit dem Ergebnis in einer Zahlenspalte" },
+  },
   cycle: {
     fr: { summary: "Un graphique cyclique : un petit panneau par jour de la semaine (ou par mois), côte à côte sur un même axe, avec la ligne des relevés de ce jour et une barre à sa moyenne.", needs: "il faut une colonne de dates avec des relevés sur au moins trois semaines" },
     de: { summary: "Ein Zyklusdiagramm: ein kleines Feld je Wochentag (oder Monat), nebeneinander auf einer Achse, mit der Linie der Werte dieses Tages und einem Balken auf seinem Durchschnitt.", needs: "braucht eine Datumsspalte mit Werten über mindestens drei Wochen" },

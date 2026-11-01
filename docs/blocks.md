@@ -761,6 +761,18 @@ Progress against a target, one meter per row: attainment as a percentage, a bar 
 | `limit` | number |  |  | Keeps the first N rows after sorting: the top 10, say. The rest are left out, or folded into one row with other. |
 | `other` | any |  |  | With limit, folds the rows past it into one last row, its numbers summed: true names it "Other", text names it as you like ("All other clients"). So the parts still add up to the whole. |
 
+### `outcomes`
+
+A quantile dot plot for a forecast's uncertainty: many possible results (simulation runs or scenarios, one per row) cut into twenty equally likely outcomes, one dot each, stacked where they fall. With a target, dots on its good side are filled and the rest are rings, and a line says how many reach it (7 in 20): a chance anyone can count, where a shaded band asks the reader to judge one.
+
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `value` | field name (number) | yes |  | Field with each possible result, one per row: a simulation run's total, a scenario's outcome. |
+| `target` | number |  |  | The amount that counts as success, such as the plan. Dots on its good side are filled, the rest drawn as rings, and the count of those that reach it leads the chart. |
+| `targetLabel` | string |  |  | What the target is called, in a word or two, such as "plan" or "budget". Defaults to target. |
+| `goodWhen` | `up`, `down` |  | `"up"` | Whether more is better ("up", as for revenue) or less is better ("down", as for wait times and costs). It decides which side of the target reads as met. |
+| `dots` | number |  | `20` | How many equally likely outcomes to draw, 5 to 100. Twenty makes each dot a 5% chance; more read finer but count less easily. |
+
 ### `pareto`
 
 The 80/20 view: categories sorted largest first as bars of their share of the total, a line through the running total, and a dashed line at the threshold. Bars up to the crossing (the vital few) stay in color. One percent axis, no second scale. For causes of tickets, defects or churn.

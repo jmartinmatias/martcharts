@@ -180,16 +180,16 @@
     }
   },
   {
-    "ref": "W-XRFK",
-    "title": "Growth against margin",
+    "ref": "W-JSAA",
+    "title": "Q4 revenue outcomes",
     "titles": {
-      "fr": "Croissance et marge",
-      "de": "Wachstum und Marge"
+      "fr": "Issues du CA du T4",
+      "de": "Q4-Umsatz: mögliche Ausgänge"
     },
-    "key": "growth-margin-path",
+    "key": "q4-outcomes",
     "place": "",
     "where": "Dashboards › Sales › Revenue and profit",
-    "url": "dashboards.html?board=sales#W-XRFK",
+    "url": "dashboards.html?board=sales#W-JSAA",
     "board": "sales",
     "section": "Revenue and profit",
     "sections": {
@@ -406,6 +406,24 @@
     "place": "",
     "where": "Dashboards › Sales › Customers and pipeline",
     "url": "dashboards.html?board=sales#W-SH2W",
+    "board": "sales",
+    "section": "Customers and pipeline",
+    "sections": {
+      "fr": "Clients et pipeline",
+      "de": "Kunden und Pipeline"
+    }
+  },
+  {
+    "ref": "W-XRFK",
+    "title": "Growth against margin",
+    "titles": {
+      "fr": "Croissance et marge",
+      "de": "Wachstum und Marge"
+    },
+    "key": "growth-margin-path",
+    "place": "",
+    "where": "Dashboards › Sales › Customers and pipeline",
+    "url": "dashboards.html?board=sales#W-XRFK",
     "board": "sales",
     "section": "Customers and pipeline",
     "sections": {
@@ -2410,6 +2428,18 @@
     "url": "catalog/index.html#meter"
   },
   {
+    "ref": "W-PC4S",
+    "title": "Q4 revenue outcomes",
+    "titles": {
+      "fr": "Issues du CA du T4",
+      "de": "Q4-Umsatz: mögliche Ausgänge"
+    },
+    "key": "q4-outcomes",
+    "place": "catalog",
+    "where": "Catalog › outcomes",
+    "url": "catalog/index.html#outcomes"
+  },
+  {
     "ref": "W-4P5X",
     "title": "What drives support tickets",
     "titles": {
@@ -3114,6 +3144,18 @@
     "place": "guide",
     "where": "Catalog › Data guide › meter",
     "url": "catalog/guide.html#c-meter"
+  },
+  {
+    "ref": "W-NEDM",
+    "title": "Q4 revenue outcomes",
+    "titles": {
+      "fr": "Issues du CA du T4",
+      "de": "Q4-Umsatz: mögliche Ausgänge"
+    },
+    "key": "q4-outcomes",
+    "place": "guide",
+    "where": "Catalog › Data guide › outcomes",
+    "url": "catalog/guide.html#c-outcomes"
   },
   {
     "ref": "W-KJFX",

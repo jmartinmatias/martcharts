@@ -17,6 +17,22 @@ type Pair = [fr: string, de: string];
 
 /** Each option's hint, by its English description. */
 export const OPTION_HINTS: Record<string, Pair> = {
+ "Field with each possible result, one per row: a simulation run's total, a scenario's outcome.": [
+  "Champ avec chaque résultat possible, un par ligne : le total d'une simulation, l'issue d'un scénario.",
+  "Feld mit jedem möglichen Ergebnis, eines je Zeile: die Summe eines Simulationslaufs, der Ausgang eines Szenarios."
+ ],
+ "The amount that counts as success, such as the plan. Dots on its good side are filled, the rest drawn as rings, and the count of those that reach it leads the chart.": [
+  "Le montant qui vaut réussite, comme le plan. Les points du bon côté sont pleins, les autres dessinés en cercles, et le nombre de ceux qui l'atteignent ouvre le graphique.",
+  "Der Betrag, der als Erfolg zählt, etwa der Plan. Punkte auf seiner guten Seite sind gefüllt, die übrigen als Ringe gezeichnet, und die Zahl derer, die ihn erreichen, steht vorn."
+ ],
+ "What the target is called, in a word or two, such as \"plan\" or \"budget\". Defaults to target.": [
+  "Le nom de l'objectif, en un ou deux mots, comme \"plan\" ou \"budget\". Par défaut : objectif.",
+  "Wie das Ziel heißt, in ein oder zwei Wörtern, etwa \"plan\" oder \"budget\". Standard: Ziel."
+ ],
+ "How many equally likely outcomes to draw, 5 to 100. Twenty makes each dot a 5% chance; more read finer but count less easily.": [
+  "Combien d'issues également probables dessiner, de 5 à 100. Vingt font de chaque point une chance de 5 % ; davantage est plus fin mais se compte moins bien.",
+  "Wie viele gleich wahrscheinliche Ausgänge gezeichnet werden, 5 bis 100. Zwanzig machen jeden Punkt zu einer 5-%-Chance; mehr ist feiner, lässt sich aber schwerer zählen."
+ ],
  "Field with each reading's date: days for a weekly rhythm, months for a yearly one.": [
   "Champ avec la date de chaque relevé : des jours pour un rythme hebdomadaire, des mois pour un rythme annuel.",
   "Feld mit dem Datum jedes Werts: Tage für einen Wochenrhythmus, Monate für einen Jahresrhythmus."
@@ -1109,6 +1125,14 @@ export const OPTION_HINTS: Record<string, Pair> = {
 
 /** Each option's label, by its name. */
 export const OPTION_NAMES: Record<string, Pair> = {
+ "targetLabel": [
+  "Nom de l'objectif",
+  "Name des Ziels"
+ ],
+ "dots": [
+  "Points",
+  "Punkte"
+ ],
  "by": [
   "Cycle",
   "Zyklus"
@@ -1617,6 +1641,30 @@ export const OPTION_NAMES: Record<string, Pair> = {
 
 /** The guide's "best for" and "least useful for" lines, by their English. */
 export const GUIDE_USES: Record<string, Pair> = {
+ "How likely a forecast is to reach plan: 7 in 20 simulated quarters get there": [
+  "La probabilité qu'une prévision atteigne le plan : 7 trimestres simulés sur 20 y parviennent",
+  "Wie wahrscheinlich eine Prognose den Plan erreicht: 7 von 20 simulierten Quartalen schaffen es"
+ ],
+ "Explaining uncertainty to people who do not read confidence bands": [
+  "Expliquer l'incertitude à qui ne lit pas les intervalles de confiance",
+  "Unsicherheit erklären, wenn Konfidenzbänder nicht gelesen werden"
+ ],
+ "Comparing a goal with the spread of what may happen": [
+  "Comparer un objectif à l'éventail de ce qui peut arriver",
+  "Ein Ziel mit der Streuung dessen vergleichen, was eintreten kann"
+ ],
+ "A single forecast number with no runs behind it (use kpi or line with a band)": [
+  "Une seule valeur prévue sans simulations derrière (utilisez kpi ou line avec une bande)",
+  "Eine einzelne Prognosezahl ohne Läufe dahinter (kpi oder line mit Band verwenden)"
+ ],
+ "Actual results already known (use histogram or beeswarm)": [
+  "Des résultats réels déjà connus (utilisez histogram ou beeswarm)",
+  "Bereits bekannte tatsächliche Ergebnisse (histogram oder beeswarm verwenden)"
+ ],
+ "Fewer than about 20 runs": [
+  "Moins de 20 simulations environ",
+  "Weniger als etwa 20 Läufe"
+ ],
  "A weekly rhythm under a trend: orders, visits or tickets by day of the week": [
   "Un rythme hebdomadaire sous une tendance : commandes, visites ou tickets par jour de la semaine",
   "Ein Wochenrhythmus unter einem Trend: Bestellungen, Besuche oder Tickets nach Wochentag"
@@ -2609,6 +2657,10 @@ export const GUIDE_USES: Record<string, Pair> = {
 
 /** How each chart is built, by its English. */
 export const GUIDE_BUILDS: Record<string, Pair> = {
+ "The rows (simulation runs or scenarios) cut into twenty equally likely outcomes, one dot each, stacked where they fall on the value axis; with a target, a dashed line, filled dots on its good side, rings on the other, and the count that reaches it written first.": [
+  "Les lignes (simulations ou scénarios) ramenées à vingt issues également probables, un point chacune, empilées là où elles tombent sur l'axe ; avec un objectif, une ligne en pointillés, des points pleins du bon côté, des cercles de l'autre, et le nombre qui l'atteint écrit en tête.",
+  "Die Zeilen (Simulationsläufe oder Szenarien) auf zwanzig gleich wahrscheinliche Ausgänge verdichtet, ein Punkt je Ausgang, gestapelt, wo sie auf der Achse liegen; mit Ziel eine gestrichelte Linie, gefüllte Punkte auf der guten Seite, Ringe auf der anderen und die Zahl derer, die es erreichen, vorangestellt."
+ ],
  "One panel per day of the week (or month of the year), side by side on one axis: a thin line through that day's readings in date order, and a bar across it at the day's average.": [
   "Un panneau par jour de la semaine (ou par mois), côte à côte sur un même axe : une fine ligne à travers les relevés de ce jour dans l'ordre des dates, et une barre en travers à sa moyenne.",
   "Ein Feld je Wochentag (oder Monat), nebeneinander auf einer Achse: eine dünne Linie durch die Werte dieses Tages in Datumsfolge und ein Balken quer darüber auf seinem Durchschnitt."

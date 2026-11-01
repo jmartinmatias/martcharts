@@ -17,7 +17,7 @@ const FULL_BEFORE = 298_224;
 describe("bundle sizes (after npm run build:lib)", () => {
   const full = gz("dist/martcharts.iife.js");
   const lite = gz("dist/martcharts-lite.iife.js");
-  test.skipIf(full === undefined)("the full bundle stays within 15% of its size when the lite build began", () => {
+  test.skipIf(full === undefined)("the full bundle stays within 16% of its size when the lite build began", () => {
     // 5% until the builder and reading features of late October 2026: the Composer's saved dashboards with undo, refs
     // unique to each chart's place, quarters in words, per-row units and the phone layout of the whitespace grid took
     // it to 105.6%. Raise it again only for a feature, never for creep.
@@ -31,9 +31,10 @@ describe("bundle sizes (after npm run build:lib)", () => {
     // fill between two lines, and flag and image cells (1 November 2026) took it to 112.3%.
     // 14% after ghosts (compare on horizontal bars, meters and lines, with the change since in tooltips and keys) took
     // it to 113.2% (1 November 2026).
-    // 15% after the cycle view (a cycle plot: one panel per weekday or month) and the outcomes view (a quantile dot
-    // plot of a forecast's likely results), with their guides in three languages (1 November 2026).
-    expect(full).toBeLessThanOrEqual(Math.round(FULL_BEFORE * 1.15));
+    // 16% after the cycle view (a cycle plot: one panel per weekday or month) and the outcomes view (a quantile dot
+    // plot of a forecast's likely results), with their guides, options and picker words in three languages, took it
+    // to 115.8% (1 November 2026).
+    expect(full).toBeLessThanOrEqual(Math.round(FULL_BEFORE * 1.16));
   });
   test.skipIf(lite === undefined || full === undefined)("the lite bundle stays under 82% of the full bundle's starting size, and under three quarters of today's", () => {
     // 206,759 bytes gzipped when made: 69% of 298,224. What remains is what showing charts uses: the English reading

@@ -14,6 +14,7 @@
  * @module
  */
 import { cyclePanels, cycleStandout } from "./cycle.ts";
+import { OUTCOME_DOTS, outcomeOdds, outcomeValues, quantileDots } from "./outcomes.ts";
 import type { CycleBy } from "./cycle.ts";
 import { fieldLabel, formatValue, humanize, timeStep } from "./display.ts";
 import { readNumber } from "./formats.ts";
@@ -499,6 +500,11 @@ function guideFr(c: Ctx): string {
       ].filter(Boolean);
       return `Une ligne par ${axis(y)} et une colonne par ${axis(x)} ; une marque se trouve à leur croisement. ${marks.length ? `${marks.join(" ; ")}. ` : ""}Une case vide signifie qu'il n'y a rien pour cette paire.`;
     }
+    case "outcomes": {
+      const n = typeof view.dots === "number" ? view.dots : OUTCOME_DOTS;
+      const goal = typeof view.target === "number" ? ` Les points pleins ${view.goodWhen === "down" ? "restent dans" : "atteignent"} l'objectif marqué par la ligne en pointillés, les cercles vides n'y arrivent pas : comptez les points pleins pour lire la chance.` : "";
+      return `Chaque point est l'une de ${n} issues également probables, placée selon ${name(one(view.value))} ; là où les points s'empilent haut, le résultat est le plus probable.${goal}`;
+    }
     case "cycle": {
       const month = view.by === "month" || (view.by === undefined && /month/i.test(one(view.x) ?? ""));
       const unit = month ? "mois" : "jour de la semaine";
@@ -734,6 +740,11 @@ function guideDe(c: Ctx): string {
       ].filter(Boolean);
       return `Eine Zeile je ${axis(y)} und eine Spalte je ${axis(x)}; eine Markierung sitzt an ihrem Schnittpunkt. ${marks.length ? `${marks.join("; ")}. ` : ""}Ein leeres Feld heißt, dass es für dieses Paar nichts gibt.`;
     }
+    case "outcomes": {
+      const n = typeof view.dots === "number" ? view.dots : OUTCOME_DOTS;
+      const goal = typeof view.target === "number" ? ` Gefüllte Punkte ${view.goodWhen === "down" ? "bleiben innerhalb" : "erreichen"} das Ziel an der gestrichelten Linie, leere Ringe verfehlen es: Die gefüllten zu zählen ergibt die Chance.` : "";
+      return `Jeder Punkt ist einer von ${n} gleich wahrscheinlichen Ausgängen, gesetzt nach ${name(one(view.value))}; wo sich Punkte hoch stapeln, ist das Ergebnis am wahrscheinlichsten.${goal}`;
+    }
     case "cycle": {
       const month = view.by === "month" || (view.by === undefined && /month/i.test(one(view.x) ?? ""));
       return `Ein Feld je ${month ? "Monat" : "Wochentag"}: Seine Linie folgt ${name(one(view.value))} dieses ${month ? "Monats" : "Tages"} in Datumsfolge, und der Balken quer darüber ist sein Durchschnitt. Die Balken vergleichen die ${month ? "Monate" : "Tage"}; jede Linie zeigt, ob ihr ${month ? "Monat" : "Tag"} wächst.`;
@@ -837,6 +848,7 @@ type Fact =
   | { k: "matrixYes"; who: string; n: number; of: number }
   | { k: "matrixTop"; at: string; value: string }
   | { k: "strips"; who: string; total: string; share?: number; first?: string }
+  | { k: "outcomes"; reach?: number; of: number; target?: string; named?: string; down: boolean; low: string; high: string }
   | { k: "cycle"; month: boolean; high: string; low: string; highV: string; lowV: string; measure: string; grew: number; of: number }
   | { k: "xray"; who: string; held?: number; of?: number; wallet?: string; walletShare?: number }
   | { k: "board"; n: number; of: number; stage: string; best?: string; bestV?: string };
@@ -1178,6 +1190,17 @@ function factOf(c: Ctx): Fact {
       const row = top(field);
       return row && field ? { k: "matrixTop", at: `${text(row, y)} · ${text(row, x)}`, value: text(row, field) } : { k: "none" };
     }
+    case "outcomes": {
+      const field = one(view.value);
+      const sorted = field ? outcomeValues(rows, field) : [];
+      if (!field || !sorted.length) return { k: "none" };
+      const n = typeof view.dots === "number" ? view.dots : OUTCOME_DOTS;
+      const target = typeof view.target === "number" ? view.target : undefined;
+      const down = view.goodWhen === "down";
+      const odds = outcomeOdds(sorted, quantileDots(sorted, n), target, down ? "down" : "up");
+      const named = typeof view.targetLabel === "string" && view.targetLabel.trim() ? view.targetLabel.trim() : undefined;
+      return { k: "outcomes", ...(odds.reach === undefined ? {} : { reach: odds.reach }), of: n, ...(target === undefined ? {} : { target: fmt(target, field) }), ...(named ? { named } : {}), down, low: fmt(odds.low, field), high: fmt(odds.high, field) };
+    }
     case "cycle": {
       const [x, field] = [one(view.x), one(view.value)];
       if (!x || !field) return { k: "none" };
@@ -1369,6 +1392,11 @@ function renderFr(c: Ctx, f: Fact): string {
       return `Ici, ${f.who} s'applique à ${f.n} colonnes sur ${f.of}, plus que toute autre ligne.`;
     case "matrixTop":
       return `Ici, la marque la plus forte se trouve en ${f.at}, avec ${f.value}.`;
+    case "outcomes": {
+      const middle = `la moitié centrale se situe entre ${f.low} et ${f.high}`;
+      if (f.reach === undefined || f.target === undefined) return `Ici, ${middle}.`;
+      return `Ici, ${f.reach} issues également probables sur ${f.of} ${f.down ? "restent dans" : "atteignent"} ${f.named ?? "l'objectif"} de ${f.target}, soit environ ${Math.round((f.reach / f.of) * 100)} % de chances ; ${middle}.`;
+    }
     case "cycle": {
       // "le mardi" for a day that recurs each week, "en décembre" for a month.
       const [hi, lo] = f.month ? [`en ${f.high}`, `en ${f.low}`] : [`le ${f.high}`, `le ${f.low}`];
@@ -1466,6 +1494,11 @@ function renderDe(c: Ctx, f: Fact): string {
       return `Hier gilt ${f.who} für ${f.n} von ${f.of} Spalten, mehr als jede andere Zeile.`;
     case "matrixTop":
       return `Hier ist die stärkste Markierung bei ${f.at}, mit ${f.value}.`;
+    case "outcomes": {
+      const middle = `die mittlere Hälfte liegt zwischen ${f.low} und ${f.high}`;
+      if (f.reach === undefined || f.target === undefined) return `Hier liegt die mittlere Hälfte zwischen ${f.low} und ${f.high}.`;
+      return `Hier ${f.down ? "bleiben" : "erreichen"} ${f.reach} von ${f.of} gleich wahrscheinlichen Ausgängen ${f.down ? "innerhalb von " : ""}${f.named ?? "das Ziel"} von ${f.target}, etwa ${Math.round((f.reach / f.of) * 100)} % Chance; ${middle}.`;
+    }
     case "cycle": {
       const [hi, lo] = f.month ? [`im ${f.high}`, `im ${f.low}`] : [`am ${f.high}`, `am ${f.low}`];
       const unit = f.month ? "Monat" : "Tag";
@@ -1535,6 +1568,8 @@ export function questionIn(lang: Other, spec: WidgetSpec, rows: Row[], kind: str
       const stages = many(view.stages);
       return ask(fr ? `Où en est chaque ${entity}, de ${name(stages[0])} à ${name(stages.at(-1))}` : `Wo steht es je ${entity}, von ${name(stages[0])} bis ${name(stages.at(-1))}`);
     }
+    case "outcomes":
+      return ask(typeof view.target === "number" ? (fr ? `Quelle est la probabilité d'atteindre l'objectif pour ${measure}` : `Wie wahrscheinlich erreicht ${measure} das Ziel`) : fr ? `Quelle fourchette ${de(measure)} est probable` : `Welche Spanne für ${measure} ist wahrscheinlich`);
     case "cycle": {
       const month = view.by === "month" || (view.by === undefined && /month/i.test(one(view.x) ?? ""));
       return ask(fr ? `Quel ${month ? "mois" : "jour de la semaine"} compte le plus de ${measure}, et chacun progresse-t-il` : `Welcher ${month ? "Monat" : "Wochentag"} hat am meisten ${measure}, und wächst jeder davon`);

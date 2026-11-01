@@ -1,0 +1,73 @@
+{
+  "id": "q4-outcomes",
+  "title": "Q4 revenue outcomes",
+  "subtitle": "October to December 2026, 1,000 simulated runs",
+  "description": "The forecast's thousand simulated quarters cut into twenty equally likely outcomes. Each dot is a 1-in-20 chance; the filled ones reach the Q4 plan.",
+  "source": {
+    "name": "Revenue forecast model"
+  },
+  "locale": "en-US",
+  "data": {
+    "type": "url",
+    "url": "/data/q4-outcomes.json"
+  },
+  "fields": {
+    "revenue": {
+      "label": "Q4 revenue",
+      "format": {
+        "type": "currency",
+        "currency": "EUR",
+        "compact": true
+      }
+    },
+    "run": {
+      "label": "Run"
+    }
+  },
+  "view": {
+    "type": "outcomes",
+    "value": "revenue",
+    "target": 4200000,
+    "targetLabel": "plan"
+  },
+  "i18n": {
+    "fr": {
+      "title": "Issues du CA du T4",
+      "subtitle": "Octobre à décembre 2026, 1 000 simulations",
+      "description": "Les mille trimestres simulés par la prévision, ramenés à vingt issues également probables. Chaque point est une chance sur 20 ; les points pleins atteignent le plan du T4.",
+      "source": {
+        "name": "Modèle de prévision du CA"
+      },
+      "fields": {
+        "revenue": {
+          "label": "CA du T4"
+        },
+        "run": {
+          "label": "Simulation"
+        }
+      },
+      "view": {
+        "targetLabel": "le plan"
+      }
+    },
+    "de": {
+      "title": "Q4-Umsatz: mögliche Ausgänge",
+      "subtitle": "Oktober bis Dezember 2026, 1.000 simulierte Läufe",
+      "description": "Die tausend simulierten Quartale der Prognose, auf zwanzig gleich wahrscheinliche Ausgänge verdichtet. Jeder Punkt ist eine 1-zu-20-Chance; die gefüllten erreichen den Q4-Plan.",
+      "source": {
+        "name": "Umsatzprognosemodell"
+      },
+      "fields": {
+        "revenue": {
+          "label": "Q4-Umsatz"
+        },
+        "run": {
+          "label": "Lauf"
+        }
+      },
+      "view": {
+        "targetLabel": "den Plan"
+      }
+    }
+  }
+}

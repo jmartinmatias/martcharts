@@ -80,7 +80,7 @@ describe("the Data guide and the catalog carry the French and German", () => {
 
   test("every catalog card's needs line reads in French and German, its option names kept as code", () => {
     const needs = [...catalog.matchAll(/<p class="needs"([^>]*)>/g)].map((m) => m[1] ?? "");
-    expect(needs.length).toBe(58);
+    expect(needs.length).toBe(59);
     expect(needs.every((attrs) => /data-fr="il faut [^"]+"/.test(attrs) && /data-de="braucht [^"]+"/.test(attrs))).toBe(true);
     expect(catalog).toMatch(/data-fr="il faut x : date, y : nombre\+"/);
   });

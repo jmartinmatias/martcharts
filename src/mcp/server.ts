@@ -157,6 +157,7 @@ const VIEW_GUIDE = [
   "Survey answers: likert.",
   "Plans and dates: timeline (milestones, progress, a today line).",
   "Where things are: choropleth (regions shaded by a value), symbols (circles sized by a value on their regions or at coordinates), locator (named markers); geo takes a built-in tile grid (europe, us-states) or your own GeoJSON.",
+  "Rhythm and odds: cycle (a cycle plot, one panel per day of the week or month, each with its line and its average: the weekly rhythm apart from the trend), outcomes (a quantile dot plot: a forecast's simulated runs cut into twenty equally likely dots, filled where they reach the target, so the chance can be counted).",
   "Which measures stepped out of line: anomalies (one lane per metric over time, its expected band behind it, flagged readings as alert dots, the worst lanes first). Clusters on a scatter: cluster names a field and soft hulls gather its dots.",
   "Where everything stands in a lifecycle: board (one column per stage or status, each item a card with its group and value; regulations by status, deals by stage).",
   "RAG reporting (Red, Amber, Green): ragboard (a scorecard, one row per client or relationship manager and one status cell per dimension, worst first, with better or worse arrows), ragtrend (each entity's status period by period, with why it moved). The rag transform turns numbers into statuses against thresholds, the rag format draws a status pill in tables, and kpi or kpis tiles take rag thresholds for a pill beside the number.",

@@ -5,6 +5,7 @@
  *
  * @module
  */
+import { OUTCOME_DOTS, outcomeValues, quantileDots } from "./outcomes.ts";
 import { cyclePanels } from "./cycle.ts";
 import type { CycleBy } from "./cycle.ts";
 import { readNumber } from "./formats.ts";
@@ -484,6 +485,19 @@ export interface CycleView {
   value: string;
   /** The cycle to fold time into: "weekday" (Monday to Sunday) or "month" (January to December). Picked from the dates when unset. */
   by?: "weekday" | "month";
+}
+
+/** `{ type: "outcomes", value, target?, targetLabel?, goodWhen?, dots? }`: a quantile dot plot of a forecast's outcomes. */
+export interface OutcomesView {
+  type: "outcomes";
+  value: string;
+  /** The amount that counts as success, such as the plan: dots on its good side are filled. */
+  target?: number;
+  /** What the target is called, such as "plan" or "budget". */
+  targetLabel?: string;
+  goodWhen?: "up" | "down";
+  /** How many equally likely outcomes to draw: 20 by default, so each is a 5% chance. */
+  dots?: number;
 }
 
 /** `{ type: "horizon", x, y, bands?, baseline?, baselineLabel? }`: many time series in thin rows, values folded into bands of deepening color. */
@@ -1721,6 +1735,29 @@ const cycle: ViewBlock = {
   },
 };
 
+const outcomes: ViewBlock = {
+  type: "outcomes",
+  extent: (view, rows) => [...quantileDots(outcomeValues(rows, String(view.value)), typeof view.dots === "number" ? view.dots : OUTCOME_DOTS), ...(typeof view.target === "number" ? [view.target] : [])],
+  description:
+    "A quantile dot plot for a forecast's uncertainty: many possible results (simulation runs or scenarios, one per row) cut into twenty equally likely outcomes, one dot each, stacked where they fall. With a target, dots on its good side are filled and the rest are rings, and a line says how many reach it (7 in 20): a chance anyone can count, where a shaded band asks the reader to judge one.",
+  options: {
+    value: { type: "field", kind: "number", required: true, description: "Field with each possible result, one per row: a simulation run's total, a scenario's outcome." },
+    target: { type: "number", description: "The amount that counts as success, such as the plan. Dots on its good side are filled, the rest drawn as rings, and the count of those that reach it leads the chart." },
+    targetLabel: { type: "string", description: 'What the target is called, in a word or two, such as "plan" or "budget". Defaults to target.' },
+    goodWhen: GOOD_WHEN_OPTION,
+    dots: { type: "number", default: 20, description: "How many equally likely outcomes to draw, 5 to 100. Twenty makes each dot a 5% chance; more read finer but count less easily." },
+  },
+  validate(view) {
+    const dots = view.dots;
+    return dots === undefined || (Number.isInteger(dots) && (dots as number) >= 5 && (dots as number) <= 100) ? [] : ["dots must be a whole number from 5 to 100."];
+  },
+  checkData(view, rows) {
+    const n = outcomeValues(rows, String(view.value)).length;
+    const dots = typeof view.dots === "number" ? view.dots : OUTCOME_DOTS;
+    return n < dots ? [`${n} results for ${dots} dots: each dot should stand for several runs. Give at least ${dots} rows, ideally hundreds of simulation runs.`] : [];
+  },
+};
+
 const rose: ViewBlock = {
   type: "rose",
   extent: (view, rows) => [...numbersOf(rows, Array.isArray(view.y) ? view.y : [view.y]), ...(typeof view.max === "number" ? [view.max] : [])],
@@ -2563,4 +2600,4 @@ for (const type of SHAPE_VIEWS) {
   withChecks(block, shapeProblems);
 }
 
-export const builtinViews: ViewBlock[] = [table, list, kpi, kpis, bar, hbar, line, area, meter, bullet, donut, treemap, funnel, waterfall, heatmap, calendar, scatter, beeswarm, ridgeline, sankey, dumbbell, slope, bump, marimekko, histogram, rings, timeline, waffle, variance, gauge, pareto, boxplot, likert, candlestick, sunburst, chord, radar, rose, horizon, cycle, icicle, dot, pyramid, dual, choropleth, symbols, locator, pie, matrix, strips, lifecycle, whitespace, xray, history, anomalies, board, ragboard, ragtrend];
+export const builtinViews: ViewBlock[] = [table, list, kpi, kpis, bar, hbar, line, area, meter, bullet, donut, treemap, funnel, waterfall, heatmap, calendar, scatter, beeswarm, ridgeline, sankey, dumbbell, slope, bump, marimekko, histogram, rings, timeline, waffle, variance, gauge, pareto, boxplot, likert, candlestick, sunburst, chord, radar, rose, horizon, cycle, outcomes, icicle, dot, pyramid, dual, choropleth, symbols, locator, pie, matrix, strips, lifecycle, whitespace, xray, history, anomalies, board, ragboard, ragtrend];

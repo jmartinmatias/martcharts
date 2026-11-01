@@ -1086,6 +1086,14 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
 .fft-cycle-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 6%, transparent); }
 .fft-cycle[data-active] .fft-cycle-panel:not([data-active]) { opacity: var(--fft-dim); }
 .fft-cycle-panel { transition: opacity 377ms var(--fft-ease); }
+/* Outcomes (a quantile dot plot): equally likely dots, filled on the target's good side, rings on the other. */
+.fft-outcomes { display: flex; flex-direction: column; gap: 8px; }
+.fft-outcome { cursor: pointer; outline: none; transition: opacity 377ms var(--fft-ease); }
+.fft-outcome[data-miss] { fill: transparent; stroke: var(--fft-text-secondary); stroke-width: 1.5; }
+.fft-outcome:focus-visible { stroke: var(--fft-accent); stroke-width: 2.5; }
+.fft-outcomes[data-active] .fft-outcome:not([data-active]) { opacity: var(--fft-dim); }
+.fft-outcomes-target { stroke: var(--fft-text); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.fft-outcomes-target-label { fill: var(--fft-text); font-size: var(--fft-fs-s); font-weight: 500; }
 .fft-crosshair { stroke: var(--fft-axis); stroke-width: 1; shape-rendering: crispEdges; pointer-events: none; }
 .fft-hit { fill: transparent; cursor: pointer; outline: none; }
 .fft-hit:focus-visible { fill: color-mix(in srgb, var(--fft-accent) 8%, transparent); }

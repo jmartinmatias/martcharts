@@ -61,7 +61,7 @@
       "span": 2
     },
     {
-      "widget": "growth-margin-path"
+      "widget": "q4-outcomes"
     },
     {
       "section": "Regions and products",
@@ -112,7 +112,10 @@
     },
     {
       "widget": "account-portfolio",
-      "span": 3
+      "span": 2
+    },
+    {
+      "widget": "growth-margin-path"
     },
     {
       "widget": "lead-pipeline"
@@ -274,6 +277,7 @@
         {},
         {},
         {},
+        {},
         {
           "section": "Opérations et satisfaction",
           "description": "Commandes, support, offres et équipes : où en est-on ?"
@@ -324,6 +328,7 @@
           "section": "Kunden und Pipeline",
           "description": "Wer kauft, wie sie kommen und was offen ist."
         },
+        {},
         {},
         {},
         {},

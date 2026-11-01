@@ -302,6 +302,12 @@ function questionEn(written: WidgetSpec, rows: Row[]): Question {
       if (x && y && value) return ask("rhythm", `which ${name(x).toLowerCase()} and ${name(y).toLowerCase()} have the most ${name(value)}?`);
       break;
     }
+    case "outcomes": {
+      const amount = one(view.value);
+      const named = typeof view.targetLabel === "string" && view.targetLabel.trim() ? view.targetLabel.trim() : "the target";
+      if (amount) return ask("target", typeof view.target === "number" ? `how likely is ${name(amount)} to reach ${named}?` : `what range of ${name(amount)} is likely?`);
+      break;
+    }
     case "cycle": {
       const amount = one(view.value);
       const unit = view.by === "month" || (view.by === undefined && /month/i.test(one(view.x) ?? "")) ? "month of the year" : "day of the week";

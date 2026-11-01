@@ -15,12 +15,12 @@ In code: `dataContract(spec, rows)`, `switchChart(spec, to, rows)`, `switchOptio
 | Trend over time | [`area`](#area), [`candlestick`](#candlestick), [`horizon`](#horizon), [`line`](#line), [`dual`](#dual) | [`bar`](#bar), [`bump`](#bump), [`calendar`](#calendar), [`cycle`](#cycle), [`anomalies`](#anomalies), [`ragtrend`](#ragtrend) |
 | Share of one whole | [`donut`](#donut), [`pie`](#pie), [`treemap`](#treemap), [`waffle`](#waffle) | [`icicle`](#icicle), [`likert`](#likert), [`marimekko`](#marimekko), [`pareto`](#pareto), [`sunburst`](#sunburst) |
 | How each group or period splits | [`marimekko`](#marimekko), [`strips`](#strips), [`whitespace`](#whitespace) | [`area`](#area), [`bar`](#bar) |
-| How values spread | [`beeswarm`](#beeswarm), [`boxplot`](#boxplot), [`histogram`](#histogram), [`ridgeline`](#ridgeline), [`pyramid`](#pyramid) |  |
+| How values spread | [`beeswarm`](#beeswarm), [`boxplot`](#boxplot), [`histogram`](#histogram), [`ridgeline`](#ridgeline), [`pyramid`](#pyramid) | [`outcomes`](#outcomes) |
 | How two measures relate | [`scatter`](#scatter) | [`dual`](#dual) |
 | Flows between stages or groups | [`chord`](#chord), [`sankey`](#sankey) |  |
 | Conversion through ordered steps | [`funnel`](#funnel) | [`board`](#board) |
 | Nested breakdowns | [`icicle`](#icicle), [`sunburst`](#sunburst) | [`treemap`](#treemap) |
-| Actual against target or plan | [`bullet`](#bullet), [`gauge`](#gauge), [`meter`](#meter), [`rings`](#rings), [`variance`](#variance), [`ragboard`](#ragboard) | [`line`](#line) |
+| Actual against target or plan | [`bullet`](#bullet), [`gauge`](#gauge), [`outcomes`](#outcomes), [`meter`](#meter), [`rings`](#rings), [`variance`](#variance), [`ragboard`](#ragboard) | [`line`](#line) |
 | Change between two points | [`dumbbell`](#dumbbell), [`slope`](#slope), [`ragtrend`](#ragtrend) | [`waterfall`](#waterfall), [`lifecycle`](#lifecycle) |
 | What drives or moves a total | [`pareto`](#pareto), [`waterfall`](#waterfall) | [`variance`](#variance) |
 | Patterns across two dimensions or a cycle | [`calendar`](#calendar), [`heatmap`](#heatmap), [`cycle`](#cycle), [`rose`](#rose), [`matrix`](#matrix), [`anomalies`](#anomalies) | [`choropleth`](#choropleth), [`symbols`](#symbols) |
@@ -964,6 +964,27 @@ Progress against a target, one meter per row: attainment as a percentage, a bar 
 | `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up actual against target or plan. |
 | `rings` | stretch | better | Better for a headline number, and still good for actual against target or plan. More playful and compact for up to four goals; harder to compare sizes. *5 rows: this chart crowds past about 4.* |
 | `gauge` | stretch | same | Keeps the job (actual against target or plan) with a different look. *A gauge shows one value; it draws the first of these 5 rows.* |
+
+## outcomes
+
+A quantile dot plot for a forecast's uncertainty: many possible results (simulation runs or scenarios, one per row) cut into twenty equally likely outcomes, one dot each, stacked where they fall.
+
+**Jobs**: actual against target or plan (best), how values spread (good).
+
+**Best for**: How likely a forecast is to reach plan: 7 in 20 simulated quarters get there; Explaining uncertainty to people who do not read confidence bands; Comparing a goal with the spread of what may happen.
+
+**Least useful for**: A single forecast number with no runs behind it (use kpi or line with a band); Actual results already known (use histogram or beeswarm); Fewer than about 20 runs.
+
+**One row is**: One row per thing measured (a deal, a ticket, a response); the chart counts or spreads them. **Built**: The rows (simulation runs or scenarios) cut into twenty equally likely outcomes, one dot each, stacked where they fall on the value axis; with a target, a dashed line, filled dots on its good side, rings on the other, and the count that reaches it written first.
+
+**Needs**: `value` (number). Example: 1000 rows of `revenue`, `run`. [Full entry with the data](../catalog/guide/outcomes.md).
+
+| Switch to | Fit | Verdict | Assessment |
+| --- | --- | --- | --- |
+| `histogram` | fits | different | Answers a different question: better for how values spread, but gives up actual against target or plan. Shows the full shape in bins of equal width; the countable chances and the target count are gone. |
+| `scatter` | fits | different | Answers a different question: better for how two measures relate, but gives up actual against target or plan. |
+| `table` | fits | different | Answers a different question: better for exact values and lookup, but gives up actual against target or plan. |
+| `gauge` | stretch | same | Keeps the job (actual against target or plan) with a different look. *A gauge shows one value; it draws the first of these 1000 rows.* |
 
 ## pareto
 

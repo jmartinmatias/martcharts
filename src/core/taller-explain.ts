@@ -196,6 +196,11 @@ export function explainVariant(written: WidgetSpec, chartTitle: string, rowName?
       mark = `each wedge is one ${name(view.label)}`;
       read = "A bigger wedge means more; going round the dial is going round the cycle.";
       break;
+    case "outcomes":
+      form = "a stack of equally likely dots";
+      mark = `each dot is one of the equally likely outcomes for ${name(view.value)}`;
+      read = "Where dots stack high, results are most likely; filled dots reach the target, so their count is the chance.";
+      break;
     case "cycle":
       form = "panels by day or month";
       mark = `each panel is one day of the week or month, its line the ${name(view.value)} in date order`;

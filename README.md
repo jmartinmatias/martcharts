@@ -52,7 +52,7 @@ The demo has <!-- pages -->7<!-- /pages --> pages in its menu, with one Look men
 <fft-widget src="catalog/funnel.json"></fft-widget>          <!-- a spec file -->
 ```
 
-The [chart catalog](docs/catalog.md) has all <!-- views -->58<!-- /views --> views with a spec to start from. [docs/frameworks.md](docs/frameworks.md) has recipes for React, Vue, Svelte and server-rendered apps.
+The [chart catalog](docs/catalog.md) has all <!-- views -->59<!-- /views --> views with a spec to start from. [docs/frameworks.md](docs/frameworks.md) has recipes for React, Vue, Svelte and server-rendered apps.
 
 ## A widget in one object
 
@@ -78,7 +78,7 @@ The [chart catalog](docs/catalog.md) has all <!-- views -->58<!-- /views --> vie
 | Data sources | `inline`, `url`, `fn`, `csv`, `sheet`; `refresh` reloads live data |
 | Transforms | `filter`, `sort`, `limit`, `aggregate`, `pivot`, `calc`, `bin`, `rag` |
 | Formats | `number`, `currency`, `percent`, `date`, `badge`, `spark`, `bar`, `delta`, `heat`, `rag`, `text` |
-| Views | <!-- views -->58<!-- /views --> of them, grouped by question in [Which view?](#which-view) |
+| Views | <!-- views -->59<!-- /views --> of them, grouped by question in [Which view?](#which-view) |
 | Dashboards | Filters, a period control, sections, cross-filtering, links, print and an as-of line |
 | Emphasis | `highlight`, `colors` and `colorRules` |
 | Reading | A plain guide for every chart, in English, French or German |
@@ -98,7 +98,7 @@ Each row is described in full in [docs/features.md](docs/features.md); every opt
 | Patterns across two dimensions | `heatmap`, `matrix` |
 | Parts of a whole | `pie`, `donut`, `waffle`, `treemap`, `sunburst`, `icicle`, `marimekko`, `strips` |
 | What makes up a change | `waterfall`, `variance`, `pareto` |
-| How values spread, and how two relate | `histogram`, `boxplot`, `beeswarm`, `ridgeline`, `scatter` |
+| How values spread, and how two relate | `histogram`, `boxplot`, `beeswarm`, `ridgeline`, `outcomes`, `scatter` |
 | Flows, answers and plans | `sankey`, `funnel`, `chord`, `likert`, `timeline`, `lifecycle`, `board` |
 | Where things are | `choropleth`, `symbols`, `locator` |
 | Status, anomalies and clients | `ragboard`, `ragtrend`, `anomalies`, `whitespace`, `xray`, `history` |

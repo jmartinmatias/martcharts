@@ -52,7 +52,7 @@
   <nav class="site-tabs" aria-label="Catalog"><a href="index.html" aria-current="page">Charts</a><a href="guide.html">Data guide</a></nav>
   <header class="page">
     <h1>Catalog</h1>
-    <p>58 chart types. Each is one tag, <code>&lt;fft-widget src="&lt;type&gt;.json"&gt;</code>, with its data built in and a spec to copy.</p>
+    <p>59 chart types. Each is one tag, <code>&lt;fft-widget src="&lt;type&gt;.json"&gt;</code>, with its data built in and a spec to copy.</p>
   </header>
   <p><label for="find">Find a chart by name, question, data or ref (W-…)</label><br><input id="find" type="search" placeholder="trend, share, date, W-Y606…" autocomplete="off"><span class="count" id="count" aria-live="polite"></span></p>
   <ul class="ref-hits" id="ref-hits" aria-live="polite" hidden></ul>
@@ -302,6 +302,13 @@
       <p class="needs" data-fr="il faut value : nombre, target : nombre" data-de="braucht value: Zahl, target: Zahl">needs value: number, target: number</p>
       <div class="tools"><button type="button" data-copy="spec" data-type="meter">Copy spec</button><button type="button" data-copy="tag" data-type="meter">Copy tag</button><a href="guide.html#c-meter">Data and switches</a></div>
       <fft-widget src="meter.json" actions="info csv image explain expand"></fft-widget>
+    </section>
+    <section class="card" id="outcomes" data-search="outcomes a quantile dot plot for a forecast's uncertainty: many possible results (simulation runs or scenarios, one per row) cut into twenty equally likely outcomes, one dot each, stacked where they fall. un diagramme en points des quantiles : les simulations d'une prévision ramenées à vingt issues également probables, un point chacune, avec le nombre d'issues qui atteignent l'objectif. ein quantil-punktdiagramm: die simulationen einer prognose auf zwanzig gleich wahrscheinliche ausgänge verdichtet, ein punkt je ausgang, mit der zahl der ausgänge, die das ziel erreichen. value: number forecast uncertainty probability chance odds simulation monte carlo scenarios likely risk quantile" data-more="how likely is q4 revenue to reach plan?">
+      <h2>outcomes</h2>
+      <p data-fr="Un diagramme en points des quantiles : les simulations d'une prévision ramenées à vingt issues également probables, un point chacune, avec le nombre d'issues qui atteignent l'objectif." data-de="Ein Quantil-Punktdiagramm: die Simulationen einer Prognose auf zwanzig gleich wahrscheinliche Ausgänge verdichtet, ein Punkt je Ausgang, mit der Zahl der Ausgänge, die das Ziel erreichen.">A quantile dot plot for a forecast's uncertainty: many possible results (simulation runs or scenarios, one per row) cut into twenty equally likely outcomes, one dot each, stacked where they fall.</p>
+      <p class="needs" data-fr="il faut value : nombre" data-de="braucht value: Zahl">needs value: number</p>
+      <div class="tools"><button type="button" data-copy="spec" data-type="outcomes">Copy spec</button><button type="button" data-copy="tag" data-type="outcomes">Copy tag</button><a href="guide.html#c-outcomes">Data and switches</a></div>
+      <fft-widget src="outcomes.json" actions="info csv image explain expand"></fft-widget>
     </section>
     <section class="card" id="pareto" data-search="pareto the 80/20 view: categories sorted largest first as bars of their share of the total, a line through the running total, and a dashed line at the threshold. la vue 80/20 : les catégories de la plus grande à la plus petite en barres de leur part du total, une ligne du cumul et un trait pointillé au seuil. die 80/20-sicht: kategorien von groß nach klein als balken ihres anteils an der summe, eine linie der laufenden summe und eine gestrichelte linie an der schwelle. label: category, value: number share of total 80/20 vital few causes" data-more="which few causes drive most of the tickets?">
       <h2>pareto</h2>
