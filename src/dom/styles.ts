@@ -1034,22 +1034,10 @@ th.fft-num .fft-sort { flex-direction: row-reverse; }
   .fft-filter select { flex: 1; font-size: 16px; }
   .fft-dashboard[data-sticky] .fft-board-section { scroll-margin-top: calc(var(--fft-filters-height, 144px) + 13px); }
 }
-/* Phones and touch: every control a 44px target, without the grey tap flash. A desktop with a mouse keeps the compact look. */
-@media (pointer: coarse), (max-width: 700px) {
-  .fft-range button, .fft-board-nav button { min-height: 44px; min-width: 44px; padding: 5px 13px; -webkit-tap-highlight-color: transparent; }
-  .fft-board-nav button { justify-content: center; }
-  .fft-filter select { min-height: 44px; padding: 5px 13px; }
-  /* The toolbar keeps its corner; the title gives way to three 44px buttons. */
-  .fft-actions { top: 4px; right: 4px; gap: 0; }
-  .fft-action { width: 44px; height: 44px; -webkit-tap-highlight-color: transparent; }
-  .fft-menu .fft-action { height: 44px; }
-  .fft-widget[data-actions] .fft-title { padding-right: 136px; }
-  .fft-overlay .fft-actions { top: 13px; right: 65px; }
-  .fft-overlay-close, .fft-overlay-nav button { width: 44px; height: 44px; }
-  /* The ghost ref grows to 44px into the card's bottom padding, so the row above keeps its place. */
-  .fft-widget-ref { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; margin-bottom: -13px; }
-  .fft-sort { min-height: 44px; min-width: 44px; }
-  .fft-table td { height: 44px; }
+/* Touch: every control at least 34px tall, without the grey tap flash. */
+@media (pointer: coarse) {
+  .fft-range button, .fft-board-nav button { min-height: 34px; padding: 5px 13px; -webkit-tap-highlight-color: transparent; }
+  .fft-filter select { min-height: 34px; padding: 5px 13px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .fft-board-nav { scroll-behavior: auto; }

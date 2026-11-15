@@ -26,5 +26,23 @@
   .site-nav { gap: 0 13px; padding-bottom: 0; }
   .site-nav a, .site-nav button { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; padding: 0; }
 }
+/* Phones and touch: the library's controls as 44px targets on these pages, without the grey tap flash. The library keeps
+   its compact look for other hosts; "html" outranks its rules, which load after this file. */
+@media (pointer: coarse), (max-width: 700px) {
+  html .fft-range button, html .fft-board-nav button { min-height: 44px; min-width: 44px; padding: 5px 13px; -webkit-tap-highlight-color: transparent; }
+  html .fft-board-nav button { justify-content: center; }
+  html .fft-filter select { min-height: 44px; padding: 5px 13px; }
+  /* The toolbar keeps its corner; the title gives way to three 44px buttons. */
+  html .fft-actions { top: 4px; right: 4px; gap: 0; }
+  html .fft-action { width: 44px; height: 44px; -webkit-tap-highlight-color: transparent; }
+  html .fft-menu .fft-action { height: 44px; }
+  html .fft-widget[data-actions] .fft-title { padding-right: 136px; }
+  html .fft-overlay .fft-actions { top: 13px; right: 65px; }
+  html .fft-overlay-close, html .fft-overlay-nav button { width: 44px; height: 44px; }
+  /* The ghost ref grows to 44px into the card's bottom padding, so the row above keeps its place. */
+  html .fft-widget-ref { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; margin-bottom: -13px; }
+  html .fft-sort { min-height: 44px; min-width: 44px; }
+  html .fft-table td { height: 44px; }
+}
 @media (prefers-reduced-motion: reduce) { .site-nav a, .site-nav button { transition: none; } }
 @media (forced-colors: active) { .site-nav [aria-current="page"] { border-bottom-color: CanvasText; } }
