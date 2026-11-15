@@ -11,6 +11,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import axe from "axe-core";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { describeBlocks } from "../core/registry.ts";
 import type { WidgetSpec } from "../core/types.ts";
 import { createDashboard } from "./dashboard.ts";
 import { createWidget } from "./widget.ts";
@@ -55,6 +56,11 @@ describe("WCAG 2.1 AA (EN 301 549) with axe-core", () => {
   test("the check itself catches a nameless button and an unlabelled SVG role", async () => {
     target.innerHTML = '<button type="button"></button><svg role="img"></svg>';
     expect((await violations(target)).map((line) => line.split(":")[0])).toEqual(expect.arrayContaining(["button-name", "svg-img-alt"]));
+  });
+
+  test("the stored widgets draw every built-in view, so axe and the checks below reach all of them", () => {
+    const drawn = new Set(stored.map(([, spec]) => spec.view?.type));
+    expect(describeBlocks("view").map((block) => block.type).filter((type) => !drawn.has(type))).toEqual([]);
   });
 
   test.each(stored)("widget %s draws, and has no violations", async (_id, spec) => {
