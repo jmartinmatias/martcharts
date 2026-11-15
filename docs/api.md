@@ -263,7 +263,7 @@ The vanilla block: `{ title: "Untitled widget", data: { type: "inline", rows: []
 
 Checks a spec against the registry. Each issue is `{ level: "error" | "warning", path, message }`, where `path` points into the spec (`view.x`, `transform[1].op`, `fields.revenue.format`) and `message` says how to fix it.
 
-Errors mean the widget cannot draw: missing `data` or `view`, unknown block types, missing required options, options of the wrong kind, bad style values. Warnings flag likely mistakes: more series than palette colors, and, when you pass `rows`, view fields that are not in the data or that should hold numbers but hold none.
+Errors mean the widget cannot draw: missing `data` or `view`, unknown block types, missing required options, options of the wrong kind, bad style values. Warnings flag likely mistakes: an option the block does not have (a misspelt `hightlight`), more series than palette colors, and, when you pass `rows`, view fields that are not in the data or that should hold numbers but hold none.
 
 `hasErrors(issues)` is true when any issue is an error.
 

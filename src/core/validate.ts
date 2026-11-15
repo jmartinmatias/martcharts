@@ -120,7 +120,7 @@ function checkBlock(kind: BlockKind, value: unknown, path: string): Issue[] {
     throw caught;
   }
   const issues = checkOptions(block.options, value, path);
-  if (issues.length === 0 && block.validate) {
+  if (!issues.some((issue) => issue.level === "error") && block.validate) {
     for (const message of block.validate(value)) issues.push(error(path, message));
   }
   return issues;
@@ -136,6 +136,12 @@ function checkOptions(options: Record<string, OptionSchema>, value: Record<strin
     }
     const problem = kindProblem(schema, actual);
     if (problem) issues.push(error(`${path}.${name}`, problem));
+  }
+  // A misspelt option ("hightlight") would otherwise be ignored without a word.
+  for (const name of Object.keys(value)) {
+    if (name !== "type" && !(name in options) && value[name] !== null) {
+      issues.push({ level: "warning", path: `${path}.${name}`, message: `Not an option of ${typeof value.type === "string" ? value.type : path}, so it is ignored. Options: ${Object.keys(options).join(", ") || "none"}.` });
+    }
   }
   return issues;
 }

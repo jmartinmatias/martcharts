@@ -322,3 +322,28 @@ describe("area extent for small multiples", () => {
     expect([Math.min(...extent), Math.max(...extent)]).toEqual([4, 25]);
   });
 });
+
+describe("options a block does not have", () => {
+  test("a misspelt option is a warning that names the real ones, and the spec stays valid", () => {
+    const issues = validateSpec({ ...good, view: { type: "bar", x: "region", y: "revenue", hightlight: "East" } });
+    expect(issues.map((i) => `${i.level} ${i.path}`)).toEqual(["warning view.hightlight"]);
+    expect(issues[0]!.message).toMatch(/^Not an option of bar, so it is ignored\. Options: .*\bhighlight\b/);
+    expect(hasErrors(issues)).toBe(false);
+  });
+
+  test("transforms, facets and headlines are read the same way; a null left by a fork is not flagged", () => {
+    const issues = validateSpec({
+      ...good,
+      transform: [{ type: "sort", field: "revenue", ordr: "desc" }],
+      facet: { field: "region", colums: 2 },
+      headline: { value: "revenue", label: null },
+    });
+    expect(issues.map((i) => `${i.level} ${i.path}`)).toEqual(["warning transform[0].ordr", "warning facet.colums"]);
+    expect(issues[1]!.message).toMatch(/^Not an option of facet,/);
+  });
+
+  test("a block's own checks still run beside the warning", () => {
+    const issues = validateSpec({ ...good, view: { type: "kpis", items: [], serie: true } });
+    expect(issues.map((i) => `${i.level} ${i.path}`)).toEqual(["warning view.serie", "error view"]);
+  });
+});
