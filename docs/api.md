@@ -308,7 +308,7 @@ formatValue("2026-03-05", { type: "date", style: "month" }, "en-US"); // "Mar 20
 
 | Key | Values | What it does |
 | --- | --- | --- |
-| `preset` | `default`, `glass`, `airy`, or any registered name | A named look from the [preset library](#style-presets). |
+| `preset` | `default`, `glass`, `airy`, `paper`, or any registered name | A named look from the [preset library](#style-presets). |
 | `theme` | `auto`, `light`, `dark` | `auto` follows the operating system, and a `data-theme="light"` or `"dark"` on the page's `<html>` overrides it. |
 | `palette` | list of CSS colors, or a palette name | Series colors in order, or a [library palette](#palettes) such as `"apple"`. Defaults to a validated 8-color set with separate dark-mode steps. |
 | `tokens` | object | Override color roles: `surface`, `text`, `textSecondary`, `muted`, `grid`, `axis`, `border`, `accent`, `positive`, `negative`. |
@@ -327,13 +327,7 @@ Spacing, type and motion follow Fibonacci framing: spacing steps of 2, 3, 5, 8, 
 
 A preset is a whole look in one word: `"style": { "preset": "glass" }`. A spec's own `tokens` and `palette` still win over the preset, so you can start from a look and adjust it.
 
-| Preset | Look |
-| --- | --- |
-| `default` | Quiet cards with hairline borders, following the light or dark theme. |
-| `glass` | Frosted translucent cards for dark, image or gradient backdrops: blur, 21px radius, pill bars on soft tracks, blue and gold first. |
-| `airy` | Chrome-free for light pages: no card, generous whitespace, small grey labels over large numbers, orange first, solid value pills. |
-
-Every shipped palette reuses the validated hues in an order checked for colorblind separation and contrast on that preset's surface.
+The four built-in presets (`default`, `glass`, `airy`, `paper`), each with a light and a dark look, are described in [blocks.md](blocks.md#style-presets), generated from the code. Each preset's own palette reuses the validated hues in an order checked for colorblind separation and contrast on that preset's surface.
 
 Add your own with `registerPreset`. In its `css`, `&` stands for the widget root:
 
@@ -356,15 +350,7 @@ registerPreset({
 
 ### Palettes
 
-`style.palette` takes a list of colors, or the name of a library palette:
-
-| Name | Palette | Good for |
-| --- | --- | --- |
-| `default` | The validated house palette, with dark-mode steps | Any number of series, up to 8 |
-| `apple` | Apple system colors, ordered for colorblind separation | Vivid dashboards; label yellow and orange on white |
-| `credit-agricole` | The bank's green, teal and red, plus a grey (approximate logo colors from public sources) | Branded reports |
-| `bw` | Black to light grey | Print, one series |
-| `50-shades` | Eight greys | Quiet context, or one colored series against greys |
+`style.palette` takes a list of colors, or the name of one of the ten library palettes. [blocks.md](blocks.md#palettes), generated from the code, lists each with its colors and its `checkPalette` result.
 
 Register your own with `registerPalette({ name, label, description, colors, darkColors? })`.
 

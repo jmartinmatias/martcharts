@@ -111,7 +111,7 @@ export interface StyleSpec {
   theme?: "auto" | "light" | "dark";
   /**
    * Series colors: a list of CSS colors in order, or the name of a library palette
-   * (`"default"`, `"bw"`, `"50-shades"`, `"credit-agricole"`, `"apple"`; see `describePalettes()`).
+   * (such as `"default"`, `"apple"` or `"okabe-ito"`; `describePalettes()` lists all ten).
    * Defaults to a validated, colorblind-checked 8-color palette with its own dark-mode steps.
    */
   palette?: string[] | string;
