@@ -21,5 +21,7 @@ export default defineConfig({
   test: {
     include: ["src/**/*.test.ts"],
     environment: "node",
+    // The Taller suites take 1 to 4 s per test on an idle machine, too close to the 5 s default once the cores are busy.
+    testTimeout: 20_000,
   },
 });
