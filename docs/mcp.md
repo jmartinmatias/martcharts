@@ -42,7 +42,7 @@ claude mcp add fft-revenue-kpi -- node /absolute/path/to/martcharts/src/mcp/main
 
 ### Connecting from other clients
 
-Any MCP client that launches stdio servers can run `node <path>/src/mcp/main.ts`. Node 23.6 or later is required.
+Any MCP client that launches stdio servers can run `node <path>/src/mcp/main.ts`. It needs Node 22.18 or later (23.6 or later on 23).
 
 ### Embedding
 

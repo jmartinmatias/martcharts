@@ -21,7 +21,7 @@ Every card above is the same component fed a different spec from `widgets/`. Eac
 
 ## Quick start
 
-Needs Node 23.6 or later (it runs TypeScript directly, with no build step).
+Needs Node 22.18 or later (23.6 or later on 23), which runs TypeScript directly, with no build step. The tests need 22.22.2 or later on 22, 24.15 or later on 24, or 26 or later: jsdom and vitest skip 23 and 25.
 
 ```bash
 npm install

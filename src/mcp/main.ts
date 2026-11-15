@@ -6,7 +6,7 @@
  *   node src/mcp/main.ts --widget revenue-kpi    a server linked to one widget
  *   node src/mcp/main.ts --print-config          an .mcp.json with one server per widget
  *
- * Runs directly on Node 23.6 or later, which runs TypeScript without a build step.
+ * Runs directly on Node 22.18 or later (23.6 or later on 23), which runs TypeScript without a build step.
  * Nothing may be written to stdout except the protocol, so messages go to stderr.
  *
  * @module
