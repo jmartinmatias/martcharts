@@ -21,7 +21,8 @@ function fractionDigits(decimals: unknown): Intl.NumberFormatOptions {
 function compactOptions(compact: unknown, places?: unknown): Intl.NumberFormatOptions {
   if (!compact) return {};
   // A column's shared places (from its column context), so its figures line up: €214.0K above €188.5K, never €214K.
-  return typeof places === "number" ? { notation: "compact", minimumFractionDigits: places, maximumFractionDigits: places } : { notation: "compact", maximumFractionDigits: 1 };
+  // minimumFractionDigits 0 is explicit: older engines otherwise keep the currency's places and print €84.0K.
+  return typeof places === "number" ? { notation: "compact", minimumFractionDigits: places, maximumFractionDigits: places } : { notation: "compact", minimumFractionDigits: 0, maximumFractionDigits: 1 };
 }
 
 function numeric(value: unknown, locale: string | undefined, options: Intl.NumberFormatOptions): string {

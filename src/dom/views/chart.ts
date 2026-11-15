@@ -42,7 +42,8 @@ export function tickFormatter(ctx: ViewContext<{ type: string }>, field: string 
     const style: Intl.NumberFormatOptions =
       format?.type === "currency" ? { style: "currency", currency: typeof format.currency === "string" ? format.currency : "USD" } : {};
     // The fewest decimals that write every tick exactly (1.25M, never a rounded 1.3M), and so tell them apart.
-    const compact = (digits: number) => new Intl.NumberFormat(ctx.spec.locale, { ...style, notation: "compact", maximumFractionDigits: digits });
+    // minimumFractionDigits 0 is explicit: older engines otherwise pad currency ticks to $20.00K.
+    const compact = (digits: number) => new Intl.NumberFormat(ctx.spec.locale, { ...style, notation: "compact", minimumFractionDigits: 0, maximumFractionDigits: digits });
     const precise = ticks.map((tick) => compact(3).format(tick));
     let formatter = compact(3);
     for (const digits of [1, 2, 3]) {
