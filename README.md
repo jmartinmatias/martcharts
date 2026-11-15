@@ -25,7 +25,7 @@ Needs Node 23.6 or later (it runs TypeScript directly, with no build step).
 
 ```bash
 npm install
-npm run dev        # demo gallery at http://localhost:5173; its Playground (header button, or Edit in playground on any card) opens as a modal
+npm run dev        # demo gallery at http://127.0.0.1:5173; its Playground (header button, or Edit in playground on any card) opens as a modal
 npm test           # unit and integration tests
 npm run typecheck
 npm run smoke      # starts the real MCP server and calls it as a client would
@@ -95,7 +95,7 @@ const asTable = fork(topCustomers, { view: { type: "table", label: null, detail:
 | Transforms | `filter`, `sort`, `limit`, `aggregate` (including `list`, for spark columns), `pivot` (long to wide), `calc`, `bin` (value bands with counts) |
 | Formats | `number`, `currency`, `percent`, `date`, `badge` (status pills), `spark` (mini trends in table and list cells), `bar` (in-cell data bars scaled to the column), `delta` (signed changes with an arrow, good or bad), `heat` (cells tinted on one shared scale, for heat tables), `text` |
 | Views | 40 of them, grouped by the question they answer in [Which view?](#which-view) |
-| Emphasis | `highlight` on bar, hbar, line and area keeps the named categories or series in color and greys the rest |
+| Emphasis | `highlight` on bar, hbar, line, area, bump and slope keeps the named categories or series in color and greys the rest |
 | Combo | `"lines": "target"` on a bar chart draws lines over the bars on the same axis (never a second one); under a target line, bars that fall short are drawn outlined and keyed Below target |
 | Part-to-whole | `"stacked": true` or `"percent"` on bar charts; `donut` for up to 6 slices |
 | Reference marks | `"reference": [{ "value": 1200000, "label": "Target" }]` draws target lines and bands on bar, line, area and scatter charts |
@@ -158,7 +158,7 @@ npm run mcp:config                            # print an .mcp.json with one serv
 npm run mcp:inspect                           # open the MCP Inspector against it
 ```
 
-This folder's `.mcp.json` already registers the all-widgets server, so Claude Code picks it up when opened here. Tools: `fft_list_widgets`, `fft_get_widget`, `fft_get_widget_data`, `fft_create_widget`, `fft_update_widget`, `fft_delete_widget`, `fft_list_blocks`, `fft_validate_spec`, `fft_create_variants` (the Taller). Resources: `fft://widgets/<id>`, `fft://widgets/<id>/data`, `fft://blocks`.
+This folder's `.mcp.json` already registers the all-widgets server, so Claude Code picks it up when opened here. Tools: `fft_list_widgets`, `fft_get_widget`, `fft_get_widget_data`, `fft_create_widget`, `fft_update_widget`, `fft_delete_widget`, five for dashboards (`fft_list_dashboards`, `fft_get_dashboard`, `fft_create_dashboard`, `fft_update_dashboard`, `fft_delete_dashboard`), `fft_list_blocks`, `fft_check_palette`, `fft_validate_spec` and `fft_create_variants` (the Taller). Resources: `fft://widgets/<id>`, `fft://widgets/<id>/data`, `fft://dashboards/<id>`, `fft://blocks`.
 
 Widgets are stored as `widgets/<id>.json`, the same files the demo page reads. A change made through MCP shows up in the open demo page right away. Details in [docs/mcp.md](docs/mcp.md).
 
@@ -174,12 +174,12 @@ Widgets are stored as `widgets/<id>.json`, the same files the demo page reads. A
 
 ```
 src/core/      spec types, fork, registry, pipeline, formats, validation. No DOM: runs in Node too.
-src/dom/       createWidget, <fft-widget>, styles, chart geometry, the five built-in views.
+src/dom/       createWidget, <fft-widget>, dashboards, styles; the 40 views in src/dom/views/.
 src/mcp/       widget store, MCP server, command line entry.
 widgets/       stored widget specs (one JSON file each), shared by the demo and the MCP server.
 dashboards/    dashboard specs; gallery.json lays out the demo gallery.
 public/data/   sample data the example widgets load.
-demo/          the gallery and playground page.
+demo/          the gallery (with its playground), Taller and Selected pages.
 docs/          reference documentation.
 scripts/       smoke test and docs generator.
 ```
