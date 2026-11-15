@@ -351,6 +351,14 @@ describe("tools", () => {
     const { data } = await (await connect()).call("fft_validate_spec", { spec: { data: { type: "inline", rows: [{ a: 1 }] }, view: { type: "bar", x: "a", y: "b" } } });
     expect(data).toEqual({ valid: true, issues: [{ level: "warning", path: "view.y", message: 'Field "b" is not in the data. Fields: a.' }] });
   });
+
+  test("an old option name is valid, with one warning naming the new one, and the block guide lists the old names", async () => {
+    const { call } = await connect();
+    const { data } = await call("fft_validate_spec", { spec: { data: { type: "inline", rows: [{ a: 1 }] }, view: { type: "table", totals: true } } });
+    expect(data).toEqual({ valid: true, issues: [{ level: "warning", path: "view.totals", message: "Deprecated: write showTotals instead of totals. The old name still works for now." }] });
+    const { text } = await call("fft_list_blocks", { kind: "view" });
+    expect(text).toContain("- Old names, still read but reported as deprecated: `label` (write `caption`), `series` (write `sparkline`).");
+  });
 });
 
 describe("dashboards", () => {

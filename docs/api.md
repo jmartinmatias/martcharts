@@ -90,13 +90,13 @@ Panels share one value scale (`"shared": false` turns that off), so a tall line 
 A handful of headline numbers read best as one strip of stat tiles, not separate cards:
 
 ```json
-"view": { "type": "kpis", "series": true, "items": [
+"view": { "type": "kpis", "sparkline": true, "items": [
   { "value": "revenue" },
-  { "value": "churn", "goodWhen": "down", "label": "Churn" }
+  { "value": "churn", "goodWhen": "down", "caption": "Churn" }
 ] }
 ```
 
-Each tile shows its label, value and change. `compare` is a field or `"previous"` (the row before); with `series`, values come from the last row, changes compare with the row before by default, and every tile gets a sparkline.
+Each tile shows its caption, value and change. `compare` is a field or `"previous"` (the row before); with `sparkline`, values come from the last row, changes compare with the row before by default, and every tile gets a sparkline.
 
 Dashboards also print cleanly: in print, widgets switch to the light theme, drop shadows, glass blur, hover buttons and tooltips, and never split across pages.
 
@@ -272,6 +272,18 @@ The vanilla block: `{ title: "Untitled widget", data: { type: "inline", rows: []
 Checks a spec against the registry. Each issue is `{ level: "error" | "warning", path, message }`, where `path` points into the spec (`view.x`, `transform[1].op`, `fields.revenue.format`) and `message` says how to fix it.
 
 Errors mean the widget cannot draw: missing `data` or `view`, unknown block types, missing required options, options of the wrong kind, bad style values. Warnings flag likely mistakes: an option the block does not have (a misspelt `hightlight`), more series than palette colors, and, when you pass `rows`, view fields that are not in the data or that should hold numbers but hold none.
+
+A warning also flags each old option name, once, with the name to write instead. The old names still draw the same widget; they were renamed so that `label` always names a field and `totals` always lists rows:
+
+| View | Old | Write instead |
+| --- | --- | --- |
+| `kpi`, `gauge` | `label` (text) | `caption` |
+| `kpis` | `label` in an item | `caption` |
+| `kpi`, `kpis` | `series` (true or false) | `sparkline` |
+| `table` | `totals` (true or false) | `showTotals` |
+| `waterfall` | `totals` as one label | `totals` as a list, `["Q2 revenue"]` |
+
+`upgradeView(view)` returns `{ view, renames }`: the view with old names moved to the new ones, which is what views, `explainChart` and `questionOf` read. Use `upgradeSpec(spec)` to rewrite a stored spec.
 
 `hasErrors(issues)` is true when any issue is an error.
 
