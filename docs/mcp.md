@@ -37,7 +37,7 @@ npm run smoke                                 # self-check against the real proc
 This folder's `.mcp.json` registers the all-widgets server as `fft-widgets`; Claude Code offers it when you open the folder. To add one server per widget, run `npm run mcp:config` and merge the output into `.mcp.json`, or add a single one:
 
 ```bash
-claude mcp add fft-revenue-kpi -- node /absolute/path/to/FFT/src/mcp/main.ts --widget revenue-kpi
+claude mcp add fft-revenue-kpi -- node /absolute/path/to/martcharts/src/mcp/main.ts --widget revenue-kpi
 ```
 
 ### Connecting from other clients
