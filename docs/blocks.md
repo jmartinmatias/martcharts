@@ -345,7 +345,9 @@ One headline number on a half-circle scale: an arc filled from min to the value,
 | `target` | field name (number) |  |  | Field holding the target, marked with a tick. |
 | `min` | number |  | `0` | Start of the scale. |
 | `max` | number |  |  | End of the scale. Defaults to a round number above the value and the target. |
-| `label` | string |  |  | Caption under the number. Defaults to the value field's label. |
+| `caption` | string |  |  | Text under the number. Defaults to the value field's label. |
+
+Old names, still read but reported by `validateSpec` as deprecated: `label`: write `caption`.
 
 ### `hbar`
 
@@ -402,7 +404,7 @@ A hierarchy laid flat: a column for the total, then one per level left to right,
 
 ### `kpi`
 
-One headline number with its change against a comparison. Reads the first row, or with series the last row, plus a sparkline.
+One headline number with its change against a comparison. Reads the first row, or with sparkline the last row, plus a sparkline of every row.
 
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
@@ -410,20 +412,24 @@ One headline number with its change against a comparison. Reads the first row, o
 | `compare` | field name (number) |  |  | Field holding the value to compare against, for example last period. |
 | `compareLabel` | string |  |  | Names the comparison, for example "vs last month". |
 | `goodWhen` | `up`, `down` |  | `"up"` | Whether an increase is good news (revenue) or bad news (costs, churn). |
-| `label` | string |  |  | Text above the number. Defaults to the value field's label. |
-| `series` | boolean |  | `false` | Read the rows as a time series: the headline is the last row, the change is against the row before (unless compare is set), and a sparkline shows every row. |
-| `x` | field name (date) |  |  | With series, the field naming each period, used to label the comparison ("vs Aug 2026"). |
+| `caption` | string |  |  | Text above the number. Defaults to the value field's label. |
+| `sparkline` | boolean |  | `false` | Read the rows as a time series: the headline is the last row, the change is against the row before (unless compare is set), and a sparkline shows every row. |
+| `x` | field name (date) |  |  | With sparkline, the field naming each period, used to label the comparison ("vs Aug 2026"). |
 | `icon` | `activity`, `alert`, `bolt`, `cart`, `check`, `clock`, `droplet`, `heart`, `mail`, `pin`, `revenue`, `target`, `trend`, `users` |  |  | A line icon on a soft tile beside the number. |
 | `target` | field name (number) |  |  | Field holding the target. A line under the number says where the latest stands: a check and Target met, or how far it has to go (with goodWhen down, how far above the target it is). |
 
+Old names, still read but reported by `validateSpec` as deprecated: `label`: write `caption`; `series`: write `sparkline`.
+
 ### `kpis`
 
-A row of stat tiles in one widget, each with a label, value and change: the calm way to show a handful of headline numbers. With series, reads the rows as a time series and adds a sparkline per tile.
+A row of stat tiles in one widget, each with a caption, value and change: the calm way to show a handful of headline numbers. With sparkline, reads the rows as a time series and adds a sparkline per tile.
 
 | Option | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `items` | array | yes |  | Tiles, each { value, label?, compare?, compareLabel?, goodWhen?, target? }. compare is a field or "previous" (the row before); target is a field, and the tile then says where it stands (Target met, or how far to go). Example: [{ "value": "revenue", "compare": "previous", "target": "target" }]. |
-| `series` | boolean |  | `false` | Read the rows as a time series: values from the last row, compared with the row before, plus a sparkline per tile. |
+| `items` | array | yes |  | Tiles, each { value, caption?, compare?, compareLabel?, goodWhen?, target? }. caption is the text above the number (default: the value field's label); compare is a field or "previous" (the row before); target is a field, and the tile then says where it stands (Target met, or how far to go). Example: [{ "value": "revenue", "compare": "previous", "target": "target" }]. |
+| `sparkline` | boolean |  | `false` | Read the rows as a time series: values from the last row, compared with the row before, plus a sparkline per tile. |
+
+Old names, still read but reported by `validateSpec` as deprecated: `series`: write `sparkline`; `items[].label`: write `caption`.
 
 ### `likert`
 
@@ -580,7 +586,9 @@ Rows and columns. The default view, and the one to use when people need exact va
 | --- | --- | --- | --- | --- |
 | `columns` | field name or list |  |  | Fields to show, in order. Defaults to every field in the rows. |
 | `sortable` | boolean |  | `true` | Headers become buttons that sort the rows: ascending, then descending. Missing values stay last. |
-| `totals` | boolean |  | `false` | Adds a footer row summing each number column in its own format. Percent columns stay blank, since summed shares mean nothing. |
+| `showTotals` | boolean |  | `false` | Adds a footer row summing each number column in its own format. Percent columns stay blank, since summed shares mean nothing. |
+
+Old names, still read but reported by `validateSpec` as deprecated: `totals`: write `showTotals`.
 
 ### `timeline`
 
@@ -635,9 +643,11 @@ A bridge: how a total moves to another through increases and decreases, each flo
 | --- | --- | --- | --- | --- |
 | `label` | field name (category) | yes |  | Field naming each step. |
 | `value` | field name (number) | yes |  | Field with each step's change, or the amount for total rows. |
-| `totals` | any |  |  | Labels of rows that are totals (drawn from zero, resetting the running total), for example ["Q2 revenue"]. |
+| `totals` | array |  |  | Labels of the rows that are totals (drawn from zero, resetting the running total), for example ["Q2 revenue"]. |
 | `endLabel` | string |  |  | Adds a final total bar with this label, for example "Q3 revenue". |
 | `fit` | boolean |  | `false` | Fit the axis to the running totals instead of starting at zero, so small changes stay visible. Totals then rise from the axis floor. |
+
+Old names, still read but reported by `validateSpec` as deprecated: `totals` as one label: write a list.
 
 ## Headline
 

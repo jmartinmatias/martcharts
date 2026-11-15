@@ -70,8 +70,8 @@ describe("versions with a target field keep which side is good news", () => {
   });
 
   test("a single number, a row of numbers or a variance that says lower is better passes it on with its target", () => {
-    const kpi: WidgetSpec = { ...costVsBudget, view: { type: "kpi", value: "cost", x: "month", series: true, target: "budget", goodWhen: "down" } };
-    const kpis: WidgetSpec = { ...costVsBudget, view: { type: "kpis", series: true, items: [{ value: "cost", target: "budget", goodWhen: "down" }, { value: "invoices" }] } };
+    const kpi: WidgetSpec = { ...costVsBudget, view: { type: "kpi", value: "cost", x: "month", sparkline: true, target: "budget", goodWhen: "down" } };
+    const kpis: WidgetSpec = { ...costVsBudget, view: { type: "kpis", sparkline: true, items: [{ value: "cost", target: "budget", goodWhen: "down" }, { value: "invoices" }] } };
     const variance: WidgetSpec = { ...costVsBudget, view: { type: "variance", label: "month", value: "cost", target: "budget", goodWhen: "down" } };
     for (const spec of [kpi, kpis, variance]) {
       expect([spec.view?.type, profileData(spec, costs).goodWhen]).toEqual([spec.view?.type, "down"]);
@@ -84,7 +84,7 @@ describe("versions with a target field keep which side is good news", () => {
   test("a tile that says lower is better without a target passes nothing on", () => {
     // Revenue carries the target, and churn's lower is better is about churn alone.
     const rows = costs.map((row, i) => ({ month: row.month, revenue: 90000 + i * 1000, target: 95000, churn: 0.04 - i * 0.001 }));
-    const glance: WidgetSpec = { title: "At a glance", data: { type: "inline", rows }, view: { type: "kpis", series: true, items: [{ value: "revenue", target: "target" }, { value: "churn", goodWhen: "down" }] } };
+    const glance: WidgetSpec = { title: "At a glance", data: { type: "inline", rows }, view: { type: "kpis", sparkline: true, items: [{ value: "revenue", target: "target" }, { value: "churn", goodWhen: "down" }] } };
     expect(profileData(glance, rows).goodWhen).toBeUndefined();
     expect(across(glance, rows).filter((v) => sides(v).some((side) => side !== undefined)).map((v) => v.title)).toEqual([]);
   });

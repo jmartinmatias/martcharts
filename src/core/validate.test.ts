@@ -296,7 +296,7 @@ describe("validateSpec", () => {
   test("a KPI row needs a list of items, each naming a value field", () => {
     expect(validateSpec({ ...good, view: { type: "kpis", items: [{ value: "revenue" }, { value: "revenue", compare: "previous", goodWhen: "down" }] } })).toEqual([]);
     expect(messages({ ...good, view: { type: "kpis", items: [] } })).toEqual(["error view: items needs at least one entry."]);
-    expect(messages({ ...good, view: { type: "kpis", items: [{ label: "x" }, { value: "revenue", goodWhen: "sideways" }] } })).toEqual([
+    expect(messages({ ...good, view: { type: "kpis", items: [{ caption: "x" }, { value: "revenue", goodWhen: "sideways" }] } })).toEqual([
       "error view: items[0] needs a value field.",
       "error view: items[1].goodWhen must be up or down.",
     ]);

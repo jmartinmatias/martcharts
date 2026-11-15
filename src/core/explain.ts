@@ -10,6 +10,7 @@ import { fieldLabel, formatValue, timeStep } from "./display.ts";
 import { readNumber } from "./formats.ts";
 import { binValues, sturges } from "./scale.ts";
 import { isPlural } from "./question.ts";
+import { upgradeSpec } from "./renamed.ts";
 import type { Row, WidgetSpec } from "./types.ts";
 
 type View = Record<string, unknown> & { type: string };
@@ -23,7 +24,8 @@ const many = (value: unknown): string[] => (Array.isArray(value) ? value.filter(
  * Explains a widget's chart in plain words. Given the rows the chart draws, it adds one concrete example from them
  * ("Here, East is the tallest, with €2,000."). Unknown views get a short general guide.
  */
-export function explainChart(spec: WidgetSpec, rows: Row[] = []): string {
+export function explainChart(given: WidgetSpec, rows: Row[] = []): string {
+  const spec = upgradeSpec(given);
   const facet = (spec.facet as { field?: string } | undefined)?.field;
   // A dashed target line says what it is, so the chart reads against it.
   const goal = targetLine(spec);
@@ -802,10 +804,10 @@ function exampleOf(spec: WidgetSpec, rows: Row[]): string {
     }
     case "kpis": {
       // Headline tiles: did each number move the right way since last time (down is right for a goodWhen down tile)?
-      const items = (Array.isArray(view.items) ? view.items : []) as { value?: unknown; label?: unknown; goodWhen?: unknown; target?: unknown }[];
-      const [before, now] = view.series ? [rows.at(-2), rows.at(-1)] : [undefined, rows[0]];
+      const items = (Array.isArray(view.items) ? view.items : []) as { value?: unknown; caption?: unknown; goodWhen?: unknown; target?: unknown }[];
+      const [before, now] = view.sparkline ? [rows.at(-2), rows.at(-1)] : [undefined, rows[0]];
       if (!now || !before || items.length < 2) return "";
-      const named = (item: (typeof items)[number]) => (typeof item.label === "string" && item.label ? item.label.toLowerCase() : nameOf(String(item.value), spec));
+      const named = (item: (typeof items)[number]) => (typeof item.caption === "string" && item.caption ? item.caption.toLowerCase() : nameOf(String(item.value), spec));
       const moves = items
         .filter((item) => typeof item.value === "string" && value(now, item.value) !== null && value(before, item.value) !== null)
         .map((item) => {

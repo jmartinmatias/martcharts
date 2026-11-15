@@ -169,7 +169,7 @@ describe("table sorting and totals", () => {
     await draw({
       rows: sales.map((row) => ({ ...row, margin: 0.3 })),
       fields: { revenue: { format: { type: "currency", currency: "EUR", decimals: 0 } }, margin: { format: "percent" } },
-      view: { type: "table", totals: true },
+      view: { type: "table", showTotals: true },
     });
     expect(texts("tfoot td")).toEqual(["Total", "€4,100", "2,900", ""]);
     sortButton(1).click();
@@ -264,41 +264,41 @@ describe("kpi view in series mode", () => {
   };
 
   test("the headline is the last row and the change is against the row before, named by x", async () => {
-    await draw({ rows: months, fields, view: { type: "kpi", value: "revenue", series: true, x: "month" } });
+    await draw({ rows: months, fields, view: { type: "kpi", value: "revenue", sparkline: true, x: "month" } });
     expect([...texts(".fft-kpi-value"), ...texts(".fft-kpi-change"), ...texts(".fft-kpi-compare")]).toEqual(["€1.3M", "▲ +12.4%", "vs Aug 2026"]);
   });
 
   test("with a target, a line under the number says where the latest stands: met, or how far to go", async () => {
     const targeted = months.map((row, i) => ({ ...row, target: [1_100_000, 1_150_000, 1_200_000][i] }));
-    await draw({ rows: targeted, fields, view: { type: "kpi", value: "revenue", series: true, x: "month", target: "target" } });
+    await draw({ rows: targeted, fields, view: { type: "kpi", value: "revenue", sparkline: true, x: "month", target: "target" } });
     const met = [texts(".fft-kpi-target"), Boolean(target.querySelector(".fft-kpi-target .fft-check"))];
-    await draw({ rows: targeted.map((row) => ({ ...row, target: 1_334_000 })), fields, view: { type: "kpi", value: "revenue", series: true, x: "month", target: "target" } });
+    await draw({ rows: targeted.map((row) => ({ ...row, target: 1_334_000 })), fields, view: { type: "kpi", value: "revenue", sparkline: true, x: "month", target: "target" } });
     const short = all(".fft-kpi-target").at(-1)?.textContent;
     expect([met, short]).toEqual([[["Target met: €1.2M"], true], "€50K to go to the €1.3M target"]);
   });
 
   test("when lower is better, a target is met at or under it, and a miss says how far above it the number is", async () => {
     const churn = [{ month: "2026-09", rate: 3.1, cap: 3 }];
-    await draw({ rows: churn, view: { type: "kpi", value: "rate", series: true, x: "month", goodWhen: "down", target: "cap" } });
+    await draw({ rows: churn, view: { type: "kpi", value: "rate", sparkline: true, x: "month", goodWhen: "down", target: "cap" } });
     const over = texts(".fft-kpi-target").at(-1);
-    await draw({ rows: [{ month: "2026-09", rate: 2.8, cap: 3 }], view: { type: "kpi", value: "rate", series: true, x: "month", goodWhen: "down", target: "cap" } });
+    await draw({ rows: [{ month: "2026-09", rate: 2.8, cap: 3 }], view: { type: "kpi", value: "rate", sparkline: true, x: "month", goodWhen: "down", target: "cap" } });
     expect([over, texts(".fft-kpi-target").at(-1)]).toEqual(["0.1 above the 3 target", "Target met: 3"]);
   });
 
   test("draws a sparkline through every row with the latest point marked", async () => {
-    await draw({ rows: months, fields, view: { type: "kpi", value: "revenue", series: true, x: "month" } });
+    await draw({ rows: months, fields, view: { type: "kpi", value: "revenue", sparkline: true, x: "month" } });
     const d = target.querySelector("svg.fft-sparkline path.fft-spark-line")?.getAttribute("d") ?? "";
     expect(d.replace(/[^ML]/g, "")).toBe("MLL");
     expect(all("svg.fft-sparkline circle.fft-spark-end").length).toBe(1);
   });
 
   test("without x the comparison is called the previous period", async () => {
-    await draw({ rows: months, fields, view: { type: "kpi", value: "revenue", series: true } });
+    await draw({ rows: months, fields, view: { type: "kpi", value: "revenue", sparkline: true } });
     expect(texts(".fft-kpi-compare")).toEqual(["vs previous period"]);
   });
 
   test("a single row shows no change and no sparkline", async () => {
-    await draw({ rows: months.slice(0, 1), fields, view: { type: "kpi", value: "revenue", series: true } });
+    await draw({ rows: months.slice(0, 1), fields, view: { type: "kpi", value: "revenue", sparkline: true } });
     expect([all(".fft-kpi-delta").length, all(".fft-sparkline").length]).toEqual([0, 0]);
   });
 });
@@ -2609,7 +2609,7 @@ describe("kpis view (a row of stat tiles)", () => {
     await draw({
       rows: row,
       fields,
-      view: { type: "kpis", items: [{ value: "revenue", compare: "lastQuarter" }, { value: "churn", compare: "churnBefore", goodWhen: "down", label: "Churn rate" }] },
+      view: { type: "kpis", items: [{ value: "revenue", compare: "lastQuarter" }, { value: "churn", compare: "churnBefore", goodWhen: "down", caption: "Churn rate" }] },
     });
     expect([texts(".fft-stat-label"), texts(".fft-stat-value"), texts(".fft-stat .fft-kpi-change")]).toEqual([
       ["Revenue", "Churn rate"],
@@ -2625,7 +2625,7 @@ describe("kpis view (a row of stat tiles)", () => {
       { m: "Aug", a: 12, b: 4 },
       { m: "Sep", a: 15, b: 6 },
     ];
-    await draw({ rows: months, view: { type: "kpis", series: true, items: [{ value: "a" }, { value: "b" }] } });
+    await draw({ rows: months, view: { type: "kpis", sparkline: true, items: [{ value: "a" }, { value: "b" }] } });
     expect([texts(".fft-stat-value"), texts(".fft-stat .fft-kpi-change"), all(".fft-stat svg.fft-sparkline").length]).toEqual([["15", "6"], ["▲ +25.0%", "▲ +50.0%"], 2]);
   });
 

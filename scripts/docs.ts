@@ -46,6 +46,10 @@ for (const { kind, title, slot } of SECTIONS) {
       const fallback = option.default === undefined ? "" : `\`${JSON.stringify(option.default)}\``;
       lines.push(`| \`${name}\` | ${kindText(option)} | ${option.required ? "yes" : ""} | ${fallback} | ${cell(option.description)} |`);
     }
+    if (block.renamed) {
+      const old = Object.entries(block.renamed).map(([name, use]) => (name === use ? `\`${name}\` as one label: write a list` : `\`${name}\`: write \`${use}\``));
+      lines.push("", `Old names, still read but reported by \`validateSpec\` as deprecated: ${old.join("; ")}.`);
+    }
   }
 }
 

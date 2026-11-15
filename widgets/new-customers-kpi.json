@@ -25,7 +25,7 @@
   "view": {
     "type": "kpi",
     "value": "newCustomers",
-    "series": true,
+    "sparkline": true,
     "x": "month",
     "icon": "users"
   }

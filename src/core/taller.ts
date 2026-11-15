@@ -678,7 +678,7 @@ const PATTERNS: Pattern[] = [
     fits: (d) => perPeriod(d),
     // The target the chart is about stays with its number, and which side of it is good news: the card then says
     // whether the latest reached it (or, when lower is better, stayed under it).
-    make: (d) => ({ view: { type: "kpi", value: m1(d), x: t1(d), series: true, ...(d.target ? { target: d.target, ...judged(d) } : {}) } }),
+    make: (d) => ({ view: { type: "kpi", value: m1(d), x: t1(d), sparkline: true, ...(d.target ? { target: d.target, ...judged(d) } : {}) } }),
   },
   {
     id: "numbers",
@@ -687,7 +687,7 @@ const PATTERNS: Pattern[] = [
     marks: "smooth",
     fits: (d) => d.measures.length >= 2 && (perPeriod(d, 1) || d.rows === 1),
     // Over time the tiles read the latest period (and draw a sparkline each), never the first row.
-    make: (d) => ({ view: { type: "kpis", ...(d.times.length ? { series: true } : {}), items: d.measures.slice(0, 3).map((value) => ({ value, ...(d.target && value === m1(d) ? { target: d.target, ...judged(d) } : {}) })) } }),
+    make: (d) => ({ view: { type: "kpis", ...(d.times.length ? { sparkline: true } : {}), items: d.measures.slice(0, 3).map((value) => ({ value, ...(d.target && value === m1(d) ? { target: d.target, ...judged(d) } : {}) })) } }),
   },
   {
     id: "calendar",

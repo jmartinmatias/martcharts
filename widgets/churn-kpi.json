@@ -28,7 +28,7 @@
   "view": {
     "type": "kpi",
     "value": "churn",
-    "series": true,
+    "sparkline": true,
     "x": "month",
     "goodWhen": "down",
     "icon": "activity"

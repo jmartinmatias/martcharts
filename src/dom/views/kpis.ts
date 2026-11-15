@@ -10,16 +10,16 @@ import { targetLine } from "./target.ts";
 
 /**
  * Draws the `kpis` view: one strip of stat tiles separated by hairlines, each
- * with a label, the value (short form unless the field has a format) and its
- * change. In series mode values come from the last row, changes compare with
+ * with a caption, the value (short form unless the field has a format) and its
+ * change. With `sparkline`, values come from the last row, changes compare with
  * the row before, and every tile carries a sparkline.
  */
 export const renderKpis: ViewRenderer<KpisView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
-  const { items, series } = ctx.view;
+  const { items, sparkline: overTime } = ctx.view;
   const rows = ctx.rows;
-  const row = (series ? rows[rows.length - 1] : rows[0]) ?? {};
-  const before = rows.length > 1 ? (series ? rows[rows.length - 2] : rows[1]) : undefined;
+  const row = (overTime ? rows[rows.length - 1] : rows[0]) ?? {};
+  const before = rows.length > 1 ? (overTime ? rows[rows.length - 2] : rows[1]) : undefined;
   const strip = html(doc, "div", "fft-stats");
   const tileWidth = Math.max(89, Math.floor(ctx.width / Math.max(1, items.length)) - 21);
   for (const item of items) {
@@ -30,8 +30,8 @@ export const renderKpis: ViewRenderer<KpisView> = (ctx) => {
     const show = (v: unknown) => (hasFormat ? ctx.format(v, field) : formatValue(v, { type: "number", compact: true }, ctx.spec.locale));
     const number = html(doc, "div", "fft-stat-value", show(value));
     countable(number, readNumber(value), show);
-    tile.append(html(doc, "div", "fft-stat-label", item.label ?? ctx.label(field)), number);
-    const compare = item.compare ?? (series ? "previous" : undefined);
+    tile.append(html(doc, "div", "fft-stat-label", item.caption ?? ctx.label(field)), number);
+    const compare = item.compare ?? (overTime ? "previous" : undefined);
     const now = readNumber(value);
     const then = compare === "previous" ? (before ? readNumber(before[field]) : null) : compare ? readNumber(row[compare]) : null;
     if (now !== null && then !== null && then !== 0) {
@@ -40,7 +40,7 @@ export const renderKpis: ViewRenderer<KpisView> = (ctx) => {
     // With a target, the same plain line as a single headline number: met, or how far to go.
     const line = targetLine(doc, "fft-stat-target", now, item.target ? readNumber(row[item.target]) : null, item.goodWhen ?? "up", show);
     if (line) tile.append(line);
-    if (series && rows.length > 1) tile.append(sparkline(ctx, rows.map((r) => readNumber(r[field])), tileWidth));
+    if (overTime && rows.length > 1) tile.append(sparkline(ctx, rows.map((r) => readNumber(r[field])), tileWidth));
     strip.append(tile);
   }
   ctx.el.append(strip);

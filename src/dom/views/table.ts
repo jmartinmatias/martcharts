@@ -8,7 +8,7 @@ import { allFields, buildTable, fieldList, html, isNumericColumn } from "./share
 /**
  * Draws the `table` view: one row per data row, one column per field. Headers
  * are sort buttons (ascending, then descending, missing values last, the
- * direction in `aria-sort`), and `totals` adds a footer row of sums that
+ * direction in `aria-sort`), and `showTotals` adds a footer row of sums that
  * sorting never moves.
  */
 export const renderTable: ViewRenderer<TableView> = (ctx) => {
@@ -43,7 +43,7 @@ export const renderTable: ViewRenderer<TableView> = (ctx) => {
         });
       });
     }
-    if (ctx.view.totals) table.append(totalsRow());
+    if (ctx.view.showTotals) table.append(totalsRow());
     wrap.replaceChildren(table);
     if (focus !== undefined) (table.querySelectorAll<HTMLButtonElement>("thead .fft-sort")[columns.indexOf(focus)])?.focus();
   };

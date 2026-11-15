@@ -78,6 +78,6 @@
       "stage",
       "amount"
     ],
-    "totals": true
+    "showTotals": true
   }
 }

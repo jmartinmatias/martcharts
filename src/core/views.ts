@@ -12,7 +12,7 @@ import type { ReferenceMark } from "./reference.ts";
 import type { Row } from "./types.ts";
 import type { OptionSchema, ViewBlock } from "./registry.ts";
 
-/** `{ type: "table", columns? }` */
+/** `{ type: "table", columns?, sortable?, showTotals? }` */
 export interface TableView {
   type: "table";
   /** Fields to show, in order. Defaults to every field in the rows. */
@@ -20,6 +20,8 @@ export interface TableView {
   /** Headers sort the rows when clicked. Default true. */
   sortable?: boolean;
   /** A footer row summing each number column. Default false. */
+  showTotals?: boolean;
+  /** @deprecated Write `showTotals`. */
   totals?: boolean;
 }
 
@@ -32,8 +34,8 @@ export interface ListView {
 }
 
 /**
- * `{ type: "kpi", value, compare?, compareLabel?, goodWhen?, label?, series?, x? }`.
- * Reads the first row; with `series`, reads the rows as a time series instead.
+ * `{ type: "kpi", value, compare?, compareLabel?, goodWhen?, caption?, sparkline?, x? }`.
+ * Reads the first row; with `sparkline`, reads the rows as a time series instead.
  */
 export interface KpiView {
   type: "kpi";
@@ -41,7 +43,13 @@ export interface KpiView {
   compare?: string;
   compareLabel?: string;
   goodWhen?: "up" | "down";
+  /** Text above the number. */
+  caption?: string;
+  /** Read the rows as a time series and draw them as a sparkline. */
+  sparkline?: boolean;
+  /** @deprecated Write `caption`. */
   label?: string;
+  /** @deprecated Write `sparkline`. */
   series?: boolean;
   x?: string;
   icon?: string;
@@ -51,6 +59,9 @@ export interface KpiView {
 /** One tile in a `kpis` row. */
 export interface KpisItem {
   value: string;
+  /** Text above the tile's number. */
+  caption?: string;
+  /** @deprecated Write `caption`. */
   label?: string;
   compare?: string;
   compareLabel?: string;
@@ -58,10 +69,13 @@ export interface KpisItem {
   target?: string;
 }
 
-/** `{ type: "kpis", items, series? }`: a row of stat tiles in one widget. */
+/** `{ type: "kpis", items, sparkline? }`: a row of stat tiles in one widget. */
 export interface KpisView {
   type: "kpis";
   items: KpisItem[];
+  /** Read the rows as a time series and draw a sparkline per tile. */
+  sparkline?: boolean;
+  /** @deprecated Write `sparkline`. */
   series?: boolean;
 }
 
@@ -102,6 +116,7 @@ export interface WaterfallView {
   type: "waterfall";
   label: string;
   value: string;
+  /** Labels of the rows that are totals. */
   totals?: string[];
   endLabel?: string;
   fit?: boolean;
@@ -258,13 +273,16 @@ export interface VarianceView {
   goodWhen?: "up" | "down";
 }
 
-/** `{ type: "gauge", value, target?, min?, max?, label? }`: one number on a half-circle scale. */
+/** `{ type: "gauge", value, target?, min?, max?, caption? }`: one number on a half-circle scale. */
 export interface GaugeView {
   type: "gauge";
   value: string;
   target?: string;
   min?: number;
   max?: number;
+  /** Text under the number. */
+  caption?: string;
+  /** @deprecated Write `caption`. */
   label?: string;
 }
 
@@ -448,8 +466,9 @@ const table: ViewBlock = {
   options: {
     columns: { type: "fields", description: "Fields to show, in order. Defaults to every field in the rows." },
     sortable: { type: "boolean", default: true, description: "Headers become buttons that sort the rows: ascending, then descending. Missing values stay last." },
-    totals: { type: "boolean", default: false, description: "Adds a footer row summing each number column in its own format. Percent columns stay blank, since summed shares mean nothing." },
+    showTotals: { type: "boolean", default: false, description: "Adds a footer row summing each number column in its own format. Percent columns stay blank, since summed shares mean nothing." },
   },
+  renamed: { totals: { use: "showTotals" } },
 };
 
 const list: ViewBlock = {
@@ -464,19 +483,19 @@ const list: ViewBlock = {
 
 const kpi: ViewBlock = {
   type: "kpi",
-  description: "One headline number with its change against a comparison. Reads the first row, or with series the last row, plus a sparkline.",
+  description: "One headline number with its change against a comparison. Reads the first row, or with sparkline the last row, plus a sparkline of every row.",
   options: {
     value: { type: "field", kind: "number", required: true, description: "Field holding the headline number." },
     compare: { type: "field", kind: "number", description: "Field holding the value to compare against, for example last period." },
     compareLabel: { type: "string", description: 'Names the comparison, for example "vs last month".' },
     goodWhen: { type: "enum", values: ["up", "down"], default: "up", description: "Whether an increase is good news (revenue) or bad news (costs, churn)." },
-    label: { type: "string", description: "Text above the number. Defaults to the value field's label." },
-    series: {
+    caption: { type: "string", description: "Text above the number. Defaults to the value field's label." },
+    sparkline: {
       type: "boolean",
       default: false,
       description: "Read the rows as a time series: the headline is the last row, the change is against the row before (unless compare is set), and a sparkline shows every row.",
     },
-    x: { type: "field", kind: "date", description: 'With series, the field naming each period, used to label the comparison ("vs Aug 2026").' },
+    x: { type: "field", kind: "date", description: 'With sparkline, the field naming each period, used to label the comparison ("vs Aug 2026").' },
     icon: { type: "enum", values: ICON_NAMES, description: "A line icon on a soft tile beside the number." },
     target: {
       type: "field",
@@ -484,19 +503,21 @@ const kpi: ViewBlock = {
       description: "Field holding the target. A line under the number says where the latest stands: a check and Target met, or how far it has to go (with goodWhen down, how far above the target it is).",
     },
   },
+  renamed: { label: { use: "caption" }, series: { use: "sparkline" } },
 };
 
 const kpis: ViewBlock = {
   type: "kpis",
-  description: "A row of stat tiles in one widget, each with a label, value and change: the calm way to show a handful of headline numbers. With series, reads the rows as a time series and adds a sparkline per tile.",
+  description: "A row of stat tiles in one widget, each with a caption, value and change: the calm way to show a handful of headline numbers. With sparkline, reads the rows as a time series and adds a sparkline per tile.",
   options: {
     items: {
       type: "array",
       required: true,
-      description: 'Tiles, each { value, label?, compare?, compareLabel?, goodWhen?, target? }. compare is a field or "previous" (the row before); target is a field, and the tile then says where it stands (Target met, or how far to go). Example: [{ "value": "revenue", "compare": "previous", "target": "target" }].',
+      description: 'Tiles, each { value, caption?, compare?, compareLabel?, goodWhen?, target? }. caption is the text above the number (default: the value field\'s label); compare is a field or "previous" (the row before); target is a field, and the tile then says where it stands (Target met, or how far to go). Example: [{ "value": "revenue", "compare": "previous", "target": "target" }].',
     },
-    series: { type: "boolean", default: false, description: "Read the rows as a time series: values from the last row, compared with the row before, plus a sparkline per tile." },
+    sparkline: { type: "boolean", default: false, description: "Read the rows as a time series: values from the last row, compared with the row before, plus a sparkline per tile." },
   },
+  renamed: { series: { use: "sparkline" }, "items[].label": { use: "caption" } },
   validate(view) {
     const items = view.items;
     if (!Array.isArray(items)) return [];
@@ -582,7 +603,7 @@ const waterfall: ViewBlock = {
   options: {
     label: { type: "field", kind: "category", required: true, description: "Field naming each step." },
     value: { type: "field", kind: "number", required: true, description: "Field with each step's change, or the amount for total rows." },
-    totals: { type: "any", description: 'Labels of rows that are totals (drawn from zero, resetting the running total), for example ["Q2 revenue"].' },
+    totals: { type: "array", description: 'Labels of the rows that are totals (drawn from zero, resetting the running total), for example ["Q2 revenue"].' },
     endLabel: { type: "string", description: 'Adds a final total bar with this label, for example "Q3 revenue".' },
     fit: {
       type: "boolean",
@@ -590,7 +611,18 @@ const waterfall: ViewBlock = {
       description: "Fit the axis to the running totals instead of starting at zero, so small changes stay visible. Totals then rise from the axis floor.",
     },
   },
+  // One label on its own was read as a list of one; it still is, with a warning.
+  renamed: { totals: { use: "totals", when: isLabel, convert: (label) => [label] } },
+  validate(view) {
+    const totals = view.totals;
+    return totals === undefined || (Array.isArray(totals) && totals.every(isLabel)) ? [] : ['totals must be a list of row labels, for example ["Q2 revenue"].'];
+  },
 };
+
+/** A row label as a waterfall's totals name it: text or a number. */
+function isLabel(value: unknown): value is string | number {
+  return typeof value === "string" || (typeof value === "number" && Number.isFinite(value));
+}
 
 const heatmap: ViewBlock = {
   type: "heatmap",
@@ -842,8 +874,9 @@ const gauge: ViewBlock = {
     target: { type: "field", kind: "number", description: "Field holding the target, marked with a tick." },
     min: { type: "number", default: 0, description: "Start of the scale." },
     max: { type: "number", description: "End of the scale. Defaults to a round number above the value and the target." },
-    label: { type: "string", description: "Caption under the number. Defaults to the value field's label." },
+    caption: { type: "string", description: "Text under the number. Defaults to the value field's label." },
   },
+  renamed: { label: { use: "caption" } },
 };
 
 const pareto: ViewBlock = {

@@ -90,7 +90,7 @@ describe("profileData reads the target only for the measure it belongs to", () =
 
   test("the target the chart itself pairs with its measure is kept, whatever its format", () => {
     const fields: WidgetSpec["fields"] = { revenue: { format: euros } };
-    const kpi: WidgetSpec = { data: { type: "inline", rows }, fields, view: { type: "kpi", value: "revenue", x: "month", series: true, target: "target" } };
+    const kpi: WidgetSpec = { data: { type: "inline", rows }, fields, view: { type: "kpi", value: "revenue", x: "month", sparkline: true, target: "target" } };
     const bars: WidgetSpec = { data: { type: "inline", rows }, fields, view: { type: "bar", x: "month", y: "revenue", lines: "target" } };
     expect([profileData(kpi, rows).target, profileData(bars, rows).target]).toEqual(["target", "target"]);
   });
@@ -109,7 +109,7 @@ describe("a row of numbers pairs the target with the tile that carries it", () =
       [{ value: "revenue", target: "target" }, { value: "orders" }],
       [{ value: "orders" }, { value: "revenue", target: "target" }],
     ]) {
-      const spec: WidgetSpec = { data: { type: "inline", rows: sales }, view: { type: "kpis", series: true, items } };
+      const spec: WidgetSpec = { data: { type: "inline", rows: sales }, view: { type: "kpis", sparkline: true, items } };
       const data = profileData(spec, sales);
       expect([data.measures[0], data.target]).toEqual(["revenue", "target"]);
       const found = across(spec, sales).flatMap((v) => pairs(v, spec));
@@ -122,7 +122,7 @@ describe("a row of numbers pairs the target with the tile that carries it", () =
     const spec: WidgetSpec = {
       data: { type: "inline", rows: costs },
       fields: { invoices: { format: "number" }, cost: { format: euros }, budget: { format: euros } },
-      view: { type: "kpis", series: true, items: [{ value: "invoices" }, { value: "cost", target: "budget", goodWhen: "down" }] },
+      view: { type: "kpis", sparkline: true, items: [{ value: "invoices" }, { value: "cost", target: "budget", goodWhen: "down" }] },
     };
     const data = profileData(spec, costs);
     expect([data.measures[0], data.target, data.goodWhen]).toEqual(["cost", "budget", "down"]);

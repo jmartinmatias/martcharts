@@ -39,6 +39,20 @@ export interface OptionSchema {
   kind?: "number" | "category" | "date";
 }
 
+/**
+ * An old option name a block still reads. `upgradeView` moves it to `use`
+ * before anything else sees the spec, and `validateSpec` reports it as a
+ * warning naming `use`.
+ */
+export interface RenamedOption {
+  /** The option to write instead. It may be the same name when only the value's shape changed. */
+  use: string;
+  /** Which values are the old form. Default: any value. */
+  when?(value: unknown): boolean;
+  /** Turns an old value into the new option's value. Default: unchanged. */
+  convert?(value: unknown): unknown;
+}
+
 /** The descriptor every block shares. */
 export interface Block {
   /** The name used in specs, for example `"bar"` in `{ type: "bar" }`. */
@@ -47,6 +61,11 @@ export interface Block {
   description: string;
   /** The options the block reads from its spec object. */
   options: Record<string, OptionSchema>;
+  /**
+   * Old option names, keyed by the old name. `"items[].label"` names `label`
+   * inside each entry of the `items` list.
+   */
+  renamed?: Record<string, RenamedOption>;
   /** Extra checks beyond the option schema. Return one message per problem. */
   validate?(spec: Record<string, unknown>): string[];
   /** Checks that need the rows, reported as warnings. Return one message per problem. */
@@ -151,13 +170,16 @@ export interface BlockInfo {
   type: string;
   description: string;
   options: Record<string, OptionSchema>;
+  /** Old option names still read, each with the name to write instead. Present only when the block has some. */
+  renamed?: Record<string, string>;
 }
 
 /** Descriptors of every registered block of one kind, sorted by type. Used by docs and the MCP server. */
 export function describeBlocks(kind: BlockKind): BlockInfo[] {
   return blockTypes(kind).map((type) => {
-    const { description, options } = getBlock(kind, type);
-    return { type, description, options };
+    const { description, options, renamed } = getBlock(kind, type);
+    if (!renamed) return { type, description, options };
+    return { type, description, options, renamed: Object.fromEntries(Object.entries(renamed).map(([old, { use }]) => [old, use])) };
   });
 }
 
