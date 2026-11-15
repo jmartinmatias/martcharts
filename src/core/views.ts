@@ -611,11 +611,11 @@ const waterfall: ViewBlock = {
       description: "Fit the axis to the running totals instead of starting at zero, so small changes stay visible. Totals then rise from the axis floor.",
     },
   },
-  // One label on its own was read as a list of one; it still is, with a warning.
-  renamed: { totals: { use: "totals", when: isLabel, convert: (label) => [label] } },
+  // One label on its own was read as a list of one, and an empty value (false, 0, "") as no totals; both still are, with a warning.
+  renamed: { totals: { use: "totals", when: (value) => !Array.isArray(value) && (isLabel(value) || !value), convert: (value) => (value ? [value] : []) } },
   validate(view) {
     const totals = view.totals;
-    return totals === undefined || (Array.isArray(totals) && totals.every(isLabel)) ? [] : ['totals must be a list of row labels, for example ["Q2 revenue"].'];
+    return totals === undefined || totals === null || (Array.isArray(totals) && totals.every(isLabel)) ? [] : ['totals must be a list of row labels, for example ["Q2 revenue"].'];
   },
 };
 

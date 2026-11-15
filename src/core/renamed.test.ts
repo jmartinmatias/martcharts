@@ -6,7 +6,7 @@ import { runPipeline } from "./pipeline.ts";
 import { describeBlocks } from "./registry.ts";
 import { upgradeView } from "./renamed.ts";
 import type { WidgetSpec } from "./types.ts";
-import { validateSpec } from "./validate.ts";
+import { forkWidget, validateSpec } from "./validate.ts";
 
 const data = { type: "inline", rows: [{ month: "2026-08", revenue: 10, goal: 12, Q: "Start" }] };
 const spec = (view: Record<string, unknown>): WidgetSpec => ({ data, view: view as WidgetSpec["view"] });
@@ -84,6 +84,37 @@ describe("old option names", () => {
   test("a waterfall's totals is a list of row labels", () => {
     const errors = (totals: unknown) => validateSpec(spec({ type: "waterfall", label: "Q", value: "revenue", totals })).filter((issue) => issue.level === "error").map((issue) => issue.message);
     expect([errors(["Start", 2025]), errors(true), errors([{}])]).toEqual([[], ["Must be a list."], ['totals must be a list of row labels, for example ["Q2 revenue"].']]);
+  });
+
+  test("a waterfall's totals that used to mean no totals (null, false, 0, empty text) still draws none", () => {
+    const issues = (totals: unknown) => validateSpec(spec({ type: "waterfall", label: "Q", value: "revenue", totals })).map((issue) => `${issue.level} ${issue.path}: ${issue.message}`);
+    expect([null, false, 0, ""].map((totals) => [upgradeView({ type: "waterfall", label: "Q", value: "v", totals }).view.totals, issues(totals)])).toEqual([
+      [null, []],
+      [[], ["warning view.totals: Deprecated form: write []. This form still works for now."]],
+      [[], ["warning view.totals: Deprecated form: write []. This form still works for now."]],
+      [[], ["warning view.totals: Deprecated form: write []. This form still works for now."]],
+    ]);
+  });
+
+  test("forkWidget: within one type the name the patch writes wins; across a type change old names arrive as new ones", () => {
+    const view = (base: Record<string, unknown>, patch: Record<string, unknown>) => forkWidget(spec(base), { view: patch });
+    // A patch in the old name onto a spec in the new name (the stored widgets) takes effect, and the reverse too.
+    expect(view({ type: "kpi", value: "revenue", caption: "Stored" }, { label: "Patched" }).spec.view).toEqual({ type: "kpi", value: "revenue", label: "Patched" });
+    expect(view({ type: "kpi", value: "revenue", label: "Stored" }, { caption: "Patched" }).spec.view).toEqual({ type: "kpi", value: "revenue", caption: "Patched" });
+    expect(view({ type: "table", showTotals: true }, { totals: false }).spec.view).toEqual({ type: "table", totals: false });
+    expect(view({ type: "kpi", value: "revenue", caption: "Stored" }, { label: null }).spec.view).toEqual({ type: "kpi", value: "revenue" });
+    // A kpi's caption and sparkline reach a gauge and a kpis row whichever name the kpi used.
+    for (const kpi of [
+      { type: "kpi", value: "revenue", label: "Rev", series: true },
+      { type: "kpi", value: "revenue", caption: "Rev", sparkline: true },
+    ]) {
+      expect([view(kpi, { type: "gauge" }).spec.view, view(kpi, { type: "kpis", items: [{ value: "revenue", label: "R" }] }).spec.view]).toEqual([
+        { type: "gauge", value: "revenue", caption: "Rev" },
+        { type: "kpis", sparkline: true, items: [{ value: "revenue", caption: "R" }] },
+      ]);
+    }
+    // Text meant as a caption never lands in a waterfall's label, which names a field.
+    expect(view({ type: "kpi", value: "revenue", label: "Rev" }, { type: "waterfall" })).toEqual({ spec: spec({ type: "waterfall", value: "revenue" }), dropped: ["caption"] });
   });
 
   test("describeBlocks names each old option and the one to write instead", () => {

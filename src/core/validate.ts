@@ -9,7 +9,7 @@ import { HEADLINE_OPTIONS } from "./headline.ts";
 import { getPalette, paletteNames, resolvePalette } from "./palettes.ts";
 import { getPreset, presetNames } from "./presets.ts";
 import { getBlock, hasBlock, UnknownBlockError } from "./registry.ts";
-import { upgradeView } from "./renamed.ts";
+import { claimNames, upgradeSpec, upgradeView } from "./renamed.ts";
 import { templateRefs } from "./template.ts";
 import type { Block, BlockKind, OptionSchema } from "./registry.ts";
 import type { Issue, Row, WidgetSpec } from "./types.ts";
@@ -287,15 +287,24 @@ function checkViewFields(view: Record<string, unknown>, rows: Row[]): Issue[] {
  * not have it, or cannot read its value (a "stream" stacking moving to bars).
  * Options the override sets itself are never removed, so a misspelt one still
  * gets validateSpec's warning. `dropped` names the removed options, for the
- * caller to report.
+ * caller to report. Old option names (see `upgradeView`) move to their current
+ * names across a type change; within one type, the name the override writes
+ * wins over the other name of the same option.
  */
 export function forkWidget(base: WidgetSpec, override: Record<string, unknown>): { spec: WidgetSpec; dropped: string[] } {
-  const spec = fork(base, override);
+  // Old option names. Across a type change both sides move to the current names first, so a kpi's label reaches a
+  // gauge as its caption. Within one type the spec keeps the names it has, and the name the override writes wins.
+  const patchView = isPlainObject(override.view) ? override.view : undefined;
+  const was = base.view?.type;
+  const next = typeof patchView?.type === "string" ? patchView.type : was;
+  const from = next === was ? base : upgradeSpec(base);
+  const patch = patchView && typeof next === "string" ? { ...override, view: claimNames(next, next === was ? patchView : upgradeView(patchView).view) } : override;
+  const spec = fork(from, patch);
   const view = spec.view as Record<string, unknown> | undefined;
   const type = view?.type;
-  if (!isPlainObject(view) || typeof type !== "string" || type === base.view?.type || !hasBlock("view", type)) return { spec, dropped: [] };
+  if (!isPlainObject(view) || typeof type !== "string" || type === was || !hasBlock("view", type)) return { spec, dropped: [] };
   const block = getBlock("view", type);
-  const own = isPlainObject(override.view) ? override.view : {};
+  const own = isPlainObject(patch.view) ? patch.view : {};
   const left = Object.keys(view).filter((name) => name !== "type" && !(name in own));
   const ownView = Object.fromEntries(Object.entries(view).filter(([name]) => !left.includes(name)));
   const before = new Set(block.validate?.(ownView) ?? []);

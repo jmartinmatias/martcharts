@@ -281,7 +281,9 @@ A warning also flags each old option name, once, with the name to write instead.
 | `kpis` | `label` in an item | `caption` |
 | `kpi`, `kpis` | `series` (true or false) | `sparkline` |
 | `table` | `totals` (true or false) | `showTotals` |
-| `waterfall` | `totals` as one label | `totals` as a list, `["Q2 revenue"]` |
+| `waterfall` | `totals` as one label, or `false`, `0` or `""` for none | `totals` as a list, `["Q2 revenue"]`, or leave it out |
+
+When a view sets both names, the new one wins and the warning says the old one is ignored. `forkWidget` lets the name an override writes win over the other one already in the spec, and across a view type change moves old names to new ones first, so a kpi's `label` reaches a gauge as its `caption`.
 
 `upgradeView(view)` returns `{ view, renames }`: the view with old names moved to the new ones, which is what views, `explainChart` and `questionOf` read. Use `upgradeSpec(spec)` to rewrite a stored spec.
 

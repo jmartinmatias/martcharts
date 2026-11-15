@@ -63,6 +63,24 @@ export function upgradeSpec<S extends WidgetSpec>(spec: S): S {
   return renames.length ? { ...spec, view: view as ViewSpec } : spec;
 }
 
+/**
+ * A view patch (a merge patch for a view of type `type`) in which the name the
+ * patch writes wins over the other name of the same option already in the
+ * spec: setting `label` on a kpi clears its `caption`, and setting `caption`
+ * clears its `label`. Without this, a patch written with the old name onto a
+ * spec that has the new one would be ignored, since the new name wins.
+ */
+export function claimNames(type: string, patch: Record<string, unknown>): Record<string, unknown> {
+  if (!hasBlock("view", type)) return patch;
+  let out = patch;
+  for (const [old, { use }] of Object.entries(getBlock("view", type).renamed ?? {})) {
+    if (old === use || old.includes("[]")) continue;
+    const [setsOld, setsNew] = [patch[old] !== undefined, patch[use] !== undefined];
+    if (setsOld !== setsNew) out = { ...out, [setsOld ? use : old]: null };
+  }
+  return out;
+}
+
 function move(target: unknown, old: string, rule: RenamedOption, path: string): { value: Record<string, unknown>; rename: Rename } | null {
   if (!isPlainObject(target)) return null;
   const value = target[old];
