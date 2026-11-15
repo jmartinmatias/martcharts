@@ -11,6 +11,7 @@ import { explainChart } from "../core/explain.ts";
 import { questionOf } from "../core/question.ts";
 import { widgetRef } from "../core/ref.ts";
 import { getBlock } from "../core/registry.ts";
+import { upgradeSpec } from "../core/renamed.ts";
 import type { Issue, Row, WidgetSpec } from "../core/types.ts";
 import { hasErrors, validateSpec } from "../core/validate.ts";
 import type { ViewBlock } from "../core/registry.ts";
@@ -452,11 +453,13 @@ export function createWidget(target: HTMLElement, spec: WidgetSpec, options: Wid
     const fields = current.fields;
     const size = paletteSize(current.style);
     const width = body.clientWidth || FALLBACK_WIDTH;
+    // Views read only current option names; old names in the spec are moved over here.
+    const spec = upgradeSpec(current);
     return {
       el: body,
       rows,
-      view: current.view,
-      spec: current,
+      view: spec.view,
+      spec,
       width,
       height: current.style?.height ?? goldenHeight(width),
       label: (field) => fieldLabel(field, fields),

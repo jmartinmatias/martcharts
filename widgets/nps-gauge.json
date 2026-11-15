@@ -28,6 +28,6 @@
     "target": "goal",
     "min": -100,
     "max": 100,
-    "label": "Net promoter score"
+    "caption": "Net promoter score"
   }
 }

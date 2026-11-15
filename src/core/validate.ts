@@ -9,6 +9,7 @@ import { HEADLINE_OPTIONS } from "./headline.ts";
 import { getPalette, paletteNames, resolvePalette } from "./palettes.ts";
 import { getPreset, presetNames } from "./presets.ts";
 import { getBlock, hasBlock, UnknownBlockError } from "./registry.ts";
+import { claimNames, upgradeSpec, upgradeView } from "./renamed.ts";
 import { templateRefs } from "./template.ts";
 import type { Block, BlockKind, OptionSchema } from "./registry.ts";
 import type { Issue, Row, WidgetSpec } from "./types.ts";
@@ -17,8 +18,10 @@ import type { Issue, Row, WidgetSpec } from "./types.ts";
  * Validates a widget spec against the registered blocks.
  *
  * Errors mean the widget cannot render. Warnings point at likely mistakes
- * that do not stop it, such as a view field missing from the data. Pass
- * `rows` (the pipeline output) to get those data-aware warnings.
+ * that do not stop it, such as a view field missing from the data, or an
+ * old option name (one warning per old name, naming the new one; the old
+ * name still works). Pass `rows` (the pipeline output) to get the
+ * data-aware warnings.
  *
  * @returns Every issue found, errors and warnings, in spec order. Empty when all is well.
  *
@@ -42,8 +45,14 @@ export function validateSpec(spec: unknown, rows?: Row[]): Issue[] {
 
   if (spec.fields !== undefined) issues.push(...checkFields(spec.fields));
 
-  if (spec.view === undefined) issues.push(error("view", 'Every widget needs a view, for example { "type": "table" }.'));
-  else issues.push(...checkBlock("view", spec.view, "view"));
+  // Old option names are checked under their new names, and problems are reported at the name the spec used.
+  const { view, renames } = upgradeView(spec.view);
+  if (view === undefined) issues.push(error("view", 'Every widget needs a view, for example { "type": "table" }.'));
+  else {
+    const where = new Map(renames.map((rename) => [rename.to, rename.path]));
+    issues.push(...renames.map((rename) => rename.issue));
+    issues.push(...checkBlock("view", view, "view").map((issue) => (where.has(issue.path) ? { ...issue, path: where.get(issue.path) as string } : issue)));
+  }
 
   if (spec.style !== undefined) issues.push(...checkStyle(spec.style));
 
@@ -61,17 +70,17 @@ export function validateSpec(spec: unknown, rows?: Row[]): Issue[] {
     else issues.push(...checkOptions(HEADLINE_OPTIONS, spec.headline, "headline"));
   }
 
-  if (!hasErrors(issues) && isPlainObject(spec.view)) issues.push(...checkSeriesCount(spec.view, spec.style));
-  if (rows && isPlainObject(spec.view) && !hasErrors(issues)) {
-    issues.push(...checkViewFields(spec.view, rows));
+  if (!hasErrors(issues) && isPlainObject(view)) issues.push(...checkSeriesCount(view, spec.style));
+  if (rows && isPlainObject(view) && !hasErrors(issues)) {
+    issues.push(...checkViewFields(view, rows));
     if (isPlainObject(spec.headline)) issues.push(...checkHeadlineFields(spec.headline, rows));
     if (isPlainObject(spec.facet) && typeof spec.facet.field === "string" && rows.length && !rows.some((row) => (spec.facet as { field: string }).field in row)) {
       const fields = [...new Set(rows.flatMap((row) => Object.keys(row)))].join(", ");
       issues.push({ level: "warning", path: "facet.field", message: `Field "${spec.facet.field}" is not in the data. Fields: ${fields}.` });
     }
     issues.push(...checkTemplates(spec, rows));
-    const check = getBlock("view", spec.view.type as string).checkData;
-    if (check) for (const message of check(spec.view, rows)) issues.push({ level: "warning", path: "view", message });
+    const check = getBlock("view", view.type as string).checkData;
+    if (check) for (const message of check(view, rows)) issues.push({ level: "warning", path: "view", message });
   }
   return issues;
 }
@@ -278,15 +287,24 @@ function checkViewFields(view: Record<string, unknown>, rows: Row[]): Issue[] {
  * not have it, or cannot read its value (a "stream" stacking moving to bars).
  * Options the override sets itself are never removed, so a misspelt one still
  * gets validateSpec's warning. `dropped` names the removed options, for the
- * caller to report.
+ * caller to report. Old option names (see `upgradeView`) move to their current
+ * names across a type change; within one type, the name the override writes
+ * wins over the other name of the same option.
  */
 export function forkWidget(base: WidgetSpec, override: Record<string, unknown>): { spec: WidgetSpec; dropped: string[] } {
-  const spec = fork(base, override);
+  // Old option names. Across a type change both sides move to the current names first, so a kpi's label reaches a
+  // gauge as its caption. Within one type the spec keeps the names it has, and the name the override writes wins.
+  const patchView = isPlainObject(override.view) ? override.view : undefined;
+  const was = base.view?.type;
+  const next = typeof patchView?.type === "string" ? patchView.type : was;
+  const from = next === was ? base : upgradeSpec(base);
+  const patch = patchView && typeof next === "string" ? { ...override, view: claimNames(next, next === was ? patchView : upgradeView(patchView).view) } : override;
+  const spec = fork(from, patch);
   const view = spec.view as Record<string, unknown> | undefined;
   const type = view?.type;
-  if (!isPlainObject(view) || typeof type !== "string" || type === base.view?.type || !hasBlock("view", type)) return { spec, dropped: [] };
+  if (!isPlainObject(view) || typeof type !== "string" || type === was || !hasBlock("view", type)) return { spec, dropped: [] };
   const block = getBlock("view", type);
-  const own = isPlainObject(override.view) ? override.view : {};
+  const own = isPlainObject(patch.view) ? patch.view : {};
   const left = Object.keys(view).filter((name) => name !== "type" && !(name in own));
   const ownView = Object.fromEntries(Object.entries(view).filter(([name]) => !left.includes(name)));
   const before = new Set(block.validate?.(ownView) ?? []);

@@ -230,7 +230,7 @@ describe("explainChart", () => {
   });
 
   test("a headline number with a target says what the line under it means, and where the latest ended", () => {
-    const view = { type: "kpi", value: "revenue", series: true, x: "month", target: "target" };
+    const view = { type: "kpi", value: "revenue", sparkline: true, x: "month", target: "target" };
     const rows = [
       { month: "Aug", revenue: 1100, target: 1150 },
       { month: "Sep", revenue: 1284, target: 1200 },
@@ -481,7 +481,7 @@ describe("explainChart", () => {
       { revenue: 1100, target: 1150, profit: 400, newCustomers: 54, churn: 3.6 },
       { revenue: 1284, target: 1200, profit: 424, newCustomers: 66, churn: 3.1 },
     ];
-    const at = (data: Record<string, unknown>[]) => explainChart({ ...spec({ type: "kpis", series: true, items }, fields), locale: "en-US" }, data);
+    const at = (data: Record<string, unknown>[]) => explainChart({ ...spec({ type: "kpis", sparkline: true, items }, fields), locale: "en-US" }, data);
     expect(at(rows)).toContain("Here, every number moved the right way since last time: revenue, gross profit and new customers went up, and churn went down. Revenue is past its target of 1,200.");
     const mixed = [rows[0], { ...rows[1], profit: 380, churn: 3.9 }] as Record<string, unknown>[];
     expect(at(mixed)).toContain("Here, 2 of 4 numbers moved the right way since last time; gross profit and churn did not. Revenue is past its target of 1,200.");

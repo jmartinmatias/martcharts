@@ -144,6 +144,13 @@ const VIEW_GUIDE = [
   "Records to read: table (with spark and badge cells), list.",
 ];
 
+/** A block's old option names, each with what to write instead. */
+function renamedText(renamed: Record<string, string>): string {
+  return Object.entries(renamed)
+    .map(([old, use]) => (old === use ? `\`${old}\` as one label (write a list)` : `\`${old}\` (write \`${use}\`)`))
+    .join(", ");
+}
+
 function blocksMarkdown(kinds: BlockKind[]): string {
   const lines = ["# Widget blocks", "", "A spec plugs one block into each slot: data (a source), transform (a list of steps), fields.*.format (a format), view."];
   if (kinds.includes("view")) lines.push("", "## Choosing a view", "", "Start from what the reader should see:", "", ...VIEW_GUIDE.map((line) => `- ${line}`));
@@ -155,6 +162,7 @@ function blocksMarkdown(kinds: BlockKind[]): string {
         const kindText = option.type === "enum" ? `one of ${option.values?.join(", ")}` : option.kind ? `${option.kind} ${option.type}` : option.type;
         lines.push(`  - \`${name}\` (${kindText}${option.required ? ", required" : ""}): ${option.description}`);
       }
+      if (block.renamed) lines.push(`  - Old names, still read but reported as deprecated: ${renamedText(block.renamed)}.`);
     }
   }
   if (kinds.length === KINDS.length) {

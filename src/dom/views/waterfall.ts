@@ -19,7 +19,7 @@ const CHAR_WIDTH = 6;
 export const renderWaterfall: ViewRenderer<WaterfallView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
   const { label, value, endLabel } = ctx.view;
-  const totals = new Set((Array.isArray(ctx.view.totals) ? ctx.view.totals : ctx.view.totals ? [ctx.view.totals] : []).map(String));
+  const totals = new Set((ctx.view.totals ?? []).map(String));
   const rows: Row[] = ctx.rows;
   const steps = layoutWaterfall(
     rows.map((row) => ({ value: readNumber(row[value]), total: totals.has(String(row[label])) })),

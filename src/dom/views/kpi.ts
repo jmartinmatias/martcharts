@@ -14,20 +14,20 @@ import { targetLine } from "./target.ts";
 const SPARK_HEIGHT = 34;
 
 /**
- * Draws the `kpi` view: a label, the headline number, and the change against a
+ * Draws the `kpi` view: a caption, the headline number, and the change against a
  * comparison as a signed percentage. The change carries an arrow and a sign,
  * so its color is never the only signal.
  *
- * Reads the first row. With `series`, reads the rows as a time series: the
+ * Reads the first row. With `sparkline`, reads the rows as a time series: the
  * headline is the last row, the comparison is the row before (unless
  * `compare` names a field), and a sparkline shows every row.
  */
 export const renderKpi: ViewRenderer<KpiView> = (ctx) => {
   const doc = ctx.el.ownerDocument;
-  const { value: field, compare, goodWhen = "up", label, series, x, target } = ctx.view;
+  const { value: field, compare, goodWhen = "up", caption, sparkline: overTime, x, target } = ctx.view;
   const rows = ctx.rows;
-  const row = (series ? rows[rows.length - 1] : rows[0]) ?? {};
-  const previous: Row | undefined = series ? rows[rows.length - 2] : undefined;
+  const row = (overTime ? rows[rows.length - 1] : rows[0]) ?? {};
+  const previous: Row | undefined = overTime ? rows[rows.length - 2] : undefined;
   const value = row[field];
   const hasFormat = ctx.spec.fields?.[field]?.format !== undefined;
   const show = (v: unknown) => (hasFormat ? ctx.format(v, field) : formatValue(v, { type: "number", compact: true }, ctx.spec.locale));
@@ -46,7 +46,7 @@ export const renderKpi: ViewRenderer<KpiView> = (ctx) => {
   }
   const number = html(doc, "div", "fft-kpi-value", valueText);
   countable(number, readNumber(value), show);
-  box.append(html(doc, "div", "fft-kpi-label", label ?? ctx.label(field)), number);
+  box.append(html(doc, "div", "fft-kpi-label", caption ?? ctx.label(field)), number);
 
   const now = readNumber(value);
   const before = compare ? readNumber(row[compare]) : previous ? readNumber(previous[field]) : null;
@@ -61,7 +61,7 @@ export const renderKpi: ViewRenderer<KpiView> = (ctx) => {
   // With a target, one plain line says where the latest stands: met, or how far it has to go (or, when lower is better, how far above).
   const line = targetLine(doc, "fft-kpi-target", now, target ? readNumber(row[target]) : null, goodWhen, show);
   if (line) box.append(line);
-  if (series && rows.length > 1) box.append(sparkline(ctx, rows.map((r) => readNumber(r[field]))));
+  if (overTime && rows.length > 1) box.append(sparkline(ctx, rows.map((r) => readNumber(r[field]))));
   ctx.el.append(box);
 };
 

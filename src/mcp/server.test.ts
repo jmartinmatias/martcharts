@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { Client, InMemoryTransport } from "@modelcontextprotocol/client";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { widgetRef } from "../core/ref.ts";
+import type { WidgetSpec } from "../core/types.ts";
 import { createFftServer } from "./server.ts";
 import type { FftServerOptions } from "./server.ts";
 import { createFileStore, createLocalFetch } from "./store.ts";
@@ -350,6 +351,24 @@ describe("tools", () => {
   test("fft_validate_spec checks a draft without saving it", async () => {
     const { data } = await (await connect()).call("fft_validate_spec", { spec: { data: { type: "inline", rows: [{ a: 1 }] }, view: { type: "bar", x: "a", y: "b" } } });
     expect(data).toEqual({ valid: true, issues: [{ level: "warning", path: "view.y", message: 'Field "b" is not in the data. Fields: a.' }] });
+  });
+
+  test("an old option name is valid, with one warning naming the new one, and the block guide lists the old names", async () => {
+    const { call } = await connect();
+    const { data } = await call("fft_validate_spec", { spec: { data: { type: "inline", rows: [{ a: 1 }] }, view: { type: "table", totals: true } } });
+    expect(data).toEqual({ valid: true, issues: [{ level: "warning", path: "view.totals", message: "Deprecated: write showTotals instead of totals. The old name still works for now." }] });
+    const { text } = await call("fft_list_blocks", { kind: "view" });
+    expect(text).toContain("- Old names, still read but reported as deprecated: `label` (write `caption`), `series` (write `sparkline`).");
+  });
+
+  test("an update in an old option name takes effect on a widget that uses the new name", async () => {
+    const { call } = await connect();
+    await call("fft_update_widget", { id: "visits", changes: { view: { caption: "Stored" } } });
+    const { data } = await call("fft_update_widget", { id: "visits", changes: { view: { label: "Patched" } } });
+    expect([(data?.spec as WidgetSpec).view, data?.warnings]).toEqual([
+      { type: "kpi", value: "visits", label: "Patched" },
+      [{ level: "warning", path: "view.label", message: "Deprecated: write caption instead of label. The old name still works for now." }],
+    ]);
   });
 });
 

@@ -18,7 +18,7 @@ const up = (spec: WidgetSpec): WidgetSpec => {
 const costBars = chart({ type: "bar", x: "department", y: "cost", lines: "budget", goodWhen: "down" });
 const costVariance = chart({ type: "variance", label: "department", value: "actual", target: "budget", goodWhen: "down" }, "Operating costs against budget");
 const churnFields: WidgetSpec["fields"] = { churn: { label: "Monthly churn", format: { type: "percent", decimals: 1 } }, cost: { label: "Monthly cost", format: euros } };
-const churnKpi: WidgetSpec = { title: "Customer churn", data: { type: "inline", rows: [] }, fields: churnFields, view: { type: "kpi", value: "churn", series: true, x: "month", target: "target", goodWhen: "down" } };
+const churnKpi: WidgetSpec = { title: "Customer churn", data: { type: "inline", rows: [] }, fields: churnFields, view: { type: "kpi", value: "churn", sparkline: true, x: "month", target: "target", goodWhen: "down" } };
 const tiles = (items: Record<string, unknown>[]): WidgetSpec => ({ title: "At a glance", data: { type: "inline", rows: [] }, fields: churnFields, view: { type: "kpis", items } as WidgetSpec["view"] });
 
 describe("questions where lower is better", () => {

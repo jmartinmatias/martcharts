@@ -59,7 +59,7 @@ export const renderGauge: ViewRenderer<GaugeView> = (ctx) => {
   const number = svg(doc, "text", { class: "fft-gauge-value", x: c, y: c - 6, "text-anchor": "middle" });
   number.textContent = show(row[field]);
   const caption = svg(doc, "text", { class: "fft-gauge-caption", x: c, y: c + 15, "text-anchor": "middle" });
-  caption.textContent = ctx.view.label ?? ctx.label(field);
+  caption.textContent = ctx.view.caption ?? ctx.label(field);
   chart.append(number, caption);
   for (const [v, x] of [
     [min, c - r],
@@ -77,7 +77,7 @@ export const renderGauge: ViewRenderer<GaugeView> = (ctx) => {
   }
   const hit = svg(doc, "path", { class: "fft-gauge-hit", d: track, "stroke-width": thickness + 8, tabindex: 0, role: "img" });
   hit.setAttribute("aria-label", items.map((it) => `${it.label} ${it.value}`).join(", "));
-  const showTip = () => ctx.tooltip.show(hit, ctx.view.label ?? ctx.label(field), items);
+  const showTip = () => ctx.tooltip.show(hit, ctx.view.caption ?? ctx.label(field), items);
   hit.addEventListener("pointerenter", showTip);
   hit.addEventListener("focus", showTip);
   hit.addEventListener("pointerleave", () => ctx.tooltip.hide());

@@ -14,6 +14,7 @@ export type {
   LoadContext,
   OptionSchema,
   OptionType,
+  RenamedOption,
   SourceBlock,
   TransformBlock,
   ViewBlock,
@@ -51,6 +52,8 @@ export { fillTemplate, hasTemplate, templateFields, templateRefs } from "./templ
 export { applyTransforms, runPipeline } from "./pipeline.ts";
 export { fieldLabel, formatNode, formatValue, humanize } from "./display.ts";
 export { FACET_OPTIONS, forkWidget, hasErrors, validateSpec } from "./validate.ts";
+export { upgradeSpec, upgradeView } from "./renamed.ts";
+export type { Rename } from "./renamed.ts";
 export { ICON_NAMES, ICONS } from "./icons.ts";
 export {
   blockTypes,

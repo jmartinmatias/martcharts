@@ -29,7 +29,7 @@
   "view": {
     "type": "kpi",
     "value": "revenue",
-    "series": true,
+    "sparkline": true,
     "x": "month",
     "icon": "revenue",
     "target": "target"

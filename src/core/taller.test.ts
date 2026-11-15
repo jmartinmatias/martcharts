@@ -475,7 +475,7 @@ describe("one unit per axis", () => {
     expect([big.length > 0, big.every((v) => v.spec.view?.target === "target" && v.question === "Is revenue on target?")]).toEqual([true, true]);
     expect(tiles.every((v) => (v.spec.view?.items as { value: string; target?: string }[]).find((item) => item.value === "revenue")?.target === "target")).toBe(true);
     // Over time, the tiles read the latest period, not the first one.
-    expect([tiles.length > 0, tiles.every((v) => v.spec.view?.series === true)]).toEqual([true, true]);
+    expect([tiles.length > 0, tiles.every((v) => v.spec.view?.sparkline === true)]).toEqual([true, true]);
   });
 
   test("over time, each dot is one period: a month, not a row or an item", () => {

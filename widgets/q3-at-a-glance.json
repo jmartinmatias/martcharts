@@ -56,7 +56,7 @@
   },
   "view": {
     "type": "kpis",
-    "series": true,
+    "sparkline": true,
     "items": [
       {
         "value": "revenue",
