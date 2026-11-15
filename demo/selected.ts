@@ -68,8 +68,10 @@ function render(selections: Selection[], made?: { variants?: number; charts?: nu
   }
   if (selections.length === 0) {
     list.append(el("p", "empty", "The selection appears here once the variation engine has run across the widgets."));
+    void settle([]);
     return;
   }
+  const drawing: Promise<unknown>[] = [];
   selections.forEach((pick, i) => {
     const section = el("section", "selection");
     section.id = `selection-${i + 1}`;
@@ -86,6 +88,7 @@ function render(selections: Selection[], made?: { variants?: number; charts?: nu
     const slot = el("div", "slot");
     chart.append(number, title, slot);
     const widget = createWidget(slot, pick.spec, { actions: ["expand"] });
+    drawing.push(widget.ready);
 
     const notes = el("div", "notes");
     const asks = note("The question it answers", questionOf(pick.spec).text);
@@ -108,12 +111,23 @@ function render(selections: Selection[], made?: { variants?: number; charts?: nu
       block.append(el("h3", undefined, `The original: ${original.title ?? pick.source}`));
       const small = el("div", "slot");
       block.append(small);
-      createWidget(small, { ...original, style: { ...original.style, height: 144, density: "compact" } });
+      // The heading above names it, so the small chart drops its own title: two landmarks named alike fail axe landmark-unique.
+      const { title: _shown, ...untitled } = original;
+      drawing.push(createWidget(small, { ...untitled, style: { ...original.style, height: 144, density: "compact" } }).ready);
       notes.append(block);
     }
     section.append(chart, notes);
     list.append(section);
   });
+  void settle(drawing);
+}
+
+/** Marks <html data-settled> once every chart has drawn and its entrance has finished, so axe reads final colours. */
+async function settle(drawing: Promise<unknown>[]) {
+  await Promise.allSettled(drawing);
+  await Promise.allSettled(document.getAnimations().map((animation) => animation.finished));
+  await new Promise((resolve) => setTimeout(resolve, 34));
+  document.documentElement.dataset.settled = "";
 }
 
 // Theme switch for the page and every chart on it.
