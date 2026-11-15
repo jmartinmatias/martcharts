@@ -51,7 +51,7 @@ FFT widgets are built to meet the European Accessibility Act. The Act applies th
 | 2.5.3 Label in name | Visible labels are part of each accessible name. | |
 | 2.5.4 Motion actuation | None. | |
 | 2.5.7 Dragging movements (2.2) | Nothing needs dragging. | |
-| 2.5.8 Target size (2.2) | Toolbar buttons, period buttons and section chips are at least 24 by 24 px. The ghost ref, table sort buttons and horizontal bar rows are shorter but meet the spacing exception (no other target within 24 px), as axe checks. | |
+| 2.5.8 Target size (2.2) | Toolbar buttons, period buttons and section chips are at least 24 by 24 px. The ghost ref, table sort buttons and horizontal bar rows are shorter but meet the spacing exception (no other target within 24 px), as axe checks. On a phone (700 px wide or less) or a touch screen, the toolbar, period and section buttons, the filter select, the ghost ref, table sort buttons and table rows are 44 by 44 px or larger; chart marks keep their size. | |
 | 3.1.1 Language of page | The host page's responsibility. | |
 | 3.1.2 Language of parts | Each widget sets `lang` from its spec's `locale`, so numbers, dates and labels are read in the right language. | `src/dom/widget.ts` |
 | 3.2.1, 3.2.2 On focus, on input | Focus never changes context. Choosing a filter, period or section redraws the board in place and moves nothing. | |
@@ -81,7 +81,7 @@ npx vitest run src/dom/a11y.test.ts src/dom/contrast.test.ts
   - the non-color cues
 - `src/dom/contrast.test.ts` computes every text and mark color against its background in both themes and every preset.
 
-In a real browser, where layout makes contrast and target size measurable, load axe-core from the dev server and run it over the page:
+In a real browser, where layout makes contrast and target size measurable, load axe-core from the dev server and run it over the page. Run it once the Gallery or Selected page marks `<html data-settled>` (every chart drawn, entrance animations done), or with reduced motion on: a card read mid-fade blends its muted text toward the card and fails contrast for a few hundred milliseconds.
 
 ```js
 await import("/node_modules/axe-core/axe.min.js");

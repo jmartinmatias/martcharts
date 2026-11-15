@@ -50,8 +50,24 @@
         padding: calc(32px + env(safe-area-inset-top, 0px)) calc(16px + env(safe-area-inset-right, 0px))
           calc(64px + env(safe-area-inset-bottom, 0px)) calc(16px + env(safe-area-inset-left, 0px));
       }
-      header.page { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
-      h1 { margin: 0; font-size: 24px; }
+      /* One compact row over the board: the name, the dashboard switch, and the intro and page controls behind a disclosure,
+         so the first chart sits on the first screen at phone width too. */
+      header.page { display: flex; flex-wrap: wrap; align-items: center; gap: 13px 21px; margin-bottom: 21px; }
+      h1 { margin: 0; font-size: 21px; line-height: 34px; letter-spacing: -0.01em; }
+      .disclosure {
+        margin-left: auto; display: inline-flex; align-items: center; gap: 8px; min-height: 34px; padding: 5px 13px;
+        border: 1px solid var(--line); border-radius: 8px; background: transparent; color: var(--ink-2); font: inherit; font-size: 13px; cursor: pointer;
+      }
+      .disclosure::after { content: ""; width: 6px; height: 6px; margin-top: -3px; border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); }
+      .disclosure[aria-expanded="true"] { color: var(--ink); }
+      .disclosure[aria-expanded="true"]::after { margin-top: 3px; transform: rotate(-135deg); }
+      .disclosure:focus-visible, .segmented button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+      .about { flex: 1 1 100%; display: flex; flex-direction: column; gap: 13px; padding-bottom: 8px; }
+      .about[hidden] { display: none; }
+      .about p.lede, .about p.note { margin: 0; }
+      .visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+      /* The board-pick names the dashboard on show, so the board's own title and subtitle stay for screen readers only. */
+      #gallery .fft-dashboard-header { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
       /* Section titles match the dashboard's own title; a grouping above them is a quiet uppercase label. */
       h2 { margin: 40px 0 4px; font-size: 21px; line-height: 34px; font-weight: 600; letter-spacing: -0.01em; }
       h2.eyebrow { margin: 40px 0 4px; font-size: 12px; line-height: 21px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); }
@@ -227,7 +243,9 @@
          label never strands at the end of a row. */
       @media (max-width: 700px) {
         main { padding-top: calc(21px + env(safe-area-inset-top, 0px)); }
-        header.page { flex-direction: column; align-items: stretch; gap: 13px; }
+        header.page { gap: 8px 13px; }
+        #board-pick { order: 3; }
+        .about { order: 4; }
         .controls, .editor-bar { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 13px; }
         .controls .segmented, .editor-bar button { justify-self: start; }
         .editor-bar button { grid-column: 1 / -1; }
@@ -237,16 +255,46 @@
         /* iOS Safari zooms into any focused field under 16px; the library's filter and hex fields included. */
         input, select, textarea, main .fft-filter select, main .fft-picker-hex { font-size: 16px; }
       }
-      /* Touch: 34px tall targets for the page controls. */
-      @media (pointer: coarse) {
-        .segmented button, .playground button, .playground select { min-height: 34px; }
+      /* Phones and touch: every page control a 44px target. Desktop with a mouse keeps the 34px look. */
+      @media (pointer: coarse), (max-width: 700px) {
+        .segmented button, .disclosure, .playground button, .playground select, .playground-close { min-height: 44px; min-width: 44px; }
         .playground button { padding: 5px 13px; }
         .playground select { padding: 5px 8px; }
-        .style-grid input[type="color"] { width: 55px; height: 34px; }
+        .style-grid input[type="color"] { width: 55px; height: 44px; }
+        .style-grid label { min-height: 44px; }
+      }
+      @media (prefers-reduced-motion: reduce) { body { transition: none; } }
+      /* Print: a one-page brief from the browser's own Print. The page name and the dashboard, then the sections on show in
+         four columns scaled to the page; main.ts measures the layout and marks the cards past one page data-print-skip. */
+      .print-measure .fft-dashboard-grid {
+        width: var(--print-width) !important; grid-template-columns: repeat(4, var(--print-column)) !important;
+      }
+      /* Cards drawn one to a row (a phone) print one column wide each, as they were drawn. */
+      .print-measure.print-narrow .fft-dashboard-grid > .fft-cell-slot { grid-column: auto !important; }
+      @media print {
+        @page { size: A4 landscape; margin: 10mm; }
+        :root:root, :root:root body:is([data-preset], :not([data-preset])) {
+          color-scheme: light !important; --page: #ffffff !important; --ink: #0b0b0b !important; --ink-2: #52514e !important;
+          --line: rgba(11, 11, 11, 0.1) !important; background: #ffffff !important; color: #0b0b0b !important;
+        }
+        body::before { display: none !important; }
+        .print-narrow .fft-dashboard-grid > .fft-cell-slot { grid-column: auto !important; }
+        main { max-width: none; padding: 0; }
+        .site-nav, .disclosure, .about, #board-pick, #selection, dialog, .fft-filters, .fft-filters-sentinel,
+        .fft-widget-ref, .fft-guide, [data-print-skip] { display: none !important; }
+        header.page { display: inline-flex; margin: 0 13px 8px 0; }
+        h1 { font-size: 15pt; line-height: 1.2; }
+        #gallery .fft-dashboard-header { position: static; width: auto; height: auto; overflow: visible; clip-path: none; white-space: normal;
+          display: inline-flex; flex-direction: row; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+        #gallery .fft-dashboard-title { font-size: 11pt; line-height: 1.2; color: #0b0b0b; }
+        #gallery .fft-dashboard-subtitle, #gallery .fft-board-section, #gallery .fft-board-section * { color: #52514e; }
+        #gallery .fft-dashboard-subtitle { font-size: 9pt; }
+        .fft-dashboard-grid { width: var(--print-width) !important; grid-template-columns: repeat(4, var(--print-column)) !important; zoom: var(--print-zoom, 0.6); }
+        .fft-cell-slot { break-inside: avoid; }
       }
     </style>
   </head>
-  <body>
+  <body data-preset="glass">
     <main>
       <nav class="site-nav" aria-label="Pages">
         <a href="./index.html" aria-current="page" title="Every widget in the library, each the same component fed a different spec">Gallery</a>
@@ -255,35 +303,36 @@
         <button type="button" id="open-playground" aria-haspopup="dialog" title="Edit any widget's spec, view and style, with a live preview">Playground</button>
       </nav>
       <header class="page">
-        <div>
-          <h1>FFT Widgets</h1>
+        <h1>FFT Widgets</h1>
+        <div id="board-pick" class="segmented" role="group" aria-label="Dashboard"></div>
+        <button type="button" id="about-toggle" class="disclosure" aria-expanded="false" aria-controls="about">About and style</button>
+        <div id="about" class="about" hidden>
           <p class="lede">
             One widget block, many widgets. Each card below is the same component fed a different spec from the
             <code>widgets/</code> folder: data, transforms, fields, view and style.
           </p>
-        </div>
-        <div class="controls">
-          <span class="label" id="preset-label">Style</span>
-          <div id="preset" class="segmented" role="group" aria-labelledby="preset-label"></div>
-          <span class="label" id="theme-label">Theme</span>
-          <div id="theme" class="segmented" role="group" aria-labelledby="theme-label">
-            <button type="button" data-value="auto" aria-pressed="true">Auto</button>
-            <button type="button" data-value="light" aria-pressed="false">Light</button>
-            <button type="button" data-value="dark" aria-pressed="false">Dark</button>
-          </div>
-          <span class="label" id="explain-label">How to read</span>
-          <div id="explain" class="segmented" role="group" aria-labelledby="explain-label" title="Show a plain guide under every chart">
-            <button type="button" data-value="off" aria-pressed="true">Off</button>
-            <button type="button" data-value="on" aria-pressed="false">On</button>
+          <p class="note">The gallery is itself a dashboard, <code>dashboards/gallery.json</code>: pick a region and every widget with region data follows. Hover or tab through charts for values; click a row, bar or point to fire an <code>fft-select</code> event.</p>
+          <div class="controls">
+            <span class="label" id="preset-label">Style</span>
+            <div id="preset" class="segmented" role="group" aria-labelledby="preset-label"></div>
+            <span class="label" id="theme-label">Theme</span>
+            <div id="theme" class="segmented" role="group" aria-labelledby="theme-label">
+              <button type="button" data-value="auto" aria-pressed="true">Auto</button>
+              <button type="button" data-value="light" aria-pressed="false">Light</button>
+              <button type="button" data-value="dark" aria-pressed="false">Dark</button>
+            </div>
+            <span class="label" id="explain-label">How to read</span>
+            <div id="explain" class="segmented" role="group" aria-labelledby="explain-label" title="Show a plain guide under every chart">
+              <button type="button" data-value="off" aria-pressed="true">Off</button>
+              <button type="button" data-value="on" aria-pressed="false">On</button>
+            </div>
           </div>
         </div>
       </header>
 
       <section aria-labelledby="gallery-title">
-        <h2 id="gallery-title" class="eyebrow">Dashboards</h2>
-        <p class="note">The gallery is itself a dashboard, <code>dashboards/gallery.json</code>: pick a region and every widget with region data follows. Hover or tab through charts for values; click a row, bar or point to fire an <code>fft-select</code> event.</p>
-        <div id="board-pick" class="segmented" role="group" aria-label="Dashboard" style="margin-top: 13px"></div>
-        <div id="gallery" style="margin-top: 13px"></div>
+        <h2 id="gallery-title" class="visually-hidden">Dashboards</h2>
+        <div id="gallery"></div>
         <p id="selection" role="status"></p>
       </section>
 

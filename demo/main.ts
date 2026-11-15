@@ -82,6 +82,32 @@ playground.addEventListener("close", () => (opener?.isConnected ? opener : openB
 /** The style every chart takes when styling is set to All charts (a merge patch over each widget's own style). */
 let shared: Record<string, unknown> = {};
 let board = createDashboard($("#gallery"), gallerySpec, boardOptions);
+// The page opens in the glass look, as if Glass were picked under Style: the library's own default stays the default
+// for every other host. index.html sets the matching backdrop on <body> so the first paint is already glass.
+const PAGE_PRESET = "glass";
+
+// The intro and the page controls sit behind one disclosure, so the board starts on the first screen.
+const aboutToggle = $<HTMLButtonElement>("#about-toggle");
+aboutToggle.addEventListener("click", () => {
+  const open = aboutToggle.getAttribute("aria-expanded") !== "true";
+  aboutToggle.setAttribute("aria-expanded", String(open));
+  $("#about").hidden = !open;
+});
+
+/**
+ * Marks <html data-settled> once the board has drawn and its entrance animations have finished, so an audit (axe)
+ * reads final colours rather than a card mid-fade. Cleared while a new board draws.
+ */
+let restyled: Promise<void> = Promise.resolve();
+async function settle(current: typeof board) {
+  delete document.documentElement.dataset.settled;
+  await current.ready;
+  await restyled;
+  await Promise.allSettled(document.getAnimations().map((animation) => animation.finished));
+  // Entrance flags come off on a timer after the animations; one more frame lets them go.
+  await new Promise((resolve) => setTimeout(resolve, 34));
+  if (current === board) document.documentElement.dataset.settled = "";
+}
 
 // Dashboard switcher: one button per file in dashboards/.
 const boardGroup = $("#board-pick");
@@ -93,7 +119,8 @@ for (const spec of boardSpecs) {
     for (const other of boardGroup.querySelectorAll("button")) other.setAttribute("aria-pressed", String(other === b));
     board.destroy();
     board = createDashboard($("#gallery"), spec, { ...boardOptions, guides: explainAll });
-    if (Object.keys(shared).length) void board.setOverride({ style: shared });
+    if (Object.keys(shared).length) restyled = board.setOverride({ style: shared });
+    void settle(board);
   });
   boardGroup.append(b);
 }
@@ -102,6 +129,45 @@ document.addEventListener("fft-select", (event) => {
   const { row, spec } = (event as CustomEvent<SelectDetail>).detail;
   $("#selection").textContent = `Selected in "${spec.title ?? spec.id}": ${JSON.stringify(row)}`;
 });
+
+// ---- Print: a one-page brief ----
+// The browser's own Print gives the brief: the sections on show in four columns, scaled to an A4 landscape page, cut
+// after the last row that fits. Each card keeps the width it was drawn at, so nothing redraws or clips on paper.
+const PRINT_COLUMNS = 4;
+/** A4 landscape inside 10 mm margins, in CSS px, less a line for the page title. */
+const PRINT_PAGE = { width: (277 * 96) / 25.4, height: (190 * 96) / 25.4 - 55 };
+function markPrint() {
+  const grid = document.querySelector<HTMLElement>("#gallery .fft-dashboard-grid");
+  // Measured on the screen layout; a print engine that fires this with print styles on (a headless PDF) keeps the last marks.
+  if (!grid || matchMedia("print").matches) return;
+  const style = getComputedStyle(grid);
+  const column = Math.min(...style.gridTemplateColumns.split(" ").map(parseFloat));
+  const gap = parseFloat(style.columnGap) || 0;
+  const width = PRINT_COLUMNS * column + (PRINT_COLUMNS - 1) * gap;
+  const zoom = Math.min(1, PRINT_PAGE.width / width);
+  const root = document.documentElement;
+  root.style.setProperty("--print-column", `${column}px`);
+  root.style.setProperty("--print-width", `${width}px`);
+  root.style.setProperty("--print-zoom", String(zoom));
+  root.classList.toggle("print-narrow", style.gridTemplateColumns.split(" ").length === 1);
+  // Lay the grid out as it prints (without the scale), keep what ends inside one page, then put the screen back.
+  root.classList.add("print-measure");
+  const top = grid.getBoundingClientRect().top;
+  for (const child of grid.children as HTMLCollectionOf<HTMLElement>) {
+    child.removeAttribute("data-print-skip");
+    if (!child.hidden && child.getBoundingClientRect().bottom - top > PRINT_PAGE.height / zoom) child.dataset.printSkip = "";
+  }
+  // A section heading with none of its cards on the page goes too.
+  let cardBelow = false;
+  for (const child of [...grid.children].reverse() as HTMLElement[]) {
+    if (child.hidden || child.hasAttribute("data-print-skip")) continue;
+    if (!child.classList.contains("fft-board-section")) cardBelow = true;
+    else if (!cardBelow) child.dataset.printSkip = "";
+    else cardBelow = false;
+  }
+  root.classList.remove("print-measure");
+}
+window.addEventListener("beforeprint", markPrint);
 
 // ---- Page controls: theme and style preset ----
 
@@ -143,11 +209,13 @@ segmented(presetGroup, (preset) => {
   styleAll(patch);
   if (scope === "all") void apply(fork(current, { style: patch }));
 });
+styleAll({ preset: PAGE_PRESET });
+void settle(board);
 
 /** Styles every chart on the board: the patch merges into the shared style, and the page controls follow it. */
 function styleAll(patch: Record<string, unknown>) {
   shared = fork(shared, patch);
-  void board.setOverride({ style: patch });
+  restyled = board.setOverride({ style: patch });
   syncPage();
 }
 

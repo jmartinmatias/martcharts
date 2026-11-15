@@ -21,5 +21,10 @@
 .site-nav a:hover, .site-nav button:hover { color: var(--ink); border-bottom-color: var(--line); }
 .site-nav a:focus-visible, .site-nav button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; color: var(--ink); }
 .site-nav [aria-current="page"] { color: var(--ink); font-weight: 600; border-bottom-color: var(--accent); cursor: default; }
+/* Phones and touch: each item a 44px target, the row's look otherwise unchanged. */
+@media (pointer: coarse), (max-width: 700px) {
+  .site-nav { gap: 0 13px; padding-bottom: 0; }
+  .site-nav a, .site-nav button { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; padding: 0; }
+}
 @media (prefers-reduced-motion: reduce) { .site-nav a, .site-nav button { transition: none; } }
 @media (forced-colors: active) { .site-nav [aria-current="page"] { border-bottom-color: CanvasText; } }
