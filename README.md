@@ -29,6 +29,7 @@ npm run dev        # demo gallery at http://127.0.0.1:5173; its Playground (head
 npm test           # unit and integration tests
 npm run typecheck
 npm run smoke      # starts the real MCP server and calls it as a client would
+npm run check      # typecheck, tests and smoke, then fails if docs/blocks.md is out of date; CI runs it
 ```
 
 ## A widget in one object

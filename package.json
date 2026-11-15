@@ -22,7 +22,8 @@
     "mcp:inspect": "npx @modelcontextprotocol/inspector node src/mcp/main.ts",
     "smoke": "node scripts/smoke.ts",
     "mcp:config": "node src/mcp/main.ts --print-config",
-    "docs": "node scripts/docs.ts"
+    "docs": "node scripts/docs.ts",
+    "check": "npm run typecheck && npm test && npm run smoke && npm run docs && git diff --exit-code -- docs/blocks.md"
   },
   "engines": {
     "node": ">=23.6"
