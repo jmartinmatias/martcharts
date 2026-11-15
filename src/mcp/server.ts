@@ -21,7 +21,7 @@ import type { DashboardSpec } from "../core/dashboard.ts";
 import { describePalettes, getPalette, paletteNames } from "../core/palettes.ts";
 import { describePresets } from "../core/presets.ts";
 import { HEADLINE_OPTIONS } from "../core/headline.ts";
-import { FACET_OPTIONS } from "../core/validate.ts";
+import { FACET_OPTIONS, forkWidget } from "../core/validate.ts";
 import { WIDGET_REF, widgetRef } from "../core/ref.ts";
 import { explainChart } from "../core/explain.ts";
 import { describeBlocks } from "../core/registry.ts";
@@ -224,6 +224,9 @@ export function createFftServer(options: FftServerOptions): McpServer {
     return { spec: await store.get(id), warnings: await dataWarnings(spec, signal) };
   }
 
+  /** Names the view options a type change removed, so none disappear without a word. */
+  const droppedNote = (dropped: string[]) => (dropped.length ? { dropped: dropped.map((name) => `view.${name}`) } : {});
+
   // ---- Read tools ----
 
   if (!linked) {
@@ -326,12 +329,13 @@ Use it to answer questions about the numbers a widget shows. Both formats start 
         description: `Create a new widget and save it to the store.
 
 With from: forks that widget, and spec holds only what changes (merge patch: objects merge, lists replace, null removes a key).
+A new view type removes the source view's options it does not have and lists them in "dropped".
 Without from: starts from the vanilla block (an empty table) and applies spec.
 The spec is validated first; nothing is saved if it has errors. Warnings (for example a view field missing from the data) are returned.
 Title, subtitle, footer and headline.caption accept templates filled from the drawn rows: {first:field}, {last:field}, {sum:field}, {avg:field}, {min:field}, {max:field}, {count}. Example subtitle: "{first:month} to {last:month}".
 
 Examples:
-  - Same data as a table: {"id": "sales-table", "from": "revenue-by-region", "spec": {"view": {"type": "table", "x": null, "y": null, "highlight": null, "reference": null}}}
+  - Same data as a table: {"id": "sales-table", "from": "revenue-by-region", "spec": {"view": {"type": "table"}}}
   - New KPI: {"id": "orders-kpi", "spec": {"title": "Orders", "data": {"type": "inline", "rows": [{"orders": 120, "previous": 100}]}, "view": {"type": "kpi", "value": "orders", "compare": "previous"}}}`,
         inputSchema: z.strictObject({
           id: IdSchema.describe('Id for the new widget, for example "orders-kpi". Becomes widgets/<id>.json.'),
@@ -343,10 +347,10 @@ Examples:
       async ({ id, from, spec }, ctx) => {
         if (await store.has(id)) throw new Error(`Widget "${id}" already exists. Use fft_update_widget to change it.`);
         const { id: _sourceId, ...source } = from ? await store.get(await resolveId(from)) : baseWidget;
-        const next = fork(source as WidgetSpec, spec ?? {});
+        const { spec: next, dropped } = forkWidget(source as WidgetSpec, spec ?? {});
         const saved = await saveChecked(id, next, "The spec has problems, so nothing was saved:", ctx.mcpReq.signal);
         await server.sendResourceListChanged();
-        return asJson({ created: id, ...saved });
+        return asJson({ created: id, ...saved, ...droppedNote(dropped) });
       },
     );
   }
@@ -358,6 +362,7 @@ Examples:
       description: `Change ${which} and save it.
 
 Pass changes to edit some fields (merge patch: objects merge, lists replace, null removes a key), or replace to swap the whole spec. The result is validated first; nothing is saved if it has errors.
+When changes give the view a new type, the old view's options the new view does not have are removed and listed in "dropped"; options both views have keep their values.
 
 Examples:
   - Retitle: {"changes": {"title": "Revenue by region, Q3"}}
@@ -375,9 +380,9 @@ Examples:
       }
       const id = await idOf(args);
       const current = await store.get(id);
-      const next = args.replace ? (args.replace as unknown as WidgetSpec) : fork(current, args.changes ?? {});
+      const { spec: next, dropped } = args.replace ? { spec: args.replace as unknown as WidgetSpec, dropped: [] } : forkWidget(current, args.changes ?? {});
       const saved = await saveChecked(id, next, "The change would break the widget, so nothing was saved:", ctx.mcpReq.signal);
-      return asJson({ updated: id, ...saved });
+      return asJson({ updated: id, ...saved, ...droppedNote(dropped) });
     },
   );
 

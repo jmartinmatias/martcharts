@@ -1,6 +1,7 @@
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { Client, InMemoryTransport } from "@modelcontextprotocol/client";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { widgetRef } from "../core/ref.ts";
@@ -254,6 +255,50 @@ describe("tools", () => {
     expect(isError).toBe(true);
     expect(text).toContain("view.value: Required.");
     expect(await store.get("visits")).toEqual({ id: "visits", ...kpi });
+  });
+
+  test("fft_update_widget switching view type drops the old view's other options and lists them", async () => {
+    await store.save("ranked", { ...salesByRegion, view: { type: "hbar", label: "region", value: "revenue", mark: "lollipop", highlight: "East" } });
+    const { data } = await (await connect()).call("fft_update_widget", { id: "ranked", changes: { view: { type: "bar", x: "region", y: "revenue" } } });
+    expect(data?.dropped).toEqual(["view.label", "view.value"]);
+    expect(data?.warnings).toEqual([]);
+    expect((await store.get("ranked")).view).toEqual({ type: "bar", x: "region", y: "revenue", mark: "lollipop", highlight: "East" });
+  });
+
+  test("fft_update_widget keeps an option the caller set on the new view, so a misspelling still warns", async () => {
+    const { data } = await (await connect()).call("fft_update_widget", { id: "visits", changes: { view: { type: "table", sortabel: true } } });
+    expect(data?.dropped).toEqual(["view.value"]);
+    expect(data?.warnings).toEqual([expect.objectContaining({ path: "view.sortabel" })]);
+  });
+
+  test("every stored widget switches to bars and to a table with no unknown-option warning, keeping shared options", async () => {
+    const repo = fileURLToPath(new URL("../../", import.meta.url));
+    const real = createFileStore(join(repo, "widgets"));
+    const ids = (await readdir(join(repo, "widgets"))).filter((f) => f.endsWith(".json")).map((f) => f.slice(0, -5));
+    const sources = new Set<string>();
+    for (const id of ids) {
+      const { id: _id, ...spec } = JSON.parse(await readFile(join(repo, "widgets", `${id}.json`), "utf8"));
+      await store.save(id, spec);
+      sources.add(spec.view.type);
+    }
+    expect(sources.size).toBeGreaterThanOrEqual(10);
+    const { call } = await connect({ fetch: createLocalFetch(join(repo, "public")) });
+    for (const id of ids) {
+      const before = (await real.get(id)).view as Record<string, unknown>;
+      for (const view of [{ type: "bar", x: "a", y: "b" }, { type: "table" }]) {
+        await store.save(id, (await real.get(id)) as never);
+        const { data, isError, text } = await call("fft_update_widget", { id, changes: { view } });
+        expect(isError, `${id} to ${view.type}: ${text}`).toBe(false);
+        const unknown = (data?.warnings as { message: string }[]).filter((w) => w.message.startsWith("Not an option of"));
+        expect(unknown, `${id} to ${view.type}`).toEqual([]);
+        const after = (await store.get(id)).view as Record<string, unknown>;
+        for (const [name, value] of Object.entries(before)) {
+          if (name === "type" || name in view) continue;
+          if (name in after) expect(after[name], `${id} to ${view.type}: view.${name}`).toEqual(value);
+          else expect(data?.dropped, `${id} to ${view.type}`).toContain(`view.${name}`);
+        }
+      }
+    }
   });
 
   test("fft_update_widget needs exactly one of changes or replace", async () => {

@@ -4,14 +4,14 @@
  * @module
  */
 import { readNumber } from "./formats.ts";
-import { isPlainObject } from "./fork.ts";
+import { fork, isPlainObject } from "./fork.ts";
 import { HEADLINE_OPTIONS } from "./headline.ts";
 import { getPalette, paletteNames, resolvePalette } from "./palettes.ts";
 import { getPreset, presetNames } from "./presets.ts";
-import { getBlock, UnknownBlockError } from "./registry.ts";
+import { getBlock, hasBlock, UnknownBlockError } from "./registry.ts";
 import { templateRefs } from "./template.ts";
 import type { Block, BlockKind, OptionSchema } from "./registry.ts";
-import type { Issue, Row } from "./types.ts";
+import type { Issue, Row, WidgetSpec } from "./types.ts";
 
 /**
  * Validates a widget spec against the registered blocks.
@@ -270,4 +270,32 @@ function checkViewFields(view: Record<string, unknown>, rows: Row[]): Issue[] {
     }
   }
   return issues;
+}
+
+/**
+ * `fork` for widgets, with one extra rule: when the override changes the view
+ * type, each option the old view left behind is removed when the new view does
+ * not have it, or cannot read its value (a "stream" stacking moving to bars).
+ * Options the override sets itself are never removed, so a misspelt one still
+ * gets validateSpec's warning. `dropped` names the removed options, for the
+ * caller to report.
+ */
+export function forkWidget(base: WidgetSpec, override: Record<string, unknown>): { spec: WidgetSpec; dropped: string[] } {
+  const spec = fork(base, override);
+  const view = spec.view as Record<string, unknown> | undefined;
+  const type = view?.type;
+  if (!isPlainObject(view) || typeof type !== "string" || type === base.view?.type || !hasBlock("view", type)) return { spec, dropped: [] };
+  const block = getBlock("view", type);
+  const own = isPlainObject(override.view) ? override.view : {};
+  const left = Object.keys(view).filter((name) => name !== "type" && !(name in own));
+  const ownView = Object.fromEntries(Object.entries(view).filter(([name]) => !left.includes(name)));
+  const before = new Set(block.validate?.(ownView) ?? []);
+  const rejects = (name: string) => {
+    const schema = block.options[name];
+    if (!schema || kindProblem(schema, view[name]) !== null) return true;
+    return (block.validate?.({ ...ownView, [name]: view[name] }) ?? []).some((message) => !before.has(message));
+  };
+  const dropped = left.filter(rejects);
+  for (const name of dropped) delete view[name];
+  return { spec, dropped };
 }

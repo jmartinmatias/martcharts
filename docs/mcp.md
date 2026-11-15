@@ -67,7 +67,7 @@ All tools validate input; bad input comes back as a tool error that says how to 
 | `fft_get_widget` | yes | One widget's full spec, plus static validation issues. |
 | `fft_get_widget_data` | yes | Runs the widget's pipeline and returns the rows it draws, led by `question` (the sales question the chart answers, such as "Which region has the most revenue?") and `howToRead`: how to read the chart in plain words, ending with one example from those rows. Markdown is a table with labels and formatted values. Paged with `limit` (default 50, max 500) and `offset`; also includes data warnings. |
 | `fft_create_widget` | no | Creates `id`. With `from`, forks that widget and `spec` holds only the changes; without it, forks the vanilla block. Refuses existing ids and invalid specs. |
-| `fft_update_widget` | no (overwrites) | Pass `changes` (a merge patch) or `replace` (a whole spec). Refuses changes that would make the spec invalid. |
+| `fft_update_widget` | no (overwrites) | Pass `changes` (a merge patch) or `replace` (a whole spec). Refuses changes that would make the spec invalid. A new view type drops the old view's options it does not have, listed in `dropped`. |
 | `fft_delete_widget` | no (destructive) | Removes the widget's file. |
 | `fft_list_dashboards` | yes | Every dashboard: id, title, number of cells, filter fields. |
 | `fft_get_dashboard` | yes | One dashboard's spec, its validation issues, and any widget ids it names that do not exist. |
@@ -83,7 +83,7 @@ A server linked to one widget offers `fft_get_widget`, `fft_get_widget_data`, `f
 
 Merge patch rules for `changes` and forks: objects merge key by key, lists replace, `null` removes a key.
 
-Create and update return `{ created | updated, spec, warnings }`. Warnings flag likely mistakes, for example an option the view does not have (left over from the widget it was forked from), a view field the rows do not have, or the data failing to load.
+Create and update return `{ created | updated, spec, warnings }`, plus `dropped` when a new view type removed options: changing the type keeps the options both views have and drops the rest (for example `["view.label", "view.value"]` going from `hbar` to `bar`). Warnings flag likely mistakes, for example an option the view does not have (one you set yourself; left-over ones are dropped), a view field the rows do not have, or the data failing to load.
 
 Responses stay under 25,000 characters by returning fewer rows; `next_offset` then points at the first row left out.
 
@@ -92,7 +92,7 @@ Responses stay under 25,000 characters by returning fewer rows; `next_offset` th
 ```jsonc
 // Same data, drawn as a table
 { "name": "fft_create_widget", "arguments": { "id": "regions-table", "from": "revenue-by-region",
-  "spec": { "title": "Regions as a table", "view": { "type": "table", "x": null, "y": null, "highlight": null, "reference": null } } } }
+  "spec": { "title": "Regions as a table", "view": { "type": "table" } } } }
 
 // Only the top 3 regions
 { "name": "fft_update_widget", "arguments": { "id": "revenue-by-region",

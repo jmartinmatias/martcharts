@@ -50,7 +50,7 @@ export type { Question, QuestionKind } from "./question.ts";
 export { fillTemplate, hasTemplate, templateFields, templateRefs } from "./template.ts";
 export { applyTransforms, runPipeline } from "./pipeline.ts";
 export { fieldLabel, formatNode, formatValue, humanize } from "./display.ts";
-export { FACET_OPTIONS, hasErrors, validateSpec } from "./validate.ts";
+export { FACET_OPTIONS, forkWidget, hasErrors, validateSpec } from "./validate.ts";
 export { ICON_NAMES, ICONS } from "./icons.ts";
 export {
   blockTypes,

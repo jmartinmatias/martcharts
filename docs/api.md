@@ -2,7 +2,7 @@
 
 - [The spec](#the-spec)
 - [Drawing widgets](#drawing-widgets): `createWidget`, `<fft-widget>`, events
-- [Working with specs](#working-with-specs): `fork`, `baseWidget`, `validateSpec`, `runPipeline`, `formatValue`
+- [Working with specs](#working-with-specs): `fork`, `forkWidget`, `baseWidget`, `validateSpec`, `runPipeline`, `formatValue`
 - [Dashboards](#dashboards): a grid of widgets with one filter row
 - [Styling](#styling), [style presets](#style-presets) and [palettes](#palettes)
 - [Extending](#extending): new sources, transforms, formats and views
@@ -253,6 +253,14 @@ Neither input is modified, and the result shares no objects with them.
 
 ```ts
 const bars = fork(table, { view: { type: "bar", x: "region", y: ["revenue", "cost"], columns: null } });
+```
+
+### `forkWidget(base, override) => { spec, dropped }`
+
+`fork` for one widget override, plus one rule for a new view type: each option the old view leaves behind is removed when the new view does not have it or rejects its value, and named in `dropped`. Options the override sets are kept. The MCP server's update and create tools and the playground's view picker use it.
+
+```ts
+forkWidget(hbarSpec, { view: { type: "bar", x: "region", y: "revenue" } }).dropped; // ["label", "value"]
 ```
 
 ### `baseWidget`

@@ -3,8 +3,8 @@
  * for editing specs live. Edits to widgets/*.json (by hand or through the MCP
  * server) reload here automatically.
  */
-import { baseWidget, createDashboard, createPalettePicker, createWidget, describeBlocks, describePresets, fork, getPalette, resolvePalette, suggestView, validateSpec } from "../src/index.ts";
-import type { DashboardSpec, Issue, Row, SelectDetail, ViewSpec, WidgetSpec } from "../src/index.ts";
+import { baseWidget, createDashboard, createPalettePicker, createWidget, describeBlocks, describePresets, fork, forkWidget, getPalette, resolvePalette, suggestView, validateSpec } from "../src/index.ts";
+import type { DashboardSpec, Issue, SelectDetail, WidgetSpec } from "../src/index.ts";
 
 const stored = import.meta.glob<WidgetSpec>("../widgets/*.json", { eager: true, import: "default" });
 const boards = import.meta.glob<DashboardSpec>("../dashboards/*.json", { eager: true, import: "default" });
@@ -308,18 +308,10 @@ textarea.addEventListener("input", () => {
 
 pick.addEventListener("change", () => load(choices[Number(pick.value)] ?? vanilla));
 
-/**
- * A view of `type` filled from the data by suggestView (numbers for amounts,
- * text for categories, dates for periods), with every other view's options
- * cleared, so switching type never needs hand edits.
- */
-function viewFor(type: string, rows: Row[]): ViewSpec {
-  const cleared: ViewSpec = { type };
-  for (const block of describeBlocks("view")) for (const name of Object.keys(block.options)) cleared[name] = null;
-  return { ...cleared, ...suggestView(type, rows) };
-}
-
-viewPick.addEventListener("change", () => void apply(fork(current, { view: viewFor(viewPick.value, preview.rows) })));
+// A view of `type` filled from the data by suggestView (numbers for amounts, text for categories,
+// dates for periods). forkWidget keeps the old options the new view also reads and drops the rest,
+// the same rule as fft_update_widget, so switching type never needs hand edits.
+viewPick.addEventListener("change", () => void apply(forkWidget(current, { view: suggestView(viewPick.value, preview.rows) }).spec));
 stylePick.addEventListener("change", () => setStyle({ preset: stylePick.value === "default" ? null : stylePick.value }));
 $("#reset-style").addEventListener("click", () => {
   if (scope === "all") {

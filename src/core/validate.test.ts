@@ -1,8 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, test } from "vitest";
 import { baseWidget } from "./base.ts";
-import { fork } from "./fork.ts";
-import { hasErrors, validateSpec } from "./validate.ts";
+import { forkWidget, hasErrors, validateSpec } from "./validate.ts";
 import type { WidgetSpec } from "./types.ts";
 
 const good: WidgetSpec = {
@@ -348,7 +347,11 @@ describe("options a block does not have", () => {
     const source = JSON.parse(readFileSync("widgets/revenue-by-region.json", "utf8")) as WidgetSpec;
     const tool = readFileSync("src/mcp/server.ts", "utf8").match(/Same data as a table: (\{.*\})$/m)![1]!;
     const doc = readFileSync("docs/mcp.md", "utf8").match(/"view": (\{ "type": "table".*?\}) \}/)![1]!;
-    for (const view of [JSON.parse(tool).spec.view, JSON.parse(doc)]) expect(validateSpec(fork(source, { view }))).toEqual([]);
+    for (const view of [JSON.parse(tool).spec.view, JSON.parse(doc)]) {
+      const { spec, dropped } = forkWidget(source, { view });
+      expect(validateSpec(spec)).toEqual([]);
+      expect(dropped).toEqual(["x", "y", "highlight", "reference"]);
+    }
   });
 
   test("a block's own checks still run beside the warning", () => {
