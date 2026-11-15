@@ -83,7 +83,7 @@ A server linked to one widget offers `fft_get_widget`, `fft_get_widget_data`, `f
 
 Merge patch rules for `changes` and forks: objects merge key by key, lists replace, `null` removes a key.
 
-Create and update return `{ created | updated, spec, warnings }`. Warnings come from loading the data, for example a view field the rows do not have, or the data failing to load.
+Create and update return `{ created | updated, spec, warnings }`. Warnings flag likely mistakes, for example an option the view does not have (left over from the widget it was forked from), a view field the rows do not have, or the data failing to load.
 
 Responses stay under 25,000 characters by returning fewer rows; `next_offset` then points at the first row left out.
 
@@ -92,7 +92,7 @@ Responses stay under 25,000 characters by returning fewer rows; `next_offset` th
 ```jsonc
 // Same data, drawn as a table
 { "name": "fft_create_widget", "arguments": { "id": "regions-table", "from": "revenue-by-region",
-  "spec": { "title": "Regions as a table", "view": { "type": "table", "x": null, "y": null } } } }
+  "spec": { "title": "Regions as a table", "view": { "type": "table", "x": null, "y": null, "highlight": null, "reference": null } } } }
 
 // Only the top 3 regions
 { "name": "fft_update_widget", "arguments": { "id": "revenue-by-region",

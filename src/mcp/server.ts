@@ -331,7 +331,7 @@ The spec is validated first; nothing is saved if it has errors. Warnings (for ex
 Title, subtitle, footer and headline.caption accept templates filled from the drawn rows: {first:field}, {last:field}, {sum:field}, {avg:field}, {min:field}, {max:field}, {count}. Example subtitle: "{first:month} to {last:month}".
 
 Examples:
-  - Same data as a table: {"id": "sales-table", "from": "revenue-by-region", "spec": {"view": {"type": "table", "x": null, "y": null}}}
+  - Same data as a table: {"id": "sales-table", "from": "revenue-by-region", "spec": {"view": {"type": "table", "x": null, "y": null, "highlight": null, "reference": null}}}
   - New KPI: {"id": "orders-kpi", "spec": {"title": "Orders", "data": {"type": "inline", "rows": [{"orders": 120, "previous": 100}]}, "view": {"type": "kpi", "value": "orders", "compare": "previous"}}}`,
         inputSchema: z.strictObject({
           id: IdSchema.describe('Id for the new widget, for example "orders-kpi". Becomes widgets/<id>.json.'),
